@@ -1,17 +1,21 @@
-<header class="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
-    <div class="flex items-center space-x-3 w-1/2">
-        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1111 5a6 6 0 016 6z" />
-        </svg>
-        <input type="text" placeholder="Rechercher..." class="w-full border-none outline-none text-gray-700 placeholder-gray-400">
+<header class="flex items-center justify-between px-6 py-3 bg-white border-b">
+    <div class="flex items-center w-full max-w-2xl">
+        <div class="relative w-full">
+            <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </span>
+            <input type="text" placeholder="Search..." 
+                class="w-full pl-10 pr-4 py-2 border rounded-lg bg-gray-50 focus:ring-0 focus:border-blue-300 text-sm" />
+        </div>
     </div>
 
-    <div class="flex items-center space-x-4">
-        <button class="p-2 rounded-lg hover:bg-gray-100">
-            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10m-11 5h12m-7 4h6" />
-            </svg>
+    <div class="flex items-center gap-4 ml-6">
+        <button class="p-2 rounded-md hover:bg-gray-100">
+            <i class="fa-solid fa-ellipsis-vertical text-gray-500"></i>
         </button>
-        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">+ Nouvelle Facture</button>
+
+        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
+            + New Invoice
+        </button>
     </div>
 </header>

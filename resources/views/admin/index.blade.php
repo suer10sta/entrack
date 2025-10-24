@@ -9,7 +9,6 @@
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
     <x-dashboard.sidebar />
-
     <div class="flex flex-col flex-1 overflow-y-auto">
         {{-- Navbar --}}
         <x-dashboard.navbar />

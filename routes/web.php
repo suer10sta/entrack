@@ -38,6 +38,12 @@ Route::get('/', function () {
     return view('welcome');
 })->name("welcome");
 
+Route::get('/contact', function () {
+    return view('contact');
+})->name('contact');
+
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+
 Route::get('/dashboard', function () {
     if (auth()->check() && auth()->user()->hasRole('Admin')) {
         return redirect()->route('admin.index');
