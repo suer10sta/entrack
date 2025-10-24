@@ -49,4 +49,19 @@ class Employees extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function teams()
+    {
+        return $this->belongsToMany(Teams::class, 'team_members', 'employee_id', 'team_id');
+    }
+
+    public function activeTaskTimer()
+    {
+        return $this->hasOne(tasks_timer::class, 'employee_id')->where('paused', 0);
+    }
+
+    public function timers()
+    {
+        return $this->hasMany(tasks_timer::class, 'employee_id');
+    }
 }

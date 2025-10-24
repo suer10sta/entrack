@@ -1,5 +1,5 @@
 {{-- resources/views/contact.blade.php --}}
-<x-navbar />
+<x-dashboard.navbar />
 
 <main class="min-h-screen bg-background">
   <div class="container px-6 py-20">
@@ -95,4 +95,4 @@
   </div>
 </main>
 
-<x-footer />
+<x-Home_page.footer />

@@ -30,4 +30,14 @@ class tasks_timer extends Model
     {
         return $this->belongsTo(Project::class, 'project_id');
     }
+
+    public function task()
+    {
+        return $this->belongsTo(Tasks::class, 'task_id');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employees::class, 'employee_id');
+    }
 }

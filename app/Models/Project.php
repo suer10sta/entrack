@@ -20,6 +20,22 @@ class Project extends Model
         'client_id',
         'entreprise_id',
         'estimated_hours',
-        'archived'
+        'archived',
+        'tva'
     ];
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    public function teams()
+    {
+        return $this->belongsToMany(Teams::class, 'project_teams', 'project_id', 'team_id');
+    }
+
+    public function timers()
+    {
+        return $this->hasMany(tasks_timer::class, 'project_id');
+    }
 }
