@@ -1,9 +1,10 @@
 {{-- resources/views/components/hero-section.blade.php --}}
 @php
-    $theme = session('theme', 'teal');
+    $theme = session('theme', 'blue');
 @endphp
 
-<section class="relative overflow-hidden
+{{-- MODIFICATION : L'espace en haut (padding-top) a été réduit --}}
+<section class="relative overflow-hidden pt-12 pb-24 lg:pt-16 lg:pb-32
     @if($theme === 'blue') 
         bg-gradient-to-b from-primary/5 to-background
     @else
@@ -22,12 +23,12 @@
     @endif
 
     {{-- Content --}}
-    <div class="container relative z-20 px-6 py-24 lg:py-32">
+    <div class="container relative z-20 px-6">
         <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
 
             {{-- Left Column --}}
             <div class="space-y-8 animate-fade-in-left" data-visible="true">
-                {{-- Theme-based Badge --}}
+                {{-- Theme-based Badge (Correspond à l'image) --}}
                 @if($theme === 'blue')
                     <div class="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-all duration-300 hover:scale-105 hover:border-primary/40 hover:bg-primary/20">
                         <span class="relative flex h-2 w-2">
@@ -38,7 +39,7 @@
                     </div>
                 @endif
 
-                {{-- Heading & Subtext --}}
+                {{-- Heading & Subtext (Correspond à l'image) --}}
                 <h1 class="text-balance text-5xl font-bold leading-tight lg:text-6xl xl:text-7xl
                     @if($theme === 'blue') text-foreground @else text-white @endif">
                     @if($theme === 'blue')
@@ -73,9 +74,9 @@
                         </svg>
                     </a>
 
-                    <button class="inline-flex items-center justify-center gap-2 rounded-lg border-2 px-8 py-4 text-base font-semibold transition-all duration-300 shadow-lg
+                    <button class="inline-flex items-center justify-center gap-2 rounded-lg px-8 py-4 text-base font-semibold transition-all duration-300 shadow-lg
                         @if($theme === 'blue')
-                            border-border bg-background text-foreground hover:border-primary hover:bg-secondary
+                            bg-card text-foreground hover:bg-secondary
                         @else
                             border-white bg-transparent text-white hover:bg-white hover:text-primary
                         @endif
@@ -84,29 +85,7 @@
                     </button>
                 </div>
 
-                {{-- Stats --}}
-                <div class="flex flex-wrap gap-8 pt-4 @if($theme === 'blue') border-t border-border pt-8 @endif">
-                    <div class="transition-transform duration-300 hover:scale-110">
-                        <div class="text-3xl font-bold @if($theme === 'blue') text-foreground @else text-white @endif">
-                            @if($theme === 'blue') 2,500+ @else 500+ @endif
-                        </div>
-                        <div class="text-sm @if($theme === 'blue') text-muted-foreground @else text-white/80 @endif">
-                            @if($theme === 'blue') Active Companies @else Companies @endif
-                        </div>
-                    </div>
-                    <div class="transition-transform duration-300 hover:scale-110">
-                        <div class="text-3xl font-bold @if($theme === 'blue') text-foreground @else text-white @endif">
-                            @if($theme === 'blue') 98% @else 50K+ @endif
-                        </div>
-                        <div class="text-sm @if($theme === 'blue') text-muted-foreground @else text-white/80 @endif">
-                            @if($theme === 'blue') Satisfaction Rate @else Invoices Created @endif
-                        </div>
-                    </div>
-                    <div class="transition-transform duration-300 hover:scale-110">
-                        <div class="text-3xl font-bold @if($theme === 'blue') text-foreground @else text-white @endif">24/7</div>
-                        <div class="text-sm @if($theme === 'blue') text-muted-foreground @else text-white/80 @endif">Support Available</div>
-                    </div>
-                </div>
+                {{-- Section Stats supprimée --}}
             </div>
 
             {{-- Right Column (Visuals) --}}
@@ -115,9 +94,8 @@
                     @if($theme === 'blue')
                         <div class="absolute -left-4 -top-4 h-72 w-72 rounded-full bg-primary/10 blur-3xl"></div>
                         <div class="absolute -bottom-4 -right-4 h-72 w-72 rounded-full bg-accent/10 blur-3xl"></div>
-                        {{-- Example cards for blue theme --}}
+                        
                         <div class="relative space-y-4">
-                            <!-- Card 1 -->
                             <div class="hover-lift rounded-2xl border border-border bg-card p-6 shadow-xl">
                                 <div class="mb-4 flex items-center justify-between">
                                     <div class="text-sm font-medium text-muted-foreground">Monthly Revenue</div>
@@ -128,6 +106,32 @@
                                     <div class="animate-progress h-2 w-3/4 rounded-full bg-primary"></div>
                                 </div>
                             </div>
+                            
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                
+                                <div class="hover-lift rounded-2xl border border-border bg-card p-6 shadow-xl">
+                                    {{-- MODIFICATION : Icône SVG (Heroicons) pour "Clients" --}}
+                                    <div class="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6M9 10.5h6M9 14.25h6M9 18h6" />
+                                        </svg>
+                                    </div>
+                                    <div class="mt-4 text-3xl font-bold text-foreground">156</div>
+                                    <div class="text-sm font-medium text-muted-foreground">Active Clients</div>
+                                </div>
+                                
+                                <div class="hover-lift rounded-2xl border border-border bg-card p-6 shadow-xl">
+                                    {{-- MODIFICATION : Icône SVG (Heroicons) pour "Factures" --}}
+                                    <div class="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A3.375 3.375 0 0 0 11.25 8.25v2.625m9 0v-4.125c0-.621-.504-1.125-1.125-1.125H11.25c-.621 0-1.125.504-1.125 1.125v4.125m9 0a2.25 2.25 0 0 1-2.25 2.25h-1.5a2.25 2.25 0 0 1-2.25-2.25m3.75 0v.007c0 .014-.002.028-.005.042l-.006.018-.01.028-.015.041-.02.05-.026.06a.744.744 0 0 1-.039.079l-.045.085-.05.088a.752.752 0 0 1-.06.102l-.062.102c-.03.048-.062.092-.096.132l-.098.115-.102.112a.75.75 0 0 1-.112.108l-.113.103-.115.1-.118.093-.12.083-.123.078-.125.07-.128.06-.13.052-.133.044-.135.035-.138.026-.14.016-.143.007-.145-.001H12.75a.75.75 0 0 1-.75-.75V6.375c0-.621.504-1.125 1.125-1.125h6.75c.621 0 1.125.504 1.125 1.125v6.375m-6.375 4.125a.75.75 0 0 1-.75-.75V11.25a.75.75 0 0 1 .75-.75h3.75a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-.75.75h-3.75Z" />
+                                        </svg>
+                                    </div>
+                                    <div class="mt-4 text-3xl font-bold text-foreground">89</div>
+                                    <div class="text-sm font-medium text-muted-foreground">Invoices This Month</div>
+                                </div>
+                            </div>
+
                         </div>
                     @else
                         {{-- Non-blue theme visuals --}}

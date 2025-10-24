@@ -6,26 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <link rel="apple-touch-icon" sizes="76x76" href="../../../assets/img/apple-icon.png" />
     <link rel="icon" type="image/png" href="../../../assets/img/favicon.png" />
-    <title>Entreprise Tracker Pro </title>
+    <title>Entreprise Tracker Pro</title>
 
-    <link rel="canonical" href="https://www.creative-tim.com/product/argon-dashboard-pro" />
-
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
-
-    <link href="./css/nucleo-icons.css" rel="stylesheet" />
-    <link href="./css/nucleo-svg.css" rel="stylesheet" />
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
-    <link href="./css/nucleo-svg.css" rel="stylesheet" />
 
-    <link id="pagestyle" href="./css/argon-dashboard.min.css?v=2.0.5" rel="stylesheet" />
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
         .async-hide {
             opacity: 0 !important;
         }
     </style>
-    
     <script>
         (function (a, s, y, n, c, h, i, d, e) {
             s.className += " " + y;
@@ -43,7 +37,6 @@
             "GTM-K9BGS8K": true,
         });
     </script>
-
     <script>
         (function (i, s, o, g, r, a, m) {
             i["GoogleAnalyticsObject"] = r;
@@ -73,7 +66,6 @@
         ga("require", "linker");
         ga("linker:autoLink", ["2checkout.com", "avangate.com"]);
     </script>
-
     <script>
         (function (w, d, s, l, i) {
             w[l] = w[l] || [];
@@ -91,158 +83,86 @@
     </script>
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-background text-foreground font-sans antialiased">
+
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
             style="display: none; visibility: hidden"></iframe></noscript>
 
-            <nav class="navbar navbar-expand-lg position-absolute top-0 z-index-3 w-100 shadow-none my-3 navbar-transparent mt-4">
-                <div class="container ps-2 pe-0">
-                    <a
-                        class="navbar-brand font-weight-bolder ms-lg-0 ms-3 text-white"
-                        href="{{ route('welcome') }}"
-                    >
-                        Entreprise Tracker Pro
-                    </a>
-                </div>
-            </nav>
+    <main class="min-h-screen flex items-center justify-center p-4">
 
-    <main class="main-content mt-0">
-        <div class="page-header align-items-start min-vh-50 pt-7 pb-9 m-3 border-radius-lg" style="
-          background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-cover.jpg');
-        ">
-            <span class="mask bg-gradient-dark opacity-6"></span>
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-5 text-center mx-auto">
-                        <h1 class="text-white mb-2 mt-5">Welcome!</h1>
-                        <p class="text-lead text-white">
-                            Unlock Efficiency with Your Enterprise Tracker: Streamline Resource Management in a Single Click!
-                        </p>
+        <div class="w-full max-w-md bg-card p-8 rounded-xl shadow-lg">
+
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary mb-4 shadow-md">
+                    {{-- L'icône est maintenant explicitement blanche --}}
+                    <i class="fas fa-file-lines text-2xl text-white"></i> 
+                </div>
+                <h1 class="text-2xl font-bold text-foreground mb-1">Sign In</h1>
+                <p class="text-sm text-muted">Access your management dashboard</p>
+            </div>
+
+            @if(session('error'))
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md relative mb-4" role="alert">
+                <span>{{ session('error') }}</span>
+            </div>
+            @endif
+            @if(session('message'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-md relative mb-4" role="alert">
+                <span>{{ session('message') }}</span>
+            </div>
+            @endif
+
+            <form method="POST" action="{{ route('login') }}" class="space-y-4">
+                @csrf
+
+                <div>
+                    <label for="email" class="block text-sm font-medium text-foreground mb-1">Email Address</label>
+                    <input type="email" name="email" id="email" 
+                           class="w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary placeholder:text-muted-foreground"
+                           placeholder="name@company.com" value="{{ old('email') }}" required />
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label for="password" class="block text-sm font-medium text-foreground">Password</label>
+                        <a href="{{route('password.request')}}" class="text-sm text-primary hover:underline">Forgot?</a>
                     </div>
+                    <input type="password" name="password" id="password" 
+                           class="w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary placeholder:text-muted-foreground"
+                           placeholder="********" required />
+                </div>
+
+                <button type="submit"
+                        class="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md font-semibold shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="relative my-6">
+                <div class="absolute inset-0 flex items-center">
+                    <span class="w-full border-t border-border"></span>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="bg-card px-2 text-muted">OR</span>
                 </div>
             </div>
-        </div>
-        <div class="container">
-            <div class="row mt-lg-n10 mt-md-n11 mt-n10 justify-content-center">
-                <div class="col-xl-4 col-lg-5 col-md-7 mx-auto">
-                    <div class="card mt-5">
-                        <div class="card-header pb-0 text-start">
-                            <h3 class="font-weight-bolder">Welcome back</h3>
-                            @if(session('error'))
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    {{ session('error') }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
-                                </div>
-                            @endif
-                            @if(session('message'))
-                                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                    {{ session('message') }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
-                                </div>
-                            @endif
-                        </div>
-                        <div class="card-body">
-                            <form method="POST" action="{{ route('login') }}" role="form" class="text-start">
-                                @csrf
-                                <label for="email">Email</label>
-                                <div class="mb-3">
-                                    <input type="email" name="email" id="email" class="form-control" placeholder="Email"
-                                        aria-label="Email" value="{{ old('email') }}" required />
-                                </div>
 
-                                <label for="password">Password</label>
-                                <div class="mb-3">
-                                    <input type="password" name="password" id="password" class="form-control"
-                                        placeholder="Password" aria-label="Password" required />
-                                </div>
-
-                                <div class="form-check form-switch">
-                                    <a href="{{route('password.request')}}">I forgot my password</a>
-                                </div>
-
-                                <div class="text-center">
-                                    <button type="submit" class="btn btn-primary w-100 mt-4 mb-0">
-                                        Sign in
-                                    </button>
-                                </div>
-                            </form>
-
-
-                        </div>
-                        <div class="card-footer text-center pt-0 px-lg-2 px-1">
-                            <p class="mb-4 text-sm mx-auto">
-                                Don't have an account?
-                                <a href="{{ route('register') }}" class="text-primary font-weight-bold">Sign up</a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            <div class="space-y-3">
+                <a href="#" class="w-full flex items-center justify-center py-2 px-4 rounded-md border border-border bg-card text-foreground font-medium hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    <i class="fab fa-google mr-2"></i>
+                    Continue with Google
+                </a>
+                
             </div>
+
+            <p class="text-sm text-center text-muted mt-6">
+                Don't have an account?
+                <a href="{{ route('register') }}" class="font-medium text-primary hover:underline">Create account</a>
+            </p>
+
         </div>
     </main>
-
-   
-    <script src="./js/core/popper.min.js"></script>
-    <script src="./js/core/bootstrap.min.js"></script>
-    <script src="./js/plugins/perfect-scrollbar.min.js"></script>
-    <script src="./js/plugins/smooth-scrollbar.min.js"></script>
-
-    <script src="./js/plugins/dragula/dragula.min.js"></script>
-    <script src="./js/plugins/jkanban/jkanban.js"></script>
-    <script>
-        var win = navigator.platform.indexOf("Win") > -1;
-        if (win && document.querySelector("#sidenav-scrollbar")) {
-            var options = {
-                damping: "0.5",
-            };
-            Scrollbar.init(document.querySelector("#sidenav-scrollbar"), options);
-        }
-    </script>
-
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
-
-    <script src="./js/argon-dashboard.min.js?v=2.0.5"></script>
-    <script defer
-        src="https://static.cloudflareinsights.com/beacon.min.js/v84a3a4012de94ce1a686ba8c167c359c1696973893317"
-        integrity="sha512-euoFGowhlaLqXsPWQ48qSkBSCFs3DPRyiwVu3FjR96cMPx+Fr+gpWRhIafcHwqwCqWS42RZhIudOvEI+Ckf6MA=="
-        data-cf-beacon='{"rayId":"8556100b49f46930","version":"2024.2.1","token":"1b7cbb72744b40c580f8633c6b62637e"}'
-        crossorigin="anonymous"></script>
-
-        <script>
-        // Function to close the banner
-        function closeBanner() {
-            var closeButton = document.querySelector('#close-bar');
-            if (closeButton) {
-                closeButton.click();
-            }
-        }
-
-        // Function to close AI card popup
-        function closeAICard() {
-            var closeButton = document.querySelector('#close-ai-card');
-            if (closeButton) {
-                closeButton.click();
-            }
-        }
-
-        // Call the functions on page load
-        window.onload = function() {
-            closeBanner();
-            closeAICard();
-        };
-
-        // Set up an observer to watch for the popup appearing
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.addedNodes.length) {
-                    closeAICard();
-                }
-            });
-        });
-
-        // Start observing the document with the configured parameters
-        observer.observe(document.body, { childList: true, subtree: true });
-    </script>
-</body>
+    
+    </body>
 
 </html>
