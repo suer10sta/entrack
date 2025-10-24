@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+
+@include('dashboard_layouts.head')
+<style>
+  a {
+    color: blue;
+}
+th {
+    font-size: 14px !important; 
+}
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+.text-primary {
+    color: #5e72e4 !important;
+}
+.fw-bold {
+    font-weight: 600 !important;
+}
+.text-sm{
+    color: #332f2f;
+}
+</style>
+<body class="g-sidenav-show bg-gray-100">
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
+      style="display: none; visibility: hidden"></iframe></noscript>
+  <div class="min-height-300 bg-primary position-absolute w-100"></div>
+
+    @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+        @include('employees.sidebar')
+    @endif
+    @if(Auth::user()->hasRole('Admin'))
+        @include('admin.sidebar')
+    @endif
+
+  <main class="main-content position-relative border-radius-lg">
+    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
+      id="navbarBlur" data-scroll="false">
+      <div class="container-fluid py-1 px-3">
+
+        @include('dashboard_layouts.navbar')
+
+      </div>
+
+      <div class="container-fluid py-4">
+
+        <div class="row mt-3">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header p-3 pb-0">
+                <div class="d-flex justify-content-between">
+                    <h6>Projects Table</h6>
+                    @if(Auth::user()->hasRole('Admin'))
+                        <div>
+                            <a type="button" class="btn btn-primary" href="{{route('admin.Projectsrepports.downloadRepports')}}">Projects Reports PDF</a>
+                            <a type="button" class="btn btn-primary" href="{{route('admin.projectsArchived.archiveIndex')}}">Vew Archive</a>
+                        </div>
+                    @endif
+                    @if(Auth::user()->hasRole('Responsable de projet'))
+                        <div>
+                            <a type="button" class="btn btn-primary" href="{{route('Responsable_de_projet.Projectsrepports.downloadRepports')}}">Projects Reports PDF</a>
+                            <a type="button" class="btn btn-primary" href="{{route('Responsable_de_projet.projectsArchived.archiveIndex')}}">Vew Archive</a>
+                        </div>
+                    @endif
+                    @if(Auth::user()->hasRole('Employee'))
+                        <div>
+                            <a type="button" class="btn btn-primary" href="{{route('employee.Projectsrepports.downloadRepports')}}">Projects Reports PDF</a>
+                            <a type="button" class="btn btn-primary" href="{{route('employee.projectsArchived.archiveIndex')}}">Vew Archive</a>
+                        </div>
+                    @endif
+                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                        <div>
+                            <a type="button" class="btn btn-primary" href="{{route('Responsable_gestionnaire.Projectsrepports.downloadRepports')}}">Projects Reports PDF</a>
+                            <a type="button" class="btn btn-primary" href="{{route('Responsable_gestionnaire.projectsArchived.archiveIndex')}}">Vew Archive</a>
+                        </div>
+                    @endif
+                </div>
+                <div class="d-flex justify-content-between mt-3 mb-4">
+                    <div>
+                        <label for="">
+                                Filter by Project
+                        </label>
+                        <select id="projectFilter" class="form-select">
+                            <option value="">All Projects</option>
+                            @foreach($projects as $project)
+                                <option value="{{ $project->name }}">{{ $project->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="ms-auto">
+                        <label for="">
+                            Filter by Name
+                        </label>
+                        <input type="text" id="nameFilter" class="form-control" placeholder="Filter by Name">
+                    </div>
+                </div>
+                  @if(session('message'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('message') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
+                    </div>
+                  @endif
+              </div>
+
+              
+    
+        <div class="card-body">
+            <div class="table-responsive" style="overflow: visible;">
+                <table class="table align-items-center mb-0" id="projectsTable">
+                    <thead>
+                        <tr>
+                            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10">
+                                Project
+                            </th>
+                            @if(Auth::user()->hasRole('Admin'))
+                                <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
+                                    Budget
+                                </th>
+                                <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
+                                    CPH
+                                </th>
+                                <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
+                                    Duration
+                                </th>
+                                <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
+                                    Estimated Hours
+                                </th>
+                                <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
+                                    Difference
+                                </th>
+                                <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
+                                    Progress
+                                </th>
+                            @endif
+                            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
+                                TVA
+                            </th>
+                            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
+                                Teams
+                            </th>
+                            @can('Delete project')
+                                <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"></th>
+                            @endcan
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $groupedProjects = $projects->groupBy('client_id');
+                        @endphp
+                        
+                        @foreach($groupedProjects as $clientId => $clientProjects)
+                            @php
+                                $client = App\Models\Client::find($clientId);
+                            @endphp
+                            <tr class="bg-light">
+                                <td colspan="10" class="font-weight-bold" style="background-color: lightgray !important;">
+                                    @if(Auth::user()->hasRole('Admin'))
+                                        @if(Auth::user()->can('View client'))
+                                            <a href="{{route('admin.clients.show', $clientId)}}" class="text-primary">
+                                                <strong style="color: black !important;">{{$client->name}}</strong>
+                                            </a>
+                                        @else
+                                            <strong>{{$client->name}}</strong>
+                                        @endif
+                                    @elseif(Auth::user()->hasRole('Responsable de projet'))
+                                        @if(Auth::user()->can('View client'))
+                                            <a href="{{route('Responsable_de_projet.clients.show', $clientId)}}" class="text-primary">
+                                                <strong>{{$client->name}}</strong>
+                                            </a>
+                                        @else
+                                            <strong>{{$client->name}}</strong>
+                                        @endif
+                                    @elseif(Auth::user()->hasRole('Employee'))
+                                        @if(Auth::user()->can('View client'))
+                                            <a href="{{route('employee.clients.show', $clientId)}}" class="text-primary">
+                                                <strong>{{$client->name}}</strong>
+                                            </a>
+                                        @else
+                                            <strong>{{$client->name}}</strong>
+                                        @endif
+                                    @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                                        @if(Auth::user()->can('View client'))
+                                            <a href="{{route('Responsable_gestionnaire.clients.show', $clientId)}}" class="text-primary">
+                                                <strong>{{$client->name}}</strong>
+                                            </a>
+                                        @else
+                                            <strong>{{$client->name}}</strong>
+                                        @endif
+                                    @endif
+                                </td>
+                            </tr>
+                            @foreach($clientProjects as $project)
+                                <tr>
+                                    <td class="editable ps-4" data-id="{{$project->id}}" data-column="name">
+                                        <div class="d-flex px-2">
+                                            <div class="my-auto">
+                                            @if(Auth::user()->hasRole('Responsable de projet'))
+                                                @if(Auth::user()->can('View project'))
+                                                    <a href="{{route('Responsable_de_projet.projects.show',$project->id)}}">
+                                                        <h6 class="mb-0 text-sm" style="color: blue !important;"><b>{{strtoupper($project->name)}}</b></h6>
+                                                    </a>
+                                                @else
+                                                    <h6 class="mb-0 text-sm"><b>{{strtoupper($project->name)}}</b></h6>
+                                                @endif
+                                            @endif
+                                            @if(Auth::user()->hasRole('Admin'))
+                                                @if(Auth::user()->can('View project'))
+                                                    <a href="{{route('admin.projects.show',$project->id)}}">
+                                                        <h6 class="mb-0 text-sm" style="color: blue !important;"><b>{{strtoupper($project->name)}}</b></h6>
+                                                    </a>
+                                                    @else
+                                                    <h6 class="mb-0 text-sm" style="color: blue !important;"><b>{{strtoupper($project->name)}}</b></h6>
+                                                @endif
+                                            @endif
+                                            @if(Auth::user()->hasRole('Employee'))
+                                                @if(Auth::user()->can('View project'))
+                                                    <a href="{{route('employee.projects.show',$project->id)}}">
+                                                        <h6 class="mb-0 text-sm" style="color: blue !important;"><b>{{strtoupper($project->name)}}</b></h6>
+                                                    </a>
+                                                @else
+                                                    <h6 class="mb-0 text-sm"><b>{{strtoupper($project->name)}}</b></h6>
+                                                @endif
+                                            @endif
+                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                                                @if(Auth::user()->can('View project'))
+                                                    <a href="{{route('Responsable_gestionnaire.projects.show',$project->id)}}">
+                                                        <h6 class="mb-0 text-sm" style="color: blue !important;"><b>{{strtoupper($project->name)}}</b></h6>
+                                                    </a>
+                                                @else
+                                                    <h6 class="mb-0 text-sm" style="color: blue !important;"><b>{{strtoupper($project->name)}}</b></h6>
+                                                @endif
+                                            @endif
+                                                
+                                            </div>
+                                        </div>
+                                    </td>
+                                    @if(Auth::user()->hasRole('Admin'))
+                                        <td class="editable" data-id="{{$project->id}}" data-column="budget">
+
+                                            <p class="text-sm font-weight-bold mb-0 text-success">
+                                            €{{$project->budget}}</p>
+                                        </td>
+                                        <td class="editable" data-id="{{$project->id}}" data-column="cost_per_hour">
+                                            <p class="text-sm font-weight-bold mb-0 text-success">
+                                            €{{$project->cost_per_hour}}</p>
+                                        </td>
+                                        @php 
+                                            $projecttasksId = App\Models\Tasks::where('project_id', $project->id)->pluck('id');
+                                            $totalduration = App\Models\tasks_timer::whereIn('task_id', $projecttasksId)->sum('duration');
+                                            $difference = $project->estimated_hours * 60 - $totalduration; // Convert estimated hours to minutes and subtract total duration
+                                            
+                                            $hours = floor(abs($totalduration) / 60);
+                                            $minutes = abs($totalduration) % 60;
+                                            
+                                            $diffhours = floor(abs($difference) / 60);
+                                            $diffminutes = abs($difference) % 60;
+
+                                            $estimatedMinutes = $project->estimated_hours * 60;
+                                            $progressPercentage = $estimatedMinutes > 0 ? ($totalduration / $estimatedMinutes) * 100 : 0;
+                                            $formattedProgressPercentage = number_format($progressPercentage, 2);
+                                        @endphp
+                                        <td class="" data-id="{{$project->id}}" data-column="">
+                                            <p class="text-sm font-weight-bold mb-0">{{$hours}}h:{{$minutes}}m</p>
+                                        </td>
+                                        <td class="editable" data-id="{{$project->id}}" data-column="estimated_hours">
+                                            <p class="text-sm font-weight-bold mb-0">{{$project->estimated_hours}}h</p>
+                                        </td>
+                                        <td class="" data-id="{{$project->id}}" data-column="">
+                                                @if($project->estimated_hours !== null)
+                                                    @if($difference > 0)
+                                                    <p class="text-sm font-weight-bold mb-0 text-success">
+                                                    +{{$diffhours}}h:{{$diffminutes}}m</span>
+                                                    @elseif($difference < 0)
+                                                    <p class="text-sm font-weight-bold mb-0 text-danger">
+                                                    -{{$diffhours}}h:{{$diffminutes}}m</p>
+                                                    @else
+                                                        <span style="color: blue;">{{$diffhours}}h:{{$diffminutes}}m</p>
+                                                    @endif
+                                                @endif
+                                            
+                                        </td>
+                                        <td class="" data-id="{{$project->id}}" data-column="">
+                                            <div class="progress" style="height: 12px; background-color: #e9ecef; border-radius: 0.25rem;">
+                                                <div class="progress-bar 
+                                                    @if($progressPercentage < 50) bg-success 
+                                                    @elseif($progressPercentage < 75) bg-warning 
+                                                    @else bg-danger 
+                                                    @endif" 
+                                                    role="progressbar" 
+                                                    style="width: {{$formattedProgressPercentage}}%; font-size: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; color: #fff; text-align: center; white-space: nowrap; transition: width 0.6s ease;" 
+                                                    aria-valuenow="{{$formattedProgressPercentage}}" 
+                                                    aria-valuemin="0" 
+                                                    aria-valuemax="100">
+                                                    {{$formattedProgressPercentage}}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                    @endif
+                                    <td class="editable" data-id="{{$project->id}}" data-column="tva">
+                                        <p class="text-sm font-weight-bold mb-0 text-success">
+                                            %{{$project->tva}}</p>
+                                    </td>
+                                    <td>
+                                        <p class="text-sm font-weight-bold mb-0">
+                                            @forEach(App\Models\project_teams::where('project_id', $project->id)->get() as $project_team)
+                                            @if(Auth::user()->hasRole('Admin'))
+                                                @if(Auth::user()->can('View team'))
+                                                <a href="{{route('admin.teams.index')}}">
+                                                    {{$project_team->team_name}}
+                                                </a>
+                                                @else
+                                                    {{$project_team->team_name}}
+                                                @endif
+                                            @endif
+                                            @if(Auth::user()->hasRole('Responsable de projet'))
+                                                @if(Auth::user()->can('View team'))
+                                                <a href="{{route('Responsable_de_projet.teams.index')}}">
+                                                    {{$project_team->team_name}}
+                                                </a>
+                                                @else
+                                                    {{$project_team->team_name}}
+                                                @endif
+                                            @endif
+                                            @if(Auth::user()->hasRole('Employee'))
+                                                @if(Auth::user()->can('View team'))
+                                                <a href="{{route('employee.teams.index')}}">
+                                                    {{$project_team->team_name}}
+                                                </a>
+                                                @else
+                                                    {{$project_team->team_name}}
+                                                @endif
+                                            @endif
+                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                                                @if(Auth::user()->can('View team'))
+                                                <a href="{{route('Responsable_gestionnaire.teams.index')}}">
+                                                    {{$project_team->team_name}}
+                                                </a>
+                                                @else
+                                                    {{$project_team->team_name}}
+                                                @endif
+                                            @endif
+                                            <br>
+                                            @endforEach
+                                        </p>
+                                    </td>
+                                    @if(Auth::user()->hasRole('Admin'))
+                                    @can('Delete project')
+                                        <td class="align-middle">
+                                            <form
+                                                action="{{ route('admin.projects.destroy', $project->id)}}"
+                                                method="post"
+                                                onsubmit="return confirm('Are you sure?');"
+                                                class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="btn btn-danger btn-xs p-2 mb-0">X</button>
+                                            </form>
+                                            <a href="{{route('admin.projects.edit', $project->id)}}" class="btn btn-info btn-xs p-2 mb-0">
+                                                edit
+                                            </a>
+                                            <form
+                                                action="{{ route('admin.projects.archive', $project->id)}}"
+                                                method="post"
+                                                onsubmit="return confirm('Are you sure?');"
+                                                class="d-inline">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="btn btn-secondary btn-xs p-2 mb-0">archive</button>
+                                            </form>
+                                        </td>
+                                    @endcan
+                                    @endif
+                                    @if(Auth::user()->hasRole('Responsable de projet'))
+                                    @can('Delete project')
+                                        <td class="align-middle">
+                                            <form
+                                                action="{{ route('Responsable_de_projet.projects.destroy', $project->id)}}"
+                                                method="post"
+                                                onsubmit="return confirm('Are you sure?');"
+                                                class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="btn btn-danger btn-xs p-2 mb-0">X</button>
+                                            </form>
+                                            <a href="{{route('Responsable_de_projet.projects.edit', $project->id)}}" class="btn btn-info btn-xs p-2 mb-0">
+                                                edit
+                                            </a>
+                                            <form
+                                                action="{{ route('Responsable_de_projet.projects.archive', $project->id)}}"
+                                                method="post"
+                                                onsubmit="return confirm('Are you sure?');"
+                                                class="d-inline">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="btn btn-secondary btn-xs p-2 mb-0">archive</button>
+                                            </form>
+                                        </td>
+                                    @endcan
+                                    @endif
+                                    @if(Auth::user()->hasRole('Employee'))
+                                    @can('Delete project')
+                                        <td class="align-middle">
+                                            <form
+                                                action="{{ route('employee.projects.destroy', $project->id)}}"
+                                                method="post"
+                                                onsubmit="return confirm('Are you sure?');"
+                                                class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="btn btn-danger btn-xs p-2 mb-0">X</button>
+                                            </form>
+                                            <a href="{{route('employee.projects.edit', $project->id)}}" class="btn btn-info btn-xs p-2 mb-0">
+                                                edit
+                                            </a>
+                                            <form
+                                                action="{{ route('employee.projects.archive', $project->id)}}"
+                                                method="post"
+                                                onsubmit="return confirm('Are you sure?');"
+                                                class="d-inline">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="btn btn-secondary btn-xs p-2 mb-0">archive</button>
+                                            </form>
+                                        </td>
+                                    @endcan
+                                    @endif
+                                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                                    @can('Delete project')
+                                        <td class="align-middle">
+                                            <form
+                                                action="{{ route('Responsable_gestionnaire.projects.destroy', $project->id)}}"
+                                                method="post"
+                                                onsubmit="return confirm('Are you sure?');"
+                                                class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="btn btn-danger btn-xs p-2 mb-0">X</button>
+                                            </form>
+                                            <a href="{{route('Responsable_gestionnaire.projects.edit', $project->id)}}" class="btn btn-info btn-xs p-2 mb-0">
+                                                edit
+                                            </a>
+                                            <form
+                                                action="{{ route('Responsable_gestionnaire.projects.archive', $project->id)}}"
+                                                method="post"
+                                                onsubmit="return confirm('Are you sure?');"
+                                                class="d-inline">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="btn btn-secondary btn-xs p-2 mb-0">archive</button>
+                                            </form>
+                                        </td>
+                                    @endcan
+                                    @endif
+
+                                </tr>
+                            @endforeach
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+    
+</div>
+
+            </div>
+          </div>
+        </div>
+
+
+
+  </main>
+
+
+  @include('dashboard_layouts.scripts')
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <!--
+  @can('Update project')
+  <script>
+  $(document).ready(function(){
+  $(".editable").dblclick(function(){
+    var originalContent = $(this).text().trim();
+    var width = $(this).width();
+    $(this).html("<input type='text' value='" + originalContent + "' style='width: 100%; min-width: " + width + "px;' />");
+    var input = $(this).children().first();
+    input.focus();
+    
+    // Place cursor at the beginning of the input
+    input[0].setSelectionRange(0, 0);
+
+    input.blur(function(){
+      var newContent = $(this).val();
+      var clientId = $(this).parent().data('id');
+      var columnName = $(this).parent().data('column');
+      $(this).parent().text(newContent);
+      $(this).parent().removeClass("cellEditing");
+      
+      $.ajax({
+        url: 'projects/updateProject',
+        type: 'post',
+        data: {
+          content: newContent,
+          id: clientId,
+          column: columnName,
+          _token: '{{ csrf_token() }}'
+        },
+        success: function(response) {
+          location.reload();
+        }
+      });
+    });
+  });
+});
+  </script>
+@endcan
+-->
+<script>
+    document.getElementById('projectFilter').addEventListener('change', function() {
+        var filter = this.value.toLowerCase();
+        var rows = document.querySelectorAll('#projectsTable tbody tr:not(.bg-light)');
+
+        rows.forEach(function(row) {
+            var projectName = row.querySelector('td:first-child').textContent.toLowerCase();
+            var clientHeader = row.previousElementSibling;
+            
+            if (filter === "" || projectName.includes(filter)) {
+                row.style.display = "";
+                if (clientHeader && clientHeader.classList.contains('bg-light')) {
+                    clientHeader.style.display = "";
+                }
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        // Hide client headers with no visible projects
+        document.querySelectorAll('#projectsTable tbody tr.bg-light').forEach(header => {
+            let nextRow = header.nextElementSibling;
+            let hasVisibleProjects = false;
+            
+            while (nextRow && !nextRow.classList.contains('bg-light')) {
+                if (nextRow.style.display !== 'none') {
+                    hasVisibleProjects = true;
+                    break;
+                }
+                nextRow = nextRow.nextElementSibling;
+            }
+            
+            header.style.display = hasVisibleProjects ? "" : "none";
+        });
+    });
+</script>
+<script>
+    document.getElementById('nameFilter').addEventListener('input', function() {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#projectsTable tbody tr'); // Adjust the selector to match your table structure
+
+        rows.forEach(row => {
+            let projectTitle = row.querySelector('td:nth-child(1)').textContent.toLowerCase(); // Adjusted to select the first td
+            if (projectTitle.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>
+</body>
+
+</html>
+
+
+
+
+
+
