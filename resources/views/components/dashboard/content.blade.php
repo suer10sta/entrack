@@ -215,78 +215,140 @@
     </table>
 </div>
 
-        {{-- Project Overview + Events --}}
-        <div class="mt-8 grid gap-8 lg:grid-cols-3">
+{{-- Project Overview + Events --}}
+@php
+    $projects = [
+        ['name'=>'WEBSITE REDESIGN','initials'=>'WE','color'=>'bg-blue-500','estimate'=>'Est: 200h','budget'=>'€10,000.00','cph'=>'€50.00','tva'=>'20%','duration'=>'0h 0m','difference'=>'+200h 0m','progress'=>'0.00%','client'=>'client1','teams'=>['Frontend Team','Backend Team']],
+        ['name'=>'MOBILE APP DEVELOPMENT','initials'=>'MO','color'=>'bg-purple-500','estimate'=>'Est: 250h','budget'=>'€15,000.00','cph'=>'€60.00','tva'=>'20%','duration'=>'0h 0m','difference'=>'+250h 0m','progress'=>'0.00%','client'=>'Beta Ltd','teams'=>['Mobile Team']],
+        ['name'=>'E-COMMERCE SETUP','initials'=>'E','color'=>'bg-blue-600','estimate'=>'Est: 180h','budget'=>'€12,000.00','cph'=>'€55.00','tva'=>'20%','duration'=>'0h 0m','difference'=>'+180h 0m','progress'=>'0.00%','client'=>'Delta Inc','teams'=>[]],
+        ['name'=>'CLOUD MIGRATION','initials'=>'CL','color'=>'bg-emerald-500','estimate'=>'Est: 300h','budget'=>'€20,000.00','cph'=>'€70.00','tva'=>'20%','duration'=>'0h 0m','difference'=>'+300h 0m','progress'=>'0.00%','client'=>'Epsilon LLC','teams'=>['Cloud Team']],
+    ];
+@endphp
 
-            {{-- Project Overview --}}
-            @php
-                $projects = [
-                    ['name'=>'WEBSITE REDESIGN','initials'=>'WE','color'=>'bg-blue-500','estimate'=>'200h','budget'=>'€10,000.00','cph'=>'€50.00','tva'=>'20%','duration'=>'0h 0m','difference'=>'+200h 0m','progress'=>'0.00%','client'=>'client1','teams'=>['Frontend Team','Backend Team']],
-                    ['name'=>'MOBILE APP DEVELOPMENT','initials'=>'MO','color'=>'bg-purple-500','estimate'=>'250h','budget'=>'€15,000.00','cph'=>'€60.00','tva'=>'20%','duration'=>'0h 0m','difference'=>'+250h 0m','progress'=>'0.00%','client'=>'Beta Ltd','teams'=>['Mobile Team']],
-                    ['name'=>'E-COMMERCE SETUP','initials'=>'E','color'=>'bg-blue-600','estimate'=>'180h','budget'=>'€12,000.00','cph'=>'€55.00','tva'=>'20%','duration'=>'0h 0m','difference'=>'+180h 0m','progress'=>'0.00%','client'=>'Delta Inc','teams'=>[]],
-                    ['name'=>'CLOUD MIGRATION','initials'=>'CM','color'=>'bg-emerald-500','estimate'=>'300h','budget'=>'€20,000.00','cph'=>'€70.00','tva'=>'20%','duration'=>'0h 0m','difference'=>'+300h 0m','progress'=>'0.00%','client'=>'Gamma Corp','teams'=>['Cloud Team']],
-                ];
-            @endphp
+{{-- Changement de la grille principale: 3 colonnes pour les projets, 1 pour les événements --}}
+<div class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-            <div class="lg:col-span-2 border-0 shadow-sm bg-white rounded-lg p-6">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Project Overview</h2>
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">PROJECT</th>
-                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">ESTIMATE</th>
-                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">BUDGET</th>
-                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">DURATION</th>
-                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">PROGRESS</th>
-                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">CLIENT</th>
-                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">TEAMS</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($projects as $project)
-                        <tr class="border-b border-gray-200 hover:bg-gray-50">
-                            <td class="px-6 py-4 flex items-center gap-3">
-                                <div class="flex h-10 w-10 items-center justify-center rounded-full text-white font-semibold {{ $project['color'] }}">
-                                    {{ $project['initials'] }}
-                                </div>
-                                <p class="text-sm font-medium text-gray-900">{{ $project['name'] }}</p>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-600">{{ $project['estimate'] }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-600">{{ $project['budget'] }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-600">{{ $project['duration'] }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-600">{{ $project['progress'] }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-600">{{ $project['client'] }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-600">
-                                @foreach($project['teams'] as $team)
-                                    <span class="inline-block px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded">{{ $team }}</span>
-                                @endforeach
-                            </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
+    {{-- Project Overview (Maintenant en col-span-3) --}}
+    <div class="lg:col-span-3 border-0 shadow-sm bg-white rounded-lg">
+        
+        <h2 class="p-6 text-lg font-semibold text-gray-900 border-b border-gray-200">Project Overview</h2>
 
-            {{-- Todays Events --}}
-            <div class="border-0 shadow-sm bg-white rounded-lg p-6">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Today's Events</h2>
-                <ul class="space-y-3 text-sm text-gray-600">
-                    <li class="flex items-center justify-between">
-                        <span>Team Meeting</span>
-                        <span class="text-gray-400">09:00 AM</span>
-                    </li>
-                    <li class="flex items-center justify-between">
-                        <span>Project Deadline</span>
-                        <span class="text-gray-400">01:00 PM</span>
-                    </li>
-                    <li class="flex items-center justify-between">
-                        <span>Client Call</span>
-                        <span class="text-gray-400">04:00 PM</span>
-                    </li>
-                </ul>
-            </div>
-
+        {{-- EN-TÊTES DE COLONNE (STYLE DE L'IMAGE) --}}
+        <div class="px-6 py-3 grid grid-cols-12 gap-4 border-b border-gray-200">
+            <span class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">PROJECT INFO</span>
+            <span class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">BUDGET & COSTS</span>
+            <span class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">TIME TRACKING</span>
+            <span class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">PROGRESS</span>
+            <span class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">CLIENT & TEAMS</span>
+            <span class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">ACTIONS</span>
         </div>
+
+        {{-- LISTE DES PROJETS --}}
+        <div class="divide-y divide-gray-200">
+            @foreach($projects as $project)
+                <div class="px-6 py-4 grid grid-cols-12 gap-4 items-center">
+                    
+                    {{-- PROJECT INFO --}}
+                    <div class="col-span-3 flex items-center gap-3">
+                        <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full text-white font-semibold {{ $project['color'] }}">
+                            {{ $project['initials'] }}
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">{{ $project['name'] }}</p>
+                            <p class="text-xs text-gray-500">{{ $project['estimate'] }}</p>
+                        </div>
+                    </div>
+
+                    {{-- BUDGET & COSTS --}}
+                    <div class="col-span-2 text-sm space-y-1">
+                        <p class="text-gray-600"><span class="text-gray-500">Budget:</span> <span class="font-medium text-gray-800">{{ $project['budget'] }}</span></p>
+                        <p class="text-gray-600"><span class="text-gray-500">CPH:</span> <span class="font-medium text-gray-800">{{ $project['cph'] }}</span></p>
+                        <p class="text-gray-600"><span class="text-gray-500">TVA:</span> <span class="font-medium text-gray-800">{{ $project['tva'] }}</span></p>
+                    </div>
+
+                    {{-- TIME TRACKING --}}
+                    <div class="col-span-2 text-sm space-y-1">
+                        <p class="text-gray-600"><span class="text-gray-500">Duration:</span> <span class="font-bold text-gray-800">{{ $project['duration'] }}</span></p>
+                        <p class="font-medium text-green-500">{{ $project['difference'] }}</p>
+                    </div>
+
+                    {{-- PROGRESS --}}
+                    <div class="col-span-2">
+                         <div class="flex items-center gap-2">
+                            <div class="flex-grow bg-gray-200 rounded-full h-1.5">
+                                <div class="bg-gray-400 h-1.5 rounded-full" style="width: {{ $project['progress'] }}"></div>
+                            </div>
+                            <span class="text-xs font-medium text-gray-700">{{ $project['progress'] }}</span>
+                        </div>
+                    </div>
+
+                    {{-- CLIENT & TEAMS --}}
+                    <div class="col-span-2 text-sm space-y-2">
+                        <p class="text-gray-600"><span class="text-gray-500">Client:</span> <span class="font-medium text-blue-600">{{ $project['client'] }}</span></p>
+                        <div>
+                            <span class="text-gray-500">Teams:</span>
+                            <div class="flex flex-wrap gap-1 mt-1">
+                                @forelse($project['teams'] as $team)
+                                    <span class="inline-block px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">{{ $team }}</span>
+                                @empty
+                                    <span class="text-xs text-gray-500">No teams assigned</span>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- ACTIONS --}}
+                    <div class="col-span-1 flex justify-end gap-2">
+                        <button class="text-blue-500 hover:text-blue-700">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-.07.207-.07.431 0 .639C20.268 16.057 16.477 19 12 19c-4.478 0-8.268-2.943-9.542-7a1.186 1.186 0 010-.639z" />
+                            </svg>
+                        </button>
+                         <button class="text-red-500 hover:text-red-700">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- Today's Events (Barre latérale) --}}
+    <div class="lg:col-span-1 border-0 shadow-sm bg-white rounded-lg p-6 h-fit">
+        <div class="flex items-center gap-2">
+            <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <h2 class="text-lg font-semibold text-gray-900">Événements du jour</h2>
+        </div>
+        
+        <p class="text-sm text-gray-500 mt-4 mb-6">23 octobre 2025</p>
+
+        <ul class="space-y-4">
+            <li class="flex items-start gap-3">
+                <div class="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2"></div>
+                <div class="border-l-2 border-blue-500 pl-3">
+                    <p class="text-sm font-medium text-gray-800">Réunion client</p>
+                    <p class="text-sm text-gray-500">13:30 - 13:30</p>
+                </div>
+            </li>
+             <li class="flex items-start gap-3">
+                <div class="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2"></div>
+                <div class="border-l-2 border-blue-500 pl-3">
+                    <p class="text-sm font-medium text-gray-800">Revue de projet</p>
+                    <p class="text-sm text-gray-500">14:00 - 15:00</p>
+                </div>
+            </li>
+        </ul>
+
+        <a href="#" class="inline-block mt-6 text-sm font-medium text-blue-600 hover:underline">
+            Voir le calendrier complet
+        </a>
+    </div>
+
+</div>
 
     </div>
 </div>
