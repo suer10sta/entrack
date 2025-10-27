@@ -17,7 +17,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-lg font-semibold text-gray-900">BizManager</h1>
+                    <h1 class="text-lg font-semibold text-gray-900">Entrack Entrp</h1>
                     <p class="text-xs text-gray-500">Pro</p>
                 </div>
             </div>
@@ -25,7 +25,7 @@
             <!-- Navigation -->
             <nav class="px-4 space-y-1 mt-2">
                 <!-- Dashboard -->
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-blue-500 text-white font-medium">
+                <a href="{{route('admin.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-blue-500 text-white font-medium">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                     </svg>
@@ -40,15 +40,19 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                             </svg>
                             <span>Reports</span>
-                        </span>
+                        </span> 
                         <svg id="reports-icon" class="w-4 h-4 flex-shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
                     <div id="reports-submenu" class="ml-11 mt-1 space-y-1 hidden overflow-hidden">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Client Reports</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Employees Reports</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Teams Reports</a>
+                        <a href="{{ route('admin.clients.index') }}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Clients Reports</a>
+                        <a href="{{ route('admin.employees.index') }}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Employees Reports</a>
+                        <a href="{{ route('admin.teams.index') }}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Teams Reports</a>
+                        <a href="{{ route('admin.projects.index') }}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Projects Reports</a>
+                        <a href="{{ route('admin.tasks.index') }}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Tasks Reports</a>
+                        <a href="{{ route('admin.tasks.pointage') }}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Pointage Reports</a>
+                        <a href="{{ route('admin.workDaysReports.index') }}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Works Days Report</a>
                     </div>
                 </div>
 
