@@ -14,7 +14,7 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <x-dashboard.content />
+        <x-dashboard.content :data="$__data" />
     </div>
 </body>
 </html>

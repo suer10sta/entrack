@@ -43,7 +43,7 @@
                         </div>
                         <h3 class="text-gray-500 text-sm font-medium">Clients</h3>
                     </div>
-                    <p class="text-3xl font-bold text-gray-800">23</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ $data['clients']->count() }}</p>
                 </div>
                 <span class="px-3 py-1.5 bg-green-50 text-green-600 font-semibold text-sm rounded-full">+12%</span>
             </div>
@@ -67,7 +67,7 @@
                         </div>
                         <h3 class="text-gray-500 text-sm font-medium">Employés</h3>
                     </div>
-                    <p class="text-3xl font-bold text-gray-800">8</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ $data['employees']->count()}}</p>
                 </div>
                 <span class="px-3 py-1.5 bg-green-50 text-green-600 font-semibold text-sm rounded-full">+5%</span>
             </div>
@@ -91,8 +91,8 @@
                         </div>
                         <h3 class="text-gray-500 text-sm font-medium">Projets en cours</h3>
                     </div>
-                    <p class="text-3xl font-bold text-gray-800">3</p>
-                    <p class="text-sm text-gray-500 mt-1">3 actifs</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ $data['projects']->count()}}</p>
+                    <p class="text-sm text-gray-500 mt-1">{{ $data['projects']->count()}} actifs</p>
                 </div>
             </div>
             <div class="relative">
@@ -117,7 +117,7 @@
                             </div>
                             <h3 class="text-gray-500 text-sm font-medium">Revenu mensuel</h3>
                         </div>
-                        <p class="text-3xl font-bold text-gray-800">€45,230</p>
+                        <p class="text-3xl font-bold text-gray-800">€{{ number_format($data['monthlyRevenue'], 2, ',', ' ') }}</p></p>
                     </div>
                     <span class="px-3 py-1.5 bg-green-50 text-green-600 font-semibold text-sm rounded-full">+18%</span>
                 </div>
@@ -139,27 +139,23 @@
     </div>
 
 
-    {{-- Team Members Overview --}}
-    @php
-    $members = [
-        ['name'=>'Admin','email'=>'Admin@gmail.com','phone'=>'0666666661','salary'=>'€200.00/month','roles'=>['SuperAdmin','Admin'],'status'=>'Active','type'=>'Full-time','teams'=>'Not assigned','currentTask'=>'No active task','hours'=>'0h 0m','tasks'=>'0/0','days'=>'0','progress'=>'0%','limit'=>'100h','initials'=>'AD','color'=>'bg-blue-500'],
-        ['name'=>'Alice Martin','email'=>'alice@example.com','phone'=>'0666666661','salary'=>'€2,000.00/month','roles'=>['Employee'],'status'=>'Active','type'=>'Contractor','teams'=>'Not assigned','currentTask'=>'No active task','hours'=>'0h 0m','tasks'=>'0/0','days'=>'0','progress'=>'0%','limit'=>'160h','initials'=>'AL','color'=>'bg-blue-500'],
-    ];
-@endphp
-
+    {{-- Team employees Overview --}}
+ 
 {{-- ANIMATION: Ajout de la classe et du délai --}}
 <div class="mt-8 border-0 shadow-sm bg-white rounded-lg overflow-x-auto animate-fadeInSlideUp" style="animation-delay: 500ms;">
     {{-- Titre --}}
     <div class="p-6">
-        <h2 class="text-lg font-semibold text-gray-900">Team Members Overview</h2>
+        <h2 class="text-lg font-semibold text-gray-900">Team employees Overview</h2>
     </div>
     
     {{-- Barre de recherche et Bouton --}}
     <div class="p-6 flex items-center justify-between">
         <input type="text" placeholder="Search employees..."
                class="w-full max-w-xs rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 placeholder-gray-500 focus:border-blue-500 focus:outline-none" />
-        <button class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">+ Add employee</button>
-    </div>
+               <a href="{{ route('admin.employees.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">
+                + Add employee
+            </a>
+        </div>
     
     {{-- Table --}}
     <table class="w-full text-left border-collapse">
@@ -176,80 +172,76 @@
         </tr>
         </thead>
         <tbody>
-        @foreach($members as $member)
+        @foreach($data['employees'] as $employee)
             <tr class="border-b border-gray-200 hover:bg-gray-50">
                 <td class="px-6 py-4 flex items-center gap-3">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-full text-white font-semibold {{ $member['color'] }}">
-                        {{ $member['initials'] }}
+                    <div class="flex h-10 w-10 items-center justify-center rounded-full text-white font-semibold {{ $employee['color'] }}">
+                        {{ $employee['initials'] }}
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-900">{{ $member['name'] }}</p>
-                        <p class="text-xs text-gray-500">{{ $member['email'] }}</p>
-                        <p class="text-xs text-gray-500">{{ $member['phone'] }}</p>
-                        <p class="text-xs font-medium text-emerald-600">{{ $member['salary'] }}</p>
+                        <p class="text-sm font-medium text-gray-900">{{ $employee['name'] }}</p>
+                        <p class="text-xs text-gray-500">{{ $employee['email'] }}</p>
+                        <p class="text-xs text-gray-500">{{ $employee['phone'] }}</p>
+                        <p class="text-xs font-medium text-emerald-600">{{ $employee['salary'] }}</p>
                     </div>
                 </td>
                 <td class="px-6 py-4 space-y-2">
                     <div class="flex gap-2">
-                        @foreach($member['roles'] as $role)
+                        @foreach($employee['roles'] as $role)
                             <span class="inline-block px-2 py-1 text-xs font-medium rounded {{ $role=='SuperAdmin'?'bg-fuchsia-100 text-fuchsia-700':'bg-purple-100 text-purple-700'}}">{{ $role }}</span>
                         @endforeach
                     </div>
-                    <span class="inline-block px-2 py-1 text-xs font-medium bg-emerald-100 text-emerald-700 rounded">{{ $member['status'] }}</span>
-                    <p class="text-xs text-gray-600">{{ $member['type'] }}</p>
+                    <span class="inline-block px-2 py-1 text-xs font-medium bg-emerald-100 text-emerald-700 rounded">{{ $employee['status'] }}</span>
+                    <p class="text-xs text-gray-600">{{ $employee['type'] }}</p>
                 </td>
-                <td class="px-6 py-4">{{ $member['teams'] }}</td>
+                <td class="px-6 py-4">{{ $employee['teams'] }}</td>
                 <td class="px-6 py-4">
                     <span class="inline-block px-2 py-1 text-xs text-gray-700 bg-gray-100 rounded">
-                        {{ $member['currentTask'] }}
+                        {{ $employee['currentTask'] }}
                     </span>
                 </td>
                 <td class="px-6 py-4">-</td>
                 <td class="px-6 py-4 space-y-1 text-xs text-gray-600">
-                    <p>Hours: <span class="font-medium text-gray-800">{{ $member['hours'] }}</span></p>
-                    <p>Tasks: <span class="font-medium text-gray-800">{{ $member['tasks'] }}</span></p>
-                    <p>Days: <span class="font-medium text-gray-800">{{ $member['days'] }}</span></p>
+                    <p>Hours: <span class="font-medium text-gray-800">{{ $employee['hours'] }}</span></p>
+                    <p>Tasks: <span class="font-medium text-gray-800">{{ $employee['tasks'] }}</span></p>
+                    <p>Days: <span class="font-medium text-gray-800">{{ $employee['days'] }}</span></p>
                 </td>
                 <td class="px-6 py-4">
                     <div class="flex items-center gap-2 mb-1">
                         <div class="flex-grow bg-gray-200 rounded-full h-1.5">
-                            <div class="bg-gray-400 h-1.5 rounded-full" style="width: {{ $member['progress'] }}"></div>
+                            <div class="bg-gray-400 h-1.5 rounded-full" style="width: {{ $employee['progress'] }}"></div>
                         </div>
-                        <span class="text-xs font-medium text-gray-700">{{ $member['progress'] }}</span>
+                        <span class="text-xs font-medium text-gray-700">{{ $employee['progress'] }}</span>
                     </div>
-                    <p class="text-xs text-gray-600">Limit: {{ $member['limit'] }}</p>
+                    <p class="text-xs text-gray-600">Limit: {{ $employee['limit'] }}</p>
                 </td>
                 <td class="px-6 py-4 flex gap-2">
-                    <button class="text-blue-500 hover:text-blue-700">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </button>
-                    <button class="text-green-500 hover:text-green-700">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                        </svg>
-                    </button>
-                </td>
+    {{-- We change <button> to <a> and add a dynamic link --}}
+    {{-- I've commented out the route() helper in case it's not set up, using '#' as a fallback --}}
+    
+    {{-- Link to employee settings/show page --}}
+    <a href="{{ route('admin.employees.show', $employee->id) }}" class="text-blue-500 hover:text-blue-700">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+    </a>
+    
+    {{-- Link to employee edit page --}}
+    <a href="{{ route('admin.employees.updateEmployee', $employee->id) }}#" class="text-green-500 hover:text-green-700">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+    </a>
+</td>
             </tr>
         @endforeach
         </tbody>
     </table>
 </div>
-
 {{-- Project Overview + Events --}}
-@php
-    $projects = [
-        ['name'=>'WEBSITE REDESIGN','initials'=>'WE','color'=>'bg-blue-500','estimate'=>'Est: 200h','budget'=>'€10,000.00','cph'=>'€50.00','tva'=>'20%','duration'=>'0h 0m','difference'=>'+200h 0m','progress'=>'0.00%','client'=>'client1','teams'=>['Frontend Team','Backend Team']],
-        ['name'=>'MOBILE APP DEVELOPMENT','initials'=>'MO','color'=>'bg-purple-500','estimate'=>'Est: 250h','budget'=>'€15,000.00','cph'=>'€60.00','tva'=>'20%','duration'=>'0h 0m','difference'=>'+250h 0m','progress'=>'0.00%','client'=>'Beta Ltd','teams'=>['Mobile Team']],
-        ['name'=>'E-COMMERCE SETUP','initials'=>'E','color'=>'bg-blue-600','estimate'=>'Est: 180h','budget'=>'€12,000.00','cph'=>'€55.00','tva'=>'20%','duration'=>'0h 0m','difference'=>'+180h 0m','progress'=>'0.00%','client'=>'Delta Inc','teams'=>[]],
-        ['name'=>'CLOUD MIGRATION','initials'=>'CL','color'=>'bg-emerald-500','estimate'=>'Est: 300h','budget'=>'€20,000.00','cph'=>'€70.00','tva'=>'20%','duration'=>'0h 0m','difference'=>'+300h 0m','progress'=>'0.00%','client'=>'Epsilon LLC','teams'=>['Cloud Team']],
-    ];
-@endphp
 
-{{-- Grille principale: 3 colonnes pour projets, 1 pour événements --}}
 <div class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
 
     {{-- Project Overview (col-span-3) --}}
@@ -270,31 +262,31 @@
 
         {{-- LISTE DES PROJETS --}}
         <div class="divide-y divide-gray-200">
-            @foreach($projects as $project)
+            @foreach($data['projects'] as $project)
                 <div class="px-6 py-4 grid grid-cols-12 gap-4 items-center">
                     
                     {{-- PROJECT INFO (col-span-3) --}}
                     <div class="col-span-3 flex items-center gap-3">
                         <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full text-white font-semibold {{ $project['color'] }}">
-                            {{ $project['initials'] }}
+                            {{ strtoupper(substr($project->name, 0, 2)) }}
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-900">{{ $project['name'] }}</p>
-                            <p class="text-xs text-gray-500">{{ $project['estimate'] }}</p>
+                            <p class="text-sm font-medium text-gray-900">{{ $project->name}}</p>
+                            <p class="text-xs text-gray-500">Est: {{ $project->estimated_hours ?? 'N/A' }}</p>
                         </div>
                     </div>
 
                     {{-- BUDGET & COSTS (col-span-2) --}}
                     <div class="col-span-2 text-sm space-y-1">
-                        <p class="text-gray-600"><span class="text-gray-500">Budget:</span> <span class="font-medium text-gray-800">{{ $project['budget'] }}</span></p>
-                        <p class="text-gray-600"><span class="text-gray-500">CPH:</span> <span class="font-medium text-gray-800">{{ $project['cph'] }}</span></p>
-                        <p class="text-gray-600"><span class="text-gray-500">TVA:</span> <span class="font-medium text-gray-800">{{ $project['tva'] }}</span></p>
+                        <p class="text-gray-600"><span class="text-gray-500">Budget:</span> <span class="font-medium text-gray-800">€{{ number_format($project->budget ?? 0, 2, ',', ' ') }}</span></p>
+                        <p class="text-gray-600"><span class="text-gray-500">CPH:</span> <span class="font-medium text-gray-800">€{{ number_format($project->cost_per_hour ?? 0, 2, ',', ' ') }}</span></p>
+                        <p class="text-gray-600"><span class="text-gray-500">TVA:</span> <span class="font-medium text-gray-800">{{ $project->tva ?? 20 }}</span></p>
                     </div>
 
                     {{-- TIME TRACKING (col-span-2) --}}
                     <div class="col-span-2 text-sm space-y-1">
-                        <p class="text-gray-600"><span class="text-gray-500">Duration:</span> <span class="font-bold text-gray-800">{{ $project['duration'] }}</span></p>
-                        <p class="font-medium text-green-500 border-b-2 border-green-500 border-dotted w-fit">{{ $project['difference'] }}</p>
+                        <p class="text-gray-600"><span class="text-gray-500">Duration:</span> <span class="font-bold text-gray-800">{{ $project->duration ?? '0h 0m' }}</span></p>
+                        <p class="font-medium text-green-500 border-b-2 border-green-500 border-dotted w-fit">{{ $project->time_difference ?? '+0h 0m' }}</p>
                     </div>
 
                     {{-- PROGRESS (col-span-1) --}}
@@ -303,7 +295,7 @@
                             <div class="flex-grow bg-gray-200 rounded-full h-1.5">
                                 <div class="bg-gray-400 h-1.5 rounded-full" style="width: {{ $project['progress'] }}"></div>
                             </div>
-                            <span class="text-xs font-medium text-gray-700">{{ $project['progress'] }}</span>
+                            <span class="text-xs font-medium text-gray-700">{{ $project->progress ?? '0%' }}</span>
                         </div>
                     </div>
 
@@ -311,12 +303,12 @@
                     <div class="col-span-3 space-y-2">
                         <div>
                             <p class="text-xs text-gray-500">Client:</p>
-                            <p class="text-sm font-medium text-blue-600">{{ $project['client'] }}</p>
+                            <p class="text-sm font-medium text-blue-600">{{ $project->client->name ?? 'N/A' }}</p>
                         </div>
                         <div>
                             <p class="text-xs text-gray-500">Teams:</p>
                             <div class="flex flex-wrap gap-1 mt-1">
-                                @forelse($project['teams'] as $team)
+                                @forelse($project->teams as $team)
                                     <span class="inline-block px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">{{ $team }}</span>
                                 @empty
                                     <span class="text-xs text-gray-500">No teams assigned</span>
@@ -327,19 +319,35 @@
 
                     {{-- ACTIONS (col-span-1) --}}
                     <div class="col-span-1 flex justify-end gap-2">
-                        <button class="text-blue-500 hover:text-blue-700">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-.07.207-.07.431 0 .639C20.268 16.057 16.477 19 12 19c-4.478 0-8.268-2.943-9.542-7a1.186 1.186 0 010-.639z" />
-                            </svg>
-                        </button>
-                         <button class="text-red-500 hover:text-red-700">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
+                            {{-- Link to project show page --}}
+                            <a href="{{route('admin.projects.show', $project->id)}}" class="text-blue-500 hover:text-blue-700">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-.07.207-.07.431 0 .639C20.268 16.057 16.477 19 12 19c-4.478 0-8.268-2.943-9.542-7a1.186 1.186 0 010-.639z" />
+                                </svg>
+                            </a>
+                            {{-- Delete Project Form --}}
+                            <form action="{{ route('admin.projects.destroy', $project->id) }}"
+                            method="POST"
+                            onsubmit="return confirm('Are you sure?');"
+                            class="inline"> {{-- 'inline' class keeps the form from breaking the layout --}}
+                            @csrf
+                            @method('DELETE')
+                            
+                            {{-- This is your original button, but with type="submit" --}}
+                            <button type="submit" class="text-red-500 hover:text-red-700">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </form>
                     </div>
-                </div>
+                    </div>
             @endforeach
+        </div>
+        {{-- ADD PAGINATION LINKS --}}
+        <div class="p-6 border-t border-gray-200">
+            {{ $data['projects']->links() }}
         </div>
     </div>
 
@@ -353,23 +361,28 @@
             <h2 class="text-lg font-semibold text-gray-900">Événements du jour</h2>
         </div>
         
-        <p class="text-sm text-gray-500 mt-4 mb-6">23 octobre 2025</p>
+        <p class="text-sm text-gray-500 mt-4 mb-6">{{ now()->format('d F Y') }}</p>
 
         <ul class="space-y-4">
+            {{-- Loop over $dayEvents from the controller --}}
+            @forelse($data['dayEvents'] as $event)
             <li class="flex items-start gap-3">
                 <div class="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2"></div>
                 <div class="border-l-2 border-blue-500 pl-3">
-                    <p class="text-sm font-medium text-gray-800">Réunion client</p>
-                    <p class="text-sm text-gray-500">13:30 - 13:30</p>
+                    {{-- Make sure your 'calendars' table has 'title', 'start_date', 'end_date' columns --}}
+                    <p class="text-sm font-medium text-gray-800">{{ $event->title }}</p>
+                    <p class="text-sm text-gray-500">
+                        {{-- Use Carbon to format the times --}}
+                        {{ \Carbon\Carbon::parse($event->start_date)->format('H:i') }} - 
+                        {{ \Carbon\Carbon::parse($event->end_date)->format('H:i') }}
+                    </p>
                 </div>
             </li>
-             <li class="flex items-start gap-3">
-                <div class="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2"></div>
-                <div class="border-l-2 border-blue-500 pl-3">
-                    <p class="text-sm font-medium text-gray-800">Revue de projet</p>
-                    <p class="text-sm text-gray-500">14:00 - 15:00</p>
-                </div>
+            @empty
+            <li class="text-sm text-gray-500">
+                Aucun événement prévu aujourd'hui.
             </li>
+            @endforelse
         </ul>
 
         <a href="#" class="inline-block mt-6 text-sm font-medium text-blue-600 hover:underline">

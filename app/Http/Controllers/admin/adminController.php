@@ -27,15 +27,16 @@ class adminController extends Controller
         $todoPage = request('todoPage', 1);
         $projectPage = request('page', 1);
 
-        $projects = Project::where('entreprise_id', auth()->user()->entreprise_id)
-            ->where(function($query) {
-                $query->whereNull('AcceptedDevisProject')
-                      ->orWhere('AcceptedDevisProject', '=', 1);
-            })
-            ->where('archived', 0)
-            ->orderBy('client_id')
-            ->orderBy('name')
-            ->paginate(6, ['*'], 'page', $projectPage);
+        $projects = Project::with('client', 'teams') 
+        ->where('entreprise_id', auth()->user()->entreprise_id)
+        ->where(function($query) {
+            $query->whereNull('AcceptedDevisProject')
+                  ->orWhere('AcceptedDevisProject', '=', 1);
+        })
+        ->where('archived', 0)
+        ->orderBy('client_id')
+        ->orderBy('name')
+        ->paginate(6, ['*'], 'page', $projectPage);
 
         $projectsFilter = Project::where('entreprise_id', auth()->user()->entreprise_id)
             ->where(function($query) {
@@ -63,6 +64,11 @@ class adminController extends Controller
         $invoices = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
             ->orderBy('number', 'desc')
             ->paginate(5);
+
+        $monthlyRevenue = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->sum('total_ttc');
 
         $enterpriseId = Auth::user()->entreprise_id;
         $employees = Employees::where('entreprise_id', $enterpriseId)
@@ -122,7 +128,6 @@ class adminController extends Controller
                 ], 500);
             }
         }
-
         return view("admin.index", compact(
             'entreprises', 
             'employees',
@@ -135,7 +140,8 @@ class adminController extends Controller
             'invoices',
             'entreprise_infos',
             'projectsFilter',
-            'dayEvents'
+            'dayEvents',
+            'monthlyRevenue'
         ));
     }
 
