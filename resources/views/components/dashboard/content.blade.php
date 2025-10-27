@@ -142,7 +142,7 @@
     {{-- Team employees Overview --}}
  
 {{-- ANIMATION: Ajout de la classe et du délai --}}
-<div class="mt-8 border-0 shadow-sm bg-white rounded-lg overflow-x-auto animate-fadeInSlideUp" style="animation-delay: 500ms;">
+<div class="mt-8 border-0 shadow-sm bg-white rounded-lg overflow-x-auto hover:shadow-xl animate-fadeInSlideUp" style="animation-delay: 500ms;">
     {{-- Titre --}}
     <div class="p-6">
         <h2 class="text-lg font-semibold text-gray-900">Team employees Overview</h2>
@@ -242,11 +242,11 @@
 </div>
 {{-- Project Overview + Events --}}
 
-<div class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
+<div class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8 ">
 
     {{-- Project Overview (col-span-3) --}}
     {{-- ANIMATION: Ajout de la classe et du délai --}}
-    <div class="lg:col-span-3 border-0 shadow-sm bg-white rounded-lg animate-fadeInSlideUp" style="animation-delay: 600ms;">
+    <div class="lg:col-span-3 border-0 shadow-sm bg-white rounded-lg hover:shadow-xl animate-fadeInSlideUp" style="animation-delay: 600ms;">
         
         <h2 class="p-6 text-lg font-semibold text-gray-900 border-b border-gray-200">Project Overview</h2>
 
@@ -353,44 +353,62 @@
 
     {{-- Today's Events (Barre latérale) --}}
     {{-- ANIMATION: Ajout de la classe et du délai --}}
-    <div class="lg:col-span-1 border-0 shadow-sm bg-white rounded-lg p-6 h-fit animate-fadeInSlideUp" style="animation-delay: 700ms;">
-        <div class="flex items-center gap-2">
-            <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <h2 class="text-lg font-semibold text-gray-900">Événements du jour</h2>
-        </div>
-        
-        <p class="text-sm text-gray-500 mt-4 mb-6">{{ now()->format('d F Y') }}</p>
-
-        <ul class="space-y-4">
-            {{-- Loop over $dayEvents from the controller --}}
-            @forelse($data['dayEvents'] as $event)
-            <li class="flex items-start gap-3">
-                <div class="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2"></div>
-                <div class="border-l-2 border-blue-500 pl-3">
-                    {{-- Make sure your 'calendars' table has 'title', 'start_date', 'end_date' columns --}}
+    <div class="lg:col-span-1 border-0 shadow-sm bg-white rounded-2xl hover:shadow-xl p-6 h-fit animate-fadeInSlideUp" style="animation-delay: 700ms;">
+        {{-- En-tête avec bouton "Add Event" --}}
+        <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center gap-2">
+                <div class="w-1.5 h-5 bg-blue-600 rounded"></div>
+                <h2 class="text-lg font-semibold text-gray-900">Événements du jour</h2>
+            </div>
+            
+            {{-- NOUVEAU: Bouton "Add Event" (visuel pour l'instant) --}}
+            <button onclick="window.Livewire.dispatch('openCalendarForm')" class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-1.5 rounded-lg">
+                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                 Add Event
+                </button>
+            </div>
+            
+            {{-- Date --}}
+            <p class="text-sm text-gray-500 mb-6">{{ now()->format('d F Y') }}</p>
+            
+            {{-- NOUVEAU: Liste des événements (nouveau style) --}}
+            <ul class="space-y-5">
+                @forelse($data['dayEvents'] as $event)
+            <li class="flex gap-3">
+                <div class="w-1 flex-shrink-0 bg-blue-500 rounded-full"></div>
+                
+                <div>
                     <p class="text-sm font-medium text-gray-800">{{ $event->title }}</p>
-                    <p class="text-sm text-gray-500">
-                        {{-- Use Carbon to format the times --}}
-                        {{ \Carbon\Carbon::parse($event->start_date)->format('H:i') }} - 
-                        {{ \Carbon\Carbon::parse($event->end_date)->format('H:i') }}
+                    <p class="text-sm text-gray-500 flex items-center gap-1.5 mt-1">
+                        <svg class="w-3.5 h-3.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                        <span>
+                            {{ \Carbon\Carbon::parse($event->start_date)->format('H:i') }} - 
+                            {{ \Carbon\Carbon::parse($event->end_date)->format('H:i') }}
+                        </span>
                     </p>
                 </div>
             </li>
-            @empty
+        @empty
             <li class="text-sm text-gray-500">
                 Aucun événement prévu aujourd'hui.
             </li>
-            @endforelse
-        </ul>
+        @endforelse
+    </ul>
 
-        <a href="#" class="inline-block mt-6 text-sm font-medium text-blue-600 hover:underline">
+    {{-- NOUVEAU: Lien "Voir le calendrier complet" centré --}}
+    <div class="text-center mt-6">
+        <button onclick="window.Livewire.dispatch('openCalendarModal')" class="text-sm font-medium text-blue-600 hover:underline">
             Voir le calendrier complet
-        </a>
+        </button>
     </div>
 
+</div>
 </div>
 
     </div>
 </div>
+@livewire('full-calendar-modal')

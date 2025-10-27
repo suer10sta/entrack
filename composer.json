@@ -13,6 +13,7 @@
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
         "league/flysystem-aws-s3-v3": "^3.29",
+        "livewire/livewire": "^3.6",
         "mikehaertl/php-pdftk": "^0.13.1",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
