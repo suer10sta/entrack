@@ -1,527 +1,458 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks - BizManager</title> {{-- Updated title --}}
+    @vite('resources/css/app.css')
+    @livewireStyles
+    {{-- Include dashboard_layouts.head if needed --}}
+    {{-- @include('dashboard_layouts.head') --}}
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
 
-@include('dashboard_layouts.head')
-<style>
-  a {
-    color: blue ;
-}
-th {
-    font-size: 14px !important; 
-}
-.text-sm{
-    color: #332f2f;
-}
-</style>
-<body class="g-sidenav-show bg-gray-100">
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-            style="display: none; visibility: hidden"></iframe></noscript>
-    <div class="min-height-300 bg-primary position-absolute w-100"></div>
-    @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-        @include('employees.sidebar')
-    @endif
-    @if(Auth::user()->hasRole('Admin'))
-        @include('admin.sidebar')
-    @endif
-    
+    {{-- Sidebar Component --}}
+    <x-dashboard.sidebar />
 
-    <main class="main-content position-relative border-radius-lg">
-        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
-            id="navbarBlur" data-scroll="false">
-            <div class="container-fluid py-1 px-3">
+    {{-- Main Wrapper (Navbar + Content) --}}
+    <div class="flex flex-col flex-1 overflow-y-auto">
 
-                @include('dashboard_layouts.navbar')
+        {{-- Navbar Component --}}
+        <x-dashboard.navbar />
 
-            </div>
+        {{-- Main Content Area --}}
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8">
 
-            <div class="container-fluid py-4">
+            {{-- Container for the table --}}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
 
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <h6>Tasks Table</h6>
-                            <div>
-                            @if(Auth::user()->hasRole('Responsable de projet'))
-                                <a type="button" class="btn btn-primary"
-                                href="{{route('Responsable_de_projet.Tasksrepports.downloadRepports')}}">Tasks Reports PDF</a>
-                            @endif
-                            @if(Auth::user()->hasRole('Admin'))
-                                <a type="button" class="btn btn-primary"
-                                href="{{route('admin.Tasksrepports.downloadRepports')}}">Tasks Reports PDF</a>
-                            @endif
-                            @if(Auth::user()->hasRole('Employee'))
-                                <a type="button" class="btn btn-primary"
-                                href="{{route('employee.Tasksrepports.downloadRepports')}}">Tasks Reports PDF</a>
-                            @endif
-                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                <a type="button" class="btn btn-primary"
-                                href="{{route('Responsable_gestionnaire.Tasksrepports.downloadRepports')}}">Tasks Reports PDF</a>
-                            @endif
-                               
-                            </div>
+                {{-- Header Section --}}
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                        <h6 class="text-lg font-semibold text-gray-900">Tasks Table</h6>
+
+                        {{-- Buttons --}}
+                        <div class="flex flex-wrap gap-2">
+                            @php
+                                $reportRoute = '#';
+                                if (Auth::user()->hasRole('Responsable de projet')) $reportRoute = route('Responsable_de_projet.Tasksrepports.downloadRepports');
+                                elseif (Auth::user()->hasRole('Admin')) $reportRoute = route('admin.Tasksrepports.downloadRepports');
+                                elseif (Auth::user()->hasRole('Employee')) $reportRoute = route('employee.Tasksrepports.downloadRepports');
+                                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $reportRoute = route('Responsable_gestionnaire.Tasksrepports.downloadRepports');
+                            @endphp
+                            <a href="{{ $reportRoute }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
+                               <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                                Tasks Reports PDF
+                            </a>
+                             {{-- Add Task Button can be added here if needed --}}
+                             {{-- @can('Add task') ... @endcan --}}
                         </div>
-                        <div class="d-flex justify-content-between mt-3 mb-4">
-                            <div>
-                                <label for="">
-                                    Filter by Name
-                                </label>
-                                <select id="taskFilter" class="form-select">
-                                    <option value="">All Tasks</option>
-                                    @foreach($tasks as $task)
-                                        <option value="{{ $task->title }}">{{ $task->title }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label for="taskSearch">
-                                    Search Task
-                                </label>
-                                <input type="text" id="taskSearch" class="form-control" placeholder="Type to search...">
-                            </div>
+                    </div>
+
+                    {{-- Filters --}}
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div class="w-full sm:w-auto">
+                            <label for="taskFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Task Name</label>
+                            <select id="taskFilter" class="block w-full sm:w-64 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                <option value="">All Tasks</option>
+                                {{-- Use distinct task titles --}}
+                                @foreach($tasks->unique('title') as $task)
+                                    <option value="{{ $task->title }}">{{ $task->title }}</option>
+                                @endforeach
+                            </select>
                         </div>
-
-                        @if(session('message'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ session('message') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                aria-label="Close">X</button>
-                        </div>
-                        @endif
-                        @if(session('alertmessage'))
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="color: white;">
-                            {{ session('alertmessage') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                aria-label="Close">X</button>
-                        </div>
-                        @endif
-
-                        <div class="table-responsive">
-                            <table class="table align-items-center mb-0" id="tasksTable">
-                                <thead>
-                                    <tr>
-                                        <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10">
-                                            Project / Task
-                                        </th>
-                                        <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                            Teams
-                                        </th>
-                                        <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                            Employees
-                                        </th>
-                                        <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                            Duration
-                                        </th>
-                                        <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                            Estimated Hours
-                                        </th>
-                                        <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                            Difference
-                                        </th>
-                                        <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                            Progress
-                                        </th>
-                                        <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @php
-                                        $groupedTasks = $tasks->groupBy('project_id');
-                                    @endphp
-                                    
-                                    @foreach($groupedTasks as $projectId => $projectTasks)
-                                        @php
-                                            $firstTask = $projectTasks->first();
-                                        @endphp
-                                        <tr class="table-secondary">
-                                            <td colspan="8" style="background-color: lightgray !important;">
-                                                <h6 class="mb-0">
-                                                    @if(Auth::user()->hasRole('Admin'))
-                                                    <a href="{{route('admin.projects.show', $projectId)}}" class="text-primary">
-                                                        <strong style="color: black !important;">{{$firstTask->project_name}}</strong>
-                                                    </a>
-                                                    @endif
-                                                    @if(Auth::user()->hasRole('Responsable de projet'))
-                                                    <a href="{{route('Responsable_de_projet.projects.show', $projectId)}}" class="text-primary">
-                                                        <strong style="color: black !important;">{{$firstTask->project_name}}</strong>
-                                                    </a>
-                                                    @endif
-                                                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                                    <a href="{{route('Responsable_gestionnaire.projects.show', $projectId)}}" class="text-primary">
-                                                        <strong style="color: black !important;">{{$firstTask->project_name}}</strong>
-                                                    </a>
-                                                    @endif
-                                                    @if(Auth::user()->hasRole('Employee'))
-                                                    <a href="{{route('employee.projects.show', $projectId)}}" class="text-primary">
-                                                        <strong style="color: black !important;">{{$firstTask->project_name}}</strong>
-                                                    </a>
-                                                    @endif
-                                                </h6>
-                                            </td>
-                                        </tr>
-                                        @foreach($projectTasks as $task)
-                                            <tr>
-                                                <td class="ps-4">
-                                                    <div class="d-flex px-2">
-                                                        @if(auth()->user()->hasRole('Admin'))
-                                                        <a href="{{route('admin.tasks.show', $task->id)}}">
-                                                        @endif
-                                                        @if(auth()->user()->hasRole('Responsable de projet'))
-                                                        <a href="{{route('Responsable_de_projet.tasks.show', $task->id)}}">
-                                                        @endif
-                                                            <div class="my-auto">
-                                                                <h6 class="mb-0 text-sm">
-                                                                    <b style="color: blue;">{{$task->title}}</b>                                                    
-                                                                </h6>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                                
-                                                <td>
-                                                    @foreach(App\Models\team_tasks::where('task_id', $task->id)->get() as $team_task)
-                                                        @php
-                                                            $team = App\Models\Teams::find($team_task->team_id);
-                                                        @endphp
-                                                        @if(count(App\Models\team_tasks::where('task_id', $task->id)->get()) > 0)
-                                                            <span class="badge badge-dot me-4">
-                                                                <i class="bg-info"></i>
-                                                                @if(Auth::user()->hasRole('Admin'))
-                                                                    @if(Auth::user()->can('View team'))
-                                                                    <a href="{{route('admin.teams.index')}}">
-                                                                        <span class="text-dark text-sm">{{$team->name}}</span>
-                                                                    </a>
-                                                                    @else
-                                                                        <span class="text-dark text-sm">{{$team->name}}</span>
-                                                                    @endif
-                                                                @endif
-                                                                @if(Auth::user()->hasRole('Responsable de projet'))
-                                                                    @if(Auth::user()->can('View team'))
-                                                                    <a href="{{route('Responsable_de_projet.teams.index')}}">
-                                                                        <span class="text-dark text-sm">{{$team->name}}</span>
-                                                                    </a>
-                                                                    @else
-                                                                        <span class="text-dark text-sm">{{$team->name}}</span>
-                                                                    @endif
-                                                                @endif
-                                                                @if(Auth::user()->hasRole('Employee'))
-                                                                    @if(Auth::user()->can('View team'))
-                                                                    <a href="{{route('employee.teams.index')}}">
-                                                                        <span class="text-dark text-sm">{{$team->name}}</span>
-                                                                    </a>
-                                                                    @else
-                                                                        <span class="text-dark text-sm">{{$team->name}}</span>
-                                                                    @endif
-                                                                @endif
-                                                                @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                                                    @if(Auth::user()->can('View team'))
-                                                                    <a href="{{route('Responsable_gestionnaire.teams.index')}}">
-                                                                        <span class="text-dark text-sm">{{$team->name}}</span>
-                                                                    </a>
-                                                                    @else
-                                                                        <span class="text-dark text-sm">{{$team->name}}</span>
-                                                                    @endif
-                                                                @endif
-                                                            </span>
-                                                            <br>
-                                                        @else
-                                                            <span class="badge badge-dot me-4">
-                                                                <i class="bg-info"></i>
-                                                            <span class="text-dark text-sm">No team</span>
-                                                        @endif
-                                                    @endforeach
-                                                </td>
-                                                <td>
-                                                    @php
-                                                        $employee_id = App\Models\employees_tasks::where('task_id',$task->id)->pluck('employee_id');
-                                                    @endphp
-                                                    @foreach(App\Models\Employees::whereIn('id', $employee_id)->get() as $employee)
-                                                        <span class="badge badge-dot me-4">
-                                                            <i class="bg-info"></i>
-                                                            @if(Auth::user()->hasRole('Admin'))
-                                                                @if(Auth::user()->can('View employee'))
-                                                                <a href="{{route('admin.employees.show',$employee->id )}}">
-                                                                    <span class="text-dark text-sm">{{$employee->name}}</span>
-                                                                </a>
-                                                                @else
-                                                                    <span class="text-dark text-sm">{{$employee->name}}</span>
-                                                                @endif
-                                                            @endif
-                                                            @if(Auth::user()->hasRole('Responsable de projet'))
-                                                                @if(Auth::user()->can('View employee'))
-                                                                <a href="{{route('Responsable_de_projet.employees.show',$employee->id )}}">
-                                                                    <span class="text-dark text-sm">{{$employee->name}}</span>
-                                                                </a>
-                                                                @else
-                                                                    <span class="text-dark text-sm">{{$employee->name}}</span>
-                                                                @endif
-                                                            @endif
-                                                            @if(Auth::user()->hasRole('Employee'))
-                                                                @if(Auth::user()->can('View employee'))
-                                                                <a href="{{route('employee.employees.show',$employee->id )}}">
-                                                                    <span class="text-dark text-sm">{{$employee->name}}</span>
-                                                                </a>
-                                                                @else
-                                                                    <span class="text-dark text-sm">{{$employee->name}}</span>
-                                                                @endif
-                                                            @endif
-                                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                                                @if(Auth::user()->can('View employee'))
-                                                                <a href="{{route('Responsable_gestionnaire.employees.show',$employee->id )}}">
-                                                                    <span class="text-dark text-sm">{{$employee->name}}</span>
-                                                                </a>
-                                                                @else
-                                                                    <span class="text-dark text-sm">{{$employee->name}}</span>
-                                                                @endif
-                                                            @endif
-                                                        </span>
-                                                        <br>
-                                                    @endforeach
-                                                </td>
-
-                                                <td>
-                                                    <p class="text-sm font-weight-bold mb-0">
-                                                    @php 
-                                                        $tasktotalduration = App\Models\tasks_timer::where('task_id', $task->id)->sum('duration');
-                                                        $taskhours = floor($tasktotalduration / 60);
-                                                        $taskminutes = $tasktotalduration % 60;
-                                                    @endphp
-                                                    {{$taskhours}}h:{{$taskminutes}}m
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p class="text-sm font-weight-bold mb-0">
-                                                        {{$task->estimated_hours}}h
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p class="text-sm font-weight-bold ">
-                                                    @php
-                                                        $taskdifference = $task->estimated_hours * 60 - $tasktotalduration; // Convert estimated hours to minutes and subtract total duration
-                                                        $hours = floor(abs($taskdifference) / 60);
-                                                        $minutes = abs($taskdifference) % 60;
-
-                                                        $taskestimatedMinutes = $task->estimated_hours * 60;
-                                                        $taskprogressPercentage = $taskestimatedMinutes > 0 ? ($tasktotalduration / $taskestimatedMinutes) * 100 : 0;
-                                                        $taskformattedProgressPercentage = number_format($taskprogressPercentage, 2);
-                                                    @endphp
-                                                    @if($task->estimated_hours !== null)
-                                                       
-
-                                                        @if($taskdifference > 0)
-                                                        <p class="text-sm font-weight-bold mb-0 text-success">
-                                                        +{{$hours}}h:{{$minutes}}m</p>
-                                                        @elseif($taskdifference < 0)
-                                                            @php
-                                                                $hours = floor(abs($taskdifference) / 60);
-                                                                $minutes = abs($taskdifference) % 60;
-                                                            @endphp
-                                                            <p class="text-sm font-weight-bold mb-0 text-danger">
-                                                            -{{$hours}}h:{{$minutes}}m</p>
-                                                        @else
-                                                            <span style="color: blue;">{{$hours}}h:{{$minutes}}m</span>
-                                                        @endif
-                                                    @endif
-                                                    </p>
-                                                </td>
-                                                <td class="" data-id="" data-column="">
-                                                    <div class="progress" style="height: 12px; background-color: #e9ecef; border-radius: 0.25rem;">
-                                                        <div class="progress-bar 
-                                                            @if($taskprogressPercentage < 50) bg-success 
-                                                            @elseif($taskprogressPercentage < 75) bg-warning 
-                                                            @else bg-danger 
-                                                            @endif" 
-                                                            role="progressbar" 
-                                                            style="width: {{$taskformattedProgressPercentage}}%; font-size: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; color: #fff; text-align: center; white-space: nowrap; transition: width 0.6s ease;" 
-                                                            aria-valuenow="{{$taskformattedProgressPercentage}}" 
-                                                            aria-valuemin="0" 
-                                                            aria-valuemax="100">
-                                                            {{$taskformattedProgressPercentage}}%
-                                                        </div>
-                                                    </div>
-                                                </td>
-
-                                                <td>
-                                                @if(Auth::user()->hasRole('Responsable de projet'))
-                                                    @can('Update task')
-                                                    <a href="{{ route('Responsable_de_projet.tasks.edit', $task->id) }}" class="btn btn-sm btn-primary p-2 m-2">Edit</a>
-                                                    @endcan
-                                                @endif
-                                                @if(Auth::user()->hasRole('Employee'))
-                                                    @can('Update task')
-                                                    <a href="{{ route('employee.tasks.edit', $task->id) }}" class="btn btn-sm btn-primary p-2 m-2">Edit</a>
-                                                    @endcan
-                                                @endif
-                                                @if(Auth::user()->hasRole('Admin'))
-                                                    @can('Update task')
-                                                    <a href="{{ route('admin.tasks.edit', $task->id) }}" class="btn btn-sm btn-primary p-2 m-2">Edit</a>
-                                                    @endcan
-                                                    @can('Delete task')
-                                                    <form method="post" action="{{ route('admin.tasks.destroy', $task->id) }}" onsubmit="return confirm('Are you sure?');" style="display: inline;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-danger p-2 m-2">X</button>
-                                                    </form>
-                                                    @endcan 
-                                                @endif
-                                                @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                                    @can('Update task')
-                                                    <a href="{{ route('Responsable_gestionnaire.tasks.edit', $task->id) }}" class="btn btn-sm btn-primary p-2 m-2">Edit</a>
-                                                    @endcan
-                                                @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    @endforeach
-                                </tbody>
-                            </table>
+                        <div class="w-full sm:w-auto">
+                            <label for="taskSearch" class="block text-sm font-medium text-gray-700 mb-1">Search Task</label>
+                            <input type="text" id="taskSearch" class="block w-full sm:w-64 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Type to search...">
                         </div>
                     </div>
                 </div>
-                <br>
+
+                {{-- Session Message Alerts --}}
+                @if(session('message'))
+                    <div class="m-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative" role="alert">
+                        <span class="block sm:inline">{{ session('message') }}</span>
+                        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-green-700 hover:text-green-900 font-bold text-xl" aria-label="Close">
+                           &times;
+                        </button>
+                    </div>
+                @endif
+                @if(session('alertmessage'))
+                    <div class="m-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+                        <span class="block sm:inline">{{ session('alertmessage') }}</span>
+                         <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-red-700 hover:red-900 font-bold text-xl" aria-label="Close">
+                           &times;
+                        </button>
+                    </div>
+                @endif
 
 
+                {{-- Table Wrapper --}}
+                <div class="p-0"> {{-- No padding for edge-to-edge table --}}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse min-w-full" id="tasksTable">
+                            <thead class="border-b border-gray-200 bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Project / Task</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Teams</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Employees</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Duration</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Est. Hours</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Difference</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Progress</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @php $groupedTasks = $tasks->groupBy('project_id'); @endphp
 
+                                @forelse($groupedTasks as $projectId => $projectTasks)
+                                    @php
+                                        // Eager load project or fetch once
+                                        $project = \App\Models\Project::find($projectId);
+                                        $firstTask = $projectTasks->first(); // Use first task to get project name if project not found
+                                    @endphp
+                                    {{-- Project Header Row --}}
+                                    <tr class="bg-gray-100 project-header"> {{-- Class for filtering --}}
+                                        <td colspan="8" class="px-6 py-3 font-semibold text-gray-800 text-sm">
+                                            @php
+                                                $projectShowRoute = '#';
+                                                $canViewProject = $project && Auth::user()->can('View project'); // Check if project exists
+                                                if ($canViewProject) {
+                                                    if (Auth::user()->hasRole('Admin')) $projectShowRoute = route('admin.projects.show', $projectId);
+                                                    elseif (Auth::user()->hasRole('Responsable de projet')) $projectShowRoute = route('Responsable_de_projet.projects.show', $projectId);
+                                                    elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $projectShowRoute = route('Responsable_gestionnaire.projects.show', $projectId);
+                                                    elseif (Auth::user()->hasRole('Employee')) $projectShowRoute = route('employee.projects.show', $projectId);
+                                                }
+                                                $projectName = $project ? $project->name : ($firstTask ? $firstTask->project_name : 'Unknown Project');
+                                            @endphp
+                                            @if($canViewProject)
+                                                <a href="{{ $projectShowRoute }}" class="text-blue-600 hover:underline">
+                                                    {{ $projectName }}
+                                                </a>
+                                            @else
+                                                {{ $projectName }}
+                                            @endif
+                                        </td>
+                                    </tr>
 
+                                    {{-- Tasks for this project --}}
+                                    @foreach($projectTasks as $task)
+                                        <tr class="hover:bg-gray-50 task-row"> {{-- Class for filtering --}}
+                                            {{-- Task Title --}}
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 task-title"> {{-- Class for filtering --}}
+                                                @php
+                                                    $taskShowRoute = '#';
+                                                    $canViewTask = Auth::user()->can('View task');
+                                                     if ($canViewTask) {
+                                                        if(auth()->user()->hasRole('Admin')) $taskShowRoute = route('admin.tasks.show', $task->id);
+                                                        elseif(auth()->user()->hasRole('Responsable de projet')) $taskShowRoute = route('Responsable_de_projet.tasks.show', $task->id);
+                                                        // Add Employee/Resp Gestionnaire if needed
+                                                     }
+                                                @endphp
+                                                 @if($canViewTask)
+                                                     <a href="{{ $taskShowRoute }}" class="text-blue-600 hover:underline">
+                                                         {{ $task->title }}
+                                                     </a>
+                                                 @else
+                                                      {{ $task->title }}
+                                                 @endif
+                                            </td>
+                                            {{-- Teams --}}
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                 <div class="flex flex-wrap gap-1">
+                                                     @php
+                                                         // Eager load teams for performance
+                                                         $task_teams = App\Models\team_tasks::with('team')->where('task_id', $task->id)->get();
+                                                         $teamIndexRoute = '#';
+                                                         $canViewTeam = Auth::user()->can('View team');
+                                                         if($canViewTeam) {
+                                                            if (Auth::user()->hasRole('Admin')) $teamIndexRoute = route('admin.teams.index');
+                                                            elseif (Auth::user()->hasRole('Responsable de projet')) $teamIndexRoute = route('Responsable_de_projet.teams.index');
+                                                            elseif (Auth::user()->hasRole('Employee')) $teamIndexRoute = route('employee.teams.index');
+                                                            elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $teamIndexRoute = route('Responsable_gestionnaire.teams.index');
+                                                         }
+                                                     @endphp
+                                                     @forelse($task_teams as $team_task)
+                                                        @if($team_task->team) {{-- Check if team exists --}}
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                                             @if($canViewTeam)
+                                                                 <a href="{{ $teamIndexRoute }}" class="hover:underline">{{ $team_task->team->name }}</a>
+                                                             @else
+                                                                 {{ $team_task->team->name }}
+                                                             @endif
+                                                        </span>
+                                                        @endif
+                                                     @empty
+                                                        <span class="text-xs text-gray-400">No team</span>
+                                                     @endforelse
+                                                 </div>
+                                            </td>
+                                            {{-- Employees --}}
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <div class="flex flex-wrap gap-1">
+                                                     @php
+                                                         // Eager load employees for performance
+                                                         $task_employees = App\Models\employees_tasks::with('employee')->where('task_id', $task->id)->get();
+                                                         $employeeShowRoute = '#';
+                                                         $canViewEmployee = Auth::user()->can('View employee');
+                                                          if ($canViewEmployee) {
+                                                            if (Auth::user()->hasRole('Admin')) $employeeShowRoute = route('admin.employees.show', '[ID]'); // Need ID placeholder
+                                                            elseif (Auth::user()->hasRole('Responsable de projet')) $employeeShowRoute = route('Responsable_de_projet.employees.show', '[ID]');
+                                                            elseif (Auth::user()->hasRole('Employee')) $employeeShowRoute = route('employee.employees.show', '[ID]');
+                                                            elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $employeeShowRoute = route('Responsable_gestionnaire.employees.show', '[ID]');
+                                                          }
+                                                     @endphp
+                                                     @forelse($task_employees as $emp_task)
+                                                        @if($emp_task->employee) {{-- Check if employee exists --}}
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                                             @if($canViewEmployee)
+                                                                 <a href="{{ str_replace('[ID]', $emp_task->employee->id, $employeeShowRoute) }}" class="hover:underline">{{ $emp_task->employee->name }}</a>
+                                                             @else
+                                                                 {{ $emp_task->employee->name }}
+                                                             @endif
+                                                        </span>
+                                                        @endif
+                                                     @empty
+                                                        <span class="text-xs text-gray-400">No employees</span>
+                                                     @endforelse
+                                                 </div>
+                                            </td>
+                                            {{-- Duration, Est. Hours, Difference, Progress --}}
+                                            @php
+                                                // Calculations (same as project table logic, applied to task)
+                                                $tasktotalduration = App\Models\tasks_timer::where('task_id', $task->id)->sum('duration'); // in minutes
+                                                $taskhours = floor(abs($tasktotalduration) / 60);
+                                                $taskminutes = abs($tasktotalduration) % 60;
 
+                                                $taskestimatedMinutes = ($task->estimated_hours ?? 0) * 60;
+                                                $taskdifference = $taskestimatedMinutes - $tasktotalduration;
+                                                $diffhours = floor(abs($taskdifference) / 60);
+                                                $diffminutes = abs($taskdifference) % 60;
 
+                                                $taskprogressPercentage = $taskestimatedMinutes > 0 ? max(0, min(100, ($tasktotalduration / $taskestimatedMinutes) * 100)) : 0;
+                                                $taskformattedProgressPercentage = number_format($taskprogressPercentage, 2);
 
-    </main>
+                                                $taskProgressBarColor = 'bg-green-500';
+                                                if ($taskprogressPercentage >= 75) $taskProgressBarColor = 'bg-red-500';
+                                                elseif ($taskprogressPercentage >= 50) $taskProgressBarColor = 'bg-yellow-500';
+                                            @endphp
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ sprintf('%02d', $taskhours) }}h {{ sprintf('%02d', $taskminutes) }}m</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $task->estimated_hours ?? 0 }}h</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                @if($task->estimated_hours !== null)
+                                                    @if($taskdifference > 0)
+                                                        <span class="text-green-600">+{{ sprintf('%02d', $diffhours) }}h {{ sprintf('%02d', $diffminutes) }}m</span>
+                                                    @elseif($taskdifference < 0)
+                                                        <span class="text-red-600">-{{ sprintf('%02d', $diffhours) }}h {{ sprintf('%02d', $diffminutes) }}m</span>
+                                                    @else
+                                                        <span class="text-blue-600">{{ sprintf('%02d', $diffhours) }}h {{ sprintf('%02d', $diffminutes) }}m</span>
+                                                    @endif
+                                                 @else
+                                                    <span class="text-gray-400">-</span>
+                                                @endif
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-20 bg-gray-200 rounded-full h-1.5">
+                                                        <div class="{{ $taskProgressBarColor }} h-1.5 rounded-full" style="width: {{ $taskformattedProgressPercentage }}%"></div>
+                                                    </div>
+                                                    <span class="text-xs font-medium">{{ $taskformattedProgressPercentage }}%</span>
+                                                </div>
+                                            </td>
+                                            {{-- Actions --}}
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm space-x-1">
+                                                @php
+                                                    $canEditTask = Auth::user()->can('Update task');
+                                                    $canDeleteTask = Auth::user()->can('Delete task');
+                                                    $editRoute = '#'; $deleteRoute = '#';
 
+                                                    if (Auth::user()->hasRole('Admin')) {
+                                                        $editRoute = route('admin.tasks.edit', $task->id);
+                                                        $deleteRoute = route('admin.tasks.destroy', $task->id);
+                                                    } elseif (Auth::user()->hasRole('Responsable de projet')) {
+                                                        $editRoute = route('Responsable_de_projet.tasks.edit', $task->id);
+                                                        // $deleteRoute = ? // Add if applicable
+                                                    } elseif (Auth::user()->hasRole('Employee')) {
+                                                        $editRoute = route('employee.tasks.edit', $task->id);
+                                                        // $deleteRoute = ? // Add if applicable
+                                                    } elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                                                         $editRoute = route('Responsable_gestionnaire.tasks.edit', $task->id);
+                                                         // $deleteRoute = ? // Add if applicable
+                                                    }
+                                                @endphp
 
+                                                @if($canEditTask)
+                                                    <a href="{{ $editRoute }}" class="inline-flex items-center px-2.5 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500">
+                                                        Edit
+                                                    </a>
+                                                @endif
 
-    @include('dashboard_layouts.scripts')
+                                                @if($canDeleteTask && Auth::user()->hasRole('Admin')) {{-- Only show delete for Admin based on original --}}
+                                                    <form method="post" action="{{ $deleteRoute }}" onsubmit="return confirm('Are you sure?');" class="inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="inline-flex items-center px-2.5 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                                            Delete
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @empty
+                                    <tr>
+                                         <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
+                                             No tasks found.
+                                         </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
+        </main>
+    </div>
+
+    @livewireScripts
+    {{-- @include('dashboard_layouts.scripts') --}}
+
+    {{-- Filter Scripts --}}
     <script>
-    document.getElementById('taskFilter').addEventListener('change', function() {
-        var filter = this.value.toLowerCase();
-        var rows = document.querySelectorAll('#tasksTable tbody tr');
+        document.addEventListener('DOMContentLoaded', function() {
+            const taskFilter = document.getElementById('taskFilter');
+            const taskSearch = document.getElementById('taskSearch');
+            const tableBody = document.querySelector('#tasksTable tbody');
+            const allRows = Array.from(tableBody.querySelectorAll('tr')); // All rows including headers
 
-        rows.forEach(function(row) {
-            var taskName = row.cells[0].textContent.toLowerCase();
-            if (filter === "" || taskName.includes(filter)) {
-                row.style.display = "";
-            } else {
-                row.style.display = "none";
+            function applyFilters() {
+                const filterValue = taskFilter.value.toLowerCase();
+                const searchValue = taskSearch.value.toLowerCase();
+
+                let visibleProjectHeaders = new Set();
+
+                // Filter task rows
+                allRows.forEach(row => {
+                    if (row.classList.contains('task-row')) {
+                        const taskTitleElement = row.querySelector('.task-title'); // Use the specific class
+                        const taskTitle = taskTitleElement ? taskTitleElement.textContent.toLowerCase() : '';
+
+                        const matchesFilter = filterValue === "" || taskTitle.includes(filterValue);
+                        const matchesSearch = searchValue === "" || taskTitle.includes(searchValue);
+
+                        if (matchesFilter && matchesSearch) {
+                            row.style.display = "";
+                            // Find preceding project header and mark for visibility
+                            let header = row.previousElementSibling;
+                            while(header && !header.classList.contains('project-header')) {
+                                header = header.previousElementSibling;
+                            }
+                            if(header) {
+                                visibleProjectHeaders.add(header);
+                            }
+                        } else {
+                            row.style.display = "none";
+                        }
+                    }
+                });
+
+                // Show/hide project headers
+                allRows.forEach(row => {
+                     if (row.classList.contains('project-header')) {
+                         row.style.display = visibleProjectHeaders.has(row) ? "" : "none";
+                     }
+                });
             }
-        });
-    });
-</script>
-<script>
-    document.getElementById('taskSearch').addEventListener('input', function() {
-        let filter = this.value.toLowerCase();
-        let rows = document.querySelectorAll('#tasksTable tbody tr:not(.bg-light)'); // Exclude project headers
 
-        rows.forEach(row => {
-            let taskTitle = row.querySelector('td:first-child').textContent.toLowerCase();
-            let projectHeader = row.previousElementSibling;
-            
-            if (taskTitle.includes(filter)) {
-                row.style.display = '';
-                if (projectHeader && projectHeader.classList.contains('bg-light')) {
-                    projectHeader.style.display = '';
+            taskFilter.addEventListener('change', applyFilters);
+            taskSearch.addEventListener('input', applyFilters);
+        });
+    </script>
+    
+    {{-- Timer Alert Script (kept as is) --}}
+    {{-- Consider moving this to a central JS file if used on multiple pages --}}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var modal = document.getElementById("customAlertModal"); // Ensure this modal exists in your included head/scripts
+            var span = document.getElementsByClassName("close-button")[0]; // Ensure this exists
+            var alertSound = document.getElementById("alertSound"); // Ensure this exists
+            var alertInterval;
+            var checkStateInterval;
+
+            if (span) {
+                span.onclick = function() {
+                    if(modal) modal.style.display = "none";
                 }
-            } else {
-                row.style.display = 'none';
             }
-        });
-        
-        // Hide project headers with no visible tasks
-        document.querySelectorAll('#tasksTable tbody tr.bg-light').forEach(header => {
-            let nextRow = header.nextElementSibling;
-            let hasVisibleTasks = false;
-            
-            while (nextRow && !nextRow.classList.contains('bg-light')) {
-                if (nextRow.style.display !== 'none') {
-                    hasVisibleTasks = true;
-                    break;
+
+            function showAlert() {
+                if(modal) modal.style.display = "block";
+                if(alertSound) alertSound.play();
+            }
+
+            function startAlertInterval() {
+                clearInterval(alertInterval);
+                alertInterval = setInterval(showAlert, 60000); // Show alert every 1 minute
+            }
+
+            function clearAlertInterval() {
+                clearInterval(alertInterval);
+            }
+
+            function checkTimerState(tasksTimer) {
+                // ... (rest of your checkTimerState logic - kept as is) ...
+                 if (!tasksTimer) {
+                    startAlertInterval();
+                } else {
+                    if (tasksTimer.paused === null || tasksTimer.paused === 0) {
+                        clearAlertInterval();
+                    } else if (tasksTimer.paused === 1) {
+                        startAlertInterval();
+                    }
+                    if (tasksTimer.paused_date !== null && tasksTimer.paused === 0) {
+                       clearAlertInterval();
+                   }
                 }
-                nextRow = nextRow.nextElementSibling;
             }
-            
-            header.style.display = hasVisibleTasks ? '' : 'none';
+
+            function fetchTimerState() {
+                let url = '';
+                @if(Auth::user()->hasRole('Responsable de projet'))
+                    url = '/Responsable_de_projet/pointage/get-timer-state';
+                @elseif(Auth::user()->hasRole('Admin'))
+                    url = '/admin/pointage/get-timer-state';
+                @elseif(Auth::user()->hasRole('Employee'))
+                    url = '/employee/pointage/get-timer-state';
+                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                     url = '/Responsable_gestionnaire/pointage/get-timer-state'; // Added this role
+                @endif
+
+                if (url) { 
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            checkTimerState(data.tasksTimer);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching timer state:', error);
+                            
+                        });
+                } else {
+                     console.log("No timer state URL defined for this user role.");
+                     
+                }
+            }
+
+            // Initial check
+            fetchTimerState();
+
+            // Set up periodic checks every 1 minute
+            checkStateInterval = setInterval(fetchTimerState, 1 * 60 * 1000);
+            console.log("Timer state checker started.");
         });
-    });
-</script>
-
-<!-- Check if the timer is running and show an alert if it's not -->
-<script>
-     document.addEventListener("DOMContentLoaded", function() {
-    var modal = document.getElementById("customAlertModal");
-    var span = document.getElementsByClassName("close-button")[0];
-    var alertSound = document.getElementById("alertSound");
-    var alertInterval;
-    var checkStateInterval;
-
-    span.onclick = function() {
-        modal.style.display = "none";
-    }
-
-    function showAlert() {
-        modal.style.display = "block";
-        alertSound.play();
-    }
-
-    function startAlertInterval() {
-        clearInterval(alertInterval);
-        alertInterval = setInterval(showAlert, 60000); // Show alert every 1 minute
-    }
-
-    function clearAlertInterval() {
-        clearInterval(alertInterval);
-    }
-
-    function checkTimerState(tasksTimer) {
-        if (!tasksTimer) {
-            // If $tasks_timer doesn't exist, start the interval 
-            startAlertInterval();
-        } else {
-            if (tasksTimer.paused === null || tasksTimer.paused === 0) {
-                // If $tasks_timer exists and paused is null or 0, clear the interval
-                clearAlertInterval();
-            } else if (tasksTimer.paused === 1) {
-                // If $tasks_timer exists and paused is 1, start the interval
-                startAlertInterval();
-            }
-
-            if (tasksTimer.paused_date !== null && tasksTimer.paused === 0) {
-                // If paused_date is not null and paused is 0, clear the interval
-                clearAlertInterval();
-            }
-        }
-    }
-
-    function fetchTimerState() {
-        @if(Auth::user()->hasRole('Responsable de projet'))
-            fetch('/Responsable_de_projet/pointage/get-timer-state') // Replace with your actual endpoint
-        @endif
-        @if(Auth::user()->hasRole('Admin'))
-            fetch('/admin/pointage/get-timer-state') // Replace with your actual endpoint 
-        @endif
-        @if(Auth::user()->hasRole('Employee'))
-            fetch('/employee/pointage/get-timer-state') // Replace with your actual endpoint 
-        @endif
-            .then(response => response.json())
-            .then(data => {
-                checkTimerState(data.tasksTimer);
-            })
-            .catch(error => {
-                console.error('Error fetching timer state:', error);
-            });
-    }
-
-    // Initial check
-    fetchTimerState();
-
-    // Set up periodic checks every 1 minutes
-    checkStateInterval = setInterval(fetchTimerState, 1 * 60 * 1000);
-    console.log("timer started");
-
-   
-});
     </script>
 
 </body>
-
 </html>

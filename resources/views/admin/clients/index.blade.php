@@ -1,282 +1,249 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clients - BizManager</title> 
+    @vite('resources/css/app.css')
+    @livewireStyles
+    
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
 
-@include('dashboard_layouts.head')
-<style>
-  a {
-    color: blue;
-}
-.font-weight-bolder{
-    color : black !important;
-}
-th {
-    font-size: 14px !important; 
-}
-td, td * {
-    color: #332f2f !important;
-}
-td a {
-    color: blue !important;
-}
-</style>
+    {{-- Sidebar Component --}}
+    <x-dashboard.sidebar />
 
-<body class="g-sidenav-show bg-gray-100">
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-      style="display: none; visibility: hidden"></iframe></noscript>
-  <div class="min-height-300 bg-primary position-absolute w-100"></div>
+    {{-- Main Wrapper (Navbar + Content) --}}
+    <div class="flex flex-col flex-1 overflow-y-auto">
 
-  @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-        @include('employees.sidebar')
-    @endif
-    @if(Auth::user()->hasRole('Admin'))
-        @include('admin.sidebar')
-    @endif
+        {{-- Navbar Component --}}
+        <x-dashboard.navbar />
 
-  <main class="main-content position-relative border-radius-lg">
-    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
-      id="navbarBlur" data-scroll="false">
-      <div class="container-fluid py-1 px-3">
+        {{-- Main Content Area --}}
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8">
 
-        @include('dashboard_layouts.navbar')
+            {{-- Container for the table --}}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
 
-      </div>
+                {{-- Header Section --}}
+                <div class="p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <h6 class="text-lg font-semibold text-gray-900">Clients Table</h6>
 
-      <div class="container-fluid py-4">
-
-        <div class="row mt-3">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header p-3 pb-0">
-                <div class="d-flex justify-content-between">
-                    <h6>clients Table</h6>
-                    <div>
-                      
-                      @if(Auth::user()->hasRole('Responsable de projet'))
+                    <div class="flex flex-wrap gap-2">
+                        {{-- Add Client Button --}}
                         @can('Add client')
-                          <a type="button" class="btn btn-primary" href="{{route('Responsable_de_projet.clients.create')}}">Add Client</a> 
+                            @php
+                                $createRoute = '#'; // Default fallback
+                                if (Auth::user()->hasRole('Responsable de projet')) $createRoute = route('Responsable_de_projet.clients.create');
+                                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $createRoute = route('Responsable_gestionnaire.clients.create');
+                                elseif (Auth::user()->hasRole('Admin')) $createRoute = route('admin.clients.create');
+                            @endphp
+                            <a href="{{ $createRoute }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
+                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                                Add Client
+                            </a>
                         @endcan
-                        <a type="button" class="btn btn-primary" href="{{route('Responsable_de_projet.Clientrepports.downloadRepports')}}">Client Reports PDF</a>
-                      @endif
-                      @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                        @can('Add client')
-                          <a type="button" class="btn btn-primary" href="{{route('Responsable_gestionnaire.clients.create')}}">Add Client</a> 
-                        @endcan
-                        <a type="button" class="btn btn-primary" href="{{route('Responsable_gestionnaire.Clientrepports.downloadRepports')}}">Client Reports PDF</a>
-                      @endif
-                      @if(Auth::user()->hasRole('Admin'))
-                        @can('Add client')
-                          <a type="button" class="btn btn-primary" href="{{route('admin.clients.create')}}">Add Client</a> 
-                        @endcan
-                        <a type="button" class="btn btn-primary" href="{{route('admin.Clientrepports.downloadRepports')}}">Client Reports PDF</a>
-                      @endif
+
+                        {{-- Report Button --}}
+                        @php
+                            $reportRoute = '#'; // Default fallback
+                            if (Auth::user()->hasRole('Responsable de projet')) $reportRoute = route('Responsable_de_projet.Clientrepports.downloadRepports');
+                            elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $reportRoute = route('Responsable_gestionnaire.Clientrepports.downloadRepports');
+                            elseif (Auth::user()->hasRole('Admin')) $reportRoute = route('admin.Clientrepports.downloadRepports');
+                        @endphp
+                        <a href="{{ $reportRoute }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
+                           <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                           Client Reports PDF
+                        </a>
                     </div>
                 </div>
-                  @if(session('message'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('message') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
+
+                {{-- Session Message Alert --}}
+                @if(session('message'))
+                    <div class="m-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative" role="alert">
+                        <span class="block sm:inline">{{ session('message') }}</span>
+                        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-green-700 hover:text-green-900 font-bold text-xl" aria-label="Close">
+                           &times; {{-- Better looking 'X' --}}
+                        </button>
                     </div>
-                  @endif
-              </div>
-              <div class="table-responsive p-4 pt-1">
-                <table id="example" class="table table-flush" style="width:100%">
-                  <thead class="thead-light">
-                    <tr class="text-center">
-                      <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Client N</th>
-                      <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Name</th>
-                      <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Email</th>
-                      <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Phone</th>
-                      <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Billing Address</th>
-                      <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> TVA</th>
-                      <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Due Date</th>
-                      <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Address</th>
-                      <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> City</th>
-                      <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Zip</th>
-                      <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Country</th>
-                      @can('Delete client')
-                      <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Action</th>
-                      @endcan
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach($clients as $client)
-                    <tr class="text-center">
-                      <td class="editable" data-id="{{$client->id}}" data-column="client_number">
+                @endif
 
-                        {{$client->client_number}}
-                      </td>
-                      <td class="editable" data-id="{{$client->id}}" data-column="name">
-                        @if(Auth::user()->hasRole('Responsable de projet'))
-                          @if(Auth::user()->can('View client'))
-                            <a href="{{route('Responsable_de_projet.clients.show', $client->id)}}">
-                              <b style="color: blue !important;">{{$client->name}}</b>
-                            </a>
-                            @else
-                            <b>{{$client->name}}</b>
-                          @endif
-                        @endif
-                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                          @if(Auth::user()->can('View client'))
-                            <a href="{{route('Responsable_gestionnaire.clients.show', $client->id)}}">
-                              <b style="color: blue !important;">{{$client->name}}</b>
-                            </a>
-                            @else
-                            <b>{{$client->name}}</b>
-                          @endif
-                        @endif
-                        @if(Auth::user()->hasRole('Admin'))
-                          @if(Auth::user()->can('View client'))
-                            <a href="{{route('admin.clients.show', $client->id)}}">
-                              <b style="color: blue !important;">{{$client->name}}</b>
-                            </a>
-                            @else
-                            <b>{{$client->name}}</b>
-                          @endif
-                        @endif
-                      </td>
+                {{-- Table Wrapper --}}
+                <div class="p-6">
+                    <div class="overflow-x-auto">
+                        <table id="example" class="w-full text-left border-collapse min-w-full">
+                            <thead class="border-b border-gray-200 bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Client N</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Name</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Email</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Phone</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Billing Address</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">VAT</th> {{-- Translated TVA --}}
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Due Date</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Address</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">City</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Zip</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Country</th>
+                                    @can('Delete client')
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Action</th>
+                                    @endcan
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @forelse($clients as $client) {{-- Use forelse for empty state --}}
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="client_number">
+                                        {{$client->client_number}}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="name">
+                                         @php
+                                            $showRoute = '#';
+                                            $canView = Auth::user()->can('View client');
+                                            if ($canView) {
+                                                if (Auth::user()->hasRole('Responsable de projet')) $showRoute = route('Responsable_de_projet.clients.show', $client->id);
+                                                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $showRoute = route('Responsable_gestionnaire.clients.show', $client->id);
+                                                elseif (Auth::user()->hasRole('Admin')) $showRoute = route('admin.clients.show', $client->id);
+                                            }
+                                         @endphp
+                                         @if($canView)
+                                            <a href="{{ $showRoute }}" class="text-blue-600 hover:underline font-medium">
+                                              {{$client->name}}
+                                            </a>
+                                         @else
+                                            <span class="font-medium text-gray-900">{{$client->name}}</span>
+                                         @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="email">
+                                        {{$client->email}}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="phone">
+                                        {{$client->phone}}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="Billing_address">
+                                        {{$client->Billing_address}}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="TVA">
+                                        {{$client->TVA}}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="due_date">
+                                        {{$client->due_date}}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="address">
+                                        {{$client->address}}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="city">
+                                        {{$client->city}}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="zip">
+                                        {{$client->zip}}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="country">
+                                        {{$client->country}}
+                                    </td>
 
-                      <td class="editable" data-id="{{$client->id}}" data-column="email">
-
-                        {{$client->email}}
-                      </td>
-
-                      <td class="editable" data-id="{{$client->id}}" data-column="phone">
-
-                        {{$client->phone}}
-                      </td>
-
-                      <td class="editable" data-id="{{$client->id}}" data-column="Billing_address">
-
-                        {{$client->Billing_address}}
-                      </td>
-
-                      <td class="editable" data-id="{{$client->id}}" data-column="TVA">
-
-                        {{$client->TVA}}
-                      </td>
-
-                      <td class="editable" data-id="{{$client->id}}" data-column="due_date">
-
-                        {{$client->due_date}}
-                      </td>
-
-                      <td class="editable" data-id="{{$client->id}}" data-column="address">
-
-                        {{$client->address}}
-                      </td>
-
-                      <td class="editable" data-id="{{$client->id}}" data-column="city">
-
-                        {{$client->city}}
-                      </td>
-
-                      <td class="editable" data-id="{{$client->id}}" data-column="zip">
-
-                        {{$client->zip}}
-                      </td>
-
-                      <td class="editable" data-id="{{$client->id}}" data-column="country">
-
-                        {{$client->country}}
-                      </td>
-
-                      @php
-                        $client_has_invoice = \App\Models\invoices_history::where('client_id', $client->id)->get();
-                      @endphp
-                      @can('Delete client')
-                      <td>
-                        @if( count($client_has_invoice) > 0)
-                          <div class="delete-warning">You can't delete this client <br> Because he has invoices</div>
-                          @else
-
-                          @if(Auth::user()->hasRole('Responsable de projet'))
-                            <form action="{{route('Responsable_de_projet.clients.destroy',$client->id) }}" method="post"
-                              onsubmit="return confirm('Are you sure?');" class="d-inline">
-                          @endif
-                          @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                            <form action="{{route('Responsable_gestionnaire.clients.destroy',$client->id) }}" method="post"
-                              onsubmit="return confirm('Are you sure?');" class="d-inline">
-                          @endif
-                          @if(Auth::user()->hasRole('Admin'))
-                            <form action="{{route('admin.clients.destroy',$client->id) }}" method="post"
-                            onsubmit="return confirm('Are you sure?');" class="d-inline">
-                          @endif
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" style="color: white !important;">Delete</button>
-                          </form>
-                        @endif
-                      </td>
-                      @endcan
-                      
-                    </tr>
-                    @endforeach
-                  </tbody>
-
-                </table>
-              </div>
-
+                                    @can('Delete client')
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                        @php
+                                            $client_has_invoice = \App\Models\invoices_history::where('client_id', $client->id)->exists();
+                                        @endphp
+                                        @if($client_has_invoice)
+                                           <div class="bg-red-100 border border-red-300 text-red-700 px-2 py-1 rounded text-xs font-medium inline-block whitespace-normal text-center">
+                                               Cannot delete:<br>Has invoices
+                                           </div>
+                                        @else
+                                            @php
+                                                $deleteRoute = '#';
+                                                if (Auth::user()->hasRole('Responsable de projet')) $deleteRoute = route('Responsable_de_projet.clients.destroy', $client->id);
+                                                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $deleteRoute = route('Responsable_gestionnaire.clients.destroy', $client->id);
+                                                elseif (Auth::user()->hasRole('Admin')) $deleteRoute = route('admin.clients.destroy', $client->id);
+                                            @endphp
+                                            <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Are you sure?');" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs font-medium px-2.5 py-1 rounded-md">
+                                                   Delete
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </td>
+                                    @endcan
+                                </tr>
+                                @empty {{-- Handle case where there are no clients --}}
+                                <tr>
+                                     <td colspan="12" class="px-6 py-4 text-center text-sm text-gray-500"> {{-- Span across all columns --}}
+                                         No clients found.
+                                     </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
 
+        </main>
+    </div>
 
+    @livewireScripts
+    {{-- Include dashboard_layouts.scripts if needed --}}
+    {{-- @include('dashboard_layouts.scripts') --}}
 
-  </main>
+    {{-- Keep jQuery and inline editing script --}}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+    $(document).ready(function(){
+        $(".editable").dblclick(function(){
+            if ($(this).find('input').length > 0) {
+                return;
+            }
 
-<style>
-  .delete-warning {
-    color: #D8000C; /* Red color for the warning text */
-    background-color: #FFD2D2; /* Light red background */
-    padding: 5px; /* Padding around the text */
-    margin: 8px 0; /* Margin to separate it from other elements */
-    border-radius: 5px; /* Rounded corners */
-    border: 1px solid #D8000C; /* Red border */
-    font-weight: bold; /* Make the text bold */
-}
-</style>
-  @include('dashboard_layouts.scripts')
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script>
-  $(document).ready(function(){
-    $(".editable").dblclick(function(){
-        var originalContent = $(this).text().trim();
-        var width = $(this).width();
-        $(this).html("<input type='text' value='" + originalContent + "' style='width: 100%; min-width: " + width + "px;' />");
-        var input = $(this).children().first();
-        input.focus();
+            var originalContent = $(this).text().trim();
+            var cellWidth = $(this).outerWidth();
 
-        // Place cursor at the beginning of the input
-        input[0].setSelectionRange(0, 0);
+            $(this).html("<input type='text' value='" + originalContent + "' class='w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-1' style='min-width: " + cellWidth + "px;' />");
 
-        input.blur(function(){
-            var newContent = $(this).val();
-            var clientId = $(this).parent().data('id');
-            var columnName = $(this).parent().data('column');
-            $(this).parent().text(newContent);
-            $(this).parent().removeClass("cellEditing");
+            var input = $(this).children('input').first();
+            input.focus();
+            input[0].select();
 
-            // Make AJAX call to update the database here
-            $.ajax({
-                url: 'clients/updateClient', // your update route
-                type: 'post',
-                data: {
-                    content: newContent,
-                    id: clientId,
-                    column: columnName,
-                    _token: '{{ csrf_token() }}' // add CSRF token for Laravel
-                },
-                success: function(response) {
-                    // Refresh the page after the update is successful
-                    location.reload();
+            input.blur(function(){
+                var newContent = $(this).val();
+                var $parentCell = $(this).parent();
+                var clientId = $parentCell.data('id');
+                var columnName = $parentCell.data('column');
+
+                $parentCell.text(originalContent);
+
+                $.ajax({
+                    url: '/admin/clients/updateClient', 
+                    type: 'POST',
+                    data: {
+                        content: newContent,
+                        id: clientId,
+                        column: columnName,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        $parentCell.text(newContent);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        $parentCell.text(originalContent);
+                        alert('Error updating client: ' + errorThrown);
+                        console.error("AJAX Error:", textStatus, errorThrown, jqXHR.responseText);
+                    }
+                });
+            });
+
+            input.keypress(function(e){
+                if(e.which == 13){ 
+                    $(this).blur();
+                    return false;
                 }
             });
         });
     });
-});
-  </script>
-
+    </script>
 
 </body>
-
 </html>
