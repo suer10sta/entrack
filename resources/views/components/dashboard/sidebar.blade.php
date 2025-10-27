@@ -21,7 +21,6 @@
                     <p class="text-xs text-gray-500">Pro</p>
                 </div>
             </div>
-
             <!-- Navigation -->
             <nav class="px-4 space-y-1 mt-2">
                 <!-- Dashboard -->
@@ -70,10 +69,11 @@
                         </svg>
                     </button>
                     <div id="invoices-submenu" class="ml-11 mt-1 space-y-1 hidden overflow-hidden">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Generate</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Generates Reports</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">History</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Parametres</a>
+                        <a href="{{ route('admin.invoices.fullinvoice') }}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Generate</a>
+                        <a href="{{ route('admin.invoices.generate.Detailed') }}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Generates Reports</a>
+                        <a href="{{ route('admin.invoices.invoicehistory') }}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">History</a>
+                        <a href="{{ route('admin.invoices.parameters') }}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Parametres</a>
+                        <a href="{{ route('admin.invoice.creditNoteHistory') }}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Credit Note History</a>
                     </div>
                 </div>
 
@@ -91,9 +91,9 @@
                         </svg>
                     </button>
                     <div id="quotes-submenu" class="ml-11 mt-1 space-y-1 hidden overflow-hidden">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Generate</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">History</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Parametre</a>
+                        <a href="{{ route('admin.devis.generateDevis') }}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Generate</a>
+                        <a href="{{ route('admin.devis.devishistory') }}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">History</a>
+                        <a href="{{ route('admin.devis.parameters') }}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Parametre</a>
                     </div>
                 </div>
 
@@ -111,14 +111,14 @@
                         </svg>
                     </button>
                     <div id="expense-submenu" class="ml-11 mt-1 space-y-1 hidden overflow-hidden">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Generate</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">History</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Parametre</a>
+                        <a href="{{route('admin.notedefrais.generateNoteDeFrais')}}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Generate</a>
+                        <a href="{{route('admin.notedefrais.notedefraishistory')}}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">History</a>
+                        <a href="{{route('admin.notedefrais.parameters')}}" class="block px-4 py-2 text-sm text-gray-500 hover:text-blue-500">Parametre</a>
                     </div>
                 </div>
 
                 <!-- Time Tracking -->
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50">
+                <a href="{{route('admin.pointage.index')}}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -126,7 +126,7 @@
                 </a>
 
                 <!-- Administration -->
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50">
+                <a href="{{route('admin.roles.index')}}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -135,7 +135,7 @@
                 </a>
 
                 <!-- Company Info -->
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50">
+                <a href="{{route('admin.Enterprise_infos.index')}}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                     </svg>
@@ -143,7 +143,7 @@
                 </a>
 
                 <!-- Billing -->
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50">
+                <a href="{{route('admin.Enterprise_infos.create')}}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                     </svg>

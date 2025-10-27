@@ -1,238 +1,145 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clients - BizManager</title> 
+    @vite('resources/css/app.css')
+    @livewireStyles
+    
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
 
-@include('dashboard_layouts.head')
-<style>
-    #clientInputs {
-  display: none;
-}
-</style>
+    {{-- Sidebar Component --}}
+    <x-dashboard.sidebar />
 
-<body class="g-sidenav-show bg-gray-100">
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-            style="display: none; visibility: hidden"></iframe></noscript>
-    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+    {{-- Main Wrapper (Navbar + Content) --}}
+    <div class="flex flex-col flex-1 overflow-y-auto">
 
-    @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-        @include('employees.sidebar')
-    @endif
-    @if(Auth::user()->hasRole('Admin'))
-        @include('admin.sidebar')
-    @endif
+        {{-- Navbar Component --}}
+        <x-dashboard.navbar />
 
-    <main class="main-content position-relative border-radius-lg">
-        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
-            id="navbarBlur" data-scroll="false">
-            <div class="container-fluid py-1 px-3">
+        {{-- Main Content Area --}}
+    <div class="flex flex-col flex-1 overflow-y-auto">
 
-                @include('dashboard_layouts.navbar')
+        <!-- Main Content -->
+        <div class="p-8 animate-fadeInSlideUp">
+            <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8 hover:shadow-xl transition-all duration-300">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6">New Expense Note</h2>
 
-            </div>
+                @if(session('message'))
+                    <div class="mb-4 p-4 rounded-lg bg-green-50 text-green-700 border border-green-200">
+                        {{ session('message') }}
+                    </div>
+                @endif
 
-            <div class="container-fluid py-4">
+                {{-- Dynamic form action based on role --}}
+                <form id="devisForm" method="POST"
+                    action="{{ 
+                        route(
+                            Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.notedefrais.saveNoteDeFraisPdf' :
+                            (Auth::user()->hasRole('Admin') ? 'admin.notedefrais.saveNoteDeFraisPdf' :
+                            (Auth::user()->hasRole('Employee') ? 'employee.notedefrais.saveNoteDeFraisPdf' :
+                            'Responsable_gestionnaire.notedefrais.saveNoteDeFraisPdf'))
+                        ) 
+                    }}"
+                    autocomplete="off"
+                    class="space-y-6">
 
-                <div class="row">
-                    <div class="col-lg-9 col-12 mx-auto">
-                        <div class="card card-body mt-4">
-                            <h6 class="mb-0">New Expense Note</h6>
-                            @if(session('message'))
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                {{ session('message') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                    aria-label="Close">X</button>
-                            </div>
-                            @endif
-                            <hr class="horizontal dark my-3" />
-                            @if(Auth::user()->hasRole('Responsable de projet'))
-                            <form id="devisForm" method="POST" action="{{route('Responsable_de_projet.notedefrais.saveNoteDeFraisPdf')}}" autocomplete="off">
-                            @endif
-                            @if(Auth::user()->hasRole('Admin'))
-                            <form id="devisForm" method="POST" action="{{route('admin.notedefrais.saveNoteDeFraisPdf')}}" autocomplete="off">
-                            @endif
-                            @if(Auth::user()->hasRole('Employee'))
-                            <form id="devisForm" method="POST" action="{{route('employee.notedefrais.saveNoteDeFraisPdf')}}" autocomplete="off">
-                            @endif
-                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                            <form id="devisForm" method="POST" action="{{route('Responsable_gestionnaire.notedefrais.saveNoteDeFraisPdf')}}" autocomplete="off">
-                            @endif
-                                @csrf
-                                <div class="row">
-                                    <div class="col-4">
-                                        <label for="projectName" class="form-label">Employee Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="projectName" name='employee_name' />
-                                    </div>
-                                    <div class="col-4"> 
-                                        <label for="projectName" class="form-label">Total Budget</label>
-                                        <input type="number" step="0.0001" class="form-control" id="projectBudget" name='budget' readonly />
-                                    </div>
-                                    
-                                </div>
+                    @csrf
 
-                                <label class="mt-4">Description <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="projectDescription" name='description' />
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">Employee Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="employee_name" name="employee_name" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none">
+                        </div>
 
-                                <div id="dynamicInput" class="mt-4">
-                                    <div class="row mt-4">
-                                        <div class="col-4">
-                                            <label for="task" class="form-label">Details <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="task[]" />
-                                        </div>
-                                        <div class="col-4">
-                                            <label for="task" class="form-label">Quantity <span class="text-danger">*</span></label>
-                                            <input type="number" step="0.0001" class="form-control taskQuantity" name="quantity[]" />
-                                        </div>
-                                        <div class="col-4">
-                                            <label for="costPerHour" class="form-label">Budget <span class="text-danger">*</span></label>
-                                            <input type="number" step="0.0001" class="form-control taskBudget" name="taskBudget[]" />
-                                        </div>
-                                        
-                                    </div>
-                                </div>
-
-                                <button type="button" class="btn btn-sm btn-primary p-2 mt-4"
-                                    onclick="addInput('dynamicInput');">Add</button>
-                                <button type="button" class="btn btn-sm btn-danger p-2 mt-4"
-                                    onclick="removeInput('dynamicInput');">Delete</button>
-                                <br>
-
-                                <div class="d-flex justify-content-end mt-4">
-                                @if(Auth::user()->hasRole('Responsable de projet'))
-                                    <a class='btn btn-light m-0' href="{{route('Responsable_de_projet.index')}}">
-                                        Cancel
-                                    </a>
-                                @endif
-                                @if(Auth::user()->hasRole('Admin'))
-                                    <a class='btn btn-light m-0' href="{{route('admin.index')}}">
-                                        Cancel
-                                    </a>
-                                @endif
-                                @if(Auth::user()->hasRole('Employee'))
-                                    <a class='btn btn-light m-0' href="{{route('employee.index')}}">
-                                        Cancel
-                                    </a>
-                                @endif
-                                @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                    <a class='btn btn-light m-0' href="{{route('Responsable_gestionnaire.index')}}">
-                                        Cancel
-                                    </a>
-                                @endif
-                                    <button type="submit" name="button" class="btn bg-gradient-primary m-0 ms-2">
-                                        Generate Expense Note
-                                    </button>
-                                </div>
-
-                            </form>
-
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">Total Budget</label>
+                            <input type="number" step="0.0001" id="projectBudget" name="budget" readonly class="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm text-gray-700">
                         </div>
                     </div>
-                </div>
 
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Description <span class="text-red-500">*</span></label>
+                        <input type="text" id="projectDescription" name="description" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none">
+                    </div>
 
+                    <div id="dynamicInput" class="space-y-6 mt-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Details <span class="text-red-500">*</span></label>
+                                <input type="text" name="task[]" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Quantity <span class="text-red-500">*</span></label>
+                                <input type="number" step="0.0001" name="quantity[]" class="taskQuantity w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Budget <span class="text-red-500">*</span></label>
+                                <input type="number" step="0.0001" name="taskBudget[]" class="taskBudget w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
 
-    </main>
+                    <div class="flex gap-3">
+                        <button type="button" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg" onclick="addInput('dynamicInput');">Add</button>
+                        <button type="button" class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-lg" onclick="removeInput('dynamicInput');">Delete</button>
+                    </div>
 
+                    <div class="flex justify-end gap-3 pt-6 border-t border-gray-200">
+                        <a href="{{ 
+                            route(
+                                Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.index' :
+                                (Auth::user()->hasRole('Admin') ? 'admin.index' :
+                                (Auth::user()->hasRole('Employee') ? 'employee.index' :
+                                'Responsable_gestionnaire.index'))
+                            )
+                        }}" 
+                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Cancel</a>
 
-
-    @include('dashboard_layouts.scripts')
-
-    <script>
-  window.addEventListener('load', function() {
-    var inputs = document.getElementsByTagName('input');
-    for (var i = 0; i < inputs.length; i++) {
-      inputs[i].setAttribute('autocomplete', 'none');
-    }
-  });
-</script>
-
-    <script>
-    // Modify the addInput function to add event listener to new inputs
-function addInput(divName) {
-    var newdiv = document.createElement('div');
-    newdiv.innerHTML =
-        '<div class="row mt-4"><div class="col-4"><input type="text" class="form-control" name="task[]" /></div><div class="col-4"><input type="number" step="0.0001" class="form-control taskQuantity" name="quantity[]" /></div><div class="col-4"><input type="number" step="0.0001" class="form-control taskBudget" name="taskBudget[]" /></div></div>';
-    document.getElementById(divName).appendChild(newdiv);
-
-    // Add event listener to the new inputs
-    const newTaskBudgetInput = newdiv.querySelector('.taskBudget');
-    const newTaskQuantityInput = newdiv.querySelector('.taskQuantity');
-    newTaskBudgetInput.addEventListener('input', updateProjectBudget);
-    newTaskQuantityInput.addEventListener('input', updateProjectBudget);
-}
-
-// Modify the removeInput function to update the budget after removing an input
-function removeInput(divName) {
-    var div = document.getElementById(divName);
-    if (div.children.length > 1) { // prevent removing initial set of inputs
-        div.removeChild(div.lastChild);
-        updateProjectBudget();
-    }
-}
-    </script>
-
-    <script>
-       document.addEventListener('DOMContentLoaded', function() {
-            const dropdownButton = document.getElementById('ClientDropdown');
-            const selectedClientIdInput = document.getElementById('selectedClient'); // Assuming this is the hidden input for the ID
-
-            document.querySelectorAll('.dropdown-item').forEach(item => {
-                item.addEventListener('click', function(event) {
-                    event.preventDefault();
-
-                    const clientId = event.target.getAttribute('data-value'); // Client's ID
-                    const clientName = event.target.textContent; // Client's name
-
-                    if (clientId === 'none') {
-                        // Handle the "None" selection
-                        dropdownButton.textContent = 'Choose Client'; // Reset to default text
-                        selectedClientIdInput.value = ''; // Clear the hidden input value
-                    } else {
-                        // Update the button text to show the client's name
-                        dropdownButton.textContent = clientName;
-
-                        // Update the hidden input value to send the client's ID
-                        selectedClientIdInput.value = clientId;
-                    }
-                });
-            });
-    });
-    </script>
-
-   
+                        <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium">
+                            Generate Expense Note
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-  const newClientCheckbox = document.getElementById('newClientCheckbox');
-  const clientInputs = document.getElementById('clientInputs');
-
-  newClientCheckbox.addEventListener('change', function() {
-    if (this.checked) {
-      clientInputs.style.display = 'block';
-    } else {
-      clientInputs.style.display = 'none';
-    }
-  });
-});
-    </script>
-
-<script>
-function updateProjectBudget() {
-    let totalBudget = 0;
-    document.querySelectorAll('.taskBudget').forEach(function(budgetInput, index) {
-        let budgetValue = parseFloat(budgetInput.value);
-        let quantityValue = parseFloat(document.querySelectorAll('.taskQuantity')[index].value);
-        if (!isNaN(budgetValue) && !isNaN(quantityValue)) {
-            totalBudget += budgetValue * quantityValue;
+        function addInput(divName) {
+            var newdiv = document.createElement('div');
+            newdiv.classList.add('grid', 'grid-cols-1', 'sm:grid-cols-3', 'gap-6');
+            newdiv.innerHTML = `
+                <div><input type="text" name="task[]" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none"></div>
+                <div><input type="number" step="0.0001" name="quantity[]" class="taskQuantity w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none"></div>
+                <div><input type="number" step="0.0001" name="taskBudget[]" class="taskBudget w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none"></div>
+            `;
+            document.getElementById(divName).appendChild(newdiv);
+            newdiv.querySelectorAll('.taskBudget, .taskQuantity').forEach(input => input.addEventListener('input', updateProjectBudget));
         }
-    });
-    document.getElementById('projectBudget').value = totalBudget.toFixed(2);
-}
 
-// Add event listeners to all task budget and quantity inputs
-document.querySelectorAll('.taskBudget, .taskQuantity').forEach(function(input) {
-    input.addEventListener('input', updateProjectBudget);
-});
-</script>
+        function removeInput(divName) {
+            const div = document.getElementById(divName);
+            if (div.children.length > 1) {
+                div.removeChild(div.lastChild);
+                updateProjectBudget();
+            }
+        }
 
+        function updateProjectBudget() {
+            let total = 0;
+            document.querySelectorAll('.taskBudget').forEach((b, i) => {
+                const budget = parseFloat(b.value) || 0;
+                const qty = parseFloat(document.querySelectorAll('.taskQuantity')[i].value) || 0;
+                total += budget * qty;
+            });
+            document.getElementById('projectBudget').value = total.toFixed(2);
+        }
+    </script>
+    
+    @livewireScripts
 </body>
 
 </html>

@@ -547,7 +547,7 @@ th {
         </div>
     </div>
 
-    <script>
+<script>
     document.getElementById('exportBtn').addEventListener('click', function() {
         var table = document.getElementById(
             'taskTable'); // Replace 'yourTableId' with the actual ID of your table
@@ -797,7 +797,7 @@ th {
             });
         });
     });
-    </script>
+</script>
 
 
 
