@@ -3,10 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clients - BizManager</title> 
+    <title>Detailed Invoice - BizManager</title> 
     @vite('resources/css/app.css')
     @livewireStyles
     
+    {{-- Custom styles to make <select> match <input> --}}
+    <style>
+        select.form-select-custom {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem; 
+        }
+        select:invalid {
+            color: #9ca3af;
+        }
+        option {
+            color: #111827;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
 
@@ -21,171 +40,201 @@
 
         {{-- Main Content Area --}}
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8">
-            {{-- Keep Bootstrap container-fluid structure if needed for spacing --}}
-            {{-- <div class="container-fluid py-4"> --}}
-                <div class="row mt-3"> {{-- Keep Bootstrap row --}}
-                    <div class="col-12"> {{-- Keep Bootstrap col --}}
-                        @if(session('message'))
-                            {{-- Tailwind Alert --}}
-                            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                                <strong class="font-bold">Error!</strong>
-                                <span class="block sm:inline">{{ session('message') }}</span>
-                                <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+            
+            <div class="w-full"> 
+                @if(session('message'))
+                    <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                        <strong class="font-bold">Error!</strong>
+                        <span class="block sm:inline">{{ session('message') }}</span>
+                        <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+                    </div>
+                @endif
+                
+                {{-- Main Card --}}
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="flex justify-between items-center p-6 pb-0 border-b border-gray-200">
+                        <h6 class="text-lg font-semibold text-gray-900">Detailed Invoice Generator</h6>
+                    </div>
+                    
+                    <div class="p-6">
+                        {{-- Project and Comment Grid --}}
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                            <div class="md:col-span-1">
+                                <label for="projectSelect" class="block text-sm font-medium text-gray-700 mb-1">Select Project</label>
+                                <select id="projectSelect" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom" required>
+                                    <option value="">Select Project</option>
+                                    @foreach($projects as $project)
+                                    <option value="{{ $project->id }}" data-cost-per-hour="{{ $project->cost_per_hour }}" data-tva="{{ $project->tva }}">
+                                        @if(preg_match('/^(\d+)(.*)/', $project->name, $matches)){{ $matches[1] }}{{ $matches[2] }}@else{{ strtoupper($project->name) }}@endif
+                                        - @if($project->budget){{ $project->budget - $project->amount_billed }}€ @else<span class="text-red-600">no budget</span>@endif
+                                    </option>
+                                    @endforeach
+                                </select>
                             </div>
-                        @endif
-                        {{-- Keep Bootstrap card, style inside --}}
-                        <div class="card bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="card-header flex justify-between items-center p-3 pb-0 border-b border-gray-200">
-                                <h6 class="text-lg font-semibold text-gray-900">Detailed Invoice Generator</h6>
+                            <div class="md:col-span-2">
+                                <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
+                                <textarea id="comment" name="comment" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" rows="3" placeholder="Add any additional notes or comments here..."></textarea>
                             </div>
-                            {{-- Keep Bootstrap row for layout --}}
-                            <div class="row p-4">
-                                {{-- Project and Comment Row --}}
-                                <div class="row mb-4 items-end">
-                                    <div class="col-md-4">
-                                        <label for="projectSelect" class="block text-sm font-medium text-gray-700 mb-1">Select Project</label>
-                                        {{-- Apply Tailwind form classes --}}
-                                        <select id="projectSelect" class="form-control block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
-                                            <option value="">Select Project</option>
-                                            @foreach($projects as $project)
-                                            <option value="{{ $project->id }}" data-cost-per-hour="{{ $project->cost_per_hour }}" data-tva="{{ $project->tva }}">
-                                                @if(preg_match('/^(\d+)(.*)/', $project->name, $matches))<strong>{{ $matches[1] }}</strong>{{ $matches[2] }}@else{{ strtoupper($project->name) }}@endif
-                                                - @if($project->budget){{ $project->budget - $project->amount_billed }}€ @else<span class="text-red-600">no budget</span>@endif
-                                            </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="col-md-8">
-                                        <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
-                                        {{-- Apply Tailwind form classes --}}
-                                        <textarea id="comment" name="comment" class="form-control block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" rows="3" placeholder="Add any additional notes or comments here..."></textarea>
-                                    </div>
-                                </div>
+                        </div>
 
-                                {{-- Details Section --}}
-                                <div class="col-md-12 mt-4">
-                                    <label class="block text-base font-semibold text-gray-800 mb-2">Invoice Details</label>
-                                    <div id="detailsContainer" class="space-y-3"> {{-- Use space-y for vertical spacing --}}
+                        {{-- Details Section --}}
+                        <div class="mt-4">
+                            <label class="block text-base font-semibold text-gray-800 mb-2">Invoice Details</label>
+                            
+                            {{-- NEW Table Structure --}}
+                            <div class="overflow-x-auto rounded-lg border border-gray-200">
+                                <table class="w-full min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-5/12">Detail</th>
+                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-2/12">Quantity</th>
+                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-2/12">Unit Price (€)</th>
+                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-2/12">Total</th>
+                                            <th scope="col" class="py-3 px-4 text-center text-sm font-semibold text-gray-700 w-1/12">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="detailsContainer" class="bg-white divide-y divide-gray-200">
                                         {{-- Detail Row Template --}}
-                                        <div class="row detail-row items-end"> {{-- Keep Bootstrap row --}}
-                                            <div class="col-md-5"> {{-- Adjusted column size --}}
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Detail</label>
-                                                <input type="text" class="form-control detail-input block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1.5 px-2" placeholder="Enter detail">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                                                <input type="number" step="0.01" class="form-control quantity-input block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1.5 px-2" placeholder="Qty">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Unit Price (€)</label>
-                                                <input type="number" step="0.01" class="form-control price-input block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1.5 px-2" placeholder="Price">
-                                            </div>
-                                            <div class="col-md-3"> {{-- Adjusted column size --}}
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Total (€)</label>
-                                                {{-- Readonly input with Tailwind styles --}}
-                                                <input type="number" class="form-control total-input block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm sm:text-sm py-1.5 px-2" readonly>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        <tr class="detail-row">
+                                            <td class="p-2 px-4">
+                                                <input type="text" class="detail-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="Enter detail">
+                                            </td>
+                                            <td class="p-2 px-4">
+                                                <input type="number" step="0.01" class="quantity-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="Quantity">
+                                            </td>
+                                            <td class="p-2 px-4">
+                                                <input type="number" step="0.01" class="price-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="Unit price">
+                                            </td>
+                                            <td class="p-2 px-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {{-- Total is now a span, not an input --}}
+                                                <span class="row-total">0.00</span>€
+                                            </td>
+                                            <td class="p-2 px-4 whitespace-nowrap text-center">
+                                                {{-- Delete button is now an icon --}}
+                                                <button type="button" class="deleteRowBtn text-red-600 hover:text-red-800">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                    </svg>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
 
-                                    {{-- Add/Delete Row Buttons --}}
-                                    <div class="mt-3 space-x-2"> {{-- Use space-x for horizontal spacing --}}
-                                        {{-- Apply Tailwind button classes --}}
-                                        <button type="button" id="addRowBtn" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1 rounded-md">Add Row</button>
-                                        <button type="button" id="deleteRowBtn" class="bg-red-600 hover:bg-red-700 text-white text-xs font-medium px-3 py-1 rounded-md">Delete Row</button>
-                                    </div>
+                            {{-- Add Row Button --}}
+                            <div class="mt-4">
+                                <button type="button" id="addRowBtn" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    Add Row
+                                </button>
+                            </div>
 
-                                    {{-- Grand Total --}}
-                                    <div class="col-md-12 mt-4 text-right"> {{-- Keep Bootstrap text-right --}}
-                                         <h5 class="text-lg font-semibold text-gray-800">Total Amount: <span id="grandTotal" class="text-green-600">0.00</span>€</h5>
-                                    </div>
+                            {{-- NEW Total Amount Bar --}}
+                            <div class="mt-6 bg-gray-50 border border-gray-200 rounded-lg p-4 flex justify-between items-center">
+                                <span class="text-lg font-semibold text-gray-800">Total Amount:</span>
+                                <span id="grandTotal" class="text-2xl font-bold text-blue-600">0.00€</span>
+                            </div>
 
-                                    {{-- Generate Button --}}
-                                    <div class="col-md-12 mt-4">
-                                        {{-- Apply Tailwind button classes --}}
-                                        <button type="button" id="generateInvoiceBtn" class="bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2.5 rounded-lg">Generate Invoice</button>
-                                    </div>
-                                </div>
-                            </div> {{-- End row p-4 --}}
-                        </div> {{-- End Card --}}
-                    </div> {{-- End Col --}}
-                </div> {{-- End Row --}}
-            {{-- </div> --}} {{-- End Container --}}
+                            {{-- Generate Button --}}
+                            <div class="mt-6 border-t pt-6">
+                                <button type="button" id="generateInvoiceBtn" class="bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2.5 rounded-lg">Generate Invoice</button>
+                            </div>
+                        </div>
+                    </div> {{-- End p-6 --}}
+                </div> {{-- End Card --}}
+            </div> 
+            
         </main>
     </div> {{-- End Main Wrapper --}}
 
     @livewireScripts
     {{-- @include('dashboard_layouts.scripts') --}}
 
-    {{-- Keep JS libraries --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    {{-- Keep existing scripts --}}
+    {{-- UPDATED JavaScript to handle new structure --}}
     <script>
         $(document).ready(function() {
-            // Initialize Select2
-            $('#projectSelect').select2({ // Target only the project select
-                 width: '100%', // Ensure it takes full width
-                 templateResult: formatProjectSelection, // Use the formatting function
-                 templateSelection: formatProjectSelection
-            });
-
+            
             // Add new row button
             $('#addRowBtn').click(function() {
-                 const newRow = $('.detail-row:first').clone();
-                 newRow.find('input').val(''); // Clear inputs
-                 newRow.find('.total-input').val('0.00'); // Reset total
-                 $('#detailsContainer').append(newRow);
-                 attachRowEventListeners(newRow); // Attach listeners to new row
+                const newRow = $('#detailsContainer .detail-row:first').clone();
+                newRow.find('input').val(''); // Clear inputs
+                newRow.find('.row-total').text('0.00'); // Reset total span
+                $('#detailsContainer').append(newRow);
+                attachRowEventListeners(newRow); // Attach listeners to new row
             });
 
-            // Delete row button
-            $('#deleteRowBtn').click(function() {
-                 if ($('.detail-row').length > 1) {
-                     $('.detail-row:last').remove();
-                     calculateGrandTotal(); // Recalculate total after deletion
-                 }
+            // Delete row button (Event Delegation)
+            $('#detailsContainer').on('click', '.deleteRowBtn', function() {
+                if ($('#detailsContainer .detail-row').length > 1) {
+                    $(this).closest('tr').remove(); 
+                    calculateGrandTotal(); 
+                }
             });
 
             // Calculate row total
-            function calculateRowTotal(row) {
-                 const quantity = parseFloat(row.find('.quantity-input').val()) || 0;
-                 const price = parseFloat(row.find('.price-input').val()) || 0;
-                 const total = quantity * price;
-                 row.find('.total-input').val(total.toFixed(2));
-                 calculateGrandTotal(); // Recalculate grand total whenever a row total changes
+            function calculateRowTotal(row) { // row is a <tr>
+                const quantity = parseFloat(row.find('.quantity-input').val()) || 0;
+                const price = parseFloat(row.find('.price-input').val()) || 0;
+                const total = quantity * price;
+                row.find('.row-total').text(total.toFixed(2)); // Set text of span
+                calculateGrandTotal(); 
             }
 
             // Calculate grand total
             function calculateGrandTotal() {
-                 let grandTotal = 0;
-                 $('.total-input').each(function() {
-                     grandTotal += parseFloat($(this).val()) || 0;
-                 });
-                 $('#grandTotal').text(grandTotal.toFixed(2));
+                let grandTotal = 0;
+                // Read from the text of each row-total span
+                $('.row-total').each(function() { 
+                    grandTotal += parseFloat($(this).text()) || 0;
+                });
+                // Set text of the new grandTotal span
+                $('#grandTotal').text(grandTotal.toFixed(2) + '€'); 
             }
 
             // Attach event listeners to quantity/price inputs
-            function attachRowEventListeners(row) {
-                 row.find('.quantity-input, .price-input').on('input', function() {
-                     calculateRowTotal(row);
-                 });
+            function attachRowEventListeners(row) { // row is a <tr>
+                row.find('.quantity-input, .price-input').on('input', function() {
+                    calculateRowTotal(row);
+                });
             }
 
-            // Generate invoice button logic (kept as is)
-            $('#generateInvoiceBtn').click(function(e) { /* ... Your existing AJAX logic ... */ });
+            // Generate invoice button logic (updated)
+            $('#generateInvoiceBtn').click(function(e) { 
+                /* ... Your existing AJAX logic goes here ... */ 
+                console.log("Generate Invoice Clicked");
+                
+                const projectId = $('#projectSelect').val();
+                const comment = $('#comment').val();
+                const details = [];
+                
+                $('.detail-row').each(function() { 
+                    const row = $(this);
+                    details.push({
+                        detail: row.find('.detail-input').val(),
+                        quantity: row.find('.quantity-input').val(),
+                        price: row.find('.price-input').val(),
+                        total: row.find('.row-total').text() // Read from span text
+                    });
+                });
+                console.log({ projectId, comment, details });
+                // Add your AJAX call here
+            });
 
             // Initial setup for the first row
             attachRowEventListeners($('.detail-row:first'));
             // Initial calculation
             $('.detail-row').each(function() { calculateRowTotal($(this)); });
-
-             // Select2 formatting function (kept as is)
-             function formatProjectSelection(project) { /* ... Your existing formatting logic ... */ }
+            // Initial Grand Total Calculation
+            calculateGrandTotal();
 
         }); // End document ready
     </script>
 
 </body>
 </html>
+
