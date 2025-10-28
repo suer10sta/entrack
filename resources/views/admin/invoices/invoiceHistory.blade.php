@@ -4,14 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoices History - BizManager</title>
-    @vite('resources/css/app.css') {{-- Ensure Tailwind is loaded --}}
+    @vite('resources/css/app.css') 
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    {{-- Keep Bootstrap CSS ONLY if needed for Modals and not fully styled by Tailwind --}}
     {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
 
     {{-- Minimal custom styles if absolutely necessary --}}
-    <style>
+<style>
          /* Style for overdue invoice links */
         .invoice-link-overdue {
             color: #dc2626; /* red-600 */
@@ -35,7 +34,7 @@
          .dropdown-menu.show {
              display: block; /* Show when toggled */
          }
-    </style>
+</style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden font-sans">
 
@@ -49,7 +48,7 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8 space-y-8"> {{-- Added space-y-8 --}}
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8 space-y-8"> 
 
             {{-- 1. Header Section --}}
             <div class="flex flex-wrap justify-between items-center gap-4">
@@ -427,7 +426,7 @@
                         </tbody>
                     </table>
                 </div>
-            </div> {{-- End Table Card --}}
+            </div> 
 
             {{-- Modals (Keep Bootstrap structure, ideally style inside partials with Tailwind)
             @include('admin.invoices.partials.send_invoice_modal')
@@ -436,7 +435,7 @@
             @include('admin.invoices.partials.partial_detailed_credit_note_modal')--}}
 
         </main>
-    </div> {{-- End Main Wrapper --}}
+    </div> 
 
     {{-- SCRIPTS --}}
     @livewireScripts
@@ -445,8 +444,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
 
-    {{-- Your existing script blocks --}}
-    <script>
+<script>
         // All your previous JS functions (showPartialPopup, submitPartialCreditNote, showPartialDetailedPopup, submitPartialDetailedCreditNote, datePicker, showMessage, filtering logic, modal logic) should go here.
         // Ensure the showMessage function uses the Tailwind classes as updated in the previous response.
 
@@ -771,8 +769,7 @@
         function datePicker() {
             return { startDate: '', endDate: '' }
         }
-
-    </script>
+</script>
 
 </body>
 </html>
