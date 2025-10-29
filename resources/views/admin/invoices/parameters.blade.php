@@ -61,7 +61,7 @@
                                 id="invoice_prefix"
                                 class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" {{-- Removed readonly and bg-gray --}}
                                 type="text" name="invoice_prefix"
-                                value="{{ $entreprise->invoice_prefix ?? '' }}" /> {{-- Added ?? '' for safety --}}
+                                value="{{ $entreprise->invoice_prefix ?? '' }}" />
                              <p class="mt-1 text-xs text-gray-500">Used as prefix for all invoice numbers</p>
                         </div>
                     </div>
@@ -72,7 +72,7 @@
                          <textarea
                             id="general_conditions"
                             class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" {{-- Removed readonly and bg-gray --}}
-                            name="general_conditions" rows="5">{{ $entreprise->general_conditions ?? '' }}</textarea> {{-- Added ?? '' --}}
+                            name="general_conditions" rows="5">{{ $entreprise->general_conditions ?? '' }}</textarea> 
                          <p class="mt-1 text-xs text-gray-500">Displayed at the bottom of invoices</p>
                     </div>
                 </div>
@@ -88,7 +88,7 @@
                         <textarea
                             id="invoice_body"
                             class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" {{-- Removed readonly and bg-gray --}}
-                            name="invoice_body" rows="4">{{ $entreprise->invoice_body ?? '' }}</textarea> {{-- Added ?? '' --}}
+                            name="invoice_body" rows="4">{{ $entreprise->invoice_body ?? '' }}</textarea> 
                         <p class="mt-1 text-xs text-gray-500">This message will be included in invoice emails</p>
                     </div>
                  </div>
@@ -105,8 +105,8 @@
                         <textarea
                             id="first_reminder"
                             class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" {{-- Removed readonly and bg-gray --}}
-                            name="first_reminder" rows="4">{{ $entreprise->first_reminder ?? '' }}</textarea> {{-- Added ?? '' --}}
-                        <p class="mt-1 text-xs text-gray-500">Sent 5 days after invoice due date</p> {{-- Example text --}}
+                            name="first_reminder" rows="4">{{ $entreprise->first_reminder ?? '' }}</textarea> 
+                        <p class="mt-1 text-xs text-gray-500">Sent 5 days after invoice due date</p> 
                     </div>
                      {{-- Second Reminder --}}
                     <div>
@@ -114,8 +114,8 @@
                         <textarea
                             id="second_reminder"
                             class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" {{-- Removed readonly and bg-gray --}}
-                            name="second_reminder" rows="4">{{ $entreprise->second_reminder ?? '' }}</textarea> {{-- Added ?? '' --}}
-                         <p class="mt-1 text-xs text-gray-500">Sent 10 days after invoice due date</p> {{-- Example text --}}
+                            name="second_reminder" rows="4">{{ $entreprise->second_reminder ?? '' }}</textarea> 
+                         <p class="mt-1 text-xs text-gray-500">Sent 10 days after invoice due date</p> 
                     </div>
                     {{-- Third Reminder --}}
                     <div>
@@ -123,8 +123,8 @@
                         <textarea
                             id="third_reminder"
                             class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" {{-- Removed readonly and bg-gray --}}
-                            name="third_reminder" rows="4">{{ $entreprise->third_reminder ?? '' }}</textarea> {{-- Added ?? '' --}}
-                         <p class="mt-1 text-xs text-gray-500">Sent 15 days after invoice due date</p> {{-- Example text --}}
+                            name="third_reminder" rows="4">{{ $entreprise->third_reminder ?? '' }}</textarea> 
+                         <p class="mt-1 text-xs text-gray-500">Sent 15 days after invoice due date</p> 
                     </div>
                  </div>
 
