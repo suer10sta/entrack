@@ -133,109 +133,129 @@
     <script src="//unpkg.com/alpinejs" defer></script> {{-- Keep if needed elsewhere --}}
 
     {{-- Your existing jQuery script for inline editing --}}
-<script>
+    <script>
     $(document).ready(function() {
-        // --- Double-click editing ---
-        $(".editable").dblclick(function() {
-            // Make editable and visually indicate it
-            $(this).prop('readonly', false)
-                   .removeClass('bg-gray-50 cursor-default') // Remove readonly styles
-                   .addClass('bg-white ring-1 ring-blue-500'); // Add editing styles
-            $(this).focus(); // Focus the element
+
+        // --- 1. Ajout : Stocker la valeur originale au focus ---
+        // (Nécessaire pour savoir ce qui a réellement changé)
+        $(".entrepriseInfos").focus(function() {
+            $(this).data('originalValue', $(this).val());
+            // Effacer les anciennes bordures de statut
+            $(this).removeClass('border-green-500 border-red-500'); 
         });
 
-        // --- Save on blur (when clicking away) ---
-        $(".editable").blur(function() {
-            var inputElement = $(this); // Store reference
+        // --- 2. Double-clic pour éditer ---
+        // (J'ajoute un style visuel pour montrer que c'est éditable)
+        $(".entrepriseInfos").dblclick(function() {
+            $(this).prop('readonly', false)
+                   .addClass('bg-white ring-1 ring-blue-500') // Style éditable
+                   .removeClass('bg-gray-50');
+            $(this).focus();
+        });
 
-            // Make readonly again and change style back
-            inputElement.prop('readonly', true)
-                        .addClass('bg-gray-50 cursor-default') // Add readonly styles
-                        .removeClass('bg-white ring-1 ring-blue-500'); // Remove editing styles
+        // --- 3. Clic à l'extérieur (Blur) ---
+        // (Ne fait plus que verrouiller le champ, ne sauvegarde plus)
+        $(".entrepriseInfos").blur(function() {
+            $(this).prop('readonly', true)
+                   .removeClass('bg-white ring-1 ring-blue-500') // Retour au style normal
+                   .addClass('bg-gray-50');
+        });
 
-            var newContent = inputElement.val();
-            // Prevent saving if content hasn't changed (optional but good practice)
-            if (newContent === inputElement.data('originalValue')) {
-                 console.log("No changes detected for:", inputElement.attr('name'));
-                 // Remove any lingering success/error borders
-                 inputElement.removeClass('border-green-500 border-red-500');
-                 return; // Exit if no change
-            }
-
+        // --- 4. Clic sur le bouton "Save Changes" ---
+        // (MODIFIÉ : Gère maintenant la logique de sauvegarde et d'animation)
+        $("#saveChangesBtn").click(function() {
+            
+            var $button = $(this);
+            // Sauvegarde le contenu HTML original du bouton (avec l'icône)
+            var originalHtml = $button.html(); 
+            
+            // 1. Mettre le bouton en état "Saving..."
+            $button.prop('disabled', true)
+                   .removeClass('bg-blue-600 hover:bg-blue-700')
+                   .addClass('bg-yellow-500') // Couleur "en cours"
+                   .text('Saving...'); // Texte simple pendant le chargement
 
             var EntrepriseId = "{{ Auth::user()->entreprise_id }}";
-            var columnName = inputElement.attr('name');
-
-            // --- Determine AJAX URL based on role ---
             var updatedUrl = '';
-            @if(Auth::user()->hasRole('Responsable de projet')) updatedUrl = '/Responsable_de_projet/Enterprise_infos/updateInfos'; @endif
-            @if(Auth::user()->hasRole('Admin')) updatedUrl = '/admin/Enterprise_infos/updateInfos'; @endif
-            @if(Auth::user()->hasRole('Employee')) updatedUrl = '/employee/Enterprise_infos/updateInfos'; @endif
-            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) updatedUrl = '/Responsable_gestionnaire/Enterprise_infos/updateInfos'; @endif
+            @if(Auth::user()->hasRole('Responsable de projet'))
+                updatedUrl = '/Responsable_de_projet/Enterprise_infos/updateInfos';
+            @elseif(Auth::user()->hasRole('Admin'))
+                updatedUrl = '/admin/Enterprise_infos/updateInfos';
+            @elseif(Auth::user()->hasRole('Employee'))
+                updatedUrl = '/employee/Enterprise_infos/updateInfos';
+            @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                updatedUrl = '/Responsable_gestionnaire/Enterprise_infos/updateInfos';
+            @endif
 
+            var hasErrors = false;
 
-            // --- Perform AJAX call ---
-            if (updatedUrl) { // Only send if a URL is defined
-                // Optional: Show a subtle saving indicator
-                inputElement.addClass('border-yellow-400'); // Yellow border while saving
+            // 2. Boucler sur CHAQUE champ
+            $(".entrepriseInfos").each(function() {
+                var $input = $(this);
+                var newContent = $input.val();
+                var originalValue = $input.data('originalValue');
+
+                // Verrouiller le champ (au cas où il serait encore en focus)
+                $input.prop('readonly', true)
+                      .removeClass('bg-white ring-1 ring-blue-500')
+                      .addClass('bg-gray-50');
+
+                // --- IMPORTANT : Ne sauvegarder que si la valeur a changé ---
+                if (newContent === originalValue || typeof originalValue === 'undefined') {
+                    return; // "continue" dans une boucle .each()
+                }
+
+                // 3. Sauvegarder le champ (en mode synchrone pour la boucle)
+                $input.addClass('border-yellow-400'); // Feedback sur le champ
 
                 $.ajax({
                     url: updatedUrl,
                     type: 'post',
+                    async: false, // Force la boucle à attendre la fin de l'appel
                     data: {
                         content: newContent,
                         id: EntrepriseId,
-                        column: columnName,
-                        _token: $('meta[name="csrf-token"]').attr('content') // Use meta tag for CSRF
+                        column: $input.attr('name'),
+                        _token: '{{ csrf_token() }}'
                     },
                     success: function(response) {
-                        console.log("Update successful:", response);
-                        // Update original value data and show success
-                        inputElement.data('originalValue', newContent);
-                        inputElement.removeClass('border-yellow-400 border-red-500').addClass('border-green-500'); // Green border for success
-                        setTimeout(() => inputElement.removeClass('border-green-500'), 2000); // Remove green border after 2s
-                        // Optionally trigger feedback from the 'Save Changes' button
-                        $('#saveChangesBtn').removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-green-600').text('Saved!');
-                        setTimeout(() => {
-                             $('#saveChangesBtn').removeClass('bg-green-600').addClass('bg-blue-600 hover:bg-blue-700').text('Save Changes');
-                        }, 2000);
+                        console.log('Successfully saved: ' + $input.attr('name'));
+                        $input.data('originalValue', newContent); // Mettre à jour la valeur stockée
+                        $input.removeClass('border-yellow-400 border-red-500').addClass('border-green-500');
+                        // Enlever le vert après 2s
+                        setTimeout(() => $input.removeClass('border-green-500'), 2000);
                     },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        console.error("Update failed:", textStatus, errorThrown);
-                        // Show error
-                        inputElement.removeClass('border-yellow-400 border-green-500').addClass('border-red-500'); // Red border for error
-                        // Revert to original value
-                        inputElement.val(inputElement.data('originalValue'));
-                        alert('Failed to save changes for ' + columnName + '. Please check console for details.');
-                         $('#saveChangesBtn').removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-red-600').text('Error!');
-                        setTimeout(() => {
-                             $('#saveChangesBtn').removeClass('bg-red-600').addClass('bg-blue-600 hover:bg-blue-700').text('Save Changes');
-                        }, 2000);
+                    error: function(response) {
+                        console.error('Error saving: ' + $input.attr('name'));
+                        hasErrors = true;
+                        $input.removeClass('border-yellow-400').addClass('border-red-500');
+                        $input.val(originalValue); // Annuler le changement en cas d'erreur
                     }
                 });
+            });
+
+            // 4. La boucle EST TERMINÉE (grâce à async: false)
+            $button.prop('disabled', false); // Réactiver le bouton
+
+            if (hasErrors) {
+                // --- Animation d'erreur ---
+                $button.removeClass('bg-yellow-500').addClass('bg-red-600');
+                $button.html('<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>Error!');
             } else {
-                 console.warn("No update URL defined for this user role.");
-                 // Revert styles if no URL
-                 inputElement.prop('readonly', true).addClass('bg-gray-50 cursor-default').removeClass('bg-white ring-1 ring-blue-500');
+                // --- Animation de succès ---
+                $button.removeClass('bg-yellow-500').addClass('bg-green-600');
+                $button.html('<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>Saved!');
             }
-        });
 
-        // Store original value on focus to compare on blur
-        $(".editable").focus(function() {
-            $(this).data('originalValue', $(this).val());
-            // Remove lingering success/error borders when starting to edit again
-            $(this).removeClass('border-green-500 border-red-500');
-        });
+            // 5. Réinitialiser le bouton après 2 secondes
+            setTimeout(() => {
+                $button.removeClass('bg-green-600 bg-red-600').addClass('bg-blue-600 hover:bg-blue-700');
+                $button.html(originalHtml); // Restaurer le texte et l'icône d'origine
+            }, 2000);
 
-        // --- Save Changes Button Feedback ---
-        // The button itself doesn't save (blur does), but we can use it for feedback.
-        // Or, you could change the logic to save only when this button is clicked.
-        $('#saveChangesBtn').click(function() {
-            // Example: Briefly show feedback if needed, although saving happens on blur.
-             $(this).text('Saved!');
-             setTimeout(() => $(this).text('Save Changes'), 1500);
+            // PAS d'alerte !
+            // alert('All changes have been saved!'); // <- Supprimé
         });
-
     });
 </script>
 </body>

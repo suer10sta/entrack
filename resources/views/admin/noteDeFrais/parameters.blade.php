@@ -104,9 +104,11 @@
     <script src="//unpkg.com/alpinejs" defer></script>
 
     {{-- jQuery script for inline editing --}}
-<script>
+    <script>
     $(document).ready(function() {
-        // --- Double-click editing ---
+
+        // --- 1. Double-click to make a field editable ---
+        // (This behavior is unchanged)
         $(".editable").dblclick(function() {
             $(this).prop('readonly', false)
                    .removeClass('bg-gray-50 cursor-default')
@@ -114,35 +116,70 @@
             $(this).focus();
         });
 
-        // --- Save on blur (when clicking away) ---
+        // --- 2. Store original value on focus ---
+        // (This behavior is unchanged)
+        $(".editable").focus(function() {
+            $(this).data('originalValue', $(this).val());
+            $(this).removeClass('border-green-500 border-red-500'); // Clear old status borders
+        });
+
+        // --- 3. Blur (Clicking away) ---
+        // (MODIFIED: All saving logic has been REMOVED from here)
         $(".editable").blur(function() {
             var inputElement = $(this);
+            // This now *only* makes the field read-only again. It does NOT save.
             inputElement.prop('readonly', true)
                         .addClass('bg-gray-50 cursor-default')
                         .removeClass('bg-white ring-1 ring-blue-500');
+        });
 
-            var newContent = inputElement.val();
-            if (newContent === inputElement.data('originalValue')) {
-                 console.log("No changes detected for:", inputElement.attr('name'));
-                 inputElement.removeClass('border-green-500 border-red-500');
-                 return;
-            }
-
+        // --- 4. Save Changes Button Click ---
+        // (MODIFIED: All saving logic is MOVED here)
+        $('#saveChangesBtn').click(function() {
+            var saveButton = $(this); // Get the button
+            
+            // Get shared info
             var EntrepriseId = "{{ Auth::user()->entreprise_id }}";
-            var columnName = inputElement.attr('name');
             var updatedUrl = '';
-            // --- Determine AJAX URL based on role ---
-             @if(Auth::user()->hasRole('Responsable de projet')) updatedUrl = '/Responsable_de_projet/Enterprise_infos/updateInfos'; @endif
-             @if(Auth::user()->hasRole('Admin')) updatedUrl = '/admin/Enterprise_infos/updateInfos'; @endif
-             @if(Auth::user()->hasRole('Employee')) updatedUrl = '/employee/Enterprise_infos/updateInfos'; @endif
-             @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) updatedUrl = '/Responsable_gestionnaire/Enterprise_infos/updateInfos'; @endif
+            @if(Auth::user()->hasRole('Responsable de projet')) updatedUrl = '/Responsable_de_projet/Enterprise_infos/updateInfos'; @endif
+            @if(Auth::user()->hasRole('Admin')) updatedUrl = '/admin/Enterprise_infos/updateInfos'; @endif
+            @if(Auth::user()->hasRole('Employee')) updatedUrl = '/employee/Enterprise_infos/updateInfos'; @endif
+            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) updatedUrl = '/Responsable_gestionnaire/Enterprise_infos/updateInfos'; @endif
 
-            if (updatedUrl) {
+            if (!updatedUrl) {
+                alert("Error: Cannot save. No permissions.");
+                return; 
+            }
+            
+            // Give user feedback on the button
+            saveButton.prop('disabled', true).removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-yellow-500').text('Saving...');
+
+            var hasErrors = false;
+
+            // Loop through EACH editable field on the page
+            $(".editable").each(function() {
+                var inputElement = $(this);
+                var newContent = inputElement.val();
+                var originalValue = inputElement.data('originalValue');
+
+                // Make it read-only (in case it's still in focus)
+                inputElement.prop('readonly', true)
+                            .addClass('bg-gray-50 cursor-default')
+                            .removeClass('bg-white ring-1 ring-blue-500');
+
+                // Check if value actually changed. If not, skip it.
+                if (newContent === originalValue || originalValue === undefined) {
+                    return; // 'continue' in a .each() loop
+                }
+
+                // --- This is the saving logic ---
+                var columnName = inputElement.attr('name');
                 inputElement.addClass('border-yellow-400'); // Saving indicator
 
                 $.ajax({
                     url: updatedUrl,
                     type: 'post',
+                    async: false, // Make calls sequential to avoid race conditions (safer)
                     data: {
                         content: newContent,
                         id: EntrepriseId,
@@ -150,47 +187,33 @@
                         _token: $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
-                        console.log("Update successful:", response);
-                        inputElement.data('originalValue', newContent);
+                        console.log("Update successful:", columnName);
+                        inputElement.data('originalValue', newContent); // Update original value
                         inputElement.removeClass('border-yellow-400 border-red-500').addClass('border-green-500');
                         setTimeout(() => inputElement.removeClass('border-green-500'), 2000);
-                        // Button feedback
-                        $('#saveChangesBtn').removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-green-600').text('Saved!');
-                        setTimeout(() => {
-                             $('#saveChangesBtn').removeClass('bg-green-600').addClass('bg-blue-600 hover:bg-blue-700').text('Save Changes');
-                        }, 2000);
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
-                        console.error("Update failed:", textStatus, errorThrown);
+                        console.error("Update failed:", columnName);
                         inputElement.removeClass('border-yellow-400 border-green-500').addClass('border-red-500');
-                        inputElement.val(inputElement.data('originalValue')); // Revert
-                        alert('Failed to save changes for ' + columnName + '. Please check console.');
-                        // Button feedback
-                         $('#saveChangesBtn').removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-red-600').text('Error!');
-                        setTimeout(() => {
-                             $('#saveChangesBtn').removeClass('bg-red-600').addClass('bg-blue-600 hover:bg-blue-700').text('Save Changes');
-                        }, 2000);
+                        inputElement.val(originalValue); // Revert on error
+                        hasErrors = true; // Mark that an error occurred
                     }
                 });
+            });
+
+            // --- All fields have been processed, update button feedback ---
+            saveButton.prop('disabled', false);
+            if (hasErrors) {
+                saveButton.removeClass('bg-yellow-500').addClass('bg-red-600').text('Error!');
+                alert('Some changes failed to save. Please check fields marked in red.');
             } else {
-                 console.warn("No update URL defined for this user role.");
-                 inputElement.prop('readonly', true).addClass('bg-gray-50 cursor-default').removeClass('bg-white ring-1 ring-blue-500');
+                saveButton.removeClass('bg-yellow-500').addClass('bg-green-600').text('Saved!');
             }
-        });
-
-        // Store original value on focus
-        $(".editable").focus(function() {
-            $(this).data('originalValue', $(this).val());
-            $(this).removeClass('border-green-500 border-red-500');
-        });
-
-        // --- Save Changes Button Feedback ---
-        $('#saveChangesBtn').click(function() {
-             // Example feedback
-             $(this).text('Saved!');
-             setTimeout(() => $(this).text('Save Changes'), 1500);
-             // Optionally trigger blur on active element if you want the button to force save
-             // document.activeElement.blur();
+            
+            // Reset button text after 2 seconds
+            setTimeout(() => {
+                saveButton.removeClass('bg-green-600 bg-red-600').addClass('bg-blue-600 hover:bg-blue-700').text('Save Changes');
+            }, 2000);
         });
     });
 </script>

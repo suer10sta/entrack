@@ -355,11 +355,441 @@
                                         No devis found matching your criteria.
                                     </td>
                                 </tr>
-                            @endif
+                            @endif<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Devis Report Modal ---
+        const devisReportModal = document.getElementById('devisReportModal');
+        const openDevisReportModalBtn = document.getElementById('openDevisReportModal');
+        const closeDevisReportModalBtn = document.getElementById('closeDevisReportModal');
+        const cancelDevisReportModalBtn = document.getElementById('cancelDevisReportBtn');
+        const confirmDevisReportBtn = document.getElementById('confirmDevisReport');
+
+        if (openDevisReportModalBtn) {
+            openDevisReportModalBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (devisReportModal) devisReportModal.classList.remove('hidden');
+            });
+        }
+        if (closeDevisReportModalBtn) {
+            closeDevisReportModalBtn.addEventListener('click', () => {
+                if (devisReportModal) devisReportModal.classList.add('hidden');
+            });
+        }
+        if (cancelDevisReportModalBtn) {
+            cancelDevisReportModalBtn.addEventListener('click', () => {
+                if (devisReportModal) devisReportModal.classList.add('hidden');
+            });
+        }
+
+        if (confirmDevisReportBtn) {
+            confirmDevisReportBtn.addEventListener('click', function() {
+                let baseUrl = '';
+                try {
+                    @if(Auth::user()->hasRole('Responsable de projet'))
+                    baseUrl = "{{route('Responsable_de_projet.Devissrepports.downloadRepports')}}";
+                    @endif
+                    @if(Auth::user()->hasRole('Admin'))
+                    baseUrl = "{{route('admin.Devissrepports.downloadRepports')}}";
+                    @endif
+                    @if(Auth::user()->hasRole('Employee'))
+                    baseUrl = "{{route('employee.Devissrepports.downloadRepports')}}";
+                    @endif
+                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                    baseUrl = "{{route('Responsable_gestionnaire.Devissrepports.downloadRepports')}}";
+                    @endif
+                } catch (e) {}
+
+                const startDateEl = document.getElementById('startDate');
+                const endDateEl = document.getElementById('endDate');
+                const startDate = startDateEl ? startDateEl.value : '';
+                const endDate = endDateEl ? endDateEl.value : '';
+                const selectedStatuses = Array.from(document.querySelectorAll('input[name="devisReportStatus[]"]:checked')).map(x => x.value);
+                const includeArchived = document.getElementById('include_archived')?.checked;
+
+                const params = new URLSearchParams();
+                if (startDate && endDate) {
+                    params.append('startDate', startDate);
+                    params.append('endDate', endDate);
+                }
+                if (selectedStatuses.length > 0) {
+                    params.append('filters', selectedStatuses.join(','));
+                }
+                if (includeArchived) {
+                    params.append('archived', '1');
+                }
+
+                const finalUrl = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+                window.location.href = finalUrl;
+                
+                if (devisReportModal) devisReportModal.classList.add('hidden'); // Hide modal
+            });
+        }
+
+        // --- Send Devis Modal ---
+        const sendDevisModalEl = document.getElementById('sendDevisModal');
+        const closeSendDevisModalBtn = document.getElementById('closeSendDevisModal');
+        const cancelSendDevisModalBtn = document.getElementById('cancelSendDevisModal');
+
+        if (closeSendDevisModalBtn) {
+            closeSendDevisModalBtn.addEventListener('click', () => {
+                if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
+            });
+        }
+        if (cancelSendDevisModalBtn) {
+            cancelSendDevisModalBtn.addEventListener('click', () => {
+                if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
+            });
+        }
+
+        function handleSendClick(event) {
+            event.preventDefault();
+            const form = event.target.closest('form');
+            const devisId = form.querySelector('input[name="devis_id"]').value;
+            const formAction = form.getAttribute('action');
+            
+            document.getElementById('devis_id').value = devisId;
+            const recipientsList = document.getElementById('recipientsList');
+            recipientsList.innerHTML = '<div class="text-center">Loading...</div>'; // Simple loading text
+            
+            fetch(`/admin/devis/get-contacts/${devisId}`)
+                .then(response => response.json())
+                .then(data => {
+                    recipientsList.innerHTML = '';
+                    if (data.contacts && data.contacts.length > 0) {
+                        data.contacts.forEach(contact => {
+                            const div = document.createElement('div');
+                            div.className = 'flex items-center'; // Tailwind class
+                            div.innerHTML = `
+                                <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="recipients[]" value="${contact.email}" id="recipient_${contact.id}" checked>
+                                <label class="ml-2 block text-sm text-gray-900" for="recipient_${contact.id}">
+                                    ${contact.name} (${contact.email})
+                                </label>
+                            `;
+                            recipientsList.appendChild(div);
+                        });
+                    } else {
+                        recipientsList.innerHTML = '<p class="text-gray-500">No contacts found for this client</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    recipientsList.innerHTML = '<p class="text-red-600">Error loading contacts</p>';
+                });
+            
+            document.getElementById('sendDevisForm').action = formAction;
+            
+            if (sendDevisModalEl) sendDevisModalEl.classList.remove('hidden'); // Show modal
+        }
+
+        document.querySelectorAll('form[action*="sendDevis"]').forEach(form => {
+            form.querySelector('button[type="submit"]').addEventListener('click', handleSendClick);
+        });
+
+        document.getElementById('confirmSend').addEventListener('click', function() {
+            const form = document.getElementById('sendDevisForm');
+            const devisId = document.getElementById('devis_id').value;
+            const selectedRecipients = Array.from(document.querySelectorAll('input[name="recipients[]"]:checked'))
+                .map(checkbox => checkbox.value);
+            
+            if (selectedRecipients.length === 0) {
+                alert('Please select at least one recipient');
+                return;
+            }
+
+            const formData = new FormData();
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content'); // Get CSRF token
+            formData.append('_token', csrfToken);
+            formData.append('devis_id', devisId);
+            formData.append('recipients', JSON.stringify(selectedRecipients));
+            
+            const attachments = document.getElementById('attachments').files;
+            for (let i = 0; i < attachments.length; i++) {
+                formData.append('attachments[]', attachments[i]);
+            }
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert('Devis sent successfully!');
+                    if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
+                    location.reload();
+                } else {
+                    alert('Error sending devis: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while sending the devis');
+            });
+        });
+    });
+</script>
                         </tbody>
                     </table>
                 </div>
             </div>
         </main>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Devis Report Modal ---
+        const devisReportModal = document.getElementById('devisReportModal');
+        const openDevisReportModalBtn = document.getElementById('openDevisReportModal');
+        const closeDevisReportModalBtn = document.getElementById('closeDevisReportModal');
+        const cancelDevisReportModalBtn = document.getElementById('cancelDevisReportBtn');
+        const confirmDevisReportBtn = document.getElementById('confirmDevisReport');
+
+        if (openDevisReportModalBtn) {
+            openDevisReportModalBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (devisReportModal) devisReportModal.classList.remove('hidden');
+            });
+        }
+        if (closeDevisReportModalBtn) {
+            closeDevisReportModalBtn.addEventListener('click', () => {
+                if (devisReportModal) devisReportModal.classList.add('hidden');
+            });
+        }
+        if (cancelDevisReportModalBtn) {
+            cancelDevisReportModalBtn.addEventListener('click', () => {
+                if (devisReportModal) devisReportModal.classList.add('hidden');
+            });
+        }
+
+        if (confirmDevisReportBtn) {
+            confirmDevisReportBtn.addEventListener('click', function() {
+                let baseUrl = '';
+                try {
+                    @if(Auth::user()->hasRole('Responsable de projet'))
+                    baseUrl = "{{route('Responsable_de_projet.Devissrepports.downloadRepports')}}";
+                    @endif
+                    @if(Auth::user()->hasRole('Admin'))
+                    baseUrl = "{{route('admin.Devissrepports.downloadRepports')}}";
+                    @endif
+                    @if(Auth::user()->hasRole('Employee'))
+                    baseUrl = "{{route('employee.Devissrepports.downloadRepports')}}";
+                    @endif
+                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                    baseUrl = "{{route('Responsable_gestionnaire.Devissrepports.downloadRepports')}}";
+                    @endif
+                } catch (e) {}
+
+                const startDateEl = document.getElementById('startDate');
+                const endDateEl = document.getElementById('endDate');
+                const startDate = startDateEl ? startDateEl.value : '';
+                const endDate = endDateEl ? endDateEl.value : '';
+                const selectedStatuses = Array.from(document.querySelectorAll('input[name="devisReportStatus[]"]:checked')).map(x => x.value);
+                const includeArchived = document.getElementById('include_archived')?.checked;
+
+                const params = new URLSearchParams();
+                if (startDate && endDate) {
+                    params.append('startDate', startDate);
+                    params.append('endDate', endDate);
+                }
+                if (selectedStatuses.length > 0) {
+                    params.append('filters', selectedStatuses.join(','));
+                }
+                if (includeArchived) {
+                    params.append('archived', '1');
+                }
+
+                const finalUrl = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+                window.location.href = finalUrl;
+                
+                if (devisReportModal) devisReportModal.classList.add('hidden'); // Hide modal
+            });
+        }
+
+        // --- Send Devis Modal ---
+        const sendDevisModalEl = document.getElementById('sendDevisModal');
+        const closeSendDevisModalBtn = document.getElementById('closeSendDevisModal');
+        const cancelSendDevisModalBtn = document.getElementById('cancelSendDevisModal');
+
+        if (closeSendDevisModalBtn) {
+            closeSendDevisModalBtn.addEventListener('click', () => {
+                if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
+            });
+        }
+        if (cancelSendDevisModalBtn) {
+            cancelSendDevisModalBtn.addEventListener('click', () => {
+                if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
+            });
+        }
+
+        function handleSendClick(event) {
+            event.preventDefault();
+            const form = event.target.closest('form');
+            const devisId = form.querySelector('input[name="devis_id"]').value;
+            const formAction = form.getAttribute('action');
+            
+            document.getElementById('devis_id').value = devisId;
+            const recipientsList = document.getElementById('recipientsList');
+            recipientsList.innerHTML = '<div class="text-center">Loading...</div>'; // Simple loading text
+            
+            fetch(`/admin/devis/get-contacts/${devisId}`)
+                .then(response => response.json())
+                .then(data => {
+                    recipientsList.innerHTML = '';
+                    if (data.contacts && data.contacts.length > 0) {
+                        data.contacts.forEach(contact => {
+                            const div = document.createElement('div');
+                            div.className = 'flex items-center'; // Tailwind class
+                            div.innerHTML = `
+                                <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="recipients[]" value="${contact.email}" id="recipient_${contact.id}" checked>
+                                <label class="ml-2 block text-sm text-gray-900" for="recipient_${contact.id}">
+                                    ${contact.name} (${contact.email})
+                                </label>
+                            `;
+                            recipientsList.appendChild(div);
+                        });
+                    } else {
+                        recipientsList.innerHTML = '<p class="text-gray-500">No contacts found for this client</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    recipientsList.innerHTML = '<p class="text-red-600">Error loading contacts</p>';
+                });
+            
+            document.getElementById('sendDevisForm').action = formAction;
+            
+            if (sendDevisModalEl) sendDevisModalEl.classList.remove('hidden'); // Show modal
+        }
+
+        document.querySelectorAll('form[action*="sendDevis"]').forEach(form => {
+            form.querySelector('button[type="submit"]').addEventListener('click', handleSendClick);
+        });
+
+        document.getElementById('confirmSend').addEventListener('click', function() {
+            const form = document.getElementById('sendDevisForm');
+            const devisId = document.getElementById('devis_id').value;
+            const selectedRecipients = Array.from(document.querySelectorAll('input[name="recipients[]"]:checked'))
+                .map(checkbox => checkbox.value);
+            
+            if (selectedRecipients.length === 0) {
+                alert('Please select at least one recipient');
+                return;
+            }
+
+            const formData = new FormData();
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content'); // Get CSRF token
+            formData.append('_token', csrfToken);
+            formData.append('devis_id', devisId);
+            formData.append('recipients', JSON.stringify(selectedRecipients));
+            
+            const attachments = document.getElementById('attachments').files;
+            for (let i = 0; i < attachments.length; i++) {
+                formData.append('attachments[]', attachments[i]);
+            }
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert('Devis sent successfully!');
+                    if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
+                    location.reload();
+                } else {
+                    alert('Error sending devis: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while sending the devis');
+            });
+        });
+    });
+</script>
+<div id="devisReportModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+        <div class="flex justify-between items-center p-4 border-b">
+            <h5 class="text-lg font-semibold text-gray-800" id="devisReportModalLabel">Download Devis Reports</h5>
+            <button type="button" id="closeDevisReportModal" class="text-gray-400 hover:text-gray-600">&times;</button>
+        </div>
+        <div class="p-6">
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700">Choose statuses (optional):</label>
+                <div class="mt-2 space-y-2">
+                    <div class="flex items-center">
+                        <input id="status_accepted" name="devisReportStatus[]" type="checkbox" value="accepted" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        <label for="status_accepted" class="ml-2 block text-sm text-gray-900">Accepted</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input id="status_declined" name="devisReportStatus[]" type="checkbox" value="declined" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        <label for="status_declined" class="ml-2 block text-sm text-gray-900">Declined</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input id="status_pending" name="devisReportStatus[]" type="checkbox" value="pending" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        <label for="status_pending" class="ml-2 block text-sm text-gray-900">Pending</label>
+                    </div>
+                    <hr class="my-3">
+                    <div class="flex items-center">
+                        <input id="include_archived" type="checkbox" value="1" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        <label for="include_archived" class="ml-2 block text-sm text-gray-900">Include archived</label>
+                    </div>
+                </div>
+            </div>
+            <small class="text-gray-500">Date range (optional) will be applied from the fields at the top.</small>
+        </div>
+        <div class="flex justify-end items-center p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
+            <button type="button" id="cancelDevisReportBtn" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+            <button type="button" id="confirmDevisReport" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700">Download PDF</button>
+        </div>
+    </div>
+</div>
+<div id="sendDevisModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-lg mx-4">
+        <div class="flex justify-between items-center p-4 border-b">
+            <h5 class="text-lg font-semibold text-gray-800" id="sendDevisModalLabel">Send Devis</h5>
+            <button type="button" id="closeSendDevisModal" class="text-gray-400 hover:text-gray-600">&times;</button>
+        </div>
+        <div class="p-6">
+            <form id="sendDevisForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="devis_id" id="devis_id">
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Select Recipients:</label>
+                    <div id="recipientsList" class="border p-3 rounded-md h-32 overflow-y-auto bg-gray-50 space-y-2">
+                        </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="attachments" class="block text-sm font-medium text-gray-700 mb-1">Additional Attachments (PDF only):</label>
+                    <input type="file" class="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:bg-gray-100 file:border-0 file:px-3 file:py-2" id="attachments" name="attachments[]" multiple accept=".pdf">
+                    <small class="text-gray-500">Select PDF files to be merged with the devis</small>
+                </div>
+            </form>
+        </div>
+        <div class="flex justify-end items-center p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
+            <button type="button" id="cancelSendDevisModal" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Close</button>
+            <button type="button" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700" id="confirmSend">Send Devis</button>
+        </div>
+    </div>
+</div>
+
 </body>
