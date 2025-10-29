@@ -23,6 +23,7 @@ use App\Http\Controllers\BillitController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\admin\CalendarController;
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -50,7 +51,6 @@ Route::get('/faq', function () {
     return view('components.Home_page.faq');
 })->name('faq');
 
-Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 
 Route::get('/dashboard', function () {
     if (auth()->check() && auth()->user()->hasRole('Admin')) {
@@ -147,6 +147,7 @@ Route::middleware(['auth', 'role:Admin'])->name('admin.')->prefix('admin')->grou
     Route::post('entreprise/unvalidate/{chargeid}/{budget_id}', [AdminEntrepriseController::class,'unvalidateBilling'])->name('entreprise.unvalidateBilling');
     Route::post('entreprise/addBudget', [AdminEntrepriseController::class,'addBudget'])->name('entreprise.addBudget');
     Route::get('/entrepriseBillings/downloadRepports', [AdminEntrepriseController::class, 'downloadBillingsRepports'])->name('entrepriseBillings.downloadRepports');
+    
 
 
 
@@ -1749,9 +1750,13 @@ Route::get('/filter/all-tasks', [TasksController::class, 'getAllTasks']);
 
 
 Route::middleware('auth')->group(function () {
+    Route::get('/admin/profile', [ProfileController::class, 'index'])->name('profile');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/edit-profile', function () {
+    return view('profile.edit');
+    });
 });
 
 Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->middleware('guest')->name('password.request');

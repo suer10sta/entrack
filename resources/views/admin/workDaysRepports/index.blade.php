@@ -7,33 +7,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Work Days Reports | BizManager</title>
-    {{-- CSRF Token for AJAX requests --}}
+    <title>Work Days Reports | Entrack entrp</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     @vite('resources/css/app.css')
     {{-- Include Alpine.js from CDN --}}
     <script src="//unpkg.com/alpinejs" defer></script>
-    {{-- 
-        NOTE: 
-        Your page uses Bootstrap's JS for modals.
-        Ensure Bootstrap JS/CSS are properly included in your project's build
-        or via CDN links in dashboard_layouts.head/scripts.
-    --}}
     @include('dashboard_layouts.head') 
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
     <x-dashboard.sidebar />
 
-    <div class="flex flex-col flex-1 overflow-hidden"> {{-- Changed overflow-y-auto --}}
+    <div class="flex flex-col flex-1 overflow-hidden"> 
         {{-- Navbar --}}
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <div class="flex-1 overflow-y-auto bg-gray-50 p-8"> {{-- Added overflow-y-auto here --}}
+        <div class="flex-1 overflow-y-auto bg-gray-50 p-8"> 
             
-            {{-- ANIMATION: Style block from the target example --}}
+            
             <style>
                 @keyframes fadeInSlideUp {
                     from { opacity: 0; transform: translateY(20px); }
