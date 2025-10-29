@@ -12,7 +12,7 @@ $testimonials = [
 ];
 @endphp
 
-<section id="testimonials" class="py-24 lg:py-32">
+<section id="customers" class="py-24 lg:py-32">
     <div class="container px-6">
         <div class="mb-16 text-center">
             <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">

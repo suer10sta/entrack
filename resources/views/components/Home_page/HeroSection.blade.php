@@ -1,18 +1,9 @@
 {{-- resources/views/components/hero-section.blade.php --}}
-@php
-    $theme = session('theme', 'blue');
-@endphp
 
 {{-- MODIFICATION : L'espace en haut (padding-top) a été réduit --}}
-<section class="relative overflow-hidden pt-12 pb-24 lg:pt-16 lg:pb-32
-    @if($theme === 'blue') 
-        bg-gradient-to-b from-primary/5 to-background
-    @else
-        bg-gradient-to-br from-primary via-primary to-[#0d9488]
-    @endif
-">
+<section id="hero" class="relative overflow-hidden pt-12 pb-24 lg:pt-16 lg:pb-32
+        bg-gradient-to-b from-primary/5 to-background">
     {{-- Background Decorations --}}
-    @if($theme !== 'blue')
         <div class="absolute inset-0 z-0">
             <svg class="absolute bottom-0 right-0 h-full w-full" viewBox="0 0 1440 800" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
                 <path d="M800 0C600 200 400 400 300 600C200 800 0 800 0 800V0H800Z" fill="white"/>
@@ -20,7 +11,7 @@
         </div>
         <div class="absolute left-10 top-20 z-0 h-64 w-64 rounded-full bg-white/5 blur-3xl"></div>
         <div class="absolute right-20 top-40 z-0 h-96 w-96 rounded-full bg-accent/10 blur-3xl"></div>
-    @endif
+    
 
     {{-- Content --}}
     <div class="container relative z-20 px-6">
@@ -28,8 +19,6 @@
 
             {{-- Left Column --}}
             <div class="space-y-8 animate-fade-in-left" data-visible="true">
-                {{-- Theme-based Badge (Correspond à l'image) --}}
-                @if($theme === 'blue')
                     <div class="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-all duration-300 hover:scale-105 hover:border-primary/40 hover:bg-primary/20">
                         <span class="relative flex h-2 w-2">
                             <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
@@ -37,37 +26,21 @@
                         </span>
                         New: Automated Reports
                     </div>
-                @endif
+                
 
                 {{-- Heading & Subtext (Correspond à l'image) --}}
-                <h1 class="text-balance text-5xl font-bold leading-tight lg:text-6xl xl:text-7xl
-                    @if($theme === 'blue') text-foreground @else text-white @endif">
-                    @if($theme === 'blue')
+                <h1 class="text-balance text-5xl font-bold leading-tight lg:text-6xl xl:text-7xlf">
                         Manage your business with 
                         <span class="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">simplicity</span>
-                    @else
-                        Manage your invoices and business <span class="text-accent">in one click</span>
-                    @endif
                 </h1>
-                <p class="text-pretty text-lg leading-relaxed lg:text-xl
-                    @if($theme === 'blue') text-muted-foreground @else text-white/90 @endif">
-                    @if($theme === 'blue')
+                <p class="text-pretty text-lg leading-relaxed lg:text-xl">
                         A complete platform for invoicing, client management, and project tracking. Everything you need in one place.
-                    @else
-                        Simplify your accounting, track your clients, and automate your tasks. A complete solution for modern business management.
-                    @endif
                 </p>
 
                 {{-- Buttons --}}
                 <div class="flex flex-col gap-4 sm:flex-row">
                     <a href="{{ route('login') }}" class="group inline-flex items-center justify-center gap-2 rounded-lg px-8 py-4 text-base font-semibold shadow-lg
-                        @if($theme === 'blue')
-                            bg-primary text-primary-foreground
-                        @else
-                            bg-accent rounded-full text-accent-foreground
-                        @endif
-                        transition-all duration-300
-                    ">
+                            bg-[#0EA5E9] text-primary-foreground">
                         Get Started Free
                         <svg class="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -75,13 +48,8 @@
                     </a>
 
                     <button class="inline-flex items-center justify-center gap-2 rounded-lg px-8 py-4 text-base font-semibold transition-all duration-300 shadow-lg
-                        @if($theme === 'blue')
-                            bg-card text-foreground hover:bg-secondary
-                        @else
-                            border-white bg-transparent text-white hover:bg-white hover:text-primary
-                        @endif
-                    ">
-                        @if($theme === 'blue') View Demo @else Learn More @endif
+                            bg-card text-foreground hover:bg-secondary">
+                         View Demo 
                     </button>
                 </div>
 
@@ -91,7 +59,6 @@
             {{-- Right Column (Visuals) --}}
             <div class="relative flex justify-center animate-fade-in-right" data-visible="true" style="animation-delay: 300ms;">
                 <div class="relative w-full max-w-lg">
-                    @if($theme === 'blue')
                         <div class="absolute -left-4 -top-4 h-72 w-72 rounded-full bg-primary/10 blur-3xl"></div>
                         <div class="absolute -bottom-4 -right-4 h-72 w-72 rounded-full bg-accent/10 blur-3xl"></div>
                         
@@ -133,27 +100,6 @@
                             </div>
 
                         </div>
-                    @else
-                        {{-- Non-blue theme visuals --}}
-                        <div class="hover-lift relative rounded-3xl bg-white p-6 shadow-2xl">
-                            <div class="space-y-4">
-                                <div class="flex items-center justify-between">
-                                    <div class="h-3 w-32 rounded-full bg-gray-200"></div>
-                                    <div class="h-8 w-8 rounded-full bg-primary"></div>
-                                </div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div class="rounded-xl bg-gradient-to-br from-primary to-[#0d9488] p-4">
-                                        <div class="h-2 w-16 rounded bg-white/50"></div>
-                                        <div class="mt-2 h-6 w-20 rounded bg-white"></div>
-                                    </div>
-                                    <div class="rounded-xl bg-gradient-to-br from-accent to-[#f59e0b] p-4">
-                                        <div class="h-2 w-16 rounded bg-white/50"></div>
-                                        <div class="mt-2 h-6 w-20 rounded bg-white"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
                 </div>
             </div>
 

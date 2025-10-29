@@ -39,8 +39,16 @@ Route::get('/', function () {
 })->name("welcome");
 
 Route::get('/contact', function () {
-    return view('contact');
+    return view('components.Home_page.contact');
 })->name('contact');
+
+Route::get('/about', function () {
+    return view('components.Home_page.about');
+})->name('about');
+
+Route::get('/faq', function () {
+    return view('components.Home_page.faq');
+})->name('faq');
 
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 

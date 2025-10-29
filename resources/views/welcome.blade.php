@@ -101,41 +101,9 @@
 
   </head>
 
-<body class="antialiased">
+<body class="antialiased pt-20">
 
-    <!-- MENU BAR -->
-    <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <div class="brand-icon">
-                    <i class="fa fa-file-text"></i>
-                </div>
-                Enterprise Tracker Pro
-            </a>
-
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a href="#features" class="nav-link">Features</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#why-us" class="nav-link">Why Us</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#pricing" class="nav-link">Pricing</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link login-btn">Login</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <x-Home_page.header />
 
 
     <!-- HERO -->
