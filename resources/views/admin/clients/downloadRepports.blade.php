@@ -1,109 +1,114 @@
 <style>
-body {
-    font-family: Arial, sans-serif;
+    /* --- Base & Typography --- */
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 0;
+        padding: 0;
+        color: #333;
+    }
 
-}
+    .container {
+        width: 100%;
+        padding: 20px;
+    }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+    h2,
+    h5 {
+        margin: 0 0 5px 0;
+    }
 
-th {
-    border: 1px solid black;
-    padding: 8px;
-    text-align: left;
-    font-family: Arial, sans-serif;
-    font-size: 12px;
-    font-weight: bold;
-}
+    h2 {
+        font-size: 18px;
+    }
 
-td {
-    border: 1px solid black;
-    padding: 8px;
-    text-align: left;
-    font-family: Arial, sans-serif;
-    font-size: 11px;
-    font-weight: normal;
-}
+    h5 {
+        font-size: 14px;
+        font-weight: normal;
+        color: #555;
+    }
 
-thead {
-    background-color: #f2f2f2;
-}
+    /* --- Header / Details --- */
+    .details {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 30px;
+        /* Replaces the <br> tags */
+    }
 
+    .company-logo {
+        width: 80px;
+        height: auto;
+    }
 
+    .details-right {
+        text-align: right;
+    }
 
-.company-logo {
-    width: 80px;
-    /* Adjust the width as needed */
-    margin-right: 20px;
-    /* Add some space between the image and the header info */
-}
+    /* --- Table Styles --- */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        /* This is key for boxed borders */
+        margin-bottom: 60px;
+    }
 
-.details {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    position: relative;
-}
+    /* Table Header */
+    thead {
+        background-color: #0EA5E9;
+        /* Updated to a clear blue */
+        color: white;
+    }
 
-.details-left {
-    width: 48%;
-    font-size: 12px;
-}
+    th {
+        border: 1px solid #0056b3;
+        /* Darker blue border for header */
+        padding: 10px;
+        font-size: 11px;
+        font-weight: 600;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
 
-.details-right {
-    width: 48%;
-    font-size: 12px;
-    text-align: right;
-    position: absolute;
-    right: 0;
-    top: 0;
-}
+    /* Table Body */
+    td {
+        border: 1px solid #ddd;
+        /* Light gray border for all cells */
+        padding: 10px;
+        text-align: left;
+        font-size: 11px;
+    }
 
-thead {
-    background-color: #686ce4;
-    /* Updated color */
-    color: white;
-    /* Improve readability */
-}
+    /* --- Footer --- */
+    .footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #777;
+        padding: 15px 20px;
+        box-sizing: border-box;
+        border-top: 1px solid #eee;
+        background: #fff;
+    }
 
-
-.footer {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  position: fixed;
-  bottom: 0; /* Ensure footer sticks to the bottom */
-  left: 0; /* Align footer to the left */
-}
-
-.footer-left {
-  width: 48%;
-  font-size: 12px;
-}
-
-.footer-right {
-  width: 48%;
-  font-size: 12px;
-  text-align: right;
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-.page-number:before {
+    /* CSS counter for print/PDF page numbers */
+    .page-number::before {
         content: counter(page);
     }
 </style>
 
-<div class="containter">
-
+<div class="container">
 
     <div class="details">
         <div class="details-left">
-        <img src="{{ Storage::disk('do_spaces')->url($entreprise->image) }}" alt="Company Logo" class="company-logo">
+            <img src="{{ Storage::disk('do_spaces')->url($entreprise->image) }}" alt="Company Logo" class="company-logo">
         </div>
         <div class="details-right">
             <div class="header-info">
@@ -112,21 +117,21 @@ thead {
             </div>
         </div>
     </div>
-    <br><br><br>
+
     <table>
         <thead>
             <tr>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Number</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Name</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Email</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Phone</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Billing Address</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">TVA</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Due Date</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Address</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">City</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Zip</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Country</th>
+                <th>Number</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Billing Address</th>
+                <th>TVA</th>
+                <th>Due Date</th>
+                <th>Address</th>
+                <th>City</th>
+                <th>Zip</th>
+                <th>Country</th>
             </tr>
         </thead>
         <tbody>
@@ -149,31 +154,8 @@ thead {
     </table>
 
     <div class="footer">
-        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
         <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
+        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
     </div>
 
 </div>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Find all elements that represent pages
-    const pages = document.querySelectorAll('.page');
-
-    // Check if pages exist
-    if (pages.length === 0) {
-        console.error('No pages found. Ensure your HTML structure includes elements with a .page class.');
-        return;
-    }
-
-    // Loop through each page and set the page number
-    pages.forEach((page, index) => {
-        // Find the .page-number span within the .footer of each page
-        const pageNumberElement = page.querySelector('.footer .page-number');
-        if (pageNumberElement) {
-            pageNumberElement.textContent = index + 1; // Page numbers should start from 1
-        } else {
-            console.error('Page number element not found in page ' + (index + 1));
-        }
-    });
-});
-</script>

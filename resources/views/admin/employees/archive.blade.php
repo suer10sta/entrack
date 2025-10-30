@@ -1,466 +1,207 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizManager Dashboard</title>
+    @vite('resources/css/app.css')
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+    {{-- Sidebar --}}
+    <x-dashboard.sidebar />
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        {{-- Navbar --}}
+        <x-dashboard.navbar />
 
-@include('dashboard_layouts.head')
-<style>
-  a {
-    color: blue;
-}
-th {
-    font-size: 14px !important; 
-}
-</style>
-<body class="g-sidenav-show bg-gray-100">
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-      style="display: none; visibility: hidden"></iframe></noscript>
-  <div class="min-height-300 bg-primary position-absolute w-100"></div>
-
-    @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-        @include('employees.sidebar')
-    @endif
-    @if(Auth::user()->hasRole('Admin'))
-        @include('admin.sidebar')
-    @endif
-
-  <main class="main-content position-relative border-radius-lg">
-    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
-      id="navbarBlur" data-scroll="false">
-      <div class="container-fluid py-1 px-3">
-
-        @include('dashboard_layouts.navbar')
-
-      </div>
-
-      <div class="container-fluid py-4">
-
-        <div class="row mt-3">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header p-3 pb-0">
-                <div class="d-flex justify-content-between">
-                    <h6>Archived Employees Table</h6>
-                    <!--
-                    @if(Auth::user()->hasRole('Admin'))
-                        <div>
-                            <a type="button" class="btn btn-primary" href="{{route('admin.Projectsrepports.downloadRepports')}}">Projects Reports PDF</a>
-                        </div>
-                    @endif
-                    @if(Auth::user()->hasRole('Responsable de projet'))
-                        <div>
-                            <a type="button" class="btn btn-primary" href="{{route('Responsable_de_projet.Projectsrepports.downloadRepports')}}">Projects Reports PDF</a>
-                        </div>
-                    @endif
-                    -->
-                    @if(Auth::user()->hasRole('Admin'))
-                        <div>
-                            <a type="button" class="btn btn-primary" href="{{route('admin.employees.index')}}">Return Back</a>
-                        </div>
-                    @endif
-                    @if(Auth::user()->hasRole('Responsable de projet'))
-                        <div>
-                            <a type="button" class="btn btn-primary" href="{{route('Responsable_de_projet.employees.index')}}">Return Back</a>
-                        </div>
-                    @endif
-                    @if(Auth::user()->hasRole('Employee'))
-                        <div>
-                            <a type="button" class="btn btn-primary" href="{{route('employee.employees.index')}}">Return Back</a>
-                        </div>
-                    @endif
-                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                        <div>
-                            <a type="button" class="btn btn-primary" href="{{route('Responsable_gestionnaire.employees.index')}}">Return Back</a>
-                        </div>
-                    @endif
-                    
-                    
-                </div>
-                  @if(session('message'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('message') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
-                    </div>
-                  @endif
-              </div>
-              
-    
-        <div class="card-body">
-        <div class="table-responsive p-4 pt-1">
-                  <table id="example" class="table table-flush" style="width:100%">
-                    <thead class="thead-light">
-                      <tr class="text-center">
-                        <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"></th>
-                        <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Name</th> 
-                        <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> email</th>
-                        <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> phoneNumber</th>
-                        <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Status</th>
-                        <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> age</th>
-                        <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> cnss</th>
-                        <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> bankAccountNumber</th>
-                        <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Salary</th>
-                        <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Cost_per_hour</th>
-                        <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> workHours_limit</th>
-                        <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Cotisation CNSS</th>
-                        <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Cotisation AMO</th>
-                        <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Date_Release</th>
-                        <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Role</th>
-                        <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"> Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($employees as $employee)
-                      <tr class="text-center">
-                        <td>
-
-                        @php
-                            $colors = ['#2ECC71', '#BDC3C7', '#F39C12', '#E74C3C', '#9B59B6',
-                            '#2E86C1','#641E16','#2C3E50','#F4D03F','#F4D03F'];
-                          @endphp
-                          @if($employee->image)
-                          <img class="avatar avatar-sm rounded-circle me-2" 
-                            src="{{ Storage::disk('do_spaces')->url('employee_images/' . $employee->image) }}" 
-                            alt="employee Image">
-                          @else
-                          <div class="avatar avatar-sm rounded-circle me-2"
-                            style="background-color: {{ $colors[$loop->index % count($colors)] }};">
-                            <span class="initial-letter">{{ strtoupper(substr($employee->name,
-                                0, 1)) }}</span>
-                          </div>
-                          @endif
-                        </td>
-                        <td class="editable" data-id="{{$employee->id}}" data-column="name">
-
-                        @if(Auth::user()->hasRole('Responsable de projet'))
-                          @if(Auth::user()->can('View employee'))
-                            <a href="{{route('Responsable_de_projet.employees.show',$employee->id )}}">
-                              {{$employee->name}}
-                            </a>
-                            @else
-                            {{$employee->name}}
-                          @endif
-                        @endif
-                        @if(Auth::user()->hasRole('Admin'))
-                          @if(Auth::user()->can('View employee'))
-                            <a href="{{route('admin.employees.show',$employee->id )}}">
-                              {{$employee->name}}
-                            </a>
-                            @else
-                            {{$employee->name}}
-                          @endif
-                        @endif
-                        @if(Auth::user()->hasRole('Employee'))
-                          @if(Auth::user()->can('View employee'))
-                            <a href="{{route('employee.employees.show',$employee->id )}}">
-                              {{$employee->name}}
-                            </a>
-                          @else
-                            {{$employee->name}}
-                          @endif
-                        @endif
-                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                          @if(Auth::user()->can('View employee'))
-                            <a href="{{route('Responsable_gestionnaire.employees.show',$employee->id )}}">
-                              {{$employee->name}}
-                            </a>
-                          @else
-                            {{$employee->name}}
-                          @endif
-                        @endif
-                            
-                        </td>
-
-                        <td class="editable" data-id="{{$employee->id}}" data-column="email">
-
-                            {{$employee->email}}
-                        </td>
-
-                        <td class="editable" data-id="{{$employee->id}}" data-column="phoneNumber">
-
-                            {{$employee->phoneNumber}}
-                        </td>
-
-                        <td >
-
-                            @if(\App\Models\User::find($employee->user_id) && \App\Models\User::find($employee->user_id)->is_activate==1)
-                            @if(Auth::user()->hasRole('Responsable de projet'))
-                            <form action="{{route('Responsable_de_projet.employee.deactivate', $employee->id) }}"
-                                  method="post" onsubmit="return confirm('Are you sure?');">
-                                @csrf
-                                <span class="badge badge-sm badge-success">
-                                  <button type="submit" style="border: none; background: none; padding: 0; color: inherit;">
-                                    Active
-                                  </button>
-                                </span>
-                              </form>
-                            @endif
-                            @if(Auth::user()->hasRole('Admin'))
-                              <form action="{{route('admin.employee.deactivate', $employee->id) }}"
-                                  method="post" onsubmit="return confirm('Are you sure?');">
-                                @csrf
-                                <span class="badge badge-sm badge-success">
-                                  <button type="submit" style="border: none; background: none; padding: 0; color: inherit;">
-                                    Active
-                                  </button>
-                                </span>
-                              </form>
-                            @endif
-                            @if(Auth::user()->hasRole('Employee'))
-                              <form action="{{route('employee.employee.activate', $employee->id) }}"
-                                  method="post" onsubmit="return confirm('Are you sure?');">
-                                @csrf
-                                <span class="badge badge-sm badge-success">
-                                  <button type="submit" style="border: none; background: none; padding: 0; color: inherit;">
-                                    Active
-                                  </button>
-                                </span>
-                              </form> 
-                            @endif
-                            @else
-                              @if(Auth::user()->hasRole('Admin'))
-                                <form action="{{route('admin.employee.activate', $employee->id) }}"
-                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                  @csrf
-                                  <span class="badge badge-sm badge-danger">
-                                    <button type="submit" style="border: none; background: none; padding: 0; color: inherit;">
-                                      Inactive
-                                    </button>
-                                  </span>
-                                </form>
-                              @endif
-                              @if(Auth::user()->hasRole('Responsable de projet'))
-                                <form action="{{route('Responsable_de_projet.employee.activate', $employee->id) }}"
-                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                  @csrf
-                                  <span class="badge badge-sm badge-danger">
-                                    <button type="submit" style="border: none; background: none; padding: 0; color: inherit;">
-                                      Inactive
-                                    </button>
-                                  </span>
-                                </form>
-                              @endif    
-                              @if(Auth::user()->hasRole('Employee'))
-                                <form action="{{route('employee.employee.activate', $employee->id) }}"
-                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                  @csrf
-                                  <span class="badge badge-sm badge-danger">
-                                    <button type="submit" style="border: none; background: none; padding: 0; color: inherit;">
-                                      Inactive
-                                    </button>
-                                  </span>
-                                </form>
-                              @endif                      
-                            @endif  
-                        </td>
-
-                        <td class="editable" data-id="{{$employee->id}}" data-column="age">
-
-                            {{$employee->age}}
-                        </td>
-
-                        <td class="editable" data-id="{{$employee->id}}" data-column="cnss">
-
-                            {{$employee->cnss}}
-                        </td>
-
-                        <td class="editable" data-id="{{$employee->id}}" data-column="bankAccountNumber">
-
-                            {{$employee->bankAccountNumber}}
-                        </td>
-
-                        <td class="text-success editable" data-id="{{$employee->id}}" data-column="salary">
-                            {{$employee->salary}} €
-                        </td>
-
-                        <td class="text-success editable" data-id="{{$employee->id}}" data-column="cost_per_hour">
-                            {{number_format($employee->cost_per_hour, 2, '.', '')}} €
-                        </td>
-                        
-                        <td class="editable" data-id="{{$employee->id}}" data-column="workHours_limit">
-                            {{$employee->workHours_limit}} h
-                        </td>
-
-                        <td class="text-success editable" data-id="{{$employee->id}}" data-column="Cotisation_CNSS">
-                            {{$employee->Cotisation_CNSS}} €
-                        </td>
-
-                        <td class="text-success editable" data-id="{{$employee->id}}" data-column="Cotisation_AMO">
-                            {{$employee->Cotisation_AMO}} €
-                        </td>
-
-                        <td class="editable" data-id="{{$employee->id}}" data-column="Date_Release">
-
-                            {{$employee->Date_Release}}
-                        </td>
-
-                        <td >
-
-                          @if(count($employee->roles)!=0)
-                          @foreach($employee->roles as $role)
-                          <span class="badge bg-gradient-success">{{$role}}</span>
-                          @endforeach
-                          @else
-                          <span class="badge bg-gradient-danger">No Role</span>
-                          @endif
-                        </td>
-
-                        <td>
-                        @if(Auth::user()->hasRole('Admin'))
-                          @can('Edit employee roles')
-                            <a href="{{route('admin.employees.edit', $employee->id)}}" class="btn btn-primary btn-sm">Edit Roles</a>
-                          @endcan
-                          <form
-                              action="{{ route('admin.employees.unarchive', $employee->id)}}"
-                              method="post"
-                              onsubmit="return confirm('Are you sure?');"
-                              class="d-inline">
-                              @csrf
-                              <button type="submit"
-                                  class="btn btn-secondary btn-xs p-2 mb-0">unarchive</button>
-                          </form>
-                          @can('Delete employee')
-                            @if(\App\Models\User::find($employee->user_id)->id != auth()->user()->id)
-                            <form action="{{route('admin.employees.destroy',$employee->id) }}" method="post" onsubmit="return confirm('Are you sure?');" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                            </form>
-                            @endif
-                          @endcan
-                        @endif
-                        @if(Auth::user()->hasRole('Responsable de projet'))
-                          @can('Edit employee roles')
-                            <a href="{{route('Responsable_de_projet.employees.edit', $employee->id)}}" class="btn btn-primary btn-sm">Edit Roles</a>
-                          @endcan
-                          <form
-                              action="{{ route('Responsable_de_projet.employees.unarchive', $employee->id)}}"
-                              method="post"
-                              onsubmit="return confirm('Are you sure?');"
-                              class="d-inline">
-                              @csrf
-                              <button type="submit"
-                                  class="btn btn-secondary btn-xs p-2 mb-0">unarchive</button>
-                          </form>
-                          @can('Delete employee')
-                            @if(\App\Models\User::find($employee->user_id)->id != auth()->user()->id)
-                            <form action="{{route('Responsable_de_projet.employees.destroy',$employee->id) }}" method="post" onsubmit="return confirm('Are you sure?');" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                            </form>
-                            @endif
-                          @endcan
-                        @endif 
-                        @if(Auth::user()->hasRole('Employee'))
-                          @can('Edit employee roles')
-                            <a href="{{route('employee.employees.edit', $employee->id)}}" class="btn btn-primary btn-sm">Edit Roles</a>
-                          @endcan
-                          <form
-                              action="{{ route('employee.employees.unarchive', $employee->id)}}"
-                              method="post"
-                              onsubmit="return confirm('Are you sure?');"
-                              class="d-inline">
-                              @csrf
-                              <button type="submit"
-                                  class="btn btn-secondary btn-xs p-2 mb-0">unarchive</button>
-                          </form>
-                          @can('Delete employee')
-                            @if(\App\Models\User::find($employee->user_id)->id != auth()->user()->id)
-                            <form action="{{route('employee.employees.destroy',$employee->id) }}" method="post" onsubmit="return confirm('Are you sure?');" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                            </form>
-                            @endif
-                          @endcan
-                        @endif  
-                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                          @can('Edit employee roles')
-                            <a href="{{route('Responsable_gestionnaire.employees.edit', $employee->id)}}" class="btn btn-primary btn-sm">Edit Roles</a>
-                          @endcan
-                          <form
-                              action="{{ route('Responsable_gestionnaire.employees.unarchive', $employee->id)}}"
-                              method="post"
-                              onsubmit="return confirm('Are you sure?');"
-                              class="d-inline">
-                              @csrf
-                              <button type="submit"
-                                  class="btn btn-secondary btn-xs p-2 mb-0">unarchive</button>
-                          </form>
-                          @can('Delete employee')
-                            @if(\App\Models\User::find($employee->user_id)->id != auth()->user()->id)
-                            <form action="{{route('Responsable_gestionnaire.employees.destroy',$employee->id) }}" method="post" onsubmit="return confirm('Are you sure?');" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                            </form>
-                            @endif
-                          @endcan
-                        @endif
-                        </td>
-                      </tr>
-                    @endforeach
-                    </tbody>
-
-                  </table>
-                </div>
-    
-</div>
-
-            </div>
+        {{-- Main Content --}}
+        <main class="flex-1 p-6">
+        {{-- Header --}}
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-6 rounded-lg shadow border border-gray-200 mb-4">
+          <h1 class="text-lg font-semibold text-gray-900">Archived Employees</h1>
+          <div class="flex flex-wrap gap-2 mt-4 sm:mt-0">
+            {{-- Return Back Button --}}
+            @php
+            $backRoute = '#';
+            if (Auth::user()->hasRole('Admin')) $backRoute = route('admin.employees.index');
+            elseif (Auth::user()->hasRole('Responsable de projet')) $backRoute = route('Responsable_de_projet.employees.index');
+            elseif (Auth::user()->hasRole('Employee')) $backRoute = route('employee.employees.index');
+            elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $backRoute = route('Responsable_gestionnaire.employees.index');
+            @endphp
+            <a href="{{ $backRoute }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">
+              Return Back
+            </a>
           </div>
         </div>
 
+{{-- Session message --}}
+@if(session('message'))
+    <div class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative" role="alert">
+        {{ session('message') }}
+        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 right-0 px-4 py-3 text-green-700 hover:text-green-900 font-bold text-xl">&times;</button>
+    </div>
+@endif
 
+{{-- Table --}}
+<div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr class="text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-6 py-3"></th>
+                <th class="px-6 py-3">Name</th>
+                <th class="px-6 py-3">Email</th>
+                <th class="px-6 py-3">Phone</th>
+                <th class="px-6 py-3">Status</th>
+                <th class="px-6 py-3">Age</th>
+                <th class="px-6 py-3">CNSS</th>
+                <th class="px-6 py-3">Bank Account</th>
+                <th class="px-6 py-3">Salary</th>
+                <th class="px-6 py-3">Cost/Hour</th>
+                <th class="px-6 py-3">Work Hours Limit</th>
+                <th class="px-6 py-3">Cotisation CNSS</th>
+                <th class="px-6 py-3">Cotisation AMO</th>
+                <th class="px-6 py-3">Date Release</th>
+                <th class="px-6 py-3">Role</th>
+                <th class="px-6 py-3">Action</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+            @foreach($employees as $employee)
+            @php
+                $user = \App\Models\User::find($employee->user_id);
+                $colors = ['#2ECC71','#BDC3C7','#F39C12','#E74C3C','#9B59B6','#2E86C1','#641E16','#2C3E50','#F4D03F','#F4D03F'];
+                $bgColor = $colors[$loop->index % count($colors)];
+            @endphp
+            <tr class="hover:bg-gray-50">
+                {{-- Avatar --}}
+                <td class="px-6 py-4">
+                    @if($employee->image)
+                        <img class="h-10 w-10 rounded-full object-cover" src="{{ Storage::disk('do_spaces')->url('employee_images/' . $employee->image) }}" alt="{{ $employee->name }}">
+                    @else
+                        <div class="h-10 w-10 rounded-full flex items-center justify-center text-white font-medium" style="background-color: {{ $bgColor }};">
+                            {{ strtoupper(substr($employee->name, 0, 1)) }}
+                        </div>
+                    @endif
+                </td>
+                {{-- Name --}}
+                <td class="px-6 py-4 text-sm text-gray-700 editable" data-id="{{$employee->id}}" data-column="name">
+                    @php
+                        $showRoute = '#';
+                        $canView = Auth::user()->can('View employee');
+                        if ($canView) {
+                            if (Auth::user()->hasRole('Responsable de projet')) $showRoute = route('Responsable_de_projet.employees.show', $employee->id);
+                            elseif (Auth::user()->hasRole('Admin')) $showRoute = route('admin.employees.show', $employee->id);
+                            elseif (Auth::user()->hasRole('Employee')) $showRoute = route('employee.employees.show', $employee->id);
+                            elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $showRoute = route('Responsable_gestionnaire.employees.show', $employee->id);
+                        }
+                    @endphp
+                    @if($canView)
+                        <a href="{{ $showRoute }}" class="text-blue-600 hover:underline font-medium">{{$employee->name}}</a>
+                    @else
+                        <span class="font-medium text-gray-900">{{$employee->name}}</span>
+                    @endif
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-700 editable" data-id="{{$employee->id}}" data-column="email">{{$employee->email}}</td>
+                <td class="px-6 py-4 text-sm text-gray-700 editable" data-id="{{$employee->id}}" data-column="phoneNumber">{{$employee->phoneNumber}}</td>
+                {{-- Status --}}
+                <td class="px-6 py-4 text-sm">
+                    @if($user && $user->is_activate == 1)
+                        @php
+                            $statusRoute = $user->is_activate ? ($user->hasRole('Admin') ? route('admin.employee.deactivate', $employee->id) : route('Responsable_de_projet.employee.deactivate', $employee->id)) : '#';
+                        @endphp
+                        <form action="{{ $statusRoute }}" method="post" class="inline">@csrf
+                            <button type="submit" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</button>
+                        </form>
+                    @else
+                        @php
+                            $statusRoute = Auth::user()->hasRole('Admin') ? route('admin.employee.activate', $employee->id) : route('Responsable_de_projet.employee.activate', $employee->id);
+                        @endphp
+                        <form action="{{ $statusRoute }}" method="post" class="inline">@csrf
+                            <button type="submit" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Inactive</button>
+                        </form>
+                    @endif
+                </td>
+                {{-- Other fields --}}
+                <td class="px-6 py-4 text-sm editable" data-id="{{$employee->id}}" data-column="age">{{$employee->age}}</td>
+                <td class="px-6 py-4 text-sm editable" data-id="{{$employee->id}}" data-column="cnss">{{$employee->cnss}}</td>
+                <td class="px-6 py-4 text-sm editable" data-id="{{$employee->id}}" data-column="bankAccountNumber">{{$employee->bankAccountNumber}}</td>
+                <td class="px-6 py-4 text-sm text-green-600 font-medium editable" data-id="{{$employee->id}}" data-column="salary">{{$employee->salary}} €</td>
+                <td class="px-6 py-4 text-sm text-green-600 font-medium editable" data-id="{{$employee->id}}" data-column="cost_per_hour">{{number_format($employee->cost_per_hour, 2, '.', '')}} €</td>
+                <td class="px-6 py-4 text-sm editable" data-id="{{$employee->id}}" data-column="workHours_limit">{{$employee->workHours_limit}} h</td>
+                <td class="px-6 py-4 text-sm text-green-600 font-medium editable" data-id="{{$employee->id}}" data-column="Cotisation_CNSS">{{$employee->Cotisation_CNSS}} €</td>
+                <td class="px-6 py-4 text-sm text-green-600 font-medium editable" data-id="{{$employee->id}}" data-column="Cotisation_AMO">{{$employee->Cotisation_AMO}} €</td>
+                <td class="px-6 py-4 text-sm editable" data-id="{{$employee->id}}" data-column="Date_Release">{{$employee->Date_Release}}</td>
+                {{-- Roles --}}
+                <td class="px-6 py-4 text-sm">
+                    <div class="flex flex-wrap gap-1">
+                        @forelse($employee->roles as $role)
+                            <span class="inline-block px-2 py-0.5 text-xs font-medium rounded {{ in_array($role, ['Admin','SuperAdmin']) ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-purple-100 text-purple-700' }}">
+                                {{ $role }}
+                            </span>
+                        @empty
+                            <span class="inline-block px-2 py-0.5 text-xs font-medium rounded bg-red-100 text-red-700">No Role</span>
+                        @endforelse
+                    </div>
+                </td>
+                {{-- Actions --}}
+                <td class="px-6 py-4 text-sm space-x-1">
+                    @can('Edit employee roles')
+                        <a href="{{ route('admin.employees.edit', $employee->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs">Edit Roles</a>
+                    @endcan
+                    <form action="{{ route('admin.employees.unarchive', $employee->id) }}" method="post" class="inline">@csrf
+                        <button type="submit" class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded text-xs">Unarchive</button>
+                    </form>
+                    @can('Delete employee')
+                        @if($user && $user->id != auth()->user()->id)
+                            <form action="{{ route('admin.employees.destroy', $employee->id) }}" method="post" class="inline">@csrf @method('DELETE')
+                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs">Delete</button>
+                            </form>
+                        @endif
+                    @endcan
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
 
-  </main>
+</main>
+</div>
 
+@include('dashboard_layouts.scripts')
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-  @include('dashboard_layouts.scripts')
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  @can('Update project')
-  <script>
-  $(document).ready(function(){
-  $(".editable").dblclick(function(){
+@can('Update project')
+<script>
+$(document).ready(function(){
+$(".editable").dblclick(function(){
     var originalContent = $(this).text().trim();
     var width = $(this).width();
     $(this).html("<input type='text' value='" + originalContent + "' style='width: 100%; min-width: " + width + "px;' />");
     var input = $(this).children().first();
     input.focus();
-    
-    // Place cursor at the beginning of the input
     input[0].setSelectionRange(0, 0);
-
     input.blur(function(){
-      var newContent = $(this).val();
-      var clientId = $(this).parent().data('id');
-      var columnName = $(this).parent().data('column');
-      $(this).parent().text(newContent);
-      $(this).parent().removeClass("cellEditing");
-      
-      $.ajax({
-        url: 'projects/updateProject',
-        type: 'post',
-        data: {
-          content: newContent,
-          id: clientId,
-          column: columnName,
-          _token: '{{ csrf_token() }}'
-        },
-        success: function(response) {
-          location.reload();
-        }
-      });
+        var newContent = $(this).val();
+        var clientId = $(this).parent().data('id');
+        var columnName = $(this).parent().data('column');
+        $(this).parent().text(newContent);
+        $.ajax({
+            url: 'projects/updateProject',
+            type: 'post',
+            data: {
+                content: newContent,
+                id: clientId,
+                column: columnName,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                location.reload();
+            }
+        });
     });
-  });
 });
-  </script>
+});
+</script>
 @endcan
-
-</body>
-
+  </body>
 </html>
-
-
-
-
-
-

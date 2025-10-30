@@ -1848,14 +1848,7 @@ th {
                     @endif
                     @endforeach
                 </div>
-
             </div>
-                
-
-
-
-
-
     </main>
 
 
@@ -1872,7 +1865,7 @@ th {
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    <script>
+<script>
 $(document).ready(function(){
     $("#addContact").click(function(e){
         e.preventDefault();
@@ -2080,55 +2073,6 @@ $(document).ready(function(){
 </script> 
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<!--
-@can('Update project')
-<script>
-   $(document).ready(function(){
-    $("#editableTable .editable").dblclick(function(){
-        var originalContent = $(this).text().trim();
-        var width = $(this).width();
-        $(this).html("<input type='text' value='" + originalContent + "' style='width: 100%; min-width: " + width + "px;' />");
-        var input = $(this).children().first();
-        input.focus();
-
-        // Place cursor at the beginning of the input
-        input[0].setSelectionRange(0, 0);
-
-        input.blur(function(){
-            var newContent = $(this).val();
-            var clientId = $(this).parent().data('id');
-            var columnName = $(this).parent().data('column');
-            $(this).parent().text(newContent);
-            $(this).parent().removeClass("cellEditing");
-
-            var updatedUrl = '';
-
-            @if(Auth::user()->hasRole('Responsable de projet'))
-                updatedUrl = '/Responsable_de_projet/projects/updateProject';
-            @elseif(Auth::user()->hasRole('Admin'))
-                updatedUrl = '/admin/projects/updateProject';
-            @endif 
-
-            $.ajax({
-                url: updatedUrl,
-                type: 'post',
-                data: {
-                    content: newContent,
-                    id: clientId,
-                    column: columnName,
-                    _token: '{{ csrf_token() }}' // add CSRF token for Laravel
-                },
-                success: function(response) {
-                    // Refresh the page after the update is successful
-                    location.reload();
-                }
-            });
-        });
-    });
-});
-</script>
-@endcan
--->
 
 <script>
 // Function to show the partial credit note modal
