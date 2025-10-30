@@ -1,250 +1,297 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizManager Dashboard</title>
+    @vite('resources/css/app.css')
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+    {{-- Sidebar --}}
+    <x-dashboard.sidebar />
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        {{-- Navbar --}}
+        <x-dashboard.navbar />
 
-@include('dashboard_layouts.head')
+        {{-- Main Content --}}
 
-<body class="g-sidenav-show bg-gray-100">
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-            style="display: none; visibility: hidden"></iframe></noscript>
+        <main class="flex-1 p-8">
 
-    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+            <div class="max-w-7xl mx-auto">
+                {{-- Header --}}
+                <div class="mb-8 text-center">
+                    <h1 class="text-4xl font-bold text-slate-900 mb-2">Add New Employee</h1>
+                    <p class="text-slate-600">Fill the mandatory information below</p>
+                </div>
 
-    @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-        @include('employees.sidebar')
-    @endif
-    @if(Auth::user()->hasRole('Admin'))
-        @include('admin.sidebar')
-    @endif
+                {{-- Form --}}
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {{-- Personal Infos --}}
+                    <div class="bg-white rounded-2xl shadow-sm p-6 border-l-4 border-blue-500">
+                        <h2 class="text-xl font-bold text-slate-900 mb-1 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5.121 17.804A10.97 10.97 0 0112 15c2.485 0 4.779.815 6.879 2.191M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Personal Infos
+                        </h2>
+                        <p class="text-sm text-slate-500 mb-4">Mandatory informations</p>
 
-    <main class="main-content position-relative border-radius-lg">
-        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
-            id="navbarBlur" data-scroll="false">
-            <div class="container-fluid py-1 px-3">
+                        <form method="POST" action="
+                            @if(Auth::user()->hasRole('Admin')) {{route('admin.employees.store')}} 
+                            @elseif(Auth::user()->hasRole('Responsable de projet')) {{route('Responsable_de_projet.employees.store')}} 
+                            @elseif(Auth::user()->hasRole('Employee')) {{route('employee.employees.store')}} 
+                            @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) {{route('Responsable_gestionnaire.employees.store')}} 
+                            @endif
+                        " enctype="multipart/form-data" autocomplete="off" class="space-y-4">
+                            @csrf
 
-                @include('dashboard_layouts.navbar')
-
-
-                <div class="container-fluid py-4">
-                    <div class="row mb-5">
-                        <div class="col-12">
-                            <div class="multisteps-form mb-5">
-                                <div class="row">
-                                    <div class="col-12 col-lg-8 mx-auto my-4">
-                                        <div class="card">
-                                            <div class="card-body text-center">
-                                                <h4 class="font-weight-bolder mb-0">Add New Employee</h4>
-                                            </div>
-                                        </div>
-                                    </div>
+                            {{-- Name & Email --}}
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Name <span
+                                            class="text-red-500">*</span></label>
+                                    <input required type="text" name="name" placeholder="Full Name"
+                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                 </div>
-
-                                <div class="row">
-                                    <div class="col-12 col-lg-12 m-auto">
-                                    @if(Auth::user()->hasRole('Admin'))
-                                        <form class=" mb-8" method="POST" action="{{route('admin.employees.store')}}" enctype="multipart/form-data" autocomplete="off">
-                                    @endif
-                                    @if(Auth::user()->hasRole('Responsable de projet'))
-                                        <form class=" mb-8" method="POST" action="{{route('Responsable_de_projet.employees.store')}}" enctype="multipart/form-data" autocomplete="off">
-                                    @endif
-                                    @if(Auth::user()->hasRole('Employee'))
-                                        <form class=" mb-8" method="POST" action="{{route('employee.employees.store')}}" enctype="multipart/form-data" autocomplete="off">
-                                    @endif
-                                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                        <form class=" mb-8" method="POST" action="{{route('Responsable_gestionnaire.employees.store')}}" enctype="multipart/form-data" autocomplete="off">
-                                    @endif
-                                            @csrf 
-                                            <div class="row">
-                                                <div class="col-12 col-md-4">   
-                                                    <div class="card p-3 border-radius-xl bg-white js-active"
-                                                        data-animation="FadeIn">
-                                                        <h5 class="font-weight-bolder mb-0">Personal Infos</h5>
-                                                        <p class="mb-0 text-sm">Mandatory informations</p>
-                                                        <div class="multisteps-form__content ">
-                                                            <div class="row mt-3">
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>Name : <span class="text-danger">*</span></label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="Full Name" name="name" />
-                                                                </div>
-                                                                <div class="col-12 col-sm-6 mt-3 mt-sm-0">
-                                                                    <label>Login Email : <span class="text-danger">*</span></label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="*****@gmail.com" name="email"/>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mt-3">
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>Age :</label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="Employee Age " name="age"/>
-                                                                </div>
-                                                                <div class="col-12 col-sm-6 mt-3 mt-sm-0">
-                                                                    <label>Company Phone Number : </label>
-                                                                    <input id="entreprise_image" name="Employee_Image" placeholder="Company Phone Number"
-                                                                    class="multisteps-form__input form-control">
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mt-3">
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>Personal Phone Number :</label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="phoneNumber" placeholder="Personal Phone Number" name="phoneNumber"/>
-                                                                </div>
-                                                                <div class="col-12 col-sm-6 mt-3 mt-sm-0">
-                                                                    <label>Contact Email : <span class="text-danger">*</span></label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="Contact Email" name="contact_email"/>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mt-3">
-                                                                <div class="col-12 col-sm-6 mt-3 mt-sm-0">
-                                                                    <label>Password : <span class="text-danger">*</span></label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="password" placeholder="******" name="password"/>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-4">   
-                                                    <div class="card p-3 border-radius-xl bg-white js-active"
-                                                        data-animation="FadeIn">
-                                                        <h5 class="font-weight-bolder mb-0">Professional Infos</h5>
-                                                        <p class="mb-0 text-sm">Mandatory informations</p>
-                                                        <div class="multisteps-form__content ">
-                                                            <div class="row mt-3">
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>Cnss : </label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="Cnss Number" name="CNSS" />
-                                                                </div>
-                                                                <div class="col-12 col-sm-6 mt-3 mt-sm-0">
-                                                                    <label>bankAccountNumber : </label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="bank Account Number" name="bankAccountNumber"/>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mt-3">
-                                                            <div class="col-12 col-sm-6">
-                                                                <label>Cost Per Hour : <span class="text-danger">*</span></label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="Cost Per Hour" name="cost_per_hour"/>
-                                                                </div>
-                                                                <div class="col-12 col-sm-6">
-                                                                <label>Salary : </label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="salary" name="salary"/>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mt-3">
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>Cotisation CNSS :</label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="number" step="0.0001" placeholder="Cotisation CNSS " name="Cotisation_CNSS"/>
-                                                                </div>
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>Cotisation AMO : </label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="number" step="0.0001" placeholder="Cotisation AMO" name="Cotisation_AMO"/>
-                                                                </div>
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>work Hours limit : <span class="text-danger">*</span></label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="number" step="0.0001" placeholder="workHours_limit" name="workHours_limit"/>
-                                                                </div>
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>Release Date :</label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="date" placeholder="Company Name " name="Date_Release"/>
-                                                                </div>
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>Timezone</label>
-                                                                    <select class="multisteps-form__input form-control" name="timezone">
-                                                                        @foreach (timezone_identifiers_list() as $timezone)
-                                                                            <option value="{{ $timezone }}">{{ $timezone }}</option>
-                                                                        @endforeach
-                                                                    </select>
-                                                                </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        
-                                                    </div>
-                                              
-                                                <div class="col-12 col-md-4">   
-                                                    <div class="card p-3 border-radius-xl bg-white js-active"
-                                                        data-animation="FadeIn">
-                                                        <h5 class="font-weight-bolder mb-0">Assign Roles <span class="text-danger">*</span></h5>
-                                                        <p class="mb-0 text-sm">Roles informations</p>
-                                                        <div class="multisteps-form__content ">
-                                                        <div class="row mt-3">
-                                                            @foreach($roles as $role)
-                                                            <div class="form-check">
-                                                                @if(Auth::user()->hasRole('SuperAdmin') || (!$user->hasRole('SuperAdmin') && $role != 'SuperAdmin'))
-                                                                <input id="vue-checkbox" name="roles[]" type="checkbox"
-                                                                    value="{{ $role->name }}" >
-                                                                <label for="vue-checkbox" class="form-check-label">
-                                                                {{ $role->name }}
-                                                                </label>
-                                                                @endif
-                                                            </div>
-                                                            @endforeach
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="button-row d-flex mt-4">
-                                            @if(Auth::user()->hasRole('Responsable de projet'))
-                                                <a class='btn btn-light m-0' href="{{route('Responsable_de_projet.index')}}">
-                                                    Cancel
-                                                </a>
-                                            @endif  
-                                            @if(Auth::user()->hasRole('Admin'))
-                                            <a class='btn btn-light m-0' href="{{route('admin.index')}}">
-                                                Cancel
-                                            </a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Employee'))
-                                            <a class='btn btn-light m-0' href="{{route('employee.index')}}">
-                                                Cancel
-                                            </a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                                <a class='btn btn-light m-0' href="{{route('Responsable_gestionnaire.index')}}">
-                                                    Cancel
-                                                </a>
-                                            @endif
-                                                <button class="btn bg-gradient-dark ms-auto mb-0 js-btn-next"
-                                                    type="submit" title="create">
-                                                    Create
-                                                </button>
-                                            </div>
-                                        </form>
-
-                                    </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Login Email <span
+                                            class="text-red-500">*</span></label>
+                                    <input required type="email" name="email" placeholder="*****@gmail.com"
+                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                 </div>
+                            </div>
+
+                            {{-- Age & Company Phone --}}
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Age</label>
+                                    <input type="number" name="age" placeholder="Employee Age"
+                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Company Phone Number</label>
+                                    <input type="number" name="Employee_number" placeholder="Company Phone Number"
+                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                </div>
+                            </div>
+
+                            {{-- Personal Phone & Contact Email --}}
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Personal Phone</label>
+                                    <input type="number" name="phoneNumber" placeholder="Personal Phone Number"
+                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Contact Email <span
+                                            class="text-red-500">*</span></label>
+                                    <input required type="email" name="contact_email" placeholder="Contact Email"
+                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                </div>
+                            </div>
+
+                            {{-- Password --}}
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Password <span
+                                        class="text-red-500">*</span></label>
+                                <input required type="password" name="password" placeholder="******"
+                                    class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                            </div>
+                    </div>
+
+                    {{-- Professional Infos --}}
+                    <div class="bg-white rounded-2xl shadow-sm p-6 border-l-4 border-amber-500">
+                        <h2 class="text-xl font-bold text-slate-900 mb-1 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-500" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                            </svg>
+                            Professional Infos
+                        </h2>
+                        <p class="text-sm text-slate-500 mb-4">Mandatory informations</p>
+
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">CNSS</label>
+                                    <input type="text" name="CNSS" placeholder="CNSS Number"
+                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Bank Account Number</label>
+                                    <input type="text" name="bankAccountNumber" placeholder="Bank Account Number"
+                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Cost Per Hour <span class="text-red-500">*</span></label>
+                                    <input required type="number" name="cost_per_hour" placeholder="Cost Per Hour"
+                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Salary</label>
+                                    <input type="number" name="salary" placeholder="Salary"
+                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Cotisation CNSS</label>
+                                    <input type="number" step="0.0001" name="Cotisation_CNSS" placeholder="Cotisation CNSS"
+                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Cotisation AMO</label>
+                                    <input type="number" step="0.0001" name="Cotisation_AMO" placeholder="Cotisation AMO"
+                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Work Hours Limit <span class="text-red-500">*</span></label>
+                                    <input required type="number" step="0.0001" name="workHours_limit" placeholder="Work Hours Limit"
+                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Release Date</label>
+                                    <input type="date" name="Date_Release"
+                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Timezone</label>
+                                <select name="timezone"
+                                    class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+                                    @foreach (timezone_identifiers_list() as $timezone)
+                                        <option value="{{ $timezone }}">{{ $timezone }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </div>
 
+                    {{-- Roles --}}
+                    <div class="bg-white rounded-2xl shadow-sm p-6 border-l-4 border-green-500">
+                        <h2 class="text-xl font-bold text-slate-900 mb-1 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 11c0 1.657-1.343 3-3 3H5v-6h4c1.657 0 3 1.343 3 3zM19 11a3 3 0 00-3-3h-1v6h1a3 3 0 003-3z" />
+                            </svg>
+                            Assign Roles <span class="text-red-500">*</span>
+                        </h2>
+                        <p class="text-sm text-slate-500 mb-4">Roles informations</p>
+
+                        <div class="space-y-2">
+                            @foreach($roles as $role)
+                                @if(Auth::user()->hasRole('SuperAdmin') || (!$user->hasRole('SuperAdmin') && $role != 'SuperAdmin'))
+                                    <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
+                                        <input   type="checkbox" name="roles[]" value="{{ $role->name }}"
+                                            class="w-4 h-4 rounded border-slate-300 text-green-600 focus:ring-2 focus:ring-green-500" />
+                                        <span class="text-sm font-medium text-slate-700">{{ $role->name }}</span>
+                                    </label>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
 
-    </main>
-    @include('dashboard_layouts.scripts')
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+                {{-- Buttons --}}
+                <div class="flex justify-end mt-8 gap-4">
+                    @if(Auth::user()->hasRole('Responsable de projet'))
+                        <a href="{{route('Responsable_de_projet.index')}}"
+                            class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">Cancel</a>
+                    @endif
+                    @if(Auth::user()->hasRole('Admin'))
+                        <a href="{{route('admin.index')}}"
+                            class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">Cancel</a>
+                    @endif
+                    @if(Auth::user()->hasRole('Employee'))
+                        <a href="{{route('employee.index')}}"
+                            class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">Cancel</a>
+                    @endif
+                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                        <a href="{{route('Responsable_gestionnaire.index')}}"
+                            class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">Cancel</a>
+                    @endif
 
+                    <button type="submit"
+                        class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow">
+                        Create
+                    </button>
+                </div>
+            </form>
+        </main>
+    </div>
     <script>
-  window.addEventListener('load', function() {
-    var inputs = document.getElementsByTagName('input');
-    for (var i = 0; i < inputs.length; i++) {
-      inputs[i].setAttribute('autocomplete', 'none');
-    }
-  });
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form');
+
+    form.addEventListener('submit', (e) => {
+        let valid = true;
+
+        // Vérifie chaque input obligatoire
+        form.querySelectorAll('input[required], select[required], textarea[required]').forEach(input => {
+            if (!input.value.trim()) {
+                valid = false;
+                input.classList.add('border-red-500', 'focus:ring-red-500');
+                
+                // Ajoute un message si non existant
+                if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('error-message')) {
+                    const msg = document.createElement('p');
+                    msg.classList.add('text-red-500', 'text-sm', 'mt-1', 'error-message');
+                    msg.textContent = 'Ce champ est obligatoire.';
+                    input.insertAdjacentElement('afterend', msg);
+                }
+            } else {
+                // Enlève les erreurs si le champ est rempli
+                input.classList.remove('border-red-500', 'focus:ring-red-500');
+                if (input.nextElementSibling && input.nextElementSibling.classList.contains('error-message')) {
+                    input.nextElementSibling.remove();
+                }
+            }
+        });
+
+        // Vérifie email
+        const emailInput = form.querySelector('input[type="email"]');
+        if (emailInput && emailInput.value.trim() && !emailInput.validity.valid) {
+            valid = false;
+            emailInput.classList.add('border-red-500', 'focus:ring-red-500');
+            const msg = document.createElement('p');
+            msg.classList.add('text-red-500', 'text-sm', 'mt-1', 'error-message');
+            msg.textContent = 'Veuillez entrer un email valide.';
+            if (!emailInput.nextElementSibling || !emailInput.nextElementSibling.classList.contains('error-message')) {
+                emailInput.insertAdjacentElement('afterend', msg);
+            }
+        }
+
+        // Vérifie numéro de téléphone (uniquement chiffres)
+        const phoneInput = form.querySelector('input[name="phone_number"]');
+        if (phoneInput && phoneInput.value.trim() && !/^[0-9]+$/.test(phoneInput.value)) {
+            valid = false;
+            phoneInput.classList.add('border-red-500', 'focus:ring-red-500');
+            const msg = document.createElement('p');
+            msg.classList.add('text-red-500', 'text-sm', 'mt-1', 'error-message');
+            msg.textContent = 'Le numéro doit contenir uniquement des chiffres.';
+            if (!phoneInput.nextElementSibling || !phoneInput.nextElementSibling.classList.contains('error-message')) {
+                phoneInput.insertAdjacentElement('afterend', msg);
+            }
+        }
+
+        if (!valid) {
+            e.preventDefault(); // bloque l’envoi du formulaire
+        }
+    });
+});
 </script>
-    
 
 </body>
-
 </html>
