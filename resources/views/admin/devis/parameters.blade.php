@@ -200,7 +200,6 @@
                       .removeClass('bg-white ring-1 ring-blue-500')
                       .addClass('bg-gray-50');
 
-                // --- IMPORTANT : Ne sauvegarder que si la valeur a changé ---
                 if (newContent === originalValue || typeof originalValue === 'undefined') {
                     return; // "continue" dans une boucle .each()
                 }
@@ -247,15 +246,11 @@
                 $button.html('<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>Saved!');
             }
 
-            // 5. Réinitialiser le bouton après 2 secondes
             setTimeout(() => {
                 $button.removeClass('bg-green-600 bg-red-600').addClass('bg-blue-600 hover:bg-blue-700');
-                $button.html(originalHtml); // Restaurer le texte et l'icône d'origine
+                $button.html(originalHtml); /
             }, 2000);
-
-            // PAS d'alerte !
-            // alert('All changes have been saved!'); // <- Supprimé
         });
     });
-</script>
+</script> 
 </body>
