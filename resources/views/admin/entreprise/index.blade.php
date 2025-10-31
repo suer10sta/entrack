@@ -4,26 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BizManager Dashboard</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite('resources/css/app.css')
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
-    <div class="flex h-screen overflow-hidden">
-        <x-dashboard.sidebar />
-        
-        <div class="flex flex-col flex-1 overflow-hidden">
-            {{-- Navbar --}}
-            <x-dashboard.navbar />
+    <x-dashboard.sidebar />
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        {{-- Navbar --}}
+        <x-dashboard.navbar />
 
-            {{-- Main Content - Scrollable --}}
-            <main class="flex-1 overflow-y-auto">
-                <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
-                    id="navbarBlur" data-scroll="false">
-                    <div class="container-fluid py-1 px-3">
-                        @include('dashboard_layouts.navbar')
-                    </div>
-                </nav>
+        {{-- Main Content --}}
+        <main class="flex-1 overflow-y-auto ">
 
                 {{-- Main content container --}}
                 <div class="w-full px-4 md:px-6 py-4">
@@ -301,10 +292,8 @@
                     </div>
                 </div>
             </main>
-        </div>
     </div>
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
     // File upload preview
     document.getElementById('file-upload').addEventListener('change', function(e) {

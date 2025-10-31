@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Employees;
 
 class employees_tasks extends Model
 {
@@ -17,4 +18,9 @@ class employees_tasks extends Model
         'end_date',
         'entreprise_id', 
     ];
+
+    public function employee()
+    {
+        return $this->belongsTo(Employees::class, 'employee_id');
+    }
 }

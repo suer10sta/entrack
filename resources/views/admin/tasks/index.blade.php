@@ -140,7 +140,7 @@
                                     @foreach($projectTasks as $task)
                                         <tr class="hover:bg-gray-50 task-row"> {{-- Class for filtering --}}
                                             {{-- Task Title --}}
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 task-title"> {{-- Class for filtering --}}
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 task-title"> 
                                                 @php
                                                     $taskShowRoute = '#';
                                                     $canViewTask = Auth::user()->can('View task');

@@ -1,153 +1,85 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizManager Dashboard</title>
+    @vite('resources/css/app.css')
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+    {{-- Sidebar --}}
+    <x-dashboard.sidebar />
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        {{-- Navbar --}}
+        <x-dashboard.navbar />
 
-@include('dashboard_layouts.head')
+        {{-- Main Content --}}
+        <main class="flex-1 overflow-y-auto p-8 bg-gray-50">
+            <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Assign Role</h2>
 
-<body class="g-sidenav-show bg-gray-100">
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-            style="display: none; visibility: hidden"></iframe></noscript>
+                {{-- Form --}}
+                @if(Auth::user()->hasRole('Admin'))
+                    <form method="POST" action="{{ route('admin.employees.update', $employee) }}">
+                @elseif(Auth::user()->hasRole('Responsable de projet'))
+                    <form method="POST" action="{{ route('Responsable_de_projet.employees.update', $employee) }}">
+                @elseif(Auth::user()->hasRole('Employee'))
+                    <form method="POST" action="{{ route('employee.employees.update', $employee) }}">
+                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                    <form method="POST" action="{{ route('Responsable_gestionnaire.employees.update', $employee) }}">
+                @endif
+                    @csrf
+                    @method('PUT')
 
-    <div class="min-height-300 bg-primary position-absolute w-100"></div>
-
-    @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-        @include('employees.sidebar')
-    @endif
-    @if(Auth::user()->hasRole('Admin'))
-        @include('admin.sidebar')
-    @endif
-
-    <main class="main-content position-relative border-radius-lg">
-        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
-            id="navbarBlur" data-scroll="false">
-            <div class="container-fluid py-1 px-3">
-
-                @include('dashboard_layouts.navbar')
-
-
-                <div class="container-fluid py-4">
-                    <div class="row mb-5">
-                        <div class="col-12">
-                            <div class="multisteps-form mb-5">
-                                <div class="row">
-                                    <div class="col-12 col-lg-8 mx-auto my-4">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="multisteps-form__progress">
-                                                    <button class="multisteps-form__progress-btn js-active"
-                                                        type="button" title="employee Info">
-                                                        <span>Assign Role</span>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-12 col-lg-8 m-auto">
-                                    @if(Auth::user()->hasRole('Admin'))
-                                        <form class="multisteps-form__form mb-8" method="POST"
-                                            action="{{ route('admin.employees.update', $employee) }}">
-                                    @endif
-                                    @if(Auth::user()->hasRole('Responsable de projet'))
-                                        <form class="multisteps-form__form mb-8" method="POST"
-                                            action="{{ route('Responsable_de_projet.employees.update', $employee) }}">
-                                    @endif
-                                    @if(Auth::user()->hasRole('Employee'))
-                                        <form class="multisteps-form__form mb-8" method="POST"
-                                            action="{{ route('employee.employees.update', $employee) }}">
-                                    @endif
-                                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                        <form class="multisteps-form__form mb-8" method="POST"
-                                            action="{{ route('Responsable_gestionnaire.employees.update', $employee) }}">
-                                    @endif
-                                            @csrf
-                                            @method('PUT')
-
-                                            <div class="card  p-3 border-radius-xl bg-white">
-                                                <h5 class="font-weight-bolder">Assign Roles :</h5>
-                                                <div class="multisteps-form__content">
-                                                    <div class="row mt-3">
-                                                        @foreach($role_name as $role)
-                                                        <div class="form-check">
-                                                        @if(Auth::user()->hasRole('SuperAdmin') || (!$user->hasRole('SuperAdmin') && $role != 'SuperAdmin'))
-                                                            <input id="vue-checkbox-{{ $role }}" name="roles[]"
-                                                                type="checkbox" value="{{ $role }}"
-                                                                @if($user->hasRole($role)) checked @endif>
-                                                            <label for="vue-checkbox-{{ $role }}" class="form-check-label">
-                                                                {{ $role }}
-                                                            </label>
-                                                        @endif
-
-                                                        </div>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                                
-                                                <h5 class="font-weight-bolder mt-4">Timezone Settings :</h5>
-                                                <div class="multisteps-form__content">
-                                                    <div class="row mt-3">
-                                                        <div class="col-12">
-                                                            <label>Timezone</label>
-                                                            <select class="multisteps-form__input form-control" name="timezone">
-                                                                @foreach (timezone_identifiers_list() as $timezone)
-                                                                    <option value="{{ $timezone }}" @if($user->timezone == $timezone) selected @endif>
-                                                                        {{ $timezone }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="button-row d-flex mt-4 col-12">
-                                                    @if(Auth::user()->hasRole('Responsable de projet'))
-                                                        <a class='btn btn-light m-0' href="{{route('Responsable_de_projet.index')}}">
-                                                            Cancel
-                                                        </a>
-                                                    @endif
-                                                    @if(Auth::user()->hasRole('Admin'))
-                                                    <a class='btn btn-light m-0' href="{{route('admin.index')}}">
-                                                        Cancel
-                                                    </a>
-                                                    @endif
-                                                    @if(Auth::user()->hasRole('Employee'))
-                                                    <a class='btn btn-light m-0' href="{{route('employee.index')}}">
-                                                        Cancel
-                                                    </a>
-                                                    @endif
-                                                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                                    <a class='btn btn-light m-0' href="{{route('Responsable_gestionnaire.index')}}">
-                                                        Cancel
-                                                    </a>
-                                                    @endif
-                                                        <button class="btn bg-gradient-dark ms-auto mb-0 js-btn-next"
-                                                            type="submit">
-                                                            Save
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
-                                        </form>
-
-                                    </div>
-                                </div>
-
-
-                            </div>
+                    {{-- Roles Section --}}
+                    <div class="mb-8">
+                        <h5 class="text-lg font-semibold text-gray-800 mb-3">Assign Roles</h5>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            @foreach($role_name as $role)
+                                @if(Auth::user()->hasRole('SuperAdmin') || (!$user->hasRole('SuperAdmin') && $role != 'SuperAdmin'))
+                                    <label class="flex items-center space-x-2 bg-gray-50 hover:bg-gray-100 rounded-lg px-3 py-2 border border-gray-200 cursor-pointer">
+                                        <input id="vue-checkbox-{{ $role }}" name="roles[]" type="checkbox" value="{{ $role }}"
+                                            class="text-blue-600 focus:ring-blue-500"
+                                            @if($user->hasRole($role)) checked @endif>
+                                        <span class="text-sm text-gray-700">{{ $role }}</span>
+                                    </label>
+                                @endif
+                            @endforeach
                         </div>
                     </div>
-                </div>
 
+                    {{-- Timezone --}}
+                    <div class="mb-8">
+                        <h5 class="text-lg font-semibold text-gray-800 mb-3">Timezone Settings</h5>
+                        <select name="timezone"     class="w-full md:w-1/3 rounded-xl border-gray-300 focus:ring-blue-500 focus:border-blue-500 text-base py-2 px-4 shadow-sm bg-white">
+                            @foreach (timezone_identifiers_list() as $timezone)
+                                <option value="{{ $timezone }}" @if($user->timezone == $timezone) selected @endif>
+                                    {{ $timezone }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Buttons --}}
+                    <div class="flex justify-between items-center mt-6">
+                        @if(Auth::user()->hasRole('Responsable de projet'))
+                            <a href="{{route('Responsable_de_projet.index')}}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 text-sm font-medium">Cancel</a>
+                        @elseif(Auth::user()->hasRole('Admin'))
+                            <a href="{{route('admin.index')}}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 text-sm font-medium">Cancel</a>
+                        @elseif(Auth::user()->hasRole('Employee'))
+                            <a href="{{route('employee.index')}}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 text-sm font-medium">Cancel</a>
+                        @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                            <a href="{{route('Responsable_gestionnaire.index')}}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 text-sm font-medium">Cancel</a>
+                        @endif
+                        <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-sm">
+                            Save
+                        </button>
+                    </div>
+                </form>
             </div>
+        </main>
 
-    </main>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    </div>
     
-    @include('dashboard_layouts.scripts')
-
 </body>
-
 </html>

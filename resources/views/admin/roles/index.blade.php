@@ -144,7 +144,7 @@
                     </div>
                     <div class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between bg-gray-50">
                       <span class="text-sm text-gray-600 mb-2 sm:mb-0">
-                        Showing {{ $roles->count() }} Entries
+                        
                       </span>
                       
                       <div class="flex items-center gap-2">

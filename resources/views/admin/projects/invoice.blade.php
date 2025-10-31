@@ -155,8 +155,7 @@
             <div class="details-left">
                 <p>Date de facturation: <?php echo date('d-m-Y'); ?><br />
                     Échéance:
-                    {{ \Carbon\Carbon::now()->addDays(abs(filter_var($client->due_date, FILTER_SANITIZE_NUMBER_INT)))->format('d-m-Y') }}
-                    <br>
+                    {{ \Carbon\Carbon::now()->addDays(abs((int)filter_var($client->due_date, FILTER_SANITIZE_NUMBER_INT)))->format('d-m-Y') }}                    <br>
                     Numéro client : {{ $client->client_number }} <br>
                     Numéro de facture : {{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif
                 </p>
@@ -251,7 +250,7 @@
             - Veuillez payer le montant de
             <strong>{{number_format($budget + ($budget*($projectinfos->tva/100)), 2, ',', '')}}€</strong> sur le compte mentionné
             ci-dessous avant le
-            {{ \Carbon\Carbon::now()->addDays(abs(filter_var($client->due_date, FILTER_SANITIZE_NUMBER_INT)))->format('d-m-Y') }}
+            {{ \Carbon\Carbon::now()->addDays(abs((int)filter_var($client->due_date, FILTER_SANITIZE_NUMBER_INT)))->format('d-m-Y') }}
             en mentionnant le numéro Facture <strong>{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif</strong>
             <br>
             - Dans le cas de livraison intracommunautaire pour les services :  "Autoliquidation Art 21 § 2 du code TVA belge"

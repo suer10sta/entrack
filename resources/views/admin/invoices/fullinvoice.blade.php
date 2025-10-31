@@ -469,64 +469,25 @@
                             {{-- Added py-2 px-3 for height --}}
 
                             <input type="number" step="0.01" id="percentageInput" placeholder="Percentage" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
-
                         </div>
-
-                        
-
-                        {{-- Comment (Full Width) --}}
-
                         <div class="md:col-span-2">
-
                             <label for="PercentageInvComment" class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
-
-                            {{-- Added py-2 px-3 for height --}}
-
                             <textarea name="PercentageInvComment" id="PercentageInvComment" placeholder="Add any additional notes..." rows="3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"></textarea>
-
                         </div>
-
                     </div>
-
-                    
-
                     <div class="mt-6">
-
                         <a id="downloadPercentageInvoiceBtn" href="#" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">View Invoice</a>
-
                     </div>
-
                 </div>
-
             </div>
-
-
-
         </main>
-
-    </div> {{-- End Main Wrapper --}}
-
-
-
-    @livewireScripts
-
-    {{-- @include('dashboard_layouts.scripts') --}}
-
-
-
-    {{-- Keep JS libraries (Unchanged) --}}
+    </div> 
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-
-
-    {{-- Keep existing scripts (Unchanged) --}}
 
 <script>
 
         $(document).ready(function() {
-
-            // Original logic is all still valid
 
             $('#projectFilter1').change(function() {
 
@@ -602,19 +563,254 @@
 
 
 
-            $('#downloadInvoiceBtn').click(function(e) { /* ... Keep original logic ... */ });
+            $('#downloadInvoiceBtn').click(function(e) { 
+                e.preventDefault();
+            
+                var projectId = $('#projectFilter1').val();
+                var hoursInput = $('#hoursInput').val();
+                var manualBudget = $('#manualBudgetInput').val();
+                var comment = encodeURIComponent($('#FullInvComment').val());
+                var selectedProject = $('#projectFilter1 option:selected');
+                var projectTva = selectedProject.data('tva');
 
-            $('#downloadDurationInvoiceBtn').click(function(e) { /* ... Keep original logic ... */ });
+                // Check if project has TVA
+                if (!projectTva) {
+                    alert('This project has no TVA. Please add TVA to the project before generating an invoice.');
+                    return;
+                }
 
-            $('#downloadPartialInvoiceBtn').click(function(e) { /* ... Keep original logic ... */ });
+                // Convert time format to decimal hours
+                var hours = 0;
+                if (hoursInput) {
+                    // Remove any 'h' or 'm' if present and split on colon
+                    var timeParts = hoursInput.replace(/[hm]/g, '').split(':');
+                    
+                    if (timeParts.length === 2) {
+                        var h = parseInt(timeParts[0]);
+                        var m = parseInt(timeParts[1]);
+                        
+                        if (!isNaN(h) && !isNaN(m) && m < 60) {
+                            hours = h + (m / 60);
+                        } else {
+                            alert('Please enter a valid time format (e.g., 5:30 or 5h:30m)');
+                            return;
+                        }
+                    } else {
+                        alert('Please enter time in format: h:mm (example: 5:30)');
+                        return;
+                    }
+                }
 
-            $('#downloadPercentageInvoiceBtn').click(function(e) { /* ... Keep original logic ... */ });
+                if (!projectId) {
+                    alert('Please select a project.');
+                    return;
+                }
+
+                if (!hours && !manualBudget) {
+                    alert('Please enter either hours or manual budget.');
+                    return;
+                }
+
+                var baseUrl = '';
+                @if(Auth::user()->hasRole('Responsable de projet'))
+                    baseUrl = "{{ route('Responsable_de_projet.projects.invoice', ['id' => ':id']) }}";
+                @endif
+                @if(Auth::user()->hasRole('Admin'))
+                    baseUrl = "{{ route('admin.projects.invoice', ['id' => ':id']) }}";
+                @endif
+                @if(Auth::user()->hasRole('Employee'))
+                    baseUrl = "{{ route('employee.projects.invoice', ['id' => ':id']) }}";
+                @endif
+                @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                    baseUrl = "{{ route('Responsable_gestionnaire.projects.invoice', ['id' => ':id']) }}";
+                @endif
+
+                // Replace :id with actual project ID
+                var downloadUrl = baseUrl.replace(':id', projectId);
+                
+                // Add query parameters
+                var params = new URLSearchParams();
+                if (hours) {
+                    // FIXED: Convert to number using parseFloat
+                    params.append('hours', parseFloat(hours.toFixed(2)));
+                } else if (manualBudget) {
+                    // FIXED: Convert to number using parseFloat
+                    params.append('manualBudget', parseFloat(manualBudget));
+                }
+                if (comment) {
+                    params.append('comment', comment);
+                }
+
+                // Append parameters to URL
+                downloadUrl += '?' + params.toString();
+                window.location.href = downloadUrl;
+            });
+
+            $('#downloadDurationInvoiceBtn').click(function(e) { 
+                e.preventDefault();
+
+                var projectId = $('#projectFilter2').val();
+                var startDate = $('#startDateInput').val();
+                var endDate = $('#endDateInput').val();
+                var comment = encodeURIComponent($('#PeriodInvComment').val());
+
+                console.log('id : ', projectId);
+
+                if (projectId && startDate && endDate) {
+                    var downloadUrl = '';
+                    @if(Auth::user()->hasRole('Responsable de projet'))
+                         downloadUrl = "{{ route('Responsable_de_projet.projects.invoicebyduration2', ['id' => ':projectId', 'startdate' => ':startDate', 'enddate' => ':endDate']) }}";
+                    @endif
+                    @if(Auth::user()->hasRole('Admin'))
+                     downloadUrl =
+                        "{{ route('admin.projects.invoicebyduration2', ['id' => ':projectId', 'startdate' => ':startDate', 'enddate' => ':endDate']) }}";
+                    @endif
+                    @if(Auth::user()->hasRole('Employee'))
+                         downloadUrl = "{{ route('employee.projects.invoicebyduration2', ['id' => ':projectId', 'startdate' => ':startDate', 'enddate' => ':endDate']) }}";
+                    @endif
+                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                         downloadUrl = "{{ route('Responsable_gestionnaire.projects.invoicebyduration2', ['id' => ':projectId', 'startdate' => ':startDate', 'enddate' => ':endDate']) }}";
+                    @endif
+                    downloadUrl = downloadUrl.replace(':projectId', projectId);
+                    downloadUrl = downloadUrl.replace(':startDate', startDate);
+                    downloadUrl = downloadUrl.replace(':endDate', endDate);
+                    var params = new URLSearchParams();
+                    if (comment) {
+                        params.append('comment', comment);
+                    }
+                    downloadUrl += '?' + params.toString();
+                    window.location.href = downloadUrl;
+                } else {
+                    alert('Please select a project and enter start/end dates.');
+                }
+            });
+
+            $('#downloadPartialInvoiceBtn').click(function(e) { 
+                e.preventDefault();
+
+                var projectId = null;
+                // FIXED: Convert to number using parseFloat
+                var amount = parseFloat($('#partialAmountInput').val());
+                // Replace line breaks with spaces and clean up the comment
+                var comment = $('#PartialInvComment').val()
+                    .replace(/\r?\n/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+
+                comment = encodeURIComponent(comment);
+                var devisId = $('#devisSelect3').val();
+
+                console.log('partial devis : ', devisId);
+                console.log('comment : ', comment);
+
+                if (devisId && amount) {
+                    var downloadUrl = '';
+                    @if(Auth::user()->hasRole('Responsable de projet'))
+                        downloadUrl = "{{ route('Responsable_de_projet.projects.PartialInvoice', ['projectid' => ':projectId', 'amount' => ':amount']) }}";
+                    @endif
+                    @if(Auth::user()->hasRole('Admin'))
+                        downloadUrl = "{{ route('admin.projects.PartialInvoice', ['projectid' => ':projectId', 'amount' => ':amount']) }}";
+                    @endif
+                    @if(Auth::user()->hasRole('Employee'))
+                        downloadUrl = "{{ route('employee.projects.PartialInvoice', ['projectid' => ':projectId', 'amount' => ':amount']) }}";
+                    @endif
+                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                        downloadUrl = "{{ route('Responsable_gestionnaire.projects.PartialInvoice', ['projectid' => ':projectId', 'amount' => ':amount']) }}";
+                    @endif
+
+                    downloadUrl = downloadUrl
+                        .replace(':projectId', 0)
+                        .replace(':amount', amount);
+
+                    console.log('Final URL:', downloadUrl);
+                    var params = new URLSearchParams();
+                    if (comment) {
+                        params.append('comment', comment);
+                    }
+                    params.append('devis_id', devisId);
+                    downloadUrl += '?' + params.toString();
+                    window.location.href = downloadUrl;
+                } else {
+                    alert('Please select a devis and enter the Amount.');
+                }
+            });
+
+            $('#downloadPercentageInvoiceBtn').click(function(e) { 
+                e.preventDefault();
+
+                var projectId = null;
+                // FIXED: Convert to number using parseFloat
+                var percentage = parseFloat($('#percentageInput').val());
+                var comment = encodeURIComponent($('#PercentageInvComment').val());
+                var devisId = $('#devisSelect4').val();
+
+                console.log('id : ', projectId);
+
+                if (devisId && percentage) {
+                    var downloadUrl = '';
+                    @if(Auth::user()->hasRole('Responsable de projet'))
+                         downloadUrl = "{{ route('Responsable_de_projet.projects.PercentageInvoice', ['projectid' => ':projectId', 'percentage' => ':percentage']) }}";
+                    @endif
+                    @if(Auth::user()->hasRole('Admin'))
+                     downloadUrl =
+                        "{{ route('admin.projects.PercentageInvoice', ['projectid' => ':projectId', 'percentage' => ':percentage']) }}";
+                    @endif
+                    @if(Auth::user()->hasRole('Employee'))
+                         downloadUrl = "{{ route('employee.projects.PercentageInvoice', ['projectid' => ':projectId', 'percentage' => ':percentage']) }}";
+                    @endif
+                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                         downloadUrl = "{{ route('Responsable_gestionnaire.projects.PercentageInvoice', ['projectid' => ':projectId', 'percentage' => ':percentage']) }}";
+                    @endif
+                    downloadUrl = downloadUrl.replace(':projectId', 0);
+                    downloadUrl = downloadUrl.replace(':percentage', percentage);
+                    var params = new URLSearchParams();
+                    if (comment) {
+                        params.append('comment', comment);
+                    }
+                    params.append('devis_id', devisId);
+                    downloadUrl += '?' + params.toString();
+                    window.location.href = downloadUrl;
+                } else {
+                    alert('Please select a devis and enter the percentage.');
+                }
+            });
 
 
 
-            function loadAllDevis(selectId) { /* ... Keep original logic ... */ }
+            function loadAllDevis(selectId) {
+                $.ajax({
+                    url: '/admin/get-all-devis',
+                    type: 'GET',
+                    success: function(response) {
+                        var devisSelect = $(selectId);
+                        devisSelect.empty();
+                        devisSelect.append('<option value="">Select Devis</option>');
+                        response.devis.forEach(function(devis) {
+                            const projectPart = devis.project_name ? ` | Project: ${devis.project_name}` : '';
+                            const unbilledPart = (typeof devis.unbilled !== 'undefined') ? ` | Unbilled: €${Number(devis.unbilled).toFixed(2)}` : '';
+                            devisSelect.append(`<option value="${devis.id}">Devis: ${response.prefix}-${devis.number}${projectPart}${unbilledPart}</option>`);
+                        });
+                    },
+                    error: function(xhr) {
+                        console.error('Error loading all devis:', xhr);
+                    }
+                });
+            }
 
-            function loadDevisComment(devisId, commentId) { /* ... Keep original logic ... */ }
+            function loadDevisComment(devisId, commentId) {
+                if (devisId) {
+                    $.ajax({
+                        url: '/admin/get-devis-comment/' + devisId,
+                        type: 'GET',
+                        success: function(response) {
+                            $(commentId).val(response.comment);
+                        },
+                        error: function(xhr) {
+                            console.error('Error loading devis comment:', xhr);
+                        }
+                    });
+                }
+            }
 
             loadAllDevis('#devisSelect3');
 
@@ -634,4 +830,3 @@
 
 </body>
 </html>
-
