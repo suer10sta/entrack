@@ -44,8 +44,6 @@
                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                                 Tasks Reports PDF
                             </a>
-                             {{-- Add Task Button can be added here if needed --}}
-                             {{-- @can('Add task') ... @endcan --}}
                         </div>
                     </div>
 
@@ -53,7 +51,7 @@
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div class="w-full sm:w-auto">
                             <label for="taskFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Task Name</label>
-                            <select id="taskFilter" class="block w-full sm:w-64 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            <select id="taskFilter" class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
                                 <option value="">All Tasks</option>
                                 {{-- Use distinct task titles --}}
                                 @foreach($tasks->unique('title') as $task)
