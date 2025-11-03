@@ -1,109 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
 <style>
-body {
-    font-family: Arial, sans-serif;
+    /* --- Base & Typography --- */
+    * {
+        box-sizing: border-box;
+    }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 14px; /* Increased base font */
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        color: #333;
+    }
 
-}
+    .container {
+        width: 100%;
+        padding: 30px; /* More padding */
+        box-sizing: border-box;
+    }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+    h2 {
+        font-size: 22px;
+        font-weight: 600;
+        color: #111;
+        margin: 0 0 5px 0;
+    }
 
-th {
-    border: 1px solid black;
-    padding: 8px;
-    text-align: left;
-    font-family: Arial, sans-serif;
-    font-size: 12px;
-    font-weight: bold;
-}
+    h5 {
+        font-size: 14px;
+        font-weight: normal;
+        color: #555;
+        margin: 0 0 5px 0;
+    }
 
-td {
-    border: 1px solid black;
-    padding: 8px;
-    text-align: left;
-    font-family: Arial, sans-serif;
-    font-size: 11px;
-    font-weight: normal;
-}
+    /* --- Header / Details --- */
+    .details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
 
-thead {
-    background-color: #f2f2f2;
-}
+    .company-logo {
+        width: 100px; 
+        height: auto;
+    }
 
-
-
-.company-logo {
-    width: 80px;
-    /* Adjust the width as needed */
-    margin-right: 20px;
-    /* Add some space between the image and the header info */
-}
-
-.details {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    position: relative;
-}
-
-.details-left {
-    width: 48%;
-    font-size: 12px;
-}
-
-.details-right {
-    width: 48%;
-    font-size: 12px;
-    text-align: right;
-    position: absolute;
-    right: 0;
-    top: 0;
-}
-
-thead {
-    background-color: #686ce4;
-    /* Updated color */
-    color: white;
-    /* Improve readability */
-}
+    .details-right {
+        text-align: right;
+    }
+    
+    /* --- Totals Summary Box --- */
+    .totals-summary {
+        margin-top: 30px; /* Replaced <br> tags */
+        margin-bottom: 20px;
+        padding: 15px 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+    }
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+    }
+    .summary-item {
+        flex: 1;
+        font-size: 14px;
+    }
+    .summary-item strong {
+        color: #555;
+        font-weight: 600;
+    }
+    .summary-item span {
+        font-weight: 700;
+    }
+    .summary-item .paid { color: #28a745; }
+    .summary-item .unpaid { color: #dc3545; }
+    .summary-item .credit { color: #007bff; }
+    .summary-item .total { color: #343a40; }
 
 
-.footer {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  position: fixed;
-  bottom: 0; /* Ensure footer sticks to the bottom */
-  left: 0; /* Align footer to the left */
-}
+    /* --- Table Styles --- */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 60px; /* Space before footer */
+    }
 
-.footer-left {
-  width: 48%;
-  font-size: 12px;
-}
+    thead {
+        background-color: #1E9FD8 !important; /* Kept your header color */
+        color: white;
+    }
+    
+    /* Unified borders for a clean look */
+    th, td {
+        border: 1px solid #e9ecef; /* Light gray border */
+        padding: 12px 15px; /* Increased padding */
+        text-align: left;
+    }
 
-.footer-right {
-  width: 48%;
-  font-size: 12px;
-  text-align: right;
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-.page-number:before {
+    th {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    td {
+        font-size: 13px; 
+    }
+    
+    tbody tr:nth-of-type(even) {
+        background-color: #f8f9fa;
+    }
+
+    /* --- Footer --- */
+    .footer {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        padding: 15px 30px;
+        box-sizing: border-box;
+        border-top: 1px solid #eee;
+        background: #fff;
+        font-size: 12px;
+        color: #777;
+    }
+    .footer-left { text-align: left; }
+    .footer-right { text-align: right; }
+
+    .page-number:before {
         content: counter(page);
     }
 
     @media print {
-        th, td { font-size: 10px; } /* Even smaller font size for printing if necessary */
+        th, td { font-size: 10px; }
     }
 </style>
+</head>
+<body>
 
-<div class="containter">
-
+<div class="container">
 
     <div class="details">
         <div class="details-left">
@@ -116,26 +159,27 @@ thead {
             </div>
         </div>
     </div>
-    <br><br><br>
-    <div class="totals-summary" style="margin-bottom: 20px; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <div style="flex: 1;">
-                <strong>Total Paid:</strong> <span style="color: green;">{{ number_format($totalPaid, 2, ',', '') }}€</span>
+    
+    <div class="totals-summary">
+        <div class="summary-row">
+            <div class="summary-item">
+                <strong>Total Paid:</strong> <span class="paid">{{ number_format($totalPaid, 2, ',', '') }}€</span>
             </div>
-            <div style="flex: 1;">
-                <strong>Total Unpaid:</strong> <span style="color: red;">{{ number_format($totalUnpaid, 2, ',', '')}}€</span>
+            <div class="summary-item">
+                <strong>Total Unpaid:</strong> <span class="unpaid">{{ number_format($totalUnpaid, 2, ',', '')}}€</span>
             </div>
-            <div style="flex: 1;">
-                <strong>Total TVA:</strong> {{ number_format($totaltva, 2, ',', '') }}€
+            <div class="summary-item">
+                <strong>Total TVA:</strong> <span>{{ number_format($totaltva, 2, ',', '') }}€</span>
             </div>
-            <div style="flex: 1;">
-                <strong>Total Credit Note:</strong> <span style="color: blue;">{{ number_format($totalCreditNote, 2, ',', '')}}€</span>
+            <div class="summary-item">
+                <strong>Total Credit Note:</strong> <span class="credit">{{ number_format($totalCreditNote, 2, ',', '')}}€</span>
             </div>
-            <div style="flex: 1;">
-                <strong>Total:</strong> <span style="color: #4876ff;">{{ number_format($total, 2, ',', '')}}€</span>
+            <div class="summary-item">
+                <strong>Total:</strong> <span class="total">{{ number_format($total, 2, ',', '')}}€</span>
             </div>
         </div>
     </div>
+
     <table>
         <thead>
             <tr>
@@ -164,7 +208,7 @@ thead {
                     <span style="{{ $isOverdue ? 'color: red;' : '' }}">
                         <b>{{$entreprise->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}</b>
                         @if($isOverdue)
-                            <span style="color: red;">({{ $daysOverdue }} days overdue)</span>
+                            <br><span style="color: red; font-size: 11px;">({{ $daysOverdue }} days overdue)</span>
                         @endif
                     </span>
                 </td>
@@ -189,15 +233,15 @@ thead {
                 <td>{{ \Carbon\Carbon::parse($invoice->created_at)->format('d-m-Y') }}</td>
                 <td>
                     @if($invoice->Payment_status == 1)
-                        <span style="color: green;">Paid</span>
+                        <span style="color: #28a745; font-weight: 600;">Paid</span>
                     @elseif($invoice->Payment_status == -1)
-                        <span style="color: blue;">Credit Note</span>
+                        <span style="color: #007bff; font-weight: 600;">Credit Note</span>
                     @else
-                        <span style="color: red;">Unpaid</span>                    
+                        <span style="color: #dc3545; font-weight: 600;">Unpaid</span>                     
                     @endif
                 </td>
                 <td>
-                    <span style="color: {{ $invoice->Payment_status == 1 ? 'green' : 'red' }}">
+                    <span style="font-weight: 600; color: {{ $invoice->Payment_status == 1 ? '#28a745' : ($invoice->Payment_status == -1 ? '#007bff' : '#dc3545') }}">
                         €{{number_format($invoice->total_ttc, 2, ',', '')}}
                     </span>
                 </td> 
@@ -207,31 +251,11 @@ thead {
     </table>
 
     <div class="footer">
-        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
         <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
+        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
     </div>
 
 </div>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Find all elements that represent pages
-    const pages = document.querySelectorAll('.page');
 
-    // Check if pages exist
-    if (pages.length === 0) {
-        console.error('No pages found. Ensure your HTML structure includes elements with a .page class.');
-        return;
-    }
-
-    // Loop through each page and set the page number
-    pages.forEach((page, index) => {
-        // Find the .page-number span within the .footer of each page
-        const pageNumberElement = page.querySelector('.footer .page-number');
-        if (pageNumberElement) {
-            pageNumberElement.textContent = index + 1; // Page numbers should start from 1
-        } else {
-            console.error('Page number element not found in page ' + (index + 1));
-        }
-    });
-});
-</script>
+</body>
+</html>

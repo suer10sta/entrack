@@ -1,17 +1,24 @@
 <style>
     /* --- Base & Typography --- */
+    * {
+        /* Applies a more predictable box model to all elements */
+        box-sizing: border-box;
+    }
+
     body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        font-size: 12px;
-        line-height: 1.5;
+        font-size: 14px; /* Increased base font size */
+        line-height: 1.6; /* Improved line spacing */
         margin: 0;
         padding: 0;
         color: #333;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 
     .container {
         width: 100%;
-        padding: 20px;
+        padding: 30px; /* Added more breathing room */
         box-sizing: border-box;
     }
 
@@ -21,7 +28,9 @@
     }
 
     h2 {
-        font-size: 18px;
+        font-size: 22px; /* Made title stronger */
+        font-weight: 600;
+        color: #111;
     }
 
     h5 {
@@ -34,13 +43,12 @@
     .details {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 30px;
-        /* Replaces the <br> tags */
+        align-items: center; /* Vertically aligns logo with text */
+        margin-bottom: 40px; /* More space above table */
     }
 
     .company-logo {
-        width: 80px;
+        width: 100px; /* Slightly larger logo */
         height: auto;
     }
 
@@ -52,43 +60,44 @@
     table {
         width: 100%;
         border-collapse: collapse;
-        /* Key for boxed borders */
         margin-bottom: 60px;
-        /* Space before footer */
     }
 
     /* Table Header */
     thead {
-        background-color: #007bff;
-        /* Blue color */
+        background-color: #1E9FD8;
         color: white;
+    }
+    
+    /* Unified borders for a cleaner grid */
+    th,
+    td {
+        border: 1px solid #E2E8F0; /* Single, light gray border */
+        padding: 12px 15px; /* More generous padding */
+        text-align: left;
     }
 
     th {
-        border: 1px solid #0056b3;
-        /* Darker blue border */
-        padding: 10px;
-        font-size: 11px;
+        font-size: 12px; /* Made header font legible */
         font-weight: 600;
-        text-align: left;
-        /* As in original */
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
     /* Table Body */
     td {
-        border: 1px solid #ddd;
-        /* Light gray border for cells */
-        padding: 10px;
-        text-align: left;
-        font-size: 11px;
+        font-size: 13px; /* Increased data font size */
+        vertical-align: top; /* Ensures long text aligns neatly */
+    }
+
+    /* --- Zebra Striping --- */
+    tbody tr:nth-of-type(even) {
+        background-color: #F7FAFC; /* Adds alternating row color */
     }
 
     /* --- Footer --- */
     .footer {
         position: fixed;
-        /* Sticks to the bottom of the page */
         bottom: 0;
         left: 0;
         width: 100%;
@@ -96,14 +105,12 @@
         justify-content: space-between;
         font-size: 12px;
         color: #777;
-        padding: 15px 20px;
+        padding: 20px 30px; /* Matches container padding */
         box-sizing: border-box;
-        /* Include padding in width */
         border-top: 1px solid #eee;
         background: #fff;
     }
 
-    /* CSS counter for print/PDF page numbers */
     .page-number::before {
         content: counter(page);
     }

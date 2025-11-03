@@ -1,345 +1,365 @@
 <!DOCTYPE html>
 <html lang="en">
 
-@include('dashboard_layouts.head')
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Client</title>
+    {{-- This assumes you have Vite and Tailwind CSS set up --}}
+    @vite('resources/css/app.css')
+</head>
 
-<body class="g-sidenav-show bg-gray-100">
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-            style="display: none; visibility: hidden"></iframe></noscript>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+    {{-- 
+      ================================================================
+      Sidebar
+      Using the Blade component syntax <x-dashboard.sidebar />
+      If you don't have this component, replace it with your
+      original @include logic.
+      ================================================================
+    --}}
+    <x-dashboard.sidebar />
 
-    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        {{-- 
+          ================================================================
+          Navbar
+          Using the Blade component syntax <x-dashboard.navbar />
+          If you don't have this component, replace it with your
+          original @include logic.
+          ================================================================
+        --}}
+        <x-dashboard.navbar />
 
-    @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-        @include('employees.sidebar')
-    @endif
-    @if(Auth::user()->hasRole('Admin'))
-        @include('admin.sidebar')
-    @endif
+        {{-- Main Content --}}
+        <main class="flex-1 p-8">
+            <div class="max-w-4xl mx-auto"> {{-- Centered and max-width like the image --}}
+                
+                {{-- Header --}}
+                <div class="mb-8 text-center">
+                    <h1 class="text-4xl font-bold text-slate-900 mb-2">Add New Client</h1>
+                </div>
 
-    <main class="main-content position-relative border-radius-lg">
-        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
-            id="navbarBlur" data-scroll="false">
-            <div class="container-fluid py-1 px-3">
+                {{-- Form --}}
+                <form method="POST" action="
+                    @if(Auth::user()->hasRole('Responsable de projet')) {{route('Responsable_de_projet.clients.store')}}
+                    @elseif(Auth::user()->hasRole('Employee')) {{route('employee.clients.store')}}
+                    @elseif(Auth::user()->hasRole('Admin')) {{route('admin.clients.store')}}
+                    @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) {{route('Responsable_gestionnaire.clients.store')}}
+                    @endif
+                " enctype="multipart/form-data" autocomplete="off">
+                    @csrf
 
-                @include('dashboard_layouts.navbar')
+                    <div class="space-y-6"> {{-- This stacks the cards vertically --}}
 
-
-                <div class="container-fluid py-4">
-                    <div class="row mb-5">
-                        <div class="col-12">
-                            <div class="multisteps-form mb-5">
-                            <div class="row">
-                                    <div class="col-12 col-lg-8 mx-auto my-4">
-                                        <div class="card">
-                                            <div class="card-body text-center">
-                                                <h4 class="font-weight-bolder mb-0">Add New Client</h4>
-                                            </div>
-                                        </div>
+                        <div class="bg-white rounded-2xl shadow-sm p-6">
+                            <h2 class="text-xl font-bold text-slate-900 mb-1">Personal Infos</h2>
+                            <p class="text-sm text-slate-500 mb-6">Mandatory informations</p>
+                            
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Name <span
+                                                class="text-red-500">*</span></label>
+                                        <input type="text" name="name" placeholder="Full Name"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Client Number <span
+                                                class="text-red-500">*</span></label>
+                                        @error('client_number')
+                                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                        @enderror
+                                        <input type="text" name="client_number" placeholder="Client Number"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                 </div>
-
-                                <div class="row">
-                                    <div class="col-12 col-lg-12 m-auto">
-                                    @if(Auth::user()->hasRole('Responsable de projet'))
-                                        <form class=" mb-8" method="POST" action="{{route('Responsable_de_projet.clients.store')}}" enctype="multipart/form-data" autocomplete="none">
-                                    @endif
-                                    @if(Auth::user()->hasRole('Employee'))
-                                        <form class=" mb-8" method="POST" action="{{route('employee.clients.store')}}" enctype="multipart/form-data" autocomplete="none">
-                                    @endif
-                                    @if(Auth::user()->hasRole('Admin'))
-                                        <form class=" mb-8" method="POST" action="{{route('admin.clients.store')}}" enctype="multipart/form-data" autocomplete="none">
-                                    @endif
-                                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                        <form class=" mb-8" method="POST" action="{{route('Responsable_gestionnaire.clients.store')}}" enctype="multipart/form-data" autocomplete="none">
-                                    @endif
-                                            @csrf   
-                                            <div class="row">
-                                                <div class="col-12 col-md-4">   
-                                                    <div class="card  p-3 border-radius-xl bg-white js-active"
-                                                        data-animation="FadeIn">
-                                                        <h5 class="font-weight-bolder mb-0">Personal Infos</h5>
-                                                        <p class="mb-0 text-sm">Mandatory informations</p>
-                                                        <div class="multisteps-form__content ">
-                                                            <div class="row mt-3">
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>Name : <span class="text-danger">*</span> </label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="Full Name" name="name" />
-                                                                </div>
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>Client Number : <span class="text-danger">*</span></label>
-                                                                    @error('client_number')
-                                                                        <div class="alert alert-danger mt-1">{{ $message }}</div>
-                                                                    @enderror
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="Client Number" name="client_number" />
-                                                                </div>
-                                                                <div class="col-12 col-sm-6 mt-3 mt-sm-0">
-                                                                    <label>Email : </label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="*****@gmail.com" name="email"/>
-                                                                </div>
-                                                                <div class="col-12 col-sm-6 mt-3 mt-sm-0">
-                                                                    <label>Phone : </label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="number" placeholder="Phone Number" name="phone"/>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-4">   
-                                                    <div class="card  p-3 border-radius-xl bg-white js-active"
-                                                        data-animation="FadeIn">
-                                                        <h5 class="font-weight-bolder mb-0">Address Infos</h5>
-                                                        <p class="mb-0 text-sm">Mandatory informations</p>
-                                                        <div class="multisteps-form__content ">
-                                                            <div class="row mt-3">
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>Street : <span class="text-danger">*</span></label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="Your Full Address Here" name="address" />
-                                                                </div>
-                                                                <div class="col-12 col-sm-6 mt-3 mt-sm-0">
-                                                                    <label>City : <span class="text-danger">*</span></label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="City" name="city"/>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mt-3">
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>Zip Code : <span class="text-danger">*</span></label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="number" placeholder="Zip Code " name="zip"/>
-                                                                </div>
-                                                                <div class="col-12 col-sm-6">
-                                                                <label>Country : <span class="text-danger">*</span></label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="Contry" name="country"/>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-4"> 
-                                                <div class="card  p-3 border-radius-xl bg-white js-active"
-                                                    data-animation="FadeIn">
-                                                    <h5 class="font-weight-bolder mb-0">Billing Infos</h5>
-                                                    <p class="mb-0 text-sm">Mandatory informations</p>
-                                                    <div class="multisteps-form__content ">
-                                                        <div class="row mt-3">
-                                                            <div class="col-12 col-sm-6">
-                                                                <label>TVA number : </label>
-                                                                <input class="multisteps-form__input form-control"
-                                                                    type="text" placeholder="TVA number" name="TVA" />
-                                                            </div>
-                                                            <div class="col-12 col-sm-6">
-                                                                <label>Due Date (days): <span class="text-danger">*</span></label>
-                                                                <input class="multisteps-form__input form-control"
-                                                                    type="text" placeholder="Due Date by Days" name="due_date" />
-                                                            </div>
-                                                        </div>
-                                                        <div class="row mt-3">
-                                                            <div class="col-12 col sm-6">
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input" type="checkbox" value="" id="billingSameAsClient">
-                                                                    <label class="form-check-label" for="billingSameAsClient">
-                                                                        Billing address is the same as client address
-                                                                    </label>
-                                                                </div>
-                                                            </div>        
-                                                        </div>
-                                                        <div class="row mt-3">
-                                                            <div class="col-12 col-sm-6">
-                                                                <label>Street : </label>
-                                                                <input class="multisteps-form__input form-control"
-                                                                    type="text" placeholder="Billing Street" name="billing_street" />
-                                                            </div>
-                                                            <div class="col-12 col-sm-6">
-                                                                <label>City : </label>
-                                                                <input class="multisteps-form__input form-control"
-                                                                    type="text" placeholder="Billing City" name="billing_city" />
-                                                            </div>
-                                                        </div>
-                                                        <div class="row mt-3">
-                                                            <div class="col-12 col-sm-6">
-                                                                <label>Zip Code : </label>
-                                                                <input class="multisteps-form__input form-control"
-                                                                    type="text" placeholder="Billing Zip Code" name="billing_zip" />
-                                                            </div>
-                                                            <div class="col-12 col-sm-6">
-                                                                <label>Country : </label>
-                                                                <input class="multisteps-form__input form-control"
-                                                                    type="text" placeholder="Billing Country" name="billing_country" />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>  
-                                                    
-                                                </div>
-                                            </div>
-                                            <br>
-                                            <div class="row">
-                                                <div class="card  p-3 border-radius-xl bg-white js-active"
-                                                    data-animation="FadeIn">
-                                                    <h5 class="font-weight-bolder mb-0">Comptabilité Infos</h5>
-                                                    <p class="mb-0 text-sm">Mandatory informations</p>
-                                                    <div class="multisteps-form__content ">
-                                                        <div class="row mt-3">
-                                                            <div class="col-12 col-sm-6">
-                                                                <label>Nom de Responsable : <span class="text-danger">**</span></label>
-                                                                <input class="multisteps-form__input form-control"
-                                                                    type="text" placeholder="Nom de Responsable" name="comp_name" />
-                                                            </div>
-                                                            <div class="col-12 col-sm-6 mt-3 mt-sm-0">
-                                                                <label>Email : <span class="text-danger">**</span></label>
-                                                                <input class="multisteps-form__input form-control"
-                                                                    type="text" placeholder="*****@gmail.com" name="comp_email"/>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row mt-3">
-                                                            <div class="col-12 col-sm-6">
-                                                                <label>Phone Number :</label>
-                                                                <input class="multisteps-form__input form-control"
-                                                                    type="number" placeholder="Phone Number  " name="comp_phone"/>
-                                                            </div>
-                                                            <div class="col-12 col-sm-6">
-                                                            <label>Address : </label>
-                                                                <input class="multisteps-form__input form-control"
-                                                                    type="text" placeholder="Address" name="comp_address"/>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <br>
-                                            <div class="row">
-                                                <div class="card  p-3 border-radius-xl bg-white js-active"
-                                                    data-animation="FadeIn">
-                                                    <h5 class="font-weight-bolder mb-0">Contacts Infos</h5>
-                                                    <p class="mb-0 text-sm">Mandatory informations</p>
-                                                    <div class="multisteps-form__content ">
-                                                        <div id="contact_infos">
-                                                            <div class="row mt-3">
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>Full Name : <span class="text-danger">**</span></label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="Full Name" name="contact_name[]" />
-                                                                </div>
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>Function : </label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="Functionality" name="contact_function[]" />
-                                                                </div>
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>Phone Number : </label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="number" placeholder="Phone Number " name="contact_mobile_fix[]" />
-                                                                </div>
-                                                                <div class="col-12 col-sm-6">
-                                                                    <label>Email : <span class="text-danger">**</span></label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="*****@gmail.com" name="contact_email[]" />
-                                                                </div>
-                                                                <div class="col-12 col-sm-12">
-                                                                    <label>Address : </label>
-                                                                    <input class="multisteps-form__input form-control"
-                                                                        type="text" placeholder="Address" name="contact_address[]" />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <br>
-                                                    <button id="addContact" class="btn btn-primary">Add</button>
-                                                    <div class="button-row d-flex mt-4">
-                                                    <a class='btn btn-light m-0' href="{{route('admin.index')}}">
-                                                        Cancel
-                                                    </a>
-                                                        <button class="btn bg-gradient-dark ms-auto mb-0 "
-                                                            type="submit" title="create">
-                                                            Create
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </form>
-
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                                        <input type="text" name="email" placeholder="*****@gmail.com"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+                                        <input type="number" name="phone" placeholder="Phone Number"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+                        <div class="bg-white rounded-2xl shadow-sm p-6">
+                            <h2 class="text-xl font-bold text-slate-900 mb-1">Address Infos</h2>
+                            <p class="text-sm text-slate-500 mb-6">Mandatory informations</p>
+
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Street <span
+                                                class="text-red-500">*</span></label>
+                                        <input type="text" name="address" placeholder="Your Full Address Here"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">City <span
+                                                class="text-red-500">*</span></label>
+                                        <input type="text" name="city" placeholder="City"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Zip Code <span
+                                                class="text-red-500">*</span></label>
+                                        <input type="number" name="zip" placeholder="Zip Code"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Country <span
+                                                class="text-red-500">*</span></label>
+                                        <input type="text" name="country" placeholder="Country"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-2xl shadow-sm p-6">
+                            <h2 class="text-xl font-bold text-slate-900 mb-1">Billing Infos</h2>
+                            <p class="text-sm text-slate-500 mb-6">Mandatory informations</p>
+
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">TVA number</label>
+                                        <input type="text" name="TVA" placeholder="TVA number"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Due Date (days)
+                                            <span class="text-red-500">*</span></label>
+                                        <input type="text" name="due_date" placeholder="Due Date by Days"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center pt-2 pb-2">
+                                    <input id="billingSameAsClient" type="checkbox"
+                                        class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500">
+                                    <label for="billingSameAsClient"
+                                        class="ml-2 text-sm font-medium text-slate-700">Billing address is the same as
+                                        client address</label>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="block text-sm font-medium text-slate-700 mb-1">Street</label>
+                                        <input type="text" name="billing_street" placeholder="Billing Street"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">City</label>
+                                        <input type="text" name="billing_city" placeholder="Billing City"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Zip Code</label>
+                                        <input type="text" name="billing_zip" placeholder="Billing Zip Code"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Country</label>
+                                        <input type="text" name="billing_country" placeholder="Billing Country"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl shadow-sm p-6">
+                            <h2 class="text-xl font-bold text-slate-900 mb-1">Comptabilité Infos</h2>
+                            <p class="text-sm text-slate-500 mb-6">Mandatory informations</p>
+                            
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Nom de
+                                            Responsable <span class="text-red-500">**</span></label>
+                                        <input type="text" name="comp_name" placeholder="Nom de Responsable"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Email <span
+                                                class="text-red-500">**</span></label>
+                                        <input type="text" name="comp_email" placeholder="*****@gmail.com"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Phone
+                                            Number</label>
+                                        <input type="number" name="comp_phone" placeholder="Phone Number"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Address</label>
+                                        <input type="text" name="comp_address" placeholder="Address"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl shadow-sm p-6">
+                            <h2 class="text-xl font-bold text-slate-900 mb-1">Contacts Infos</h2>
+                            <p class="text-sm text-slate-500 mb-6">Mandatory informations</p>
+
+                            <div id="contact_infos" class="space-y-6">
+                                <div class="contact-entry space-y-4">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-slate-700 mb-1">Full Name
+                                                <span class="text-red-500">**</span></label>
+                                            <input type="text" name="contact_name[]" placeholder="Full Name"
+                                                class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-slate-700 mb-1">Function</label>
+                                            <input type="text" name="contact_function[]"
+                                                placeholder="Functionality"
+                                                class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-slate-700 mb-1">Phone
+                                                Number</label>
+                                            <input type="number" name="contact_mobile_fix[]"
+                                                placeholder="Phone Number"
+                                                class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-slate-700 mb-1">Email
+                                                <span class="text-red-500">**</span></label>
+                                            <input type="text" name="contact_email[]"
+                                                placeholder="*****@gmail.com"
+                                                class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-sm font-medium text-slate-700 mb-1">Address</label>
+                                        <input type="text" name="contact_address[]" placeholder="Address"
+                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                    </div>
+                                </div>
+                                </div>
+                        </div>
+                        
                     </div>
 
-                </div>
+                    <div class="flex justify-end mt-8 gap-4">
+                        {{-- Cancel Button Logic --}}
+                        @if(Auth::user()->hasRole('Responsable de projet'))
+                            <a href="{{route('Responsable_de_projet.index')}}"
+                                class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">Cancel</a>
+                        @elseif(Auth::user()->hasRole('Admin'))
+                            <a href="{{route('admin.index')}}"
+                                class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">Cancel</a>
+                        @elseif(Auth::user()->hasRole('Employee'))
+                            <a href="{{route('employee.index')}}"
+                                class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">Cancel</a>
+                        @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                            <a href="{{route('Responsable_gestionnaire.index')}}"
+                                class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">Cancel</a>
+                        @else
+                            {{-- Fallback cancel button --}}
+                            <a href="{{ url()->previous() }}"
+                                class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">Cancel</a>
+                        @endif
 
-    </main>
-    @include('dashboard_layouts.scripts')
+                        <button type="submit"
+                            class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow">
+                            Create
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </main>
+    </div>
+
+    {{-- Include your dashboard scripts --}}
+    @include('dashboard_layouts.scripts') 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    <script>
-  window.addEventListener('load', function() {
-    var inputs = document.getElementsByTagName('input');
-    for (var i = 0; i < inputs.length; i++) {
-      inputs[i].setAttribute('autocomplete', 'none');
-    }
-  });
-</script>
-
-    <script>
-        $(document).ready(function () {
-            $(".multisteps-form__progress-btn").click(function () {
-                var index = $(this).index();
-                $(".multisteps-form__panel").removeClass("js-active");
-                $(".multisteps-form__panel").eq(index).addClass("js-active");
-                $(".multisteps-form__progress-btn").removeClass("js-active");
-                $(this).addClass("js-active");
-            });
-
-            $(".js-btn-next").click(function(e){
-                e.preventDefault();
-                var currentCard = $(this).closest('.multisteps-form__panel');
-                var nextCard = currentCard.next('.multisteps-form__panel');
-                if (nextCard.length > 0) {
-                    currentCard.removeClass("js-active");
-                    nextCard.addClass("js-active");
-                    var nextIndex = $(".multisteps-form__panel").index(nextCard);
-                    $(".multisteps-form__progress-btn").removeClass("js-active");
-                    $(".multisteps-form__progress-btn").eq(nextIndex).addClass("js-active");
-                } 
-            });
+<script>
+        // Disable autocomplete script
+        window.addEventListener('load', function () {
+            var inputs = document.getElementsByTagName('input');
+            for (var i = 0; i < inputs.length; i++) {
+                inputs[i].setAttribute('autocomplete', 'none');
+            }
         });
 
-    </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
-$(document).ready(function(){
-    $("#addContact").click(function(e){
-        e.preventDefault();
-        var additionalContacts = $("#contact_infos");
-        var newCard = additionalContacts.children().first().clone();
-        newCard.find('input').val('');
-        if (additionalContacts.children().length > 0) {
-            var deleteButton = $('<button>Delete</button>');
-            deleteButton.attr('type', 'button');
-            deleteButton.addClass('btn btn-danger mt-3 remove-contact');
-            deleteButton.click(function() {
-                newCard.remove();
-            });
-            newCard.append(deleteButton);
-        }
-        additionalContacts.append(newCard);
-    });
-});
-$(document).ready(function(){
-    $("#addContact").click(function(e){
-        e.preventDefault();
-        var newCard = '<div class="card multisteps-form__panel p-3 border-radius-xl bg-white js-active" data-animation="FadeIn">...</div>';
-        $("#additionalContacts").append(newCard);
-    });
-});
+        // jQuery scripts for form functionality
+        $(document).ready(function () {
+            
+            // Billing address checkbox logic
+            $('#billingSameAsClient').change(function () {
+                const isDisabled = this.checked;
+                const billingStreet = isDisabled ? $('input[name="address"]').val() : '';
+                const billingCity = isDisabled ? $('input[name="city"]').val() : '';
+                const billingZip = isDisabled ? $('input[name="zip"]').val() : '';
+                const billingCountry = isDisabled ? $('input[name="country"]').val() : '';
 
+                $('input[name="billing_street"]').val(billingStreet).prop('disabled', isDisabled);
+                $('input[name="billing_city"]').val(billingCity).prop('disabled', isDisabled);
+                $('input[name="billing_zip"]').val(billingZip).prop('disabled', isDisabled);
+                $('input[name="billing_country"]').val(billingCountry).prop('disabled', isDisabled);
+            });
+
+            // Add new contact logic
+            $("#addContact").click(function (e) {
+                e.preventDefault();
+                var container = $("#contact_infos");
+                var entryToClone = container.children(".contact-entry").first();
+                var newEntry = entryToClone.clone();
+
+                // Clear input values in the new entry
+                newEntry.find('input').val('');
+
+                // Create and add a delete button
+                var deleteButton = $('<button type="button" class="w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium mt-4 remove-contact">Delete Contact</button>');
+                
+                deleteButton.click(function() {
+                    $(this).closest('.contact-entry').remove();
+                });
+                
+                // Add a visual separator (for all new cards)
+                newEntry.prepend('<hr class="my-4 border-t-2 border-slate-200">');
+                
+                // Add the delete button
+                newEntry.append(deleteButton);
+
+                // Append the new entry to the container
+                container.append(newEntry);
+            });
+
+            // This delegation is needed to remove newly added contacts
+            // (The button is added dynamically, so we listen on the container)
+            $('#contact_infos').on('click', '.remove-contact', function() {
+                $(this).closest('.contact-entry').remove();
+            });
+
+        });
 </script>
 
 </body>
-
 </html>

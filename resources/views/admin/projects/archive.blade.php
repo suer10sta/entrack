@@ -1,506 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archived Projects</title>
+    @vite('resources/css/app.css')
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+    {{-- Sidebar --}}
+    <x-dashboard.sidebar />
 
-@include('dashboard_layouts.head')
-<style>
-  a {
-    color: blue;
-}
-th {
-    font-size: 14px !important; 
-}
-.text-sm{
-    color: #332f2f;
-}
-</style>
-<body class="g-sidenav-show bg-gray-100">
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-      style="display: none; visibility: hidden"></iframe></noscript>
-  <div class="min-height-300 bg-primary position-absolute w-100"></div>
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        {{-- Navbar --}}
+        <x-dashboard.navbar />
 
-    @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-        @include('employees.sidebar')
-    @endif
-    @if(Auth::user()->hasRole('Admin'))
-        @include('admin.sidebar')
-    @endif
-
-  <main class="main-content position-relative border-radius-lg">
-    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
-      id="navbarBlur" data-scroll="false">
-      <div class="container-fluid py-1 px-3">
-
-        @include('dashboard_layouts.navbar')
-
-      </div>
-
-      <div class="container-fluid py-4">
-
-        <div class="row mt-3">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header p-3 pb-0">
-                <div class="d-flex justify-content-between">
-                    <h6>Archived Projects Table</h6>
-                    <!--
-                    @if(Auth::user()->hasRole('Admin'))
-                        <div>
-                            <a type="button" class="btn btn-primary" href="{{route('admin.Projectsrepports.downloadRepports')}}">Projects Reports PDF</a>
-                        </div>
-                    @endif
-                    @if(Auth::user()->hasRole('Responsable de projet'))
-                        <div>
-                            <a type="button" class="btn btn-primary" href="{{route('Responsable_de_projet.Projectsrepports.downloadRepports')}}">Projects Reports PDF</a>
-                        </div>
-                    @endif
-                    -->
-                    @if(Auth::user()->hasRole('Admin'))
-                        <div>
-                            <a type="button" class="btn btn-primary" href="{{route('admin.projects.index')}}">Return Back</a>
-                        </div>
-                    @endif
-                    @if(Auth::user()->hasRole('Responsable de projet'))
-                        <div>
-                            <a type="button" class="btn btn-primary" href="{{route('Responsable_de_projet.projects.index')}}">Return Back</a>
-                        </div>
-                    @endif
-                    @if(Auth::user()->hasRole('Employee'))
-                        <div>
-                            <a type="button" class="btn btn-primary" href="{{route('employee.projects.index')}}">Return Back</a>
-                        </div>
-                    @endif
-                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                        <div>
-                            <a type="button" class="btn btn-primary" href="{{route('Responsable_gestionnaire.projects.index')}}">Return Back</a>
-                        </div>
-                    @endif
-                    
-                    
+        {{-- Main Content --}}
+        <main class="flex-1 p-6">
+            {{-- Header --}}
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-6 rounded-lg shadow border border-gray-200 mb-4">
+                <h1 class="text-lg font-semibold text-gray-900">Archived Projects</h1>
+                <div class="flex flex-wrap gap-2 mt-4 sm:mt-0">
+                    @php
+                        $returnRoute = '#';
+                        if(Auth::user()->hasRole('Admin')) $returnRoute = route('admin.projects.index');
+                        elseif(Auth::user()->hasRole('Responsable de projet')) $returnRoute = route('Responsable_de_projet.projects.index');
+                        elseif(Auth::user()->hasRole('Employee')) $returnRoute = route('employee.projects.index');
+                        elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $returnRoute = route('Responsable_gestionnaire.projects.index');
+                    @endphp
+                    <a href="{{ $returnRoute }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">
+                        Return Back
+                    </a>
                 </div>
-                  @if(session('message'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('message') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
-                    </div>
-                  @endif
-              </div>
-              
-    
-        <div class="card-body">
-            <div class="table-responsive" style="overflow: visible;">
-                <table class="table align-items-center mb-0">
-                    <thead>
-                        <tr>
-                            <th
-                                class="text-uppercase text-dark text-x font-weight-bolder opacity-10">
-                                Project
-                            </th>
+            </div>
+
+            {{-- Session message --}}
+            @if(session('message'))
+                <div class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative" role="alert">
+                    {{ session('message') }}
+                    <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 right-0 px-4 py-3 text-green-700 hover:text-green-900 font-bold text-xl">&times;</button>
+                </div>
+            @endif
+
+            {{-- Table --}}
+            <div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr class="text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            <th class="px-6 py-3">Project</th>
                             @if(Auth::user()->hasRole('Admin'))
-                                <th
-                                    class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                    Budget
-                                </th>
-                                <th
-                                    class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                    CPH
-                                </th>
-                                <th
-                                    class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                    Duration
-                                </th>
-                                <th
-                                    class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                    Estimated Hours
-                                </th>
-                                <th
-                                    class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                    Difference
-                                </th>
-                                <th
-                                    class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                    Progress
-                                </th>
+                            <th class="px-6 py-3">Budget</th>
+                            <th class="px-6 py-3">CPH</th>
+                            <th class="px-6 py-3">Duration</th>
+                            <th class="px-6 py-3">Est. Hours</th>
+                            <th class="px-6 py-3">Difference</th>
+                            <th class="px-6 py-3">Progress</th>
                             @endif
-                            <th
-                                class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                TVA
-                            </th>
-                            <th
-                                class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                Client
-                            </th>
-                            <th
-                                class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                Teams
-                            </th>
-                            
-                           @can('Delete project')
-                            <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"></th>
+                            <th class="px-6 py-3">TVA</th>
+                            <th class="px-6 py-3">Client</th>
+                            <th class="px-6 py-3">Teams</th>
+                            @can('Delete project')
+                            <th class="px-6 py-3">Actions</th>
                             @endcan
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-gray-200">
                         @foreach($projects as $project)
-                        <tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm editable" data-id="{{$project->id}}" data-column="name">
+                                @php $projectShowRoute = '#'; @endphp
+                                @if(Auth::user()->hasRole('Admin') && Auth::user()->can('View project'))
+                                    @php $projectShowRoute = route('admin.projects.show',$project->id); @endphp
+                                @elseif(Auth::user()->hasRole('Responsable de projet') && Auth::user()->can('View project'))
+                                    @php $projectShowRoute = route('Responsable_de_projet.projects.show',$project->id); @endphp
+                                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire') && Auth::user()->can('View project'))
+                                    @php $projectShowRoute = route('Responsable_gestionnaire.projects.show',$project->id); @endphp
+                                @elseif(Auth::user()->hasRole('Employee') && Auth::user()->can('View project'))
+                                    @php $projectShowRoute = route('employee.projects.show',$project->id); @endphp
+                                @endif
 
-                            <td class="editable" data-id="{{$project->id}}" data-column="name">
-                                <div class="d-flex px-2">
-                                    <div class="my-auto">
-                                    @if(Auth::user()->hasRole('Responsable de projet'))
-                                        @if(Auth::user()->can('View project'))
-                                            <a href="{{route('Responsable_de_projet.projects.show',$project->id)}}">
-                                                <h6 class="mb-0 text-sm"><b>{{strtoupper($project->name)}}</b></h6>
-                                            </a>
-                                        @else
-                                            <h6 class="mb-0 text-sm"><b>{{strtoupper($project->name)}}</b></h6>
-                                        @endif
+                                @if($projectShowRoute != '#')
+                                    <a href="{{ $projectShowRoute }}" class="text-blue-600 hover:underline font-medium">{{ strtoupper($project->name) }}</a>
+                                @else
+                                    <span class="font-medium text-gray-900">{{ strtoupper($project->name) }}</span>
+                                @endif
+                            </td>
+                            
+                            @if(Auth::user()->hasRole('Admin'))
+                            <td class="px-6 py-4 text-sm text-green-600 font-medium editable" data-id="{{$project->id}}" data-column="budget">
+                                €{{$project->budget}}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-green-600 font-medium editable" data-id="{{$project->id}}" data-column="cost_per_hour">
+                                €{{$project->cost_per_hour}}
+                            </td>
+                            
+                            @php 
+                                $projecttasksId = App\Models\Tasks::where('project_id', $project->id)->pluck('id');
+                                $totalduration = App\Models\tasks_timer::whereIn('task_id', $projecttasksId)->sum('duration');
+                                $difference = $project->estimated_hours * 60 - $totalduration;
+                                $hours = floor(abs($totalduration) / 60);
+                                $minutes = abs($totalduration) % 60;
+                                $diffhours = floor(abs($difference) / 60);
+                                $diffminutes = abs($difference) % 60;
+                                $estimatedMinutes = $project->estimated_hours * 60;
+                                $progressPercentage = $estimatedMinutes > 0 ? ($totalduration / $estimatedMinutes) * 100 : 0;
+                                $formattedProgressPercentage = number_format($progressPercentage, 2);
+                            @endphp
+
+                            <td class="px-6 py-4 text-sm text-gray-700">{{$hours}}h:{{$minutes}}m</td>
+                            <td class="px-6 py-4 text-sm text-gray-700 editable" data-id="{{$project->id}}" data-column="estimated_hours">
+                                {{$project->estimated_hours}}h
+                            </td>
+                            <td class="px-6 py-4 text-sm font-medium">
+                                @if($project->estimated_hours !== null)
+                                    @if($difference > 0)
+                                        <span class="text-green-600">+{{$diffhours}}h:{{$diffminutes}}m</span>
+                                    @elseif($difference < 0)
+                                        <span class="text-red-600">-{{$diffhours}}h:{{$diffminutes}}m</span>
+                                    @else
+                                        <span class="text-blue-600">{{$diffhours}}h:{{$diffminutes}}m</span>
                                     @endif
-                                    @if(Auth::user()->hasRole('Admin'))
-                                        @if(Auth::user()->can('View project'))
-                                            <a href="{{route('admin.projects.show',$project->id)}}">
-                                                <h6 class="mb-0 text-sm"><b>{{strtoupper($project->name)}}</b></h6>
-                                            </a>
-                                            @else
-                                            <h6 class="mb-0 text-sm"><b>{{strtoupper($project->name)}}</b></h6>
-                                        @endif
-                                    @endif
-                                    @if(Auth::user()->hasRole('Employee'))
-                                        @if(Auth::user()->can('View project'))
-                                            <a href="{{route('employee.projects.show',$project->id)}}">
-                                                <h6 class="mb-0 text-sm"><b>{{strtoupper($project->name)}}</b></h6>
-                                            </a>
-                                        @else
-                                            <h6 class="mb-0 text-sm"><b>{{strtoupper($project->name)}}</b></h6>
-                                        @endif
-                                    @endif
-                                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                        @if(Auth::user()->can('View project'))
-                                            <a href="{{route('Responsable_gestionnaire.projects.show',$project->id)}}">
-                                                <h6 class="mb-0 text-sm"><b>{{strtoupper($project->name)}}</b></h6>
-                                            </a>
-                                        @else
-                                            <h6 class="mb-0 text-sm"><b>{{strtoupper($project->name)}}</b></h6>
-                                        @endif
-                                    @endif
-                                        
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-sm min-w-[150px]">
+                                <div class="w-full bg-gray-200 rounded-full h-3 relative">
+                                    @php
+                                        $progressColor = 'bg-green-500';
+                                        if ($progressPercentage >= 75) $progressColor = 'bg-red-500';
+                                        elseif ($progressPercentage >= 50) $progressColor = 'bg-yellow-500';
+                                    @endphp
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-xs font-semibold {{ $progressPercentage > 40 ? 'text-white' : 'text-gray-700' }}">{{$formattedProgressPercentage}}%</span>
                                     </div>
+                                    <div class="{{ $progressColor }} h-3 rounded-full" style="width: {{$formattedProgressPercentage}}%"></div>
                                 </div>
                             </td>
-                            @if(Auth::user()->hasRole('Admin'))
-                                <td class="editable" data-id="{{$project->id}}" data-column="budget">
+                            @endif
+                            
+                            <td class="px-6 py-4 text-sm text-green-600 font-medium editable" data-id="{{$project->id}}" data-column="tva">
+                                %{{$project->tva}}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-700">
+                                @php $clientName = App\Models\Client::where('id', $project->client_id)->first()->name; $clientRoute = '#'; @endphp
+                                @if(Auth::user()->hasRole('Admin') && Auth::user()->can('View client'))
+                                    @php $clientRoute = route('admin.clients.show', $project->client_id); @endphp
+                                @elseif(Auth::user()->hasRole('Responsable de projet') && Auth::user()->can('View client'))
+                                    @php $clientRoute = route('Responsable_de_projet.clients.show', $project->client_id); @endphp
+                                @elseif(Auth::user()->hasRole('Employee') && Auth::user()->can('View client'))
+                                    @php $clientRoute = route('employee.clients.show', $project->client_id); @endphp
+                                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire') && Auth::user()->can('View client'))
+                                    @php $clientRoute = route('Responsable_gestionnaire.clients.show', $project->client_id); @endphp
+                                @endif
 
-                                    <p class="text-sm font-weight-bold mb-0 text-success">
-                                    €{{$project->budget}}</p>
-                                </td>
-                                <td class="editable" data-id="{{$project->id}}" data-column="cost_per_hour">
-                                    <p class="text-sm font-weight-bold mb-0 text-success">
-                                    €{{$project->cost_per_hour}}</p>
-                                </td>
-                                @php 
-                                    $projecttasksId = App\Models\Tasks::where('project_id', $project->id)->pluck('id');
-                                    $totalduration = App\Models\tasks_timer::whereIn('task_id', $projecttasksId)->sum('duration');
-                                    $difference = $project->estimated_hours * 60 - $totalduration; // Convert estimated hours to minutes and subtract total duration
-                                    
-                                    $hours = floor(abs($totalduration) / 60);
-                                    $minutes = abs($totalduration) % 60;
-                                    
-                                    $diffhours = floor(abs($difference) / 60);
-                                    $diffminutes = abs($difference) % 60;
+                                @if($clientRoute != '#')
+                                    <a href="{{ $clientRoute }}" class="text-blue-600 hover:underline">{{ $clientName }}</a>
+                                @else
+                                    <span>{{ $clientName }}</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-700">
+                                @foreach(App\Models\project_teams::where('project_id', $project->id)->get() as $project_team)
+                                    @php $teamRoute = '#'; @endphp
+                                    @if(Auth::user()->hasRole('Admin') && Auth::user()->can('View team'))
+                                        @php $teamRoute = route('admin.teams.index'); @endphp
+                                    @elseif(Auth::user()->hasRole('Responsable de projet') && Auth::user()->can('View team'))
+                                        @php $teamRoute = route('Responsable_de_projet.teams.index'); @endphp
+                                    @elseif(Auth::user()->hasRole('Employee') && Auth::user()->can('View team'))
+                                        @php $teamRoute = route('employee.teams.index'); @endphp
+                                    @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire') && Auth::user()->can('View team'))
+                                        @php $teamRoute = route('Responsable_gestionnaire.teams.index'); @endphp
+                                    @endif
 
-                                    $estimatedMinutes = $project->estimated_hours * 60;
-                                    $progressPercentage = $estimatedMinutes > 0 ? ($totalduration / $estimatedMinutes) * 100 : 0;
-                                    $formattedProgressPercentage = number_format($progressPercentage, 2);
+                                    @if($teamRoute != '#')
+                                        <a href="{{ $teamRoute }}" class="text-blue-600 hover:underline block">{{$project_team->team_name}}</a>
+                                    @else
+                                        <span class="block">{{$project_team->team_name}}</span>
+                                    @endif
+                                @endforeach
+                            </td>
+                            
+                            @can('Delete project')
+                            <td class="px-6 py-4 text-sm space-x-1">
+                                @php
+                                    $unarchiveRoute = '#'; $deleteRoute = '#';
+                                    if(Auth::user()->hasRole('Admin')) {
+                                        $unarchiveRoute = route('admin.projects.unarchive', $project->id);
+                                        $deleteRoute = route('admin.projects.destroy', $project->id);
+                                    } elseif(Auth::user()->hasRole('Responsable de projet')) {
+                                        $unarchiveRoute = route('Responsable_de_projet.projects.unarchive', $project->id);
+                                        $deleteRoute = route('Responsable_de_projet.projects.destroy', $project->id);
+                                    } elseif(Auth::user()->hasRole('Employee')) {
+                                        $unarchiveRoute = route('employee.projects.unarchive', $project->id);
+                                        $deleteRoute = route('employee.projects.destroy', $project->id);
+                                    } elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                                        $unarchiveRoute = route('Responsable_gestionnaire.projects.unarchive', $project->id);
+                                        $deleteRoute = route('Responsable_gestionnaire.projects.destroy', $project->id);
+                                    }
                                 @endphp
-                                <td class="" data-id="{{$project->id}}" data-column="">
-                                    <p class="text-sm font-weight-bold mb-0">{{$hours}}h:{{$minutes}}m</p>
-                                </td>
-                                <td class="editable" data-id="{{$project->id}}" data-column="estimated_hours">
-                                    <p class="text-sm font-weight-bold mb-0">{{$project->estimated_hours}}h</p>
-                                </td>
-                                <td class="" data-id="{{$project->id}}" data-column="">
-                                    <p class="text-sm font-weight-bold"> 
-                                        @if($project->estimated_hours !== null)
-                                            @if($difference > 0)
-                                            <p class="text-sm font-weight-bold mb-0 text-success">
-                                            +{{$diffhours}}h:{{$diffminutes}}m</span>
-                                            @elseif($difference < 0)
-                                            <p class="text-sm font-weight-bold mb-0 text-danger">
-                                            -{{$diffhours}}h:{{$diffminutes}}m</p>
-                                            @else
-                                                <span style="color: blue;">{{$diffhours}}h:{{$diffminutes}}m</p>
-                                            @endif
-                                        @endif
-                                    </p>
-                                </td>
-                                <td class="" data-id="{{$project->id}}" data-column="">
-                                    <div class="progress" style="height: 12px; background-color: #e9ecef; border-radius: 0.25rem;">
-                                        <div class="progress-bar 
-                                            @if($progressPercentage < 50) bg-success 
-                                            @elseif($progressPercentage < 75) bg-warning 
-                                            @else bg-danger 
-                                            @endif" 
-                                            role="progressbar" 
-                                            style="width: {{$formattedProgressPercentage}}%; font-size: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; color: #fff; text-align: center; white-space: nowrap; transition: width 0.6s ease;" 
-                                            aria-valuenow="{{$formattedProgressPercentage}}" 
-                                            aria-valuemin="0" 
-                                            aria-valuemax="100">
-                                            {{$formattedProgressPercentage}}%
-                                        </div>
-                                    </div>
-                                </td>
-                            @endif
-                            <td class="editable" data-id="{{$project->id}}" data-column="tva">
-                                <p class="text-sm font-weight-bold mb-0 text-success">
-                                    %{{$project->tva}}</p>
+                                
+                                <form action="{{ $unarchiveRoute }}" method="post" onsubmit="return confirm('Are you sure?');" class="inline">
+                                    @csrf
+                                    <button type="submit" class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded text-xs">Unarchive</button>
+                                </form>
+                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Are you sure?');" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs">Delete</button>
+                                </form>
                             </td>
-                            <td>
-                                <p class="text-sm font-weight-bold mb-0">
-                                @if(Auth::user()->hasRole('Admin'))
-                                    @if(Auth::user()->can('View client'))
-                                        <a href="{{route('admin.clients.show', $project->client_id)}}">
-                                            {{App\Models\Client::where('id', $project->client_id)->first()->name}}
-                                        </a>
-                                        @else
-                                        {{App\Models\Client::where('id', $project->client_id)->first()->name}}
-                                    @endif
-                                @endif
-                                @if(Auth::user()->hasRole('Responsable de projet'))
-                                    @if(Auth::user()->can('View client'))
-                                        <a href="{{route('Responsable_de_projet.clients.show', $project->client_id)}}">
-                                            {{App\Models\Client::where('id', $project->client_id)->first()->name}}
-                                        </a>
-                                        @else
-                                        {{App\Models\Client::where('id', $project->client_id)->first()->name}}
-                                    @endif
-                                @endif
-                                @if(Auth::user()->hasRole('Employee'))
-                                    @if(Auth::user()->can('View client'))
-                                        <a href="{{route('employee.clients.show', $project->client_id)}}">
-                                            {{App\Models\Client::where('id', $project->client_id)->first()->name}}
-                                        </a>
-                                    @else
-                                        {{App\Models\Client::where('id', $project->client_id)->first()->name}}
-                                    @endif
-                                @endif
-                                @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                    @if(Auth::user()->can('View client'))
-                                        <a href="{{route('Responsable_gestionnaire.clients.show', $project->client_id)}}">
-                                            {{App\Models\Client::where('id', $project->client_id)->first()->name}}
-                                        </a>
-                                    @else
-                                        {{App\Models\Client::where('id', $project->client_id)->first()->name}}
-                                    @endif
-                                @endif
-                                </p>
-                            </td>
-                            <td>
-                                <p class="text-sm font-weight-bold mb-0">
-                                    @forEach(App\Models\project_teams::where('project_id', $project->id)->get() as $project_team)
-                                    @if(Auth::user()->hasRole('Admin'))
-                                        @if(Auth::user()->can('View team'))
-                                        <a href="{{route('admin.teams.index')}}">
-                                            {{$project_team->team_name}}
-                                        </a>
-                                        @else
-                                            {{$project_team->team_name}}
-                                        @endif
-                                    @endif
-                                    @if(Auth::user()->hasRole('Responsable de projet'))
-                                        @if(Auth::user()->can('View team'))
-                                        <a href="{{route('Responsable_de_projet.teams.index')}}">
-                                            {{$project_team->team_name}}
-                                        </a>
-                                        @else
-                                            {{$project_team->team_name}}
-                                        @endif
-                                    @endif
-                                    @if(Auth::user()->hasRole('Employee'))
-                                        @if(Auth::user()->can('View team'))
-                                        <a href="{{route('employee.teams.index')}}">
-                                            {{$project_team->team_name}}
-                                        </a>
-                                        @else
-                                            {{$project_team->team_name}}
-                                        @endif
-                                    @endif
-                                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                        @if(Auth::user()->can('View team'))
-                                        <a href="{{route('Responsable_gestionnaire.teams.index')}}">
-                                            {{$project_team->team_name}}
-                                        </a>
-                                        @else
-                                            {{$project_team->team_name}}
-                                        @endif
-                                    @endif
-                                    <br>
-                                    @endforEach
-                                </p>
-                            </td>
-                            @if(Auth::user()->hasRole('Admin'))
-                            @can('Delete project')
-                                <td class="align-middle">
-                                    <form
-                                        action="{{ route('admin.projects.destroy', $project->id)}}"
-                                        method="post"
-                                        onsubmit="return confirm('Are you sure?');"
-                                        class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="btn btn-danger btn-xs p-2 mb-0">X</button>
-                                    </form>
-                                    <form
-                                        action="{{ route('admin.projects.unarchive', $project->id)}}"
-                                        method="post"
-                                        onsubmit="return confirm('Are you sure?');"
-                                        class="d-inline">
-                                        @csrf
-                                        <button type="submit"
-                                            class="btn btn-secondary btn-xs p-2 mb-0">unarchive</button>
-                                    </form>
-                                </td>
                             @endcan
-                            @endif
-                            @if(Auth::user()->hasRole('Responsable de projet'))
-                            @can('Delete project')
-                                <td class="align-middle">
-                                    <form
-                                        action="{{ route('Responsable_de_projet.projects.destroy', $project->id)}}"
-                                        method="post"
-                                        onsubmit="return confirm('Are you sure?');"
-                                        class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="btn btn-danger btn-xs p-2 mb-0">X</button>
-                                    </form>
-                                    <form
-                                        action="{{ route('Responsable_de_projet.projects.unarchive', $project->id)}}"
-                                        method="post"
-                                        onsubmit="return confirm('Are you sure?');"
-                                        class="d-inline">
-                                        @csrf
-                                        <button type="submit"
-                                            class="btn btn-secondary btn-xs p-2 mb-0">unarchive</button>
-                                    </form>
-                                </td>
-                            @endcan
-                            @endif
-                            @if(Auth::user()->hasRole('Employee'))
-                            @can('Delete project')
-                                <td class="align-middle">
-                                    <form
-                                        action="{{ route('employee.projects.destroy', $project->id)}}"
-                                        method="post"
-                                        onsubmit="return confirm('Are you sure?');"
-                                        class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="btn btn-danger btn-xs p-2 mb-0">X</button>
-                                    </form>
-                                    <form
-                                        action="{{ route('employee.projects.unarchive', $project->id)}}"
-                                        method="post"
-                                        onsubmit="return confirm('Are you sure?');"
-                                        class="d-inline">
-                                        @csrf
-                                        <button type="submit"
-                                            class="btn btn-secondary btn-xs p-2 mb-0">unarchive</button>
-                                    </form>
-                                </td>
-                            @endcan
-                            @endif
-                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                            @can('Delete project')
-                                <td class="align-middle">
-                                    <form
-                                        action="{{ route('Responsable_gestionnaire.projects.destroy', $project->id)}}"
-                                        method="post"
-                                        onsubmit="return confirm('Are you sure?');"
-                                        class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="btn btn-danger btn-xs p-2 mb-0">X</button>
-                                    </form>
-                                    <form
-                                        action="{{ route('Responsable_gestionnaire.projects.unarchive', $project->id)}}"
-                                        method="post"
-                                        onsubmit="return confirm('Are you sure?');"
-                                        class="d-inline">
-                                        @csrf
-                                        <button type="submit"
-                                            class="btn btn-secondary btn-xs p-2 mb-0">unarchive</button>
-                                    </form>
-                                </td>
-                            @endcan
-                            @endif
-
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
-    
-</div>
+        </main>
+    </div>
 
-            </div>
-          </div>
-        </div>
+    @include('dashboard_layouts.scripts')
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-
-
-  </main>
-
-
-  @include('dashboard_layouts.scripts')
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  @can('Update project')
-  <script>
-  $(document).ready(function(){
-  $(".editable").dblclick(function(){
-    var originalContent = $(this).text().trim();
-    var width = $(this).width();
-    $(this).html("<input type='text' value='" + originalContent + "' style='width: 100%; min-width: " + width + "px;' />");
-    var input = $(this).children().first();
-    input.focus();
-    
-    // Place cursor at the beginning of the input
-    input[0].setSelectionRange(0, 0);
-
-    input.blur(function(){
-      var newContent = $(this).val();
-      var clientId = $(this).parent().data('id');
-      var columnName = $(this).parent().data('column');
-      $(this).parent().text(newContent);
-      $(this).parent().removeClass("cellEditing");
-      
-      $.ajax({
-        url: 'projects/updateProject',
-        type: 'post',
-        data: {
-          content: newContent,
-          id: clientId,
-          column: columnName,
-          _token: '{{ csrf_token() }}'
-        },
-        success: function(response) {
-          location.reload();
-        }
-      });
+    @can('Update project')
+    <script>
+    $(document).ready(function(){
+        $(".editable").dblclick(function(){
+            var originalContent = $(this).text().trim();
+            var width = $(this).width();
+            $(this).html("<input type='text' value='" + originalContent + "' style='width: 100%; min-width: " + width + "px;' />");
+            var input = $(this).children().first();
+            input.focus();
+            input[0].setSelectionRange(0, 0);
+            
+            input.blur(function(){
+                var newContent = $(this).val();
+                var projectId = $(this).parent().data('id');
+                var columnName = $(this).parent().data('column');
+                $(this).parent().text(newContent);
+                
+                var updatedUrl = '';
+                @if(Auth::user()->hasRole('Responsable de projet'))
+                    updatedUrl = '/Responsable_de_projet/projects/updateProject';
+                @elseif(Auth::user()->hasRole('Admin'))
+                    updatedUrl = '/admin/projects/updateProject';
+                @elseif(Auth::user()->hasRole('Employee'))
+                    updatedUrl = '/employee/projects/updateProject';
+                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                    updatedUrl = '/Responsable_gestionnaire/projects/updateProject';
+                @endif
+                
+                $.ajax({
+                    url: updatedUrl,
+                    type: 'post',
+                    data: {
+                        content: newContent,
+                        id: projectId,
+                        column: columnName,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        location.reload();
+                    },
+                    error: function(response) {
+                        console.error("Update failed:", response);
+                        $(this).parent().text(originalContent);
+                    }
+                });
+            });
+            
+            input.keypress(function(e) {
+                if(e.which == 13) {
+                    $(this).blur();
+                }
+            });
+        });
     });
-  });
-});
-  </script>
-@endcan
-
+    </script>
+    @endcan
 </body>
-
 </html>
-
-
-
-
-
-

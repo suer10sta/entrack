@@ -269,7 +269,8 @@ class clientsController extends Controller
                 $Contact->save();
             }
         } 
-        return back()->with('message', 'client Updated Successfully');
+        return redirect()->route('admin.clients.show', $client->id)
+        ->with('message', 'client Updated Successfully');
     }
 
 

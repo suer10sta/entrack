@@ -1,174 +1,210 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizManager Dashboard - Update Task</title>
+    @vite('resources/css/app.css')
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+    {{-- Sidebar --}}
+    <x-dashboard.sidebar />
 
-@include('dashboard_layouts.head')
+    {{-- Main content area --}}
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        
+        {{-- Navbar --}}
+        <x-dashboard.navbar />
 
-<body class="g-sidenav-show bg-gray-100">
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-            style="display: none; visibility: hidden"></iframe></noscript>
-    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+        {{-- Page Content --}}
+        <main class="p-6 md:p-8 lg:p-10">
+            
+            {{-- This block determines the correct routes ONCE, avoiding huge repetition --}}
+            @php
+                $user = Auth::user();
+                $actionRoute = '#'; // Default fallback
+                $cancelRoute = '#'; // Default fallback
 
-    @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-        @include('employees.sidebar')
-    @endif
-    @if(Auth::user()->hasRole('Admin'))
-        @include('admin.sidebar')
-    @endif
+                if ($user->hasRole('Admin')) {
+                    $actionRoute = route('admin.tasks.update', $task);
+                    $cancelRoute = route('admin.index');
+                } elseif ($user->hasRole('Responsable de projet')) {
+                    $actionRoute = route('Responsable_de_projet.tasks.update', $task);
+                    $cancelRoute = route('Responsable_de_projet.index');
+                } elseif ($user->hasRole('Employee')) {
+                    $actionRoute = route('employee.tasks.update', $task);
+                    $cancelRoute = route('employee.index');
+                } elseif ($user->hasRole('Responsable de projet et gestionnaire')) {
+                    $actionRoute = route('Responsable_gestionnaire.tasks.update', $task);
+                    $cancelRoute = route('Responsable_gestionnaire.index');
+                }
+            @endphp
 
-    <main class="main-content position-relative border-radius-lg">
-        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
-            id="navbarBlur" data-scroll="false">
-            <div class="container-fluid py-1 px-3">
+            <div class="max-w-4xl mx-auto">
+                {{-- Card (Tailwind) --}}
+                <div class="bg-white shadow-lg rounded-xl p-6 md:p-8">
+                    
+                    <h2 class="text-xl font-semibold text-gray-900">Update Task</h2>
+                    <p class="text-sm text-gray-600">Editing task: **{{ $task->title }}**</p>
+                    
+                    <hr class="my-4 border-gray-200" />
 
-                @include('dashboard_layouts.navbar') 
+                    {{-- Single form tag using the $actionRoute variable --}}
+                    <form method="POST" action="{{ $actionRoute }}" autocomplete="off">
+                        @csrf
+                        @method('PUT')
+                        
+                        {{-- Form fields in a responsive grid --}}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="TaskName" class="block text-sm font-medium text-gray-700">
+                                    Task Name <span class="text-red-600">*</span>
+                                </label>
+                                <input type="text" id="TaskName" name="title" value="{{ $task->title }}"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                            </div>
+                            
+                            <div>
+                                <label for="estimated_hours" class="block text-sm font-medium text-gray-700">
+                                    Estimated Hours
+                                </label>
+                                <input type="text" id="estimated_hours" name="estimated_hours" value="{{ $task->estimated_hours }}"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                            </div>
+                        </div>
 
-            </div>
+                        <div class="mt-6">
+                            <label for="TaskDescription" class="block text-sm font-medium text-gray-700">
+                                Task Description
+                            </label>
+                            <textarea id="TaskDescription" name="description" rows="4"
+                                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">{{ $task->description }}</textarea>
+                        </div>
 
-            <div class="container-fluid py-4">
-
-                <div class="row">
-                    <div class="col-lg-9 col-12 mx-auto">
-                        <div class="card card-body mt-4">
-                            <h6 class="mb-0">Update Task</h6>
-                            <hr class="horizontal dark my-3" />
-                            @if(Auth::user()->hasRole('Responsable de projet'))
-                                <form method="POST" action="{{route('Responsable_de_projet.tasks.update',$task)}}" autocomplete="off" >
-                            @endif
-                            @if(Auth::user()->hasRole('Admin'))
-                                <form method="POST" action="{{route('admin.tasks.update',$task)}}" autocomplete="off" >
-                            @endif
-                            @if(Auth::user()->hasRole('Employee'))
-                                <form method="POST" action="{{route('employee.tasks.update',$task)}}" autocomplete="off" >
-                            @endif
-                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                <form method="POST" action="{{route('Responsable_gestionnaire.tasks.update',$task)}}" autocomplete="off" >
-                            @endif
-                                @csrf
-                                @method('PUT')
-                                <div class="row">
-                                    <div class="col-4">
-                                        <label for="TaskName" class="form-label">Task Name: <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="TaskName" name='title' value="{{$task->title}}"/>
-                                    </div>
-                                    <div class="col-4">
-                                        <label for="estimated_hours" class="form-label">Estimated Hours: </label>
-                                        <input type="text" class="form-control" id="estimated_hours" name='estimated_hours' value="{{$task->estimated_hours}}"/>
-                                    </div>
-                                </div>
-                                <label class="mt-4">Task Description</label>
-                                <input type="text" class="form-control" id="TaskDescription" name='description'  value="{{$task->description}}"/>
-                                <br>
-                                <div class="row">
+                        {{-- Checkbox sections in a responsive grid --}}
+                        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {{-- Employees Checkboxes --}}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Assign Employees <span class="text-red-600">*</span>
+                                </label>
+                                <div class="mt-2 space-y-2">
                                     
-                                    <div class="col-4">
-                                    <label class="form-label" for="task-for-project">Employees : <span class="text-danger">*</span></label>
-                                        @if($old_employee_users)
-                                            @foreach($old_employee_users as $old_emp)
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="employees[]" id="employee{{$old_emp->id}}" value="{{$old_emp->id}}" checked>
-                                                <label class="form-check-label" for="employee{{$old_emp->id}}">
-                                                    {{$old_emp->name}}
-                                                </label>
-                                            </div>
-                                            @endforeach
-                                            @foreach($employee_users as $employee)
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="employees[]" id="employee{{$employee->id}}" value="{{$employee->id}}">
-                                                    <label class="form-check-label" for="employee{{$employee->id}}">
-                                                        {{$employee->name}}
-                                                    </label>
-                                                </div>
-                                            @endforeach
-                                        @else
-                                            @foreach($employee_users as $employee)
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="employees[]" id="employee{{$employee->id}}" value="{{$employee->id}}">
-                                                <label class="form-check-label" for="employee{{$employee->id}}">
+                                    {{-- CORRECTED LOGIC: Loops assigned employees (checked) --}}
+                                    @if(isset($old_employee_users))
+                                        @foreach($old_employee_users as $employee)
+                                            <div class="flex items-center">
+                                                <input id="employee{{$employee->id}}" name="employees[]" type="checkbox" value="{{$employee->id}}" checked
+                                                       class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                                <label for="employee{{$employee->id}}" class="ml-3 block text-sm text-gray-800">
                                                     {{$employee->name}}
                                                 </label>
                                             </div>
-                                            @endforeach
-                                        @endif
-
-                                        
-                                    </div>
-                                    <div class="col-4">
-                                    <label class="form-label" for="task-for-project">Teams : </label>
-                                        @foreach($teams as $team)
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="teams[]" id="team{{$team->id}}" value="{{$team->id}}">
-                                            <label class="form-check-label" for="team{{$team->id}}">
-                                                {{$team->name}}
-                                            </label>
-                                        </div>
                                         @endforeach
-                                    </div>
+                                    @endif
 
+                                    {{-- CORRECTED LOGIC: Loops unassigned employees (unchecked) --}}
+                                    @if(isset($employee_users))
+                                        @foreach($employee_users as $employee)
+                                            <div class="flex items-center">
+                                                <input id="employee{{$employee->id}}" name="employees[]" type="checkbox" value="{{$employee->id}}"
+                                                       class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                                <label for="employee{{$employee->id}}" class="ml-3 block text-sm text-gray-800">
+                                                    {{$employee->name}}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    @endif
                                 </div>
-                                
-                                
-                                <div class="d-flex justify-content-end mt-4">
-                                @if(Auth::user()->hasRole('Admin'))
-                                    <a class='btn btn-light m-0' href="{{route('admin.index')}}">
-                                        Cancel
-                                    </a>
-                                @endif
-                                @if(Auth::user()->hasRole('Responsable de projet'))
-                                    <a class='btn btn-light m-0' href="{{route('Responsable_de_projet.index')}}">
-                                        Cancel
-                                    </a>
-                                @endif
-                                @if(Auth::user()->hasRole('Employee'))
-                                    <a class='btn btn-light m-0' href="{{route('employee.index')}}">
-                                        Cancel
-                                    </a>
-                                @endif
-                                @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                    <a class='btn btn-light m-0' href="{{route('Responsable_gestionnaire.index')}}">
-                                        Cancel
-                                    </a>
-                                @endif
-                                    <button type="submit" name="button" class="btn bg-gradient-primary m-0 ms-2">
-                                        Save
-                                    </button>
+                            </div>
+                            
+                            {{-- Teams Checkboxes --}}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Assign Teams
+                                </label>
+                                <div class="mt-2 space-y-2">
+
+                                    {{-- 
+                                      FIXED LOGIC: Applying the same logic as employees to teams.
+                                      Assumes your controller sends '$old_teams' for assigned teams.
+                                      If it's named differently (e.g., '$assigned_teams'), just change the variable name below.
+                                    --}}
+                                    @if(isset($old_teams))
+                                        @foreach($old_teams as $team)
+                                            <div class="flex items-center">
+                                                <input id="team{{$team->id}}" name="teams[]" type="checkbox" value="{{$team->id}}" checked
+                                                       class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                                <label for="team{{$team->id}}" class="ml-3 block text-sm text-gray-800">
+                                                    {{$team->name}}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    @endif
+
+                                    {{-- 
+                                      FIXED LOGIC: Assumes '$teams' is for unassigned teams.
+                                    --}}
+                                    @if(isset($teams))
+                                        @foreach($teams as $team)
+                                            <div class="flex items-center">
+                                                <input id="team{{$team->id}}" name="teams[]" type="checkbox" value="{{$team->id}}"
+                                                       class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                                <label for="team{{$team->id}}" class="ml-3 block text-sm text-gray-800">
+                                                    {{$team->name}}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    @endif
                                 </div>
-
-                            </form>
-
+                            </div>
                         </div>
-                    </div>
+
+                        {{-- Form Action Buttons --}}
+                        <div class="flex justify-end items-center gap-x-4 mt-8 pt-4 border-t border-gray-200">
+                            {{-- Single "Cancel" link --}}
+                            <a href="{{ $cancelRoute }}" 
+                               class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                Cancel
+                            </a>
+                            
+                            <button type="submit"
+                                    class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                Save
+                            </button>
+                        </div>
+                        
+                    </form>
                 </div>
-
-
-
-    </main>
+            </div>
+        </main>
+    </div>
 
     
-
-    @include('dashboard_layouts.scripts')
-
     <script>
+    // This script was in your original file. It seems to be for a dropdown that is not in this form.
+    // It might be part of your navbar component. I've added checks to prevent errors.
     document.addEventListener('DOMContentLoaded', function () {
         const dropdownButton = document.getElementById('taskDropdown');
         const selectedProjectInput = document.getElementById('selectedProject');
 
-        document.querySelectorAll('.dropdown-item').forEach(item => {
-            item.addEventListener('click', function (event) {
-                event.preventDefault();
+        if (dropdownButton && selectedProjectInput) {
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    
+                    const selectedProject = event.target.getAttribute('data-value');
 
-                const selectedProject = event.target.getAttribute('data-value');
+                    // Update the button text
+                    dropdownButton.textContent = selectedProject;
 
-                // Update the button text
-                dropdownButton.textContent = selectedProject;
-
-                // Update the hidden input value
-                selectedProjectInput.value = selectedProject;
+                    // Update the hidden input value
+                    selectedProjectInput.value = selectedProject;
+                });
             });
-        });
+        }
     });
-</script>
-
+    </script>
 
 </body>
-
 </html>

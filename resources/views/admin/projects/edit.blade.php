@@ -1,210 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 
-@include('dashboard_layouts.head')
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Project</title>
+    @vite('resources/css/app.css')
+</head>
 
-<body class="g-sidenav-show bg-gray-100">
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-            style="display: none; visibility: hidden"></iframe></noscript>
-    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+    {{-- Sidebar --}}
+    <x-dashboard.sidebar />
 
-    @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-        @include('employees.sidebar')
-    @endif
-    @if(Auth::user()->hasRole('Admin'))
-        @include('admin.sidebar')
-    @endif
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        {{-- Navbar --}}
+        <x-dashboard.navbar />
 
-    <main class="main-content position-relative border-radius-lg">
-        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
-            id="navbarBlur" data-scroll="false">
-            <div class="container-fluid py-1 px-3">
+        {{-- Main Content --}}
+        <main class="flex-1 p-8">
+            <div class="max-w-4xl mx-auto">
+                
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-1">Edit Project</h2>
+                    <p class="text-sm text-slate-500">Update project details</p>
 
-                @include('dashboard_layouts.navbar')
-
-            </div>
-
-            <div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-lg-9 col-12 mx-auto">
-            <div class="card card-body mt-4">
-                <h6 class="mb-0">Edit Project</h6>
-                <p class="text-sm mb-0">Update project details</p>
-                @if(session('message'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('message') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
-                </div>
-                @endif
-                <hr class="horizontal dark my-3" />
-                @if(Auth::user()->hasRole('Admin'))
-                    <form method="POST" action="{{ route('admin.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id]) }}" autocomplete="off">
-                @endif
-                @if(Auth::user()->hasRole('Responsable de projet'))
-                    <form method="POST" action="{{ route('Responsable_de_projet.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id]) }}" autocomplete="off">
-                @endif
-                @if(Auth::user()->hasRole('Employee'))
-                    <form method="POST" action="{{ route('employee.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id]) }}" autocomplete="off">
-                @endif
-                @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                    <form method="POST" action="{{ route('Responsable_gestionnaire.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id]) }}" autocomplete="off">
-                @endif
-                    @csrf
-                    
-                    <div class="row">
-                        <div class="col-4">
-                            <label for="projectName" class="form-label">Project Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="projectName" name='name' value="{{ $project->name }}" />
-                        </div>
-                        <div class="col-2">
-                            <label for="projectBudget" class="form-label">Project Budget</label>
-                            <input type="number" step="0.0001" class="form-control" id="projectBudget" name='budget' value="{{ $project->budget }}" />
-                        </div>
-                        <div class="col-2">
-                            <label for="costPerHour" class="form-label">Cost per Hour <span class="text-danger">*</span></label>
-                            <input type="number" step="0.0001" class="form-control" id="costPerHour" name='cost_per_hour' value="{{ $project->cost_per_hour }}" />
-                        </div>
-                        <div class="col-2">
-                            <label for="estimatedHours" class="form-label">Number of estimated hours</label>
-                            <input type="number" step="0.0001" class="form-control" id="estimatedHours" name='estimated_hours' value="{{ $project->estimated_hours }}" />
-                        </div>
-                        <div class="col-2">
-                            <label for="tva" class="form-label">Tva % <span class="text-danger">*</span></label>
-                            <input type="number" step="0.0001" class="form-control" id="tva" name='tva' value="{{ $project->tva }}" />
-                        </div>
+                    @if(session('message'))
+                    <div class="my-4 bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-lg relative" role="alert">
+                        {{ session('message') }}
+                        <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3" data-bs-dismiss="alert" aria-label="Close">X</button>
                     </div>
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="regie" name="regie" value="1" {{ $project->regie ? 'checked' : '' }}>
-                                <label class="form-check-label" for="regie">
-                                    Regie
-                                </label>
+                    @endif
+
+                    <div class="border-t border-gray-200 my-5"></div>
+
+                    @if(Auth::user()->hasRole('Admin'))
+                        <form method="POST" action="{{ route('admin.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id]) }}" autocomplete="off" class="space-y-6">
+                    @elseif(Auth::user()->hasRole('Responsable de projet'))
+                        <form method="POST" action="{{ route('Responsable_de_projet.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id]) }}" autocomplete="off" class="space-y-6">
+                    @elseif(Auth::user()->hasRole('Employee'))
+                        <form method="POST" action="{{ route('employee.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id]) }}" autocomplete="off" class="space-y-6">
+                    @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                        <form method="POST" action="{{ route('Responsable_gestionnaire.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id]) }}" autocomplete="off" class="space-y-6">
+                    @endif
+                        @csrf
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                            <div class="md:col-span-4">
+                                <label for="projectName" class="block text-sm font-medium text-slate-700 mb-1">Project Name <span class="text-red-500">*</span></label>
+                                <input type="text" id="projectName" name='name' value="{{ $project->name }}" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="projectBudget" class="block text-sm font-medium text-slate-700 mb-1">Budget</label>
+                                <input type="number" step="0.0001" id="projectBudget" name='budget' value="{{ $project->budget }}" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="costPerHour" class="block text-sm font-medium text-slate-700 mb-1">CPH <span class="text-red-500">*</span></label>
+                                <input type="number" step="0.0001" id="costPerHour" name='cost_per_hour' value="{{ $project->cost_per_hour }}" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="estimatedHours" class="block text-sm font-medium text-slate-700 mb-1">Est. Hours</label>
+                                <input type="number" step="0.0001" id="estimatedHours" name='estimated_hours' value="{{ $project->estimated_hours }}" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="tva" class="block text-sm font-medium text-slate-700 mb-1">TVA % <span class="text-red-500">*</span></label>
+                                <input type="number" step="0.0001" id="tva" name='tva' value="{{ $project->tva }}" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
                             </div>
                         </div>
-                    </div>
-                    <label class="mt-4">Informations</label>
-                    <textarea class="form-control" id="projectDescription" name="description">{{ $project->description }}</textarea>
-                    <br>
-                    <div class="row">
-                        <div class="col-4">
-                            <label class="form-label" for="project-for-project">Teams :</label>
-                            @foreach($teams as $team)
-                            <div class="form-check form-check-inline">
-                                @php 
-                                    $project_teams = App\Models\project_teams::where('project_id', $project->id)
-                                        ->where('team_id', $team->id)
-                                        ->first();
-                                @endphp
-                                <input class="form-check-input" type="checkbox" name="teams[]"
-                                    id="team{{$team->id}}" value="{{$team->id}}"
-                                    {{ $project_teams ? 'checked' : '' }}
-                                    >
-                                <label class="form-check-label" for="team{{$team->id}}">
-                                    {{$team->name}}
-                                </label>
-                            </div>
-                            @endforeach
+
+                        <div class="flex items-center">
+                            <input id="regie" name="regie" type="checkbox" value="1" {{ $project->regie ? 'checked' : '' }} class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <label for="regie" class="ml-2 block text-sm text-gray-900">
+                                Regie
+                            </label>
                         </div>
 
-                        <div class="col-4">
-                            <label class="form-label" for="project-for-project">Contacts : <span class="text-danger">*</span></label>
-                            @php 
-                            $client_contacts = App\Models\client_contacts::where('client_id', $project->client_id)
-                                ->whereNotNull('name')
-                                ->get();
-                            @endphp
-                            <div class="col-4" id="contactsDiv">
-                                @foreach($client_contacts as $contact)
-                                <div class="form-check form-check-inline">
-                                    @php 
-                                        $project_contacts = App\Models\client_contacts_projects::where('project_id', $project->id)
-                                            ->where('contact_id', $contact->id)
-                                            ->first();
-                                    @endphp
-                                    <input class="form-check-input" type="checkbox" name="contacts[]" id="contact{{ $contact->id }}" value="{{ $contact->id }}"
-                                    {{ $project_contacts ? 'checked' : '' }}
-                                    >
-                                    <label class="form-check-label" for="contact{{ $contact->id }}">
-                                        {{ $contact->name }}
-                                    </label>
+                        <div>
+                            <label for="projectDescription" class="block text-sm font-medium text-slate-700 mb-1">Informations</label>
+                            <textarea id="projectDescription" name="description" rows="4" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ $project->description }}</textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Teams</label>
+                                <div class="h-48 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-4">
+                                    @foreach($teams as $team)
+                                    <div class="flex items-center">
+                                        @php 
+                                            $project_teams = App\Models\project_teams::where('project_id', $project->id)
+                                                ->where('team_id', $team->id)
+                                                ->first();
+                                        @endphp
+                                        <input id="team{{$team->id}}" name="teams[]" type="checkbox" value="{{$team->id}}"
+                                               {{ $project_teams ? 'checked' : '' }}
+                                               class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <label for="team{{$team->id}}" class="ml-2 block text-sm text-gray-900">
+                                            {{$team->name}}
+                                        </label>
+                                    </div>
+                                    @endforeach
                                 </div>
-                                @endforeach
-                            </div>    
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Contacts <span class="text-red-500">*</span></label>
+                                @php 
+                                $client_contacts = App\Models\client_contacts::where('client_id', $project->client_id)
+                                    ->whereNotNull('name')
+                                    ->get();
+                                @endphp
+                                <div id="contactsDiv" class="h-48 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-4">
+                                    @foreach($client_contacts as $contact)
+                                    <div class="flex items-center">
+                                        @php 
+                                            $project_contacts = App\Models\client_contacts_projects::where('project_id', $project->id)
+                                                ->where('contact_id', $contact->id)
+                                                ->first();
+                                        @endphp
+                                        <input id="contact{{ $contact->id }}" name="contacts[]" type="checkbox" value="{{ $contact->id }}"
+                                               {{ $project_contacts ? 'checked' : '' }}
+                                               class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <label for="contact{{ $contact->id }}" class="ml-2 block text-sm text-gray-900">
+                                            {{ $contact->name }}
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="d-flex justify-content-end mt-4">
-                        @if(Auth::user()->hasRole('Admin'))
-                        <a class='btn btn-light m-0' href="{{ route('admin.index') }}">Cancel</a>
-                        @endif
-                        @if(Auth::user()->hasRole('Responsable de projet'))
-                        <a class='btn btn-light m-0' href="{{ route('Responsable_de_projet.index') }}">Cancel</a>
-                        @endif
-                        @if(Auth::user()->hasRole('Employee'))
-                        <a class='btn btn-light m-0' href="{{ route('employee.index') }}">Cancel</a>
-                        @endif  
-                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                        <a class='btn btn-light m-0' href="{{ route('Responsable_gestionnaire.index') }}">Cancel</a>
-                        @endif
-                        <button type="submit" name="button" class="btn bg-gradient-primary m-0 ms-2">
-                            Update Project
-                        </button>
-                    </div>
-                </form>
+                        <div class="flex justify-end gap-4 pt-4">
+                            @php
+                                $cancelRoute = route('admin.index'); // Default
+                                if(Auth::user()->hasRole('Admin')) $cancelRoute = route('admin.index');
+                                elseif(Auth::user()->hasRole('Responsable de projet')) $cancelRoute = route('Responsable_de_projet.index');
+                                elseif(Auth::user()->hasRole('Employee')) $cancelRoute = route('employee.index');
+                                elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $cancelRoute = route('Responsable_gestionnaire.index');
+                            @endphp
+                            
+                            <a href="{{ $cancelRoute }}" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">
+                                Cancel
+                            </a>
+                            <button type="submit" name="button" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow">
+                                Update Project
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
-</div>
-
-    </main>
-
-
 
     @include('dashboard_layouts.scripts')
 
     <script>
-  window.addEventListener('load', function() {
-    var inputs = document.getElementsByTagName('input');
-    for (var i = 0; i < inputs.length; i++) {
-      inputs[i].setAttribute('autocomplete', 'none');
-    }
-  });
-</script>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const dropdownButton = document.getElementById('ClientDropdown');
-        const selectedProjectInput = document.getElementById('selectedClient');
-
-        document.querySelectorAll('.clients_dropdown').forEach(item => {
-            item.addEventListener('click', function(event) {
-                event.preventDefault();
-
-                const selectedClient = event.target.getAttribute('data-value');
-
-                // Update the button text
-                dropdownButton.textContent = selectedClient;
-
-                // Update the hidden input value
-                selectedProjectInput.value = selectedClient;
-            });
-        });
-    });
-    </script>
-
-    
-
-    <script>
-        document.querySelectorAll('.clients_dropdown').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault(); // Prevent default anchor action
-                var clientId = this.getAttribute('data-id');
-                document.getElementById('selectedClientId').value = clientId;
-        
-                // Optional: Update the dropdown button text to show the selected client's name
-                document.getElementById('ClientDropdown').textContent = this.getAttribute('data-value');
-            });
+        // Disable autocomplete
+        window.addEventListener('load', function() {
+            var inputs = document.getElementsByTagName('input');
+            for (var i = 0; i < inputs.length; i++) {
+                inputs[i].setAttribute('autocomplete', 'none');
+            }
         });
 
         // Handle regie checkbox and project name
@@ -223,7 +177,5 @@
             }
         });
     </script>
-
 </body>
-
 </html>

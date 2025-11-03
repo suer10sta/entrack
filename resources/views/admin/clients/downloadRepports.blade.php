@@ -1,8 +1,8 @@
 <style>
     /* --- Base & Typography --- */
     body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        font-size: 12px;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 14px;
         line-height: 1.5;
         margin: 0;
         padding: 0;
@@ -19,14 +19,17 @@
         margin: 0 0 5px 0;
     }
 
+    /* --- Title Amelioration --- */
     h2 {
-        font-size: 18px;
+        font-size: 24px; /* Made larger */
+        font-weight: 600; /* Made bolder */
+        color: #111; /* Darker for more contrast */
     }
 
     h5 {
         font-size: 14px;
         font-weight: normal;
-        color: #555;
+        color: #555; /* Kept subtitle light */
     }
 
     /* --- Header / Details --- */
@@ -35,7 +38,6 @@
         justify-content: space-between;
         align-items: flex-start;
         margin-bottom: 30px;
-        /* Replaces the <br> tags */
     }
 
     .company-logo {
@@ -51,35 +53,32 @@
     table {
         width: 100%;
         border-collapse: collapse;
-        /* This is key for boxed borders */
         margin-bottom: 60px;
     }
 
     /* Table Header */
     thead {
         background-color: #0EA5E9;
-        /* Updated to a clear blue */
         color: white;
     }
 
+    /* --- Table Header Title Amelioration --- */
     th {
         border: 1px solid #0056b3;
-        /* Darker blue border for header */
         padding: 10px;
-        font-size: 11px;
-        font-weight: 600;
+        font-size: 12px;
+        font-weight: 700; /* Made stronger */
         text-align: center;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.5px; /* Added spacing for uppercase text */
     }
 
     /* Table Body */
     td {
         border: 1px solid #ddd;
-        /* Light gray border for all cells */
         padding: 10px;
         text-align: left;
-        font-size: 11px;
+        font-size: 13px;
     }
 
     /* --- Footer --- */
