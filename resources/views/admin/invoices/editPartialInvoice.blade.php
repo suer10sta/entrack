@@ -1,120 +1,121 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizManager Dashboard</title>
+    @vite('resources/css/app.css')
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+    {{-- Sidebar --}}
+    <x-dashboard.sidebar />
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        {{-- Navbar --}}
+        <x-dashboard.navbar />
 
-@include('dashboard_layouts.head')
+        {{-- Main Content --}}
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+            <div class="max-w-3xl mx-auto">
+                
+                {{-- Session Message --}}
+                @if(session('message'))
+                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">Success!</strong>
+                    <span class="block sm:inline">{{ session('message') }}</span>
+                    <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+                </div>
+                @endif
 
-<body class="g-sidenav-show bg-gray-100">
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-            style="display: none; visibility: hidden"></iframe></noscript>
-    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+                {{-- Determine Routes --}}
+                @php
+                    $updateRoute = '';
+                    $cancelRoute = '';
+                    if (Auth::user()->hasRole('Admin')) {
+                        $updateRoute = route('admin.invoices.updatePartialInvoice', $invoice->id);
+                        $cancelRoute = route('admin.invoices.invoicehistory');
+                    } elseif (Auth::user()->hasRole('Responsable de projet')) {
+                        $updateRoute = route('Responsable_de_projet.invoices.updatePartialInvoice', $invoice->id);
+                        $cancelRoute = route('Responsable_de_projet.invoices.invoicehistory');
+                    } elseif (Auth::user()->hasRole('Employee')) {
+                        $updateRoute = route('employee.invoices.updatePartialInvoice', $invoice->id);
+                        $cancelRoute = route('employee.invoices.invoicehistory');
+                    } elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                        $updateRoute = route('Responsable_gestionnaire.invoices.updatePartialInvoice', $invoice->id);
+                        $cancelRoute = route('Responsable_gestionnaire.invoices.invoicehistory');
+                    }
+                @endphp
 
-    @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-        @include('employees.sidebar')
-    @endif
-    @if(Auth::user()->hasRole('Admin'))
-        @include('admin.sidebar')
-    @endif
+                {{-- Form Card --}}
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <form method="POST" action="{{ $updateRoute }}">
+                        @csrf
+                        @method('PUT')
 
-    <main class="main-content position-relative border-radius-lg">
-        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
-            id="navbarBlur" data-scroll="false">
-            <div class="container-fluid py-1 px-3">
-                @include('dashboard_layouts.navbar')
-            </div>
-
-            <div class="container-fluid py-4">
-                <div class="row">
-                    <div class="col-lg-9 col-12 mx-auto">
-                        <div class="card card-body mt-4">
-                            <h6 class="mb-0">Edit Partial Invoice {{ $entreprise->invoice_prefix }}-{{ $invoice->number }}</h6>
-                            <p class="text-sm mb-0">Update the partial invoice details</p>
-                            @if(session('message'))
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                {{ session('message') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                    aria-label="Close">X</button>
-                            </div>
-                            @endif
-                            <hr class="horizontal dark my-3" />
-                            @if(Auth::user()->hasRole('Admin'))
-                            <form method="POST" action="{{ route('admin.invoices.updatePartialInvoice', $invoice->id) }}">
-                            @endif
-                            @if(Auth::user()->hasRole('Responsable de projet'))
-                            <form method="POST" action="{{ route('Responsable_de_projet.invoices.updatePartialInvoice', $invoice->id) }}">
-                            @endif
-                            @if(Auth::user()->hasRole('Employee'))
-                            <form method="POST" action="{{ route('employee.invoices.updatePartialInvoice', $invoice->id) }}">
-                            @endif
-                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                            <form method="POST" action="{{ route('Responsable_gestionnaire.invoices.updatePartialInvoice', $invoice->id) }}">
-                            @endif
-                                @csrf
-                                @method('PUT')
-
-                                <div class="form-group mb-3">
-                                    <label for="project_id">Project</label>
-                                    <select name="project_id" id="project_id" class="form-control @error('project_id') is-invalid @enderror" required>
-                                        @foreach($projects as $project)
-                                            <option value="{{ $project->id }}" 
-                                                {{ $project->id == $invoice->project_id ? 'selected' : '' }}
-                                                data-tva="{{ $project->tva }}"
-                                                data-remaining="{{ $project->budget ? $project->budget : 0 }}">
-                                                {{ $project->name }} (Budget: {{ $project->budget ? $project->budget : 0 }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('project_id')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group mb-3">
-                                    <label for="amount">Amount</label>
-                                    <input type="number" step="0.0001" name="amount" id="amount" 
-                                           class="form-control @error('amount') is-invalid @enderror" 
-                                           value="{{ old('amount', $invoice->partial) }}" required>
-                                    @error('amount')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group mb-3">
-                                    <label for="comment">Comment</label>
-                                    <textarea name="comment" id="comment" class="form-control @error('comment') is-invalid @enderror">{{ old('comment', $invoice->comment) }}</textarea>
-                                    @error('comment')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group">
-                                    <button type="submit" class="btn btn-primary">Update Invoice</button>
-                                    @if(Auth::user()->hasRole('Admin')) 
-                                        <a href="{{ route('admin.invoices.invoicehistory') }}" class="btn btn-secondary">Cancel</a>
-                                    @endif
-                                    @if(Auth::user()->hasRole('Responsable de projet'))
-                                        <a href="{{ route('Responsable_de_projet.invoices.invoicehistory') }}" class="btn btn-secondary">Cancel</a>
-                                    @endif
-                                    @if(Auth::user()->hasRole('Employee'))
-                                        <a href="{{ route('employee.invoices.invoicehistory') }}" class="btn btn-secondary">Cancel</a>
-                                    @endif
-                                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                        <a href="{{ route('Responsable_gestionnaire.invoices.invoicehistory') }}" class="btn btn-secondary">Cancel</a>
-                                    @endif
-                                </div>
-                            </form>
+                        {{-- Card Header --}}
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-900">
+                                Edit Partial Invoice {{ $entreprise->invoice_prefix }}-{{ $invoice->number }}
+                            </h2>
+                            <p class="text-sm text-gray-600 mt-1">Update the partial invoice details</p>
                         </div>
-                    </div>
+
+                        {{-- Card Body (Form Fields) --}}
+                        <div class="p-6 space-y-5">
+                            
+                            {{-- Project --}}
+                            <div>
+                                <label for="project_id" class="block text-sm font-medium text-gray-700 mb-1">Project</label>
+                                <select name="project_id" id="project_id" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom @error('project_id') border-red-500 @enderror" required>
+                                    @foreach($projects as $project)
+                                        <option value="{{ $project->id }}" 
+                                            {{ $project->id == $invoice->project_id ? 'selected' : '' }}
+                                            data-tva="{{ $project->tva }}"
+                                            data-remaining="{{ $project->budget ? $project->budget : 0 }}">
+                                            {{ $project->name }} (Budget: {{ $project->budget ? $project->budget : 0 }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('project_id')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Amount --}}
+                            <div>
+                                <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                                <input type="number" step="0.0001" name="amount" id="amount" 
+                                       class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm @error('amount') border-red-500 @enderror" 
+                                       value="{{ old('amount', $invoice->partial) }}" required>
+                                @error('amount')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Comment --}}
+                            <div>
+                                <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
+                                <textarea name="comment" id="comment" rows="4" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm @error('comment') border-red-500 @enderror">{{ old('comment', $invoice->comment) }}</textarea>
+                                @error('comment')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                        </div>
+
+                        {{-- Card Footer (Buttons) --}}
+                        <div class="mt-6 p-6 bg-gray-50 border-t border-gray-200 flex items-center gap-3">
+                            <button type="submit" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">
+                                Update Invoice
+                            </button>
+                            <a href="{{ $cancelRoute }}" class="inline-flex justify-center bg-white hover:bg-gray-50 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </nav>
-    </main>
-
-    @include('dashboard_layouts.scripts')
+        </main>
+    </div>
+    @livewireScripts
 </body>
 </html>

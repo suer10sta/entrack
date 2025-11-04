@@ -4731,7 +4731,8 @@ public function detailedInvoice(Request $request)
         // Set up dates for preview
         $invoice_date = new DateTime();
         $due_date = clone $invoice_date;
-        $due_date->add(new DateInterval('P' . $client->due_date . 'D'));
+        $days = (int) $client->due_date;
+        $due_date_interval = new DateInterval('P' . $days . 'D');
 
         // Return view with preview data
         return view('admin.invoices.detailedinvoiceview', [
@@ -4824,7 +4825,8 @@ public function confirmDetailedInvoice($projectID, Request $request)
         // Set invoice dates
         $invoice_date = new DateTime();
         $today = new DateTime();
-        $due_date_interval = new DateInterval('P' . $client->due_date . 'D');
+        $days = (int) $client->due_date;
+        $due_date_interval = new DateInterval('P' . $days . 'D');
         $invoice->due_date = $today->add($due_date_interval);
         
         $invoice->save();

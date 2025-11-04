@@ -1,106 +1,143 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizManager Dashboard</title>
+    @vite('resources/css/app.css')
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+    {{-- Sidebar --}}
+    <x-dashboard.sidebar />
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        {{-- Navbar --}}
+        <x-dashboard.navbar />
 
-@include('dashboard_layouts.head')
+        {{-- Main Content --}}
 
-<body class="g-sidenav-show bg-gray-100">
-    <div class="min-height-300 bg-primary position-absolute w-100"></div>
-    @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-        @include('employees.sidebar')
-    @endif
-    @if(Auth::user()->hasRole('Admin'))
-        @include('admin.sidebar')
-    @endif
-    <main class="main-content position-relative border-radius-lg">
-        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur" data-scroll="false">
-            <div class="container-fluid py-1 px-3">
-                @include('dashboard_layouts.navbar')
-            </div>
-        </nav>
-        <div class="container-fluid py-4">
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header pb-0">
-                            <h6>Edit Detailed Invoice</h6>
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+            <div class="max-w-5xl mx-auto">
+                
+                {{-- Session Message (Tailwind Styled) --}}
+                @if(session('message'))
+                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">Success!</strong>
+                    <span class="block sm:inline">{{ session('message') }}</span>
+                    <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+                </div>
+                @endif
+
+                {{-- Determine Routes (Simplified Logic) --}}
+                @php
+                    $updateRoute = '';
+                    $cancelRoute = '';
+                    if (Auth::user()->hasRole('Admin')) {
+                        $updateRoute = route('admin.invoices.updateDetailedInvoice', $invoice->id);
+                        $cancelRoute = route('admin.invoices.invoicehistory');
+                    } elseif (Auth::user()->hasRole('Responsable de projet')) {
+                        $updateRoute = route('Responsable_de_projet.invoices.updateDetailedInvoice', $invoice->id);
+                        $cancelRoute = route('Responsable_de_projet.invoices.invoicehistory');
+                    } elseif (Auth::user()->hasRole('Employee')) {
+                        $updateRoute = route('employee.invoices.updateDetailedInvoice', $invoice->id);
+                        $cancelRoute = route('employee.invoices.invoicehistory');
+                    } elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                        $updateRoute = route('Responsable_gestionnaire.invoices.updateDetailedInvoice', $invoice->id);
+                        $cancelRoute = route('Responsable_gestionnaire.invoices.invoicehistory');
+                    }
+                @endphp
+
+                {{-- Form Card (Tailwind Styled) --}}
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <form action="{{ $updateRoute }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="project_id" value="{{ $invoice->project_id }}">
+
+                        {{-- Card Header --}}
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-900">
+                                Edit Detailed Invoice
+                            </h2>
                         </div>
-                        <div class="card-body">
-                            @if(Auth::user()->hasRole('Admin'))
-                            <form action="{{ route('admin.invoices.updateDetailedInvoice', $invoice->id) }}" method="POST">
-                            @endif
-                            @if(Auth::user()->hasRole('Responsable de projet'))
-                            <form action="{{ route('Responsable_de_projet.invoices.updateDetailedInvoice', $invoice->id) }}" method="POST">
-                            @endif
-                            @if(Auth::user()->hasRole('Employee'))
-                            <form action="{{ route('employee.invoices.updateDetailedInvoice', $invoice->id) }}" method="POST">
-                            @endif
-                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                            <form action="{{ route('Responsable_gestionnaire.invoices.updateDetailedInvoice', $invoice->id) }}" method="POST">
-                            @endif
-                                @csrf
-                                <input type="hidden" name="project_id" value="{{ $invoice->project_id }}">
 
-                                <div class="form-group mb-3">
-                                    <label for="comment">Comment</label>
-                                    <textarea name="comment" id="comment" class="form-control">{{ $invoice->comment }}</textarea>
+                        {{-- Card Body (Form Fields) --}}
+                        <div class="p-6 space-y-6">
+                            
+                            {{-- Comment --}}
+                            <div>
+                                <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
+                                <textarea name="comment" id="comment" rows="4" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">{{ $invoice->comment }}</textarea>
+                            </div>
+
+                            {{-- Details Header --}}
+                            <div class="grid grid-cols-10 gap-4 mb-2">
+                                <div class="col-span-10 md:col-span-4">
+                                    <label class="block text-sm font-medium text-gray-700">Detail</label>
                                 </div>
-
-                                <div id="detailsContainer">
-                                    @foreach(json_decode($invoice->details, true) as $index => $detail)
-                                    <div class="row detail-row mb-3">
-                                        <div class="col-md-4">
-                                            <label>Detail</label>
-                                            <input type="text" class="form-control detail-input" name="details[{{$index}}][description]" value="{{ $detail['description'] }}" required>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label>Quantity</label>
-                                            <input type="number" step="0.01" class="form-control quantity-input" name="details[{{$index}}][quantity]" value="{{ $detail['quantity'] }}" required>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label>Unit Price (€)</label>
-                                            <input type="number" step="0.01" class="form-control price-input" name="details[{{$index}}][unit_price]" value="{{ $detail['unit_price'] }}" required>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label>Total</label>
-                                            <input type="number" class="form-control total-input" value="{{ $detail['quantity'] * $detail['unit_price'] }}" readonly>
-                                        </div>
+                                <div class="col-span-5 md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700">Quantity</label>
+                                </div>
+                                <div class="col-span-5 md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700">Unit Price (€)</label>
+                                </div>
+                                <div class="col-span-10 md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700">Total</label>
+                                </div>
+                            </div>
+                            
+                            {{-- Dynamic Details Container --}}
+                            <div id="detailsContainer" class="space-y-3">
+                                @foreach(json_decode($invoice->details, true) as $index => $detail)
+                                <div class="grid grid-cols-10 gap-4 items-center detail-row">
+                                    <div class="col-span-10 md:col-span-4">
+                                        <input type="text" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm detail-input" name="details[{{$index}}][description]" value="{{ $detail['description'] }}" required>
                                     </div>
-                                    @endforeach
+                                    <div class="col-span-5 md:col-span-2">
+                                        <input type="number" step="0.01" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm quantity-input" name="details[{{$index}}][quantity]" value="{{ $detail['quantity'] }}" required>
+                                    </div>
+                                    <div class="col-span-5 md:col-span-2">
+                                        <input type="number" step="0.01" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm price-input" name="details[{{$index}}][unit_price]" value="{{ $detail['unit_price'] }}" required>
+                                    </div>
+                                    <div class="col-span-10 md:col-span-2">
+                                        <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-gray-50 total-input" value="{{ $detail['quantity'] * $detail['unit_price'] }}" readonly>
+                                    </div>
                                 </div>
+                                @endforeach
+                            </div>
 
-                                <div class="mt-3">
-                                    <button type="button" class="btn btn-primary btn-sm" id="addRowBtn">Add Row</button>
-                                    <button type="button" class="btn btn-danger btn-sm" id="deleteRowBtn">Delete Row</button>
-                                </div>
+                            {{-- Add/Delete Row Buttons --}}
+                            <div class="flex items-center gap-3">
+                                <button type="button" id="addRowBtn" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 rounded-lg text-sm shadow-sm">
+                                    Add Row
+                                </button>
+                                <button type="button" id="deleteRowBtn" class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-1.5 rounded-lg text-sm shadow-sm">
+                                    Delete Row
+                                </button>
+                            </div>
 
-                                <div class="col-md-12 mt-4 text-right">
-                                    <h5>Total Amount: <span id="grandTotal">0.00</span>€</h5>
-                                </div>
+                            {{-- Grand Total --}}
+                            <div class="mt-6 bg-gray-50 border border-gray-200 rounded-lg p-4 flex justify-between items-center">
+                                <span class="text-lg font-semibold text-gray-800">Total Amount (HTVA):</span>
+                                <span id="grandTotal" class="text-2xl font-bold text-blue-600">0.00€</span>
+                            </div>
 
-                                <div class="mt-4">
-                                    <button type="submit" class="btn btn-success">Update Invoice</button>
-                                    @if(Auth::user()->hasRole('Admin'))
-                                    <a href="{{ route('admin.invoices.invoicehistory') }}" class="btn btn-secondary">Cancel</a>
-                                    @endif
-                                    @if(Auth::user()->hasRole('Responsable de projet'))
-                                    <a href="{{ route('Responsable_de_projet.invoices.invoicehistory') }}" class="btn btn-secondary">Cancel</a>
-                                    @endif
-                                    @if(Auth::user()->hasRole('Employee'))
-                                    <a href="{{ route('employee.invoices.invoicehistory') }}" class="btn btn-secondary">Cancel</a>
-                                    @endif
-                                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                    <a href="{{ route('Responsable_gestionnaire.invoices.invoicehistory') }}" class="btn btn-secondary">Cancel</a>
-                                    @endif
-                                </div>
-                            </form>
                         </div>
-                    </div>
+
+                        {{-- Card Footer (Buttons) --}}
+                        <div class="p-6 bg-gray-50 border-t border-gray-200 flex items-center gap-3">
+                            <button type="submit" class="inline-flex justify-center bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">
+                                Update Invoice
+                            </button>
+                            <a href="{{ $cancelRoute }}" class="inline-flex justify-center bg-white hover:bg-gray-50 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm">
+                                Cancel
+                            </a>
+                        </div>
+                        
+                    </form>
                 </div>
             </div>
-        </div>
-    </main>
-
-    @include('dashboard_layouts.scripts')
+        </main>
+    </div>
+    @livewireScripts
 
     <script>
         $(document).ready(function() {
@@ -117,7 +154,7 @@
                 $('.total-input').each(function() {
                     grandTotal += parseFloat($(this).val()) || 0;
                 });
-                $('#grandTotal').text(grandTotal.toFixed(2));
+                $('#grandTotal').text(grandTotal.toFixed(2) + '€'); // Added € symbol for consistency
             }
 
             function attachRowEventListeners(row) {
@@ -127,15 +164,22 @@
             }
 
             $('#addRowBtn').click(function() {
-                const newRow = $('.detail-row:first').clone();
+                // Find the last row to clone, or the first if it's the only one
+                const lastRow = $('.detail-row:last');
+                const newRow = lastRow.clone();
                 const newIndex = $('.detail-row').length;
-                newRow.find('input').val('');
+                
+                newRow.find('input').val(''); // Clear all input values
                 newRow.find('input[name^="details"]').each(function() {
                     const oldName = $(this).attr('name');
+                    // Replace the index [0] or [1] etc. with the new index
                     $(this).attr('name', oldName.replace(/\[\d+\]/, '[' + newIndex + ']'));
                 });
-                $('#detailsContainer').append(newRow);
+                
+                // Use .after() on the last row to append, or .append() to the container
+                lastRow.after(newRow); 
                 attachRowEventListeners(newRow);
+                calculateRowTotal(newRow); // Calculate total for the new row (which will be 0)
             });
 
             $('#deleteRowBtn').click(function() {
@@ -145,10 +189,12 @@
                 }
             });
 
+            // Attach listeners to all existing rows on page load
             $('.detail-row').each(function() {
                 attachRowEventListeners($(this));
             });
 
+            // Calculate the grand total on page load
             calculateGrandTotal();
         });
     </script>

@@ -155,6 +155,8 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     {{-- UPDATED JavaScript to handle new structure --}}
     <script>
         $(document).ready(function() {
@@ -162,10 +164,10 @@
             // Add new row button
             $('#addRowBtn').click(function() {
                 const newRow = $('#detailsContainer .detail-row:first').clone();
-                newRow.find('input').val(''); // Clear inputs
-                newRow.find('.row-total').text('0.00'); // Reset total span
+                newRow.find('input').val(''); 
+                newRow.find('.row-total').text('0.00'); 
                 $('#detailsContainer').append(newRow);
-                attachRowEventListeners(newRow); // Attach listeners to new row
+                attachRowEventListeners(newRow); 
             });
 
             // Delete row button (Event Delegation)
@@ -196,33 +198,80 @@
                 $('#grandTotal').text(grandTotal.toFixed(2) + '€'); 
             }
 
-            // Attach event listeners to quantity/price inputs
-            function attachRowEventListeners(row) { // row is a <tr>
+            function attachRowEventListeners(row) { 
                 row.find('.quantity-input, .price-input').on('input', function() {
                     calculateRowTotal(row);
                 });
             }
 
-            // Generate invoice button logic (updated)
+            // Generate invoice button
             $('#generateInvoiceBtn').click(function(e) { 
-                /* ... Your existing AJAX logic goes here ... */ 
                 console.log("Generate Invoice Clicked");
+                e.preventDefault(); // <-- Stop the button from doing nothing
                 
-                const projectId = $('#projectSelect').val();
+                const project_id = $('#projectSelect').val(); // <-- Use project_id
                 const comment = $('#comment').val();
                 const details = [];
                 
+                // Collect details
                 $('.detail-row').each(function() { 
                     const row = $(this);
-                    details.push({
-                        detail: row.find('.detail-input').val(),
-                        quantity: row.find('.quantity-input').val(),
-                        price: row.find('.price-input').val(),
-                        total: row.find('.row-total').text() // Read from span text
-                    });
+                    const description = row.find('.detail-input').val();
+                    const quantity = parseFloat(row.find('.quantity-input').val());
+                    const unit_price = parseFloat(row.find('.price-input').val());
+
+                    if (description && !isNaN(quantity) && !isNaN(unit_price)) {
+                        details.push({
+                            description: description,
+                            quantity: quantity,
+                            unit_price: unit_price
+                        });
+                    }
                 });
-                console.log({ projectId, comment, details });
-                // Add your AJAX call here
+
+                // Validation
+                if (details.length === 0) {
+                    alert('Please add at least one valid detail row');
+                    return;
+                }
+                if (!project_id) {
+                    alert('Please select a project');
+                    return;
+                }
+
+                // --- THIS IS THE AJAX CALL YOU NEED ---
+                let ajaxUrl = '';
+                @if(Auth::user()->hasRole('Admin'))
+                    ajaxUrl = '{{ route("admin.invoices.detailed") }}';
+                @elseif(Auth::user()->hasRole('Responsable de projet'))
+                    ajaxUrl = '{{ route("Responsable_de_projet.invoices.detailed") }}';
+                @elseif(Auth::user()->hasRole('Employee'))
+                    ajaxUrl = '{{ route("employee.invoices.detailed") }}';
+                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                    ajaxUrl = '{{ route("Responsable_gestionnaire.invoices.detailed") }}';
+                @endif
+
+                $.ajax({
+                    url: ajaxUrl,
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}', // <-- Uses the token from the <head>
+                        project_id: project_id,
+                        details: details,
+                        comment: comment 
+                    },
+                    success: function(response) {
+                        // This worked in your old code:
+                        // Replace current page content with the invoice view
+                        document.open();
+                        document.write(response);
+                        document.close();
+                    },
+                    error: function(xhr) {
+                        alert('Error generating invoice: ' + (xhr.responseJSON?.error || 'Unknown error'));
+                    }
+                });
+                // --- END OF AJAX CALL ---
             });
 
             // Initial setup for the first row

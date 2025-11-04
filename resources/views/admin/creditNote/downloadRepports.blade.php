@@ -63,7 +63,7 @@ thead {
 }
 
 thead {
-    background-color: #686ce4;
+    background-color: #1E9FD8;
     /* Updated color */
     color: white;
     /* Improve readability */
