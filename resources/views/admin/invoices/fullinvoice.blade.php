@@ -190,144 +190,66 @@
 
                     <h6 class="text-lg font-semibold text-gray-900 mb-4">Period Invoice</h6>
 
-                    
-
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                        
-
                         {{-- Project Filter --}}
-
                         <div class="md:col-span-1">
-
                             <label for="projectFilter2" class="block text-sm font-medium text-gray-700 mb-1">Select Project</label>
-
                             {{-- Added py-2 px-3 for height --}}
-
                             <select id="projectFilter2" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm form-select-custom py-2 px-3" required>
-
                                 <option value="">Select Project</option>
-
                                 @foreach($projects as $project)
-
                                 <option value="{{ $project->id }}">
-
                                     {{ strtoupper($project->name) }} -
-
                                     @if($project->budget)
-
                                         {{ $project->budget - $project->amount_billed }}€
-
                                     @else
-
                                         no budget
-
                                     @endif
-
                                 </option>
-
                                 @endforeach
-
                             </select>
-
                         </div>
-
-                        
-
                         {{-- Start Date --}}
-
                         <div class="md:col-span-1">
-
                             <label for="startDateInput" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-
                             {{-- Added py-2 px-3 for height --}}
-
                             <input type="date" id="startDateInput" placeholder="jj/mm/aaaa" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
-
                         </div>
-
-                        
-
                         {{-- End Date --}}
-
                         <div class="md:col-span-1">
-
                             <label for="endDateInput" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-
                             {{-- Added py-2 px-3 for height --}}
-
                             <input type="date" id="endDateInput" placeholder="jj/mm/aaaa" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
-
                         </div>
-
-                        
-
                         {{-- Comment (Full Width) --}}
-
                         <div class="md:col-span-3">
-
                             <label for="PeriodInvComment" class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
-
                             {{-- Added py-2 px-3 for height --}}
-
                             <textarea name="PeriodInvComment" id="PeriodInvComment" placeholder="Add any additional notes..." rows="3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"></textarea>
-
                         </div>
-
                     </div>
-
-                    
-
                     <div class="mt-6">
-
                         <a id="downloadDurationInvoiceBtn" href="#" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">View Invoice</a>
-
                     </div>
-
                 </div>
-
             </div>
-
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-
                 <div class="p-6">
-
                     <h6 class="text-lg font-semibold text-gray-900 mb-4">Partial Invoice</h6>
-
-                    
-
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                        
-
                         {{-- Devis Select --}}
-
                         <div class="md:col-span-1">
-
                             <label for="devisSelect3" class="block text-sm font-medium text-gray-700 mb-1">Select Quote</label>
-
                             {{-- Added py-2 px-3 for height --}}
-
                             <select id="devisSelect3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm form-select-custom py-2 px-3" required>
-
                                 <option value="">Select Quote</option>
-
                                 {{-- Options loaded by JS --}}
-
                             </select>
-
                         </div>
-
-                        
-
                         {{-- Amount --}}
-
                         <div class="md:col-span-1">
-
                             <label for="partialAmountInput" class="block text-sm font-medium text-gray-700 mb-1">Amount (€)</label>
-
                             {{-- Added py-2 px-3 for height --}}
-
                             <input type="number" step="0.0001" id="partialAmountInput" placeholder="Amount" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
 
                         </div>
@@ -364,20 +286,12 @@
                 <div class="p-6">
 
                     <h6 class="text-lg font-semibold text-gray-900 mb-4">Percentage Invoice </h6>
-
-                    
-
                     <div classs="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                        
-
                         {{-- Devis Select --}}
 
                         <div class="md:col-span-1">
 
                             <label for="devisSelect4" class="block text-sm font-medium text-gray-700 mb-1">Select Quote </label>
-
-                            {{-- Added py-2 px-3 for height --}}
 
                             <select id="devisSelect4" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm form-select-custom py-2 px-3" required>
 

@@ -3363,7 +3363,7 @@ public function PercentageInvoice(Request $request, $projectid, $percentage)
     
 }
 
-public function confirmFullInvoice($projectID, $budget, $comment = null, Request $request){
+public function confirmFullInvoice(Request $request, $projectID, $budget, $comment = null){
     $projectinfos = Project::where('id', $projectID)->first();
     $client = Client::where('id', $projectinfos->client_id)->first();
         $user_enterprise = Auth::user()->entreprise_id;
@@ -3419,7 +3419,9 @@ public function confirmFullInvoice($projectID, $budget, $comment = null, Request
             $save_invoice->hours = $hours;
             
             $invoice_date = new DateTime();
-            $due_date_interval = new DateInterval('P' . $client->due_date . 'D');
+            
+            $days = (int) $client->due_date;
+            $due_date_interval = new DateInterval('P' . $days . 'D');
             $save_invoice->due_date = $invoice_date->add($due_date_interval);
             
             $save_invoice->type = 'Full';
@@ -3560,9 +3562,10 @@ public function confirmPeriodInvoice($projectID, $startdate, $enddate, $comment 
             if (request()->has('devis_id') && !empty(request()->query('devis_id'))) {
                 $save_invoice->devis_id = (int) request()->query('devis_id');
             }
-            $invoice_date = new DateTime(); // This is the date when the invoice is created
-            $due_date_interval = new DateInterval('P' . $client->due_date . 'D'); // This represents the due date in days
-            $save_invoice->due_date = $invoice_date->add($due_date_interval); // This adds the due date to the invoice dat
+            $invoice_date = new DateTime(); 
+            $days = (int) $client->due_date;
+            $due_date_interval = new DateInterval('P' . $days . 'D');
+            $save_invoice->due_date = $invoice_date->add($due_date_interval); 
 
             $save_invoice->type = 'Period';
         
@@ -3696,7 +3699,8 @@ public function confirmPercentageInvoice($projectID, $percentage, $comment = nul
             $save_invoice->devis_id = (int) request()->query('devis_id');
         }
         $invoice_date = new DateTime(); // This is the date when the invoice is created
-        $due_date_interval = new DateInterval('P' . $client->due_date . 'D'); // This represents the due date in days
+        $days = (int) $client->due_date;
+        $due_date_interval = new DateInterval('P' . $days . 'D'); // This represents the due date in days
         $save_invoice->due_date = $invoice_date->add($due_date_interval); // This adds the due date to the invoice date
         
         $save_invoice->type = 'Percentage';
@@ -3806,7 +3810,8 @@ public function confirmPartialInvoice($projectID, $amount, $comment = null){
             $save_invoice->devis_id = (int) request()->query('devis_id');
         }
         $invoice_date = new DateTime(); // This is the date when the invoice is created
-        $due_date_interval = new DateInterval('P' . $client->due_date . 'D'); // This represents the due date in days
+        $days = (int) $client->due_date;
+        $due_date_interval = new DateInterval('P' . $days . 'D'); // This represents the due date in days
         $save_invoice->due_date = $invoice_date->add($due_date_interval); // This adds the due date to the invoice date
         
         $save_invoice->type = 'Partial';
