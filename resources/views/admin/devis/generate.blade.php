@@ -257,7 +257,6 @@
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-1" for="project-for-project">Contacts :</label>
                                     <div class="col-8" id="contactsDiv">
-                                        {{-- Contacts will be appended here by JS --}}
                                     </div>
                                 </div>
                             </div>

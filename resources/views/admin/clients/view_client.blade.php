@@ -49,7 +49,7 @@
 
         {{-- Main Content --}}
         <main class="flex-1 p-8">
-            <div class="max-w-7xl mx-auto space-y-6">
+            <div class="max-w-8xl mx-auto space-y-6">
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
@@ -178,7 +178,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
                     <div class="p-6 border-b border-gray-200">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">

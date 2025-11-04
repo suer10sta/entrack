@@ -16,7 +16,7 @@
         {{-- Main Content --}}
 
         <div class="min-h-screen bg-gray-50 p-6">
-    <div class="max-w-7xl mx-auto space-y-6">
+    <div class="max-w-82xl mx-auto space-y-6">
         
         <!-- Project Header Card -->
         <div class="bg-white rounded-lg shadow-sm p-6">

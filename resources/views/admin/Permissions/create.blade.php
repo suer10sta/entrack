@@ -1,122 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
-
-@include('dashboard_layouts.head')
-
-<body class="g-sidenav-show bg-gray-100">
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouvelle Permission - BizManager</title>
+    @vite('resources/css/app.css')
+    @livewireStyles {{-- Ajouté pour la cohérence --}}
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden font-sans">
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
             style="display: none; visibility: hidden"></iframe></noscript>
 
-    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+    {{-- Sidebar --}}
+    <x-dashboard.sidebar />
 
-    @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-        @include('employees.sidebar')
-    @endif
-    @if(Auth::user()->hasRole('Admin'))
-        @include('admin.sidebar')
-    @endif
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        {{-- Navbar --}}
+        <x-dashboard.navbar />
 
-    <main class="main-content position-relative border-radius-lg">
-        
+        {{-- Contenu Principal --}}
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
 
-        <div class="container-fluid py-4">
-            <div class="row mb-5">
-                <div class="col-12">
-                    <div class="multisteps-form mb-5">
-                        <div class="row">
-                            <div class="col-12 col-lg-8 mx-auto my-4">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="multisteps-form__progress">
-                                            <button class="multisteps-form__progress-btn js-active" type="button"
-                                                title="User Info">
-                                                <span>ADD NEW PERMISSION</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+            <div class="w-full max-w-3xl mx-auto"> {{-- Centrer le formulaire --}}
+
+                {{-- Déterminer les routes en premier --}}
+                @php
+                    $formAction = '';
+                    $cancelRoute = '';
+                    if(Auth::user()->hasRole('Admin')) {
+                        $formAction = route('admin.permissions.store');
+                        $cancelRoute = route('admin.index'); // Mettez à jour vers la page des rôles si nécessaire
+                    } elseif(Auth::user()->hasRole('Responsable de projet')) {
+                        $formAction = route('Responsable_de_projet.permissions.store');
+                        $cancelRoute = route('Responsable_de_projet.index');
+                    } elseif(Auth::user()->hasRole('Employee')) {
+                        $formAction = route('employee.permissions.store');
+                        $cancelRoute = route('employee.index');
+                    } elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                        $formAction = route('Responsable_gestionnaire.permissions.store');
+                        $cancelRoute = route('Responsable_gestionnaire.index');
+                    }
+                @endphp
+
+                <form class="multisteps-form__form" method="POST" action="{{ $formAction }}" autocomplete="off">
+                    @csrf
+                    
+                    {{-- Carte de formulaire (style Tailwind) --}}
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        
+                        {{-- En-tête de la carte --}}
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-900">Nouvelle Permission</h2>
+                            <p class="text-sm text-gray-600 mt-1">Informations obligatoires</p>
+                        </div>
+
+                        {{-- Corps de la carte --}}
+                        <div class="p-6 space-y-6">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nom de la Permission :</label>
+                                <input type="text" name="name" id="name"
+                                       class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" 
+                                       placeholder="ex: create projects" required />
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-12 col-lg-8 m-auto">
-                            @if(Auth::user()->hasRole('Responsable de projet'))
-                                <form class="multisteps-form__form mb-8" method="POST" action="{{ route('Responsable_de_projet.permissions.store') }}" autocomplete="off">
-                            @endif
-                            @if(Auth::user()->hasRole('Admin'))
-                                <form class="multisteps-form__form mb-8" method="POST" action="{{route('admin.permissions.store')}}" autocomplete="off">
-                            @endif
-                            @if(Auth::user()->hasRole('Employee'))
-                                <form class="multisteps-form__form mb-8" method="POST" action="{{route('employee.permissions.store')}}" autocomplete="off">
-                            @endif
-                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                <form class="multisteps-form__form mb-8" method="POST" action="{{route('Responsable_gestionnaire.permissions.store')}}" autocomplete="off">
-                            @endif
-                                    @csrf
-                                    <div class="card multisteps-form__panel p-3 border-radius-xl bg-white js-active"
-                                        data-animation="FadeIn">
-                                        <h5 class="font-weight-bolder">New Permission : </h5>
-                                        <div class="multisteps-form__content">
-                                            <div class="row mt-3">
-                                                <div class="col">
-                                                    <label>Permission Name : </label>
-                                                    <input class="multisteps-form__input form-control" type="text"
-                                                        placeholder="permission Name" name="name" />
-                                                </div>
-                                            </div>
-
-                                            <div class="button-row d-flex mt-4">
-                                            @if(Auth::user()->hasRole('Admin'))
-                                            <a class='btn btn-light m-0' href="{{route('admin.index')}}">
-                                                Cancel
-                                            </a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet'))
-                                            <a class='btn btn-light m-0' href="{{route('Responsable_de_projet.index')}}">
-                                                Cancel
-                                            </a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Employee'))
-                                            <a class='btn btn-light m-0' href="{{route('employee.index')}}">
-                                                Cancel
-                                            </a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                            <a class='btn btn-light m-0' href="{{route('Responsable_gestionnaire.index')}}">
-                                                Cancel
-                                            </a>
-                                            @endif
-                                                <button class="btn bg-gradient-dark ms-auto mb-0 js-btn-next"
-                                                    type="submit" title="Next">
-                                                    Create
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </form>
-                            </div>
+                        {{-- Pied de page de la carte (Actions) --}}
+                        <div class="p-6 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-3">
+                            <a href="{{ $cancelRoute }}" class="inline-flex justify-center bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm">
+                                Annuler
+                            </a>
+                            <button type="submit" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">
+                                Créer
+                            </button>
                         </div>
+
                     </div>
-                </div>
+                </form>
+
             </div>
-
-        </div>
-
-    </main>
-
-
+        </main>
+    </div>
+    
+    @livewireScripts
     @include('dashboard_layouts.scripts')
 
     <script>
-  window.addEventListener('load', function() {
-    var inputs = document.getElementsByTagName('input');
-    for (var i = 0; i < inputs.length; i++) {
-      inputs[i].setAttribute('autocomplete', 'none');
-    }
-  });
-</script>
-
+        // Script simple pour désactiver l'autocomplétion
+        window.addEventListener('load', function() {
+            var inputs = document.getElementsByTagName('input');
+            for (var i = 0; i < inputs.length; i++) {
+                inputs[i].setAttribute('autocomplete', 'none');
+            }
+        });
+    </script>
 </body>
-
 </html>

@@ -3,30 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoices History - BizManager</title>
+    <title>Devis Parameters - BizManager</title> {{-- Titre mis à jour --}}
     @vite('resources/css/app.css') 
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
 
     <style>
-        /* Text alignment for inputs/textareas */
+        /* Style des inputs/textareas (non-readonly par défaut) */
         .entrepriseInfos {
             text-align: left;
+            background-color: #ffffff; /* Fond blanc normal */
         }
-        /* Style readonly inputs */
-        input:read-only, textarea:read-only {
-            background-color: #f9fafb; /* bg-gray-50 */
-            cursor: default;
+        /* Style pour le feedback visuel de la sauvegarde */
+        input.border-green-500, textarea.border-green-500 {
+            border-color: #22c55e;
+            box-shadow: 0 0 0 1px #22c55e;
+        }
+        input.border-red-500, textarea.border-red-500 {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 1px #ef4444;
         }
     </style>
 </head>
 
 <body class="bg-gray-100 flex h-screen overflow-hidden font-sans">
-
-
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-    style="display: none; visibility: hidden"></iframe></noscript>
 
     {{-- Sidebar Component --}}
     <x-dashboard.sidebar />
@@ -34,223 +34,235 @@
     <div class="flex flex-col flex-1 overflow-y-auto">
         {{-- Navbar Component --}}
         <x-dashboard.navbar />
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8 space-y-6">
-
+        
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8 space-y-8"> {{-- Espace mis à jour --}}
             {{-- 1. Header Section --}}
             <div class="flex flex-wrap justify-between items-center gap-4">
                 <div>
-                    {{-- Adjusted header style --}}
-                    <h1 class="text-xl font-semibold text-gray-900">Devis Parameters</h1>
-                    <p class="text-sm text-gray-500">Configure devis settings and templates</p>
+                    <h1 class="text-2xl font-semibold text-gray-900">Devis Parameters</h1> {{-- Titre mis à jour --}}
+                    <p class="text-sm text-gray-600">Configure devis settings and templates</p>
                 </div>
             </div>
+            
+            @php
+            $updateUrl = '';
+            if(Auth::user()->hasRole('Responsable de projet'))
+                $updateUrl = '/Responsable_de_projet/Enterprise_infos/updateInfos';
+            elseif(Auth::user()->hasRole('Admin') || Auth::user()->hasRole('SuperAdmin'))
+                $updateUrl = '/admin/Enterprise_infos/updateInfos';
+            elseif(Auth::user()->hasRole('Employee'))
+                $updateUrl = '/employee/Enterprise_infos/updateInfos';
+            elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                $updateUrl = '/Responsable_gestionnaire/Enterprise_infos/updateInfos';
+            @endphp
 
-            {{-- 2. Devis Information Card --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div class="p-6">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-1">Devis Information</h2>
-                    <p class="text-sm text-gray-500 mb-6">Mandatory information</p>
+            {{-- ID "invoiceParamsForm" AJOUTÉ pour que le JS fonctionne --}}
+            <form id="invoiceParamsForm" class="space-y-8">
+                @csrf
+                <input type="hidden" name="entreprise_id" value="{{ Auth::user()->entreprise_id }}">
 
-                    {{-- Devis Prefix & Start Number --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {{-- 2. Devis Information Card --}}
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-5">
+                    <div>
+                        <h5 class="text-lg font-semibold text-gray-900">Devis Information</h5>
+                        <p class="text-sm text-gray-500 mt-1">Mandatory information</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Prefix</label>
-                            <input
-                                class="editable entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                                type="text" name="devis_prefix"
-                                value="{{$entreprise->devis_prefix}}" readonly />
-                            {{-- Optional: Add help text if needed --}}
-                            {{-- <small class="text-xs text-gray-500 mt-1">Prefix used for devis numbering (e.g., DEV-)</small> --}}
+                            <label for="devis_prefix" class="block text-sm font-medium text-gray-700 mb-1">Prefix</label>
+                            <input id="devis_prefix" 
+                                   {{-- Classe "editable" supprimée --}}
+                                   class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" 
+                                   type="text" 
+                                   name="devis_prefix" 
+                                   value="{{ $entreprise->devis_prefix ?? '' }}" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Number</label>
-                            <input
-                                class="editable entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                                type="text" name="devis_start_number"
-                                value="{{$entreprise->devis_start_number}}" readonly />
-                             {{-- Optional: Add help text if needed --}}
-                             {{-- <small class="text-xs text-gray-500 mt-1">The next devis number will start from here.</small> --}}
+                            <label for="devis_start_number" class="block text-sm font-medium text-gray-700 mb-1">Start Number</label>
+                            <input id="devis_start_number" 
+                                   {{-- Classe "editable" supprimée --}}
+                                   class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+                                   type="text" 
+                                   name="devis_start_number"
+                                   value="{{$entreprise->devis_start_number}}" />
                         </div>
                     </div>
-
-                    {{-- General Conditions --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">General Condition</label>
-                        <textarea rows="6"
-                            class="editable entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                            name="general_conditions_Devis" readonly>{{ $entreprise->general_conditions_Devis }}</textarea>
-                         {{-- Optional: Add help text if needed --}}
-                         {{-- <small class="text-xs text-gray-500 mt-1">Default terms and conditions added to the devis PDF.</small> --}}
+                        <label for="general_conditions_Devis" class="block text-sm font-medium text-gray-700 mb-1">General Condition</label>
+                        <textarea id="general_conditions_Devis" rows="6"
+                            {{-- Classe "editable" supprimée --}}
+                            class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+                            name="general_conditions_Devis" >{{ $entreprise->general_conditions_Devis }}</textarea>
                     </div>
                 </div>
-            </div>
 
-             {{-- 3. Devis Body Message Card --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div class="p-6">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-1">Devis Body Message</h2>
-                    <p class="text-sm text-gray-500 mb-6">Message</p>
-
+                {{-- 3. Devis Body Message Card --}}
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-5">
                     <div>
-                        {{-- <label class="block text-sm font-medium text-gray-700 mb-1">Message</label> --}} {{-- Label removed as per screenshot --}}
-                        <textarea rows="6"
-                            class="editable entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                            name="devis_body" readonly>{{ $entreprise->devis_body }}</textarea>
-                        {{-- Optional: Add help text if needed --}}
-                        {{-- <small class="text-xs text-gray-500 mt-1">Default message body used when sending devis via email.</small> --}}
+                        <h5 class="text-lg font-semibold text-gray-900">Devis Body Message</h5>
+                        <p class="text-sm text-gray-500 mt-1">Message</p>
+                    </div>
+                    <div>
+                        <textarea id="devis_body" rows="6" {{-- ID ajouté pour la clarté --}}
+                            {{-- Classe "editable" supprimée --}}
+                            class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+                            name="devis_body" >{{ $entreprise->devis_body }}</textarea>
                     </div>
                 </div>
-            </div>
 
-            {{-- 4. Action Buttons --}}
-            <div class="flex justify-end items-center gap-3 pt-4">
-                 @php $backRoute = '#'; // Default fallback @endphp
-                 @if(Auth::user()->hasRole('Responsable de projet')) @php $backRoute = route('Responsable_de_projet.index'); @endphp @endif
-                 @if(Auth::user()->hasRole('Admin')) @php $backRoute = route('admin.index'); @endphp @endif
-                 @if(Auth::user()->hasRole('Employee')) @php $backRoute = route('employee.index'); @endphp @endif
-                 @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $backRoute = route('Responsable_gestionnaire.index'); @endphp @endif
+                {{-- 4. Action Buttons --}}
+                <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
+                    @php
+                        $backRoute = route('admin.index'); // Fallback
+                        if(Auth::user()->hasRole('Responsable de projet')) $backRoute = route('Responsable_de_projet.index');
+                        elseif(Auth::user()->hasRole('Employee')) $backRoute = route('employee.index');
+                        elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $backRoute = route('Responsable_gestionnaire.index');
+                    @endphp
 
-                 {{-- Back Button --}}
-                 <a href="{{ $backRoute }}" class="inline-flex items-center bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 shadow-sm">
-                     Back
-                 </a>
-                 {{-- Save Changes Button (Note: Saving happens on blur, this button doesn't trigger save but could be used for other actions or feedback) --}}
-                 <button type="button" id="saveChangesBtn" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
-                     Save Changes
-                 </button>
-            </div>
-
-
+                    <a href="{{ $backRoute }}" 
+                       class="inline-flex items-center bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Back
+                    </a>
+                    
+                    {{-- ID mis à jour pour correspondre au script JS --}}
+                    <button type="submit" 
+                            id="saveButton" 
+                            class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm disabled:opacity-50"
+                            {{ !$updateUrl ? 'disabled' : '' }}>
+                        {{-- L'icône et le texte sont maintenant dans le JS, mais nous mettons un fallback --}}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                        </svg>
+                        Save All Changes
+                    </button>
+                </div>
+            </form>
         </main>
     </div>
 
     {{-- SCRIPTS --}}
     @livewireScripts
-    {{-- Include Bootstrap JS ONLY if needed for other components on the page --}}
-    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script> --}}
-    @include('dashboard_layouts.scripts') {{-- Keep if it includes necessary base scripts --}}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> {{-- Keep jQuery for your edit script --}}
-    <script src="//unpkg.com/alpinejs" defer></script> {{-- Keep if needed elsewhere --}}
+    {{-- @include('dashboard_layouts.scripts') --}} {{-- Assurez-vous que cela n'inclut pas un autre jQuery --}}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="//unpkg.com/alpinejs" defer></script>
 
-    {{-- Your existing jQuery script for inline editing --}}
+    {{-- SCRIPT LOGIQUE DE SAUVEGARDE DE VOTRE EXEMPLE (invoice.parameters) --}}
     <script>
-    $(document).ready(function() {
-
-        // --- 1. Ajout : Stocker la valeur originale au focus ---
-        // (Nécessaire pour savoir ce qui a réellement changé)
-        $(".entrepriseInfos").focus(function() {
-            $(this).data('originalValue', $(this).val());
-            // Effacer les anciennes bordures de statut
-            $(this).removeClass('border-green-500 border-red-500'); 
-        });
-
-        // --- 2. Double-clic pour éditer ---
-        // (J'ajoute un style visuel pour montrer que c'est éditable)
-        $(".entrepriseInfos").dblclick(function() {
-            $(this).prop('readonly', false)
-                   .addClass('bg-white ring-1 ring-blue-500') // Style éditable
-                   .removeClass('bg-gray-50');
-            $(this).focus();
-        });
-
-        // --- 3. Clic à l'extérieur (Blur) ---
-        // (Ne fait plus que verrouiller le champ, ne sauvegarde plus)
-        $(".entrepriseInfos").blur(function() {
-            $(this).prop('readonly', true)
-                   .removeClass('bg-white ring-1 ring-blue-500') // Retour au style normal
-                   .addClass('bg-gray-50');
-        });
-
-        // --- 4. Clic sur le bouton "Save Changes" ---
-        // (MODIFIÉ : Gère maintenant la logique de sauvegarde et d'animation)
-        $("#saveChangesBtn").click(function() {
+        $(document).ready(function() {
             
-            var $button = $(this);
-            // Sauvegarde le contenu HTML original du bouton (avec l'icône)
-            var originalHtml = $button.html(); 
-            
-            // 1. Mettre le bouton en état "Saving..."
-            $button.prop('disabled', true)
-                   .removeClass('bg-blue-600 hover:bg-blue-700')
-                   .addClass('bg-yellow-500') // Couleur "en cours"
-                   .text('Saving...'); // Texte simple pendant le chargement
-
-            var EntrepriseId = "{{ Auth::user()->entreprise_id }}";
-            var updatedUrl = '';
-            @if(Auth::user()->hasRole('Responsable de projet'))
-                updatedUrl = '/Responsable_de_projet/Enterprise_infos/updateInfos';
-            @elseif(Auth::user()->hasRole('Admin'))
-                updatedUrl = '/admin/Enterprise_infos/updateInfos';
-            @elseif(Auth::user()->hasRole('Employee'))
-                updatedUrl = '/employee/Enterprise_infos/updateInfos';
-            @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                updatedUrl = '/Responsable_gestionnaire/Enterprise_infos/updateInfos';
-            @endif
-
-            var hasErrors = false;
-
-            // 2. Boucler sur CHAQUE champ
-            $(".entrepriseInfos").each(function() {
-                var $input = $(this);
-                var newContent = $input.val();
-                var originalValue = $input.data('originalValue');
-
-                // Verrouiller le champ (au cas où il serait encore en focus)
-                $input.prop('readonly', true)
-                      .removeClass('bg-white ring-1 ring-blue-500')
-                      .addClass('bg-gray-50');
-
-                if (newContent === originalValue || typeof originalValue === 'undefined') {
-                    return; // "continue" dans une boucle .each()
-                }
-
-                // 3. Sauvegarder le champ (en mode synchrone pour la boucle)
-                $input.addClass('border-yellow-400'); // Feedback sur le champ
-
-                $.ajax({
-                    url: updatedUrl,
-                    type: 'post',
-                    async: false, // Force la boucle à attendre la fin de l'appel
-                    data: {
-                        content: newContent,
-                        id: EntrepriseId,
-                        column: $input.attr('name'),
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        console.log('Successfully saved: ' + $input.attr('name'));
-                        $input.data('originalValue', newContent); // Mettre à jour la valeur stockée
-                        $input.removeClass('border-yellow-400 border-red-500').addClass('border-green-500');
-                        // Enlever le vert après 2s
-                        setTimeout(() => $input.removeClass('border-green-500'), 2000);
-                    },
-                    error: function(response) {
-                        console.error('Error saving: ' + $input.attr('name'));
-                        hasErrors = true;
-                        $input.removeClass('border-yellow-400').addClass('border-red-500');
-                        $input.val(originalValue); // Annuler le changement en cas d'erreur
-                    }
-                });
+            // Stocker la valeur originale au focus pour savoir si elle a changé
+            $(".entrepriseInfos").focus(function() {
+                 $(this).data('originalValue', $(this).val());
+                 // Effacer les anciens statuts de bordure
+                 $(this).removeClass('border-green-500 border-red-500'); 
             });
 
-            // 4. La boucle EST TERMINÉE (grâce à async: false)
-            $button.prop('disabled', false); // Réactiver le bouton
+            $('#invoiceParamsForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                // C'est le bouton de votre nouveau fichier
+                const $button = $('#saveButton'); 
+                const originalText = $button.html(); 
+                
+                $button.prop('disabled', true).html('<svg class="animate-spin h-4 w-4 mr-2 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...');
 
-            if (hasErrors) {
-                // --- Animation d'erreur ---
-                $button.removeClass('bg-yellow-500').addClass('bg-red-600');
-                $button.html('<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>Error!');
-            } else {
-                // --- Animation de succès ---
-                $button.removeClass('bg-yellow-500').addClass('bg-green-600');
-                $button.html('<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>Saved!');
-            }
+                const entrepriseId = "{{ Auth::user()->entreprise_id }}";
+                const updateUrl = "{{ $updateUrl }}";
+                const formData = $(this).serializeArray();
+                
+                // Filtrer les champs qui ne sont pas des données à sauvegarder
+                const fieldsToUpdate = formData.filter(field => 
+                    field.name !== '_token' && field.name !== 'entreprise_id'
+                );
+                
+                let completed = 0;
+                let errors = 0;
+                const total = fieldsToUpdate.length;
+                let hasChanges = false; // Flag pour voir si quelque chose a changé
 
-            setTimeout(() => {
-                $button.removeClass('bg-green-600 bg-red-600').addClass('bg-blue-600 hover:bg-blue-700');
-                $button.html(originalHtml); /
-            }, 2000);
+                if (total === 0) {
+                    $button.prop('disabled', false).html(originalText);
+                    return;
+                }
+
+                fieldsToUpdate.forEach(function(field) {
+                    const $input = $(`[name="${field.name}"]`);
+                    const originalValue = $input.data('originalValue');
+                    const newValue = field.value;
+
+                    // Si la valeur n'a pas changé, sauter cet appel
+                    if (newValue === originalValue || typeof originalValue === 'undefined') {
+                        completed++;
+                        checkComplete();
+                        return; // continue
+                    }
+                    
+                    // Si nous arrivons ici, il y a un changement
+                    hasChanges = true;
+
+                    $.ajax({
+                        url: updateUrl,
+                        type: 'POST',
+                        data: {
+                            content: newValue,
+                            id: entrepriseId,
+                            column: field.name,
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            completed++;
+                            $input.data('originalValue', newValue); // Mettre à jour la valeur originale
+                            $input.addClass('border-green-500'); // Feedback de succès
+                            checkComplete();
+                        },
+                        error: function(xhr) {
+                            completed++;
+                            errors++;
+                            $input.addClass('border-red-500'); // Feedback d'erreur
+                            console.error('Error saving ' + field.name + ':', xhr);
+                            checkComplete();
+                        }
+                    });
+                });
+ 
+                // Fonction pour gérer l'animation du bouton
+                function checkComplete() {
+                    if (completed === total) {
+                        $button.prop('disabled', false); 
+                        
+                        // S'il n'y avait aucun changement à sauvegarder
+                        if (!hasChanges) {
+                             $button.html(originalText); // Remettre le bouton à la normale
+                             // (Pas besoin d'alerte, l'utilisateur a juste cliqué sur "sauvegarder" sans rien changer)
+                             return;
+                        }
+
+                        if (errors === 0) {
+                            // --- ANIMATION SUCCÈS ---
+                            $button.removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-green-600');
+                            $button.html('<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>Saved!');
+                        
+                        } else {
+                            // --- ANIMATION ERREUR ---
+                            $button.removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-red-600');
+                            $button.html('<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>Error!');
+                            alert('Some fields failed to save. Check fields marked in red.');
+                        }
+
+                        // --- Réinitialiser le bouton ---
+                        setTimeout(() => {
+                            $button.removeClass('bg-green-600 bg-red-600').addClass('bg-blue-600 hover:bg-blue-700');
+                            $button.html(originalText); // Restaurer l'icône et le texte d'origine
+                            $('.entrepriseInfos').removeClass('border-green-500 border-red-500'); // Nettoyer tous les feedbacks
+                        }, 2000); // Délai de 2 secondes
+                    }
+                }
+            });
         });
-    });
-</script> 
-</body>
+    </script> 
+</body> 
+</html>
