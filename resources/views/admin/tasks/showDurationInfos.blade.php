@@ -1,241 +1,254 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizManager Dashboard</title>
+    @vite('resources/css/app.css')
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+    {{-- Sidebar --}}
+    <x-dashboard.sidebar />
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        {{-- Navbar --}}
+        <x-dashboard.navbar />
 
-@include('dashboard_layouts.head')
-<style>
-a {
-    color: blue;
-}
+        {{-- Main Content --}}
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
 
-.font-weight-bolder {
-    color: black !important;
-}
+<div class="w-full max-w-7xl mx-auto"> {{-- Utilisation de max-w-7xl pour une page large --}}
 
-th {
-    font-size: 14px !important;
-}
-.text-sm{
-    color: #332f2f;
-}
-</style>
-
-<meta name="csrf-token" content="{{ csrf_token() }}">
-
-
-<body class="g-sidenav-show bg-gray-100">
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-            style="display: none; visibility: hidden"></iframe></noscript>
-    <div class="min-height-300 bg-primary position-absolute w-100"></div>
-
-    @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-    @include('employees.sidebar')
-    @endif
-    @if(Auth::user()->hasRole('Admin'))
-    @include('admin.sidebar')
+    {{-- Message d'alerte (style Tailwind) --}}
+    @if(session('alertmessage'))
+    <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <strong class="font-bold">Erreur !</strong>
+        <span class="block sm:inline">{{ session('alertmessage') }}</span>
+        <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+    </div>
     @endif
 
-    <main class="main-content position-relative border-radius-lg">
-        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
-            id="navbarBlur" data-scroll="false">
-            <div class="container-fluid py-1 px-3">
-
-                @include('dashboard_layouts.navbar')
-
-            </div>
-
-
-            <div class="container-fluid py-4">
-
-                <div class="col-12 col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                @if(session('alertmessage'))
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert"
-                                    style="color: white;">
-                                    {{ session('alertmessage') }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                        aria-label="Close">X</button>
-                                </div>
-                                @endif
-                                <table class="table align-items-center mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10">
-                                                Task
-                                            </th>
-                                            <th
-                                                class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                                Employee Name
-                                            </th>
-                                            <th
-                                                class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                                Start Date
-                                            </th>
-                                            <th
-                                                class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                                End Date
-                                            </th>
-                                            <th
-                                                class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                                Duration
-                                            </th>
-                                            <th
-                                                class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">
-                                                Move Duration
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @php 
-                                            $total_duration = 0;
-                                            $current_date = null;
-                                            $daily_duration = 0;
-                                            
-                                            // Group tasks by date
-                                            $grouped_tasks = $tasks->groupBy(function($task) {
-                                                return \Carbon\Carbon::parse($task->start_date)->format('Y-m-d');
-                                            })->sortKeys();
-                                        @endphp
-                                        
-                                        @foreach($grouped_tasks as $date => $day_tasks)
-                                            @php
-                                                $daily_duration = 0;
-                                                $formatted_date = \Carbon\Carbon::parse($date)->format('d-m-Y');
-                                            @endphp
-                                            
-                                            <tr>
-                                                <td colspan="6" class="bg-light">
-                                                    <h6 class="mb-0 text-s"><b>{{ \Carbon\Carbon::parse($date)->format('l') }} : {{ $formatted_date }}</b></h6>
-                                                </td>
-                                            </tr>
-                                            
-                                            @foreach($day_tasks as $task)
-                                                <tr>
-                                                    <td>
-                                                        <div class="d-flex px-2">
-                                                            <div class="my-auto">
-                                                                <h6 class="mb-0 text-s"><b>{{$task->task_name}}</b></h6>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <p class="text-s font-weight-bold mb-0">
-                                                            @php
-                                                                $employee_name = App\Models\Employees::where('id', $task->employee_id)->pluck('name');
-                                                            @endphp
-                                                            {{$employee_name[0]}}
-                                                        </p>
-                                                    </td>
-                                                    <td class="clickable" data-field="start_date" data-task-id="{{ $task->id }}" style="cursor: pointer; color: blue;">
-                                                        {{ \Carbon\Carbon::parse($task->start_date)->format('d-m-Y H:i:s') }}
-                                                    </td>
-                                                    <td class="clickable" data-field="end_date" data-task-id="{{ $task->id }}" style="cursor: pointer; color: blue;">
-                                                        {{ $task->end_date ? \Carbon\Carbon::parse($task->end_date)->format('d-m-Y H:i:s') : 'Still Working' }}
-                                                    </td>
-                                                    <td id="duration-{{ $task->id }}" class="duration clickable" data-task-id="{{ $task->id }}">
-                                                        
-                                                            @php
-                                                                $tasktotalduration = $task->duration;
-                                                                $taskhours = floor($tasktotalduration / 60);
-                                                                $taskminutes = $tasktotalduration % 60;
-                                                                $total_duration += $tasktotalduration;
-                                                                $daily_duration += $tasktotalduration;
-                                                            @endphp
-                                                            <span class="badge badge-dot me-4">
-                                                                <i class="bg-info"></i>
-                                                                <span class="duration text-dark text-sm" style="cursor: pointer; color: blue !important;font-size: 15px !important; font-weight: bold !important;">
-                                                                    {{$taskhours}}h:{{$taskminutes}}m      
-                                                                </span>
-                                                            </span>
-                                                        
-                                                    </td>
-                                                    <td>
-                                                        <button class="btn btn-sm btn-info ms-2 move-duration-btn p-2 m-2" 
-                                                            data-task-id="{{$task->id}}" 
-                                                            data-project-id="{{$task->project_id}}" 
-                                                            data-employee-id="{{$task->employee_id}}"
-                                                            data-start-date="{{$task->start_date}}"
-                                                            data-end-date="{{$task->end_date}}"
-                                                            data-duration="{{$task->duration}}">
-                                                            Move Duration
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                            
-                                            <tr>
-                                                <td colspan="4" class="text-end">
-                                                    <p class="text-sm font-weight-bold mb-0">
-                                                        <b>Daily Total</b>
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    @php
-                                                        $dailyhours = floor($daily_duration / 60);
-                                                        $dailyminutes = $daily_duration % 60;
-                                                    @endphp
-                                                    <span class="duration text-dark" style="margin-left: 15px;">
-                                                        <strong>{{$dailyhours}}h:{{$dailyminutes}}m</strong>      
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        
-                                        <tr>
-                                            <td colspan="4" class="text-end">
-                                                <p class="text-s font-weight-bold mb-0">
-                                                    <b>Grand Total</b>
-                                                </p>
-                                            </td>
-                                            <td>
-                                                @php
-                                                    $totalhours = floor($total_duration / 60);
-                                                    $totalminutes = $total_duration % 60;
-                                                @endphp
-                                                <span class="duration text-dark text-s">
-                                                    <strong>{{$totalhours}}h:{{$totalminutes}}m</strong>      
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
+    {{-- Carte de la Table (style Tailwind) --}}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tâche</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employé</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Début</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Fin</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durée</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Déplacer Durée</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @php 
+                        $total_duration = 0;
+                        $grouped_tasks = $tasks->groupBy(function($task) {
+                            return \Carbon\Carbon::parse($task->start_date)->format('Y-m-d');
+                        })->sortKeys();
+                    @endphp
                     
+                    @foreach($grouped_tasks as $date => $day_tasks)
+                        @php
+                            $daily_duration = 0;
+                            $formatted_date = \Carbon\Carbon::parse($date)->format('d-m-Y');
+                        @endphp
+                        
+                        {{-- Ligne d'en-tête de Date --}}
+                        <tr>
+                            <td colspan="6" class="px-6 py-3 bg-gray-100">
+                                <h6 class="mb-0 text-sm font-bold text-gray-900">{{ \Carbon\Carbon::parse($date)->format('l') }} : {{ $formatted_date }}</h6>
+                            </td>
+                        </tr>
+                        
+                        @foreach($day_tasks as $task)
+                            <tr>
+                                {{-- Tâche --}}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                                    {{$task->task_name}}
+                                </td>
+                                {{-- Employé --}}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    @php
+                                        $employee_name = App\Models\Employees::where('id', $task->employee_id)->pluck('name')->first();
+                                    @endphp
+                                    {{$employee_name}}
+                                </td>
+                                {{-- Date Début --}}
+                                <td class="clickable px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-medium cursor-pointer hover:underline" data-field="start_date" data-task-id="{{ $task->id }}">
+                                    {{ \Carbon\Carbon::parse($task->start_date)->format('d-m-Y H:i:s') }}
+                                </td>
+                                {{-- Date Fin --}}
+                                <td class="clickable px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-medium cursor-pointer hover:underline" data-field="end_date" data-task-id="{{ $task->id }}">
+                                    {{ $task->end_date ? \Carbon\Carbon::parse($task->end_date)->format('d-m-Y H:i:s') : 'En cours' }}
+                                </td>
+                                {{-- Durée --}}
+                                <td id="duration-{{ $task->id }}" class="duration clickable px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-bold cursor-pointer hover:underline" data-task-id="{{ $task->id }}">
+                                    @php
+                                        $tasktotalduration = $task->duration;
+                                        $taskhours = floor($tasktotalduration / 60);
+                                        $taskminutes = $tasktotalduration % 60;
+                                        $total_duration += $tasktotalduration;
+                                        $daily_duration += $tasktotalduration;
+                                    @endphp
+                                    {{$taskhours}}h:{{ str_pad($taskminutes, 2, '0', STR_PAD_LEFT) }}m
+                                </td>
+                                {{-- Déplacer Durée --}}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <button class="move-duration-btn inline-flex items-center bg-gray-600 hover:bg-gray-700 text-white font-medium px-3 py-1.5 rounded-lg text-xs" 
+                                            data-task-id="{{$task->id}}" 
+                                            data-project-id="{{$task->project_id}}" 
+                                            data-employee-id="{{$task->employee_id}}"
+                                            data-start-date="{{$task->start_date}}"
+                                            data-end-date="{{$task->end_date}}"
+                                            data-duration="{{$task->duration}}">
+                                        Déplacer
+                                    </button>
+                                </td>
+                            </tr>
+                        @endforeach
+                        
+                        {{-- Ligne Total Quotidien --}}
+                        <tr>
+                            <td colspan="4" class="px-6 py-4 text-right text-sm font-bold text-gray-800">
+                                Total Quotidien
+                            </td>
+                            <td class="px-6 py-4 text-sm font-bold text-gray-900">
+                                @php
+                                    $dailyhours = floor($daily_duration / 60);
+                                    $dailyminutes = $daily_duration % 60;
+                                @endphp
+                                {{$dailyhours}}h:{{ str_pad($dailyminutes, 2, '0', STR_PAD_LEFT) }}m
+                            </td>
+                            <td class="px-6 py-4"></td> {{-- Cellule vide pour l'alignement --}}
+                        </tr>
+                    @endforeach
+                    
+                    {{-- Ligne Grand Total --}}
+                    <tr class="bg-gray-50 border-t-2 border-gray-300">
+                        <td colspan="4" class="px-6 py-4 text-right text-base font-bold text-gray-900">
+                            Grand Total
+                        </td>
+                        <td class="px-6 py-4 text-base font-bold text-blue-700">
+                            @php
+                                $totalhours = floor($total_duration / 60);
+                                $totalminutes = $total_duration % 60;
+                            @endphp
+                            {{$totalhours}}h:{{ str_pad($totalminutes, 2, '0', STR_PAD_LEFT) }}m
+                        </td>
+                        <td class="px-6 py-4"></td> {{-- Cellule vide pour l'alignement --}}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</main>
+</div>
 
-                </div>
+{{-- MODALS BOOTSTRAP (Conservés pour la fonctionnalité) --}}
+{{-- J'ai ajouté des classes Tailwind à l'intérieur pour améliorer le style --}}
 
+<div class="modal fade" id="editDateModal" tabindex="-1" aria-labelledby="editDateModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title" id="editDateModalLabel">Modifier Date et Heure</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <form id="editDateForm">
+            <div class="mb-3">
+                <label for="dateInput" class="form-label">Date</label>
+                <input type="date" class="form-control" id="dateInput" required>
             </div>
-            
-            
+            <div class="mb-3">
+                <label for="timeInput" class="form-label">Heure</label>
+                <input type="time" class="form-control" id="timeInput" required>
+            </div>
+            <input type="hidden" id="taskId" value="">
+            <input type="hidden" id="fieldName" value="">
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+        <button type="button" class="btn btn-primary" id="saveChangesBtn">Enregistrer</button>
+    </div>
+</div>
+</div>
+</div>
 
-
-
-
-
-
-    </main>
-
-
-    @include('dashboard_layouts.scripts')
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-
+<div class="modal fade" id="moveDurationModal" tabindex="-1" aria-labelledby="moveDurationModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+<div class="modal-content"> 
+    <div class="modal-header">
+        <h5 class="modal-title" id="moveDurationModalLabel">Déplacer la Durée</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <form id="moveDurationForm">
+            <div class="mb-3">
+                <label for="projectSelect" class="form-label">Projet</label>
+                <select class="form-select" id="projectSelect" required> {{-- form-select est une classe Bootstrap --}}
+                    @foreach($projects as $project)
+                        <option value="{{ $project->id }}">{{ $project->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="taskSelect" class="form-label">Tâche</label>
+                <select class="form-select" id="taskSelect" required>
+                    </select>
+            </div>
+            <div class="mb-3">
+                <label for="employeeSelect" class="form-label">Employé</label>
+                <select class="form-select" id="employeeSelect" required>
+                    @foreach($employees as $employee)
+                        <option value="{{ $employee->id }}">{{ $employee->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="moveStartDate" class="form-label">Date de Début</label>
+                <input type="datetime-local" class="form-control" id="moveStartDate" required>
+            </div>
+            <div class="mb-3">
+                <label for="moveEndDate" class="form-label">Date de Fin</label>
+                <input type="datetime-local" class="form-control" id="moveEndDate" required>
+            </div>
+            <div class="mb-3">
+                <label for="moveDuration" class="form-label">Durée (HH:MM)</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="moveDuration" 
+                       required 
+                       pattern="^([0-9]{2}h:[0-9]{2}m)$"
+                       placeholder="00h:00m">
+                <div class="invalid-feedback">
+                    Veuillez entrer la durée au format : 00h:00m
+                </div>
+            </div>
+            <input type="hidden" id="moveDurationMinutes">
+            <input type="hidden" id="originalTaskId" value="">
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+        <button type="button" class="btn btn-primary" id="saveMoveChangesBtn">Enregistrer</button>
+    </div>
+</div>
+    </div>
+    {{-- 1. jQuery (requis pour Bootstrap et AJAX) --}}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
     
-
-
+    {{-- 2. Bootstrap JS (requis pour les Modals) --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {{-- 3. Vos autres scripts (si @include('dashboard_layouts.scripts') les contient) --}}
+    {{-- @include('dashboard_layouts.scripts') --}}
+    
+    {{-- 4. Scripts de logique de la page --}}
     <script type="text/javascript">
     $(document).ready(function() {
         $.ajaxSetup({
@@ -245,41 +258,10 @@ th {
         }); 
     });
     </script>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-    <div class="modal fade" id="editDateModal" tabindex="-1" aria-labelledby="editDateModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editDateModalLabel">Edit Date and Time</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editDateForm">
-                        <div class="mb-3">
-                            <label for="dateInput" class="form-label">Date</label>
-                            <input type="date" class="form-control" id="dateInput" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="timeInput" class="form-label">Time</label>
-                            <input type="time" class="form-control" id="timeInput" required>
-                        </div>
-                        <input type="hidden" id="taskId" value="">
-                        <input type="hidden" id="fieldName" value="">
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="saveChangesBtn">Save changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle clicks on date/time cells
+        // Gérer les clics sur les cellules date/heure
         const cells = document.querySelectorAll('.clickable');
         cells.forEach(cell => {
             cell.addEventListener('click', function() {
@@ -287,10 +269,10 @@ th {
                 const taskId = this.getAttribute('data-task-id');
                 const currentValue = this.textContent.trim();
                 
-                // Check if this is a duration cell
+                // Vérifier si c'est une cellule de durée
                 if (this.classList.contains('duration')) {
-                    // Handle duration editing
-                    var newValue = prompt("Enter new duration for task");
+                    // Gérer l'édition de la durée
+                    var newValue = prompt("Entrer la nouvelle durée pour la tâche (ex: 1h:30m ou 90m)");
                     if (newValue) {
                         var updatedurl;
                         @if(Auth::user()->hasRole('Admin'))
@@ -310,25 +292,25 @@ th {
                             url: updatedurl,
                             type: 'POST',
                             data: {
-                                duration: newValue,
+                                duration: newValue, // Le backend doit être capable de parser "1h:30m" ou "90m"
                                 _token: '{{ csrf_token() }}'
                             },
                             success: function(response) {
                                 if (response.status == 'success') {
                                     location.reload();
                                 } else {
-                                    location.reload();
+                                    location.reload(); // Recharger même en cas d'échec pour voir le message d'erreur
                                 }
                             }
                         });
                     }
                 } else {
-                    // Handle date/time editing
-                    if (currentValue !== 'Still Working') {
+                    // Gérer l'édition de date/heure
+                    if (currentValue !== 'En cours' && currentValue) {
                         const [datePart, timePart] = currentValue.split(' ');
                         const [day, month, year] = datePart.split('-');
                         const formattedDate = `${year}-${month}-${day}`;
-                        const formattedTime = timePart.substring(0, 5);
+                        const formattedTime = timePart ? timePart.substring(0, 5) : '00:00';
 
                         document.getElementById('dateInput').value = formattedDate;
                         document.getElementById('timeInput').value = formattedTime;
@@ -341,13 +323,13 @@ th {
             });
         });
 
-        // Handle save changes button in modal
+        // Gérer le bouton "Sauvegarder" dans le modal de date
         document.getElementById('saveChangesBtn').addEventListener('click', function() {
             const taskId = document.getElementById('taskId').value;
             const field = document.getElementById('fieldName').value;
             const date = document.getElementById('dateInput').value;
             const time = document.getElementById('timeInput').value;
-            const newValue = `${date} ${time}`;
+            const newValue = `${date} ${time}`; // Format YYYY-MM-DD HH:MM
 
             var updateUrl;
             @if(Auth::user()->hasRole('Admin'))
@@ -374,7 +356,7 @@ th {
                     if (response.status === 'success') {
                         location.reload();
                     } else {
-                        alert('Failed to update the value.');
+                        alert('Échec de la mise à jour.');
                     }
                 }
             });
@@ -383,74 +365,11 @@ th {
         });
     });
     </script>
-
-    <div class="modal fade" id="moveDurationModal" tabindex="-1" aria-labelledby="moveDurationModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content"> 
-                <div class="modal-header">
-                    <h5 class="modal-title" id="moveDurationModalLabel">Move Duration</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="moveDurationForm">
-                        <div class="mb-3">
-                            <label for="projectSelect" class="form-label">Project</label>
-                            <select class="form-control" id="projectSelect" required>
-                                @foreach($projects as $project)
-                                    <option value="{{ $project->id }}">{{ $project->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="taskSelect" class="form-label">Task</label>
-                            <select class="form-control" id="taskSelect" required>
-                                <!-- Tasks will be populated dynamically -->
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="employeeSelect" class="form-label">Employee</label>
-                            <select class="form-control" id="employeeSelect" required>
-                                @foreach($employees as $employee)
-                                    <option value="{{ $employee->id }}">{{ $employee->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="moveStartDate" class="form-label">Start Date</label>
-                            <input type="datetime-local" class="form-control" id="moveStartDate" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="moveEndDate" class="form-label">End Date</label>
-                            <input type="datetime-local" class="form-control" id="moveEndDate" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="moveDuration" class="form-label">Duration (HH:MM)</label>
-                            <input type="text" 
-                                   class="form-control" 
-                                   id="moveDuration" 
-                                   required 
-                                   pattern="^([0-9]{2}h:[0-9]{2}m)$"
-                                   placeholder="00h:00m">
-                            <div class="invalid-feedback">
-                                Please enter duration in format: 00h:00m
-                            </div>
-                        </div>
-                        <input type="hidden" id="moveDurationMinutes">
-                        <input type="hidden" id="originalTaskId" value="">
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="saveMoveChangesBtn">Save changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     
-<script>
+    {{-- Script pour le Modal "Déplacer Durée" --}}
+    <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle Move Duration button clicks
+        // Gérer les clics sur le bouton "Déplacer Durée"
         document.querySelectorAll('.move-duration-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const taskId = this.getAttribute('data-task-id');
@@ -460,36 +379,39 @@ th {
                 const endDate = this.getAttribute('data-end-date');
                 const duration = this.getAttribute('data-duration');
 
-                // Set initial values in the modal
+                // Définir les valeurs initiales dans le modal
                 document.getElementById('projectSelect').value = projectId;
                 document.getElementById('employeeSelect').value = employeeId;
-                document.getElementById('moveStartDate').value = startDate;
-                document.getElementById('moveEndDate').value = endDate;
+                // Formater correctement les dates pour datetime-local
+                document.getElementById('moveStartDate').value = formatDateTimeForInput(startDate);
+                document.getElementById('moveEndDate').value = formatDateTimeForInput(endDate);
                 document.getElementById('moveDuration').value = minutesToHoursMinutes(parseInt(duration));
                 document.getElementById('moveDurationMinutes').value = duration;
                 document.getElementById('originalTaskId').value = taskId;
 
-                // Load tasks for selected project
+                // Charger les tâches pour le projet sélectionné
                 loadTasksForProject(projectId, taskId);
 
                 $('#moveDurationModal').modal('show');
             });
         });
 
-        // Handle project selection change
+        // Gérer le changement de sélection de projet
         document.getElementById('projectSelect').addEventListener('change', function() {
             loadTasksForProject(this.value);
         });
 
-        // Function to format datetime for input with timezone adjustment
+        // Formater la date/heure pour l'input (le format doit être YYYY-MM-DDTHH:MM)
         function formatDateTimeForInput(dateString) {
+            if (!dateString) return '';
             const date = new Date(dateString);
-            // Add one hour to compensate for timezone difference
-            date.setHours(date.getHours() + 1);
-            return date.toISOString().slice(0, 16);
+            // Ajuster pour le fuseau horaire local si nécessaire
+            const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+            const localDate = new Date(date.getTime() - userTimezoneOffset);
+            return localDate.toISOString().slice(0, 16);
         }
 
-        // Function to load tasks for a project
+        // Charger les tâches pour un projet
         function loadTasksForProject(projectId, selectedTaskId = null) {
             let url;
             @if(Auth::user()->hasRole('Admin'))
@@ -511,33 +433,24 @@ th {
                     const taskSelect = document.getElementById('taskSelect');
                     taskSelect.innerHTML = '';
                     
-                    // Add the current task first if it exists
-                    if (selectedTaskId) {
-                        const currentTask = tasks.find(task => task.id == selectedTaskId);
-                        if (currentTask) {
-                            const option = new Option(currentTask.name, currentTask.id, true, true);
-                            taskSelect.add(option);
-                        }
-                    }
-                    
-                    // Add all other tasks
                     tasks.forEach(task => {
-                        if (!selectedTaskId || task.id != selectedTaskId) {
-                            const option = new Option(task.name, task.id);
-                            taskSelect.add(option);
+                        const option = new Option(task.name, task.id);
+                        if (selectedTaskId && task.id == selectedTaskId) {
+                            option.selected = true;
                         }
+                        taskSelect.add(option);
                     });
                 });
         }
 
-        // Function to convert duration from minutes to HH:MM format
+        // Convertir les minutes en format HH:MM
         function minutesToHoursMinutes(minutes) {
             const hours = Math.floor(minutes / 60);
             const remainingMinutes = minutes % 60;
             return `${hours.toString().padStart(2, '0')}h:${remainingMinutes.toString().padStart(2, '0')}m`;
         }
 
-        // Function to convert HH:MM format to minutes
+        // Convertir le format HH:MM en minutes
         function hoursMinutesToMinutes(durationString) {
             const matches = durationString.match(/^(\d{2})h:(\d{2})m$/);
             if (!matches) return null;
@@ -547,7 +460,7 @@ th {
             return (hours * 60) + minutes;
         }
 
-        // Auto-calculate duration when start/end dates change
+        // Auto-calculer la durée lorsque les dates de début/fin changent
         function calculateAndSetDuration() {
             const startValue = document.getElementById('moveStartDate')?.value;
             const endValue = document.getElementById('moveEndDate')?.value;
@@ -555,70 +468,53 @@ th {
             const durationMinutesInput = document.getElementById('moveDurationMinutes');
             const endInput = document.getElementById('moveEndDate');
 
-            if (!startValue || !endValue) {
-                return;
-            }
+            if (!startValue || !endValue) return;
 
             const start = new Date(startValue);
             const end = new Date(endValue);
-
             const diffMs = end - start;
-            if (Number.isNaN(diffMs)) {
-                return;
-            }
 
-            if (diffMs < 0) {
-                // Mark end date invalid if it is before start date
+            if (Number.isNaN(diffMs) || diffMs < 0) {
                 endInput.classList.add('is-invalid');
-                endInput.classList.remove('is-valid');
+                durationInput.value = '00h:00m';
+                durationMinutesInput.value = '0';
                 return;
             } else {
                 endInput.classList.remove('is-invalid');
-                endInput.classList.add('is-valid');
             }
 
             const minutes = Math.floor(diffMs / 60000);
             durationInput.value = minutesToHoursMinutes(minutes);
             durationMinutesInput.value = String(minutes);
             durationInput.classList.remove('is-invalid');
-            durationInput.classList.add('is-valid');
         }
 
-        // Listen to changes on start and end datetime inputs
+        // Écouter les changements sur les inputs de date/heure
         const moveStartDateEl = document.getElementById('moveStartDate');
         const moveEndDateEl = document.getElementById('moveEndDate');
-        if (moveStartDateEl) {
-            moveStartDateEl.addEventListener('change', calculateAndSetDuration);
-            moveStartDateEl.addEventListener('input', calculateAndSetDuration);
-        }
-        if (moveEndDateEl) {
-            moveEndDateEl.addEventListener('change', calculateAndSetDuration);
-            moveEndDateEl.addEventListener('input', calculateAndSetDuration);
-        }
+        if (moveStartDateEl) moveStartDateEl.addEventListener('change', calculateAndSetDuration);
+        if (moveEndDateEl) moveEndDateEl.addEventListener('change', calculateAndSetDuration);
 
-        // Validate duration input format
+        // Valider le format de la durée
         document.getElementById('moveDuration').addEventListener('input', function(e) {
             const input = e.target;
-            const durationPattern = /^[0-9]{2}h:[0-9]{2}m$/;
+            const minutes = hoursMinutesToMinutes(input.value);
             
-            if (durationPattern.test(input.value)) {
+            if (minutes !== null) {
                 input.classList.remove('is-invalid');
-                input.classList.add('is-valid');
-                const minutes = hoursMinutesToMinutes(input.value);
                 document.getElementById('moveDurationMinutes').value = minutes;
             } else {
-                input.classList.remove('is-valid');
                 input.classList.add('is-invalid');
             }
         });
 
-        // Update the save changes handler
+        // Gérer le bouton "Sauvegarder" du modal "Déplacer Durée"
         document.getElementById('saveMoveChangesBtn').addEventListener('click', function() {
             const durationInput = document.getElementById('moveDuration');
             const durationMinutes = document.getElementById('moveDurationMinutes').value;
 
             if (!durationInput.value.match(/^[0-9]{2}h:[0-9]{2}m$/)) {
-                alert('Please enter duration in correct format (00h:00m)');
+                alert('Veuillez entrer la durée au format correct (00h:00m)');
                 return;
             }
 
@@ -628,7 +524,7 @@ th {
                 employee_id: document.getElementById('employeeSelect').value,
                 start_date: document.getElementById('moveStartDate').value,
                 end_date: document.getElementById('moveEndDate').value,
-                duration: durationMinutes, // Send the converted minutes value
+                duration: durationMinutes, // Envoyer la valeur en minutes
                 _token: '{{ csrf_token() }}'
             };
 
@@ -654,16 +550,12 @@ th {
                     if (response.status === 'success') {
                         location.reload();
                     } else {
-                        alert('Failed to move duration: ' + (response.message || 'Unknown error'));
+                        alert('Échec du déplacement de la durée : ' + (response.message || 'Erreur inconnue'));
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.error('Error details:', {
-                        status: status,
-                        error: error,
-                        response: xhr.responseText
-                    });
-                    alert('Error moving duration: ' + error);
+                    console.error('Détails de l\'erreur:', { status, error, response: xhr.responseText });
+                    alert('Erreur lors du déplacement de la durée : ' + error);
                 }
             });
 
@@ -671,7 +563,5 @@ th {
         });
     });
     </script>
-
 </body>
-
 </html>
