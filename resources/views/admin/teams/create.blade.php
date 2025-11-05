@@ -21,9 +21,8 @@
         {{-- Contenu Principal --}}
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
 
-            <div class="w-full max-w-3xl mx-auto"> {{-- Centrer le formulaire --}}
+            <div class="w-full max-w-3xl mx-auto"> 
 
-                {{-- Déterminer les routes en premier --}}
                 @php
                     $formAction = '';
                     $cancelRoute = '';
@@ -104,9 +103,8 @@
     </div>
     
     @livewireScripts
-    @include('dashboard_layouts.scripts') {{-- Inclut vos scripts de base --}}
+    @include('dashboard_layouts.scripts') 
 
-    {{-- Suppression du script 'Choices.js' inutile pour cette page --}}
     <script>
         // Script simple pour désactiver l'autocomplétion
         window.addEventListener('load', function() {

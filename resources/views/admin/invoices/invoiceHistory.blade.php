@@ -4,39 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoices History - BizManager</title>
+    
+    {{-- Bootstrap CSS for Modals --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     @vite('resources/css/app.css') 
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- Keep Bootstrap JS for Modals & Dropdowns --}}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
     
     {{-- Minimal custom styles if absolutely necessary --}}
-<style>
-      /* Style for overdue invoice links */
-    .invoice-link-overdue {
-        color: #dc2626; /* red-600 */
-        font-weight: 600; /* semibold */
-    }
-    .invoice-link-overdue:hover {
-        color: #991b1b; /* red-800 */
-    }
-    .invoice-link-normal {
-        color: #2563eb; /* blue-600 */
-    }
-    .invoice-link-normal:hover {
-        color: #1d4ed8; /* blue-800 */
-    }
-    /* Ensure dropdown menus appear correctly */
-    .dropdown-menu {
-        display: none; /* Hidden by default */
-        position: absolute;
-        z-index: 1000; /* Ensure it's above other content */
-    }
-    .dropdown-menu.show {
-        display: block; /* Show when toggled */
-    }
-</style>
+    <style>
+        /* Style for overdue invoice links */
+        .invoice-link-overdue {
+            color: #dc2626; /* red-600 */
+            font-weight: 600; /* semibold */
+        }
+        .invoice-link-overdue:hover {
+            color: #991b1b; /* red-800 */
+        }
+        .invoice-link-normal {
+            color: #2563eb; /* blue-600 */
+        }
+        .invoice-link-normal:hover {
+            color: #1d4ed8; /* blue-800 */
+        }
+        /* Ensure dropdown menus appear correctly */
+        /*
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            z-index: 1050;
+            min-width: 10rem;
+        }
+        .dropdown-menu.show {
+            display: block;
+        }
+        */
+        /* Fix Bootstrap modal z-index */
+        .modal {
+            z-index: 1055;
+        }
+        .modal-backdrop {
+            z-index: 1050;
+        }
+        
+        /* Table responsive styling */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0;
+            padding: 0;
+        }
+
+        .table {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        /* Make sure the action buttons stay on one line */
+        .table td:last-child {
+            white-space: nowrap;
+        }
+
+        /* Optional: Add some padding to cells */
+        .table td, .table th {
+            padding: 0.75rem;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden font-sans">
 
@@ -225,8 +261,8 @@
 
             {{-- 5. Table Section --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full min-w-full divide-y divide-gray-200" id="invoicesTable">
+                <div class="table-responsive overflow-x-auto">
+                    <table class="w-full min-w-full divide-y divide-gray-200 table" id="invoicesTable">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Invoice N°</th>
@@ -281,241 +317,255 @@
                                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{{ \Carbon\Carbon::parse($invoice->created_at)->format('Y-m-d H:i') }}</td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-green-700">€{{ number_format($invoice->total_ttc, 2, ',', ' ') }}</td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
-    <div class="flex items-center justify-center gap-1.5">
-        
-        {{-- Payment Status Toggle --}}
-        @php
-            $isPaid = \App\Models\invoices_history::where('id', $invoice->id)->value('Payment_status') == 1;
-            $toggleRoute = '';
-            
-            if(Auth::user()->hasRole('Admin'))
-                $toggleRoute = $isPaid ? route('admin.invoice.deactivate', $invoice->id) : route('admin.invoice.activate', $invoice->id);
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        
+                                        {{-- Payment Status Toggle --}}
+                                        @php
+                                            $isPaid = \App\Models\invoices_history::where('id', $invoice->id)->value('Payment_status') == 1;
+                                            $toggleRoute = '';
+                                            
+                                            if(Auth::user()->hasRole('Admin'))
+                                                $toggleRoute = $isPaid ? route('admin.invoice.deactivate', $invoice->id) : route('admin.invoice.activate', $invoice->id);
+                                            elseif(Auth::user()->hasRole('Responsable de projet'))
+                                                $toggleRoute = $isPaid ? route('Responsable_de_projet.invoice.deactivate', $invoice->id) : route('Responsable_de_projet.invoice.activate', $invoice->id);
+                                            elseif(Auth::user()->hasRole('Employee'))
+                                                $toggleRoute = $isPaid ? route('employee.invoice.deactivate', $invoice->id) : route('employee.invoice.activate', $invoice->id);
+                                            elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                                                $toggleRoute = $isPaid ? route('Responsable_gestionnaire.invoice.deactivate', $invoice->id) : route('Responsable_gestionnaire.invoice.activate', $invoice->id);
+                                        @endphp
+                                        
+                                        @if($toggleRoute)
+                                            <form action="{{ $toggleRoute }}" method="post" onsubmit="return confirm('Change payment status?');" class="inline-block">
+                                                @csrf
+                                                <button type="submit"
+                                                        title="{{ $isPaid ? 'Mark as Unpaid' : 'Mark as Paid' }}"
+                                                        class="payment-button p-1 rounded-md {{ $isPaid ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-red-600 hover:bg-red-700 text-white' }}">
+                                                    @if($isPaid)
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    @else
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    @endif
+                                                </button>
+                                            </form>
+                                        @endif
+
+                                        {{-- Send Button --}}
+                                        @can('Send invoice')
+                                        <button type="button" 
+                                                title="{{ $invoice->sentInvoice == 0 ? 'Send Invoice' : 'Resend Invoice' }}"
+                                                class="p-1 rounded-md bg-gray-600 text-white hover:bg-gray-700 send-invoice-btn"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#sendInvoiceModal" 
+                                                data-invoice-id="{{ $invoice->id }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                            </svg>
+                                        </button>
+                                        @endcan
+
+                                        {{-- Reminder Button --}}
+@if(!$isPaid)
+    @can('Send invoice')
+        @php 
+            $reminderRouteBase = '';
+            if(Auth::user()->hasRole('Admin')) 
+                $reminderRouteBase = 'admin.invoice.sendManualremind';
             elseif(Auth::user()->hasRole('Responsable de projet'))
-                $toggleRoute = $isPaid ? route('Responsable_de_projet.invoice.deactivate', $invoice->id) : route('Responsable_de_projet.invoice.activate', $invoice->id);
+                $reminderRouteBase = 'Responsable_de_projet.invoice.sendManualremind';
             elseif(Auth::user()->hasRole('Employee'))
-                $toggleRoute = $isPaid ? route('employee.invoice.deactivate', $invoice->id) : route('employee.invoice.activate', $invoice->id);
+                $reminderRouteBase = 'employee.invoice.sendManualremind';
             elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                $toggleRoute = $isPaid ? route('Responsable_gestionnaire.invoice.deactivate', $invoice->id) : route('Responsable_gestionnaire.invoice.activate', $invoice->id);
+                $reminderRouteBase = 'Responsable_gestionnaire.invoice.sendManualremind';
         @endphp
-        
-        @if($toggleRoute)
-            <form action="{{ $toggleRoute }}" method="post" onsubmit="return confirm('Change payment status?');" class="inline-block">
-                @csrf
-                <button type="submit"
-                        title="{{ $isPaid ? 'Mark as Unpaid' : 'Mark as Paid' }}"
-                        class="payment-button p-1 rounded-md {{ $isPaid ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-red-600 hover:bg-red-700 text-white' }}">
-                    @if($isPaid)
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                    @else
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    @endif
+
+        @if($reminderRouteBase && (!$invoice->first_reminder_date || !$invoice->second_reminder_date || !$invoice->third_reminder_date))
+            <div class="relative inline-block text-left dropdown">
+                <button type="button" 
+                        title="Send Reminder" 
+                        class="p-1 rounded-md bg-yellow-500 text-white hover:bg-yellow-600 dropdown-toggle" 
+                        data-bs-toggle="dropdown" 
+                        aria-expanded="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
                 </button>
-            </form>
-        @endif
-
-        {{-- Send Button --}}
-        @can('Send invoice')
-        <button type="button" 
-                title="{{ $invoice->sentInvoice == 0 ? 'Send Invoice' : 'Resend Invoice' }}"
-                class="p-1 rounded-md bg-gray-600 text-white hover:bg-gray-700"
-                data-bs-toggle="modal" 
-                data-bs-target="#sendInvoiceModal" 
-                data-invoice-id="{{ $invoice->id }}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg>
-        </button>
-        @endcan
-
-        {{-- Reminder Button --}}
-        @if(!$isPaid)
-            @can('Send invoice')
-                @php 
-                    $reminderRouteBase = '';
-                    if(Auth::user()->hasRole('Admin')) 
-                        $reminderRouteBase = 'admin.invoice.sendManualremind';
-                    elseif(Auth::user()->hasRole('Responsable de projet'))
-                        $reminderRouteBase = 'Responsable_de_projet.invoice.sendManualremind';
-                    elseif(Auth::user()->hasRole('Employee'))
-                        $reminderRouteBase = 'employee.invoice.sendManualremind';
-                    elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                        $reminderRouteBase = 'Responsable_gestionnaire.invoice.sendManualremind';
-                @endphp
-                
-                @if($reminderRouteBase && (!$invoice->first_reminder_date || !$invoice->second_reminder_date || !$invoice->third_reminder_date))
-                    <div class="relative inline-block text-left dropdown">
-                        <button type="button" 
-                                title="Send Reminder" 
-                                class="p-1 rounded-md bg-yellow-500 text-white hover:bg-yellow-600 dropdown-toggle" 
-                                data-bs-toggle="dropdown" 
-                                aria-expanded="false">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                        </button>
-                        <ul class="dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                            @if(!$invoice->first_reminder_date)
-                                <li><a class="dropdown-item block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 1]) }}">Reminder 1</a></li>
-                            @endif
-                            @if($invoice->first_reminder_date && !$invoice->second_reminder_date)
-                                <li><a class="dropdown-item block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 2]) }}">Reminder 2</a></li>
-                            @endif
-                            @if($invoice->second_reminder_date && !$invoice->third_reminder_date)
-                                <li><a class="dropdown-item block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 3]) }}">Reminder 3</a></li>
-                            @endif
-                        </ul>
-                    </div>
-                @endif
-            @endcan
-        @endif
-
-        {{-- Credit Note Button --}}
-        <div class="relative inline-block text-left dropdown">
-            <button type="button" 
-                    title="Create Credit Note" 
-                    class="p-1 rounded-md bg-purple-600 text-white hover:bg-purple-700 dropdown-toggle" 
-                    data-bs-toggle="dropdown" 
-                    aria-expanded="false">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-            </button>
-            <ul class="dropdown-menu absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                @php 
-                    $creditNoteRoute = '';
-                    $detailedCreditNoteRoute = '';
-                    
-                    if(Auth::user()->hasRole('Admin')) {
-                        $creditNoteRoute = 'admin.invoice.creditNote';
-                        $detailedCreditNoteRoute = 'admin.invoice.detailedCreditNote';
-                    } elseif(Auth::user()->hasRole('Responsable de projet')) {
-                        $creditNoteRoute = 'Responsable_de_projet.invoice.creditNote';
-                        $detailedCreditNoteRoute = 'Responsable_de_projet.invoice.detailedCreditNote';
-                    } elseif(Auth::user()->hasRole('Employee')) {
-                        $creditNoteRoute = 'employee.invoice.creditNote';
-                        $detailedCreditNoteRoute = 'employee.invoice.detailedCreditNote';
-                    } elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                        $creditNoteRoute = 'Responsable_gestionnaire.invoice.creditNote';
-                        $detailedCreditNoteRoute = 'Responsable_gestionnaire.invoice.detailedCreditNote';
-                    }
-                @endphp
-                
-                @if($invoice->type == 'Detailed')
-                    @if($detailedCreditNoteRoute)
-                        <li><a class="dropdown-item block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route($detailedCreditNoteRoute, $invoice->id) }}?type=full">Full</a></li>
+                <ul class="dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                    @if(!$invoice->first_reminder_date)
+                        <li>
+                            <a href="#" class="dropdown-item" onclick="sendReminder({{ $invoice->id }}, 1)">Reminder 1</a>
+                        </li>
                     @endif
-                @else
-                    @if($creditNoteRoute)
-                        <li><a class="dropdown-item block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route($creditNoteRoute, $invoice->id) }}?type=full">Full</a></li>
+                    @if($invoice->first_reminder_date && !$invoice->second_reminder_date)
+                        <li>
+                            <a href="#" class="dropdown-item" onclick="sendReminder({{ $invoice->id }}, 2)">Reminder 2</a>
+                        </li>
                     @endif
-                @endif
-            </ul>
-        </div>
-
-        {{-- Edit Button --}}
-        @if($invoice->id === $invoices->max('id') || $invoice->sentInvoice == 0)
-            @php 
-                $editRoute = '';
-                
-                if(Auth::user()->hasRole('Admin')) {
-                    if($invoice->type == 'Partial')
-                        $editRoute = route('admin.invoices.editPartialInvoice', $invoice->id);
-                    elseif($invoice->type == 'Percentage')
-                        $editRoute = route('admin.invoices.editPercentageInvoice', $invoice->id);
-                    elseif($invoice->type == 'Period')
-                        $editRoute = route('admin.invoices.editPeriodInvoice', $invoice->id);
-                    elseif($invoice->type == 'Detailed')
-                        $editRoute = route('admin.invoices.editDetailedInvoice', $invoice->id);
-                    else
-                        $editRoute = route('admin.invoices.editFullInvoice', $invoice->id);
-                } elseif(Auth::user()->hasRole('Responsable de projet')) {
-                    if($invoice->type == 'Partial')
-                        $editRoute = route('Responsable_de_projet.invoices.editPartialInvoice', $invoice->id);
-                    elseif($invoice->type == 'Percentage')
-                        $editRoute = route('Responsable_de_projet.invoices.editPercentageInvoice', $invoice->id);
-                    elseif($invoice->type == 'Period')
-                        $editRoute = route('Responsable_de_projet.invoices.editPeriodInvoice', $invoice->id);
-                    elseif($invoice->type == 'Detailed')
-                        $editRoute = route('Responsable_de_projet.invoices.editDetailedInvoice', $invoice->id);
-                    else
-                        $editRoute = route('Responsable_de_projet.invoices.editFullInvoice', $invoice->id);
-                } elseif(Auth::user()->hasRole('Employee')) {
-                    if($invoice->type == 'Partial')
-                        $editRoute = route('employee.invoices.editPartialInvoice', $invoice->id);
-                    elseif($invoice->type == 'Percentage')
-                        $editRoute = route('employee.invoices.editPercentageInvoice', $invoice->id);
-                    elseif($invoice->type == 'Period')
-                        $editRoute = route('employee.invoices.editPeriodInvoice', $invoice->id);
-                    elseif($invoice->type == 'Detailed')
-                        $editRoute = route('employee.invoices.editDetailedInvoice', $invoice->id);
-                    else
-                        $editRoute = route('employee.invoices.editFullInvoice', $invoice->id);
-                } elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                    if($invoice->type == 'Partial')
-                        $editRoute = route('Responsable_gestionnaire.invoices.editPartialInvoice', $invoice->id);
-                    elseif($invoice->type == 'Percentage')
-                        $editRoute = route('Responsable_gestionnaire.invoices.editPercentageInvoice', $invoice->id);
-                    elseif($invoice->type == 'Period')
-                        $editRoute = route('Responsable_gestionnaire.invoices.editPeriodInvoice', $invoice->id);
-                    elseif($invoice->type == 'Detailed')
-                        $editRoute = route('Responsable_gestionnaire.invoices.editDetailedInvoice', $invoice->id);
-                    else
-                        $editRoute = route('Responsable_gestionnaire.invoices.editFullInvoice', $invoice->id);
-                }
-            @endphp
-            
-            @if($editRoute)
-            <a href="{{ $editRoute }}" 
-               title="Edit Invoice" 
-               class="p-1 rounded-md bg-blue-600 text-white hover:bg-blue-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-            </a>
-            @endif
+                    @if($invoice->second_reminder_date && !$invoice->third_reminder_date)
+                        <li>
+                            <a href="#" class="dropdown-item" onclick="sendReminder({{ $invoice->id }}, 3)">Reminder 3</a>
+                        </li>
+                    @endif
+                </ul>
+            </div>
         @endif
+    @endcan
+@endif
 
-        {{-- Delete Button --}}
-        @if($invoice->id === $invoices->max('id'))
-            @can('Delete invoice')
-                @php 
-                    $deleteRoute = '';
-                    
-                    if(Auth::user()->hasRole('Admin'))
-                        $deleteRoute = route('admin.invoice.destroy', $invoice->id);
-                    elseif(Auth::user()->hasRole('Responsable de projet'))
-                        $deleteRoute = route('Responsable_de_projet.invoice.destroy', $invoice->id);
-                    elseif(Auth::user()->hasRole('Employee'))
-                        $deleteRoute = route('employee.invoice.destroy', $invoice->id);
-                    elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                        $deleteRoute = route('Responsable_gestionnaire.invoice.destroy', $invoice->id);
-                @endphp
-                
-                @if($deleteRoute)
-                <form action="{{ $deleteRoute }}" 
-                      method="post" 
-                      onsubmit="return confirm('Delete this invoice? This cannot be undone.');" 
-                      class="inline-block">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" 
-                            title="Delete Invoice" 
-                            class="p-1 rounded-md bg-red-600 text-white hover:bg-red-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                    </button>
-                </form>
-                @endif
-            @endcan
+
+{{-- Credit Note Button --}}
+<div class="relative inline-block text-left dropdown">
+    <button type="button" 
+            title="Create Credit Note" 
+            class="p-1 rounded-md bg-purple-600 text-white hover:bg-purple-700 dropdown-toggle" 
+            data-bs-toggle="dropdown" 
+            aria-expanded="false">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+    </button>
+    <ul class="dropdown-menu absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+        @php 
+            $creditNoteRoute = '';
+            $detailedCreditNoteRoute = '';
+
+            if(Auth::user()->hasRole('Admin')) {
+                $creditNoteRoute = 'admin.invoice.creditNote';
+                $detailedCreditNoteRoute = 'admin.invoice.detailedCreditNote';
+            } elseif(Auth::user()->hasRole('Responsable de projet')) {
+                $creditNoteRoute = 'Responsable_de_projet.invoice.creditNote';
+                $detailedCreditNoteRoute = 'Responsable_de_projet.invoice.detailedCreditNote';
+            } elseif(Auth::user()->hasRole('Employee')) {
+                $creditNoteRoute = 'employee.invoice.creditNote';
+                $detailedCreditNoteRoute = 'employee.invoice.detailedCreditNote';
+            } elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                $creditNoteRoute = 'Responsable_gestionnaire.invoice.creditNote';
+                $detailedCreditNoteRoute = 'Responsable_gestionnaire.invoice.detailedCreditNote';
+            }
+        @endphp
+
+        @if($invoice->type == 'Detailed' && $detailedCreditNoteRoute)
+            <li>
+                <a href="#" class="dropdown-item" onclick="showPartialDetailedPopup({{ $invoice->id }}, {{ $invoice->totalCost }})">Partial</a>
+            </li>
+            <li>
+                <a href="{{ route($detailedCreditNoteRoute, $invoice->id) }}?type=full" class="dropdown-item">Full</a>
+            </li>
+        @elseif($creditNoteRoute)
+            <li>
+                <a href="#" class="dropdown-item" onclick="showPartialPopup({{ $invoice->id }}, {{ $invoice->totalCost }})">Partial</a>
+            </li>
+            <li>
+                <a href="{{ route($creditNoteRoute, $invoice->id) }}?type=full" class="dropdown-item">Full</a>
+            </li>
         @endif
-        
-    </div>
-</td>
+    </ul>
+</div>
+
+
+                                        {{-- Edit Button --}}
+                                        @if($invoice->id === $invoices->max('id') || $invoice->sentInvoice == 0)
+                                            @php 
+                                                $editRoute = '';
+                                                
+                                                if(Auth::user()->hasRole('Admin')) {
+                                                    if($invoice->type == 'Partial')
+                                                        $editRoute = route('admin.invoices.editPartialInvoice', $invoice->id);
+                                                    elseif($invoice->type == 'Percentage')
+                                                        $editRoute = route('admin.invoices.editPercentageInvoice', $invoice->id);
+                                                    elseif($invoice->type == 'Period')
+                                                        $editRoute = route('admin.invoices.editPeriodInvoice', $invoice->id);
+                                                    elseif($invoice->type == 'Detailed')
+                                                        $editRoute = route('admin.invoices.editDetailedInvoice', $invoice->id);
+                                                    else
+                                                        $editRoute = route('admin.invoices.editFullInvoice', $invoice->id);
+                                                } elseif(Auth::user()->hasRole('Responsable de projet')) {
+                                                    if($invoice->type == 'Partial')
+                                                        $editRoute = route('Responsable_de_projet.invoices.editPartialInvoice', $invoice->id);
+                                                    elseif($invoice->type == 'Percentage')
+                                                        $editRoute = route('Responsable_de_projet.invoices.editPercentageInvoice', $invoice->id);
+                                                    elseif($invoice->type == 'Period')
+                                                        $editRoute = route('Responsable_de_projet.invoices.editPeriodInvoice', $invoice->id);
+                                                    elseif($invoice->type == 'Detailed')
+                                                        $editRoute = route('Responsable_de_projet.invoices.editDetailedInvoice', $invoice->id);
+                                                    else
+                                                        $editRoute = route('Responsable_de_projet.invoices.editFullInvoice', $invoice->id);
+                                                } elseif(Auth::user()->hasRole('Employee')) {
+                                                    if($invoice->type == 'Partial')
+                                                        $editRoute = route('employee.invoices.editPartialInvoice', $invoice->id);
+                                                    elseif($invoice->type == 'Percentage')
+                                                        $editRoute = route('employee.invoices.editPercentageInvoice', $invoice->id);
+                                                    elseif($invoice->type == 'Period')
+                                                        $editRoute = route('employee.invoices.editPeriodInvoice', $invoice->id);
+                                                    elseif($invoice->type == 'Detailed')
+                                                        $editRoute = route('employee.invoices.editDetailedInvoice', $invoice->id);
+                                                    else
+                                                        $editRoute = route('employee.invoices.editFullInvoice', $invoice->id);
+                                                } elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                                                    if($invoice->type == 'Partial')
+                                                        $editRoute = route('Responsable_gestionnaire.invoices.editPartialInvoice', $invoice->id);
+                                                    elseif($invoice->type == 'Percentage')
+                                                        $editRoute = route('Responsable_gestionnaire.invoices.editPercentageInvoice', $invoice->id);
+                                                    elseif($invoice->type == 'Period')
+                                                        $editRoute = route('Responsable_gestionnaire.invoices.editPeriodInvoice', $invoice->id);
+                                                    elseif($invoice->type == 'Detailed')
+                                                        $editRoute = route('Responsable_gestionnaire.invoices.editDetailedInvoice', $invoice->id);
+                                                    else
+                                                        $editRoute = route('Responsable_gestionnaire.invoices.editFullInvoice', $invoice->id);
+                                                }
+                                            @endphp
+                                            
+                                            @if($editRoute)
+                                            <a href="{{ $editRoute }}" 
+                                               title="Edit Invoice" 
+                                               class="p-1 rounded-md bg-blue-600 text-white hover:bg-blue-700">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </a>
+                                            @endif
+                                        @endif
+
+                                        {{-- Delete Button --}}
+                                        @if($invoice->id === $invoices->max('id'))
+                                            @can('Delete invoice')
+                                                @php 
+                                                    $deleteRoute = '';
+                                                    
+                                                    if(Auth::user()->hasRole('Admin'))
+                                                        $deleteRoute = route('admin.invoice.destroy', $invoice->id);
+                                                    elseif(Auth::user()->hasRole('Responsable de projet'))
+                                                        $deleteRoute = route('Responsable_de_projet.invoice.destroy', $invoice->id);
+                                                    elseif(Auth::user()->hasRole('Employee'))
+                                                        $deleteRoute = route('employee.invoice.destroy', $invoice->id);
+                                                    elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                                                        $deleteRoute = route('Responsable_gestionnaire.invoice.destroy', $invoice->id);
+                                                @endphp
+                                                
+                                                @if($deleteRoute)
+                                                <form action="{{ $deleteRoute }}" 
+                                                      method="post" 
+                                                      onsubmit="return confirm('Delete this invoice? This cannot be undone.');" 
+                                                      class="inline-block">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" 
+                                                            title="Delete Invoice" 
+                                                            class="p-1 rounded-md bg-red-600 text-white hover:bg-red-700">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                                @endif
+                                            @endcan
+                                        @endif
+                                        
+                                    </div>
+                                </td>
                             </tr>
                            @empty
                             <tr>
@@ -529,176 +579,206 @@
                 </div>
             </div> 
 
-            {{-- Modals (Keep Bootstrap structure, ideally style inside partials with Tailwind)
-            @include('admin.invoices.partials.send_invoice_modal')
-            @include('admin.invoices.partials.invoice_report_modal')
-            @include('admin.invoices.partials.partial_credit_note_modal')
-            @include('admin.invoices.partials.partial_detailed_credit_note_modal')--}}
-
             {{-- Send Invoice Modal --}}
-<div class="modal fade" id="sendInvoiceModal" tabindex="-1" aria-labelledby="sendInvoiceModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="sendInvoiceModalLabel">Send Invoice</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="sendInvoiceForm" method="post" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <h6 class="text-sm font-medium text-gray-700 mb-2">Select Recipients:</h6>
-                        <div id="recipientsList" class="space-y-2 p-3 border border-gray-200 rounded-lg bg-gray-50">
-                            <!-- Recipients will be populated here -->
+            <div class="modal fade" id="sendInvoiceModal" tabindex="-1" aria-labelledby="sendInvoiceModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="sendInvoiceModalLabel">Send Invoice</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="fileUpload" class="block text-sm font-medium text-gray-700 mb-2">Upload Additional Files (Optional):</label>
-                        <input type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" id="fileUpload" name="file[]" multiple>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Send Invoice</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-{{-- Partial Credit Note Modal --}}
-<div class="modal fade" id="partialCreditNoteModal" tabindex="-1" aria-labelledby="partialCreditNoteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="partialCreditNoteModalLabel">Partial Credit Note</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="partialCreditNoteForm">
-                    <div class="mb-3">
-                        <label for="partialAmount" class="block text-sm font-medium text-gray-700 mb-2">Enter Amount:</label>
-                        <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" id="partialAmount" name="partialAmount" step="0.0001" required>
-                        <span id="error-message" class="text-red-600 text-sm mt-1 hidden">Amount exceeds total cost.</span>
-                    </div>
-                    <input type="hidden" id="invoiceId" name="invoiceId">
-                    <input type="hidden" id="totalCost" name="totalCost">
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="submitPartialCreditNote()">Submit</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-{{-- Partial Detailed Credit Note Modal --}}
-<div class="modal fade" id="partialDetailedCreditNoteModal" tabindex="-1" aria-labelledby="partialDetailedCreditNoteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="partialDetailedCreditNoteModalLabel">Partial Credit Note for Detailed Invoice</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="partialDetailedCreditNoteForm">
-                    <div class="mb-3">
-                        <label for="partialDetailedAmount" class="block text-sm font-medium text-gray-700 mb-2">Enter Amount:</label>
-                        <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" id="partialDetailedAmount" name="partialDetailedAmount" step="0.0001" required>
-                        <span id="detailed-error-message" class="text-red-600 text-sm mt-1 hidden">Amount exceeds total cost.</span>
-                    </div>
-                    <input type="hidden" id="detailedInvoiceId" name="detailedInvoiceId">
-                    <input type="hidden" id="detailedTotalCost" name="detailedTotalCost">
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="submitPartialDetailedCreditNote()">Submit</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-{{-- Invoice Report Modal --}}
-<div class="modal fade" id="invoiceReportModal" tabindex="-1" aria-labelledby="invoiceReportModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="invoiceReportModalLabel">Download Invoices Reports</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Choose payment statuses (optional):</label>
-                    <div class="space-y-2">
-                        <div class="flex items-center">
-                            <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="invoiceReportStatus[]" id="status_paid" value="paid">
-                            <label class="ml-2 text-sm text-gray-700" for="status_paid">Paid</label>
-                        </div>
-                        <div class="flex items-center">
-                            <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="invoiceReportStatus[]" id="status_unpaid" value="unpaid">
-                            <label class="ml-2 text-sm text-gray-700" for="status_unpaid">Unpaid</label>
-                        </div>
-                    </div>
-                    
-                    <hr class="my-4">
-                    
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Choose invoice types (optional):</label>
-                    <div class="space-y-2">
-                        <div class="flex items-center">
-                            <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="invoiceReportTypes[]" id="type_partial" value="partial">
-                            <label class="ml-2 text-sm text-gray-700" for="type_partial">Partial</label>
-                        </div>
-                        <div class="flex items-center">
-                            <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="invoiceReportTypes[]" id="type_percentage" value="percentage">
-                            <label class="ml-2 text-sm text-gray-700" for="type_percentage">Percentage</label>
-                        </div>
-                        <div class="flex items-center">
-                            <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="invoiceReportTypes[]" id="type_full" value="full">
-                            <label class="ml-2 text-sm text-gray-700" for="type_full">Full</label>
-                        </div>
-                        <div class="flex items-center">
-                            <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="invoiceReportTypes[]" id="type_period" value="period">
-                            <label class="ml-2 text-sm text-gray-700" for="type_period">Period</label>
-                        </div>
-                        <div class="flex items-center">
-                            <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="invoiceReportTypes[]" id="type_detailed" value="detailed">
-                            <label class="ml-2 text-sm text-gray-700" for="type_detailed">Detailed</label>
-                        </div>
-                    </div>
-                    
-                    <hr class="my-4">
-                    
-                    <div class="flex items-center">
-                        <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="credit_note_applied" value="1">
-                        <label class="ml-2 text-sm text-gray-700" for="credit_note_applied">Credit note applied</label>
+                        <form id="sendInvoiceForm" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <h6 class="text-sm font-medium text-gray-700 mb-2">Select Recipients:</h6>
+                                    <div id="recipientsList" class="space-y-2 p-3 border border-gray-200 rounded-lg bg-gray-50">
+                                        <!-- Recipients will be populated here -->
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="fileUpload" class="block text-sm font-medium text-gray-700 mb-2">Upload Additional Files (Optional):</label>
+                                    <input type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" id="fileUpload" name="file[]" multiple>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Send Invoice</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <small class="text-gray-500 text-xs">Date range (optional) will be applied from the fields at the top.</small>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="confirmInvoiceReport">Download PDF</button>
+
+            {{-- Partial Credit Note Modal --}}
+            <div class="modal fade" id="partialCreditNoteModal" tabindex="-1" aria-labelledby="partialCreditNoteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="partialCreditNoteModalLabel">Partial Credit Note</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="partialCreditNoteForm">
+                                <div class="mb-3">
+                                    <label for="partialAmount" class="block text-sm font-medium text-gray-700 mb-2">Enter Amount:</label>
+                                    <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" id="partialAmount" name="partialAmount" step="0.0001" required>
+                                    <span id="error-message" class="text-red-600 text-sm mt-1 hidden">Amount exceeds total cost.</span>
+                                </div>
+                                <input type="hidden" id="invoiceId" name="invoiceId">
+                                <input type="hidden" id="totalCost" name="totalCost">
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="submitPartialCreditNote()">Submit</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
+
+            {{-- Partial Detailed Credit Note Modal --}}
+            <div class="modal fade" id="partialDetailedCreditNoteModal" tabindex="-1" aria-labelledby="partialDetailedCreditNoteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="partialDetailedCreditNoteModalLabel">Partial Credit Note for Detailed Invoice</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="partialDetailedCreditNoteForm">
+                                <div class="mb-3">
+                                    <label for="partialDetailedAmount" class="block text-sm font-medium text-gray-700 mb-2">Enter Amount:</label>
+                                    <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" id="partialDetailedAmount" name="partialDetailedAmount" step="0.0001" required>
+                                    <span id="detailed-error-message" class="text-red-600 text-sm mt-1 hidden">Amount exceeds total cost.</span>
+                                </div>
+                                <input type="hidden" id="detailedInvoiceId" name="detailedInvoiceId">
+                                <input type="hidden" id="detailedTotalCost" name="detailedTotalCost">
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="submitPartialDetailedCreditNote()">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Invoice Report Modal --}}
+            <div class="modal fade" id="invoiceReportModal" tabindex="-1" aria-labelledby="invoiceReportModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="invoiceReportModalLabel">Download Invoices Reports</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Choose payment statuses (optional):</label>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="invoiceReportStatus[]" id="status_paid" value="paid">
+                                        <label class="ml-2 text-sm text-gray-700" for="status_paid">Paid</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="invoiceReportStatus[]" id="status_unpaid" value="unpaid">
+                                        <label class="ml-2 text-sm text-gray-700" for="status_unpaid">Unpaid</label>
+                                    </div>
+                                </div>
+                                
+                                <hr class="my-4">
+                                
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Choose invoice types (optional):</label>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="invoiceReportTypes[]" id="type_partial" value="partial">
+                                        <label class="ml-2 text-sm text-gray-700" for="type_partial">Partial</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="invoiceReportTypes[]" id="type_percentage" value="percentage">
+                                        <label class="ml-2 text-sm text-gray-700" for="type_percentage">Percentage</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="invoiceReportTypes[]" id="type_full" value="full">
+                                        <label class="ml-2 text-sm text-gray-700" for="type_full">Full</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="invoiceReportTypes[]" id="type_period" value="period">
+                                        <label class="ml-2 text-sm text-gray-700" for="type_period">Period</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="invoiceReportTypes[]" id="type_detailed" value="detailed">
+                                        <label class="ml-2 text-sm text-gray-700" for="type_detailed">Detailed</label>
+                                    </div>
+                                </div>
+                                
+                                <hr class="my-4">
+                                
+                                <div class="flex items-center">
+                                    <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="credit_note_applied" value="1">
+                                    <label class="ml-2 text-sm text-gray-700" for="credit_note_applied">Credit note applied</label>
+                                </div>
+                            </div>
+                            <small class="text-gray-500 text-xs">Date range (optional) will be applied from the fields at the top.</small>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" id="confirmInvoiceReport">Download PDF</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div> 
 
     {{-- SCRIPTS --}}
-    @livewireScripts
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    {{-- IMPORTANT: Keep Bootstrap JS for Modals & Dropdowns --}}
+    {{-- Bootstrap JS for Modals & Dropdowns - Load BEFORE AlpineJS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
 
 <script>
-        // All your previous JS functions (showPartialPopup, submitPartialCreditNote, showPartialDetailedPopup, submitPartialDetailedCreditNote, datePicker, showMessage, filtering logic, modal logic) should go here.
-        // Ensure the showMessage function uses the Tailwind classes as updated in the previous response.
+// Initialize Bootstrap dropdowns after page load
+/document.addEventListener('DOMContentLoaded', function() {
+    var dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+    dropdownElementList.forEach(function (dropdownToggleEl) {
+        new bootstrap.Dropdown(dropdownToggleEl);
+      });
+    });
 
-        // Example: Updated showMessage
+
+
+
+
+
+function sendReminder(invoiceId, reminderNumber) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    let url = '';
+
+    @if(Auth::user()->hasRole('Admin')) url = `/admin/invoice/${invoiceId}/sendManualremind?reminder=${reminderNumber}`; @endif
+    @if(Auth::user()->hasRole('Responsable de projet')) url = `/Responsable_de_projet/invoice/${invoiceId}/sendManualremind?reminder=${reminderNumber}`; @endif
+    @if(Auth::user()->hasRole('Employee')) url = `/employee/invoice/${invoiceId}/sendManualremind?reminder=${reminderNumber}`; @endif
+    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = `/Responsable_gestionnaire/invoice/${invoiceId}/sendManualremind?reminder=${reminderNumber}`; @endif
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            showMessage('Reminder sent successfully', 'success');
+        } else {
+            showMessage('Error sending reminder: ' + (data.message || 'Unknown error'), 'danger');
+        }
+    })
+    .catch(err => showMessage('Error sending reminder: ' + err.message, 'danger'));
+}
+
+        // Updated showMessage function
         function showMessage(message, type) {
             const messageContainer = document.getElementById('messageContainer');
             const messageText = document.getElementById('messageText');
@@ -721,7 +801,6 @@
             setTimeout(() => { if (messageContainer) { messageContainer.style.display = 'none'; } }, 5000);
         }
 
-        // --- Keep ALL other original script blocks here ---
         // Function to show the partial credit note modal
         function showPartialPopup(invoiceId, totalCost) {
           document.getElementById('invoiceId').value = invoiceId;
@@ -766,14 +845,9 @@
           })
           .then(response => response.text())
           .then(html => {
-             // Instead of replacing the whole document, maybe update the table or show a success message?
-             // For now, keeping the original behavior:
             document.open();
             document.write(html);
             document.close();
-             // Consider redirecting or using showMessage instead:
-             // showMessage('Credit note generated successfully.', 'success');
-             // setTimeout(() => window.location.reload(), 1500);
           })
           .catch(error => {
             console.error('Error:', error);
@@ -821,8 +895,8 @@
              @endif
 
             url = url.replace(':id', invoiceId);
-            console.log('Redirecting to: ' + url); // Debug log
-            window.location.href = url; // Redirects to the credit note generation page/PDF
+            console.log('Redirecting to: ' + url);
+            window.location.href = url;
         }
 
 
@@ -830,13 +904,13 @@
         document.addEventListener("DOMContentLoaded", function() {
             // Invoices report modal opener
             const invoiceReportModalEl = document.getElementById('invoiceReportModal');
-            let invoiceReportModal; // Define variable outside
+            let invoiceReportModal;
             if (invoiceReportModalEl) {
-                 invoiceReportModal = new bootstrap.Modal(invoiceReportModalEl); // Initialize if element exists
+                 invoiceReportModal = new bootstrap.Modal(invoiceReportModalEl);
             }
 
             const openInvoiceReportModalBtn = document.getElementById('openInvoiceReportModal');
-            if (openInvoiceReportModalBtn && invoiceReportModal) { // Check if modal exists
+            if (openInvoiceReportModalBtn && invoiceReportModal) {
                 openInvoiceReportModalBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     invoiceReportModal.show();
@@ -844,13 +918,15 @@
             }
 
             const confirmInvoiceReportBtn = document.getElementById('confirmInvoiceReport');
-            if (confirmInvoiceReportBtn && invoiceReportModal) { // Check if modal exists
+            if (confirmInvoiceReportBtn && invoiceReportModal) {
                 confirmInvoiceReportBtn.addEventListener('click', function() {
                     let baseUrl = '';
-                    // Role-based routing (keep as is)
-                     @if(Auth::user()->hasRole('Responsable de projet')) baseUrl = "{{route('Responsable_de_projet.Invoicessrepports.downloadRepports')}}"; @endif
-                     @if(Auth::user()->hasRole('Admin')) baseUrl = "{{route('admin.Invoicessrepports.downloadRepports')}}"; @endif
-                     // ... other roles ...
+                    try {
+                        @if(Auth::user()->hasRole('Responsable de projet')) baseUrl = "{{route('Responsable_de_projet.Invoicessrepports.downloadRepports')}}"; @endif
+                        @if(Auth::user()->hasRole('Admin')) baseUrl = "{{route('admin.Invoicessrepports.downloadRepports')}}"; @endif
+                        @if(Auth::user()->hasRole('Employee')) baseUrl = "{{route('employee.Invoicessrepports.downloadRepports')}}"; @endif
+                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) baseUrl = "{{route('Responsable_gestionnaire.Invoicessrepports.downloadRepports')}}"; @endif
+                    } catch (e) {}
 
                     const startDateEl = document.getElementById('startDate');
                     const endDateEl = document.getElementById('endDate');
@@ -887,53 +963,46 @@
             function filterTable() {
                 const clientValue = clientFilter ? clientFilter.value.toLowerCase() : '';
                 const projectValue = projectFilter ? projectFilter.value.toLowerCase() : '';
-                const paymentValue = paymentFilter ? paymentFilter.value : ''; // Paid/Unpaid/''
+                const paymentValue = paymentFilter ? paymentFilter.value : '';
                 const typeValue = typeFilter ? typeFilter.value.toLowerCase() : '';
 
                 const rows = document.querySelectorAll('#invoicesTable tbody tr');
                 let hasVisibleRows = false;
                 rows.forEach(row => {
-                    // Handle potential empty table row message
                      if (row.children.length === 1 && row.children[0].getAttribute('colspan') === '8') {
-                         row.style.display = 'none'; // Hide the "No invoices" message initially
+                         row.style.display = 'none';
                          return;
                      }
 
                     const clientName = row.querySelector('td:nth-child(4)')?.textContent.trim().toLowerCase() || '';
                     const projectName = row.querySelector('td:nth-child(2)')?.textContent.trim().toLowerCase() || '';
-                    const paymentButton = row.querySelector('.payment-button'); // Find the button
-                    // Determine status based on button text/class - needs careful check of button structure
+                    const paymentButton = row.querySelector('.payment-button');
                      let paymentStatus = '';
                      if (paymentButton) {
-                         // Example: Check text content or a class
-                          paymentStatus = paymentButton.textContent.trim(); // Assumes text is 'Paid' or 'Unpaid'
-                         // Or if you use classes: paymentStatus = paymentButton.classList.contains('bg-green-600') ? 'Paid' : 'Unpaid';
+                         paymentStatus = paymentButton.textContent.trim();
                      }
 
                     const invoiceTypeCell = row.querySelector('td:nth-child(5)')?.textContent.trim().toLowerCase() || '';
-                    const invoiceType = invoiceTypeCell.split('-')[0]; // Get base type
+                    const invoiceType = invoiceTypeCell.split('-')[0];
 
-                    // Apply filters
                     const clientMatch = clientValue === '' || clientName.includes(clientValue);
                     const projectMatch = projectValue === '' || projectName.includes(projectValue);
                     const paymentMatch = paymentValue === '' || paymentStatus === paymentValue;
                     const typeMatch = typeValue === '' || invoiceType === typeValue;
 
                     if (clientMatch && projectMatch && paymentMatch && typeMatch) {
-                        row.style.display = ''; // Show row
+                        row.style.display = '';
                         hasVisibleRows = true;
                     } else {
-                        row.style.display = 'none'; // Hide row
+                        row.style.display = 'none';
                     }
                 });
 
-                // Show "No invoices" message if no rows are visible
                  const noInvoicesRow = document.querySelector('#invoicesTable tbody tr td[colspan="8"]');
                  if (noInvoicesRow) {
                      noInvoicesRow.parentElement.style.display = hasVisibleRows ? 'none' : '';
                  }
             }
-             // Initial filter on load
             filterTable();
         });
 
@@ -941,7 +1010,10 @@
          // Send Invoice Modal script
          document.addEventListener('DOMContentLoaded', function () {
              var sendInvoiceModalEl = document.getElementById('sendInvoiceModal');
-             if (!sendInvoiceModalEl) return; // Exit if modal doesn't exist
+             if (!sendInvoiceModalEl) return;
+
+             // Initialize modal properly
+             var sendInvoiceModal = new bootstrap.Modal(sendInvoiceModalEl);
 
              sendInvoiceModalEl.addEventListener('show.bs.modal', function (event) {
                  var button = event.relatedTarget;
@@ -950,45 +1022,49 @@
 
                  // Set form action based on role (keep as is)
                  @if(Auth::user()->hasRole('Admin')) form.action = '{{ route("admin.invoice.sendInvoice", ":invoice_id") }}'.replace(':invoice_id', invoiceId); @endif
-                 // ... other roles ...
+                 @if(Auth::user()->hasRole('Responsable de projet')) form.action = '{{ route("Responsable_de_projet.invoice.sendInvoice", ":invoice_id") }}'.replace(':invoice_id', invoiceId); @endif
+                 @if(Auth::user()->hasRole('Employee')) form.action = '{{ route("employee.invoice.sendInvoice", ":invoice_id") }}'.replace(':invoice_id', invoiceId); @endif
+                 @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) form.action = '{{ route("Responsable_gestionnaire.invoice.sendInvoice", ":invoice_id") }}'.replace(':invoice_id', invoiceId); @endif
 
-                 // Fetch recipients (keep as is, check URL /admin/... if needed)
-                 fetch(`/admin/invoice/${invoiceId}/recipients`) // Check this URL if roles change path
+                 // Fetch recipients
+                 fetch(`/admin/invoice/${invoiceId}/recipients`)
                      .then(response => response.json())
                      .then(data => {
                          const recipientsList = document.getElementById('recipientsList');
                          recipientsList.innerHTML = '';
                          if (data.recipients && data.recipients.length > 0) {
                              data.recipients.forEach(recipient => {
-                                 // Create checkbox and label (keep as is)
                                  const recipientDiv = document.createElement('div');
-                                 recipientDiv.className = 'mb-2 flex items-center'; // Use flex for alignment
+                                 recipientDiv.className = 'mb-2 flex items-center';
 
                                  const checkbox = document.createElement('input');
                                  checkbox.type = 'checkbox';
                                  checkbox.name = 'selected_recipients[]';
                                  checkbox.value = recipient.email;
                                  checkbox.id = `recipient-${recipient.email}`;
-                                 checkbox.className = 'form-check-input h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-2'; // Tailwind classes
-                                 checkbox.checked = recipient.is_comptable === 1; // Default check
+                                 checkbox.className = 'form-check-input h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-2';
+                                 checkbox.checked = recipient.is_comptable === 1;
 
                                  const label = document.createElement('label');
-                                 label.className = 'form-check-label text-sm text-gray-700'; // Tailwind classes
+                                 label.className = 'form-check-label text-sm text-gray-700';
                                  label.htmlFor = `recipient-${recipient.email}`;
-                                 label.innerHTML = `<span class="font-medium">${recipient.name}</span> (${recipient.email})`; // Adjusted style
+                                 label.innerHTML = `<strong>${recipient.name}</strong> (${recipient.email})`;
 
                                  recipientDiv.appendChild(checkbox);
                                  recipientDiv.appendChild(label);
                                  recipientsList.appendChild(recipientDiv);
                              });
                          } else {
-                             recipientsList.innerHTML = '<p class="text-sm text-gray-500">No recipients found</p>'; // Tailwind classes
+                             recipientsList.innerHTML = '<p class="text-sm text-gray-500">No recipients found</p>';
                          }
                      })
-                     .catch(error => { /* ... error handling ... */ });
+                     .catch(error => { 
+                         console.error('Error fetching recipients:', error);
+                         document.getElementById('recipientsList').innerHTML = '<p class="text-sm text-red-600">Error loading recipients</p>';
+                     });
              });
 
-             // Handle form submission (keep as is)
+             // Handle form submission
              const sendInvoiceForm = document.getElementById('sendInvoiceForm');
              if (sendInvoiceForm) {
                  sendInvoiceForm.addEventListener('submit', function(e) {
@@ -998,28 +1074,46 @@
 
                      const formData = new FormData(this);
                      formData.delete('selected_recipients[]');
-                     formData.append('selected_recipients', JSON.stringify(selectedRecipients)); // Send as JSON string
+                     formData.append('selected_recipients', JSON.stringify(selectedRecipients));
 
-                     fetch(this.action, { /* ... POST request ... */ })
-                         .then(response => response.json())
-                         .then(data => {
-                             if (data.success) {
-                                 const modalInstance = bootstrap.Modal.getInstance(sendInvoiceModalEl);
-                                 if (modalInstance) modalInstance.hide();
-                                 showMessage(data.message, 'success');
-                                 setTimeout(() => window.location.reload(), 2000);
-                             } else { /* ... error handling ... */ }
-                         })
-                         .catch(error => { /* ... error handling ... */ });
+                     fetch(this.action, { 
+                         method: 'POST',
+                         body: formData,
+                         headers: {
+                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                         }
+                     })
+                     .then(response => {
+                         if (!response.ok) {
+                             throw new Error('Network response was not ok');
+                         }
+                         return response.json();
+                     })
+                     .then(data => {
+                         if (data.success) {
+                             var modalInstance = bootstrap.Modal.getInstance(sendInvoiceModalEl);
+                             if (modalInstance) modalInstance.hide();
+                             showMessage(data.message, 'success');
+                             setTimeout(() => window.location.reload(), 2000);
+                         } else { 
+                             showMessage('Error sending invoice: ' + (data.message || 'Unknown error'), 'danger');
+                         }
+                     })
+                     .catch(error => { 
+                         console.error('Error:', error);
+                         showMessage('An error occurred while sending the invoice. Please try again.', 'danger');
+                     });
                  });
              }
          });
 
-         // AlpineJS function (Keep as is)
+         // AlpineJS function
         function datePicker() {
             return { startDate: '', endDate: '' }
         }
-</script>
+
+        
+    </script>
 
 </body>
 </html>

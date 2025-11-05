@@ -194,7 +194,15 @@
                     <span class="inline-block px-2 py-1 text-xs font-medium bg-emerald-100 text-emerald-700 rounded">{{ $employee['status'] }}</span>
                     <p class="text-xs text-gray-600">{{ $employee['type'] }}</p>
                 </td>
-                <td class="px-6 py-4">{{ $employee['teams'] }}</td>
+                <td class="px-6 py-4">
+                    @forelse($employee->teams as $team)
+                    <span class="inline-block px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded mb-1">
+                        {{ $team->name }}
+                    </span>
+                    @empty
+                    <span class="text-xs text-gray-400">No team</span>
+                    @endforelse
+                </td>
                 <td class="px-6 py-4">
                     <span class="inline-block px-2 py-1 text-xs text-gray-700 bg-gray-100 rounded">
                         {{ $employee['currentTask'] }}
@@ -216,8 +224,7 @@
                     <p class="text-xs text-gray-600">Limit: {{ $employee['limit'] }}</p>
                 </td>
                 <td class="px-6 py-4 flex gap-2">
-    {{-- We change <button> to <a> and add a dynamic link --}}
-    {{-- I've commented out the route() helper in case it's not set up, using '#' as a fallback --}}
+                    <button>  
     
     {{-- Link to employee settings/show page --}}
     <a href="{{ route('admin.employees.show', $employee->id) }}" class="text-blue-500 hover:text-blue-700">

@@ -1,510 +1,271 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
+<head>
+    <meta charset="UTF-M">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizManager Dashboard</title>
+    @vite('resources/css/app.css')
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+    {{-- Sidebar --}}
+    <x-dashboard.sidebar />
 
-@include('dashboard_layouts.head')
-<style>
-  a {
-    color: blue;
-}
-.font-weight-bolder{
-    color : black !important;
-}
-th {
-    font-size: 14px !important; 
-}
-.text-sm{
-    color: #332f2f;
-}
-</style>
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        {{-- Navbar --}}
+        <x-dashboard.navbar />
 
-<body class="g-sidenav-show bg-gray-100">
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-            style="display: none; visibility: hidden"></iframe></noscript>
-    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+        {{-- Main Content --}}
+        <main class="flex-1 p-4 md:p-6 lg:p-8">
+            
+            {{-- On définit le préfixe de route une seule fois --}}
+            @php
+                $userRole = Auth::user()->getRoleNames()->first();
+                $prefix = 'admin'; // Préfixe par défaut
 
-    @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-        @include('employees.sidebar')
-    @endif
-    @if(Auth::user()->hasRole('Admin'))
-        @include('admin.sidebar')
-    @endif
+                switch ($userRole) {
+                    case 'Responsable de projet':
+                        $prefix = 'Responsable_de_projet';
+                        break;
+                    case 'Employee':
+                        $prefix = 'employee';
+                        break;
+                    case 'Responsable de projet et gestionnaire':
+                        $prefix = 'Responsable_gestionnaire';
+                        break;
+                    case 'Admin':
+                    default:
+                        $prefix = 'admin';
+                        break;
+                }
+            @endphp
 
-    <main class="main-content position-relative border-radius-lg">
-        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
-            id="navbarBlur" data-scroll="false">
-            <div class="container-fluid py-1 px-3">
-                @include('dashboard_layouts.navbar')
-            </div>
-        </nav>
-        <div class="container-fluid py-4">
-            <div class="row mt-3">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header p-3 pb-0">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <h6>Archived Devis Table</h6>
-                                <div class="d-flex align-items-start">
-                                    <div x-data="datePicker()" class="d-flex align-items-center">
-                                   
-                                        <div class="me-2">
-                                            <!--
-                                            <label for="startDate" class="form-label">Start Date:</label>
-                                            <input type="date" id="startDate" class="form-control" x-model="startDate">
-                                            -->
-                                        </div>
-                                        <div class="me-2">
-                                            <!--
-                                            <label for="endDate" class="form-label">End Date:</label>
-                                            <input type="date" id="endDate" class="form-control" x-model="endDate">
-                                            -->
-                                        </div>
-                                        <div>
-                                            <!--
-                                            <label class="form-label d-block">&nbsp;</label>
-                                            <a href="#" @click.prevent="updateHref" class="btn btn-primary mt-2" id="downloadLink">Devis Reports PDF</a>
-                                            -->
-                                            @if(Auth::user()->hasRole('Admin'))
-                                            <a type="button" class="btn btn-primary" href="{{route('admin.devis.devishistory')}}">Return Back</a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet'))
-                                            <a type="button" class="btn btn-primary" href="{{route('Responsable_de_projet.devis.devishistory')}}">Return Back</a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Employee'))
-                                            <a type="button" class="btn btn-primary" href="{{route('employee.devis.devishistory')}}">Return Back</a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                            <a type="button" class="btn btn-primary" href="{{route('Responsable_gestionnaire.devis.devishistory')}}">Return Back</a>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            @php
-                                $Total_Accpeted = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)->where('acceptanceStatus', 1)->where('archived', 1)->sum('budget');
-                                $Total_Declined = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)->where('acceptanceStatus', 2)->where('archived', 1)->sum('budget');
-                                $Total_Pending = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)->where('acceptanceStatus', 0)->where('archived', 1)->sum('budget');
-                            @endphp
-                            <div class="d-flex flex-column align-items-end ms-3"> <!-- Adjusted for alignment and spacing -->
-                                <div class="d-flex align-items-center">
-                                    <div>
-                                        <label for="totalPaid" class="form-label" style="font-size: 16px !important;" >Total Accepted: <label style=" color: #2dce89 !important;font-size: 16px !important;">€{{ number_format($Total_Accpeted, 2, ',', ' ') }}</label> | </label>
-                                    </div>
-                                    <div>
-                                        <label for="totalUnpaid" class="form-label" style="font-size: 16px !important;">Total Declined: <label style=" color: red !important;font-size: 16px !important;">€{{ number_format($Total_Declined, 2, ',', ' ') }}</label> | </label>
-                                    </div>
-                                    <div>
-                                        <label for="totalUnpaid" class="form-label" style="font-size: 16px !important;">Total Pending: <label style=" color: orange !important;font-size: 16px !important;">€{{ number_format($Total_Pending, 2, ',', ' ') }}</label>  </label>
-                                    </div>
-                                </div>
+            <div class="w-full">
+                <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+                    
+                    <div class="px-6 py-5 border-b border-gray-200">
+                        <div class="flex justify-between items-center flex-wrap gap-3">
+                            <h6 class="text-xl font-semibold text-gray-800">Archived Devis Table</h6>
+                            <div>
+                                @hasanyrole(['Admin', 'Responsable de projet', 'Employee', 'Responsable de projet et gestionnaire'])
+                                    <a type="button" href="{{ url()->previous() }}" class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+                                        Return Back
+                                    </a>
+                                @endhasanyrole
                             </div>
                         </div>
+                    </div>
 
-                        <div class="row mb-3 p-4">
-                            <div class="col-md-3">
-                                <label for="clientFilter" class="form-label">Filter by Client:</label>
-                                <select id="clientFilter" class="form-select">
-                                    <option value="">All Clients</option>
-                                    <!-- Populate dropdown with unique client names -->
-                                    @foreach($clients as $client)
-                                    <option value="{{$client->name}}">{{$client->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-md-3">
-                                <label for="acceptanceFilter" class="form-label">Filter by Accpetance:</label>
-                                <select id="acceptanceFilter" class="form-select">
-                                    <option value="">All Devis</option>
-                                    <option value="Accepted">Accepted</option>
-                                    <option value="Declined">Declined</option>
-                                    <option value="Pending">Pending</option>
-                                </select>
-                            </div>
-
-                            
+                    @php
+                        $Total_Accpeted = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)->where('acceptanceStatus', 1)->where('archived', 1)->sum('budget');
+                        $Total_Declined = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)->where('acceptanceStatus', 2)->where('archived', 1)->sum('budget');
+                        $Total_Pending = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)->where('acceptanceStatus', 0)->where('archived', 1)->sum('budget');
+                    @endphp
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 lg:p-6 bg-gray-50">
+                        <div class="bg-green-50 p-4 rounded-lg shadow-sm">
+                            <span class="text-sm font-medium text-green-700">Total Accepted</span>
+                            <p class="text-2xl font-bold text-green-900">€{{ number_format($Total_Accpeted, 2, ',', ' ') }}</p>
                         </div>
-                        @if(session('message'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert" style="color: white; font-weight: bold;">
-                            {{ session('message') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
+                        <div class="bg-red-50 p-4 rounded-lg shadow-sm">
+                            <span class="text-sm font-medium text-red-700">Total Declined</span>
+                            <p class="text-2xl font-bold text-red-900">€{{ number_format($Total_Declined, 2, ',', ' ') }}</p>
                         </div>
-                        @endif
-                        <table class="table align-items-center mb-0">
-                            <thead>
+                        <div class="bg-yellow-50 p-4 rounded-lg shadow-sm">
+                            <span class="text-sm font-medium text-yellow-700">Total Pending</span>
+                            <p class="text-2xl font-bold text-yellow-900">€{{ number_format($Total_Pending, 2, ',', ' ') }}</p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 lg:p-6 grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-gray-200">
+                        <div>
+                            <label for="clientFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Client:</label>
+                            <select id="clientFilter" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                <option value="">All Clients</option>
+                                @foreach($clients as $client)
+                                <option value="{{$client->name}}">{{$client->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label for="acceptanceFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Acceptance:</label>
+                            <select id="acceptanceFilter" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                <option value="">All Devis</option>
+                                <option value="Accepted">Accepted</option>
+                                <option value="Declined">Declined</option>
+                                <option value="Pending">Pending</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    @if(session('message'))
+                    <div class="m-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                        <span class="block sm:inline">{{ session('message') }}</span>
+                        <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3" data-bs-dismiss="alert" aria-label="Close">X</button>
+                    </div>
+                    @endif
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-100">
                                 <tr>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10">
-                                        devis N
-                                    </th>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10">
-                                        Project Name
-                                    </th>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10">
-                                        Client Name / Emails
-                                    </th>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10 ps-2">
-                                        Budget
-                                    </th>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10 ps-2">
-                                        Unbilled Budget
-                                    </th>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10">
-                                        Created at
-                                    </th>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10">
-                                        Status 
-                                    </th>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10">
-                                        Acceptance
-                                    </th>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10">
-                                        Actions
-                                    </th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Devis N</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Project Name</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Client Name / Emails</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Budget</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Unbilled Budget</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Created at</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Acceptance</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($devis as $d)
                                 <tr>
-                                    <td>
-                                        <p class="align-middle text-center text-sm font-weight-bold mb-0">
-                                            @if(Auth::user()->hasRole('Responsable de projet'))
-                                                <a href="{{ route('Responsable_de_projet.devis.downloadDevis', $d->devis_number) }}">{{$entreprise->devis_prefix}}-{{date('ym')}}{{$d->devis_number}}
-                                                </a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Admin'))
-                                                <a href="{{ route('admin.devis.downloadDevis', $d->devis_number) }}">{{$entreprise->devis_prefix}}-{{date('ym')}}{{$d->devis_number}}
-                                                </a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Employee'))
-                                                <a href="{{ route('employee.devis.downloadDevis', $d->devis_number) }}">{{$entreprise->devis_prefix}}-{{date('ym')}}{{$d->devis_number}}
-                                                </a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                                <a href="{{ route('Responsable_gestionnaire.devis.downloadDevis', $d->devis_number) }}">{{$entreprise->devis_prefix}}-{{date('ym')}}{{$d->devis_number}}
-                                                </a>
-                                            @endif
-                                        </p>
-                                    <td>
-                                        <p class="align-middle text-center text-sm font-weight-bold mb-0">
-                                            @php
-                                            $project = \App\Models\Project::where('id', $d->project_id)->first();
-                                            @endphp
-                                            @if($d->acceptanceStatus == 1 || $d->Existing_project_name != null)
-                                            @if(Auth::user()->hasRole('Admin'))
-                                            <a href="{{route('admin.projects.show', $project->id)}}">{{$project->name}}</a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet'))
-                                            <a href="{{route('Responsable_de_projet.projects.show', $project->id)}}">{{$project->name}}</a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Employee'))
-                                            <a href="{{route('employee.projects.show', $project->id)}}">{{$project->name}}</a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                            <a href="{{route('Responsable_gestionnaire.projects.show', $project->id)}}">{{$project->name}}</a>
-                                            @endif
-                                            @else
-                                            {{$project->name}}
-                                            @endif
-                                        </p>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                                        <a href="{{ route($prefix . '.devis.downloadDevis', $d->devis_number) }}" class="text-indigo-600 hover:text-indigo-900 font-medium">
+                                            {{$entreprise->devis_prefix}}-{{date('ym')}}{{$d->devis_number}}
+                                        </a>
                                     </td>
-
-                                    <td>
-                                        <p class="align-middle text-center text-sm font-weight-bold mb-0">
-                                            @php
+                                    
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-700">
+                                        @php $project = \App\Models\Project::where('id', $d->project_id)->first(); @endphp
+                                        
+                                        @if($d->acceptanceStatus == 1 || $d->Existing_project_name != null)
+                                            <a href="{{ route($prefix . '.projects.show', $project->id) }}" class="text-indigo-600 hover:text-indigo-900">
+                                                {{$project->name}}
+                                            </a>
+                                        @else
+                                            {{$project->name}}
+                                        @endif
+                                    </td>
+                                    
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-700">
+                                        @php
                                             $client = \App\Models\Client::where('id', $d->client_id)->first();
                                             $emails = explode(',', $d->emails);
-                                            @endphp
-                                            @if (empty($client))
+                                        @endphp
+                                        @if (empty($client))
                                             @foreach ($emails as $email)
                                             {{ $email }}<br />
                                             @endforeach
-                                            @else
+                                        @else
                                             {{$client->name}}
-
-                                            @endif
-                                        </p>
+                                        @endif
                                     </td>
-                                    <td>
-                                        <p class="text-center text-sm font-weight-bold mb-0 text-success">€{{ number_format($d->budget, 2, ',', ' ') }}</p>
+                                    
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-green-600">
+                                        €{{ number_format($d->budget, 2, ',', ' ') }}
                                     </td>
-                                    <td>
+                                    
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-700">
                                         @php
-                                            $devisInvoicesTotal = \App\Models\invoices_history::where('devis_id', $d->id)
-                                                ->sum('total_htva');
+                                            $devisInvoicesTotal = \App\Models\invoices_history::where('devis_id', $d->id)->sum('total_htva');
                                             $unbilledBudget = ($d->budget ?? 0) - ($devisInvoicesTotal ?? 0);
                                         @endphp
-                                        <p class="text-center text-sm font-weight-bold mb-0">€{{ number_format(max($unbilledBudget, 0), 2, ',', ' ') }}</p>
+                                        €{{ number_format(max($unbilledBudget, 0), 2, ',', ' ') }}
                                     </td>
-                                    <td>
-                                        <p class="text-center text-sm font-weight-bold mb-0">{{$d->created_at}}
-                                        </p>
+                                    
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
+                                        {{$d->created_at}}
                                     </td>
-                                    <td>
-                                        <p class="text-center text-sm font-weight-bold mb-0">
-                                            @if($d->acceptanceStatus == 1)
-                                            <span class="badge  badge-success"> Accepted </sp> 
-                                            @elseif($d->acceptanceStatus == 2 )
-                                             <span class="badge  badge-danger"> Declined </span> 
-                                            @else
-                                            <span class="badge  badge-warning"> Pending </span> 
-                                            @endif
-                                        </p>
-                                    <td>
-                                        <div class="d-flex text-center"> 
-                                            <div class="d-flex flex-column mr-2">
-                                            @if(Auth::user()->hasRole('Responsable de projet'))
+                                    
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                                        @if($d->acceptanceStatus == 1)
+                                            <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800"> Accepted </span>
+                                        @elseif($d->acceptanceStatus == 2 )
+                                            <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800"> Declined </span>
+                                        @else
+                                            <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800"> Pending </span>
+                                        @endif
+                                    </td>
+                                    
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                        <div class="flex justify-center items-center space-x-2">
+                                            <form action="{{ route($prefix . '.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('Are you sure?');">
+                                                @csrf
+                                                <button type="submit" class="inline-flex items-center justify-center rounded-md border border-transparent bg-green-600 px-3 py-1 text-xs font-medium text-white shadow-sm hover:bg-green-700">
+                                                    Accepted
+                                                </button>
+                                            </form>
+                                            <form action="{{ route($prefix . '.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('Are you sure?');">
+                                                @csrf
+                                                <button type="submit" class="inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-3 py-1 text-xs font-medium text-white shadow-sm hover:bg-red-700">
+                                                    Declined
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
 
-                                                <form action="{{route('Responsable_de_projet.devis.acceptDevis', $d->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-success m-2 payment-button">
-                                                        Accepted
-                                                    </button>
-                                                </form>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                        <div class="flex justify-center items-center flex-wrap gap-2">
+                                            <a href="{{ route($prefix . '.devis.downloadDevis', $d->devis_number) }}" class="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-3 py-1 text-xs font-medium text-white shadow-sm hover:bg-blue-700">
+                                                download
+                                            </a>
                                             
-                                                <form action="{{route('Responsable_de_projet.devis.declineDevis', $d->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-danger m-2 payment-button">
-                                                        Declined
-                                                    </button>
-                                                </form>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Admin'))
-                                                <form action="{{route('admin.devis.acceptDevis', $d->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-success m-2 payment-button">
-                                                        Accepted
-                                                    </button>
-                                                </form>
-                                            
-                                                <form action="{{route('admin.devis.declineDevis', $d->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-danger m-2 payment-button">
-                                                        Declined
-                                                    </button>
-                                                </form>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Employee'))
-                                                <form action="{{route('employee.devis.acceptDevis', $d->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-success m-2 payment-button">
-                                                        Accepted
-                                                    </button>
-                                                </form>
-                                            
-                                                <form action="{{route('employee.devis.declineDevis', $d->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-danger m-2 payment-button">
-                                                        Declined
-                                                    </button>
-                                                </form>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                                <form action="{{route('Responsable_gestionnaire.devis.acceptDevis', $d->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-success m-2 payment-button">
-                                                        Accepted
-                                                    </button>
-                                                </form>
-                                            
-                                                <form action="{{route('Responsable_gestionnaire.devis.declineDevis', $d->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-danger m-2 payment-button">
-                                                        Declined
-                                                    </button>
-                                                </form>
-                                            @endif
-                                            </div>
-                                        </div>
-                                    <td>
-                                        <div class="">
-                                            @if(Auth::user()->hasRole('Admin'))
-                                                <a class="btn btn-sm btn-primary m-2" href="{{ route('admin.devis.downloadDevis', $d->devis_number) }}">
-                                                    download
-                                                </a>
-                                                @can('Send devis')
-                                                <form action="{{ route('admin.devis.sendDevis') }}" method="post" class="d-inline ">
-                                                    @csrf
-                                                    <input type="hidden" name="devis_id" value="{{ $d->id }}">
-                                                    <button type="submit" class="btn btn-sm btn-success m-2">Send</button>
-                                                </form>
-                                                @endcan 
-                                                @can('Delete devis')
-                                                <form action="{{route('admin.devis.destroy', $d->id)}}" method="post" onsubmit="return confirm('Are you sure?');"
-                                                    class="d-inline ">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger m-2">Delete</button>
-                                                </form>
-                                                @endcan
-                                                <form action="{{route('admin.devis.unarchive', $d->id)}}" method="post" onsubmit="return confirm('Are you sure?');"
-                                                    class="d-inline ">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-secondary m-2">Unarchive</button>
-                                                </form>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet'))
-                                                <a class="btn btn-sm btn-primary m-2" href="{{ route('Responsable_de_projet.devis.downloadDevis', $d->devis_number) }}">
-                                                    download
-                                                </a>
-                                                @can('Send devis')
-                                                <form action="{{ route('Responsable_de_projet.devis.sendDevis') }}" method="post" class="d-inline ">
-                                                    @csrf
-                                                    <input type="hidden" name="devis_id" value="{{ $d->id }}">
-                                                    <button type="submit" class="btn btn-sm btn-success m-2">Send</button>
-                                                </form>
-                                                @endcan
-                                                @can('Delete devis')
-                                                <form action="{{route('Responsable_de_projet.devis.destroy', $d->id)}}" method="post" onsubmit="return confirm('Are you sure?');"
-                                                    class="d-inline ">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger m-2">Delete</button>
-                                                </form>
-                                                @endcan
-                                                <form action="{{route('Responsable_de_projet.devis.unarchive', $d->id)}}" method="post" onsubmit="return confirm('Are you sure?');"
-                                                    class="d-inline ">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-secondary m-2">Unarchive</button>
-                                                </form>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Employee'))
-                                                <a class="btn btn-sm btn-primary m-2" href="{{ route('employee.devis.downloadDevis', $d->devis_number) }}">
-                                                    download
-                                                </a>
-                                                @can('Send devis')
-                                                <form action="{{ route('employee.devis.sendDevis') }}" method="post" class="d-inline ">
-                                                    @csrf
-                                                    <input type="hidden" name="devis_id" value="{{ $d->id }}">
-                                                    <button type="submit" class="btn btn-sm btn-success m-2">Send</button>
-                                                </form>
-                                                @endcan
-                                                @can('Delete devis')
-                                                <form action="{{route('employee.devis.destroy', $d->id)}}" method="post" onsubmit="return confirm('Are you sure?');"
-                                                    class="d-inline ">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger m-2">Delete</button>
-                                                </form>
-                                                @endcan
-                                                <form action="{{route('employee.devis.unarchive', $d->id)}}" method="post" onsubmit="return confirm('Are you sure?');"
-                                                    class="d-inline ">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-secondary m-2">Unarchive</button>
-                                                </form>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                                <a class="btn btn-sm btn-primary m-2" href="{{ route('Responsable_gestionnaire.devis.downloadDevis', $d->devis_number) }}">
-                                                    download
-                                                </a>
-                                                @can('Send devis')
-                                                <form action="{{ route('Responsable_gestionnaire.devis.sendDevis') }}" method="post" class="d-inline ">
-                                                    @csrf
-                                                    <input type="hidden" name="devis_id" value="{{ $d->id }}">
-                                                    <button type="submit" class="btn btn-sm btn-success m-2">Send</button>
-                                                </form>
-                                                @endcan
-                                                @can('Delete devis')
-                                                <form action="{{route('Responsable_gestionnaire.devis.destroy', $d->id)}}" method="post" onsubmit="return confirm('Are you sure?');"
-                                                    class="d-inline ">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger m-2">Delete</button>
-                                                </form>
-                                                @endcan
-                                                <form action="{{route('Responsable_gestionnaire.devis.unarchive', $d->id)}}" method="post" onsubmit="return confirm('Are you sure?');"
-                                                    class="d-inline ">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-secondary m-2">Unarchive</button>
-                                                </form>
-                                            @endif
-                                        </div>
-                                    </td>
-                                            
+                                            @can('Send devis')
+                                            <form action="{{ route($prefix . '.devis.sendDevis') }}" method="post" class="inline">
+                                                @csrf
+                                                <input type="hidden" name="devis_id" value="{{ $d->id }}">
+                                                <button type="submit" class="inline-flex items-center justify-center rounded-md border border-transparent bg-green-600 px-3 py-1 text-xs font-medium text-white shadow-sm hover:bg-green-700">Send</button>
+                                            </form>
+                                            @endcan
+
+                                            @can('Delete devis')
+                                            <form action="{{ route($prefix . '.devis.destroy', $d->id) }}" method="post" onsubmit="return confirm('Are you sure?');" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-3 py-1 text-xs font-medium text-white shadow-sm hover:bg-red-700">Delete</button>
+                                            </form>
+                                            @endcan
+
+                                            <form action="{{ route($prefix . '.devis.unarchive', $d->id) }}" method="post" onsubmit="return confirm('Are you sure?');" class="inline">
+                                                @csrf
+                                                <button type="submit" class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50">Unarchive</button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
                                 @endforeach
-
-
-
                             </tbody>
                         </table>
-
                     </div>
+
                 </div>
             </div>
+        </main>
+    </div>
 
-        </div>
-    </main>
-
-
-
-
-    @include('dashboard_layouts.scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
-
     <script>
-    document.getElementById('exportBtn').addEventListener('click', function() {
-        var table = document.getElementById(
-            'taskTable'); // Replace 'yourTableId' with the actual ID of your table
-        var wb = XLSX.utils.table_to_book(table, {
-            sheet: 'Sheet1'
-        });
-        // Get the start date, end date, and task information
-        var startDate = document.getElementById('startDateInput').value;
-        var endDate = document.getElementById('endDateInput').value;
-        var taskInfo = 'TasksInfo'; // Example task information
-
-        // Format the file name
-        var fileName = startDate + '__' + endDate + '_' + taskInfo + '.xlsx';
-
-        // Trigger the file download with the custom file name
-        XLSX.writeFile(wb, fileName);
-    });
+    // ... (Votre script d'export XLSX, il semble correct) ...
     </script>
-
+    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-    // JavaScript for filtering the table
     document.addEventListener("DOMContentLoaded", function() {
-        // Get references to the filter dropdowns
         const clientFilter = document.getElementById('clientFilter');
         const acceptanceFilter = document.getElementById('acceptanceFilter');
 
-        // Add event listeners to filter the table when selection changes
         clientFilter.addEventListener('change', filterTable);
         acceptanceFilter.addEventListener('change', filterTable);
 
         function filterTable() {
             const clientValue = clientFilter.value.toLowerCase();
             const acceptanceValue = acceptanceFilter.value.toLowerCase();
-
-            // Loop through each row in the table
+            
             const rows = document.querySelectorAll('tbody tr');
+            
             rows.forEach(row => {
                 const clientName = row.querySelector('td:nth-child(3)').textContent.trim().toLowerCase();
-                const Acceptance = row.querySelector('td:nth-child(6)').textContent.trim().toLowerCase();
+                
+                // CORRECTION: Cible la 7ème colonne (Status)
+                const acceptanceStatus = row.querySelector('td:nth-child(7)').textContent.trim().toLowerCase();
 
-                // Show or hide the row based on filter selections
-                if ((clientValue === '' || clientName.includes(clientValue)) &&
-                    (acceptanceValue === '' || Acceptance.includes(acceptanceValue))) {
+                const clientMatch = (clientValue === '' || clientName.includes(clientValue));
+                const acceptanceMatch = (acceptanceValue === '' || acceptanceStatus.includes(acceptanceValue));
+
+                if (clientMatch && acceptanceMatch) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
@@ -521,32 +282,17 @@ th {
                 startDate: '',
                 endDate: '',
                 updateHref() {
-                    @if(Auth::user()->hasRole('Responsable de projet'))
-                    const baseUrl = "{{route('Responsable_de_projet.Devissrepports.downloadRepports')}}";
-                    @endif
-                    @if(Auth::user()->hasRole('Admin'))
-                    const baseUrl = "{{route('admin.Devissrepports.downloadRepports')}}";
-                    @endif
-                    @if(Auth::user()->hasRole('Employee'))
-                    const baseUrl = "{{route('employee.Devissrepports.downloadRepports')}}";
-                    @endif
+                    // Script JS CORRIGÉ: Utilise la variable $prefix de Blade
+                    const baseUrl = "{{ route($prefix . '.Devissrepports.downloadRepports') }}";
+                    
                     let urlWithParams = baseUrl;
                     if (this.startDate && this.endDate) {
                         urlWithParams += `?startDate=${this.startDate}&endDate=${this.endDate}`;
                     }
-                    window.location.href = urlWithParams; // Redirect to the updated URL
+                    window.location.href = urlWithParams; // Redirect
                 }
             }
         }
     </script>
-
-
-
-
 </body>
-
 </html>
-
-
-
-                        

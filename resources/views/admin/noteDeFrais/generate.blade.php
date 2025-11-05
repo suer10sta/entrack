@@ -56,7 +56,7 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Total Budget</label>
-                            <input type="number" step="0.0001" id="projectBudget" name="budget" readonly class="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm text-gray-700">
+                            <input type="number" step="0.0001" id="projectBudget" name="budget" class="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm text-gray-700">
                         </div>
                     </div>
 
@@ -108,6 +108,18 @@
     </div>
 
     <script>
+        // --- THIS IS THE NEW CODE YOU NEED ---
+        // Run this script when the page is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Find all *initial* inputs and attach the calculator function
+            // This makes the first row work.
+            document.querySelectorAll('.taskBudget, .taskQuantity').forEach(input => {
+                input.addEventListener('input', updateProjectBudget);
+            });
+        });
+        // --- END OF NEW CODE ---
+
+
         function addInput(divName) {
             var newdiv = document.createElement('div');
             newdiv.classList.add('grid', 'grid-cols-1', 'sm:grid-cols-3', 'gap-6');
@@ -117,6 +129,8 @@
                 <div><input type="number" step="0.0001" name="taskBudget[]" class="taskBudget w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none"></div>
             `;
             document.getElementById(divName).appendChild(newdiv);
+            
+            // This part was already correct: it attaches listeners to *new* inputs
             newdiv.querySelectorAll('.taskBudget, .taskQuantity').forEach(input => input.addEventListener('input', updateProjectBudget));
         }
 
@@ -124,22 +138,26 @@
             const div = document.getElementById(divName);
             if (div.children.length > 1) {
                 div.removeChild(div.lastChild);
-                updateProjectBudget();
+                updateProjectBudget(); // Recalculate after removing
             }
         }
 
+        // Your updateProjectBudget function is already correct for your request.
+        // It multiplies budget by quantity for each row.
         function updateProjectBudget() {
             let total = 0;
             document.querySelectorAll('.taskBudget').forEach((b, i) => {
                 const budget = parseFloat(b.value) || 0;
+                // Find the corresponding quantity input by its index
                 const qty = parseFloat(document.querySelectorAll('.taskQuantity')[i].value) || 0;
+                
+                // Add the (budget * quantity) to the total
                 total += budget * qty;
             });
             document.getElementById('projectBudget').value = total.toFixed(2);
         }
     </script>
     
-    @livewireScripts
-</body>
 
+</body>
 </html>

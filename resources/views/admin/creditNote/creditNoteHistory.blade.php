@@ -6,7 +6,7 @@
     <title>Credit Note History - BizManager</title> 
     @vite('resources/css/app.css')
     @livewireStyles
-    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         select.form-select-custom {
             -webkit-appearance: none;
@@ -120,14 +120,14 @@
             background-color: #B91C1C;
         }
 
-        /* Remove any modals or overlays from view */
+        /* Remove any modals or overlays from view 
         .modal {
             display: none;
         }
         
         .modal.show {
             display: block;
-        }
+        }*/
     </style>
 </head>
 <body class="bg-gray-50">

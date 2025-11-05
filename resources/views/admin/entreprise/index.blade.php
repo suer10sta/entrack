@@ -252,26 +252,9 @@
                                             $backArrow = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 mr-1"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>';
                                         @endphp
 
-                                        @if(Auth::user()->hasRole('Admin'))
-                                            <a class='{{ $backLinkClass }}' href="{{route('admin.index')}}">
-                                                {!! $backArrow !!} Back
-                                            </a>
-                                        @endif
-                                        @if(Auth::user()->hasRole('Responsable de projet'))
-                                            <a class='{{ $backLinkClass }}' href="{{route('Responsable_de_projet.index')}}">
-                                                {!! $backArrow !!} Back
-                                            </a>
-                                        @endif
-                                        @if(Auth::user()->hasRole('Employee'))
-                                            <a class='{{ $backLinkClass }}' href="{{route('employee.index')}}">
-                                                {!! $backArrow !!} Back
-                                            </a>
-                                        @endif
-                                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                            <a class='{{ $backLinkClass }}' href="{{route('Responsable_gestionnaire.index')}}">
-                                                {!! $backArrow !!} Back
-                                            </a>
-                                        @endif
+                                        <a class='{{ $backLinkClass }}' href="{{ url()->previous() }}">
+                                            {!! $backArrow !!} Back
+                                        </a>
                                     </div>
 
                                     {{-- Save Changes Button --}}

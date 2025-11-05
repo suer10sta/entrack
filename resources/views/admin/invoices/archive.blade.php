@@ -1,633 +1,548 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archives des Factures - BizManager</title>
+    @vite('resources/css/app.css') 
+    @livewireStyles
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    {{-- PUISQUE CETTE PAGE UTILISE LES MODALS BOOTSTRAP, LE CSS BOOTSTRAP EST REQUIS --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-@include('dashboard_layouts.head')
-<style>
-  a {
-    color: blue;
-}
-.font-weight-bolder{
-    color : black !important;
-}
+    <style>
+        /* Styles personnalisés pour les selects Tailwind */
+        select.form-select-custom {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+        /* Style pour les lignes de note de crédit */
+        .credit-note-row {
+            background-color: #fffbeb; /* bg-yellow-50 */
+        }
+        .credit-note-text {
+            color: #d97706; /* text-yellow-600 */
+            font-weight: 600;
+        }
+    </style>
+</head>
 
-th {
-    font-size: 14px !important; 
-}
-.text-sm{
-    color: #332f2f;
-}
-.credit-note-row {
-    background-color: #fff3cd !important; /* Light yellow background */
-}
-.action-buttons {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-}
-.credit-note-text {
-    display: inline-flex;
-    align-items: center;
-    margin: 0 8px;
-    font-weight: bold;
-}
-</style>
-<meta name="csrf-token" content="{{ csrf_token() }}">
+<body class="bg-gray-50 flex h-screen overflow-hidden font-sans">
 
-
-<body class="g-sidenav-show bg-gray-100">
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
             style="display: none; visibility: hidden"></iframe></noscript>
-    <div class="min-height-300 bg-primary position-absolute w-100"></div>
 
-    @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-        @include('employees.sidebar')
-    @endif
-    @if(Auth::user()->hasRole('Admin'))
-        @include('admin.sidebar')
-    @endif
+    {{-- Sidebar --}}
+    <x-dashboard.sidebar />
 
-    <main class="main-content position-relative border-radius-lg">
-        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
-            id="navbarBlur" data-scroll="false">   
-            <div class="container-fluid py-1 px-3">
-                @include('dashboard_layouts.navbar')
-            </div>
-        </nav>
-        <div class="container-fluid py-4">
-            <div class="row mt-3">
-                <div class="col-12">
-                    <div class="card table-responsive">
-                    <div class="card-header p-3 pb-0">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <h6>Invoices Archive Table</h6>
-                            <div class="d-flex align-items-start">
-                                <div x-data="datePicker()" class="d-flex align-items-center">
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        {{-- Navbar --}}
+        <x-dashboard.navbar />
+
+        {{-- Contenu Principal --}}
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+
+            <div class="w-full max-w-7xl mx-auto"> {{-- Utilisation de max-w-7xl pour une page large --}}
+
+                {{-- Message de session (style Tailwind) --}}
+                @if(session('message'))
+                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">Succès !</strong>
+                    <span class="block sm:inline">{{ session('message') }}</span>
+                    <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+                </div>
+                @endif
+                
+                {{-- Déterminer les routes en premier --}}
+                @php
+                    $returnRoute = '';
+                    if(Auth::user()->hasRole('Admin')) {
+                        $returnRoute = route('admin.invoices.invoicehistory');
+                    } elseif(Auth::user()->hasRole('Responsable de projet')) {
+                        $returnRoute = route('Responsable_de_projet.invoices.invoicehistory');
+                    } elseif(Auth::user()->hasRole('Employee')) {
+                        $returnRoute = route('employee.invoices.invoicehistory');
+                    } elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                        $returnRoute = route('Responsable_gestionnaire.invoices.invoicehistory');
+                    }
+                    
+                    $totalPaid = App\Models\invoices_history::where('entreprise_id', Auth::user()->entreprise_id)->where('Payment_status', 1)->where('archived', 1)->sum('total_ttc');
+                    $totaltva = App\Models\invoices_history::where('entreprise_id', Auth::user()->entreprise_id)->where('archived', 1)->sum('total_tva');
+                @endphp
+
+                {{-- Carte de la Table (style Tailwind) --}}
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    
+                    {{-- En-tête de la Carte --}}
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex flex-col sm:flex-row justify-between items-start gap-4">
+                            <div>
+                                <h2 class="text-lg font-semibold text-gray-900">Tableau des Archives de Factures</h2>
+                            </div>
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                {{-- Infos Total --}}
+                                <div class="flex items-center gap-4 text-sm">
                                     <div>
-                                        <label class="form-label d-block">&nbsp;</label> <!-- Adjusted for alignment -->
-                                        @if(Auth::user()->hasRole('Admin'))
-                                        <a type="button" class="btn btn-primary" href="{{route('admin.invoices.invoicehistory')}}">Return Back</a>
-                                        @endif
-                                        @if(Auth::user()->hasRole('Responsable de projet'))
-                                        <a type="button" class="btn btn-primary" href="{{route('Responsable_de_projet.invoices.invoicehistory')}}">Return Back</a>
-                                        @endif
-                                        @if(Auth::user()->hasRole('Employee'))
-                                        <a type="button" class="btn btn-primary" href="{{route('employee.invoices.invoicehistory')}}">Return Back</a>
-                                        @endif
-                                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                        <a type="button" class="btn btn-primary" href="{{route('Responsable_gestionnaire.invoices.invoicehistory')}}">Return Back</a>
-                                        @endif
+                                        <span class="font-medium text-gray-700">Total Payé :</span>
+                                        <span class="font-bold text-green-600">€{{ number_format($totalPaid, 2, ',', ' ') }}</span>
+                                    </div>
+                                    <span class="text-gray-300">|</span>
+                                    <div>
+                                        <span class="font-medium text-gray-700">Total TVA :</span>
+                                        <span class="font-bold text-gray-800">€{{ number_format($totaltva, 2, ',', ' ') }}</span>
                                     </div>
                                 </div>
+                                {{-- Bouton Retour --}}
+                                <a type="button" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm" href="{{ $returnRoute }}">
+                                    Retour
+                                </a>
                             </div>
                         </div>
-                        @php
-                            $totalPaid = App\Models\invoices_history::where('entreprise_id', Auth::user()->entreprise_id)->where('Payment_status', 1)->where('archived', 1)->sum('total_ttc');
-                            
-                            $totaltva = App\Models\invoices_history::where('entreprise_id', Auth::user()->entreprise_id)->where('archived', 1)->sum('total_tva');                           
-                        @endphp
-                        <div class="d-flex flex-column align-items-end ms-3"> <!-- Adjusted for alignment and spacing -->
-                            <div class="d-flex align-items-center">
-                                <div>
-                                    <label for="totalPaid" class="form-label" style="font-size: 16px !important;">Total Paid: <label style=" color: #2dce89 !important;font-size: 16px !important;">€{{ number_format($totalPaid, 2, ',', ' ') }}</label> | </label>
-                                </div>
-                                
-                                <div>
-                                    <label for="totalUnpaid" class="form-label" style="font-size: 16px !important;">Total TVA: <label style="font-size: 16px !important;">€{{ number_format($totaltva, 2, ',', ' ') }}</label></label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                        @if(session('message'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('message') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
-                    </div>
-                  @endif
-
-                        <div class="row mb-3 p-4">
-                            <div class="col-md-3">
-                                <label for="clientFilter" class="form-label">Filter by Client:</label>
-                                <select id="clientFilter" class="form-select">
-                                    <option value="">All Clients</option>
-                                    <!-- Populate dropdown with unique client names -->
+                        
+                        {{-- Filtres (style Tailwind) --}}
+                        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                                <label for="clientFilter" class="block text-sm font-medium text-gray-700 mb-1">Filtrer par Client :</label>
+                                <select id="clientFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                                    <option value="">Tous les Clients</option>
                                     @foreach($clients as $client)
                                     <option value="{{$client->name}}">{{$client->name}}</option>
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-3">
-                                <label for="projectFilter" class="form-label">Filter by Project:</label>
-                                <select id="projectFilter" class="form-select">
-                                    <option value="">All Projects</option>
-                                    <!-- Populate dropdown with unique project names -->
+                            <div>
+                                <label for="projectFilter" class="block text-sm font-medium text-gray-700 mb-1">Filtrer par Projet :</label>
+                                <select id="projectFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                                    <option value="">Tous les Projets</option>
                                     @foreach($projects as $project)
                                     <option value="{{$project->name}}">{{strtoupper($project->name)}}</option>
                                     @endforeach
                                 </select>
                             </div>
-
-                            <div class="col-md-3">
-                                <label for="paymentFilter" class="form-label">Filter by Payment:</label>
-                                <select id="paymentFilter" class="form-select">
-                                    <option value="">All Invoices</option>
-                                    <option value="Paid">Paid</option>
-                                    <option value="Unpaid">Unpaid</option>
+                            <div>
+                                <label for="paymentFilter" class="block text-sm font-medium text-gray-700 mb-1">Filtrer par Paiement :</label>
+                                <select id="paymentFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                                    <option value="">Toutes les Factures</option>
+                                    <option value="Paid">Payé</option>
+                                    <option value="Unpaid">Impayé</option> {{-- Note: Probablement inutile pour les archives --}}
                                 </select>
                             </div>
-
-                            <div class="col-md-3">
-                                <label for="typeFilter" class="form-label">Filter by Type:</label>
-                                <select id="typeFilter" class="form-select">
-                                    <option value="">All Invoices</option>
-                                    <option value="Partial Period">Partial Period</option>
-                                    <option value="Full Period">Full Period</option>
+                            <div>
+                                <label for="typeFilter" class="block text-sm font-medium text-gray-700 mb-1">Filtrer par Type :</label>
+                                <select id="typeFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                                    <option value="">Tous les Types</option>
+                                    <option value="Partial Period">Période Partielle</option>
+                                    <option value="Full Period">Période Complète</option>
+                                    {{-- Ajoutez d'autres types si nécessaire --}}
                                 </select>
-                            </div>
-                        </div>
-
-                        <table class="table align-items-center mb-0" id="invoicesTable">
-                            <thead>
-                                <tr>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10">
-                                        Invoice N
-                                    </th>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10">
-                                        Project Name
-                                    </th>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10">
-                                        TVA
-                                    </th>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10">
-                                        Client Name
-                                    </th>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10">
-                                        Invoice Type
-                                    </th>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10">
-                                        Created at
-                                    </th>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10">
-                                        Cost Total
-                                    </th>
-                                    <th
-                                        class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($invoices as $invoice)
-                                <tr @if($invoice->Payment_status == -1) class="credit-note-row" @endif>
-                                    <td>
-                                        <p class="align-middle text-center text-sm font-weight-bold mb-0">
-                                            @php
-                                                $dueDate = \Carbon\Carbon::parse($invoice->due_date);
-                                                $today = \Carbon\Carbon::now();
-                                                $isOverdue = $dueDate->isPast() && !$invoice->Payment_status;
-                                                $daysOverdue = $isOverdue ? $today->diffInDays($dueDate) : 0;
-                                            @endphp
-                                            
-                                            @if(Auth::user()->hasRole('Responsable de projet'))
-                                                <a href="{{ route('Responsable_de_projet.invoices.servePdf', ['invoiceName' => $invoice->id]) }}" 
-                                                    target="_blank" 
-                                                    style="{{ $isOverdue ? 'color: red;' : '' }}">
-                                                    {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
-                                                    @if($isOverdue)
-                                                        <span class="text-danger">({{ $daysOverdue }} days overdue)</span>
-                                                    @endif
-                                                </a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Admin'))
-                                                <a href="{{ route('admin.invoices.servePdf', ['invoiceName' => $invoice->id]) }}" 
-                                                    target="_blank"
-                                                    style="{{ $isOverdue ? 'color: red;' : '' }}">
-                                                    {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
-                                                    @if($isOverdue)
-                                                        <span class="text-danger">({{ $daysOverdue }} days overdue)</span>
-                                                    @endif
-                                                </a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Employee'))
-                                                <a href="{{ route('employee.invoices.servePdf', ['invoiceName' => $invoice->id]) }}" 
-                                                    target="_blank"
-                                                    style="{{ $isOverdue ? 'color: red;' : '' }}">
-                                                    {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
-                                                    @if($isOverdue)
-                                                        <span class="text-danger">({{ $daysOverdue }} days overdue)</span>
-                                                    @endif
-                                                </a>
-                                            @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                                <a href="{{ route('Responsable_gestionnaire.invoices.servePdf', ['invoiceName' => $invoice->id]) }}" target="_blank">
-                                                    {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
-                                                </a>
-                                            @endif
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p class="align-middle text-center text-sm font-weight-bold mb-0">
-                                            {{strtoupper($invoice->project_name)}}  
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p class="align-middle text-center text-sm font-weight-bold mb-0 text-success">
-                                            @php 
-                                                $project = App\Models\Project::find($invoice->project_id);
-                                            @endphp
-                                            {{$project->tva}}%
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p class="align-middle text-center text-sm font-weight-bold mb-0">
-                                            @php
-                                            $client = \App\Models\Client::where('id', $invoice->client_id)->first();
-                                            @endphp
-                                            {{$client->name}}
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p class="text-center text-sm font-weight-bold mb-0">
-                                            @if($invoice->type == 'Partial')
-                                                {{$invoice->type}}-{{$invoice->partial}}
-                                            @elseif($invoice->type == 'Percentage')
-                                                {{$invoice->type}}-{{$invoice->percentage}}
-                                            @else
-                                                {{$invoice->type}}
-                                            @endif
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p class="text-center text-sm font-weight-bold mb-0">{{$invoice->created_at}}
-                                        </p>
-                                    </td>
-                                    <td id="totalcost">
-                                        <p class="text-center text-sm font-weight-bold mb-0 text-success">€<span id="totalCostValue">{{ number_format($invoice->total_ttc, 2, ',', ' ') }}</span>
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            @if(Auth::user()->hasRole('Admin'))
-                                                @if(\App\Models\invoices_history::where('id',
-                                                $invoice->id)->first()->Payment_status==1)
-                                                <form action="{{route('admin.invoice.deactivate', $invoice->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-success m-2 payment-button p-2">
-                                                        Paid
-                                                    </button>
-                                                </form>
-                                                @elseif(\App\Models\invoices_history::where('id',
-                                                $invoice->id)->first()->Payment_status==-1)
-                                                <span class="credit-note-text text-warning"><b>Credit Note Applied</b></span>
-                                                @else
-                                                <form action="{{route('admin.invoice.activate', $invoice->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-danger m-2 payment-button p-2">
-                                                        Unpaid
-                                                    </button>
-                                                </form>
-                                                @endif
-                                            @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                                @if(\App\Models\invoices_history::where('id',
-                                                $invoice->id)->first()->Payment_status==1)
-                                                <form action="{{route('Responsable_gestionnaire.invoice.deactivate', $invoice->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-success m-2 payment-button p-2">
-                                                        Paid
-                                                    </button>
-                                                </form>
-                                                @elseif(\App\Models\invoices_history::where('id',
-                                                $invoice->id)->first()->Payment_status==-1)
-                                                <span class="credit-note-text text-warning"><b>Credit Note Applied</b></span>
-                                                @else
-                                                <form action="{{route('Responsable_gestionnaire.invoice.activate', $invoice->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-danger m-2 payment-button p-2">
-                                                        Unpaid
-                                                    </button>
-                                                </form>
-                                                @endif
-                                            @endif
-                                            @if(Auth::user()->hasRole('Employee'))
-                                                @if(\App\Models\invoices_history::where('id',
-                                                $invoice->id)->first()->Payment_status==1)
-                                                <form action="{{route('employee.invoice.deactivate', $invoice->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-success btn-xs m-2 payment-button">
-                                                        Paid
-                                                    </button>
-                                                </form>
-                                                @elseif(\App\Models\invoices_history::where('id',
-                                                $invoice->id)->first()->Payment_status==-1)
-                                                <span class="credit-note-text text-warning"><b>Credit Note Applied</b></span>
-                                                @else
-                                                <form action="{{route('employee.invoice.activate', $invoice->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-danger btn-xs m-2 payment-button">
-                                                        Unpaid
-                                                    </button>
-                                                </form>
-                                                @endif
-                                            @endif
-                                            @if ($invoice->sentInvoice == 0)
-                                            <button type="button" class="btn btn-dark btn-xs p-2 m-2"
-                                                data-bs-toggle="modal" data-bs-target="#sendInvoiceModal"
-                                                data-invoice-id="{{ $invoice->id }}">
-                                                Send
-                                            </button>
-                                            @else
-                                            <button type="button" class="btn btn-dark btn-xs p-2 m-2"
-                                                data-bs-toggle="modal" data-bs-target="#sendInvoiceModal"
-                                                data-invoice-id="{{ $invoice->id }}">
-                                                Resend
-                                            </button>
-                                            @endif
-
-                                            @if(!$invoice->Payment_status == 1)
-                                                @if(Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee'))
-                                                    @can('Send invoice')
-                                                    <div class="dropdown m-2">
-                                                        <button class="btn btn-secondary btn-xs dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            Send Reminder
-                                                        </button>
-                                                        <ul class="dropdown-menu">
-                                                            <li><a class="dropdown-item" href="{{ route((Auth::user()->hasRole('Admin') ? 'admin.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.invoice.sendManualremind' : 'employee.invoice.sendManualremind')), ['id' => $invoice->id, 'reminder' => 1]) }}">Send Reminder 1</a></li>
-                                                            <li><a class="dropdown-item" href="{{ route((Auth::user()->hasRole('Admin') ? 'admin.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.invoice.sendManualremind' : 'employee.invoice.sendManualremind')), ['id' => $invoice->id, 'reminder' => 2]) }}">Send Reminder 2</a></li>
-                                                            <li><a class="dropdown-item" href="{{ route((Auth::user()->hasRole('Admin') ? 'admin.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.invoice.sendManualremind' : 'employee.invoice.sendManualremind')), ['id' => $invoice->id, 'reminder' => 3]) }}">Send Reminder 3</a></li>
-                                                        </ul>
-                                                    </div>
-                                                    @endcan
-                                                @endif
-                                            @endif
-
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-dark btn-xs dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    Credit Note
-                                                </button>
-                                                <ul class="dropdown-menu">
-                                                    @if($invoice->type == 'Detailed')
-                                                        @if(Auth::user()->hasRole('Admin'))
-                                                        <li><a class="dropdown-item" href="{{ route('admin.invoice.detailedCreditNote', $invoice->id) }}?type=full">Full</a></li>
-                                                        @endif
-                                                        @if(Auth::user()->hasRole('Responsable de projet'))
-                                                        <li><a class="dropdown-item" href="{{ route('Responsable_de_projet.invoice.detailedCreditNote', $invoice->id) }}?type=full">Full</a></li>
-                                                        @endif
-                                                        @if(Auth::user()->hasRole('Employee'))
-                                                        <li><a class="dropdown-item" href="{{ route('employee.invoice.detailedCreditNote', $invoice->id) }}?type=full">Full</a></li>
-                                                        @endif
-                                                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                                        <li><a class="dropdown-item" href="{{ route('Responsable_gestionnaire.invoice.detailedCreditNote', $invoice->id) }}?type=full">Full</a></li>
-                                                        @endif
-                                                    @else
-                                                        @if(Auth::user()->hasRole('Admin'))
-                                                        <li><a class="dropdown-item" href="{{ route('admin.invoice.creditNote', $invoice->id) }}?type=full">Full</a></li>
-                                                        @endif
-                                                        @if(Auth::user()->hasRole('Responsable de projet'))
-                                                        <li><a class="dropdown-item" href="{{ route('Responsable_de_projet.invoice.creditNote', $invoice->id) }}?type=full">Full</a></li>
-                                                        @endif
-                                                        @if(Auth::user()->hasRole('Employee'))
-                                                        <li><a class="dropdown-item" href="{{ route('employee.invoice.creditNote', $invoice->id) }}?type=full">Full</a></li>
-                                                        @endif
-                                                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                                        <li><a class="dropdown-item" href="{{ route('Responsable_gestionnaire.invoice.creditNote', $invoice->id) }}?type=full">Full</a></li>
-                                                        @endif
-                                                    @endif
-                                                </ul>
-                                            </div>
-
-                                            <!-- Partial Credit Note Modal -->
-                                            <div class="modal fade" id="partialCreditNoteModal" tabindex="-1" aria-labelledby="partialCreditNoteModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="partialCreditNoteModalLabel">Partial Credit Note</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <form id="partialCreditNoteForm">
-                                                                <div class="mb-3">
-                                                                    <label for="partialAmount" class="form-label">Enter Amount:</label>
-                                                                    <input type="number" class="form-control" id="partialAmount" name="partialAmount" step="0.0001" required>
-                                                                    <span id="error-message" style="color: red; display: none;">Amount exceeds total cost.</span>
-                                                                </div>
-                                                                <input type="hidden" id="invoiceId" name="invoiceId">
-                                                                <input type="hidden" id="totalCost" name="totalCost">
-                                                            </form>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                            <button type="button" class="btn btn-primary" onclick="submitPartialCreditNote()">Submit</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforeach
-
-
-
-                            </tbody>
-                        </table>
-                        <div id="creditNoteContent"></div>
-                        <!-- Attachement Modal -->
-                        <div class="modal fade" id="sendInvoiceModal" tabindex="-1"
-                            aria-labelledby="sendInvoiceModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="sendInvoiceModalLabel">Send Invoice</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <form id="sendInvoiceForm" method="post" enctype="multipart/form-data">
-                                        @csrf
-                                        <div class="modal-body">
-                                            <div class="mb-3">
-                                                <label for="fileUpload" class="form-label">Upload File:</label>
-                                                <input type="file" class="form-control" id="fileUpload" name="file[]" multiple>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary"
-                                                data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary">Send</button>
-                                        </div>
-                                    </form>
-                                </div>
                             </div>
                         </div>
                     </div>
+
+                    {{-- Tableau (style Tailwind) --}}
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200" id="invoicesTable">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Facture N°</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom Projet</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TVA</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type Facture</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Créée le</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coût Total</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($invoices as $invoice)
+                                <tr @if($invoice->Payment_status == -1) class="credit-note-row" @endif>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        @php
+                                            $dueDate = \Carbon\Carbon::parse($invoice->due_date);
+                                            $today = \Carbon\Carbon::now();
+                                            $isOverdue = $dueDate->isPast() && !$invoice->Payment_status;
+                                            $daysOverdue = $isOverdue ? $today->diffInDays($dueDate) : 0;
+                                            
+                                            $invoiceRoute = '#';
+                                            if(Auth::user()->hasRole('Responsable de projet')) $invoiceRoute = route('Responsable_de_projet.invoices.servePdf', ['invoiceName' => $invoice->id]);
+                                            elseif(Auth::user()->hasRole('Admin')) $invoiceRoute = route('admin.invoices.servePdf', ['invoiceName' => $invoice->id]);
+                                            elseif(Auth::user()->hasRole('Employee')) $invoiceRoute = route('employee.invoices.servePdf', ['invoiceName' => $invoice->id]);
+                                            elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $invoiceRoute = route('Responsable_gestionnaire.invoices.servePdf', ['invoiceName' => $invoice->id]);
+                                        @endphp
+                                        <a href="{{ $invoiceRoute }}" target="_blank" class="text-blue-600 hover:text-blue-800">
+                                            {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
+                                        </a>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{strtoupper($invoice->project_name)}}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                        @php $project = App\Models\Project::find($invoice->project_id); @endphp
+                                        {{$project->tva ?? 'N/A'}}%
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                        @php $client = \App\Models\Client::where('id', $invoice->client_id)->first(); @endphp
+                                        {{$client->name ?? 'N/A'}}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 capitalize">
+                                        @if($invoice->type == 'Partial') {{$invoice->type}}-{{$invoice->partial}}
+                                        @elseif($invoice->type == 'Percentage') {{$invoice->type}}-{{$invoice->percentage}}
+                                        @else {{$invoice->type}}
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{$invoice->created_at}}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">
+                                        €<span id="totalCostValue">{{ number_format($invoice->total_ttc, 2, ',', ' ') }}</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
+                                        {{-- Logique de bouton consolidée --}}
+                                        @php
+                                            $isPaid = $invoice->Payment_status == 1;
+                                            $isCreditNote = $invoice->Payment_status == -1;
+                                            $deactivateRoute = '';
+                                            $activateRoute = '';
+                                            $sendRoute = route('admin.invoice.sendInvoice', $invoice->id); // Fallback, ajustez si nécessaire
+                                            $reminderRouteBase = '';
+                                            $creditNoteRoute = '';
+                                            $detailedCreditNoteRoute = '';
+
+                                            if(Auth::user()->hasRole('Admin')) {
+                                                $deactivateRoute = route('admin.invoice.deactivate', $invoice->id);
+                                                $activateRoute = route('admin.invoice.activate', $invoice->id);
+                                                $reminderRouteBase = 'admin.invoice.sendManualremind';
+                                                $creditNoteRoute = 'admin.invoice.creditNote';
+                                                $detailedCreditNoteRoute = 'admin.invoice.detailedCreditNote';
+                                            } elseif(Auth::user()->hasRole('Responsable de projet')) {
+                                                $deactivateRoute = route('Responsable_de_projet.invoice.deactivate', $invoice->id);
+                                                $activateRoute = route('Responsable_de_projet.invoice.activate', $invoice->id);
+                                                $reminderRouteBase = 'Responsable_de_projet.invoice.sendManualremind';
+                                                $creditNoteRoute = 'Responsable_de_projet.invoice.creditNote';
+                                                $detailedCreditNoteRoute = 'Responsable_de_projet.invoice.detailedCreditNote';
+                                            } elseif(Auth::user()->hasRole('Employee')) {
+                                                $deactivateRoute = route('employee.invoice.deactivate', $invoice->id);
+                                                $activateRoute = route('employee.invoice.activate', $invoice->id);
+                                                $reminderRouteBase = 'employee.invoice.sendManualremind';
+                                                $creditNoteRoute = 'employee.invoice.creditNote';
+                                                $detailedCreditNoteRoute = 'employee.invoice.detailedCreditNote';
+                                            } elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                                                $deactivateRoute = route('Responsable_gestionnaire.invoice.deactivate', $invoice->id);
+                                                $activateRoute = route('Responsable_gestionnaire.invoice.activate', $invoice->id);
+                                                $reminderRouteBase = 'Responsable_gestionnaire.invoice.sendManualremind';
+                                                $creditNoteRoute = 'Responsable_gestionnaire.invoice.creditNote';
+                                                $detailedCreditNoteRoute = 'Responsable_gestionnaire.invoice.detailedCreditNote';
+                                            }
+                                        @endphp
+                                        
+                                        {{-- Bouton Payé/Impayé (Style Tailwind) --}}
+                                        @if($isCreditNote)
+                                            <span class="credit-note-text px-3 py-1 text-xs font-semibold rounded-full">Note de Crédit</span>
+                                        @elseif($isPaid)
+                                            <form action="{{ $deactivateRoute }}" method="post" onsubmit="return confirm('Êtes-vous sûr ?');" class="inline-block">
+                                                @csrf
+                                                <button type="submit" class="payment-button px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-medium">
+                                                    Payé
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form action="{{ $activateRoute }}" method="post" onsubmit="return confirm('Êtes-vous sûr ?');" class="inline-block">
+                                                @csrf
+                                                <button type="submit" class="payment-button px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium">
+                                                    Impayé
+                                                </button>
+                                            </form>
+                                        @endif
+                                        
+                                        {{-- Bouton Envoyer (pour modal Bootstrap) --}}
+                                        <button type="button" class="px-3 py-1 bg-gray-700 hover:bg-gray-800 text-white rounded-lg text-xs font-medium"
+                                                data-bs-toggle="modal" data-bs-target="#sendInvoiceModal"
+                                                data-invoice-id="{{ $invoice->id }}">
+                                            {{ $invoice->sentInvoice == 0 ? 'Envoyer' : 'Renvoyer' }}
+                                        </button>
+
+                                        {{-- Menu Rappel (géré par Alpine.js + Tailwind) --}}
+@if(!$isPaid && !$isCreditNote)
+    @can('Send invoice')
+    <div class="inline-block relative" x-data="{ open: false }" @click.away="open = false">
+        <button @click="open = !open" 
+                class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-xs font-medium" 
+                type="button" aria-haspopup="true" :aria-expanded="open.toString()">
+            Rappel
+            <svg class="inline-block w-4 h-4 ml-1 -mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+        </button>
+        
+        <ul x-show="open"
+            x-transition:enter="transition ease-out duration-100"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-75"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95"
+            {{-- CORRECTION : Ouvre vers le HAUT pour éviter d'être coupé --}}
+            class="absolute z-10 right-0 bottom-full mb-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+            style="display: none;" 
+            role="menu" aria-orientation="vertical">
+            
+            <li role="presentation">
+                <a href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 1]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Envoyer Rappel 1</a>
+            </li>
+            <li role="presentation">
+                <a href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 2]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Envoyer Rappel 2</a>
+            </li>
+            <li role="presentation">
+                <a href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 3]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Envoyer Rappel 3</a>
+            </li>
+        </ul>
+    </div>
+    @endcan
+@endif
+
+{{-- Menu Note de Crédit (géré par Alpine.js + Tailwind) --}}
+<div class="inline-block relative" x-data="{ open: false }" @click.away="open = false">
+    <button @click="open = !open" 
+            class="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-medium" 
+            type="button" aria-haspopup="true" :aria-expanded="open.toString()">
+        Note de Crédit
+        <svg class="inline-block w-4 h-4 ml-1 -mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+    </button>
+
+    <ul x-show="open"
+        x-transition:enter="transition ease-out duration-100"
+        x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-75"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-95"
+        {{-- CORRECTION : Ouvre vers le HAUT pour éviter d'être coupé --}}
+        class="absolute z-10 right-0 bottom-full mb-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        style="display: none;" 
+        role="menu" aria-orientation="vertical">
+
+        @if($invoice->type == 'Detailed')
+            <li role="presentation">
+                <a href="{{ route($detailedCreditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Complète</a>
+            </li>
+        @else
+            <li role="presentation">
+                <a href="{{ route($creditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Complète</a>
+            </li>
+        @endif
+    </ul>
+</div>
+
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div> 
+
+            </div>
+        </main>
+    </div>
+
+    {{-- MODALS BOOTSTRAP (Conservés pour la fonctionnalité) --}}
+    
+    <div class="modal fade" id="partialCreditNoteModal" tabindex="-1" aria-labelledby="partialCreditNoteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="partialCreditNoteModalLabel">Note de Crédit Partielle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="partialCreditNoteForm">
+                        <div class="mb-3">
+                            <label for="partialAmount" class="form-label">Entrer le montant :</label>
+                            <input type="number" class="form-control" id="partialAmount" name="partialAmount" step="0.0001" required>
+                            <span id="error-message" style="color: red; display: none;">Le montant dépasse le coût total.</span>
+                        </div>
+                        <input type="hidden" id="invoiceId" name="invoiceId">
+                        <input type="hidden" id="totalCost" name="totalCost">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    <button type="button" class="btn btn-primary" onclick="submitPartialCreditNote()">Soumettre</button>
                 </div>
             </div>
-
         </div>
-    </main>
+    </div>
+    
+    <div class="modal fade" id="sendInvoiceModal" tabindex="-1"
+        aria-labelledby="sendInvoiceModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sendInvoiceModalLabel">Envoyer la Facture</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <form id="sendInvoiceForm" method="post" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="fileUpload" class="form-label">Télécharger un fichier (optionnel) :</label>
+                            <input type="file" class="form-control" id="fileUpload" name="file[]" multiple>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">Fermer</button>
+                        <button type="submit" class="btn btn-primary">Envoyer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {{-- FIN DES MODALS --}}
 
 
+    @livewireScripts
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    {{-- Bootstrap JS est REQUIS pour les Modals et Dropdowns --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    @include('dashboard_layouts.scripts') {{-- Gardez ceci si cela inclut Alpine.js ou d'autres scripts nécessaires --}}
+    <script src="//unpkg.com/alpinejs" defer></script>
 
-
-    @include('dashboard_layouts.scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
-
-    <script>
-// Function to show the partial credit note modal
+<script>
+// Fonction pour afficher le modal de note de crédit partielle
 function showPartialPopup(invoiceId, totalCost) {
-  document.getElementById('invoiceId').value = invoiceId;
-  document.getElementById('totalCost').value = totalCost;
-  var modal = new bootstrap.Modal(document.getElementById('partialCreditNoteModal'));
-  modal.show();
+    document.getElementById('invoiceId').value = invoiceId;
+    document.getElementById('totalCost').value = totalCost;
+    var modal = new bootstrap.Modal(document.getElementById('partialCreditNoteModal'));
+    modal.show();
 }
 
-// Function to submit the partial credit note
+// Fonction pour soumettre la note de crédit partielle
 function submitPartialCreditNote() {
-  var form = document.getElementById('partialCreditNoteForm');
-  var amount = parseFloat(document.getElementById('partialAmount').value.replace(',', '.'));  // Added replace to handle comma input
-  var invoiceId = document.getElementById('invoiceId').value;
-  var totalCost = parseFloat(document.getElementById('totalCost').value.replace(',', '.')); // Added replace to handle comma values
-  var errorMessage = document.getElementById('error-message');
+    var form = document.getElementById('partialCreditNoteForm');
+    var amount = parseFloat(document.getElementById('partialAmount').value.replace(',', '.'));
+    var invoiceId = document.getElementById('invoiceId').value;
+    var totalCost = parseFloat(document.getElementById('totalCost').value.replace(',', '.'));
+    var errorMessage = document.getElementById('error-message');
 
-  if (amount > totalCost) {
-    errorMessage.style.display = 'block';
-    return;
-  } else {
-    errorMessage.style.display = 'none';
-  }
-
-  // Send AJAX request to the controller
- // Send AJAX request to the controller
- @if(Auth::user()->hasRole('Responsable de projet'))
-    var url = `{{ route('Responsable_de_projet.invoice.creditNote', '') }}/${invoiceId}?type=partial&amount=${amount}`;
-  @elseif(Auth::user()->hasRole('Admin'))
-    var url = `{{ route('admin.invoice.creditNote', '') }}/${invoiceId}?type=partial&amount=${amount}`;
-  @elseif(Auth::user()->hasRole('Employee'))
-    var url = `{{ route('employee.invoice.creditNote', '') }}/${invoiceId}?type=partial&amount=${amount}`;
-  @endif
-
-  fetch(url, {
-    method: 'GET',
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest',
-      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    if (amount > totalCost) {
+        errorMessage.style.display = 'block';
+        return;
+    } else {
+        errorMessage.style.display = 'none';
     }
-  })
-  .then(response => response.text())
-  .then(html => {
-    document.open();
-    document.write(html);
-    document.close();
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('An error occurred while processing your request: ' + error.message);
-  });
+
+    var url = '';
+    @if(Auth::user()->hasRole('Responsable de projet'))
+        var url = `{{ route('Responsable_de_projet.invoice.creditNote', '') }}/${invoiceId}?type=partial&amount=${amount}`;
+    @elseif(Auth::user()->hasRole('Admin'))
+        var url = `{{ route('admin.invoice.creditNote', '') }}/${invoiceId}?type=partial&amount=${amount}`;
+    @elseif(Auth::user()->hasRole('Employee'))
+        var url = `{{ route('employee.invoice.creditNote', '') }}/${invoiceId}?type=partial&amount=${amount}`;
+    @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+        var url = `{{ route('Responsable_gestionnaire.invoice.creditNote', '') }}/${invoiceId}?type=partial&amount=${amount}`;
+    @endif
+
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.text())
+    .then(html => {
+        document.open();
+        document.write(html);
+        document.close();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while processing your request: ' + error.message);
+    });
 }
 </script>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
+<script>
+// JavaScript pour filtrer le tableau
+document.addEventListener("DOMContentLoaded", function() {
+    const clientFilter = document.getElementById('clientFilter');
+    const projectFilter = document.getElementById('projectFilter');
+    const paymentFilter = document.getElementById('paymentFilter');
+    const typeFilter = document.getElementById('typeFilter');
 
-    <script>
-    // JavaScript for filtering the table
-    document.addEventListener("DOMContentLoaded", function() {
-        // Get references to the filter dropdowns
-        const clientFilter = document.getElementById('clientFilter');
-        const projectFilter = document.getElementById('projectFilter');
-        const paymentFilter = document.getElementById('paymentFilter');
-        const typeFilter = document.getElementById('typeFilter');
+    clientFilter.addEventListener('change', filterTable);
+    projectFilter.addEventListener('change', filterTable);
+    paymentFilter.addEventListener('change', filterTable);
+    typeFilter.addEventListener('change', filterTable);
 
-        // Add event listeners to filter the table when selection changes
-        clientFilter.addEventListener('change', filterTable);
-        projectFilter.addEventListener('change', filterTable);
-        paymentFilter.addEventListener('change', filterTable);
-        typeFilter.addEventListener('change', filterTable);
+    function filterTable() {
+        const clientValue = clientFilter.value.toLowerCase();
+        const projectValue = projectFilter.value.toLowerCase();
+        const paymentValue = paymentFilter.value.toLowerCase(); // Changé en minuscule
+        const typeValue = typeFilter.value.toLowerCase();
 
-        function filterTable() {
-            const clientValue = clientFilter.value.toLowerCase();
-            const projectValue = projectFilter.value.toLowerCase();
-            const paymentValue = paymentFilter.value;
-            const typeValue = typeFilter.value.toLowerCase();;
-
-            // Loop through each row in the table
-            const rows = document.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                const clientName = row.querySelector('td:nth-child(4)').textContent.trim().toLowerCase();
-                const projectName = row.querySelector('td:nth-child(2)').textContent.trim().toLowerCase();
-                const paymentButton = row.querySelector('.payment-button'); // Assuming a class of 'payment-button' for the payment button
-                const paymentStatus = paymentButton.textContent.trim(); // Extract payment status from the button
-                const invoiceType = row.querySelector('td:nth-child(7)').textContent.trim().toLowerCase();
-
-                // Show or hide the row based on filter selections
-                if ((clientValue === '' || clientName.includes(clientValue)) &&
-                    (projectValue === '' || projectName.includes(projectValue)) &&
-                    (paymentValue === '' || paymentStatus === paymentValue) && 
-                    (typeValue === '' || invoiceType === typeValue)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
-    });
-    </script>
-
-    <script src="//unpkg.com/alpinejs" defer></script>
-    <script>
-        function datePicker() {
-            return {
-                startDate: '',
-                endDate: '',
-                updateHref() {
-                    @if(Auth::user()->hasRole('Responsable de projet'))
-                        const baseUrl = "{{route('Responsable_de_projet.Invoicessrepports.downloadRepports')}}";
-                    @endif
-                    @if(Auth::user()->hasRole('Admin'))
-                        const baseUrl = "{{route('admin.Invoicessrepports.downloadRepports')}}";
-                    @endif
-                    @if(Auth::user()->hasRole('Employee'))
-                        const baseUrl = "{{route('employee.Invoicessrepports.downloadRepports')}}";
-                    @endif
-                    let urlWithParams = baseUrl;
-                    if (this.startDate && this.endDate) {
-                        urlWithParams += `?startDate=${this.startDate}&endDate=${this.endDate}`;
-                    }
-                    window.location.href = urlWithParams; // Redirect to the updated URL
-                }
+        const rows = document.querySelectorAll('#invoicesTable tbody tr');
+        rows.forEach(row => {
+            const clientName = row.querySelector('td:nth-child(4)').textContent.trim().toLowerCase();
+            const projectName = row.querySelector('td:nth-child(2)').textContent.trim().toLowerCase();
+            
+            // Logique de statut de paiement mise à jour
+            let paymentStatus = '';
+            const paymentButton = row.querySelector('.payment-button');
+            if (paymentButton) {
+                paymentStatus = paymentButton.textContent.trim().toLowerCase();
+            } else if (row.querySelector('.credit-note-text')) {
+                // Vous pouvez définir un statut spécifique si vous voulez filtrer les notes de crédit
+                paymentStatus = 'credit note'; 
             }
-        }
-    </script>
+
+            const invoiceType = row.querySelector('td:nth-child(5)').textContent.trim().toLowerCase(); // Index de colonne corrigé
+
+            // Logique de filtrage
+            const clientMatch = clientValue === '' || clientName.includes(clientValue);
+            const projectMatch = projectValue === '' || projectName.includes(projectValue);
+            const paymentMatch = paymentValue === '' || paymentStatus.includes(paymentValue);
+            const typeMatch = typeValue === '' || invoiceType.includes(typeValue); // Utilise 'includes' pour les types partiels
+
+            if (clientMatch && projectMatch && paymentMatch && typeMatch) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
 
 <script>
+    // Script pour le modal "Send Invoice"
     document.addEventListener('DOMContentLoaded', function () {
         var sendInvoiceModal = document.getElementById('sendInvoiceModal');
         sendInvoiceModal.addEventListener('show.bs.modal', function (event) {
             var button = event.relatedTarget;
             var invoiceId = button.getAttribute('data-invoice-id');
             var form = document.getElementById('sendInvoiceForm');
-            form.action = '{{ route("admin.invoice.sendInvoice", ":invoice_id") }}'.replace(':invoice_id', invoiceId);
+            
+            // Définir l'action du formulaire en fonction du rôle
+            var actionUrl = '';
+            @if(Auth::user()->hasRole('Admin'))
+                actionUrl = '{{ route("admin.invoice.sendInvoice", ":invoice_id") }}';
+            @elseif(Auth::user()->hasRole('Responsable de projet'))
+                actionUrl = '{{ route("Responsable_de_projet.invoice.sendInvoice", ":invoice_id") }}';
+            @elseif(Auth::user()->hasRole('Employee'))
+                actionUrl = '{{ route("employee.invoice.sendInvoice", ":invoice_id") }}';
+            @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                actionUrl = '{{ route("Responsable_gestionnaire.invoice.sendInvoice", ":invoice_id") }}';
+            @endif
+            
+            form.action = actionUrl.replace(':invoice_id', invoiceId);
         });
     });
-
-    </script> 
-
-
-
+</script>
 
 </body>
-
 </html>
