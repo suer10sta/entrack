@@ -15,7 +15,12 @@ class ProfileController extends Controller
     public function index()
     {
         // Return the profile Blade view
-        return view('admin.profile.index');
+        $user= Auth::user();
+
+        $user->load('employee');
+        //dd($user->employee);
+
+        return view('admin.profile.index',['user'=>$user]);
     }
     
     /**
@@ -23,8 +28,11 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
+        $user = Auth::user();
+        $user->load('employee');
+
+        return view('admin.profile.edit', [
+            'user' => $user,
         ]);
     }
 
@@ -32,17 +40,39 @@ class ProfileController extends Controller
      * Update the user's profile information.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
-    {
-        $request->user()->fill($request->validated());
+{
+    // 1. Get the validated data
+    $validatedData = $request->validated();
+    
+    // 2. Get the User
+    $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
+    // 3. Fill and Save data to the 'users' table
+    $user->fill($validatedData);
 
-        $request->user()->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    if ($user->isDirty('email')) {
+        $user->email_verified_at = null;
     }
+
+    $user->save();
+
+    // 4. ADD THIS PART: Save data to the 'employees' table
+    $user->employee()->updateOrCreate(
+        ['user_id' => $user->id],  // Find the employee by user_id
+        $validatedData            // Update it with the validated data
+    );
+
+    
+
+    return Redirect::route('profile.edit')->with('status', 'profile-updated');
+}
+    public function showUpgradePage() : view
+    {
+        // This will look foa file at:
+        // resources/views/profile/upgrade.blade.php
+        return view('admin.profile.upgrade_page');
+    }
+    
 
     /**
      * Delete the user's account.

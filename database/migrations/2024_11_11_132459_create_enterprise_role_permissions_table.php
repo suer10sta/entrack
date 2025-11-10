@@ -22,7 +22,8 @@ return new class extends Migration
             $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
             $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade');
             
-            $table->unique(['entreprise_id', 'role_id', 'permission_id']);
+            $table->unique(['entreprise_id', 'role_id', 'permission_id'], 
+        'ent_role_perm_unique');
         });
     }
 

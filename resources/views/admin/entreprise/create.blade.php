@@ -1,172 +1,412 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BizManager Dashboard - Dépense</title>
+    <title>BizManager - Dépenses</title>
+    
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    {{-- Utilise le nouveau système de style --}}
     @vite('resources/css/app.css')
     @livewireStyles
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
 </head>
-<body class="bg-gray-50 flex h-screen overflow-hidden">
 
-    {{-- Sidebar --}}
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 flex h-screen overflow-hidden">
+    {{-- <noscript>...iframe...</noscript> --}}
+
+    {{-- Nouveau layout avec les composants Blade --}}
     <x-dashboard.sidebar />
 
     <div class="flex flex-col flex-1 overflow-y-auto">
-
-        {{-- Navbar --}}
         <x-dashboard.navbar />
 
-        {{-- Main Content --}}
-        <main class="flex-1 p-8 bg-gradient-to-br from-slate-50 to-slate-100">
-            <div class="max-w-6xl mx-auto">
+        {{-- Nouveau contenu principal avec le style Tailwind --}}
+        <main class="p-8 min-h-screen ml-0 lg:ml-64 transition-all duration-300">
+            <div class="max-w-7xl mx-auto">
 
-                {{-- Header --}}
                 <div class="mb-8">
-                    <h1 class="text-4xl font-bold text-slate-900 mb-2">Dépense</h1>
-                    <p class="text-slate-600">Gérez vos budgets et dépenses</p>
+                    <h1 class="text-4xl font-bold text-gray-900 mb-2">Dépenses</h1>
+                    <p class="text-gray-600">Suivez les dépenses et gérez le budget de l'entreprise.</p>
                 </div>
 
-                {{-- Date Range and PDF --}}
-                <div x-data="datePicker()" class="mb-6 p-6 bg-white shadow rounded-2xl border border-slate-200">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-2">Start Date</label>
-                            <input type="date" x-model="startDate"
-                                   class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                    
+                    <div class="lg:col-span-1 bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-xl font-semibold text-gray-900">Budget Actuel</h2>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-2">End Date</label>
-                            <input type="date" x-model="endDate"
-                                   class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <div class="p-6 space-y-4">
+                            @if($latestBudget)
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Caisse (Double-clic pour éditer):</label>
+                                    <input id="budget-input-{{ $latestBudget->id }}"
+                                           type="number" name="monthBudget"
+                                           value="{{ $latestBudget->budget }}" readonly
+                                           ondblclick="enableEditing(this, {{ $latestBudget->id }})"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 cursor-pointer focus:bg-white focus:cursor-text focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Solde Restant:</label>
+                                    <input id="sold-input" type="number" name="sold"
+                                           value="{{$latestBudget->budget_remaining}}" readonly
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed text-gray-500">
+                                </div>
+                            @else
+                                <p class="text-sm text-gray-500">Aucun budget n'a encore été défini.</p>
+                            @endif
                         </div>
-                        <button @click="updateHref()"
-                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg flex items-center justify-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                 stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M12 4v16m8-8H4" />
-                            </svg>
-                            Print PDF
-                        </button>
+                    </div>
+
+                    <div class="lg:col-span-2 space-y-8">
+                        <div x-data="datePicker()" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Exporter le Rapport</h3>
+                            <div class="flex flex-col md:flex-row md:items-end gap-4">
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Date de début:</label>
+                                    <input id="start-date" type="date" name="startDate" x-model="startDate"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Date de fin:</label>
+                                    <input id="end-date" type="date" name="endDate" x-model="endDate"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <a href="#" @click.prevent="updateHref" id="downloadLink"
+                                   class="flex-shrink-0 text-center px-4 py-2 h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                                    Print PDF
+                                </a>
+                            </div>
+                        </div>
+
+                        @php
+                            $addBudgetRoute = '#';
+                            if (Auth::user()->hasRole('Admin')) $addBudgetRoute = route('admin.entreprise.addBudget');
+                            elseif (Auth::user()->hasRole('Responsable de projet')) $addBudgetRoute = route('Responsable_de_projet.entreprise.addBudget');
+                            elseif (Auth::user()->hasRole('Employee')) $addBudgetRoute = route('employee.entreprise.addBudget');
+                            elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $addBudgetRoute = route('Responsable_gestionnaire.entreprise.addBudget');
+                        @endphp
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Ajouter un Budget à la Caisse</h3>
+                            <form action="{{ $addBudgetRoute }}" method="post" class="flex flex-col md:flex-row md:items-end gap-4">
+                                @csrf
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nouveau budget:</label>
+                                    <input type="number" name="newBudget" step="0.0001"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                           placeholder="Montant à ajouter">
+                                </div>
+                                <button type="submit"
+                                        class="flex-shrink-0 text-center px-4 py-2 h-10 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors text-sm font-medium">
+                                    Ajouter
+                                </button>
+                            </form>
+                            @if(session('successNewBudget'))
+                                <div class="mt-4 bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-lg text-sm">
+                                    {{ session('successNewBudget') }}
+                                </div>
+                            @endif
+                            @if(session('error'))
+                                <div class="mt-4 bg-red-100 border border-red-300 text-red-800 px-4 py-3 rounded-lg text-sm">
+                                    {{ session('error') }} {{-- Corrigé 'erro' en 'error' --}}
+                                </div>
+                            @endif
+                        </div>
                     </div>
                 </div>
 
-                {{-- Budgets List --}}
-                <div class="space-y-4">
-                    @foreach($billings_budget as $billing)
-                        @php 
-                            $isValidated = $billing->sold_out == 1;
-                            $bgColor = $isValidated ? 'bg-green-100' : 'bg-slate-50';
-                            $textColor = $isValidated ? 'text-green-800' : 'text-slate-700';
-
-                            $entrepriseCharges = App\Models\entrepriseCharges::where('entreprise_id', $entreprise->id)
-                                ->where('Billings_budget_id', $billing->id)->orderBy('created_at')->get();
-
-                            $remainingBudget = $billing->budget_remaining;
-                        @endphp
-
-                        <div class="flex flex-col p-4 rounded-lg border border-slate-200 {{ $bgColor }}">
-                            <div class="flex items-center justify-between mb-2">
-                                <div>
-                                    <span class="font-medium {{ $textColor }}">Budget : {{ $billing->budget }}€</span>
-                                    <span class="ml-4 text-sm font-semibold {{ $remainingBudget > 0 ? 'text-red-600' : 'text-green-700' }}">
-                                        Remaining : {{ $remainingBudget }}€
-                                    </span>
+                @php
+                    $storeExpenseRoute = '#';
+                    $cancelRoute = '#';
+                    if (Auth::user()->hasRole('Admin')) {
+                        $storeExpenseRoute = route('admin.Enterprise_infos.store');
+                        $cancelRoute = route('admin.index');
+                    } elseif (Auth::user()->hasRole('Responsable de projet')) {
+                        $storeExpenseRoute = route('Responsable_de_projet.Enterprise_infos.store');
+                        $cancelRoute = route('Responsable_de_projet.index');
+                    } elseif (Auth::user()->hasRole('Employee')) {
+                        $storeExpenseRoute = route('employee.Enterprise_infos.store');
+                        $cancelRoute = route('employee.index');
+                    } elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                        $storeExpenseRoute = route('Responsable_gestionnaire.Enterprise_infos.store');
+                        $cancelRoute = route('Responsable_gestionnaire.index');
+                    }
+                @endphp
+                <form class="mb-8" method="POST" action="{{ $storeExpenseRoute }}" enctype="multipart/form-data" autocomplete="off">
+                    @csrf
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-xl font-semibold text-gray-900">Nouvelle Dépense</h2>
+                        </div>
+                        <div class="p-6">
+                            @if(session('successNewDepense'))
+                                <div class="mb-4 bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-lg text-sm">
+                                    {{ session('successNewDepense') }}
                                 </div>
-                                @if($isValidated)
-                                    <span class="text-sm font-semibold text-green-700 px-2 py-1 bg-green-200 rounded-full">Validé</span>
-                                @endif
+                            @endif
+                            @if(session('errorNewDepense'))
+                                <div class="mb-4 bg-red-100 border border-red-300 text-red-800 px-4 py-3 rounded-lg text-sm">
+                                    {{ session('errorNewDepense') }}
+                                </div>
+                            @endif
+
+                            <div id="billings" class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Objet de la dépense :</label>
+                                        <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" placeholder="Nom de la dépense" name="name[]" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Prix de la dépense :</label>
+                                        <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" type="number" name="price[]" step="0.0001" placeholder="0.00"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" id="add-billing" 
+                                    class="mt-4 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
+                                Ajouter une autre ligne
+                            </button>
+                        </div>
+                        
+                        <div class="p-6 bg-gray-50 border-t border-gray-200 flex justify-end items-center gap-4">
+                            <a href="{{ $cancelRoute }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
+                                Annuler
+                            </a>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="space-y-8">
+                    @foreach($billings_budget as $billing)
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-xl font-semibold text-gray-900">Budget : {{$billing->budget}}€</h3>
+                                    <p class="text-sm text-gray-500">Créé le : {{$billing->created_at->format('d-m-Y')}}</p>
+                                </div>
+                                @php
+                                    $deleteBudgetRoute = '#';
+                                    if (Auth::user()->hasRole('Admin')) $deleteBudgetRoute = route('admin.billing.destroy', $billing->id);
+                                    elseif (Auth::user()->hasRole('Responsable de projet')) $deleteBudgetRoute = route('Responsable_de_projet.billing.destroy', $billing->id);
+                                    elseif (Auth::user()->hasRole('Employee')) $deleteBudgetRoute = route('employee.billing.destroy', $billing->id);
+                                    elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $deleteBudgetRoute = route('Responsable_gestionnaire.billing.destroy', $billing->id);
+                                @endphp
+                                <form method="post" action="{{ $deleteBudgetRoute }}" onsubmit="return confirm('Are you sure?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs font-medium">
+                                        Delete Budget
+                                    </button>
+                                </form>
                             </div>
 
-                            {{-- Charges --}}
-                            @foreach($entrepriseCharges as $charge)
-                                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 {{ $isValidated ? 'bg-green-50' : 'bg-white' }} mt-1">
-                                    <div>
-                                        <p class="font-medium text-slate-900">{{ $charge->charge_name }}</p>
-                                        <p class="text-sm text-slate-600">{{ $charge->price }}€</p>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        @if(!$isValidated)
-                                            <form method="POST" 
-                                                @if(Auth::user()->hasRole('Admin')) action="{{route('admin.Enterprise_infos.destroy', $charge->id)}}" 
-                                                @elseif(Auth::user()->hasRole('Responsable de projet')) action="{{route('Responsable_de_projet.Enterprise_infos.destroy', $charge->id)}}" 
-                                                @elseif(Auth::user()->hasRole('Employee')) action="{{route('employee.Enterprise_infos.destroy', $charge->id)}}" 
-                                                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) action="{{route('Responsable_gestionnaire.Enterprise_infos.destroy', $charge->id)}}" 
+                            <div class="divide-y divide-gray-200">
+                                @php 
+                                    $entrepriseCharges = App\Models\entrepriseCharges::where('entreprise_id', $entreprise->id)->where('Billings_budget_id', $billing->id)->orderBy('created_at')->get();
+                                @endphp
+                                
+                                @if($entrepriseCharges->isEmpty())
+                                    <p class="p-6 text-sm text-gray-500 text-center">Aucune dépense pour ce budget.</p>
+                                @else
+                                    @foreach($entrepriseCharges as $entrepriseCharge)
+                                        <div class="p-6 space-y-4 md:space-y-0 md:grid md:grid-cols-12 md:gap-4 md:items-center">
+                                            <div class="md:col-span-3">
+                                                <label class="block text-xs font-medium text-gray-500 mb-1">Objet</label>
+                                                <input id="charge-name-{{ $entrepriseCharge->id }}" type="text" name="chargename" value="{{ $entrepriseCharge->charge_name }}" readonly
+                                                       class="editable w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
+                                                              {{ $entrepriseCharge->validated != 1 ? 'bg-gray-50 cursor-pointer focus:bg-white focus:cursor-text' : 'bg-gray-100 text-gray-500 cursor-not-allowed' }}">
+                                            </div>
+                                            <div class="md:col-span-2">
+                                                <label class="block text-xs font-medium text-gray-500 mb-1">Prix</label>
+                                                <input id="price-{{ $entrepriseCharge->id }}" type="text" name="price" value="{{ $entrepriseCharge->price }}€" readonly
+                                                       class="editable w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
+                                                              {{ $entrepriseCharge->validated != 1 ? 'bg-gray-50 cursor-pointer focus:bg-white focus:cursor-text' : 'bg-gray-100 text-gray-500 cursor-not-allowed' }}">
+                                            </div>
+                                            <div class="md:col-span-3">
+                                                <label class="block text-xs font-medium text-gray-500 mb-1">Date</label>
+                                                <input id="created_at-{{ $entrepriseCharge->id }}" type="text" name="created_at" value="{{ $entrepriseCharge->created_at->format('d-m-Y') }}" readonly
+                                                       class="editable w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
+                                                              {{ $entrepriseCharge->validated != 1 ? 'bg-gray-50 cursor-pointer focus:bg-white focus:cursor-text' : 'bg-gray-100 text-gray-500 cursor-not-allowed' }}">
+                                            </div>
+                                            <div class="md:col-span-4 flex items-center justify-end gap-2">
+                                                @if($billing->sold_out == 0)
+                                                    @if($entrepriseCharge->validated != 1)
+                                                        @php
+                                                            $validateRoute = '#';
+                                                            if (Auth::user()->hasRole('Admin')) $validateRoute = route('admin.entreprise.validateBilling', ['chargeid' => $entrepriseCharge->id, 'budget_id' => $billing->id]);
+                                                            elseif (Auth::user()->hasRole('Responsable de projet')) $validateRoute = route('Responsable_de_projet.entreprise.validateBilling', ['chargeid' => $entrepriseCharge->id, 'budget_id' => $billing->id]);
+                                                            elseif (Auth::user()->hasRole('Employee')) $validateRoute = route('employee.entreprise.validateBilling', ['chargeid' => $entrepriseCharge->id, 'budget_id' => $billing->id]);
+                                                            elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $validateRoute = route('Responsable_gestionnaire.entreprise.validateBilling', ['chargeid' => $entrepriseCharge->id, 'budget_id' => $billing->id]);
+                                                        @endphp
+                                                        <form method="post" action="{{ $validateRoute }}">
+                                                            @csrf
+                                                            <button type="submit" class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium">Valider</button>
+                                                        </form>
+                                                        @php
+                                                            $deleteExpenseRoute = '#';
+                                                            if (Auth::user()->hasRole('Admin')) $deleteExpenseRoute = route('admin.Enterprise_infos.destroy', $entrepriseCharge->id);
+                                                            elseif (Auth::user()->hasRole('Responsable de projet')) $deleteExpenseRoute = route('Responsable_de_projet.Enterprise_infos.destroy', $entrepriseCharge->id);
+                                                            elseif (Auth::user()->hasRole('Employee')) $deleteExpenseRoute = route('employee.Enterprise_infos.destroy', $entrepriseCharge->id);
+                                                            elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $deleteExpenseRoute = route('Responsable_gestionnaire.Enterprise_infos.destroy', $entrepriseCharge->id);
+                                                        @endphp
+                                                        <form method="post" action="{{ $deleteExpenseRoute }}" onsubmit="return confirm('Are you sure?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs font-medium">Delete</button>
+                                                        </form>
+                                                    @else
+                                                        @php
+                                                            $unvalidateRoute = '#';
+                                                            if (Auth::user()->hasRole('Admin')) $unvalidateRoute = route('admin.entreprise.unvalidateBilling', ['chargeid' => $entrepriseCharge->id, 'budget_id' => $billing->id]);
+                                                            elseif (Auth::user()->hasRole('Responsable de projet')) $unvalidateRoute = route('Responsable_de_projet.entreprise.unvalidateBilling', ['chargeid' => $entrepriseCharge->id, 'budget_id' => $billing->id]);
+                                                            elseif (Auth::user()->hasRole('Employee')) $unvalidateRoute = route('employee.entreprise.unvalidateBilling', ['chargeid' => $entrepriseCharge->id, 'budget_id' => $billing->id]);
+                                                            elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $unvalidateRoute = route('Responsable_gestionnaire.entreprise.unvalidateBilling', ['chargeid' => $entrepriseCharge->id, 'budget_id' => $billing->id]);
+                                                        @endphp
+                                                        <form method="post" action="{{ $unvalidateRoute }}">
+                                                            @csrf
+                                                            <button type="submit" class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg hover:bg-yellow-200 transition-colors text-xs font-medium">Annuler validation</button>
+                                                        </form>
+                                                    @endif
+                                                @else
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                                                                {{ $entrepriseCharge->validated == 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
+                                                        {{ $entrepriseCharge->validated == 0 ? 'Non Validé' : 'Validé' }}
+                                                    </span>
                                                 @endif
-                                                onsubmit="return confirm('Are you sure?');">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="btn btn-sm bg-gradient-danger">Supprimer</button>
-                                            </form>
-
-                                            <form method="POST"
-                                                @if(Auth::user()->hasRole('Admin')) action="{{ route('admin.entreprise.validateBilling', ['chargeid' => $charge->id, 'budget_id' => $billing->id]) }}" 
-                                                @elseif(Auth::user()->hasRole('Responsable de projet')) action="{{ route('Responsable_de_projet.entreprise.validateBilling', ['chargeid' => $charge->id, 'budget_id' => $billing->id]) }}" 
-                                                @elseif(Auth::user()->hasRole('Employee')) action="{{ route('employee.entreprise.validateBilling', ['chargeid' => $charge->id, 'budget_id' => $billing->id]) }}" 
-                                                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) action="{{ route('Responsable_gestionnaire.entreprise.validateBilling', ['chargeid' => $charge->id, 'budget_id' => $billing->id]) }}" 
-                                                @endif>
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm bg-gradient-success">Valider</button>
-                                            </form>
-                                        @else
-                                            <span class="text-green-700 font-semibold">Validé</span>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div> </div>
                     @endforeach
                 </div>
-
-                {{-- Nouvelle dépense --}}
-                <div class="mt-8 p-6 bg-white shadow rounded-2xl border border-slate-200">
-                    <h2 class="text-xl font-bold text-slate-900 mb-6">Nouvelle dépense</h2>
-
-                    <form method="POST"
-                        @if(Auth::user()->hasRole('Admin')) action="{{route('admin.Enterprise_infos.store')}}" 
-                        @elseif(Auth::user()->hasRole('Responsable de projet')) action="{{route('Responsable_de_projet.Enterprise_infos.store')}}" 
-                        @elseif(Auth::user()->hasRole('Employee')) action="{{route('employee.Enterprise_infos.store')}}" 
-                        @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) action="{{route('Responsable_gestionnaire.Enterprise_infos.store')}}" 
-                        @endif
-                        enctype="multipart/form-data">
-                        @csrf
-
-                        <div id="billings" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-2">Objet de la dépense</label>
-                                <input type="text" name="name[]" placeholder="Billing Name"
-                                       class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-2">Prix de la dépense</label>
-                                <input type="number" name="price[]" step="0.0001"
-                                       class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            </div>
-                        </div>
-
-                        <button type="button" id="add-billing"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg mb-4">Ajouter</button>
-
-                        <div class="flex gap-3">
-                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">Submit</button>
-                            <a href="{{ route('dashboard') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-900 px-6 py-2 rounded-lg">Cancel</a>
-                        </div>
-                    </form>
-                </div>
-
             </div>
         </main>
     </div>
 
-    @vite('resources/js/app.js')
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    {{-- CONSERVATION DES SCRIPTS ORIGINAUX --}}
+    @include('dashboard_layouts.scripts') 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+    @livewireScripts 
 
     <script>
+        // Script pour désactiver l'autocomplete
+        window.addEventListener('load', function() {
+            var inputs = document.getElementsByTagName('input');
+            for (var i = 0; i < inputs.length; i++) {
+                inputs[i].setAttribute('autocomplete', 'none');
+            }
+        });
 
-function datePicker() {
+        // Script pour ajouter dynamiquement des champs de dépense
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('add-billing').addEventListener('click', function() {
+                var billings = document.getElementById('billings');
+                var newBilling = billings.firstElementChild.cloneNode(true);
+                
+                // Réinitialiser les valeurs des nouveaux champs
+                newBilling.querySelector('input[name="name[]"]').value = '';
+                newBilling.querySelector('input[name="price[]"]').value = '';
+
+                // Ajouter un bouton de suppression au nouveau champ
+                if (billings.children.length >= 0) { // Logique originale autorisait la suppression du premier
+                    var deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.type = 'button';
+                    // Ajout des classes Tailwind pour le bouton de suppression
+                    deleteButton.className = 'mt-2 px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs font-medium remove-billing';
+                    deleteButton.addEventListener('click', function() {
+                        billings.removeChild(newBilling);
+                    });
+                    newBilling.appendChild(deleteButton);
+                }
+
+                billings.appendChild(newBilling);
+            });
+        });
+
+        // Script pour la modification des champs de DÉPENSE (editable)
+        document.addEventListener('DOMContentLoaded', function() {
+            const editableInputs = document.querySelectorAll('.editable');
+
+            editableInputs.forEach(input => {
+                input.addEventListener('dblclick', function() {
+                    if (this.readOnly) {
+                        this.readOnly = false;
+                        this.focus();
+                        // Ajout des classes Tailwind pour le mode édition
+                        this.classList.remove('bg-gray-50', 'cursor-pointer');
+                        this.classList.add('bg-white', 'cursor-text');
+                    }
+                });
+
+                input.addEventListener('blur', function() {
+                    this.readOnly = true;
+                    // Ajout des classes Tailwind pour le mode lecture
+                    this.classList.add('bg-gray-50', 'cursor-pointer');
+                    this.classList.remove('bg-white', 'cursor-text');
+                    updateField(this);
+                });
+
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        this.blur();
+                    }
+                });
+            });
+
+            function updateField(input) {
+                const id = input.id.split('-')[2]; // l'id est en 3ème partie (ex: charge-name-123)
+                const column = input.id.split('-')[0]; // ex: 'charge-name' ou 'price' ou 'created_at'
+                const content = input.value;
+                let fetchUrl = '';
+                
+                @if(Auth::user()->hasRole('Admin'))
+                    fetchUrl = '{{ route("admin.Enterprise_Billings.updateBillings") }}';
+                @elseif(Auth::user()->hasRole('Responsable de projet'))
+                    fetchUrl = '{{ route("Responsable_de_projet.Enterprise_Billings.updateBillings") }}';
+                @elseif(Auth::user()->hasRole('Employee'))
+                    fetchUrl = '{{ route("employee.Enterprise_Billings.updateBillings") }}';
+                @endif
+                
+                if (!fetchUrl) return; // Ne fait rien si aucune route n'est définie
+
+                fetch(fetchUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        column: column, // 'charge-name', 'price', 'created_at'
+                        content: content
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('Update successful');
+                        location.reload();
+                    } else {
+                        console.error('Update failed');
+                        location.reload(); // La logique originale rechargeait aussi en cas d'erreur
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    location.reload(); // La logique originale rechargeait aussi en cas d'erreur
+                });
+            }
+        });
+
+        // Script pour le datePicker (Alpine.js)
+        function datePicker() {
             return {
                 startDate: '',
                 endDate: '',
@@ -179,25 +419,86 @@ function datePicker() {
                     @elseif(Auth::user()->hasRole('Employee'))
                         baseUrl = "{{route('employee.entrepriseBillings.downloadRepports')}}";
                     @endif
-                    if(this.startDate && this.endDate) baseUrl += `?startDate=${this.startDate}&endDate=${this.endDate}`;
-                    window.location.href = baseUrl;
+                    
+                    let urlWithParams = baseUrl;
+                    if (this.startDate && this.endDate) {
+                        urlWithParams += `?startDate=${this.startDate}&endDate=${this.endDate}`;
+                        window.location.href = urlWithParams; // Redirige seulement si les dates sont valides
+                    } else {
+                        alert('Veuillez sélectionner une date de début et une date de fin.');
+                    }
                 }
-            }}
-        // Add more billing inputs
-        document.getElementById('add-billing').addEventListener('click', function() {
-            const container = document.getElementById('billings');
-            const newBilling = document.createElement('div');
-            newBilling.classList.add('grid','grid-cols-1','md:grid-cols-2','gap-4','mb-4');
-            newBilling.innerHTML = `
-                <div>
-                    <input type="text" name="name[]" placeholder="Billing Name" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-                <div>
-                    <input type="number" name="price[]" step="0.0001" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-            `;
-            container.appendChild(newBilling);
-        });
+            }
+        }
+
+        // Script pour la modification du BUDGET (enableEditing)
+        function enableEditing(input, budgetId) {
+            input.removeAttribute('readonly');
+            input.focus();
+            // Ajout des classes Tailwind pour le mode édition
+            input.classList.remove('bg-gray-50', 'cursor-pointer');
+            input.classList.add('bg-white', 'cursor-text');
+
+            const onBlur = function() {
+                updateBudget(input, budgetId);
+                input.removeEventListener('blur', onBlur);
+                input.removeEventListener('keypress', onKeypress);
+            };
+
+            const onKeypress = function(event) {
+                if (event.key === 'Enter') {
+                    updateBudget(input, budgetId);
+                    input.removeEventListener('blur', onBlur);
+                    input.removeEventListener('keypress', onKeypress);
+                }
+            };
+
+            input.addEventListener('blur', onBlur);
+            input.addEventListener('keypress', onKeypress);
+        }
+
+        function updateBudget(input, budgetId) {
+            input.setAttribute('readonly', true);
+            // Ajout des classes Tailwind pour le mode lecture
+            input.classList.add('bg-gray-50', 'cursor-pointer');
+            input.classList.remove('bg-white', 'cursor-text');
+            
+            const budget = input.value;
+            let fetchUrl = '';
+
+            @if(Auth::user()->hasRole('Admin'))
+                fetchUrl = `/admin/budget/update/${budgetId}`;
+            @elseif(Auth::user()->hasRole('Responsable de projet'))
+                fetchUrl = `/Responsable_de_projet/budget/update/${budgetId}`;
+            @elseif(Auth::user()->hasRole('Employee'))
+                fetchUrl = `/employee/budget/update/${budgetId}`;
+            @endif
+
+            if (!fetchUrl) return;
+
+            fetch(fetchUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ budget: budget })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Please delete all charges before updating the budget');
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the budget. Please try again.');
+                location.reload();
+            });
+        }
     </script>
 </body>
 </html>

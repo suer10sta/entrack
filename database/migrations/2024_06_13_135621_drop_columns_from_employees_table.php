@@ -12,8 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('employees', function (Blueprint $table) {
-            $table->dropColumn('workHours_limit');
-            $table->dropColumn('Cost_per_hours');
+            if (Schema::hasColumn('employees', 'workHours_limit')) {
+                $table->dropColumn('workHours_limit');
+            }
+            if (Schema::hasColumn('employees', 'Cost_per_hours')) {
+                $table->dropColumn('Cost_per_hours');
+            }
+            
         });
     }
 

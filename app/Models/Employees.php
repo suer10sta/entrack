@@ -17,8 +17,8 @@ class Employees extends Model
         'age',
         'cnss',
         'bankAccountNumber',
-        'Date_Entree',
-        'Date_Release',
+        'Date_Entree',      
+        'Date_Release',     
         'cost_per_hour',
         'workHours_limit',
         'Cotisation_CNSS',
@@ -28,15 +28,21 @@ class Employees extends Model
         'entreprise_id',
         'role_id',
         'image',
+        
+    ];
+
+    
+    protected $casts = [
+        'Date_Entree' => 'datetime',
+        'Date_Release' => 'datetime',
     ];
 
     protected static function boot()
     {
         parent::boot();
 
-        // Set default values before creating a new record
         static::creating(function ($employee) {
-            $employee->Date_Entree = now(); // Set the current date and time
+            $employee->Date_Entree = now(); 
         });
     }
 

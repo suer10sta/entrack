@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BizManager Dashboard</title>
+    <title>Entrack Dashboard</title>
     @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
@@ -29,11 +29,18 @@
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     
                     <div class="flex flex-col items-center">
+                    {{-- This PHP block creates the "JD" initials from the user's name --}}
+                            @php
+                                $nameParts = explode(' ', $user->name);
+                                $initials = count($nameParts) > 1 
+                                            ? strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 1))
+                                            : strtoupper(substr($user->name, 0, 2));
+                            @endphp
                         <div class="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center">
-                            <span class="text-white text-3xl font-bold">JD</span>
+                            <span class="text-white text-3xl font-bold">{{$initials}}</span>
                         </div>
-                        <h2 class="text-xl font-bold text-gray-900 mt-4">John Doe</h2>
-                        <p class="text-sm text-gray-500">john.doe@example.com</p>
+                        <h2 class="text-xl font-bold text-gray-900 mt-4">{{$user->name}}</h2>
+                        <p class="text-sm text-gray-500">{{$user->email}}</p>
                     </div>
 
                     <hr class="my-6 border-gray-200">
@@ -48,20 +55,27 @@
                         </div>
                         <div>
                             <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Member Since</h3>
-                            <p class="text-gray-800 font-medium mt-2">January 15, 2024</p>
+                            <p class="text-gray-800 font-medium mt-2">
+                            {{ $user->employee?->Date_Entree ? $user->employee->Date_Entree->format('F j, Y') : 'N/A' }}                            </p>
                         </div>
                         <div>
-                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Status</h3>
-                            <div class="flex items-center mt-2">
-                                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                                <span class="text-gray-800 font-medium">Active</span>
+                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Status</h3>
+                                {{-- 4. User's Status from DB --}}
+                                <div class="flex items-center mt-2">
+                                    @if($user->is_activate)
+                                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                        <span class="text-gray-800 font-medium">Active</span>
+                                    @else
+                                        <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                                        <span class="text-gray-800 font-medium">Inactive</span>
+                                    @endif
+                                </div>
                             </div>
-                        </div>
                     </div>
 
-                    <button class="mt-8 w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">
+                    <a href="{{ route('profile.edit') }}" class="mt-8 w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 block text-center">
                         Edit Profile
-                    </button>
+                    </a>
                 </div>
             </div>
 
@@ -140,15 +154,15 @@
 
                     </div>
 
-                    <button class="mt-8 w-full bg-orange-500 text-white py-3 px-6 rounded-lg font-bold text-center hover:bg-orange-600 transition duration-300">
-                        Upgrade to Premium
-                    </button>
+                    <a href="{{ route('profile.upgrade') }}" class="mt-8 w-full block bg-orange-500 text-white py-3 px-6 rounded-lg font-bold text-center hover:bg-orange-600 transition duration-300">
+                            Upgrade to Premium
+                        </a>
                 </div>
             </div>
 
         </div>
         
     </div>
-    @livewireScripts
+    
 </body>
 </html>

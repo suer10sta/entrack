@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class billings_budget extends Model
+class Billings_budget extends Model
 {
     use HasFactory;
 
-    protected $table = 'billings_budget';
+    protected $table = '_billings_budget';
 
 
     protected $fillable = [
@@ -18,6 +18,7 @@ class billings_budget extends Model
         'budget_spent',
         'budget_remaining',
         'entreprise_id',
-        'sould_out',
+        'sold_out',
     ];
+    
 }

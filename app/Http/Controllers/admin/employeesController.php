@@ -81,6 +81,14 @@ class employeesController extends Controller
         // Get the authenticated admin's enterprise_id
         $enterpriseId = Auth::user()->entreprise_id;
 
+        $entreprise = Auth::user()->entreprise;
+
+    // 2. VÉRIFIER LA LIMITE AVANT DE CONTINUER
+    if (!$entreprise->canAddMoreUsers()) {
+        
+        // 3. Si la limite est atteinte, arrêter et renvoyer une erreur
+        return back()->with('error', 'Vous avez atteint la limite de ' . $entreprise->getUserLimit() . ' utilisateurs pour votre plan. Veuillez passer au plan Pro pour en ajouter davantage.');
+    }
         $validated = $request->validate([
             "name" => "required",
             "email" => "required|unique:employees,email",

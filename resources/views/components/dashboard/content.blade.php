@@ -316,7 +316,7 @@
                             <p class="text-xs text-gray-500">Teams:</p>
                             <div class="flex flex-wrap gap-1 mt-1">
                                 @forelse($project->teams as $team)
-                                    <span class="inline-block px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">{{ $team }}</span>
+                                    <span class="inline-block px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">{{ $team->name }}</span>
                                 @empty
                                     <span class="text-xs text-gray-500">No teams assigned</span>
                                 @endforelse

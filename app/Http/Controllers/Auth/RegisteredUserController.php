@@ -42,6 +42,7 @@ class RegisteredUserController extends Controller
             'timezone' => 'required',
         ]);
 
+        
 
     // Check if the request contains the entreprise_image file
         if ($request->hasFile('entreprise_image')) {
@@ -59,11 +60,14 @@ class RegisteredUserController extends Controller
             'name' => $validated['entreprise_name'],
             'is_activated' => true, // Set is_activated to true by default
             'duration' => now()->addMonths(6), // Set duration to 6 months by default
-            'image' => $imageName, // Save the image filename to the database
+            'image' => $imageName,
+            'type_compt' => null, // null means no plan selected yet
+            'trial_ends_at' => now()->addDays(15)
         ]);
 
         // Create the user and associate it with the entreprise
         $user = new User([
+            'name' => 'admin',
             'email' => $validated['email'],
             'password' => $validated['password'],
             'timezone' => $validated['timezone'],
@@ -76,13 +80,8 @@ class RegisteredUserController extends Controller
         $user->assignRole('SuperAdmin');
 
         $user->save();
-
-        
-        
             // Use a default image if no image is provided
             $imageName = NULL; 
-        
-
         
         // Create the associated employee
         $employee = new Employees([

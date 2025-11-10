@@ -73,7 +73,7 @@ class projectController extends Controller
         $project->cost_per_hour = $request->cost_per_hour;
         $project->status = 0;
         $project->regie = $request->has('regie') ? 1 : 0;
-        
+         
         $project->client_id = $client_id;
         $project->estimated_hours = $request->estimated_hours;
         $project->entreprise_id = auth()->user()->entreprise_id;

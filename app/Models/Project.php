@@ -21,7 +21,8 @@ class Project extends Model
         'entreprise_id',
         'estimated_hours',
         'archived',
-        'tva'
+        'tva',
+        'regie'
     ];
 
     public function client()

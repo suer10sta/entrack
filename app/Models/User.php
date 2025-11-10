@@ -63,4 +63,13 @@ class User extends Authenticatable
 
         return $this->hasEnterprisePermission($ability);
     }
+
+/**
+ * ADD THIS FUNCTION
+ * Get the employee record associated with the user.
+ */
+public function employee()
+{
+    return $this->hasOne(Employees::class, 'user_id');
+}
 }

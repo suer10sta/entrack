@@ -15,11 +15,11 @@ class CreateTasksTable extends Migration
 		$table->date('start');
 		$table->date('end');
 		$table->string('description');
-		$table->string('user_id')->unsigned();
-		$table->string('project_id')->unsigned();
+		$table->bigInteger('user_id')->unsigned();
+		$table->bigInteger('project_id')->unsigned();
 		$table->string('project_name');
-		$table->string('status')->unsigned()->default('0');
-		$table->unsignedBigInteger('entreprise_id')->default(0);
+		$table->string('status')->default('0');
+		$table->bigInteger('entreprise_id')->unsigned()->default(0);
 		$table->timestamps();
         });
     }

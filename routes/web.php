@@ -22,6 +22,7 @@ use App\Http\Controllers\employees\teamsController as EmployeesteamsController;
 use App\Http\Controllers\BillitController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\admin\CalendarController;
+use App\Http\Controllers\admin\SubscriptionController;
 
 
 /*
@@ -1751,11 +1752,16 @@ Route::get('/filter/all-tasks', [TasksController::class, 'getAllTasks']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/admin/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::get('/profile/upgrade', [ProfileController::class, 'showUpgradePage'])->name('profile.upgrade');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/choose-plan/{plan}', [SubscriptionController::class, 'choosePlan'])
+         ->name('subscription.choose');
     Route::get('/edit-profile', function () {
     return view('profile.edit');
+
     });
 });
 
