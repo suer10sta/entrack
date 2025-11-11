@@ -8,7 +8,7 @@
                 </svg>
             </span>
             {{-- CHANGED: rounded-xl to rounded-lg, border to border-gray-300, focus:border-primary to focus:border-blue-500 --}}
-            <input type="text" placeholder="Rechercher..." 
+            <input type="text" placeholder="Search..." 
                    class="w-full pl-11 pr-4 py-2.5 border rounded-lg bg-white focus:ring-0 focus:border-blue-500 text-sm border-gray-300" />
         </div>
     </div>
@@ -22,12 +22,5 @@
             </svg>
         </button>
 
-        {{-- CHANGED: All 'primary' classes to match the blue button in your content --}}
-        <button class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Nouvelle Facture
-        </button>
     </div>
 </header>

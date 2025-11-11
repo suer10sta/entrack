@@ -9,32 +9,31 @@
     
     {{-- This CSS block styles the "editable" fields to look like text until double-clicked --}}
     <style>
-        .editable[readonly],
-        .editable-contact[readonly] {
-            border-color: transparent;
-            background-color: transparent;
-            padding-left: 0;
-            padding-right: 0;
+        .editable[readonly] {
+            border-color: #E5E7EB; /* gray-200 */
+            background-color: #F9FAFB; /* gray-50 */
+            padding-left: 0.75rem; /* Added padding to align with non-readonly */
+            padding-right: 0.75rem; /* Added padding to align with non-readonly */
             cursor: pointer;
             font-weight: 500;
             color: #111827; /* text-gray-900 */
         }
-        .editable[readonly]:hover,
-        .editable-contact[readonly]:hover {
+        .editable[readonly]:hover {
             color: #2563EB; /* text-blue-600 */
+            background-color: #F3F4F6; /* gray-100 */
         }
-        .editable:not([readonly]),
-        .editable-contact:not([readonly]) {
+        .editable:not([readonly]) {
             border-color: #2563EB !important;
             box-shadow: 0 0 0 2px #BFDBFE !important; /* ring-blue-200 */
             background-color: #ffffff !important;
         }
         
-        .accordion-trigger[aria-expanded="true"] .arrow {
-            transform: rotate(180deg);
+        /* Style for editable table cells */
+        td.editable {
+            cursor: pointer;
         }
-        .arrow {
-            transition: transform 0.2s ease-in-out;
+        td.editable:hover {
+            background-color: #f9fafb; /* gray-50 */
         }
     </style>
 </head>

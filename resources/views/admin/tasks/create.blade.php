@@ -122,7 +122,7 @@
                         {{-- Form Action Buttons --}}
                         <div class="flex justify-end items-center gap-x-4 mt-8 pt-4 border-t border-gray-200">
                             {{-- Single "Cancel" link --}}
-                            <a href="{{ $cancelRoute }}" 
+                            <a href="javascript:history.back()" 
                                class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
                                 Cancel
                             </a>

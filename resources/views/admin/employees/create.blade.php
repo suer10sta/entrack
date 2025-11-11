@@ -24,6 +24,17 @@
                     <p class="text-slate-600">Fill the mandatory information below</p>
                 </div>
 
+                @if(session('error'))
+    <div class="mb-4 rounded-lg bg-red-100 border border-red-400 p-4 text-sm text-red-700">
+        <strong>Erreur :</strong> {{ session('error') }}
+    </div>SD@gmail.com
+@endif
+
+@if(session('message'))
+    <div class="mb-4 rounded-lg bg-green-100 border border-green-400 p-4 text-sm text-green-700">
+        <strong>Succès :</strong> {{ session('message') }}
+    </div>
+@endif
                 {{-- Form --}}
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {{-- Personal Infos --}}

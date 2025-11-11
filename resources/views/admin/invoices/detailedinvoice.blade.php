@@ -143,21 +143,16 @@
                                 <button type="button" id="generateInvoiceBtn" class="bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2.5 rounded-lg">Generate Invoice</button>
                             </div>
                         </div>
-                    </div> {{-- End p-6 --}}
-                </div> {{-- End Card --}}
+                    </div> 
+                </div> 
             </div> 
             
         </main>
-    </div> {{-- End Main Wrapper --}}
+    </div> 
 
     @livewireScripts
-    {{-- @include('dashboard_layouts.scripts') --}}
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    {{-- UPDATED JavaScript to handle new structure --}}
     <script>
         $(document).ready(function() {
             

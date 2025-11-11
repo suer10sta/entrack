@@ -41,10 +41,8 @@ class employeesController extends Controller
         ->get();
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
         $tasks= Tasks::where('user_id', Auth::user()->id)->get();
-        // Get the authenticated user's enterprise_id
         $enterpriseId = Auth::user()->entreprise_id;
 
-        // Retrieve only employees with the same enterprise_id
         $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
         $entreprises = Entreprise::all();
 
@@ -53,17 +51,16 @@ class employeesController extends Controller
             $user = User::find($user_id);
 
             $roles = $user->roles;
-            $roleNames = $roles->pluck('name')->toArray(); // Extract role names
+            $roleNames = $roles->pluck('name')->toArray(); 
 
             $permissions = [];
 
             foreach ($roles as $role) {
-                // Accumulate permissions for each role
                 $permissions = array_merge($permissions, $role->permissions->pluck('name')->toArray());
             }
 
-            $employee->roles = $roleNames; // Add roles to the user object
-            $employee->permissions = array_unique($permissions); // Remove duplicates and assign unique permissions
+            $employee->roles = $roleNames; 
+            $employee->permissions = array_unique($permissions); 
         }
 
         return view('admin.employees.index', compact('employees','entreprises','tasks','teams','projects'));
@@ -82,13 +79,12 @@ class employeesController extends Controller
         $enterpriseId = Auth::user()->entreprise_id;
 
         $entreprise = Auth::user()->entreprise;
+        // 2. VÉRIFIER LA LIMITE AVANT DE CONTINUER
+        if (!$entreprise->canAddMoreUsers()) {
+            // 3. Si la limite est atteinte, arrêter et renvoyer une erreur
+            return back()->with('error', 'Vous avez atteint la limite de ' . $entreprise->getUserLimit() . ' utilisateurs pour votre plan. Veuillez passer au plan Pro pour en ajouter davantage.');
+        }
 
-    // 2. VÉRIFIER LA LIMITE AVANT DE CONTINUER
-    if (!$entreprise->canAddMoreUsers()) {
-        
-        // 3. Si la limite est atteinte, arrêter et renvoyer une erreur
-        return back()->with('error', 'Vous avez atteint la limite de ' . $entreprise->getUserLimit() . ' utilisateurs pour votre plan. Veuillez passer au plan Pro pour en ajouter davantage.');
-    }
         $validated = $request->validate([
             "name" => "required",
             "email" => "required|unique:employees,email",
@@ -111,10 +107,6 @@ class employeesController extends Controller
         $validated_user_email = $request->validate([
             "email" => "required|unique:users,email",
         ]);
-
-
-
-
         // Create the user and associate it with the enterprise
         $users = new User([
             'name' => $validated['name'],

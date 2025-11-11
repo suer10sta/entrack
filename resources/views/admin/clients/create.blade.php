@@ -266,24 +266,8 @@
 
                     <div class="flex justify-end mt-8 gap-4">
                         {{-- Cancel Button Logic --}}
-                        @if(Auth::user()->hasRole('Responsable de projet'))
-                            <a href="{{route('Responsable_de_projet.index')}}"
+                            <a href="javascript:history.back()"
                                 class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">Cancel</a>
-                        @elseif(Auth::user()->hasRole('Admin'))
-                            <a href="{{route('admin.index')}}"
-                                class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">Cancel</a>
-                        @elseif(Auth::user()->hasRole('Employee'))
-                            <a href="{{route('employee.index')}}"
-                                class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">Cancel</a>
-                        @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                            <a href="{{route('Responsable_gestionnaire.index')}}"
-                                class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">Cancel</a>
-                        @else
-                            {{-- Fallback cancel button --}}
-                            <a href="{{ url()->previous() }}"
-                                class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">Cancel</a>
-                        @endif
-
                         <button type="submit"
                             class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow">
                             Create

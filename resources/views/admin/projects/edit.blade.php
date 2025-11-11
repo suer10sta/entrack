@@ -129,15 +129,8 @@
                         </div>
 
                         <div class="flex justify-end gap-4 pt-4">
-                            @php
-                                $cancelRoute = route('admin.index'); // Default
-                                if(Auth::user()->hasRole('Admin')) $cancelRoute = route('admin.index');
-                                elseif(Auth::user()->hasRole('Responsable de projet')) $cancelRoute = route('Responsable_de_projet.index');
-                                elseif(Auth::user()->hasRole('Employee')) $cancelRoute = route('employee.index');
-                                elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $cancelRoute = route('Responsable_gestionnaire.index');
-                            @endphp
                             
-                            <a href="{{ $cancelRoute }}" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">
+                            <a href="javascript:history.back()" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">
                                 Cancel
                             </a>
                             <button type="submit" name="button" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow">

@@ -1,355 +1,312 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en"> 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detailed Invoice - BizManager</title> 
+    
+    {{-- [CORRIGÉ 1] Ajout du Meta Tag CSRF --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    @vite('resources/css/app.css')
+    @livewireStyles
+    <script src="//unpkg.com/alpinejs" defer></script>
     <style>
-        body {
-        font-family: Tahoma, sans-serif;
-        font-size: 12px;
-        color: #333333;
-        background-color: #FFFFFF;
-        margin: 0;
-        padding: 0;
-    }
-
-    .page {
-        position: relative;
-        width: 595px;
-        min-height: 842px;
-        /* A4 height */
-        margin: 0 auto;
-        padding: 20px;
-        page-break-after: always;
-        padding-bottom: 100px; /* Space for footer */
-    }
-
-    /* Remove page-break-after from the last page */ 
-    .page:last-of-type {
-        page-break-after: avoid;
-    }
-
-    .header {
-        width: 100%;
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
-    .header img {
-        width: 100px;
-        height: auto;
-    }
-
-    .details {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 20px;
-        position: relative;
-    }
-
-    .details-left {
-        width: 48%;
-        font-size: 12px;
-    }
-
-    .details-right {
-        width: 48%;
-        font-size: 12px;
-        text-align: right;
-        position: absolute;
-        right: 0;
-        top: 0;
-    }
-
-    .invoice-number {
-        text-align: center;
-        font-size: 14px;
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 20px;
-    }
-
-    table,
-    th,
-    td {
-        border: 1px solid #CCCCCC;
-    }
-
-    th,
-    td {
-        padding: 8px;
-        text-align: left;
-        font-size: 12px;
-    }
-
-    th {
-        background-color: #f2f2f2;
-        font-weight: bold;
-    }
-
-    .totals {
-        border: none;
-        margin-top: 20px;
-        text-align: right;
-    }
-
-    .totals td {
-        border: none;
-    }
-
-    .description {
-        width: 100%;
-        text-align: justify;
-        font-size: 12px;
-        border-top: 2px double #CCCCCC;
-        border-bottom: 2px double #CCCCCC;
-        padding: 10px 0;
-    }
-
-    .payment {
-        width: 100%;
-        text-align: justify;
-        font-size: 12px;
-        margin-bottom: 5px;
-        padding-top: 5px;
-        page-break-inside: avoid; /* Prevents the payment div from splitting across pages */
-    }
-
-    .footer {
-        position: fixed;
-        bottom: 0;
-        left: 20px;
-        right: 20px;
-        width: calc(100% - 40px);
-        border-top: 1px solid #000;
-        padding-top: 10px;
-        padding-bottom: 5px;
-        margin-top: 2px;
-        background-color: #FFFFFF;
-        z-index: 1000;
-    }
-
-    .footer-content {
-        position: relative;
-        width: 100%;
-        height: 50px;
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .footer-left {
-        position: absolute;
-        left: 0;
-        text-align: left;
-    }
-
-    .footer-center {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        text-align: center;
-    }
-
-    .footer-right {
-        position: absolute;
-        right: 0;
-        text-align: right;
-    }
-
-    .footer-text {
-        color: #333333;
-        line-height: 1.4;
-    }
-
-    .general-conditions {
-        text-align: justify;
-        line-height: 1.1;
-        font-size: 10px;
-        margin-bottom: 0;
-        padding-bottom: 0px;
-        /* Space for footer */
-        white-space: pre-line;
-        /* Preserve line breaks */
-    }
-
-    .logo-right {
-        text-align: left;
-    }
-
-    /* Content wrapper to prevent overlap with footer */
-    .content-wrapper {
-        position: relative;
-        min-height: calc(100% - 80px);
-        padding-bottom: 20px;
-    }
-
-    /* Add these new styles */
-    .page-break {
-        page-break-before: always;
-    }
-
-    /* Add styles for new page content */
-    .new-page {
-        page-break-before: always;
-        padding-top: 20px;
-        min-height: 842px; /* A4 height */
-        position: relative;
-    }
-
-    /* Style for additional pages */
-    .additional-page {
-        page-break-before: always;
-        position: relative;
-        padding-top: 20px;
-        min-height: 842px;
-    }
+        select.form-select-custom {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem; 
+        }
+        select:invalid {
+            color: #9ca3af;
+        }
+        option {
+            color: #111827;
+        }
     </style>
 </head>
-<body>
-    <!-- Common footer that will appear on all pages -->
-    <div class="footer">
-        <div class="footer-content">
-            <div class="footer-left footer-text">
-                <b>{{ $entreprise->name }}</b><br>
-                <b>Numéro TVA:</b> {{ $entreprise->tva}}
-            </div>
-            <div class="footer-center footer-text">
-                {{ $entreprise->Address }}<br>
-                Tél: 0{{ $entreprise->phone }}
-            </div>
-            <div class="footer-right footer-text">
-                <b>BANK</b> : {{ $entreprise->bank_name }}<br>
-                <b>IBAN</b> : {{ $entreprise->iban }}<br>
-                <b>SWIFT/BIC</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
-            </div>
-        </div>
-    </div>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
 
-    <!-- First page content -->
-    <div class="page">
-        <div class="content-wrapper">
-            <div class="header">
-                <div class="header logo-right">
-                    <img src="{{ Storage::disk('do_spaces')->url($entreprise->image) }}"alt="Company Logo" class="company-logo">
-                </div>
-            </div>
+    {{-- Sidebar Component --}}
+    <x-dashboard.sidebar />
 
-            <br><br><br><br>
+    {{-- Main Wrapper (Navbar + Content) --}}
+    <div class="flex flex-col flex-1 overflow-y-auto">
 
-            <div class="details">
-                <div class="details-left">
-                    <p>
-                        Date de facturation: {{ $invoice_date }}<br/>
-                        Échéance: {{ $due_date }}<br>
-                        Numéro client : {{ $client->client_number }} <br>
-                        Numéro de facture : {{date('ym')}}{{$invoice_id}}
-                    </p>
-                </div>
-                <div class="details-right">
-                    <strong>{{ $client->name }}</strong><br />
-                    {{ $client->billing_street }} <br />
-                    {{ $client->billing_zip }}-{{ $client->billing_city }} <br />
-                    {{ $client->billing_country }}<br />
-                    TVA Client: {{ $client->TVA }}
-                </div>
-            </div>
+        {{-- Navbar Component --}}
+        <x-dashboard.navbar />
 
-            <br><br><br>
-
-            <div class="invoice-number">
-                Facture : {{$entreprise->invoice_prefix}}-{{date('ym')}}{{$invoice_id}}
-            </div>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Désignation</th>
-                        <th>Quantité</th>
-                        <th>Prix Unitaire</th>
-                        <th>Montant</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td colspan="4" style="background-color: #f9f9f9;">
-                            <strong>Projet: {{ $projectinfos->name }}</strong>
-                        </td>
-                    </tr>
-                    @foreach($details as $detail)
-                    <tr>
-                        <td>{{$detail['description']}}</td>
-                        <td>{{$detail['quantity']}}</td>
-                        <td>{{number_format($detail['unit_price'], 2, ',', '')}}€</td>
-                        <td>{{number_format($detail['total'], 2, ',', '')}}€</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-
-            <table class="totals">
-                <tr>
-                    <td style="text-align: right; width: 80%;">Total HTVA</td>
-                    <td style="text-align: right;">{{number_format($total_htva, 2, ',', '')}}€</td>
-                </tr>
-                <tr>
-                    <td style="text-align: right;">TVA {{ $projectinfos->tva }}%</td>
-                    <td style="text-align: right;">{{number_format($tva_amount, 2, ',', '')}}€</td>
-                </tr>
-                <tr>
-                    <td style="text-align: right;">Total TTC</td>
-                    <td style="text-align: right;"><b>{{number_format($total_ttc, 2, ',', '')}}€</b></td>
-                </tr>
-            </table>
-
-
-            @if($projectinfos->description || $comment)
-            <div class="description" style="margin-bottom: 2px;">
-                @if($projectinfos->description)
-                <strong> - Informations :</strong> <br>
-                {!! nl2br(e($projectinfos->description)) !!} <br>
+        {{-- Main Content Area --}}
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8">
+            
+            <div class="w-full"> 
+                @if(session('message'))
+                    <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                        <strong class="font-bold">Error!</strong>
+                        <span class="block sm:inline">{{ session('message') }}</span>
+                        <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+                    </div>
                 @endif
-                @if($comment)
-                <strong> - Commentaire : </strong> <br>
-               <p style="white-space: pre-wrap;">{!! nl2br(e($comment)) !!}</p>
-               @endif
-            </div>
-            @endif
-
-            <!-- Modify the payment section container -->
-            <div style="position: relative;">
-                <!-- Adjust bottom value to account for footer height -->
-                <div style="position: absolute; bottom: 150px; width: 100%;"></div>
                 
-                <div class="payment">
-                    - Veuillez payer le montant de <strong>{{number_format($total_ttc, 2, ',', '')}}€</strong> 
-                    sur le compte mentionné ci-dessous avant le {{ $due_date }}
-                    en mentionnant le numéro Facture <strong>{{date('ym')}}{{$invoice_id}}</strong>
-                    <br>
-                    - Dans le cas de livraison intracommunautaire pour les services :  "Autoliquidation Art 21 § 2 du code TVA belge"
-                    <br>
-                    - Voir conditions générales en annexe
-                    <br>
-                    - Merci de votre confiance
-                </div>
-            </div>
-        </div>
-    </div>
+                {{-- Main Card --}}
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="flex justify-between items-center p-6 pb-0 border-b border-gray-200">
+                        <h6 class="text-lg font-semibold text-gray-900">Detailed Invoice Generator</h6>
+                    </div>
+                    
+                    <div class="p-6">
+                        {{-- Project and Comment Grid --}}
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                            <div class="md:col-span-1">
+                                <label for="projectSelect" class="block text-sm font-medium text-gray-700 mb-1">Select Project</label>
+                                <select id="projectSelect" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom" required>
+                                    <option value="">Select Project</option>
+                                    @foreach($projects as $project)
+                                    <option value="{{ $project->id }}" data-cost-per-hour="{{ $project->cost_per_hour }}" data-tva="{{ $project->tva }}">
+                                        @if(preg_match('/^(\d+)(.*)/', $project->name, $matches)){{ $matches[1] }}{{ $matches[2] }}@else{{ strtoupper($project->name) }}@endif
+                                        - @if($project->budget){{ $project->budget - $project->amount_billed }}€ @else<span class="text-red-600">no budget</span>@endif
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
+                                <textarea id="comment" name="comment" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" rows="3" placeholder="Add any additional notes or comments here..."></textarea>
+                            </div>
+                        </div>
 
-    <!-- Second page - General Conditions -->
-    <div class="page">
-        <div class="content-wrapper">
-            <h2>Conditions Générales :</h2>
-            <div class="general-conditions">
-                <p>{!! nl2br(e($entreprise->general_conditions)) !!}</p>
-            </div>
-        </div>
-    </div>
+                        {{-- Details Section --}}
+                        <div class="mt-4">
+                            <label class="block text-base font-semibold text-gray-800 mb-2">Invoice Details</label>
+                            
+                            {{-- NEW Table Structure --}}
+                            <div class="overflow-x-auto rounded-lg border border-gray-200">
+                                <table class="w-full min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-5/12">Detail</th>
+                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-2/12">Quantity</th>
+                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-2/12">Unit Price (€)</th>
+                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-2/12">Total</th>
+                                            <th scope="col" class="py-3 px-4 text-center text-sm font-semibold text-gray-700 w-1/12">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="detailsContainer" class="bg-white divide-y divide-gray-200">
+                                        {{-- Detail Row Template --}}
+                                        <tr class="detail-row">
+                                            <td class="p-2 px-4">
+                                                <input type="text" class="detail-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="Enter detail">
+                                            </td>
+                                            <td class="p-2 px-4">
+                                                <input type="number" step="0.01" class="quantity-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="Quantity">
+                                            </td>
+                                            <td class="p-2 px-4">
+                                                <input type="number" step="0.01" class="price-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="Unit price">
+                                            </td>
+                                            <td class="p-2 px-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <span class="row-total">0.00</span>€
+                                            </td>
+                                            <td class="p-2 px-4 whitespace-nowrap text-center">
+                                                <button type="button" class="deleteRowBtn text-red-600 hover:text-red-800">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                    </svg>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {{-- Add Row Button --}}
+                            <div class="mt-4">
+                                <button type="button" id="addRowBtn" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    Add Row
+                                </button>
+                            </div>
+
+                            {{-- NEW Total Amount Bar --}}
+                            <div class="mt-6 bg-gray-50 border border-gray-200 rounded-lg p-4 flex justify-between items-center">
+                                <span class="text-lg font-semibold text-gray-800">Total Amount:</span>
+                                <span id="grandTotal" class="text-2xl font-bold text-blue-600">0.00€</span>
+                            </div>
+
+                            {{-- Generate Button --}}
+                            <div class="mt-6 border-t pt-6">
+                                <button type="button" id="generateInvoiceBtn" class="bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2.5 rounded-lg">Generate Invoice</button>
+                            </div>
+                        </div>
+                    </div> 
+                </div> 
+            </div> 
+        </main>
+    </div> 
+
+    @livewireScripts
+
+    <script>
+        $(document).ready(function() {
+            
+            // [DEBUG] S'assure que le token CSRF est bien lu
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+            console.log("[DEBUG] Token CSRF chargé:", csrfToken ? "Oui" : "NON (PROBLÈME)");
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            });
+            
+            // ... (Le code pour addRowBtn, deleteRowBtn, etc. reste le même) ...
+            $('#addRowBtn').click(function() {
+                const newRow = $('#detailsContainer .detail-row:first').clone();
+                newRow.find('input').val(''); 
+                newRow.find('.row-total').text('0.00'); 
+                $('#detailsContainer').append(newRow);
+                attachRowEventListeners(newRow); 
+            });
+
+            $('#detailsContainer').on('click', '.deleteRowBtn', function() {
+                if ($('#detailsContainer .detail-row').length > 1) {
+                    $(this).closest('tr').remove(); 
+                    calculateGrandTotal(); 
+                }
+            });
+
+            function calculateRowTotal(row) {
+                const quantity = parseFloat(row.find('.quantity-input').val()) || 0;
+                const price = parseFloat(row.find('.price-input').val()) || 0;
+                const total = quantity * price;
+                row.find('.row-total').text(total.toFixed(2));
+                calculateGrandTotal(); 
+            }
+
+            function calculateGrandTotal() {
+                let grandTotal = 0;
+                $('.row-total').each(function() { 
+                    grandTotal += parseFloat($(this).text()) || 0;
+                });
+                $('#grandTotal').text(grandTotal.toFixed(2) + '€'); 
+            }
+
+            function attachRowEventListeners(row) { 
+                row.find('.quantity-input, .price-input').on('input', function() {
+                    calculateRowTotal(row);
+                });
+            }
+            
+            // [DEBUG] Attache l'écouteur au bouton
+            console.log("[DEBUG] Attache l'écouteur au bouton #generateInvoiceBtn");
+
+            // Generate invoice button
+            $('#generateInvoiceBtn').click(function(e) { 
+                console.log("--- [DEBUG] Bouton 'Generate Invoice' cliqué ---");
+                e.preventDefault();
+                
+                const project_id = $('#projectSelect').val();
+                const comment = $('#comment').val();
+                const details = [];
+                
+                console.log("[DEBUG] Project ID:", project_id);
+                
+                // Collect details
+                $('.detail-row').each(function() { 
+                    const row = $(this);
+                    const description = row.find('.detail-input').val();
+                    const quantity = parseFloat(row.find('.quantity-input').val());
+                    const unit_price = parseFloat(row.find('.price-input').val());
+
+                    if (description && !isNaN(quantity) && !isNaN(unit_price)) {
+                        details.push({
+                            description: description,
+                            quantity: quantity,
+                            unit_price: unit_price
+                        });
+                    }
+                });
+                
+                console.log("[DEBUG] Détails collectés:", details);
+
+                // Validation
+                if (details.length === 0) {
+                    console.error("[DEBUG] ÉCHEC VALIDATION: Aucun détail ajouté.");
+                    alert('Please add at least one valid detail row');
+                    return;
+                }
+                if (!project_id) {
+                    console.error("[DEBUG] ÉCHEC VALIDATION: Aucun projet sélectionné.");
+                    alert('Please select a project');
+                    return;
+                }
+
+                console.log("[DEBUG] Validation RÉUSSIE. Préparation de l'appel AJAX.");
+
+                // --- AJAX CALL ---
+                let ajaxUrl = '';
+                @if(Auth::user()->hasRole('Admin'))
+                    ajaxUrl = '{{ route("admin.invoices.detailed") }}';
+                @elseif(Auth::user()->hasRole('Responsable de projet'))
+                    ajaxUrl = '{{ route("Responsable_de_projet.invoices.detailed") }}';
+                @elseif(Auth::user()->hasRole('Employee'))
+                    ajaxUrl = '{{ route("employee.invoices.detailed") }}';
+                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                    ajaxUrl = '{{ route("Responsable_gestionnaire.invoices.detailed") }}';
+                @endif
+                
+                console.log("[DEBUG] URL AJAX:", ajaxUrl);
+                console.log("[DEBUG] Données envoyées:", {
+                    project_id: project_id,
+                    details: details,
+                    comment: comment 
+                });
+
+                $.ajax({
+                    url: ajaxUrl,
+                    method: 'POST',
+                    data: {
+                        // _token est géré par $.ajaxSetup
+                        project_id: project_id,
+                        details: details,
+                        comment: comment 
+                    },
+                    success: function(response) {
+                        console.log("[DEBUG] AJAX Succès. Réponse reçue.");
+                        const newWindow = window.open();
+                        newWindow.document.open();
+                        newWindow.document.write(response);
+                        newWindow.document.close();
+                    },
+                    error: function(xhr) {
+                        console.error("[DEBUG] AJAX ÉCHEC. Status:", xhr.status, xhr.statusText);
+                        console.error("[DEBUG] Réponse:", xhr.responseText);
+                        
+                        let errorMsg = 'Unknown error';
+                        if (xhr.status === 419) {
+                            errorMsg = 'Page Expired (419). Please refresh and try again.';
+                        } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                            errorMsg = xhr.responseJSON.error;
+                        } else {
+                            errorMsg = xhr.statusText;
+                        }
+                        alert('Error generating invoice: ' + errorMsg);
+                    }
+                });
+            });
+
+            // Initial setup for the first row
+            attachRowEventListeners($('.detail-row:first'));
+            calculateGrandTotal();
+
+        }); // End document ready
+    </script>
+
 </body>
 </html>

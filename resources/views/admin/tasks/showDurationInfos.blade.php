@@ -272,16 +272,6 @@
 {{-- @include('dashboard_layouts.scripts') --}}
 
 {{-- 4. Scripts de logique de la page (LOGIQUE D'ORIGINE RESTAURÉE AVEC CONTRÔLE DE MODAL TAILWIND) --}}
-<script type="text/javascript">
-$(document).ready(function() {
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    }); 
-});
-</script>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -318,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Fin des fonctions de contrôle des Modals ---
 
 
-    // Gérer les clics sur les cellules date/heure (LOGIQUE D'ORIGINE RESTAURÉE)
+    // Gérer les clics sur les cellules date/heure
     const cells = document.querySelectorAll('.clickable');
     cells.forEach(cell => {
         cell.addEventListener('click', function() {
@@ -326,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const taskId = this.getAttribute('data-task-id');
             const currentValue = this.textContent.trim();
             
-            // Vérifier si c'est une cellule de durée (LOGIQUE DU PROMPT D'ORIGINE)
+            // Vérifier si c'est une cellule de durée
             if (this.classList.contains('duration')) {
                 var newValue = prompt("Entrer la nouvelle durée pour la tâche (ex: 1h:30m ou 90m)");
                 if (newValue) {
@@ -348,20 +338,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         url: updatedurl,
                         type: 'POST',
                         data: {
-                            duration: newValue, // Le backend doit être capable de parser "1h:30m" ou "90m"
+                            duration: newValue,
                             _token: '{{ csrf_token() }}'
                         },
                         success: function(response) {
                             if (response.status == 'success') {
                                 location.reload();
                             } else {
-                                location.reload(); // Recharger même en cas d'échec pour voir le message d'erreur
+                                location.reload(); 
                             }
                         }
                     });
                 }
             } else {
-                // Gérer l'édition de date/heure (LOGIQUE D'ORIGINE RESTAURÉE)
+                // Gérer l'édition de date/heure
                 if (currentValue !== 'En cours' && currentValue) {
                     const [datePart, timePart] = currentValue.split(' ');
                     const [day, month, year] = datePart.split('-');
@@ -373,20 +363,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('taskId').value = taskId;
                     document.getElementById('fieldName').value = field;
 
-                    // Appel du modal Tailwind
-                    openModal('editDateModal');
+                    openModal('editDateModal'); // Appel modal
                 }
             }
         });
     });
 
-    // Gérer le bouton "Sauvegarder" dans le modal de date (LOGIQUE D'ORIGINE RESTAURÉE)
+    // Gérer le bouton "Sauvegarder" dans le modal de date
     document.getElementById('saveChangesBtn').addEventListener('click', function() {
         const taskId = document.getElementById('taskId').value;
         const field = document.getElementById('fieldName').value;
         const date = document.getElementById('dateInput').value;
         const time = document.getElementById('timeInput').value;
-        const newValue = `${date} ${time}`; // Format YYYY-MM-DD HH:MM
+        const newValue = `${date} ${time}`;
 
         var updateUrl;
         @if(Auth::user()->hasRole('Admin'))
@@ -417,17 +406,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
-
-        // Fermeture du modal Tailwind
         closeModal('editDateModal');
     });
-});
-</script>
 
-{{-- Script pour le Modal "Déplacer Durée" (LOGIQUE D'ORIGINE RESTAURÉE, CONTRÔLE TAILWIND) --}}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Les fonctions openModal/closeModal sont définies dans le script précédent
+    // ==========================================================
+    // DEBUT DU CODE DU SECOND SCRIPT (MAINTENANT FUSIONNÉ)
+    // ==========================================================
 
     // Gérer les clics sur le bouton "Déplacer Durée"
     document.querySelectorAll('.move-duration-btn').forEach(button => {
@@ -435,7 +419,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const taskId = this.getAttribute('data-task-id');
             const projectId = this.getAttribute('data-project-id');
             const employeeId = this.getAttribute('data-employee-id');
-            const startDate = this.getAttribute('data-start-date');
+            const startDate = this.getAttribute('data-start-date'); // (Assurez-vous que le HTML est corrigé en 'data-start_date')
             const endDate = this.getAttribute('data-end-date');
             const duration = this.getAttribute('data-duration');
 
@@ -449,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             loadTasksForProject(projectId, taskId);
 
-            // Appel du modal Tailwind
+            // Appel du modal Tailwind (fonctionnera maintenant)
             openModal('moveDurationModal');
         });
     });
@@ -459,11 +443,10 @@ document.addEventListener('DOMContentLoaded', function() {
         loadTasksForProject(this.value);
     });
 
-    // Formater la date/heure pour l'input (le format doit être YYYY-MM-DDTHH:MM)
+    // Formater la date/heure pour l'input
     function formatDateTimeForInput(dateString) {
         if (!dateString) return '';
         const date = new Date(dateString);
-        // Ajuster pour le fuseau horaire local si nécessaire
         const userTimezoneOffset = date.getTimezoneOffset() * 60000;
         const localDate = new Date(date.getTime() - userTimezoneOffset);
         return localDate.toISOString().slice(0, 16);
@@ -518,7 +501,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return (hours * 60) + minutes;
     }
 
-    // Gérer l'état d'erreur pour les inputs Tailwind (fonctionnalité ajoutée pour le style)
+    // Gérer l'état d'erreur pour les inputs Tailwind
     function setInputError(inputId, errorId, message, isError) {
         const input = document.getElementById(inputId);
         const errorEl = document.getElementById(errorId);
@@ -534,7 +517,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Auto-calculer la durée lorsque les dates de début/fin changent
+    // Auto-calculer la durée
     function calculateAndSetDuration() {
         const startValue = document.getElementById('moveStartDate')?.value;
         const endValue = document.getElementById('moveEndDate')?.value;
@@ -603,7 +586,7 @@ document.addEventListener('DOMContentLoaded', function() {
             employee_id: document.getElementById('employeeSelect').value,
             start_date: document.getElementById('moveStartDate').value,
             end_date: document.getElementById('moveEndDate').value,
-            duration: durationMinutes, // Envoyer la valeur en minutes
+            duration: durationMinutes,
             _token: '{{ csrf_token() }}'
         };
 
@@ -637,10 +620,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Erreur lors du déplacement de la durée : ' + error);
             }
         });
-
-        // Fermeture du modal Tailwind
+        
         closeModal('moveDurationModal');
     });
+
 });
 </script>
 </body>

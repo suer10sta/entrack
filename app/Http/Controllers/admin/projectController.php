@@ -79,7 +79,7 @@ class projectController extends Controller
         $project->entreprise_id = auth()->user()->entreprise_id;
 
         $teams = $request->input('teams', []);
-        $contacts = $request->input('contacts', []); // retrieve the contacts from the request
+        $contacts = $request->input('contacts', []); 
 
         $project->save();
 
@@ -96,8 +96,8 @@ class projectController extends Controller
         }
 
 
-        foreach ($contacts as $contact_id) { // loop through the contacts
-            $contact = client_contacts::where('id', $contact_id)->first(); // replace Contact with your actual Contact model
+        foreach ($contacts as $contact_id) { 
+            $contact = client_contacts::where('id', $contact_id)->first(); 
 
             $contact_projects = new client_contacts_projects();
 
@@ -4828,6 +4828,7 @@ public function confirmDetailedInvoice($projectID, Request $request)
         $days = (int) $client->due_date;
         $due_date_interval = new DateInterval('P' . $days . 'D');
         $invoice->due_date = $today->add($due_date_interval);
+        
         
         $invoice->save();
 

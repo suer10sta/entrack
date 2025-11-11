@@ -74,76 +74,39 @@
 
 <body class="bg-gray-20 flex h-screen overflow-hidden font-sans">
 
-
-
     {{-- Sidebar Component (Unchanged) --}}
-
     <x-dashboard.sidebar />
-
-
-
     {{-- Main Wrapper (Navbar + Content) (Unchanged) --}}
 
     <div class="flex flex-col flex-1 overflow-y-auto">
-
-
-
         {{-- Navbar Component (Unchanged) --}}
-
         <x-dashboard.navbar />
 
-
-
         {{-- Main Content Area --}}
-
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8">
 
-
-
             {{-- Session Message Alert (Moved to top of main area) --}}
-
             @if(session('message'))
-
             <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-
                 <strong class="font-bold">Error!</strong>
-
                 <span class="block sm:inline">{{ session('message') }}</span>
-
                 <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
-
             </div>
-
             @endif
-
-
-
             {{-- Full Invoice Section (New Card) --}}
-
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-
                 <div class="p-6">
-
                     <h6 class="text-lg font-semibold text-gray-900 mb-4">Full Invoice</h6>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {{-- Project Filter --}}
-
                         <div class="md:col-span-1">
-
                             <label for="projectFilter1" class="block text-sm font-medium text-gray-700 mb-1">Select Project</label>
-
                             <select id="projectFilter1" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm form-select-custom py-2 px-3" required>
-
                                 <option value="">Select Project</option>
-
                                 @foreach($projects as $project)
-
                                 <option value="{{ $project->id }}"
-
                                         data-cost-per-hour="{{ $project->cost_per_hour }}"
-
                                         data-tva="{{ $project->tva }}">
-
                                     @if(preg_match('/^(\d+)(.*)/', $project->name, $matches))
                                         {{ $matches[1] }}{{ $matches[2] }}
                                     @else
@@ -160,22 +123,16 @@
                             </select>
                         </div>
                         <div class="md:col-span-1">
-
                             <label for="hoursInput" class="block text-sm font-medium text-gray-700 mb-1">Hours (h:mm)</label>
                             <input type="text" id="hoursInput" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="Example: 5:30">
-
                         </div>
                         <div class="md:col-span-1">
-
                             <label for="manualBudgetInput" class="block text-sm font-medium text-gray-700 mb-1">Manual Budget (€)</label>
                             <input type="number" step="0.01" id="manualBudgetInput" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="Manual budget">
-
                         </div>
-
                         <div class="md:col-span-1">
                             <label for="FullInvComment" class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
                             <textarea name="FullInvComment" id="FullInvComment" placeholder="Add any additional notes..." rows="3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"></textarea>
-
                         </div>
                     </div>
                     <div class="mt-6">
@@ -183,13 +140,9 @@
                     </div>
                 </div>
             </div>
-            
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-
                 <div class="p-6">
-
                     <h6 class="text-lg font-semibold text-gray-900 mb-4">Period Invoice</h6>
-
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {{-- Project Filter --}}
                         <div class="md:col-span-1">
@@ -254,65 +207,34 @@
 
                         </div>
 
-                        
-
                         {{-- Comment (Full Width) --}}
-
                         <div class="md:col-span-2">
-
                             <label for="PartialInvComment" class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
-
                             {{-- Added py-2 px-3 for height --}}
-
                             <textarea name="PartialInvComment" id="PartialInvComment" placeholder="Add any additional notes..." rows="3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"></textarea>
-
                         </div>
-
                     </div>
-
-                    
-
                     <div class="mt-6">
-
                         <a id="downloadPartialInvoiceBtn" href="#" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">View Invoice</a>
-
                     </div>
-
                 </div>
-
             </div>
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-
                 <div class="p-6">
-
                     <h6 class="text-lg font-semibold text-gray-900 mb-4">Percentage Invoice </h6>
                     <div classs="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {{-- Devis Select --}}
-
                         <div class="md:col-span-1">
-
                             <label for="devisSelect4" class="block text-sm font-medium text-gray-700 mb-1">Select Quote </label>
-
                             <select id="devisSelect4" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm form-select-custom py-2 px-3" required>
-
                                 <option value="">Select Quote</option>
-
                                 {{-- Options loaded by JS --}}
-
                             </select>
-
                         </div>
-
-                        
-
                         {{-- Percentage --}}
-
                         <div class="md:col-span-1">
-
                             <label for="percentageInput" class="block text-sm font-medium text-gray-700 mb-1">Percentage (%)</label>
-
                             {{-- Added py-2 px-3 for height --}}
-
                             <input type="number" step="0.01" id="percentageInput" placeholder="Percentage" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                         </div>
                         <div class="md:col-span-2">

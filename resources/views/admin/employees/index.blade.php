@@ -88,19 +88,19 @@
                             <thead class="border-b border-gray-200 bg-gray-50">
                                 <tr>
                                     {{-- Adjusted headers based on your content --}}
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left"></th> {{-- For Avatar --}}
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left"></th> 
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Name</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Login Email</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Phone</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Status</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Age</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">CNSS</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Bank Acc.</th> {{-- Abbreviated --}}
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Bank Acc.</th> 
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Salary</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Cost/Hour</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Hour Limit</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">CNSS Contr.</th> {{-- Abbreviated --}}
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">AMO Contr.</th> {{-- Abbreviated --}}
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">CNSS Contr.</th> 
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">AMO Contr.</th> 
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Release Date</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Role</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Action</th>
@@ -151,33 +151,34 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$employee->id}}" data-column="phoneNumber">{{$employee->phoneNumber}}</td>
                                     
                                     {{-- Status Badge/Button --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                         @php $user = \App\Models\User::find($employee->user_id); @endphp
-                                         @if($user && $user->is_activate == 1)
-                                             @php $statusRoute = '#'; $statusText = 'Active'; $buttonColor = 'green'; @endphp
-                                             @if(Auth::user()->hasRole('Responsable de projet')) $statusRoute = route('Responsable_de_projet.employee.deactivate', $employee->id); @endif
-                                             @if(Auth::user()->hasRole('Admin')) $statusRoute = route('admin.employee.deactivate', $employee->id); @endif
-                                             {{-- Removed Employee/Resp Gestionnaire routes for deactivate as they pointed to 'activate' --}}
-                                             <form action="{{ $statusRoute }}" method="post" onsubmit="return confirm('Deactivate this employee?');" class="inline">
-                                                 @csrf
-                                                 <button type="submit" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{{$buttonColor}}-100 text-{{$buttonColor}}-800 border-none cursor-pointer">
-                                                     {{ $statusText }}
-                                                 </button>
-                                             </form>
-                                         @else
-                                             @php $statusRoute = '#'; $statusText = 'Inactive'; $buttonColor = 'red'; @endphp
-                                             @if(Auth::user()->hasRole('Admin')) $statusRoute = route('admin.employee.activate', $employee->id); @endif
-                                             @if(Auth::user()->hasRole('Responsable de projet')) $statusRoute = route('Responsable_de_projet.employee.activate', $employee->id); @endif
-                                             @if(Auth::user()->hasRole('Employee')) $statusRoute = route('employee.employee.activate', $employee->id); @endif
-                                             @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $statusRoute = route('Responsable_gestionnaire.employee.activate', $employee->id); @endif
-                                             <form action="{{ $statusRoute }}" method="post" onsubmit="return confirm('Activate this employee?');" class="inline">
-                                                 @csrf
-                                                 <button type="submit" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{{$buttonColor}}-100 text-{{$buttonColor}}-800 border-none cursor-pointer">
-                                                     {{ $statusText }}
-                                                 </button>
-                                             </form>
-                                         @endif
-                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">
+                                            @php
+                                                $user = \App\Models\User::find($employee->user_id);
+                                                $statusRoute = '#';
+                                                $statusText = $user && $user->is_activate ? 'Active' : 'Inactive';
+                                                $buttonColor = $user && $user->is_activate ? 'green' : 'red';
+
+                                                if ($user && $user->is_activate) {
+                                                    if (Auth::user()->hasRole('Admin')) $statusRoute = route('admin.employee.deactivate', $employee->id);
+                                                    elseif (Auth::user()->hasRole('Responsable de projet')) $statusRoute = route('Responsable_de_projet.employee.deactivate', $employee->id);
+                                                } else {
+                                                    if (Auth::user()->hasRole('Admin')) $statusRoute = route('admin.employee.activate', $employee->id);
+                                                    elseif (Auth::user()->hasRole('Responsable de projet')) $statusRoute = route('Responsable_de_projet.employee.activate', $employee->id);
+                                                    elseif (Auth::user()->hasRole('Employee')) $statusRoute = route('employee.employee.activate', $employee->id);
+                                                    elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $statusRoute = route('Responsable_gestionnaire.employee.activate', $employee->id);
+                                                }
+                                            @endphp
+
+                                            <form action="{{ $statusRoute }}" method="post"
+                                                  onsubmit="return confirm('{{ $user && $user->is_activate ? 'Deactivate this employee?' : 'Activate this employee?' }}');"
+                                                  class="inline">
+                                                @csrf
+                                                <button type="submit"
+                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{{ $buttonColor }}-100 text-{{ $buttonColor }}-800 border-none cursor-pointer">
+                                                    {{ $statusText }}
+                                                </button>
+                                            </form>
+                                        </td>
 
                                     {{-- More Editable Fields --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$employee->id}}" data-column="age">{{$employee->age}}</td>
@@ -280,7 +281,7 @@
     {{-- @include('dashboard_layouts.scripts') --}}
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script>
+<script>
     @can('Update employee') // Keep the permission check around the script
     $(document).ready(function(){
         // Use event delegation for dynamically added/reloaded content if needed
@@ -340,7 +341,7 @@
         });
     });
     @endcan
-    </script>
+</script>
 
 </body>
 </html>

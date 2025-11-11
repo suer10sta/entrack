@@ -22,8 +22,8 @@
             {{-- This block determines the correct routes ONCE, avoiding huge repetition --}}
             @php
                 $user = Auth::user();
-                $actionRoute = '#'; // Default fallback
-                $cancelRoute = '#'; // Default fallback
+                $actionRoute = '#'; 
+                $cancelRoute = '#'; 
 
                 if ($user->hasRole('Admin')) {
                     $actionRoute = route('admin.tasks.update', $task);
@@ -45,7 +45,7 @@
                 <div class="bg-white shadow-lg rounded-xl p-6 md:p-8">
                     
                     <h2 class="text-xl font-semibold text-gray-900">Update Task</h2>
-                    <p class="text-sm text-gray-600">Editing task: **{{ $task->title }}**</p>
+                    <p class="text-sm text-gray-600">Editing task: "{{ $task->title }}"</p>
                     
                     <hr class="my-4 border-gray-200" />
 
@@ -163,7 +163,7 @@
                         {{-- Form Action Buttons --}}
                         <div class="flex justify-end items-center gap-x-4 mt-8 pt-4 border-t border-gray-200">
                             {{-- Single "Cancel" link --}}
-                            <a href="{{ $cancelRoute }}" 
+                            <a href="javascript:history.back()" 
                                class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
                                 Cancel
                             </a>

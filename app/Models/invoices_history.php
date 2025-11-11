@@ -23,6 +23,7 @@ class invoices_history extends Model
         'second_reminder_date',
         'third_reminder_date',
         'archived',
+        'hours'
     ];
 
 }
