@@ -41,7 +41,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5V10H2v10h5m10 0V8a5 5 0 00-10 0v12" />
                         </svg>
                     </div>
-                    <h3 class="text-gray-500 text-sm font-medium">Clients</h3>
+                    <h3 class="text-gray-500 text-sm font-medium">{{ __('messages.Clients') }}</h3>
                 </div>
                 <p class="text-3xl font-bold text-gray-800">{{ $data['clients']->count() }}</p>
             </div>
@@ -67,7 +67,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 21v-2a4 4 0 00-8 0v2m8 0H5a2 2 0 01-2-2V7a2 2 0 012-2h5l2 2h5a2 2 0 012 2v12a2 2 0 01-2 2z" />
                         </svg>
                     </div>
-                    <h3 class="text-gray-500 text-sm font-medium">Employees</h3>
+                    <h3 class="text-gray-500 text-sm font-medium">{{ __('messages.Employees') }}</h3>
                 </div>
                 <p class="text-3xl font-bold text-gray-800">{{ $data['employees']->count()}}</p>
             </div>
@@ -93,7 +93,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0H4m16 0l-2 9H6l-2-9" />
                         </svg>
                     </div>
-                    <h3 class="text-gray-500 text-sm font-medium">Ongoing Projects</h3>
+                    <h3 class="text-gray-500 text-sm font-medium">{{ __('messages.Ongoing Projects') }}</h3>
                 </div>
                 <p class="text-3xl font-bold text-gray-800">{{ $data['projects']->count()}}</p>
                 <p class="text-sm text-gray-500 mt-1">{{ $data['projects']->count()}} actifs</p>
@@ -121,7 +121,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c1.38 0 2.63.56 3.54 1.46M15.54 9.46A5 5 0 1112 8z" />
                             </svg>
                         </div>
-                        <h3 class="text-gray-500 text-sm font-medium">Monthly Revenue</h3>
+                        <h3 class="text-gray-500 text-sm font-medium">{{ __('messages.Monthly Revenue') }}</h3>
                     </div>
                     <p class="text-3xl font-bold text-gray-800">€{{ number_format($data['monthlyRevenue'], 2, ',', ' ') }}</p></p>
                 </div>
@@ -149,9 +149,9 @@
 <div class="mt-8 border-0 shadow-sm bg-white rounded-lg overflow-hidden hover:shadow-xl animate-fadeInSlideUp" style="animation-delay: 500ms;">
     {{-- Titre et Bouton --}}
     <div class="p-6 flex items-center justify-between border-b border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-900">Team employees Overview</h2>
+        <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Team employees Overview') }}</h2>
         <a href="{{ route('admin.employees.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">
-            + Add employee
+            + {{__('messages.Add employee')}}
         </a>
     </div>
     
@@ -160,14 +160,14 @@
         <table id="employeesTable" class="w-full text-left" style="width:100%">
             <thead class="bg-gray-50">
                 <tr class="border-b border-gray-200">
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">EMPLOYEE INFO</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">ROLE & STATUS</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">TEAMS & PROJECTS</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">CURRENT TASK</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">PROGRESS</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">MONTHLY STATS</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">UTILIZATION</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">ACTIONS</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{__('messages.EMPLOYEE INFO')}}</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{__('messages.ROLE & STATUS')}}</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{__('messages.TEAMS & PROJECTS')}}</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{__('messages.CURRENT TASK')}}</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{__('messages.PROGRESS')}}</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{__('messages.MONTHLY STATS')}}</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{__('messages.UTILIZATION')}}</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{__('messages.ACTIONS')}}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
@@ -228,7 +228,7 @@
                             {{ $team->name }}
                         </span>
                         @empty
-                        <span class="text-xs text-gray-400">No team</span>
+                        <span class="text-xs text-gray-400">{{__('messages.No team')}}</span>
                         @endforelse
                     </td>
 
@@ -297,15 +297,15 @@
             {{-- Project Overview (col-span-3) --}}
             {{-- ANIMATION: Ajout de la classe et du délai --}}
             <div class="lg:col-span-3 border-0 shadow-sm bg-white rounded-lg hover:shadow-xl animate-fadeInSlideUp" style="animation-delay: 600ms;">
-                <h2 class="p-6 text-lg font-semibold text-gray-900 border-b border-gray-200">Project Overview</h2>
+                <h2 class="p-6 text-lg font-semibold text-gray-900 border-b border-gray-200">{{__('messages.Project Overview')}}</h2>
                 {{-- EN-TÊTES DE COLONNE (Correction des col-span) --}}
                 <div class="px-6 py-3 grid grid-cols-12 gap-4 border-b border-gray-200">
-                <span class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">PROJECT INFO</span>
-                <span class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">BUDGET & COSTS</span>
-                <span class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">TIME TRACKING</span>
-                <span class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">PROGRESS</span>
-                <span class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">CLIENT & TEAMS</span>
-                <span class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">ACTIONS</span>
+                <span class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.PROJECT INFO')}}</span>
+                <span class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.BUDGET & COSTS')}}</span>
+                <span class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.TIME TRACKING')}}</span>
+                <span class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.PROGRESS')}}</span>
+                <span class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.CLIENT & TEAMS')}}</span>
+                <span class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">{{__('messages.ACTIONS')}}</span>
             </div>
         
             {{-- LISTE DES PROJETS --}}
@@ -326,14 +326,14 @@
 
                     {{-- BUDGET & COSTS (col-span-2) --}}
                     <div class="col-span-2 text-sm space-y-1">
-                        <p class="text-gray-600"><span class="text-gray-500">Budget:</span> <span class="font-medium text-gray-800">€{{ number_format($project->budget ?? 0, 2, ',', ' ') }}</span></p>
-                        <p class="text-gray-600"><span class="text-gray-500">CPH:</span> <span class="font-medium text-gray-800">€{{ number_format($project->cost_per_hour ?? 0, 2, ',', ' ') }}</span></p>
-                        <p class="text-gray-600"><span class="text-gray-500">VAT:</span> <span class="font-medium text-gray-800">{{ $project->tva ?? 20 }}</span></p>
+                        <p class="text-gray-600"><span class="text-gray-500">{{__('messages.Budget')}}:</span> <span class="font-medium text-gray-800">€{{ number_format($project->budget ?? 0, 2, ',', ' ') }}</span></p>
+                        <p class="text-gray-600"><span class="text-gray-500">{{__('messages.CPH')}}:</span> <span class="font-medium text-gray-800">€{{ number_format($project->cost_per_hour ?? 0, 2, ',', ' ') }}</span></p>
+                        <p class="text-gray-600"><span class="text-gray-500">{{__('messages.VAT')}}:</span> <span class="font-medium text-gray-800">{{ $project->tva ?? 20 }}</span></p>
                     </div>
 
                     {{-- TIME TRACKING (col-span-2) --}}
                     <div class="col-span-2 text-sm space-y-1">
-                        <p class="text-gray-600"><span class="text-gray-500">Duration:</span> <span class="font-bold text-gray-800">{{ $project->duration ?? '0h 0m' }}</span></p>
+                        <p class="text-gray-600"><span class="text-gray-500">{{translate_text('Duration')}}:</span> <span class="font-bold text-gray-800">{{ $project->duration ?? '0h 0m' }}</span></p>
                         <p class="font-medium text-green-500 border-b-2 border-green-500 border-dotted w-fit">{{ $project->time_difference ?? '+0h 0m' }}</p>
                     </div>
 
@@ -350,11 +350,11 @@
                     {{-- CLIENT & TEAMS (col-span-3) --}}
                     <div class="col-span-3 space-y-2">
                         <div>
-                            <p class="text-xs text-gray-500">Client:</p>
+                            <p class="text-xs text-gray-500">{{translate_text('Client')}}:</p>
                             <p class="text-sm font-medium text-blue-600">{{ $project->client->name ?? 'N/A' }}</p>
                         </div>
                         <div>
-                            <p class="text-xs text-gray-500">Teams:</p>
+                            <p class="text-xs text-gray-500">{{translate_text('Teams:')}}</p>
                             <div class="flex flex-wrap gap-1 mt-1">
                                 @forelse($project->teams as $team)
                                     <span class="inline-block px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">{{ $team->name }}</span>
@@ -449,7 +449,7 @@
     {{-- NOUVEAU: Lien "Voir le calendrier complet" centré --}}
     <div class="text-center mt-6">
         <button onclick="window.Livewire.dispatch('openCalendarModal')" class="text-sm font-medium text-blue-600 hover:underline">
-            View full calendar
+        {{translate_text('see the calendral calendrier comple')}}
         </button>
     </div>
 
@@ -466,7 +466,7 @@ $(document).ready(function() {
         lengthChange: false,
         language: {
             search: "",
-            searchPlaceholder: "Search employees...",
+            searchPlaceholder: "{{translate_text('Search employees...')}}",
             paginate: {
                 previous: '<span class="px-3 py-1 text-gray-700 bg-gray-100 rounded hover:bg-gray-200">Prev</span>',
                 next: '<span class="px-3 py-1 text-gray-700 bg-gray-100 rounded hover:bg-gray-200">Next</span>'

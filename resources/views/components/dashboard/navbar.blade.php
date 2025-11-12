@@ -8,9 +8,16 @@
                 </svg>
             </span>
             {{-- CHANGED: rounded-xl to rounded-lg, border to border-gray-300, focus:border-primary to focus:border-blue-500 --}}
-            <input type="text" placeholder="Search..." 
+            <input type="text" placeholder="{{ __('messages.search_placeholder') }}" 
                    class="w-full pl-11 pr-4 py-2.5 border rounded-lg bg-white focus:ring-0 focus:border-blue-500 text-sm border-gray-300" />
-        </div>
+        
+                   <select onchange="window.location.href='{{ url('lang/change') }}?lang='+this.value">
+    <option value="en" {{ app()->getLocale() == 'en' ? 'selected' : '' }}>English</option>
+    <option value="fr" {{ app()->getLocale() == 'fr' ? 'selected' : '' }}>Français</option>
+    <option value="es" {{ app()->getLocale() == 'es' ? 'selected' : '' }}>Español</option>
+</select>
+
+                </div>
     </div>
 
     <div class="flex items-center gap-4 ml-6">

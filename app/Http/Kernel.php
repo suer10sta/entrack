@@ -38,6 +38,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetUserTimezone::class,
             \App\Http\Middleware\CheckSubscription::class,
+            \App\Http\Middleware\Language::class,
 
         ],
 

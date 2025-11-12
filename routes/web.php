@@ -23,7 +23,7 @@ use App\Http\Controllers\BillitController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\admin\CalendarController;
 use App\Http\Controllers\admin\SubscriptionController;
-
+use App\Http\Controllers\LangController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,7 +51,7 @@ Route::get('/about', function () {
 Route::get('/faq', function () {
     return view('components.Home_page.faq');
 })->name('faq');
-
+Route::get('lang/change', [LangController::class, 'change'])->name('changeLang');
 
 Route::get('/dashboard', function () {
     if (auth()->check() && auth()->user()->hasRole('Admin')) {

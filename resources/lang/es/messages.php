@@ -1,0 +1,46 @@
+<?php
+
+return [
+    'search_placeholder' => 'Buscar...',
+    'Clients' => 'Clientes',
+    'Employees' => 'Empleados',
+    'Ongoing Projects' => 'Proyectos en curso',
+    //{{ __('messages.Monthly Revenue') }}
+    'Monthly Revenue' => 'Ingresos mensuales',
+    'Team employees Overview' => 'Resumen del equipo',
+    'Add employee' => 'Agregar empleado',
+    'EMPLOYEE INFO' => 'INFO EMPLEADO',
+    'ROLE & STATUS' => 'ROL & ESTADO',
+    'TEAMS & PROJECTS' => 'EQUIPOS & PROYECTOS',
+    'CURRENT TASK' => 'TAREA ACTUAL',
+    'PROGRESS' => 'PROGRESO',
+    'MONTHLY STATS' => 'ESTADÍSTICAS MENSUALES',
+    'UTILIZATION' => 'UTILIZACIÓN',
+    'ACTIONS' => 'ACCIONES',
+    'No team' => 'Sin equipo',
+    'Are you sure you want to delete this employee?' => '¿Estás seguro de querer eliminar este empleado?',  
+
+    'Project Overview' => 'Resumen de proyectos',
+    'PROJECT INFO' => 'INFO DEL PROYECTO',
+    'BUDGET & COSTS' => 'PRESUPUESTO & COSTOS',
+    'TIME TRACKING' => 'SEGUIMIENTO DE TIEMPO',
+    'CLIENT & TEAMS' => 'CLIENTE & EQUIPOS',
+    'Budget' => 'Presupuesto',
+    'CPH' => 'Costo por hora',
+    'VAT' => 'IVA',
+    'Duration' => 'Duración',
+    'Client' => 'Cliente',
+    'Teams:' => 'Equipos:',
+    'No teams assigned' => 'Sin equipos asignados',
+
+    "Today's Events" => 'Eventos de hoy',
+    'Add Event' => 'Agregar evento',
+    'No events scheduled for today.' => 'No hay eventos programados para hoy.',
+    'See full calendar' => 'Ver calendario completo',
+
+    'Search employees...' => 'Buscar empleados...',
+    'Prev' => 'Anterior',
+    'Next' => 'Siguiente',
+    '_START_–_END_ of _TOTAL_ employees' => '_START_–_END_ de _TOTAL_ empleados',
+    'Are you sure?' => '¿Estás seguro?',
+];
