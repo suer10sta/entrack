@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('employees', function (Blueprint $table) {
-            //
-            $table->tinyInteger('archived')->default(0)->after('password');        });
+        if (!Schema::hasColumn('employees', 'archived')) {
+            Schema::table('employees', function (Blueprint $table) {
+                //
+                $table->tinyInteger('archived')->default(0)->after('password');
+            });
+        } 
     }
 
     /**
@@ -21,9 +24,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('employees', function (Blueprint $table) {
-            //
-            $table->dropColumn('archived');
-        });
+        if (Schema::hasColumn('employees', 'archived')) {
+            Schema::table('employees', function (Blueprint $table) {
+                //
+                $table->dropColumn('archived');
+            });
+        }
     }
 };

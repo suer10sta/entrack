@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class country_tva extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'id',
+        'country',
+        'tva',
+    ];
 }

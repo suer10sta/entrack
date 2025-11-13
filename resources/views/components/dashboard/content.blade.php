@@ -1,4 +1,4 @@
-
+{{-- We need to load the correct Tailwind-aware CSS and JS for DataTables --}}
 <style>
     @keyframes fadeInSlideUp {
         from {
@@ -10,17 +10,136 @@
             transform: translateY(0);
         }
     }
-    /* Classe utilitaire pour appliquer l'animation */
     .animate-fadeInSlideUp {
-        opacity: 0; /* Commence caché */
+        opacity: 0;
         animation: fadeInSlideUp 0.5s ease-out forwards;
     }
+
+    /* Override default DataTables styles to match Tailwind */
+    #employeesTable_wrapper .dt-search input {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        margin-left: 0.5rem;
+    }
+    #employeesTable_wrapper .dt-search input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px #bfdbfe;
+        outline: none;
+    }
+    
+    /* FIXED: Better DataTables pagination styling */
+    #employeesTable_wrapper .dt-paging {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    #employeesTable_wrapper .dt-paging a,
+    #employeesTable_wrapper .dt-paging button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2rem;
+        height: 2rem;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        color: #374151;
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        transition: all 0.2s;
+    }
+    
+    #employeesTable_wrapper .dt-paging a:hover,
+    #employeesTable_wrapper .dt-paging button:hover {
+        background-color: #f3f4f6;
+        border-color: #d1d5db;
+    }
+    
+    #employeesTable_wrapper .dt-paging a.current,
+    #employeesTable_wrapper .dt-paging button.current {
+        background-color: #1E9FD8;
+        color: #ffffff;
+        border-color: #1E9FD8;
+        font-weight: 600;
+    }
+    
+    #employeesTable_wrapper .dt-paging a.disabled,
+    #employeesTable_wrapper .dt-paging button.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    
+    #employeesTable_wrapper .dt-info {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    /* FIXED: Laravel pagination styling - force horizontal layout */
+    .pagination {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center;
+        gap: 0.25rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .pagination li {
+        display: inline-flex !important;
+        margin: 0 !important;
+    }
+    
+    .pagination a,
+    .pagination span {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        min-width: 2rem;
+        height: 2rem;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        color: #374151;
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .pagination a:hover {
+        background-color: #f3f4f6;
+        border-color: #d1d5db;
+    }
+    
+    .pagination .active span {
+        background-color: #1E9FD8;
+        color: #ffffff;
+        border-color: #1E9FD8;
+        font-weight: 600;
+    }
+    
+    .pagination .disabled span {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    /* SVG icons in pagination */
+    .pagination svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
 </style>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-<link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
-
+<link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.tailwindcss.min.css">
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+
 <div class="flex-1 overflow-auto bg-gray-50">
     {{-- Main content --}}
     <div class="p-8">
@@ -29,7 +148,6 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 
     {{-- Clients --}}
-    {{-- ANIMATION: Ajout de la classe et du délai --}}
     <a href="{{ route('admin.clients.index') }}" 
        class="block bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-105 transition-all duration-300 group animate-fadeInSlideUp" 
        style="animation-delay: 100ms;">
@@ -55,7 +173,6 @@
     </a>
 
     {{-- Employees --}}
-    {{-- ANIMATION: Ajout de la classe et du délai --}}
     <a href="{{ route('admin.employees.index') }}" 
        class="block bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-105 transition-all duration-300 group animate-fadeInSlideUp" 
        style="animation-delay: 200ms;">
@@ -81,7 +198,6 @@
     </a>
 
     {{-- Projects --}}
-    {{-- ANIMATION: Ajout de la classe et du délai --}}
     <a href="{{ route('admin.projects.index') }}" 
        class="block bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-105 transition-all duration-300 group animate-fadeInSlideUp" 
        style="animation-delay: 200ms;">
@@ -96,7 +212,7 @@
                     <h3 class="text-gray-500 text-sm font-medium">{{ __('messages.Ongoing Projects') }}</h3>
                 </div>
                 <p class="text-3xl font-bold text-gray-800">{{ $data['projects']->count()}}</p>
-                <p class="text-sm text-gray-500 mt-1">{{ $data['projects']->count()}} actifs</p>
+                <p class="text-sm text-gray-500 mt-1">{{ $data['projects']->count()}} active projects</p>
             </div>
         </div>
         <div class="relative">
@@ -107,7 +223,6 @@
     </a>
 
     {{-- Revenue --}}
-    {{-- ANIMATION: Ajout de la classe et du délai --}}
     <a href="{{ route('admin.invoices.invoicehistory') }}" 
        class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-105 transition-all duration-300 group relative overflow-hidden animate-fadeInSlideUp" 
        style="animation-delay: 200ms;">
@@ -123,7 +238,7 @@
                         </div>
                         <h3 class="text-gray-500 text-sm font-medium">{{ __('messages.Monthly Revenue') }}</h3>
                     </div>
-                    <p class="text-3xl font-bold text-gray-800">€{{ number_format($data['monthlyRevenue'], 2, ',', ' ') }}</p></p>
+                    <p class="text-3xl font-bold text-gray-800">€{{ number_format($data['monthlyRevenue'], 2, ',', ' ') }}</p>
                 </div>
                 <span class="px-3 py-1.5 bg-green-50 text-green-600 font-semibold text-sm rounded-full">+18%</span>
             </div>
@@ -147,7 +262,7 @@
 
 {{-- Team employees Overview --}}
 <div class="mt-8 border-0 shadow-sm bg-white rounded-lg overflow-hidden hover:shadow-xl animate-fadeInSlideUp" style="animation-delay: 500ms;">
-    {{-- Titre et Bouton --}}
+    {{-- Header and action button --}}
     <div class="p-6 flex items-center justify-between border-b border-gray-200">
         <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Team employees Overview') }}</h2>
         <a href="{{ route('admin.employees.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">
@@ -295,10 +410,9 @@
         <div class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8 ">
         
             {{-- Project Overview (col-span-3) --}}
-            {{-- ANIMATION: Ajout de la classe et du délai --}}
             <div class="lg:col-span-3 border-0 shadow-sm bg-white rounded-lg hover:shadow-xl animate-fadeInSlideUp" style="animation-delay: 600ms;">
                 <h2 class="p-6 text-lg font-semibold text-gray-900 border-b border-gray-200">{{__('messages.Project Overview')}}</h2>
-                {{-- EN-TÊTES DE COLONNE (Correction des col-span) --}}
+                {{-- Column headers --}}
                 <div class="px-6 py-3 grid grid-cols-12 gap-4 border-b border-gray-200">
                 <span class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.PROJECT INFO')}}</span>
                 <span class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.BUDGET & COSTS')}}</span>
@@ -308,7 +422,7 @@
                 <span class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">{{__('messages.ACTIONS')}}</span>
             </div>
         
-            {{-- LISTE DES PROJETS --}}
+            {{-- Project list --}}
             <div class="divide-y divide-gray-200">
                 @foreach($data['projects'] as $project)
                 <div class="px-6 py-4 grid grid-cols-12 gap-4 items-center">
@@ -378,11 +492,10 @@
                             <form action="{{ route('admin.projects.destroy', $project->id) }}"
                             method="POST"
                             onsubmit="return confirm('Are you sure?');"
-                            class="inline"> {{-- 'inline' class keeps the form from breaking the layout --}}
+                            class="inline">
                             @csrf
                             @method('DELETE')
                             
-                            {{-- This is your original button, but with type="submit" --}}
                             <button type="submit" class="text-red-500 hover:text-red-700">
                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -393,36 +506,38 @@
                 </div>
                 @endforeach
             </div>
-            {{-- ADD PAGINATION LINKS --}}
+            
+            {{-- FIXED: Pagination with proper horizontal styling --}}
             <div class="p-6 border-t border-gray-200">
-                {{ $data['projects']->links() }}
+                <div class="flex items-center justify-between">
+                    {{ $data['projects']->links() }}
+                </div>
             </div>
         </div>
 
     {{-- Today's Events --}}
     <div class="lg:col-span-1 border-0 shadow-sm bg-white rounded-2xl hover:shadow-xl p-6 h-fit animate-fadeInSlideUp" style="animation-delay: 700ms;">
-        {{-- En-tête avec bouton "Add Event" --}}
+        {{-- Header with "Add Event" button --}}
         <div class="flex items-center justify-between mb-1">
             <div class="flex items-center gap-2">
                 <div class="w-1.5 h-5 bg-blue-600 rounded"></div>
                 <h2 class="text-lg font-semibold text-gray-900">Today's Events</h2>
             </div>
             
-            {{-- NOUVEAU: Bouton "Add Event" (visuel pour l'instant) --}}
             <button onclick="window.Livewire.dispatch('openCalendarForm')" class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-1.5 rounded-lg">
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
-                 Add Event
-                </button>
-            </div>
+                Add Event
+            </button>
+        </div>
             
-            {{-- Date --}}
-            <p class="text-sm text-gray-500 mb-6">{{ now()->format('d F Y') }}</p>
+        {{-- Date --}}
+        <p class="text-sm text-gray-500 mb-6">{{ now()->format('d F Y') }}</p>
             
-            {{-- NOUVEAU: Liste des événements (nouveau style) --}}
-            <ul class="space-y-5">
-                @forelse($data['dayEvents'] as $event)
+        {{-- Events list --}}
+        <ul class="space-y-5">
+            @forelse($data['dayEvents'] as $event)
             <li class="flex gap-3">
                 <div class="w-1 flex-shrink-0 bg-blue-500 rounded-full"></div>
                 
@@ -444,21 +559,22 @@
                 No events scheduled for today.
             </li>
         @endforelse
-    </ul>
+        </ul>
 
-    {{-- NOUVEAU: Lien "Voir le calendrier complet" centré --}}
-    <div class="text-center mt-6">
-        <button onclick="window.Livewire.dispatch('openCalendarModal')" class="text-sm font-medium text-blue-600 hover:underline">
-        {{translate_text('see the calendral calendrier comple')}}
-        </button>
-    </div>
-
-</div>
-</div>
-
+        {{-- Centered "View full calendar" link --}}
+        <div class="text-center mt-6">
+            <button onclick="window.Livewire.dispatch('openCalendarModal')" class="text-sm font-medium text-blue-600 hover:underline">
+            See the full calendar
+            </button>
+        </div>
     </div>
 </div>
+
+    </div>
+</div>
+
 @livewire('full-calendar-modal')
+
 <script>
 $(document).ready(function() {
     $('#employeesTable').DataTable({
@@ -467,11 +583,11 @@ $(document).ready(function() {
         language: {
             search: "",
             searchPlaceholder: "{{translate_text('Search employees...')}}",
+            info: "_START_–_END_ of _TOTAL_ employees",
             paginate: {
-                previous: '<span class="px-3 py-1 text-gray-700 bg-gray-100 rounded hover:bg-gray-200">Prev</span>',
-                next: '<span class="px-3 py-1 text-gray-700 bg-gray-100 rounded hover:bg-gray-200">Next</span>'
-            },
-            info: "_START_–_END_ of _TOTAL_ employees"
+                previous: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>',
+                next: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>'
+            }
         },
         dom: `
             <"flex justify-between items-center mb-4"f>
@@ -479,10 +595,5 @@ $(document).ready(function() {
             <"flex justify-between items-center mt-4"ip>
         `
     });
-
-    // Add Tailwind classes to the search input
-    $('.dataTables_filter input')
-        .addClass('border border-gray-300 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500')
-        .css('width', '200px');
 });
 </script>

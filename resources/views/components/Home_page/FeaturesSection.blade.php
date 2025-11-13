@@ -8,14 +8,14 @@
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
-                    Fonctionnalités puissantes
+                    Powerful Features
                 </div>
                 
                 <h2 class="text-4xl font-bold text-foreground lg:text-5xl mt-2">
-                    Une plateforme complète pour votre entreprise
+                    A Complete Platform for Your Business
                 </h2>
                 <p class="mt-6 text-lg leading-relaxed text-muted-foreground">
-                    Tous les outils dont vous avez besoin, réunis dans une interface simple et élégante.
+                    Every tool you need, brought together in a clean and intuitive interface.
                 </p>
             </div>
 
@@ -27,9 +27,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
                     </div>
-                    <h3 class="mb-2 text-lg font-bold text-foreground">Facturation</h3>
+                    <h3 class="mb-2 text-lg font-bold text-foreground">Invoicing</h3>
                     <p class="text-sm leading-relaxed text-muted-foreground">
-                        Créez des factures professionnelles en quelques secondes.
+                        Build professional invoices in just a few clicks.
                     </p>
                 </div>
 
@@ -40,7 +40,7 @@
                         </svg>
                     </div>
                     <h3 class="mb-2 text-lg font-bold text-foreground">Clients</h3>
-                    <p class="text-sm leading-relaxed text-muted-foreground">Gérez tous vos contacts et leur historique.</p>
+                    <p class="text-sm leading-relaxed text-muted-foreground">Manage every contact and their full history.</p>
                 </div>
 
                 <div class="group relative overflow-hidden rounded-xl border bg-card p-6 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
@@ -50,7 +50,7 @@
                         </svg>
                     </div>
                     <h3 class="mb-2 text-lg font-bold text-foreground">Analytics</h3>
-                    <p class="text-sm leading-relaxed text-muted-foreground">Visualisez vos performances en temps réel.</p>
+                    <p class="text-sm leading-relaxed text-muted-foreground">Track your performance in real time.</p>
                 </div>
 
                 <div class="group relative overflow-hidden rounded-xl border bg-card p-6 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
@@ -59,8 +59,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
-                    <h3 class="mb-2 text-lg font-bold text-foreground">Pointage</h3>
-                    <p class="text-sm leading-relaxed text-muted-foreground">Suivez le temps passé sur chaque projet.</p>
+                    <h3 class="mb-2 text-lg font-bold text-foreground">Time Tracking</h3>
+                    <p class="text-sm leading-relaxed text-muted-foreground">Record the time spent on every project.</p>
                 </div>
             </div>
         </div>
@@ -72,11 +72,11 @@
                 
                 <div class="space-y-6">
                     <h2 class="text-3xl font-bold text-foreground lg:text-4xl">
-                        Automatisez votre workflow
+                        Automate Your Workflow
                     </h2>
                     
                     <p class="text-lg leading-relaxed text-muted-foreground">
-                        Gagnez du temps avec nos automatisations intelligentes. Rappels de paiement, génération de rapports, et bien plus encore.
+                        Save time with smart automations—payment reminders, report generation, and more.
                     </p>
 
                     <ul class="space-y-3 pt-2">
@@ -86,7 +86,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                                 </svg>
                             </span>
-                            <span class="text-foreground">Rappels automatiques</span>
+                            <span class="text-foreground">Automatic reminders</span>
                         </li>
                         <li class="flex items-center gap-3">
                             <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -94,7 +94,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                                 </svg>
                             </span>
-                            <span class="text-foreground">Rapports mensuels</span>
+                            <span class="text-foreground">Monthly reports</span>
                         </li>
                         <li class="flex items-center gap-3">
                             <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -102,7 +102,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                                 </svg>
                             </span>
-                            <span class="text-foreground">Synchronisation bancaire</span>
+                            <span class="text-foreground">Bank synchronization</span>
                         </li>
                         <li class="flex items-center gap-3">
                             <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -110,7 +110,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                                 </svg>
                             </span>
-                            <span class="text-foreground">Export comptable</span>
+                            <span class="text-foreground">Accounting exports</span>
                         </li>
                     </ul>
                 </div>

@@ -14,8 +14,6 @@ class employees_tasks extends Model
         'employee_name',
         'task_id',
         'task_name',
-        'start_date',
-        'end_date',
         'entreprise_id', 
     ];
 

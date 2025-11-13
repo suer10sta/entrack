@@ -16,7 +16,7 @@
     <!-- ===== Desktop Navigation ===== -->
     <nav class="hidden md:flex items-center gap-8">
       <a href="{{ route('welcome') }}#features" class="text-sm font-medium text-white hover:text-accent transition-colors">Features</a>
-      <a href="{{ route('welcome') }}#customers" class="text-sm font-medium text-white hover:text-accent transition-colors">Why Us</a>
+      <a href="{{ route('welcome') }}#customers" class="text-sm font-medium text-white hover:text-accent transition-colors">The Three Plans</a>
       <a href="{{ route('about') }}" class="text-sm font-medium text-white hover:text-accent transition-colors">About Us</a>
 
       @if (Route::has('login'))
@@ -49,7 +49,7 @@
   <div id="mobile-menu" class="hidden md:hidden bg-primary shadow-lg border-t border-primary/30">
     <nav class="flex flex-col gap-4 p-6">
       <a href="{{ route('welcome') }}#features" class="text-white hover:text-accent font-medium">Features</a>
-      <a href="{{ route('welcome') }}#customers" class="text-white hover:text-accent font-medium">Why Us</a>
+      <a href="{{ route('welcome') }}#customers" class="text-white hover:text-accent font-medium">The Three Plans</a>
       <a href="{{ route('about') }}" class="text-white hover:text-accent font-medium">About Us</a>
 
       @if (Route::has('login'))

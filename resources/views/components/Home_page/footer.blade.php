@@ -2,7 +2,7 @@
 @props(['theme' => 'blue'])
 
 <footer class="bg-[#F5F5F5] border-t border-[#E5E7EB]">
-    <div class="container px-6 py-12 mx-auto"> <!-- J'ai ajouté mx-auto ici -->
+    <div class="container px-6 py-12 mx-auto"> <!-- Added mx-auto to center the container -->
         <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
 
             <!-- =========================
@@ -52,7 +52,7 @@
             <!-- =========================
                 Empty Spacer Column
             ========================== -->
-            <!-- Cette div vide pousse les colonnes de liens vers la droite sur les grands écrans -->
+            <!-- Empty column to push link lists to the right on large screens -->
             <div class="hidden lg:block lg:col-span-1"></div>
 
 
@@ -63,7 +63,7 @@
                 ['title' => 'Quick Links', 'links' => [
                     ['label' => 'Home', 'route' => route('welcome')],
                     ['label' => 'Features', 'route' => '#features'],
-                    ['label' => 'Customers / Testimonials', 'route' => '#customers'] ]],
+                    ['label' => 'The Three Plans', 'route' => '#account_type'] ]],
                 ['title' => 'Company', 'links' => [
                     ['label' => 'About Us', 'route' => route('about')],
                     ['label' => 'Contact', 'route' => route('contact')],
@@ -90,7 +90,7 @@
         </div>
 
         <div class="mt-12 flex flex-col md:flex-row items-center justify-between gap-4 border-t border-[#E5E7EB] pt-6 text-sm text-[#9CA3AF]">
-            <p>© {{ date('Y') }} Enterprise Tracker Pro. All rights reserved.</p> <!-- Année mise à jour dynamiquement -->
+            <p>© {{ date('Y') }} Enterprise Tracker Pro. All rights reserved.</p> <!-- Year updates dynamically -->
 
             <div class="flex items-center gap-2">
                 <span>Made with</span>

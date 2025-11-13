@@ -297,17 +297,17 @@
                     <table id="editableTable" class="w-full text-left border-collapse">
                         <thead class="bg-slate-50">
                             <tr>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Nombre Jours<br>Travaillés</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Nombre<br>Jours<br>Maladie</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Nombre<br>Jours<br>Fériés</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Reliquat<br>Jours Congé<br>Payé</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Nombre Jours<br>Congé Payé<br>Acquis</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Nombre Jours<br>Congé Payé<br>Pris</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Solde<br>Congés</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Jours<br>D'absence</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Dates Des<br>Jours Congé<br>Payé</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Mois</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Année</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Number of<br>Working Days</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Number of<br>Sick Days</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Number of<br>Public Holidays</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Remaining<br>Paid Leave Days</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Paid Leave<br>Days Accrued</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Paid Leave<br>Days Taken</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Leave<br>Balance</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Days of<br>Absence</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Paid Leave<br>Dates</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Month</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Year</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-slate-600">

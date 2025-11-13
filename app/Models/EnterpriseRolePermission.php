@@ -6,7 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class EnterpriseRolePermission extends Model
 {
-    protected $fillable = ['entreprise_id', 'role_id', 'permission_id'];
+    protected $fillable = 
+    [
+        'entreprise_id', 
+        'role_id', 
+        'permission_id'
+    ];
 
     public function entreprise()
     {

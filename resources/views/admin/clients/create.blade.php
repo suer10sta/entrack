@@ -181,15 +181,14 @@
                         </div>
 
                         <div class="bg-white rounded-2xl shadow-sm p-6">
-                            <h2 class="text-xl font-bold text-slate-900 mb-1">Comptabilité Infos</h2>
+                            <h2 class="text-xl font-bold text-slate-900 mb-1">Accounting Info</h2>
                             <p class="text-sm text-slate-500 mb-6">Mandatory informations</p>
                             
                             <div class="space-y-4">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Nom de
-                                            Responsable <span class="text-red-500">**</span></label>
-                                        <input type="text" name="comp_name" placeholder="Nom de Responsable"
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Account Manager Name <span class="text-red-500">**</span></label>
+                                        <input type="text" name="comp_name" placeholder="Account Manager Name"
                                             class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                     <div>

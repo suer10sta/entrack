@@ -1,6 +1,6 @@
 {{-- resources/views/components/hero-section.blade.php --}}
 
-{{-- MODIFICATION : L'espace en haut (padding-top) a été réduit --}}
+{{-- UPDATE: Reduced top padding --}}
 <section id="hero" class="relative overflow-hidden pt-12 pb-24 lg:pt-16 lg:pb-32
         bg-gradient-to-b from-primary/5 to-background">
     {{-- Background Decorations --}}
@@ -28,7 +28,7 @@
                     </div>
                 
 
-                {{-- Heading & Subtext (Correspond à l'image) --}}
+                {{-- Heading & subtext (matching the design) --}}
                 <h1 class="text-balance text-5xl font-bold leading-tight lg:text-6xl xl:text-7xlf">
                         Manage your business with 
                         <span class="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">simplicity</span>
@@ -53,7 +53,7 @@
                     </button>
                 </div>
 
-                {{-- Section Stats supprimée --}}
+                {{-- Stats section removed --}}
             </div>
 
             {{-- Right Column (Visuals) --}}
@@ -77,7 +77,7 @@
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 
                                 <div class="hover-lift rounded-2xl border border-border bg-card p-6 shadow-xl">
-                                    {{-- MODIFICATION : Icône SVG (Heroicons) pour "Clients" --}}
+                                    {{-- UPDATE: Heroicons SVG for "Clients" --}}
                                     <div class="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6M9 10.5h6M9 14.25h6M9 18h6" />
@@ -88,7 +88,7 @@
                                 </div>
                                 
                                 <div class="hover-lift rounded-2xl border border-border bg-card p-6 shadow-xl">
-                                    {{-- MODIFICATION : Icône SVG (Heroicons) pour "Factures" --}}
+                                    {{-- UPDATE: Heroicons SVG for "Invoices" --}}
                                     <div class="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A3.375 3.375 0 0 0 11.25 8.25v2.625m9 0v-4.125c0-.621-.504-1.125-1.125-1.125H11.25c-.621 0-1.125.504-1.125 1.125v4.125m9 0a2.25 2.25 0 0 1-2.25 2.25h-1.5a2.25 2.25 0 0 1-2.25-2.25m3.75 0v.007c0 .014-.002.028-.005.042l-.006.018-.01.028-.015.041-.02.05-.026.06a.744.744 0 0 1-.039.079l-.045.085-.05.088a.752.752 0 0 1-.06.102l-.062.102c-.03.048-.062.092-.096.132l-.098.115-.102.112a.75.75 0 0 1-.112.108l-.113.103-.115.1-.118.093-.12.083-.123.078-.125.07-.128.06-.13.052-.133.044-.135.035-.138.026-.14.016-.143.007-.145-.001H12.75a.75.75 0 0 1-.75-.75V6.375c0-.621.504-1.125 1.125-1.125h6.75c.621 0 1.125.504 1.125 1.125v6.375m-6.375 4.125a.75.75 0 0 1-.75-.75V11.25a.75.75 0 0 1 .75-.75h3.75a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-.75.75h-3.75Z" />

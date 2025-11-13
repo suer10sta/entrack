@@ -6,9 +6,9 @@ $clients = [
 ];
 
 $testimonials = [
-    ['id'=>1, 'text'=>"Entreprise Tracker Pro a transformé notre façon de gérer nos projets et nos factures. L'interface est intuitive et les fonctionnalités sont exactement ce dont nous avions besoin.", 'author'=>'Marie Dubois', 'company'=>'Smart Ladies', 'role'=>'CEO'],
-    ['id'=>2, 'text'=>"Grâce à cette plateforme, nous avons réduit notre temps de facturation de 60%. Le suivi des projets en temps réel est un véritable atout pour notre équipe.", 'author'=>'Pierre Martin', 'company'=>'Shoes Factory', 'role'=>'Directeur Financier'],
-    ['id'=>3, 'text'=>"Une solution complète qui répond à tous nos besoins de gestion d'entreprise. Le support client est exceptionnel et les mises à jour régulières apportent toujours de nouvelles fonctionnalités utiles.", 'author'=>'Sophie Laurent', 'company'=>'Tech Solutions', 'role'=>'Chef de Projet'],
+    ['id'=>1, 'text'=>"Enterprise Tracker Pro has transformed the way we manage our projects and invoices. The interface is intuitive and the features are exactly what we needed.", 'author'=>'Marie Dubois', 'company'=>'Smart Ladies', 'role'=>'CEO'],
+    ['id'=>2, 'text'=>"Thanks to this platform, we reduced our billing time by 60%. Real-time project tracking is a real asset for our team.", 'author'=>'Pierre Martin', 'company'=>'Shoes Factory', 'role'=>'Chief Financial Officer'],
+    ['id'=>3, 'text'=>"A complete solution that meets all our business management needs. Customer support is outstanding and frequent updates always bring useful new features.", 'author'=>'Sophie Laurent', 'company'=>'Tech Solutions', 'role'=>'Project Manager'],
 ];
 @endphp
 
@@ -19,11 +19,11 @@ $testimonials = [
                 <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                 </svg>
-                Témoignages clients
+                Customer Testimonials
             </div>
-            <h2 class="text-balance text-4xl font-bold text-foreground lg:text-5xl">Ils nous font confiance</h2>
+            <h2 class="text-balance text-4xl font-bold text-foreground lg:text-5xl">Trusted by Growing Teams</h2>
             <p class="mt-4 text-pretty text-lg text-muted-foreground">
-                Découvrez ce que nos clients disent de notre plateforme
+                See what our customers say about the platform
             </p>
         </div>
 
@@ -51,35 +51,6 @@ $testimonials = [
                     </div>
                 </div>
             @endforeach
-        </div>
-
-        <div class="mt-20 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5 p-8 lg:p-12">
-            <div class="grid items-center gap-8 lg:grid-cols-2">
-                <div>
-                    <h3 class="mb-4 text-3xl font-bold text-foreground">Rejoignez des milliers d'entreprises</h3>
-                    <p class="mb-6 text-lg leading-relaxed text-muted-foreground">
-                        Plus de 2,500 entreprises utilisent notre plateforme pour gérer leur activité au quotidien.
-                    </p>
-                    <div class="grid grid-cols-3 gap-6">
-                        @foreach([ ['value'=>'2,500+', 'label'=>'Entreprises'], ['value'=>'50K+', 'label'=>'Factures'], ['value'=>'98%', 'label'=>'Satisfaction'] ] as $stat)
-                            <div>
-                                <div class="text-3xl font-bold text-primary">{{ $stat['value'] }}</div>
-                                <div class="text-sm text-muted-foreground">{{ $stat['label'] }}</div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-                <div class="flex flex-wrap gap-4">
-                    @foreach($clients as $client)
-                        <div class="flex items-center gap-3 rounded-xl border border-border bg-card px-6 py-4 shadow-sm">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
-                                {{ $client['logo'] }}
-                            </div>
-                            <span class="font-semibold text-foreground">{{ $client['name'] }}</span>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
         </div>
     </div>
 </section>

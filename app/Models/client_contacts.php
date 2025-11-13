@@ -10,12 +10,15 @@ class client_contacts extends Model
     use HasFactory;
 
     protected $fillable = [
-        'client_id',
         'name',
-        'email',
-        'mobile_fix',
         'functionality',
+        'mobile_fix',
+        'email',
         'address',
+        'is_comptable',
+        'client_id',
+        'project_name',
+        'project_id',
         'entreprise_id',
     ];
 }

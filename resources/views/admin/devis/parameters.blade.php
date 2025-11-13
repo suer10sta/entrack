@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Devis Parameters - BizManager</title> {{-- Titre mis à jour --}}
+    <title>Devis Parameters - BizManager</title> {{-- Updated title --}}
     @vite('resources/css/app.css') 
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <style>
-        /* Style des inputs/textareas (non-readonly par défaut) */
+        /* Styling for inputs/textareas (non-readonly by default) */
         .entrepriseInfos {
             text-align: left;
             background-color: #ffffff; /* Fond blanc normal */
         }
-        /* Style pour le feedback visuel de la sauvegarde */
+        /* Styling for visual feedback after saving */
         input.border-green-500, textarea.border-green-500 {
             border-color: #22c55e;
             box-shadow: 0 0 0 1px #22c55e;
@@ -35,11 +35,11 @@
         {{-- Navbar Component --}}
         <x-dashboard.navbar />
         
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8 space-y-8"> {{-- Espace mis à jour --}}
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8 space-y-8"> {{-- Updated spacing --}}
             {{-- 1. Header Section --}}
             <div class="flex flex-wrap justify-between items-center gap-4">
                 <div>
-                    <h1 class="text-2xl font-semibold text-gray-900">Devis Parameters</h1> {{-- Titre mis à jour --}}
+                    <h1 class="text-2xl font-semibold text-gray-900">Devis Parameters</h1> {{-- Updated heading --}}
                     <p class="text-sm text-gray-600">Configure devis settings and templates</p>
                 </div>
             </div>
@@ -56,7 +56,7 @@
                 $updateUrl = '/Responsable_gestionnaire/Enterprise_infos/updateInfos';
             @endphp
 
-            {{-- ID "invoiceParamsForm" AJOUTÉ pour que le JS fonctionne --}}
+            {{-- Added "invoiceParamsForm" ID so the JS can target it --}}
             <form id="invoiceParamsForm" class="space-y-8">
                 @csrf
                 <input type="hidden" name="entreprise_id" value="{{ Auth::user()->entreprise_id }}">
@@ -72,7 +72,7 @@
                         <div>
                             <label for="devis_prefix" class="block text-sm font-medium text-gray-700 mb-1">Prefix</label>
                             <input id="devis_prefix" 
-                                   {{-- Classe "editable" supprimée --}}
+                                   {{-- Removed "editable" class --}}
                                    class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" 
                                    type="text" 
                                    name="devis_prefix" 
@@ -81,7 +81,7 @@
                         <div>
                             <label for="devis_start_number" class="block text-sm font-medium text-gray-700 mb-1">Start Number</label>
                             <input id="devis_start_number" 
-                                   {{-- Classe "editable" supprimée --}}
+                                   {{-- Removed "editable" class --}}
                                    class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
                                    type="text" 
                                    name="devis_start_number"
@@ -91,7 +91,7 @@
                     <div>
                         <label for="general_conditions_Devis" class="block text-sm font-medium text-gray-700 mb-1">General Condition</label>
                         <textarea id="general_conditions_Devis" rows="6"
-                            {{-- Classe "editable" supprimée --}}
+                            {{-- Removed "editable" class --}}
                             class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
                             name="general_conditions_Devis" >{{ $entreprise->general_conditions_Devis }}</textarea>
                     </div>
@@ -104,14 +104,14 @@
                         <p class="text-sm text-gray-500 mt-1">Message</p>
                     </div>
                     <div>
-                        <textarea id="devis_body" rows="6" {{-- ID ajouté pour la clarté --}}
-                            {{-- Classe "editable" supprimée --}}
+                        <textarea id="devis_body" rows="6" {{-- Added ID for clarity --}}
+                            {{-- Removed "editable" class --}}
                             class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
                             name="devis_body" >{{ $entreprise->devis_body }}</textarea>
                     </div>
                 </div>
 
-                {{-- 4. Action Buttons --}}
+                {{-- 4. Action buttons --}}
                 <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
                     @php
                         $backRoute = route('admin.index'); // Fallback
@@ -128,12 +128,12 @@
                         Back
                     </a>
                     
-                    {{-- ID mis à jour pour correspondre au script JS --}}
+                    {{-- Updated ID to match the JS selector --}}
                     <button type="submit" 
                             id="saveButton" 
                             class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm disabled:opacity-50"
                             {{ !$updateUrl ? 'disabled' : '' }}>
-                        {{-- L'icône et le texte sont maintenant dans le JS, mais nous mettons un fallback --}}
+                        {{-- Icon and label now handled in JS; fallback included --}}
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                         </svg>
@@ -144,29 +144,29 @@
         </main>
     </div>
 
-    {{-- SCRIPTS --}}
+    {{-- Scripts --}}
     @livewireScripts
-    {{-- @include('dashboard_layouts.scripts') --}} {{-- Assurez-vous que cela n'inclut pas un autre jQuery --}}
+    {{-- @include('dashboard_layouts.scripts') --}} {{-- Ensure this does not include another jQuery instance --}}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
 
-    {{-- SCRIPT LOGIQUE DE SAUVEGARDE DE VOTRE EXEMPLE (invoice.parameters) --}}
+    {{-- Save logic (invoice.parameters) --}}
     <script>
         $(document).ready(function() {
             
-            // Stocker la valeur originale au focus pour savoir si elle a changé
+            // Store the original value on focus to detect changes
             $(".entrepriseInfos").focus(function() {
                  $(this).data('originalValue', $(this).val());
-                 // Effacer les anciens statuts de bordure
+                 // Clear existing border states
                  $(this).removeClass('border-green-500 border-red-500'); 
             });
 
             $('#invoiceParamsForm').on('submit', function(e) {
                 e.preventDefault();
                 
-                // C'est le bouton de votre nouveau fichier
+                // Button pulled from the new file
                 const $button = $('#saveButton'); 
-                const originalText = $button.html(); 
+                const originalText = $button.html();
                 
                 $button.prop('disabled', true).html('<svg class="animate-spin h-4 w-4 mr-2 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...');
 
@@ -174,7 +174,7 @@
                 const updateUrl = "{{ $updateUrl }}";
                 const formData = $(this).serializeArray();
                 
-                // Filtrer les champs qui ne sont pas des données à sauvegarder
+                // Filter out fields that shouldn't be saved
                 const fieldsToUpdate = formData.filter(field => 
                     field.name !== '_token' && field.name !== 'entreprise_id'
                 );
@@ -182,7 +182,7 @@
                 let completed = 0;
                 let errors = 0;
                 const total = fieldsToUpdate.length;
-                let hasChanges = false; // Flag pour voir si quelque chose a changé
+                let hasChanges = false; // Track whether any field actually changed
 
                 if (total === 0) {
                     $button.prop('disabled', false).html(originalText);
@@ -194,14 +194,14 @@
                     const originalValue = $input.data('originalValue');
                     const newValue = field.value;
 
-                    // Si la valeur n'a pas changé, sauter cet appel
+                    // Skip if the value did not change
                     if (newValue === originalValue || typeof originalValue === 'undefined') {
                         completed++;
                         checkComplete();
                         return; // continue
                     }
                     
-                    // Si nous arrivons ici, il y a un changement
+                    // Reaching this point means we detected a change
                     hasChanges = true;
 
                     $.ajax({
@@ -215,50 +215,50 @@
                         },
                         success: function(response) {
                             completed++;
-                            $input.data('originalValue', newValue); // Mettre à jour la valeur originale
-                            $input.addClass('border-green-500'); // Feedback de succès
+                            $input.data('originalValue', newValue); // Update stored value
+                            $input.addClass('border-green-500'); // Success feedback
                             checkComplete();
                         },
                         error: function(xhr) {
                             completed++;
                             errors++;
-                            $input.addClass('border-red-500'); // Feedback d'erreur
+                            $input.addClass('border-red-500'); // Error feedback
                             console.error('Error saving ' + field.name + ':', xhr);
                             checkComplete();
                         }
                     });
                 });
  
-                // Fonction pour gérer l'animation du bouton
+                // Handle button animation/resets
                 function checkComplete() {
                     if (completed === total) {
                         $button.prop('disabled', false); 
                         
-                        // S'il n'y avait aucun changement à sauvegarder
+                        // If nothing needed to be saved
                         if (!hasChanges) {
-                             $button.html(originalText); // Remettre le bouton à la normale
-                             // (Pas besoin d'alerte, l'utilisateur a juste cliqué sur "sauvegarder" sans rien changer)
+                             $button.html(originalText); // Restore default appearance
+                             // No alert; user simply clicked save without changes
                              return;
                         }
 
                         if (errors === 0) {
-                            // --- ANIMATION SUCCÈS ---
+                            // --- Success animation ---
                             $button.removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-green-600');
                             $button.html('<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>Saved!');
                         
                         } else {
-                            // --- ANIMATION ERREUR ---
+                            // --- Error animation ---
                             $button.removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-red-600');
                             $button.html('<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>Error!');
                             alert('Some fields failed to save. Check fields marked in red.');
                         }
 
-                        // --- Réinitialiser le bouton ---
+                        // --- Reset button state ---
                         setTimeout(() => {
                             $button.removeClass('bg-green-600 bg-red-600').addClass('bg-blue-600 hover:bg-blue-700');
-                            $button.html(originalText); // Restaurer l'icône et le texte d'origine
-                            $('.entrepriseInfos').removeClass('border-green-500 border-red-500'); // Nettoyer tous les feedbacks
-                        }, 2000); // Délai de 2 secondes
+                            $button.html(originalText); // Restore original icon/text
+                            $('.entrepriseInfos').removeClass('border-green-500 border-red-500'); // Clear feedback states
+                        }, 2000); // 2-second delay
                     }
                 }
             });

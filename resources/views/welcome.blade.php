@@ -113,6 +113,10 @@
     <!-- ABOUT -->
     <x-Home_page.FeaturesSection />
 
+    
+    <!-- ACCOUNT_TYPES -->
+    <x-Home_page.Account_Types />
+
 
     <!-- PROJECT -->
     <x-Home_page.ClientTestimonials />

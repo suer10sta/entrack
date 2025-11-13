@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,13 +26,13 @@
 
                 @if(session('error'))
     <div class="mb-4 rounded-lg bg-red-100 border border-red-400 p-4 text-sm text-red-700">
-        <strong>Erreur :</strong> {{ session('error') }}
-    </div>SD@gmail.com
+        <strong>Error:</strong> {{ session('error') }}
+    </div>
 @endif
 
 @if(session('message'))
     <div class="mb-4 rounded-lg bg-green-100 border border-green-400 p-4 text-sm text-green-700">
-        <strong>Succès :</strong> {{ session('message') }}
+        <strong>Success:</strong> {{ session('message') }}
     </div>
 @endif
                 {{-- Form --}}
@@ -153,13 +153,13 @@
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Cotisation CNSS</label>
-                                    <input type="number" step="0.0001" name="Cotisation_CNSS" placeholder="Cotisation CNSS"
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">CNSS Contribution</label>
+                                    <input type="number" step="0.0001" name="Cotisation_CNSS" placeholder="CNSS Contribution"
                                         class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Cotisation AMO</label>
-                                    <input type="number" step="0.0001" name="Cotisation_AMO" placeholder="Cotisation AMO"
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">AMO Contribution</label>
+                                    <input type="number" step="0.0001" name="Cotisation_AMO" placeholder="AMO Contribution"
                                         class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
                                 </div>
                             </div>
@@ -249,21 +249,21 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', (e) => {
         let valid = true;
 
-        // Vérifie chaque input obligatoire
+        // Validate every required field
         form.querySelectorAll('input[required], select[required], textarea[required]').forEach(input => {
             if (!input.value.trim()) {
                 valid = false;
                 input.classList.add('border-red-500', 'focus:ring-red-500');
                 
-                // Ajoute un message si non existant
+                // Add an error message if one does not already exist
                 if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('error-message')) {
                     const msg = document.createElement('p');
                     msg.classList.add('text-red-500', 'text-sm', 'mt-1', 'error-message');
-                    msg.textContent = 'Ce champ est obligatoire.';
+                    msg.textContent = 'This field is required.';
                     input.insertAdjacentElement('afterend', msg);
                 }
             } else {
-                // Enlève les erreurs si le champ est rempli
+                // Remove errors once the field is filled
                 input.classList.remove('border-red-500', 'focus:ring-red-500');
                 if (input.nextElementSibling && input.nextElementSibling.classList.contains('error-message')) {
                     input.nextElementSibling.remove();
@@ -271,34 +271,34 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Vérifie email
+        // Validate email format
         const emailInput = form.querySelector('input[type="email"]');
         if (emailInput && emailInput.value.trim() && !emailInput.validity.valid) {
             valid = false;
             emailInput.classList.add('border-red-500', 'focus:ring-red-500');
             const msg = document.createElement('p');
             msg.classList.add('text-red-500', 'text-sm', 'mt-1', 'error-message');
-            msg.textContent = 'Veuillez entrer un email valide.';
+            msg.textContent = 'Please enter a valid email.';
             if (!emailInput.nextElementSibling || !emailInput.nextElementSibling.classList.contains('error-message')) {
                 emailInput.insertAdjacentElement('afterend', msg);
             }
         }
 
-        // Vérifie numéro de téléphone (uniquement chiffres)
+        // Validate phone number (digits only)
         const phoneInput = form.querySelector('input[name="phone_number"]');
         if (phoneInput && phoneInput.value.trim() && !/^[0-9]+$/.test(phoneInput.value)) {
             valid = false;
             phoneInput.classList.add('border-red-500', 'focus:ring-red-500');
             const msg = document.createElement('p');
             msg.classList.add('text-red-500', 'text-sm', 'mt-1', 'error-message');
-            msg.textContent = 'Le numéro doit contenir uniquement des chiffres.';
+            msg.textContent = 'The number must contain digits only.';
             if (!phoneInput.nextElementSibling || !phoneInput.nextElementSibling.classList.contains('error-message')) {
                 phoneInput.insertAdjacentElement('afterend', msg);
             }
         }
 
         if (!valid) {
-            e.preventDefault(); // bloque l’envoi du formulaire
+            e.preventDefault(); // Block form submission
         }
     });
 });

@@ -29,6 +29,8 @@ class credit_note extends Model
         'total_ttc',
         'credit_note_type',
         'entreprise_id',
-        'invoice_id'
+        'credit_note_number',
+        'invoice_id',
+        'emailsent',
     ];
 }

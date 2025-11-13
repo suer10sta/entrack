@@ -13,8 +13,8 @@
         
                    <select onchange="window.location.href='{{ url('lang/change') }}?lang='+this.value">
     <option value="en" {{ app()->getLocale() == 'en' ? 'selected' : '' }}>English</option>
-    <option value="fr" {{ app()->getLocale() == 'fr' ? 'selected' : '' }}>Français</option>
-    <option value="es" {{ app()->getLocale() == 'es' ? 'selected' : '' }}>Español</option>
+    <option value="fr" {{ app()->getLocale() == 'fr' ? 'selected' : '' }}>French</option>
+    <option value="es" {{ app()->getLocale() == 'es' ? 'selected' : '' }}>Spanish</option>
 </select>
 
                 </div>
