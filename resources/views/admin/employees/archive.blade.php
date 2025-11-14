@@ -44,24 +44,24 @@
 {{-- Table --}}
 <div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
+        <thead class="border-b border-gray-200 bg-gray-50">
             <tr class="text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                <th class="px-6 py-3"></th>
-                <th class="px-6 py-3">Name</th>
-                <th class="px-6 py-3">Email</th>
-                <th class="px-6 py-3">Phone</th>
-                <th class="px-6 py-3">Status</th>
-                <th class="px-6 py-3">Age</th>
-                <th class="px-6 py-3">CNSS</th>
-                <th class="px-6 py-3">Bank Account</th>
-                <th class="px-6 py-3">Salary</th>
-                <th class="px-6 py-3">Cost/Hour</th>
-                <th class="px-6 py-3">Work Hours Limit</th>
-                <th class="px-6 py-3">Cotisation CNSS</th>
-                <th class="px-6 py-3">Cotisation AMO</th>
-                <th class="px-6 py-3">Date Release</th>
-                <th class="px-6 py-3">Role</th>
-                <th class="px-6 py-3">Action</th>
+                <th class="px-1 py-1 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 0.5%;"></th>
+                <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">Name</th>
+                <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 10%;">Email</th>
+                <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5.5%;">Phone</th>
+                <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 4%;">Status</th>
+                <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 3%;">Age</th>
+                <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">CNSS</th>
+                <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">Bank Account</th>
+                <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 8%;">Salary</th>
+                <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;" >Cost/Hour</th>
+                <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">Work Hours Limit</th>
+                <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">Cotisation CNSS</th>
+                <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">Cotisation AMO</th>
+                <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">Date Release</th>
+                <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">Role</th>
+                <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 9%;">Action</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -73,17 +73,17 @@
             @endphp
             <tr class="hover:bg-gray-50">
                 {{-- Avatar --}}
-                <td class="px-6 py-4">
+                <td class="px-2 py-2 whitespace-nowrap">
                     @if($employee->image)
-                        <img class="h-10 w-10 rounded-full object-cover" src="{{ Storage::disk('do_spaces')->url('employee_images/' . $employee->image) }}" alt="{{ $employee->name }}">
+                        <img class="h-8 w-8 rounded-full object-cover" src="{{ Storage::disk('do_spaces')->url('employee_images/' . $employee->image) }}" alt="{{ $employee->name }}">
                     @else
-                        <div class="h-10 w-10 rounded-full flex items-center justify-center text-white font-medium" style="background-color: {{ $bgColor }};">
+                        <div class="h-8 w-8 rounded-full flex items-center justify-center text-white font-medium" style="background-color: {{ $bgColor }};">
                             {{ strtoupper(substr($employee->name, 0, 1)) }}
                         </div>
                     @endif
                 </td>
                 {{-- Name --}}
-                <td class="px-6 py-4 text-sm text-gray-700 editable" data-id="{{$employee->id}}" data-column="name">
+                <td class="px-4 py-4 text-xs text-gray-700 editable whitespace-normal break-words" data-id="{{$employee->id}}" data-column="name">
                     @php
                         $showRoute = '#';
                         $canView = Auth::user()->can('View employee');
@@ -143,7 +143,7 @@
                     </div>
                 </td>
                 {{-- Actions --}}
-                <td class="px-6 py-4 text-sm space-x-1">
+                <td class="px-2 py-2 text-sm space-x-1">
                     @can('Edit employee roles')
                         <a href="{{ route('admin.employees.edit', $employee->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs">Edit Roles</a>
                     @endcan

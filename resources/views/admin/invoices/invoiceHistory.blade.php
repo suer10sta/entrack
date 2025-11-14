@@ -5,17 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoices History - BizManager</title>
     
-    {{-- [CORRIGÉ] Bootstrap CSS est supprimé --}}
-
     @vite('resources/css/app.css') 
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
-    {{-- Alpine.js est ajouté ici pour qu'il soit disponible partout --}}
     <script src="//unpkg.com/alpinejs" defer></script>
 
     <style>
-        /* Vos styles personnalisés sont conservés */
         .invoice-link-overdue {
             color: #dc2626; /* red-600 */
             font-weight: 600; /* semibold */
@@ -30,8 +26,6 @@
             color: #1d4ed8; /* blue-800 */
         }
         
-        
-
         .table-responsive {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -71,13 +65,10 @@
                     <p class="text-sm text-gray-600">Manage and track all your invoices in one place</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    {{-- [CORRIGÉ] Bouton changé pour Alpine.js --}}
+                    {{-- [CHANGED] Icon removed --}}
                     <button type="button" 
                             @click="$dispatch('open-modal', 'invoiceReportModal')"
                             class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
                         Invoices Reports PDF
                     </button>
 
@@ -88,18 +79,13 @@
                     @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $archiveRoute = route('Responsable_gestionnaire.invoiceArchived.archiveIndex'); @endphp @endif
                     
                     @if($archiveRoute)
+                    {{-- [CHANGED] Icon removed --}}
                     <a href="{{ $archiveRoute }}" class="inline-flex items-center bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                        </svg>
                         View Archive
                     </a>
                     @endif
                 </div>
             </div>
-
-            {{-- ... Autres sections (Date Pickers, Totals Cards, Filters) ... --}}
-            {{-- (Ces sections n'avaient pas de Bootstrap, elles sont donc correctes) --}}
 
              {{-- 2. Date Pickers Section --}}
              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -234,65 +220,69 @@
             </div>
 
             {{-- 5. Table Section --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div class="table-responsive overflow-x-auto">
-                    <table class="w-full min-w-full divide-y divide-gray-200 table" id="invoicesTable">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Invoice N°</th>
-                                <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Project</th>
-                                <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">TVA</th>
-                                <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Client</th>
-                                <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
-                                <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Created At</th>
-                                <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
-                                <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-    @forelse($invoices as $invoice)
-    <tr class="hover:bg-gray-50">
-        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
-            @php
-                $dueDate = \Carbon\Carbon::parse($invoice->due_date);
-                $today = \Carbon\Carbon::now();
-                $isOverdue = $dueDate->isPast() && !$invoice->Payment_status;
-                $daysOverdue = $isOverdue ? $today->diffInDays($dueDate) : 0;
-                $pdfRoute = '';
-                if(Auth::user()->hasRole('Responsable de projet')) $pdfRoute = route('Responsable_de_projet.invoices.servePdf', ['invoiceName' => $invoice->id]);
-                elseif(Auth::user()->hasRole('Admin')) $pdfRoute = route('admin.invoices.servePdf', ['invoiceName' => $invoice->id]);
-                elseif(Auth::user()->hasRole('Employee')) $pdfRoute = route('employee.invoices.servePdf', ['invoiceName' => $invoice->id]);
-                elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $pdfRoute = route('Responsable_gestionnaire.invoices.servePdf', ['invoiceName' => $invoice->id]);
-            @endphp
-            <a href="{{ $pdfRoute }}" target="_blank" class="{{ $isOverdue ? 'invoice-link-overdue' : 'invoice-link-normal' }}">
-                {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
-                @if($isOverdue)
-                    <span class="block text-xs">({{ $daysOverdue }} days overdue)</span>
-                @endif
-            </a>
-        </td>
-        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800">{{strtoupper($invoice->project_name)}}</td>
-        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
-            @php $project = App\Models\Project::find($invoice->project_id); @endphp
-            {{$project->tva ?? 'N/A'}}%
-        </td>
-        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800">
-            @php $client = \App\Models\Client::where('id', $invoice->client_id)->first(); @endphp
-            {{$client->name ?? 'N/A'}}
-        </td>
-        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 capitalize">
-            @if($invoice->type == 'Partial') {{$invoice->type}}-{{$invoice->partial}}
-            @elseif($invoice->type == 'Percentage') {{$invoice->type}}-{{$invoice->percentage}}
-            @else {{$invoice->type}}
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div class="table-responsive overflow-x-auto">
+        <table class="w-full divide-y divide-gray-200 table" id="invoicesTable">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Invoice N°</th>
+                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Project</th>
+                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">TVA</th>
+                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Client</th>
+                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Type</th>
+                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Created At</th>
+                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Amount</th>
+                    <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+@forelse($invoices as $invoice)
+<tr class="hover:bg-gray-50">
+    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
+        @php
+            $dueDate = \Carbon\Carbon::parse($invoice->due_date);
+            $today = \Carbon\Carbon::now();
+            $isOverdue = $dueDate->isPast() && !$invoice->Payment_status;
+            $daysOverdue = $isOverdue ? $today->diffInDays($dueDate) : 0;
+            $pdfRoute = '';
+            if(Auth::user()->hasRole('Responsable de projet')) $pdfRoute = route('Responsable_de_projet.invoices.servePdf', ['invoiceName' => $invoice->id]);
+            elseif(Auth::user()->hasRole('Admin')) $pdfRoute = route('admin.invoices.servePdf', ['invoiceName' => $invoice->id]);
+            elseif(Auth::user()->hasRole('Employee')) $pdfRoute = route('employee.invoices.servePdf', ['invoiceName' => $invoice->id]);
+            elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $pdfRoute = route('Responsable_gestionnaire.invoices.servePdf', ['invoiceName' => $invoice->id]);
+        @endphp
+        <a href="{{ $pdfRoute }}" target="_blank" class="{{ $isOverdue ? 'invoice-link-overdue' : 'invoice-link-normal' }}">
+            {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
+            @if($isOverdue)
+                <span class="block text-xs">({{ $daysOverdue }} days overdue)</span>
             @endif
-        </td>
-        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{{ \Carbon\Carbon::parse($invoice->created_at)->format('Y-m-d H:i') }}</td>
-        <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-green-700">€{{ number_format($invoice->total_ttc, 2, ',', ' ') }}</td>
-        
-        <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
-            <div class="flex items-center justify-center gap-1.5">
+        </a>
+    </td>
+    <td class="px-4 py-3 text-sm text-gray-800" style="max-width: 200px; word-wrap: break-word; white-space: normal;">{{strtoupper($invoice->project_name)}}</td>
+    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+        @php $project = App\Models\Project::find($invoice->project_id); @endphp
+        {{$project->tva ?? 'N/A'}}%
+    </td>
+    <td class="px-4 py-3 text-sm text-gray-800" style="max-width: 200px; word-wrap: break-word; white-space: normal;">
+        @php $client = \App\Models\Client::where('id', $invoice->client_id)->first(); @endphp
+        {{$client->name ?? 'N/A'}}
+    </td>
+    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 capitalize">
+        @if($invoice->type == 'Partial') {{$invoice->type}}-{{$invoice->partial}}
+        @elseif($invoice->type == 'Percentage') {{$invoice->type}}-{{$invoice->percentage}}
+        @else {{$invoice->type}}
+        @endif
+    </td>
+    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{{ \Carbon\Carbon::parse($invoice->created_at)->format('Y-m-d') }}</td>
+    
+    <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-green-700">€{{ number_format($invoice->total_ttc, 2, ',', ' ') }}</td>
+    
+    <td class="px-2 py-3">
+        <div class="flex flex-col items-center gap-2">
+            
+            {{-- 2x2 Grid for first 4 buttons --}}
+            <div class="grid grid-cols-2 gap-1.5 w-full">
                 
-                {{-- Payment Status Toggle --}}
+                {{-- Row 1, Column 1: Payment Status (Paid/Unpaid) --}}
                 @php
                     $isPaid = $invoice->Payment_status == 1; 
                     $toggleRoute = '';
@@ -302,48 +292,32 @@
                     elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $toggleRoute = $isPaid ? route('Responsable_gestionnaire.invoice.deactivate', $invoice->id) : route('Responsable_gestionnaire.invoice.activate', $invoice->id);
                 @endphp
                 @if($toggleRoute)
-                <form action="{{ $toggleRoute }}" method="post" onsubmit="return confirm('Change payment status?');" class="inline-block">
+                <form action="{{ $toggleRoute }}" method="post" onsubmit="return confirm('Change payment status?');" class="w-full">
                     @csrf
                     <button type="submit"
                             title="{{ $isPaid ? 'Mark as Unpaid' : 'Mark as Paid' }}"
-                            class="payment-button p-1 rounded-md {{ $isPaid ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-red-600 hover:bg-red-700 text-white' }}">
-                        @if($isPaid)
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                        @else
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                        @endif
+                            class="payment-button w-full px-2 py-1 rounded-md text-xs font-medium {{ $isPaid ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-red-600 hover:bg-red-700 text-white' }}">
+                        {{ $isPaid ? 'Paid' : 'Unpaid' }}
                     </button>
                 </form>
                 @endif
 
-                {{-- Send Button --}}
-                @can('Send invoice')
-                <button type="button" 
-                        title="{{ $invoice->sentInvoice == 0 ? 'Send Invoice' : 'Resend Invoice' }}"
-                        class="p-1 rounded-md bg-gray-600 text-white hover:bg-gray-700"
-                        @click="$dispatch('open-modal', { id: 'sendInvoiceModal', invoiceId: {{ $invoice->id }} })">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
-                </button>
-                @endcan
-                
-                {{-- [CORRIGÉ] Reminder Button (retour à la logique <a>) --}}
+                {{-- Row 1, Column 2: Reminder --}}
                 @if(!$isPaid)
                 @can('Send invoice')
                     @if(Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
                         @if(!$invoice->first_reminder_date || !$invoice->second_reminder_date || !$invoice->third_reminder_date)
-                        <div x-data="{ open: false }" class="relative inline-block text-left">
+                        <div x-data="{ open: false }" class="relative w-full">
                             <button @click="open = !open" type="button" 
                                     title="Send Reminder" 
-                                    class="p-1 rounded-md bg-yellow-500 text-white hover:bg-yellow-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                                    class="w-full px-2 py-1 rounded-md bg-yellow-500 text-white hover:bg-yellow-600 text-xs font-medium">
+                                Reminder
                             </button>
                             <ul x-show="open" 
                                 @click.outside="open = false" 
                                 x-transition
                                 style="display: none;"
                                 class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                                
-                                {{-- Utilisation de l'ancienne logique de route qui fonctionne --}}
                                 @if(!$invoice->first_reminder_date)
                                     <li><a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route((Auth::user()->hasRole('Admin') ? 'admin.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet et gestionnaire') ? 'Responsable_gestionnaire.invoice.sendManualremind' : 'employee.invoice.sendManualremind'))), ['id' => $invoice->id, 'reminder' => 1]) }}">Send Reminder 1</a></li>
                                 @endif
@@ -355,18 +329,33 @@
                                 @endif
                             </ul>
                         </div>
+                        @else
+                        {{-- Empty placeholder if no reminders available --}}
+                        <div class="w-full"></div>
                         @endif
                     @endif
                 @endcan
+                @else
+                {{-- Empty placeholder if paid --}}
+                <div class="w-full"></div>
                 @endif
 
+                {{-- Row 2, Column 1: Send --}}
+                @can('Send invoice')
+                <button type="button" 
+                        title="{{ $invoice->sentInvoice == 0 ? 'Send Invoice' : 'Resend Invoice' }}"
+                        class="w-full px-2 py-1 rounded-md bg-gray-600 text-white hover:bg-gray-700 text-xs font-medium"
+                        @click="$dispatch('open-modal', { id: 'sendInvoiceModal', invoiceId: {{ $invoice->id }} })">
+                    Send
+                </button>
+                @endcan
 
-                {{-- [FIXED] Credit Note Button (Alpine.js Dropdown) --}}
-                <div x-data="{ open: false }" class="relative inline-block text-left">
+                {{-- Row 2, Column 2: Credit Note --}}
+                <div x-data="{ open: false }" class="relative w-full">
                     <button @click="open = !open" type="button" 
                             title="Create Credit Note" 
-                            class="p-1 rounded-md bg-purple-600 text-white hover:bg-purple-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            class="w-full px-2 py-1 rounded-md bg-purple-600 text-white hover:bg-purple-700 text-xs font-medium">
+                        Credit Note
                     </button>
                     <ul x-show="open" 
                         @click.outside="open = false" 
@@ -391,22 +380,22 @@
                         }
                         @endphp
                         @if($invoice->type == 'Detailed' && $detailedCreditNoteRoute)
-                        {{-- J'ai corrigé 'totalCost' en 'total_ttc' ici aussi --}}
                         <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" @click.prevent="showPartialDetailedPopup({{ $invoice->id }}, {{ $invoice->total_ttc }}); open = false;">Partial</a></li>
                         <li><a href="{{ route($detailedCreditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Full</a></li>
                         @elseif($creditNoteRoute)
-                        {{-- J'ai corrigé 'totalCost' en 'total_ttc' ici aussi --}}
                         <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" @click.prevent="showPartialPopup({{ $invoice->id }}, {{ $invoice->total_ttc }}); open = false;">Partial</a></li>
                         <li><a href="{{ route($creditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Full</a></li>
                         @endif
                     </ul>
                 </div>
+            </div>
 
+            {{-- Edit & Delete buttons in a row below the grid --}}
+            <div class="flex items-center justify-center gap-1.5 w-full">
                 {{-- Edit Button --}}
                 @if($invoice->id === $invoices->max('id') || $invoice->sentInvoice == 0)
                     @php 
                         $editRoute = '';
-                        // (Toute votre logique PHP 'editRoute' reste ici...)
                         if(Auth::user()->hasRole('Admin')) {
                             if($invoice->type == 'Partial') $editRoute = route('admin.invoices.editPartialInvoice', $invoice->id);
                             elseif($invoice->type == 'Percentage') $editRoute = route('admin.invoices.editPercentageInvoice', $invoice->id);
@@ -434,7 +423,7 @@
                         }
                     @endphp
                     @if($editRoute)
-                    <a href="{{ $editRoute }}" title="Edit Invoice" class="p-1 rounded-md bg-blue-600 text-white hover:bg-blue-700">
+                    <a href="{{ $editRoute }}" title="Edit Invoice" class="p-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                     </a>
                     @endif
@@ -451,31 +440,33 @@
                             elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $deleteRoute = route('Responsable_gestionnaire.invoice.destroy', $invoice->id);
                         @endphp
                         @if($deleteRoute)
-                        <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Delete this invoice? This cannot be undone.');" class="inline-block">
+                        <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Delete this invoice? This cannot be undone.');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" title="Delete Invoice" class="p-1 rounded-md bg-red-600 text-white hover:bg-red-700">
+                            <button type="submit" title="Delete Invoice" class="p-1.5 rounded-md bg-red-600 text-white hover:bg-red-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             </button>
                         </form>
                         @endif
                     @endcan
                 @endif
-                
             </div>
-        </td>
-    </tr>
-    @empty
-    <tr>
-        <td colspan="8" class="text-center px-4 py-6 text-gray-500">
-            No invoices found matching your criteria.
-        </td>
-    </tr>
-    @endforelse
+        </div>
+    </td>
+</tr>
+@empty
+<tr>
+    <td colspan="8" class="text-center px-4 py-6 text-gray-500">
+        No invoices found matching your criteria.
+    </td>
+</tr>
+@endforelse
 </tbody>
-                </table>
-            </div>
-        </div> 
+        </table>
+    </div>
+</div> 
+
+            {{-- Modals (No changes made here) --}}
             <div x-data="sendInvoiceModal()" x-show="show" 
                  @open-modal.window="if ($event.detail.id === 'sendInvoiceModal') open($event.detail.invoiceId)"
                  x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -843,11 +834,8 @@
         window.dispatchEvent(new CustomEvent('open-modal', { detail: { id: 'partialDetailedCreditNoteModal', invoiceId: invoiceId, totalCost: totalCost } }));
     }
 
-    // [CORRIGÉ] Fonction globale pour envoyer un rappel
     function sendReminder(invoiceId, reminderNumber) {
         let url = '';
-
-        // [CORRECTION] Construit l'URL avec 'id' et 'reminder' comme paramètres de requête
         @if(Auth::user()->hasRole('Admin')) 
             url = `/admin/invoice/sendManualremind?id=${invoiceId}&reminder=${reminderNumber}`; 
         @endif
@@ -862,7 +850,7 @@
         @endif
 
         fetch(url, {
-            method: 'GET', // Doit être GET, comme votre ancien lien <a>
+            method: 'GET',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 'X-Requested-With': 'XMLHttpRequest'
@@ -870,7 +858,6 @@
         })
         .then(res => {
             if (!res.ok) {
-                // Si la réponse n'est pas OK (ex: 404), on la traite comme une erreur
                 return res.text().then(text => { 
                     throw new Error(`${res.status} ${res.statusText}: ${url}`) 
                 });
@@ -886,7 +873,6 @@
             }
         })
         .catch(err => {
-            // Affiche l'erreur réseau (ex: "Not Found")
             showMessage('Error sending reminder: ' + err.message, 'danger');
             console.error(err);
         });
@@ -955,9 +941,11 @@
                 const paymentButton = row.querySelector('.payment-button');
                 let paymentStatus = '';
                 if (paymentButton) {
-                    if (paymentButton.classList.contains('bg-green-600')) {
+                    // [FIXED] Check text content instead of class
+                    const buttonText = paymentButton.textContent.trim();
+                    if (buttonText === 'Paid') {
                         paymentStatus = 'Paid';
-                    } else if (paymentButton.classList.contains('bg-red-600')) {
+                    } else if (buttonText === 'Unpaid') {
                         paymentStatus = 'Unpaid';
                     }
                 }

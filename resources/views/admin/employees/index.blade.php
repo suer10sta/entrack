@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employees - BizManager</title> {{-- Updated title --}}
+    <title>Employees - BizManager</title>
     @vite('resources/css/app.css')
     @livewireStyles
-    {{-- Include dashboard_layouts.head if it contains essential meta tags or CSS links not covered by Vite --}}
-    {{-- @include('dashboard_layouts.head') --}}
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
 
@@ -34,7 +32,7 @@
                     <div class="flex flex-wrap gap-2">
                         {{-- Report Button --}}
                         @php
-                            $reportRoute = '#'; // Default fallback
+                            $reportRoute = '#';
                             if (Auth::user()->hasRole('Responsable de projet')) $reportRoute = route('Responsable_de_projet.Employeesrepports.downloadRepports');
                             elseif (Auth::user()->hasRole('Admin')) $reportRoute = route('admin.Employeesrepports.downloadRepports');
                             elseif (Auth::user()->hasRole('Employee')) $reportRoute = route('employee.Employeesrepports.downloadRepports');
@@ -42,30 +40,30 @@
                         @endphp
                         <a href="{{ $reportRoute }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                           Employees Reports PDF
+                           Reports PDF
                         </a>
 
-                        {{-- Add Team Button (Admin only based on original logic?) --}}
-                        @can('Add teams') {{-- Assuming only Admin has this from original code --}}
+                        {{-- Add Team Button --}}
+                        @can('Add teams')
                            <a href="{{ route('admin.teams.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
                               <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                               Add Team
                            </a>
                         @endcan
 
-                        {{-- Add Employee Button (Admin only based on original logic?) --}}
-                         @can('Add employee') {{-- Assuming only Admin has this from original code --}}
+                        {{-- Add Employee Button --}}
+                         @can('Add employee')
                            <a href="{{ route('admin.employees.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
                               <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                               Add Employee
                            </a>
                         @endcan
 
-                         {{-- View Archive Button (Admin only based on original logic?) --}}
-                         @if(Auth::user()->hasRole('Admin')) {{-- Check explicitly if needed --}}
+                         {{-- View Archive Button --}}
+                         @if(Auth::user()->hasRole('Admin'))
                             <a href="{{ route('admin.employeesArchived.archiveIndex') }}" class="bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
-                                View Archive
+                                Archive
                             </a>
                          @endif
                     </div>
@@ -84,50 +82,49 @@
                 {{-- Table Wrapper --}}
                 <div class="p-6">
                     <div class="overflow-x-auto">
-                        <table id="example" class="w-full text-left border-collapse min-w-full">
+                        <table id="example" class="w-full text-left border-collapse" style="table-layout: fixed; min-width: 100%;">
                             <thead class="border-b border-gray-200 bg-gray-50">
                                 <tr>
-                                    {{-- Adjusted headers based on your content --}}
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left"></th> 
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Name</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Login Email</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Phone</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Status</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Age</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">CNSS</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Bank Acc.</th> 
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Salary</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Cost/Hour</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Hour Limit</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">CNSS Contr.</th> 
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">AMO Contr.</th> 
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Release Date</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Role</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Action</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 2.5%;"></th> 
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">Name</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 10%;">Email</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5.5%;">Phone</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 4%;">Status</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 3%;">Age</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">CNSS</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">Bank Acc</th> 
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-right" style="width: 5%;">Salary</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-right" style="width: 5%;">Cost/Hr</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">WorkHour Limit</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-right" style="width: 5%;">CNSS Cot</th> 
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-right" style="width: 5%;">AMO Cot</th> 
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5.5%;">Release</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">Role</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 9%;">Action</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 @forelse($employees as $employee)
                                 <tr class="hover:bg-gray-50">
                                     {{-- Avatar/Initials --}}
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="px-2 py-2 whitespace-nowrap">
                                         @php
                                             $colors = ['#2ECC71', '#BDC3C7', '#F39C12', '#E74C3C', '#9B59B6', '#2E86C1','#641E16','#2C3E50','#F4D03F','#F4D03F'];
                                             $bgColor = $colors[$loop->index % count($colors)];
                                         @endphp
                                         @if($employee->image)
-                                            <img class="h-10 w-10 rounded-full object-cover"
+                                            <img class="h-8 w-8 rounded-full object-cover"
                                                  src="{{ Storage::disk('do_spaces')->url('employee_images/' . $employee->image) }}"
                                                  alt="{{ $employee->name }} image">
                                         @else
-                                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-white font-medium"
+                                            <div class="h-8 w-8 rounded-full flex items-center justify-center text-white font-medium text-xs"
                                                  style="background-color: {{ $bgColor }};">
                                                 {{ strtoupper(substr($employee->name, 0, 1)) }}
                                             </div>
                                         @endif
                                     </td>
                                     {{-- Name with Link --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$employee->id}}" data-column="name">
+                                    <td class="px-2 py-2 text-xs text-gray-700 editable whitespace-normal break-words" data-id="{{$employee->id}}" data-column="name">
                                          @php
                                             $showRoute = '#';
                                             $canView = Auth::user()->can('View employee');
@@ -146,12 +143,13 @@
                                             <span class="font-medium text-gray-900">{{$employee->name}}</span>
                                          @endif
                                     </td>
-                                    {{-- Other Editable Fields --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$employee->id}}" data-column="email">{{$employee->email}}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$employee->id}}" data-column="phoneNumber">{{$employee->phoneNumber}}</td>
+                                    {{-- Email --}}
+                                    <td class="px-2 py-2 text-xs text-gray-700 editable whitespace-normal break-all" data-id="{{$employee->id}}" data-column="email">{{$employee->email}}</td>
+                                    {{-- Phone --}}
+                                    <td class="px-2 py-2 text-xs text-gray-700 editable whitespace-nowrap" data-id="{{$employee->id}}" data-column="phoneNumber">{{$employee->phoneNumber}}</td>
                                     
                                     {{-- Status Badge/Button --}}
-                                    <td class="px-6 py-4 text-sm text-gray-700">
+                                    <td class="px-2 py-2 text-xs text-gray-700">
                                             @php
                                                 $user = \App\Models\User::find($employee->user_id);
                                                 $statusRoute = '#';
@@ -174,32 +172,40 @@
                                                   class="inline">
                                                 @csrf
                                                 <button type="submit"
-                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{{ $buttonColor }}-100 text-{{ $buttonColor }}-800 border-none cursor-pointer">
+                                                        class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-{{ $buttonColor }}-100 text-{{ $buttonColor }}-800 border-none cursor-pointer whitespace-nowrap">
                                                     {{ $statusText }}
                                                 </button>
                                             </form>
                                         </td>
 
-                                    {{-- More Editable Fields --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$employee->id}}" data-column="age">{{$employee->age}}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$employee->id}}" data-column="cnss">{{$employee->cnss}}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$employee->id}}" data-column="bankAccountNumber">{{$employee->bankAccountNumber}}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium editable" data-id="{{$employee->id}}" data-column="salary">{{$employee->salary}} €</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium editable" data-id="{{$employee->id}}" data-column="cost_per_hour">{{number_format($employee->cost_per_hour, 2, '.', '')}} €</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$employee->id}}" data-column="workHours_limit">{{$employee->workHours_limit}} h</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium editable" data-id="{{$employee->id}}" data-column="Cotisation_CNSS">{{$employee->Cotisation_CNSS}} €</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium editable" data-id="{{$employee->id}}" data-column="Cotisation_AMO">{{$employee->Cotisation_AMO}} €</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$employee->id}}" data-column="Date_Release">{{$employee->Date_Release}}</td>
+                                    {{-- Age --}}
+                                    <td class="px-2 py-2 whitespace-nowrap text-xs text-gray-700 text-center editable" data-id="{{$employee->id}}" data-column="age">{{$employee->age}}</td>
+                                    {{-- CNSS --}}
+                                    <td class="px-2 py-2 text-xs text-gray-700 editable whitespace-normal break-words" data-id="{{$employee->id}}" data-column="cnss">{{$employee->cnss}}</td>
+                                    {{-- Bank Account --}}
+                                    <td class="px-2 py-2 text-xs text-gray-700 editable whitespace-normal break-words" data-id="{{$employee->id}}" data-column="bankAccountNumber">{{$employee->bankAccountNumber}}</td>
+                                    {{-- Salary --}}
+                                    <td class="px-2 py-2 whitespace-nowrap text-xs text-green-600 font-medium text-right editable" data-id="{{$employee->id}}" data-column="salary">{{$employee->salary}} €</td>
+                                    {{-- Cost per hour --}}
+                                    <td class="px-2 py-2 whitespace-nowrap text-xs text-green-600 font-medium text-right editable" data-id="{{$employee->id}}" data-column="cost_per_hour">{{number_format($employee->cost_per_hour, 2, '.', '')}} €</td>
+                                    {{-- Hour Limit --}}
+                                    <td class="px-2 py-2 whitespace-nowrap text-xs text-gray-700 text-center editable" data-id="{{$employee->id}}" data-column="workHours_limit">{{$employee->workHours_limit}} h</td>
+                                    {{-- CNSS Cotisation --}}
+                                    <td class="px-2 py-2 whitespace-nowrap text-xs text-green-600 font-medium text-right editable" data-id="{{$employee->id}}" data-column="Cotisation_CNSS">{{$employee->Cotisation_CNSS}} €</td>
+                                    {{-- AMO Cotisation --}}
+                                    <td class="px-2 py-2 whitespace-nowrap text-xs text-green-600 font-medium text-right editable" data-id="{{$employee->id}}" data-column="Cotisation_AMO">{{$employee->Cotisation_AMO}} €</td>
+                                    {{-- Release Date --}}
+                                    <td class="px-2 py-2 text-xs text-gray-700 text-center editable whitespace-normal" data-id="{{$employee->id}}" data-column="Date_Release">{{$employee->Date_Release}}</td>
                                     
                                     {{-- Role Badges --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                         <div class="flex flex-wrap gap-1">
+                                    <td class="px-1 py-2 text-xs text-gray-700">
+                                         <div class="flex flex-col gap-0.5 max-h-[60px] overflow-hidden leading-tight">
                                              @forelse($employee->roles as $role)
-                                                <span class="inline-block px-2 py-0.5 text-xs font-medium rounded {{ $role=='SuperAdmin' || $role=='Admin' ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-purple-100 text-purple-700' }}">
+                                                <span class="inline-block px-1.5 py-0.5 text-[10px] font-medium rounded {{ $role=='SuperAdmin' || $role=='Admin' ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-purple-100 text-purple-700' }}">
                                                     {{ $role }}
                                                 </span>
                                              @empty
-                                                <span class="inline-block px-2 py-0.5 text-xs font-medium rounded bg-red-100 text-red-700">
+                                                <span class="inline-block px-1.5 py-0.5 text-[10px] font-medium rounded bg-red-100 text-red-700">
                                                    No Role
                                                 </span>
                                              @endforelse
@@ -207,7 +213,7 @@
                                     </td>
 
                                     {{-- Action Buttons --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 space-x-1"> {{-- Add space between buttons --}}
+                                    <td class="px-2 py-2 text-xs text-gray-700">
                                         @php
                                             $canEditRoles = Auth::user()->can('Edit employee roles');
                                             $canDelete = Auth::user()->can('Delete employee');
@@ -236,34 +242,36 @@
                                             }
                                         @endphp
 
-                                        @if($canEditRoles)
-                                            <a href="{{ $editRoute }}" class="inline-flex items-center px-2.5 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                                Edit Roles
-                                            </a>
-                                        @endif
-                                        
-                                        {{-- Archive Button (as form) --}}
-                                        <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm('Archive this employee?');" class="inline">
-                                            @csrf
-                                            <button type="submit" class="inline-flex items-center px-2.5 py-1 border border-gray-300 text-xs font-medium rounded shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                                Archive
-                                            </button>
-                                        </form>
-
-                                        @if($canDelete && !$isSelf)
-                                            <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Are you sure you want to delete this employee?');" class="inline">
+                                        <div class="flex flex-col gap-1">
+                                            @if($canEditRoles)
+                                                <a href="{{ $editRoute }}" class="inline-flex items-center justify-center px-2 py-0.5 border border-transparent text-[10px] font-medium rounded shadow-sm text-white bg-blue-600 hover:bg-blue-700 whitespace-nowrap">
+                                                    Edit Roles
+                                                </a>
+                                            @endif
+                                            
+                                            {{-- Archive Button --}}
+                                            <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm('Archive this employee?');">
                                                 @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="inline-flex items-center px-2.5 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                                                    Delete
+                                                <button type="submit" class="w-full inline-flex items-center justify-center px-2 py-0.5 border border-gray-300 text-[10px] font-medium rounded shadow-sm text-gray-700 bg-white hover:bg-gray-50 whitespace-nowrap">
+                                                    Archive
                                                 </button>
                                             </form>
-                                        @endif
+
+                                            @if($canDelete && !$isSelf)
+                                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Are you sure you want to delete this employee?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="w-full inline-flex items-center justify-center px-2 py-0.5 border border-transparent text-[10px] font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 whitespace-nowrap">
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                     <td colspan="16" class="px-6 py-4 text-center text-sm text-gray-500"> {{-- Adjusted colspan --}}
+                                     <td colspan="16" class="px-6 py-4 text-center text-sm text-gray-500">
                                          No employees found.
                                      </td>
                                 </tr>
@@ -278,27 +286,24 @@
     </div>
 
     @livewireScripts
-    {{-- @include('dashboard_layouts.scripts') --}}
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
-    @can('Update employee') // Keep the permission check around the script
+    @can('Update employee')
     $(document).ready(function(){
-        // Use event delegation for dynamically added/reloaded content if needed
         $('body').on('dblclick', '.editable', function(){
             if ($(this).find('input').length > 0) {
-                return; // Already editing
+                return;
             }
 
             var originalContent = $(this).text().trim();
             var cellWidth = $(this).outerWidth();
 
-            // Add Tailwind classes to the input
             $(this).html("<input type='text' value='" + originalContent + "' class='w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-1' style='min-width: " + cellWidth + "px;' />");
 
             var input = $(this).children('input').first();
             input.focus();
-            input[0].select(); // Select text
+            input[0].select();
 
             input.blur(function(){
                 var newContent = $(this).val();
@@ -306,12 +311,10 @@
                 var employeeId = $parentCell.data('id');
                 var columnName = $parentCell.data('column');
 
-                // Revert text temporarily
                 $parentCell.text(originalContent);
 
                 $.ajax({
-                    // IMPORTANT: Ensure this route is correct and accessible via POST
-                    url: '/admin/employees/updateEmployee', // Example route - ADJUST THIS
+                    url: '/admin/employees/updateEmployee',
                     type: 'POST',
                     data: {
                         content: newContent,
@@ -321,20 +324,18 @@
                     },
                     success: function(response) {
                         $parentCell.text(newContent);
-                        // Consider a success message
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
-                        $parentCell.text(originalContent); // Revert on error
+                        $parentCell.text(originalContent);
                         alert('Error updating employee: ' + errorThrown);
                         console.error("AJAX Error:", textStatus, errorThrown, jqXHR.responseText);
                     }
                 });
             });
 
-            // Allow saving with Enter key
             input.keypress(function(e){
-                if(e.which == 13){ // Enter key pressed
-                    $(this).blur(); // Trigger save
+                if(e.which == 13){
+                    $(this).blur();
                     return false;
                 }
             });

@@ -99,13 +99,11 @@
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Project</th>
                                     @if(Auth::user()->hasRole('Admin'))
                                         <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Budget</th>
-                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">CPH</th>
                                         <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Duration</th>
                                         <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Est. Hours</th>
                                         <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Difference</th>
                                         <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Progress</th>
                                     @endif
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">VAT</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Teams</th>
                                     @can('Delete project')
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Actions</th>
@@ -169,7 +167,6 @@
                                             {{-- Admin Only Columns --}}
                                             @if(Auth::user()->hasRole('Admin'))
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 editable" data-id="{{$project->id}}" data-column="budget">€{{ number_format($project->budget, 2, ',', ' ') }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 editable" data-id="{{$project->id}}" data-column="cost_per_hour">€{{ number_format($project->cost_per_hour, 2, ',', ' ') }}</td>
                                                 @php
                                                     // Consider optimizing these calculations if slow
                                                     $projecttasksId = App\Models\Tasks::where('project_id', $project->id)->pluck('id');
@@ -190,7 +187,7 @@
                                                     elseif ($progressPercentage >= 50) $progressBarColor = 'bg-yellow-500';
                                                 @endphp
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ sprintf('%02d', $hours) }}h {{ sprintf('%02d', $minutes) }}m</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$project->id}}" data-column="estimated_hours">{{ $project->estimated_hours ?? 0 }}h</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700 editable" data-id="{{$project->id}}" data-column="estimated_hours">{{ $project->estimated_hours ?? 0 }}h</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                     @if($project->estimated_hours !== null)
                                                         @if($difference > 0)
@@ -213,10 +210,8 @@
                                                     </div>
                                                 </td>
                                             @endif
-                                            {{-- VAT --}}
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$project->id}}" data-column="tva">{{$project->tva ?? 'N/A'}}%</td>
                                             {{-- Teams --}}
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
                                                  <div class="flex flex-wrap gap-1">
                                                     @php
                                                         $teamIndexRoute = '#';

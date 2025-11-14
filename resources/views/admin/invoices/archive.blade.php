@@ -34,7 +34,7 @@
     </style>
 </head>
 
-<body class="bg-gray-50 flex h-screen overflow-hidden font-sans">
+<body class="bg-gray-100 flex h-screen overflow-hidden font-sans">
 
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
             style="display: none; visibility: hidden"></iframe></noscript>
@@ -47,9 +47,9 @@
         <x-dashboard.navbar />
 
         {{-- Contenu Principal --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8 space-y-8">
 
-            <div class="w-full max-w-7xl mx-auto"> {{-- Utilisation de max-w-7xl pour une page large --}}
+            <div class="flex flex-wrap justify-between items-center gap-4"> 
 
                 {{-- Message de session (style Tailwind) --}}
                 @if(session('message'))
@@ -107,7 +107,7 @@
                         </div>
                         
                         {{-- Filtres (style Tailwind) --}}
-                        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                             <div>
                                 <label for="clientFilter" class="block text-sm font-medium text-gray-700 mb-1">Filtrer par Client :</label>
                                 <select id="clientFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
@@ -140,9 +140,17 @@
                                     <option value="">Tous les Types</option>
                                     <option value="Partial Period">Période Partielle</option>
                                     <option value="Full Period">Période Complète</option>
-                                    {{-- Ajoutez d'autres types si nécessaire --}}
                                 </select>
                             </div>
+                            <div>
+                                <label for="dateSort" class="block text-sm font-medium text-gray-700 mb-1">Trier par Date Paiement :</label>
+                                <select id="dateSort" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                                    <option value="">Default</option>
+                                    <option value="desc">Descending</option>
+                                    <option value="asc">Ascending</option>
+                                </select>
+                            </div>
+
                         </div>
                     </div>
 
@@ -157,6 +165,7 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type Facture</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Créée le</th>
+                                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Payment Date</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coût Total</th>
                                     <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
@@ -196,7 +205,14 @@
                                         @else {{$invoice->type}}
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{$invoice->created_at}}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ \Carbon\Carbon::parse($invoice->created_at)->format('Y-m-d') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                        @if($invoice->Payment_status == 1 && !empty($invoice->payment_date))
+                                        {{ \Carbon\Carbon::parse($invoice->payment_date)->format('Y-m-d') }}
+                                        @else
+                                        <span class="text-gray-400">-</span>
+                                        @endif
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">
                                         €<span id="totalCostValue">{{ number_format($invoice->total_ttc, 2, ',', ' ') }}</span>
                                     </td>
@@ -207,7 +223,7 @@
                                             $isCreditNote = $invoice->Payment_status == -1;
                                             $deactivateRoute = '';
                                             $activateRoute = '';
-                                            $sendRoute = route('admin.invoice.sendInvoice', $invoice->id); // Fallback, ajustez si nécessaire
+                                            $sendRoute = route('admin.invoice.sendInvoice', $invoice->id); 
                                             $reminderRouteBase = '';
                                             $creditNoteRoute = '';
                                             $detailedCreditNoteRoute = '';
@@ -264,87 +280,83 @@
                                                 data-invoice-id="{{ $invoice->id }}">
                                             {{ $invoice->sentInvoice == 0 ? 'Envoyer' : 'Renvoyer' }}
                                         </button>
-
-                                        {{-- Menu Rappel (géré par Alpine.js + Tailwind) --}}
-@if(!$isPaid && !$isCreditNote)
-    @can('Send invoice')
-    <div class="inline-block relative" x-data="{ open: false }" @click.away="open = false">
-        <button @click="open = !open" 
-                class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-xs font-medium" 
-                type="button" aria-haspopup="true" :aria-expanded="open.toString()">
-            Rappel
-            <svg class="inline-block w-4 h-4 ml-1 -mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-        </button>
+                                        @if(!$isPaid && !$isCreditNote)
+                                        @can('Send invoice')
+                                        <div class="inline-block relative" x-data="{ open: false }" @click.away="open = false">
+                                            <button @click="open = !open" 
+                                            class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-xs font-medium" 
+                                            type="button" aria-haspopup="true" :aria-expanded="open.toString()">
+                                            Rappel
+                                            <svg class="inline-block w-4 h-4 ml-1 -mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                        </button>
         
-        <ul x-show="open"
-            x-transition:enter="transition ease-out duration-100"
-            x-transition:enter-start="opacity-0 scale-95"
-            x-transition:enter-end="opacity-100 scale-100"
-            x-transition:leave="transition ease-in duration-75"
-            x-transition:leave-start="opacity-100 scale-100"
-            x-transition:leave-end="opacity-0 scale-95"
-            {{-- CORRECTION : Ouvre vers le HAUT pour éviter d'être coupé --}}
-            class="absolute z-10 right-0 bottom-full mb-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-            style="display: none;" 
-            role="menu" aria-orientation="vertical">
-            
-            <li role="presentation">
-                <a href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 1]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Envoyer Rappel 1</a>
-            </li>
-            <li role="presentation">
-                <a href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 2]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Envoyer Rappel 2</a>
-            </li>
-            <li role="presentation">
-                <a href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 3]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Envoyer Rappel 3</a>
-            </li>
-        </ul>
-    </div>
-    @endcan
-@endif
+                                        <ul x-show="open"
+                                            x-transition:enter="transition ease-out duration-100"
+                                            x-transition:enter-start="opacity-0 scale-95"
+                                            x-transition:enter-end="opacity-100 scale-100"
+                                            x-transition:leave="transition ease-in duration-75"
+                                            x-transition:leave-start="opacity-100 scale-100"
+                                            x-transition:leave-end="opacity-0 scale-95"
+                                            class="absolute z-10 right-0 bottom-full mb-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                            style="display: none;" 
+                                            role="menu" aria-orientation="vertical">
+                                            
+                                            <li role="presentation">
+                                                <a href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 1]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Envoyer Rappel 1</a>
+                                            </li>
+                                            <li role="presentation">
+                                                <a href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 2]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Envoyer Rappel 2</a>
+                                            </li>
+                                            <li role="presentation">
+                                                <a href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 3]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Envoyer Rappel 3</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    @endcan
+                                    @endif
+                                    
+                                    {{-- Menu Note de Crédit (géré par Alpine.js + Tailwind) --}}
+                                    <div class="inline-block relative" x-data="{ open: false }" @click.away="open = false">
+                                        <button @click="open = !open" 
+                                        class="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-medium" 
+                                        type="button" aria-haspopup="true" :aria-expanded="open.toString()">
+                                        Note de Crédit
+                                        <svg class="inline-block w-4 h-4 ml-1 -mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                    </button>
 
-{{-- Menu Note de Crédit (géré par Alpine.js + Tailwind) --}}
-<div class="inline-block relative" x-data="{ open: false }" @click.away="open = false">
-    <button @click="open = !open" 
-            class="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-medium" 
-            type="button" aria-haspopup="true" :aria-expanded="open.toString()">
-        Note de Crédit
-        <svg class="inline-block w-4 h-4 ml-1 -mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-    </button>
+                                    <ul x-show="open" 
+                                    x-transition:enter="transition ease-out duration-100" 
+                                    x-transition:enter-start="opacity-0 scale-95"  
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95"
+                                    class="absolute z-10 right-0 bottom-full mb-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                    style="display: none;" 
+                                    role="menu" aria-orientation="vertical">
+                                    
+                                    @if($invoice->type == 'Detailed')
 
-    <ul x-show="open"
-        x-transition:enter="transition ease-out duration-100"
-        x-transition:enter-start="opacity-0 scale-95"
-        x-transition:enter-end="opacity-100 scale-100"
-        x-transition:leave="transition ease-in duration-75"
-        x-transition:leave-start="opacity-100 scale-100"
-        x-transition:leave-end="opacity-0 scale-95"
-        {{-- CORRECTION : Ouvre vers le HAUT pour éviter d'être coupé --}}
-        class="absolute z-10 right-0 bottom-full mb-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-        style="display: none;" 
-        role="menu" aria-orientation="vertical">
-
-        @if($invoice->type == 'Detailed')
-            <li role="presentation">
-                <a href="{{ route($detailedCreditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Complète</a>
-            </li>
-        @else
-            <li role="presentation">
-                <a href="{{ route($creditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Complète</a>
-            </li>
-        @endif
-    </ul>
+                                    <li role="presentation">
+                                    <a href="{{ route($detailedCreditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Complète</a>  
+                                    </li>
+        
+                                    @else
+                                    <li role="presentation">
+                                    <a href="{{ route($creditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Complète</a>
+                                </li>
+                                @endif
+                            </ul>
+                        </div>
+                     </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div> 
 </div>
-
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div> 
-
-            </div>
-        </main>
+</main>
     </div>
 
     {{-- MODALS BOOTSTRAP (Conservés pour la fonctionnalité) --}}
@@ -542,6 +554,94 @@ document.addEventListener("DOMContentLoaded", function() {
             form.action = actionUrl.replace(':invoice_id', invoiceId);
         });
     });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const clientFilter = document.getElementById('clientFilter');
+    const projectFilter = document.getElementById('projectFilter');
+    const paymentFilter = document.getElementById('paymentFilter');
+    const typeFilter = document.getElementById('typeFilter');
+    const dateSort = document.getElementById('dateSort'); // [NEW]
+
+    // Add event listeners to all inputs
+    [clientFilter, projectFilter, paymentFilter, typeFilter, dateSort].forEach(el => {
+        if(el) el.addEventListener('change', filterAndSortTable);
+    });
+
+    function filterAndSortTable() {
+        const clientValue = clientFilter.value.toLowerCase();
+        const projectValue = projectFilter.value.toLowerCase();
+        const paymentValue = paymentFilter.value.toLowerCase();
+        const typeValue = typeFilter.value.toLowerCase();
+        const sortValue = dateSort.value; // 'asc' or 'desc'
+
+        const tableBody = document.querySelector('#invoicesTable tbody');
+        // Convert NodeList to Array to allow sorting
+        const rows = Array.from(tableBody.querySelectorAll('tr')); 
+
+        // 1. FILTERING LOOP
+        rows.forEach(row => {
+            // Skip credit note headers or empty rows if necessary
+            if(row.cells.length < 2) return;
+
+            // Get cell text content safely
+            const clientName = row.querySelector('td:nth-child(4)')?.textContent.trim().toLowerCase() || '';
+            const projectName = row.querySelector('td:nth-child(2)')?.textContent.trim().toLowerCase() || '';
+            const invoiceType = row.querySelector('td:nth-child(5)')?.textContent.trim().toLowerCase() || '';
+            
+            // Payment Status Logic
+            let paymentStatus = '';
+            const paymentButton = row.querySelector('.payment-button');
+            if (paymentButton) {
+                paymentStatus = paymentButton.textContent.trim().toLowerCase(); // "payé" or "impayé"
+            } else if (row.querySelector('.credit-note-text')) {
+                paymentStatus = 'credit note'; 
+            }
+
+            // Check Matches
+            const clientMatch = clientValue === '' || clientName.includes(clientValue);
+            const projectMatch = projectValue === '' || projectName.includes(projectValue);
+            const paymentMatch = paymentValue === '' || paymentStatus.includes(paymentValue);
+            const typeMatch = typeValue === '' || invoiceType.includes(typeValue);
+
+            // Show or Hide
+            if (clientMatch && projectMatch && paymentMatch && typeMatch) {
+                row.style.display = '';
+                row.dataset.visible = "true"; // Mark as visible for sorting
+            } else {
+                row.style.display = 'none';
+                row.dataset.visible = "false";
+            }
+        });
+
+        // 2. SORTING LOGIC (Only sort if a value is selected)
+        if (sortValue) {
+            // Sort the array of rows
+            rows.sort((a, b) => {
+                // Get dates from the 7th column (Payment Date)
+                // Use '0000-00-00' for empty dashes so they go to the bottom/top consistently
+                let dateA = a.querySelector('td:nth-child(7)')?.textContent.trim();
+                let dateB = b.querySelector('td:nth-child(7)')?.textContent.trim();
+
+                // Treat '-' as a very old date or empty
+                if (dateA === '-' || dateA === '') dateA = '0000-00-00';
+                if (dateB === '-' || dateB === '') dateB = '0000-00-00';
+
+                if (sortValue === 'asc') {
+                    return dateA.localeCompare(dateB); // Ancien -> Récent
+                } else {
+                    return dateB.localeCompare(dateA); // Récent -> Ancien
+                }
+            });
+
+            // 3. Re-append rows to the table in the new order
+            rows.forEach(row => {
+                tableBody.appendChild(row);
+            });
+        }
+    }
+});
 </script>
 
 </body>

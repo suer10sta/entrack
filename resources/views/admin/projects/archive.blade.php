@@ -43,23 +43,23 @@
 
             {{-- Table --}}
             <div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table class="w-full text-left border-collapse table-fixed">
+                    <thead class="border-b bg-gray-50">
                         <tr class="text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            <th class="px-6 py-3">Project</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left " style="width: 10%;">Project</th>
                             @if(Auth::user()->hasRole('Admin'))
-                            <th class="px-6 py-3">Budget</th>
-                            <th class="px-6 py-3">CPH</th>
-                            <th class="px-6 py-3">Duration</th>
-                            <th class="px-6 py-3">Est. Hours</th>
-                            <th class="px-6 py-3">Difference</th>
-                            <th class="px-6 py-3">Progress</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">Budget</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">CPH</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">Duration</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">Est. Hours</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">Difference</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">Progress</th>
                             @endif
-                            <th class="px-6 py-3">TVA</th>
-                            <th class="px-6 py-3">Client</th>
-                            <th class="px-6 py-3">Teams</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">TVA</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">Client</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 4%;">Teams</th>
                             @can('Delete project')
-                            <th class="px-6 py-3">Actions</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 8%;">Actions</th>
                             @endcan
                         </tr>
                     </thead>

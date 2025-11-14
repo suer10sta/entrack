@@ -35,11 +35,15 @@ class invoices_history extends Model
         'first_reminder_date',
         'second_reminder_date',
         'third_reminder_date',
-        'client_name',
-        'start_date',
-        'end_date',
         'archived',
-        'hours'
+        'hours',
+        'details',
+        'peppol_status',
+        'peppol_message_id',
+        'peppol_error',
+        'peppol_sent_at',
+        'devis_id',
+        'payment_date',
     ];
 
 }

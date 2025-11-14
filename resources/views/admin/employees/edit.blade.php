@@ -62,15 +62,10 @@
 
                     {{-- Buttons --}}
                     <div class="flex justify-between items-center mt-6">
-                        @if(Auth::user()->hasRole('Responsable de projet'))
-                            <a href="{{route('Responsable_de_projet.index')}}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 text-sm font-medium">Cancel</a>
-                        @elseif(Auth::user()->hasRole('Admin'))
-                            <a href="{{route('admin.index')}}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 text-sm font-medium">Cancel</a>
-                        @elseif(Auth::user()->hasRole('Employee'))
-                            <a href="{{route('employee.index')}}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 text-sm font-medium">Cancel</a>
-                        @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                            <a href="{{route('Responsable_gestionnaire.index')}}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 text-sm font-medium">Cancel</a>
-                        @endif
+                        <button type="button"  onclick="window.history.back()" 
+                           class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">
+                           Cancel
+                        </button>
                         <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-sm">
                             Save
                         </button>

@@ -88,12 +88,12 @@
                 {{-- Table Wrapper --}}
                 <div class="p-0"> {{-- No padding for edge-to-edge table --}}
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse min-w-full" id="tasksTable">
+                        <table class="w-full text-left border-collapse table-fixed" id="tasksTable">
                             <thead class="border-b border-gray-200 bg-gray-50">
                                 <tr>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Project / Task</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Teams</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Employees</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left" >Employees</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Duration</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Est. Hours</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Difference</th>
@@ -112,7 +112,7 @@
                                     @endphp
                                     {{-- Project Header Row --}}
                                     <tr class="bg-gray-100 project-header"> {{-- Class for filtering --}}
-                                        <td colspan="8" class="px-6 py-3 font-semibold text-gray-800 text-sm">
+                                        <td colspan="8" class="px-2 py-2 font-semibold text-gray-800 text-sm break-words">
                                             @php
                                                 $projectShowRoute = '#';
                                                 $canViewProject = $project && Auth::user()->can('View project'); // Check if project exists
@@ -138,7 +138,7 @@
                                     @foreach($projectTasks as $task)
                                         <tr class="hover:bg-gray-50 task-row"> {{-- Class for filtering --}}
                                             {{-- Task Title --}}
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 task-title"> 
+                                            <td class="px-6 py-4 whitespace-normal break-words text-sm font-medium text-gray-900 task-title"> 
                                                 @php
                                                     $taskShowRoute = '#';
                                                     $canViewTask = Auth::user()->can('View task');
@@ -187,8 +187,8 @@
                                                  </div>
                                             </td>
                                             {{-- Employees --}}
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <div class="flex flex-wrap gap-1">
+                                            <td class="px-6 py-4 whitespace-normal break-words text-sm text-gray-500">
+                                                <div class="flex flex-wrap gap-1.5">
                                                      @php
                                                          // Eager load employees for performance
                                                          $task_employees = App\Models\employees_tasks::with('employee')->where('task_id', $task->id)->get();

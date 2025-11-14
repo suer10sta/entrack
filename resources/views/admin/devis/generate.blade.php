@@ -7,8 +7,6 @@
     <title>New Devis - BizManager</title>
     @vite('resources/css/app.css')
     @livewireStyles
-
-    {{-- Custom styles from your target file --}}
     <style>
         select.form-select-custom {
             -webkit-appearance: none;
@@ -26,13 +24,7 @@
         option {
             color: #111827;
         }
-        .dropdown-menu {
-            display: none; 
-        }
-        .dropdown-menu.show {
-            display: block; 
-        }
-        /* Style from your original file */
+        
         #clientInputs {
             display: none;
         }
@@ -44,13 +36,13 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
             style="display: none; visibility: hidden"></iframe></noscript>
 
-    {{-- Sidebar Component (from target style) --}}
+    {{-- Sidebar Component --}}
     <x-dashboard.sidebar />
 
-    {{-- Main Wrapper (Navbar + Content) (from target style) --}}
+    {{-- Main Wrapper (Navbar + Content)  --}}
     <div class="flex flex-col flex-1 overflow-y-auto">
 
-        {{-- Navbar Component (from target style) --}}
+        {{-- Navbar Component  --}}
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
@@ -67,7 +59,7 @@
                 </div>
                 @endif
 
-                {{-- Main Card (from target style) --}}
+                {{-- Main Card --}}
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                     
                     {{-- Card Header --}}
@@ -232,28 +224,35 @@
                             
                             {{-- Existing Client & Contacts --}}
                             <div class="existing-client-section grid grid-cols-1 md:grid-cols-3 gap-6" style="display: {{ old('emails') === null ? 'grid' : 'none' }}">
-                                <div class="dropdown">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1" for="task-for-project">Client for Project:</label>
-                                    <input type="hidden" name="client" id="selectedClient">
-                                    
-                                    {{-- Bootstrap Dropdown, styled to look like Tailwind select --}}
-                                    <div class="relative">
-                                        <button class="relative w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2 px-3 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" type="button" id="ClientDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <span class="block truncate text-gray-500">Choose Client</span>
-                                            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.23 8.29a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
-                                            </span>
-                                        </button>
-                                        <ul class="dropdown-menu absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm" aria-labelledby="ClientDropdown">
-                                            <li><a class="dropdown-item text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 block" href="#" data-value="none">None</a></li>
-                                            @foreach($clients as $client)
-                                            <li><a class="dropdown-item text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 block" href="#" data-value="{{$client->id}}">
-                                                <span class="font-semibold">{{$client->client_number}}</span>-<span class="truncate">{{$client->name}}</span>
-                                            </a></li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                </div>
+                            <div class="dropdown relative">
+    <label class="block text-sm font-medium text-gray-700 mb-1" for="task-for-project">Client for Project:</label>
+    <input type="hidden" name="client" id="selectedClient">
+    
+    <div class="relative">
+        <button class="relative w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2 px-3 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                type="button" 
+                id="ClientDropdown" 
+                aria-haspopup="true" 
+                aria-expanded="false">
+            <span class="block truncate text-gray-500">Choose Client</span>
+            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.23 8.29a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+            </span>
+        </button>
+
+        {{-- Added 'hidden' class and 'z-50' --}}
+        <ul id="ClientDropdownMenu" class="hidden absolute z-50 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+            <li><a class="dropdown-item text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 block" href="#" data-value="none">None</a></li>
+            @foreach($clients as $client)
+            <li>
+                <a class="dropdown-item text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 block" href="#" data-value="{{$client->id}}">
+                    <span class="font-semibold">{{$client->client_number}}</span>-<span class="truncate">{{$client->name}}</span>
+                </a>
+            </li>
+            @endforeach
+        </ul>
+    </div>
+</div>
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-1" for="project-for-project">Contacts :</label>
                                     <div class="col-8" id="contactsDiv">
@@ -279,11 +278,10 @@
                                     Generate devis
                                 </button>
                             </div>
-
                         </form>
-                    </div> {{-- End p-6 --}}
-                </div> {{-- End Card --}}
-            </div> {{-- End max-w-4xl --}}
+                    </div> 
+                </div> 
+            </div> 
 
         </main>
     </div> {{-- End Main Wrapper --}}
@@ -336,54 +334,71 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // --- Elements ---
         const dropdownButton = document.getElementById('ClientDropdown');
-        const dropdownButtonText = dropdownButton.querySelector('span'); // Get the span inside the button
+        const dropdownMenu = document.getElementById('ClientDropdownMenu');
+        const dropdownButtonText = dropdownButton.querySelector('span'); 
         const selectedClientIdInput = document.getElementById('selectedClient');
         const newClientCheckbox = document.getElementById('newClientCheckbox');
         const clientInputs = document.getElementById('clientInputs');
         const existingClientSection = document.querySelector('.existing-client-section');
 
-        // Handle new client checkbox
+        // --- 1. Dropdown Toggle Logic (The Missing Part) ---
+        dropdownButton.addEventListener('click', function(e) {
+            e.stopPropagation(); // Stop click from closing immediately
+            dropdownMenu.classList.toggle('hidden');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+
+        // --- 2. Handle New Client Checkbox ---
         newClientCheckbox.addEventListener('change', function() {
             if (this.checked) {
                 clientInputs.style.display = 'block';
                 existingClientSection.style.display = 'none';
                 selectedClientIdInput.value = '';
-                // Clear contacts when switching to new client
+                // Clear contacts
                 document.getElementById('contactsDiv').innerHTML = '';
-                // Reset dropdown button
+                // Reset dropdown
                 dropdownButtonText.textContent = 'Choose Client';
                 dropdownButtonText.classList.add('text-gray-500');
             } else {
                 clientInputs.style.display = 'none';
-                existingClientSection.style.display = 'grid'; // Use 'grid' to match our layout
+                existingClientSection.style.display = 'grid';
             }
         });
 
-        // Handle client selection from dropdown
+        // --- 3. Handle Client Selection ---
         document.querySelectorAll('.dropdown-item').forEach(item => {
             item.addEventListener('click', function(event) {
                 event.preventDefault();
                 const clientId = event.currentTarget.getAttribute('data-value');
-                const clientName = event.currentTarget.textContent.trim(); // Use textContent and trim
+                // Get text cleanly (trim whitespace)
+                const clientName = event.currentTarget.textContent.replace(/\s+/g, ' ').trim();
 
                 if (clientId === 'none') {
-                    // **UPDATED** to set the span's text
                     dropdownButtonText.textContent = 'Choose Client';
-                    dropdownButtonText.classList.add('text-gray-500'); // Add placeholder color
+                    dropdownButtonText.classList.add('text-gray-500');
                     selectedClientIdInput.value = '';
                     document.getElementById('contactsDiv').innerHTML = '';
                 } else {
-                    // **UPDATED** to set the span's text
                     dropdownButtonText.textContent = clientName;
-                    dropdownButtonText.classList.remove('text-gray-500'); // Remove placeholder color
+                    dropdownButtonText.classList.remove('text-gray-500');
                     selectedClientIdInput.value = clientId;
                     loadContacts(clientId);
                 }
+                
+                // Close the menu after selection
+                dropdownMenu.classList.add('hidden');
             });
         });
 
-        // **UPDATED** Function to load contacts and generate Tailwind-styled checkboxes
+        // --- 4. Load Contacts Function ---
         function loadContacts(clientId) {
             let baseUrl = '';
             @if(Auth::user()->hasRole('Responsable de projet'))
@@ -401,12 +416,16 @@
                 type: 'GET',
                 success: function(data) {
                     const contactsDiv = $('#contactsDiv');
-                    contactsDiv.empty(); // Clear previous contacts
+                    contactsDiv.empty(); 
+
+                    if(data.length === 0) {
+                         contactsDiv.html('<p class="text-sm text-gray-500 mt-2">No contacts found.</p>');
+                         return;
+                    }
 
                     data.forEach(function(contact) {
-                        // **UPDATED** checkbox HTML with Tailwind classes
                         const checkbox = `
-                            <div class="flex items-center">
+                            <div class="flex items-center mt-2">
                                 <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" 
                                        name="contacts[]" 
                                        id="contact${contact.id}" 
@@ -420,7 +439,7 @@
                 },
                 error: function(xhr, status, error) {
                     console.error('Error loading contacts:', error);
-                    $('#contactsDiv').html('<div class="text-red-600 p-2">Error loading contacts</div>');
+                    $('#contactsDiv').html('<div class="text-red-600 text-sm p-2">Error loading contacts</div>');
                 }
             });
         }

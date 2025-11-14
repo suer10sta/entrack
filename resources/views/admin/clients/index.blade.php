@@ -70,116 +70,139 @@
 
                 {{-- Table Wrapper --}}
                 <div class="p-6">
-                    <div class="overflow-x-auto">
-                        <table id="example" class="w-full text-left border-collapse min-w-full">
-                            <thead class="border-b border-gray-200 bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Client N</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Name</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Email</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Phone</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Billing Address</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">VAT</th> {{-- Translated TVA --}}
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Due Date</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Address</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">City</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Zip</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Country</th>
-                                    @can('Delete client')
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Action</th>
-                                    @endcan
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                @forelse($clients as $client) {{-- Use forelse for empty state --}}
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="client_number">
-                                        {{$client->client_number}}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="name">
-                                         @php
-                                            $showRoute = '#';
-                                            $canView = Auth::user()->can('View client');
-                                            if ($canView) {
-                                                if (Auth::user()->hasRole('Responsable de projet')) $showRoute = route('Responsable_de_projet.clients.show', $client->id);
-                                                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $showRoute = route('Responsable_gestionnaire.clients.show', $client->id);
-                                                elseif (Auth::user()->hasRole('Admin')) $showRoute = route('admin.clients.show', $client->id);
-                                            }
-                                         @endphp
-                                         @if($canView)
-                                            <a href="{{ $showRoute }}" class="text-blue-600 hover:underline font-medium">
-                                              {{$client->name}}
-                                            </a>
-                                         @else
-                                            <span class="font-medium text-gray-900">{{$client->name}}</span>
-                                         @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="email">
-                                        {{$client->email}}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="phone">
-                                        {{$client->phone}}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="Billing_address">
-                                        {{$client->Billing_address}}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="TVA">
-                                        {{$client->TVA}}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="due_date">
-                                        {{$client->due_date}}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="address">
-                                        {{$client->address}}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="city">
-                                        {{$client->city}}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="zip">
-                                        {{$client->zip}}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-id="{{$client->id}}" data-column="country">
-                                        {{$client->country}}
-                                    </td>
+    <div class="overflow-x-auto">
+        <table id="example" class="w-full text-left border-collapse table-fixed">
+            <thead class="border-b border-gray-200 bg-gray-50">
+                <tr>
+                    {{-- Optimized column widths to fit all columns on screen --}}
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">N°</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">Name</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 14%;">Email</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">Phone</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 11%;">Billing Address</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">VAT</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 6%;">Due Date</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 12%;">Address</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 8%;">City</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">Zip</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">Country</th>
+                    @can('Delete client')
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 8%;">Action</th>
+                    @endcan
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                @forelse($clients as $client)
+                <tr class="hover:bg-gray-50">
+                    
+                    {{-- ID --}}
+                    <td class="px-3 py-5 text-sm text-gray-700 font-medium text-center">
+                        {{$client->client_number}}
+                    </td>
+                    
+                    {{-- Name --}}
+                    <td class="px-3 py-5 text-sm text-gray-700 font-medium whitespace-normal break-words">
+                         @php
+                            $showRoute = '#';
+                            $canView = Auth::user()->can('View client');
+                            if ($canView) {
+                                if (Auth::user()->hasRole('Responsable de projet')) $showRoute = route('Responsable_de_projet.clients.show', $client->id);
+                                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $showRoute = route('Responsable_gestionnaire.clients.show', $client->id);
+                                elseif (Auth::user()->hasRole('Admin')) $showRoute = route('admin.clients.show', $client->id);
+                            }
+                         @endphp
+                         @if($canView)
+                            <a href="{{ $showRoute }}" class="text-blue-600 hover:underline">
+                                {{$client->name}}
+                            </a>
+                         @else
+                            {{$client->name}}
+                         @endif
+                    </td>
 
-                                    @can('Delete client')
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                        @php
-                                            $client_has_invoice = \App\Models\invoices_history::where('client_id', $client->id)->exists();
-                                        @endphp
-                                        @if($client_has_invoice)
-                                           <div class="bg-red-100 border border-red-300 text-red-700 px-2 py-1 rounded text-xs font-medium inline-block whitespace-normal text-center">
-                                               Cannot delete:<br>Has invoices
-                                           </div>
-                                        @else
-                                            @php
-                                                $deleteRoute = '#';
-                                                if (Auth::user()->hasRole('Responsable de projet')) $deleteRoute = route('Responsable_de_projet.clients.destroy', $client->id);
-                                                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $deleteRoute = route('Responsable_gestionnaire.clients.destroy', $client->id);
-                                                elseif (Auth::user()->hasRole('Admin')) $deleteRoute = route('admin.clients.destroy', $client->id);
-                                            @endphp
-                                            <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Are you sure?');" class="inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs font-medium px-2.5 py-1 rounded-md">
-                                                   Delete
-                                                </button>
-                                            </form>
-                                        @endif
-                                    </td>
-                                    @endcan
-                                </tr>
-                                @empty {{-- Handle case where there are no clients --}}
-                                <tr>
-                                     <td colspan="12" class="px-6 py-4 text-center text-sm text-gray-500"> {{-- Span across all columns --}}
-                                         No clients found.
-                                     </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                    {{-- Email --}}
+                    <td class="px-3 py-5 text-sm text-gray-700 whitespace-normal break-all">
+                        {{$client->email}}
+                    </td>
+
+                    {{-- Phone --}}
+                    <td class="px-2 py-2.5 text-sm text-gray-700 whitespace-nowrap">
+                        {{$client->phone}}
+                    </td>
+
+                    {{-- Billing Address --}}
+                    <td class="px-2 py-2.5 text-sm text-gray-700 whitespace-normal break-words">
+                        {{$client->Billing_address}}
+                    </td>
+
+                    {{-- VAT --}}
+                    <td class="px-2 py-2.5 text-sm text-gray-700 text-center whitespace-nowrap">
+                        {{$client->TVA}}
+                    </td>
+
+                    {{-- Due Date --}}
+                    <td class="px-2 py-2.5 text-sm text-gray-700 text-center whitespace-nowrap">
+                        {{$client->due_date}}
+                    </td>
+
+                    {{-- Address --}}
+                    <td class="px-2 py-2.5 text-sm text-gray-700 whitespace-normal break-words">
+                        {{$client->address}}
+                    </td>
+
+                    {{-- City --}}
+                    <td class="px-2 py-2.5 text-sm text-gray-700 whitespace-normal">
+                        {{$client->city}}
+                    </td>
+
+                    {{-- Zip --}}
+                    <td class="px-2 py-2.5 text-sm text-gray-700 text-center whitespace-nowrap">
+                        {{$client->zip}}
+                    </td>
+
+                    {{-- Country --}}
+                    <td class="px-2 py-2.5 text-sm text-gray-700 whitespace-normal">
+                        {{$client->country}}
+                    </td>
+
+                    @can('Delete client')
+                    <td class="px-2 py-2.5 text-sm text-gray-700 text-center">
+                        @php
+                            $client_has_invoice = \App\Models\invoices_history::where('client_id', $client->id)->exists();
+                        @endphp
+                        @if($client_has_invoice)
+                           <div class="bg-red-50 border border-red-200 text-red-600 px-2 py-1 rounded text-[10px] font-medium leading-tight">
+                                Cannot delete:<br>Has invoices
+                           </div>
+                        @else
+                            @php
+                                $deleteRoute = '#';
+                                if (Auth::user()->hasRole('Responsable de projet')) $deleteRoute = route('Responsable_de_projet.clients.destroy', $client->id);
+                                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $deleteRoute = route('Responsable_gestionnaire.clients.destroy', $client->id);
+                                elseif (Auth::user()->hasRole('Admin')) $deleteRoute = route('admin.clients.destroy', $client->id);
+                            @endphp
+                            <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Are you sure?');" class="inline-block">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-3 py-1 rounded shadow-sm">
+                                    Delete
+                                </button>
+                            </form>
+                        @endif
+                    </td>
+                    @endcan
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="12" class="px-6 py-4 text-center text-sm text-gray-500">
+                         No clients found.
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
             </div>
 
         </main>

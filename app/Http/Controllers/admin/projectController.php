@@ -494,6 +494,7 @@ class projectController extends Controller
     {
         $invoice->Payment_status = true;
         $invoice->archived = 1;
+        $invoice->payment_date= now();
         $invoice->save();
 
         return redirect()->back()->with('message', 'invoice Marked Paid successfully');

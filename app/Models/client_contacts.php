@@ -15,10 +15,7 @@ class client_contacts extends Model
         'mobile_fix',
         'email',
         'address',
-        'is_comptable',
         'client_id',
-        'project_name',
-        'project_id',
         'entreprise_id',
     ];
 }
