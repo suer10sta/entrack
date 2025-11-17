@@ -1,106 +1,176 @@
 <style>
-body {
-    font-family: Arial, sans-serif;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 15px; 
-}
-
-th {
-    border: 1px solid black;
-    padding: 8px;
-    text-align: left;
-    font-family: Arial, sans-serif;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-td {
-    border: 1px solid black;
-    padding: 8px;
-    text-align: left;
-    font-family: Arial, sans-serif;
-    font-size: 11px;
-    font-weight: normal;
-}
-
-thead {
-    background-color: #686ce4;
-    color: white;
-}
-
-.company-logo {
-    width: 80px;
-    margin-right: 20px;
-}
-
-.details {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    position: relative;
-}
-
-.details-left {
-    width: 48%;
-    font-size: 12px;
-}
-
-.details-right {
-    width: 48%;
-    font-size: 12px;
-    text-align: right;
-    position: absolute;
-    right: 0;
-    top: 0;
-}
-
-.footer {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  position: fixed;
-  bottom: 0; /* Ensure footer sticks to the bottom */
-  left: 0; /* Align footer to the left */
-}
-
-.footer-left {
-  width: 48%;
-  font-size: 12px;
-}
-
-.footer-right {
-  width: 48%;
-  font-size: 12px;
-  text-align: right;
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-
-.page-number:before {
-    content: counter(page);
-}
-
-@media print {
-    th, td { 
-        font-size: 10px; 
+    /* [MODIFIED] Styles adapted for a flowing report */
+    body {
+        font-family: Tahoma, sans-serif;
+        font-size: 12px;
+        color: #333333;
+        background-color: #FFFFFF;
+        margin: 0;
+        padding: 0;
     }
+
+    /* [NEW] This wrapper constrains the width like an A4 page but allows content to flow in height */
+    .report-wrapper {
+        width: 595px;
+        min-height: 842px;
+        margin: 0 auto;
+        padding: 20px;
+        padding-bottom: 100px; /* Space for footer */
+        position: relative;
+    }
+
+    .header {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .header img {
+        width: 100px;
+        height: auto;
+    }
+
+    .details {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+    .details-left {
+        width: 48%;
+        font-size: 12px;
+    }
+
+    .details-right {
+        width: 48%;
+        font-size: 12px;
+        text-align: right;
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+
+    .invoice-number {
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid #CCCCCC;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        text-align: left;
+        font-size: 12px;
+        word-wrap: break-word; /* Allow long text to wrap */
+        vertical-align: top;
+    }
+
+    th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+
+    /* [MODIFIED] Footer is no longer fixed */
     .footer {
-        position: fixed;
-        bottom: 0;
+        width: 595px; /* Match report width */
+        margin: 0 auto; /* Center it */
+        padding: 20px; /* Match report padding */
+        padding-top: 20px;
+        box-sizing: border-box; /* Include padding in width */
+        border-top: 1px solid #000;
+        position: relative; /* Changed from fixed */
+    }
+
+    .footer-content {
+        position: relative;
+        width: 100%;
+        height: 50px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .footer-left {
+        position: absolute;
         left: 0;
+        text-align: left;
     }
-    .page-break {
-        page-break-before: always;
+
+    .footer-center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
     }
-}
-</style>
+
+    .footer-right {
+        position: absolute;
+        right: 0;
+        text-align: right;
+    }
+
+    .footer-text {
+        color: #333333;
+        line-height: 1.4;
+        font-size: 12px; 
+    }
+
+    .logo-right {
+        text-align: left;
+    }
+    
+    .company-logo {
+        width: 100px; /* From template */
+        height: auto;
+    }
+    
+    /* [NEW] Print-specific styles for flowing table */
+    @media print {
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .report-wrapper {
+            width: 100%;
+            padding: 20px;
+            margin: 0;
+            min-height: 0;
+            border: none;
+            page-break-after: avoid; /* Don't break after the main content */
+        }
+        
+        thead {
+            display: table-header-group; /* Repeat table header on each page */
+        }
+
+        tr, td, th {
+            page-break-inside: avoid; /* Try to keep rows from splitting */
+        }
+        
+        .footer {
+            width: 100%;
+            padding: 20px;
+            margin: 0;
+            position: static; /* Footer flows at the end */
+            page-break-before: always; /* Put footer on its own page if needed, or 'auto' */
+        }
+    }
+
+    </style>
 
 <div class="container">
     <div class="details">

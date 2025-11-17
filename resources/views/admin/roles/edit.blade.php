@@ -82,7 +82,8 @@
                                 <hr class="my-3 border-gray-200">
                                 {{-- FIN DE L'AJOUT --}}
 
-                                <div class="mt-4 space-y-3">
+                                {{-- [CHANGED] This div now uses grid --}}
+                                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
                                     @foreach($permissions as $per)
                                         @php
                                             $hasPermission = \App\Models\EnterpriseRolePermission::where('entreprise_id', Auth::user()->entreprise_id)
@@ -111,7 +112,7 @@
 
                         {{-- Pied de page de la Carte (Actions) --}}
                         <div class="p-6 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-3">
-                            <a href="{{ $cancelRoute }}" class="inline-flex justify-center bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm">
+                            <a href="javascript:history.back()" class="inline-flex justify-center bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm">
                                 Annuler
                             </a>
                             <button type="submit" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">

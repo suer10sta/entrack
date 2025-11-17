@@ -1,127 +1,212 @@
 <style>
-    /* --- Base & Typography --- */
     body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-family: Tahoma, sans-serif;
         font-size: 12px;
-        line-height: 1.5;
+        color: #333333;
+        background-color: #FFFFFF;
         margin: 0;
         padding: 0;
-        color: #333;
     }
 
-    .container {
-        width: 100%;
+    .page {
+        position: relative;
+        width: 595px;
+        min-height: 842px;
+        /* A4 height */
+        margin: 0 auto;
         padding: 20px;
+        page-break-after: always;
     }
 
-    h2,
-    h5 {
-        margin: 0 0 5px 0;
+    /* Remove page-break-after from the last page */
+    .page:last-of-type {
+        page-break-after: avoid;
     }
 
-    h2 {
-        font-size: 18px;
+    .header {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 20px;
     }
 
-    h5 {
-        font-size: 14px;
-        font-weight: normal;
-        color: #555;
-    }
-
-    /* --- Header / Details --- */
-    .details {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 30px;
-        /* Replaces the <br> tags */
-    }
-
-    .company-logo {
-        width: 80px;
+    .header img {
+        width: 100px;
         height: auto;
     }
 
-    .details-right {
-        text-align: right;
-    }
-
-    /* --- Table Styles --- */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        /* Key for boxed borders */
-        margin-bottom: 60px;
-        /* Space before footer */
-    }
-
-    /* Table Header */
-    thead {
-        background-color: #007bff;
-        /* Blue color */
-        color: white;
-    }
-
-    th {
-        border: 1px solid #0056b3;
-        /* Darker blue border */
-        padding: 10px;
-        font-size: 11px;
-        font-weight: 600;
-        text-align: left;
-        /* Changed to left to match original */
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    /* Table Body */
-    td {
-        border: 1px solid #ddd;
-        /* Light gray border for cells */
-        padding: 10px;
-        text-align: left;
-        font-size: 11px;
-    }
-
-    /* --- Footer --- */
-    .footer {
-        position: fixed;
-        /* Sticks to the bottom of the page */
-        bottom: 0;
-        left: 0;
+    .details {
         width: 100%;
         display: flex;
         justify-content: space-between;
-        font-size: 12px;
-        color: #777;
-        padding: 15px 20px;
-        box-sizing: border-box;
-        /* Include padding in width */
-        border-top: 1px solid #eee;
-        background: #fff;
+        margin-bottom: 20px;
+        position: relative;
     }
 
-    /* CSS counter for print/PDF page numbers */
-    .page-number::before {
+    .details-left {
+        width: 48%;
+        font-size: 12px;
+    }
+
+    .details-right {
+        width: 48%;
+        font-size: 12px;
+        text-align: right;
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+
+    .invoice-number {
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid #CCCCCC;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        text-align: left;
+        font-size: 12px;
+        word-wrap: break-word; /* Allow long text to wrap */
+    }
+
+    th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+
+    .totals {
+        border: none;
+        margin-top: 20px;
+        text-align: right;
+    }
+
+    .totals td {
+        border: none;
+    }
+
+    .description {
+        width: 100%;
+        text-align: justify;
+        font-size: 12px;
+        border-top: 2px double #CCCCCC;
+        border-bottom: 2px double #CCCCCC;
+        padding: 10px 0;
+        margin-bottom: 20px;
+    }
+
+    .payment {
+        width: 100%;
+        text-align: justify;
+        font-size: 12px;
+        margin-bottom: 20px;
+    }
+
+    .footer {
+        position: fixed;
+        bottom: 4px;
+        left: 20px; /* Match page padding */
+        right: 20px; /* Match page padding */
+        width: calc(100% - 40px); /* Account for left and right padding */
+        border-top: 1px solid #000;
+        padding-top: 20px;
+    }
+
+    .footer-content {
+        position: relative;
+        width: 100%;
+        height: 50px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .footer-left {
+        position: absolute;
+        left: 0;
+        text-align: left;
+    }
+
+    .footer-center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+    }
+
+    .footer-right {
+        position: absolute;
+        right: 0;
+        text-align: right;
+    }
+
+    .footer-text {
+        color: #333333;
+        line-height: 1.4;
+        font-size: 12px; /* Ensure footer text matches body */
+    }
+
+    .general-conditions {
+        text-align: justify;
+        line-height: 1.1;
+        font-size: 10px;
+        margin-bottom: 20px;
+        /* Space for footer */
+        white-space: pre-line;
+        /* Preserve line breaks */
+    }
+
+    .logo-right {
+        text-align: left;
+    }
+
+    /* Content wrapper to prevent overlap with footer */
+    .content-wrapper {
+        padding-bottom: 100px;
+        /* Space for footer */
+    }
+
+    .detailsTab {
+        border: none;
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    .task-cell {
+        width: 80%;
+        border: 0;
+        word-wrap: break-word;
+        padding-right: 20px;
+    }
+
+    .budget-cell {
+        width: 20%;
+        border: 0;
+        text-align: right;
+        white-space: nowrap;
+    }
+    
+    .company-logo {
+        width: 100px; /* From template */
+        height: auto;
+    }
+    
+    .page-number:before {
         content: counter(page);
     }
-
-    /* Media query for printing */
-    @media print {
-        th,
-        td {
-            font-size: 10px;
-            /* Smaller font for print */
-        }
-
-        .footer {
-            /* Ensures footer is on each printed page */
-            position: fixed;
-            bottom: 0;
-        }
-    }
-</style>
+    </style>
 
 <div class="container">
 

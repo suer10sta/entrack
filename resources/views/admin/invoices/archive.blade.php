@@ -120,19 +120,19 @@
                     </div>
 
                     {{-- Table --}}
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200" id="invoicesTable">
+                    <div>
+                        <table class="w-full text-left divide-y divide-gray-200 table" id="invoicesTable">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Facture N°</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom Projet</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TVA</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Créée le</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Paiement</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coût Total</th>
-                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase" style="width: 5%;">Facture N°</th>
+                                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase" style="width: 8%;">Nom Projet</th>
+                                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase" style="width: 3%;">TVA</th>
+                                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase" style="width: 5%;">Client</th>
+                                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase" style="width: 4%;">Type</th>
+                                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase" style="width: 7%;">Créée le</th>
+                                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase" style="width: 6%;">Date Paiement</th>
+                                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase" style="width: 4%;">Coût Total</th>
+                                    <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase" style="width: 6%;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -149,90 +149,85 @@
                                             {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
                                         </a>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{strtoupper($invoice->project_name)}}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ \App\Models\Project::find($invoice->project_id)->tva ?? 'N/A' }}%</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ \App\Models\Client::find($invoice->client_id)->name ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 capitalize">{{ $invoice->type }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ \Carbon\Carbon::parse($invoice->created_at)->format('Y-m-d') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    <td class="px-6 py-4 text-sm text-gray-700" >{{strtoupper($invoice->project_name)}}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">{{ \App\Models\Project::find($invoice->project_id)->tva ?? 'N/A' }}%</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">{{ \App\Models\Client::find($invoice->client_id)->name ?? 'N/A' }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700 capitalize">{{ $invoice->type }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">{{ \Carbon\Carbon::parse($invoice->created_at)->format('Y-m-d') }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">
                                         @if($invoice->Payment_status == 1 && !empty($invoice->payment_date))
                                             {{ \Carbon\Carbon::parse($invoice->payment_date)->format('Y-m-d') }}
                                         @else <span class="text-gray-400">-</span> @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">€{{ number_format($invoice->total_ttc, 2, ',', ' ') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
-                                        @php
-                                            $isPaid = $invoice->Payment_status == 1;
-                                            $isCreditNote = $invoice->Payment_status == -1;
-                                            // Define routes here as in your original code...
-                                            $activateRoute = ''; 
-                                            $deactivateRoute = '';
-                                            $reminderRouteBase = '';
-                                            $creditNoteRoute = '';
-                                            $detailedCreditNoteRoute = '';
-                                            
-                                            if(Auth::user()->hasRole('Admin')) {
-                                                $deactivateRoute = route('admin.invoice.deactivate', $invoice->id);
-                                                $activateRoute = route('admin.invoice.activate', $invoice->id);
-                                                $reminderRouteBase = 'admin.invoice.sendManualremind';
-                                                $creditNoteRoute = 'admin.invoice.creditNote';
-                                                $detailedCreditNoteRoute = 'admin.invoice.detailedCreditNote';
-                                            } elseif(Auth::user()->hasRole('Responsable de projet')) {
-                                                $deactivateRoute = route('Responsable_de_projet.invoice.deactivate', $invoice->id);
-                                                $activateRoute = route('Responsable_de_projet.invoice.activate', $invoice->id);
-                                                $reminderRouteBase = 'Responsable_de_projet.invoice.sendManualremind';
-                                                $creditNoteRoute = 'Responsable_de_projet.invoice.creditNote';
-                                                $detailedCreditNoteRoute = 'Responsable_de_projet.invoice.detailedCreditNote';
-                                            }
-                                            // ... add other roles
+                                    <td class="px-6 py-4 text-sm font-bold text-green-600">€{{ number_format($invoice->total_ttc, 2, ',', ' ') }}</td>
+                                    <td class="px-6 py-4 text-sm font-medium">
+                                        @php      
+                                        $isPaid = $invoice->Payment_status == 1;
+                                        $isCreditNote = $invoice->Payment_status == -1;
+                                        // ... all your route logic ...
+                                        $activateRoute = ''; 
+                                        $deactivateRoute = '';
+                                        $reminderRouteBase = '';
+                                        $creditNoteRoute = '';
+                                        $detailedCreditNoteRoute = '';
+                                        if(Auth::user()->hasRole('Admin')) {
+                                            $deactivateRoute = route('admin.invoice.deactivate', $invoice->id);
+                                            $activateRoute = route('admin.invoice.activate', $invoice->id);
+                                            $reminderRouteBase = 'admin.invoice.sendManualremind';
+                                            $creditNoteRoute = 'admin.invoice.creditNote';
+                                            $detailedCreditNoteRoute = 'admin.invoice.detailedCreditNote';
+                                        } elseif(Auth::user()->hasRole('Responsable de projet')) {
+                                            $deactivateRoute = route('Responsable_de_projet.invoice.deactivate', $invoice->id);
+                                            $activateRoute = route('Responsable_de_projet.invoice.activate', $invoice->id);
+                                            $reminderRouteBase = 'Responsable_de_projet.invoice.sendManualremind';
+                                            $creditNoteRoute = 'Responsable_de_projet.invoice.creditNote';
+                                            $detailedCreditNoteRoute = 'Responsable_de_projet.invoice.detailedCreditNote';
+                                        }
+                                        // ...   
                                         @endphp
-
-                                        @if($isCreditNote)
+                                        
+                                        <div class="flex flex-col items-center gap-1"> 
+                                            @if($isCreditNote)
                                             <span class="credit-note-text px-3 py-1 text-xs font-semibold rounded-full">Note de Crédit</span>
-                                        @elseif($isPaid)
-                                            <form action="{{ $deactivateRoute }}" method="post" onsubmit="return confirm('Êtes-vous sûr ?');" class="inline-block">
-                                                @csrf <button type="submit" class="payment-button px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-medium">Payé</button>
+                                            @elseif($isPaid)
+                                            <form action="{{ $deactivateRoute }}" method="post" onsubmit="return confirm('Êtes-vous sûr ?');" class="inline-block w-full">
+                                                @csrf <button type="submit" class="payment-button px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-medium w-full">Payé</button>
                                             </form>
-                                        @else
-                                            <form action="{{ $activateRoute }}" method="post" onsubmit="return confirm('Êtes-vous sûr ?');" class="inline-block">
-                                                @csrf <button type="submit" class="payment-button px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium">Impayé</button>
-                                            </form>
+                                            @else
+                                            <form action="{{ $activateRoute }}" method="post" onsubmit="return confirm('Êtes-vous sûr ?');" class="inline-block w-full">
+                                            @csrf <button type="submit" class="payment-button px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium w-full">Impayé</button>
+                                        </form>
                                         @endif
-
-                                        {{-- [CHANGED] Button triggers Alpine Event --}}
-                                        <button type="button" class="px-3 py-1 bg-gray-700 hover:bg-gray-800 text-white rounded-lg text-xs font-medium"
-                                                @click="$dispatch('open-send-modal', { invoiceId: {{ $invoice->id }} })">
+        
+                                        <button type="button" class="px-3 py-1 bg-gray-700 hover:bg-gray-800 text-white rounded-lg text-xs font-medium w-full"
+                                            @click="$dispatch('open-send-modal', { invoiceId: {{ $invoice->id }} })">
                                             {{ $invoice->sentInvoice == 0 ? 'Envoyer' : 'Renvoyer' }}
                                         </button>
-
-                                        {{-- Dropdowns (Rappel & Credit Note) --}}
                                         @if(!$isPaid && !$isCreditNote && Auth::user()->can('Send invoice'))
-                                            <div class="inline-block relative" x-data="{ open: false }" @click.outside="open = false">
-                                                <button @click="open = !open" class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-xs font-medium">
-                                                    Rappel <svg class="inline-block w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                                                </button>
-                                                <ul x-show="open" x-transition class="absolute z-10 right-0 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5" style="display: none;">
-                                                    <li><a href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 1]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Rappel 1</a></li>
-                                                    <li><a href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 2]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Rappel 2</a></li>
-                                                    <li><a href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 3]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Rappel 3</a></li>
-                                                </ul>
-                                            </div>
+                                        <div class="inline-block relative w-full" x-data="{ open: false }" @click.outside="open = false">
+                                            <button @click="open = !open" class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-xs font-medium w-full">
+                                                Rappel <svg class="inline-block w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                            </button>
+                                            <ul x-show="open" x-transition class="absolute z-10 right-0 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5" style="display: none;">
+                                            <li><a href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 1]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Rappel 1</a></li>
+                                            <li><a href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 2]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Rappel 2</a></li>
+                                            <li><a href="{{ route($reminderRouteBase, ['id' => $invoice->id, 'reminder' => 3]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Rappel 3</a></li>
+                                            </ul>        
+                                        </div>
                                         @endif
-
-                                        <div class="inline-block relative" x-data="{ open: false }" @click.outside="open = false">
-                                            <button @click="open = !open" class="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-medium">
+                                        <div class="inline-block relative w-full" x-data="{ open: false }" @click.outside="open = false">
+                                            <button @click="open = !open" class="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-medium w-full">
                                                 Crédit <svg class="inline-block w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                                             </button>
                                             <ul x-show="open" x-transition class="absolute z-10 right-0 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5" style="display: none;">
-                                                {{-- [CHANGED] Trigger Partial Modal via Alpine --}}
                                                 <li><a href="#" @click.prevent="$dispatch('open-partial-modal', { invoiceId: {{ $invoice->id }}, totalCost: {{ $invoice->total_ttc }} }); open = false" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Partielle</a></li>
-                                                
                                                 @if($invoice->type == 'Detailed')
-                                                    <li><a href="{{ route($detailedCreditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Complète</a></li>
+                                                <li><a href="{{ route($detailedCreditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Complète</a></li>
                                                 @else
-                                                    <li><a href="{{ route($creditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Complète</a></li>
+                                                <li><a href="{{ route($creditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Complète</a></li>
                                                 @endif
                                             </ul>
+                                        </div>                    
                                         </div>
                                     </td>
                                 </tr>
@@ -244,12 +239,6 @@
             </div>
         </main>
     </div>
-
-    {{-- 
-        =============================================
-        NEW TAILWIND / ALPINE MODALS (Replaces Bootstrap)
-        =============================================
-    --}}
 
     {{-- 1. PARTIAL CREDIT NOTE MODAL --}}
     <div x-data="{ show: false, invoiceId: null, totalCost: 0, amount: '' }"
@@ -317,7 +306,6 @@
     </div>
 
     @livewireScripts
-    {{-- No Bootstrap JS here anymore --}}
     @include('dashboard_layouts.scripts')
     <script src="//unpkg.com/alpinejs" defer></script>
 

@@ -8,7 +8,7 @@
     @livewireStyles
 </head>
 
-<body class="bg-gradient-to-br from-slate-50 to-slate-100 flex h-screen overflow-hidden">
+<body class="bg-gray-50 flex h-screen overflow-hidden">
 
     {{-- Sidebar --}}
     <x-dashboard.sidebar />
@@ -18,7 +18,7 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <main class="p-8 min-h-screen ml-0 lg:ml-64 transition-all duration-300">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8">
 
             <div class="max-w-7xl mx-auto">
 

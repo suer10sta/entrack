@@ -295,30 +295,9 @@
                         
                         {{-- Preserving your original @if logic for user roles --}}
                         <div class="flex justify-end items-center gap-x-4 mt-8 pt-6 border-t border-gray-200">
-                            @if(Auth::user()->hasRole('Responsable de projet'))
-                                <a class='rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50' 
-                                   href="{{route('Responsable_de_projet.devis.devishistory')}}">
-                                    Cancel
-                                </a>
-                            @endif
-                            @if(Auth::user()->hasRole('Admin'))
-                                <a class='rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50' 
-                                   href="{{route('admin.devis.devishistory')}}">
-                                    Cancel
-                                </a>
-                            @endif
-                            @if(Auth::user()->hasRole('Employee'))
-                                <a class='rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50' 
-                                   href="{{route('employee.devis.devishistory')}}">
-                                    Cancel
-                                </a>
-                            @endif
-                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                <a class='rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50' 
-                                   href="{{route('Responsable_gestionnaire.devis.devishistory')}}">
-                                    Cancel
-                                </a>
-                            @endif
+                           <a href="javascript:history.back()" class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm'>
+                           Cancel
+                        </a>
                             
                             <button type="submit" name="button" 
                                     class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">

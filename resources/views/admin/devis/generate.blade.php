@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Devis - BizManager</title>
+    <title>New Quote - BizManager</title>
     @vite('resources/css/app.css')
     @livewireStyles
     <style>
@@ -50,7 +50,7 @@
 
             <div class="w-full max-w-4xl mx-auto">
 
-                {{-- Session Message (Bootstrap alert translated to Tailwind) --}}
+                {{-- Session Message --}}
                 @if(session('message'))
                 <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
                     <strong class="font-bold">Success!</strong>
@@ -64,14 +64,14 @@
                     
                     {{-- Card Header --}}
                     <div class="p-6 border-b border-gray-200">
-                        <h6 class="text-lg font-semibold text-gray-900">New Devis</h6>
-                        <p class="text-sm text-gray-600 mt-1">Create new Offre</p>
+                        <h6 class="text-lg font-semibold text-gray-900">New Quote</h6>
+                        <p class="text-sm text-gray-600 mt-1">Create new Offer</p>
                     </div>
 
                     {{-- Card Body --}}
                     <div class="p-6">
                         
-                        {{-- Form (retains original logic) --}}
+                        {{-- Form --}}
                         @if(Auth::user()->hasRole('Responsable de projet'))
                         <form id="devisForm" method="POST" action="{{route('Responsable_de_projet.devis.saveDevisPdf')}}" autocomplete="off">
                         @endif
@@ -86,7 +86,7 @@
                         @endif
                             @csrf
 
-                            {{-- Project Type Row (Bootstrap row/col-* translated to Tailwind grid) --}}
+                            {{-- Project Type Row --}}
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <label for="projectType" class="block text-sm font-medium text-gray-700 mb-1">Select Project Type <span class="text-red-600">*</span></label>
@@ -111,7 +111,7 @@
                                 </div>
                             </div>
 
-                            {{-- Project Details Row (Bootstrap row/col-* translated to Tailwind grid) --}}
+                            {{-- Project Details Row --}}
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                                 <div>
                                     <label for="projectBudget" class="block text-sm font-medium text-gray-700 mb-1">Total Budget</label>
@@ -127,15 +127,41 @@
                                 </div>
                             </div>
 
+                            {{-- Quote Type Row --}}
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                                <div>
+                                    <label for="devisType" class="block text-sm font-medium text-gray-700 mb-1">Quote Type <span class="text-red-600">*</span></label>
+                                    <select class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom" 
+                                            id="devisType" name="devis_type" onchange="toggleDevisInputs()" required>
+                                        <option value="forfait" selected>Fixed Price</option>
+                                        <option value="horaire">Hourly</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {{-- Hidden Hourly Inputs --}}
+                            <div id="horaireInputs" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6" style="display: none;">
+                                <div>
+                                    <label for="nombreHeures" class="block text-sm font-medium text-gray-700 mb-1">Number of hours</label>
+                                    <input type="number" step="0.01" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" 
+                                           id="nombreHeures" name="nombre_heures" oninput="calculateTotalBudget()">
+                                </div>
+                                <div>
+                                    <label for="tarifHoraire" class="block text-sm font-medium text-gray-700 mb-1">Hourly rate (€)</label>
+                                    <input type="number" step="0.01" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" 
+                                           id="tarifHoraire" name="tarif_horaire" oninput="calculateTotalBudget()">
+                                </div>
+                            </div>
+
                             {{-- Description --}}
                             <div class="mt-6">
-                                <label for="projectDescription" class="block text-sm font-medium text-gray-700 mb-1">Devis Description <span class="text-red-600">*</span></label>
+                                <label for="projectDescription" class="block text-sm font-medium text-gray-700 mb-1">Quote Description <span class="text-red-600">*</span></label>
                                 <textarea class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" id="projectDescription" rows="5" name="description"></textarea>
                             </div>
                             
-                            {{-- Dynamic Inputs --}}
-                            <div class="mt-6">
-                                <label class="block text-base font-semibold text-gray-800 mb-2">Devis Details</label>
+                            {{-- Dynamic Inputs (Tasks) --}}
+                            <div id="devisDetailsSection" class="mt-6">
+                                <label class="block text-base font-semibold text-gray-800 mb-2">Quote Details</label>
                                 <div id="dynamicInput" class="space-y-4">
                                     {{-- Initial Row --}}
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border border-gray-200 rounded-lg">
@@ -149,7 +175,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                {{-- Add/Delete Buttons (styled like target file) --}}
+                                {{-- Add/Delete Buttons --}}
                                 <div class="flex space-x-2 mt-4">
                                     <button type="button" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm" onclick="addInput('dynamicInput');">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>
@@ -168,7 +194,7 @@
                             {{-- Client Informations --}}
                             <h5 class="text-lg font-semibold text-gray-900 mb-4">Client Information</h5>
                             
-                            {{-- New Client Checkbox (Tailwind styled) --}}
+                            {{-- New Client Checkbox --}}
                             <div class="flex items-center mb-4">
                                 <input type="checkbox" id="newClientCheckbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                 <label for="newClientCheckbox" class="ml-2 block text-sm font-medium text-gray-900">New Client</label>
@@ -212,47 +238,46 @@
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Country : <span class="text-red-600">*</span></label>
-                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="Contry" name="newclient_country" />
+                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="Country" name="newclient_country" />
                                     </div>
                                 </div>
                                 <div class="pt-4">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Emails </label>
                                     <textarea class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" id="emails" name="emails" rows="4"></textarea>
-                                    <p class="text-sm text-gray-500 mt-1">Entrez les adresses Email de vos différents destinataires séparés par virgule</p>
+                                    <p class="text-sm text-gray-500 mt-1">Enter recipient email addresses, separated by commas</p>
                                 </div>
                             </div>
                             
                             {{-- Existing Client & Contacts --}}
                             <div class="existing-client-section grid grid-cols-1 md:grid-cols-3 gap-6" style="display: {{ old('emails') === null ? 'grid' : 'none' }}">
-                            <div class="dropdown relative">
-    <label class="block text-sm font-medium text-gray-700 mb-1" for="task-for-project">Client for Project:</label>
-    <input type="hidden" name="client" id="selectedClient">
-    
-    <div class="relative">
-        <button class="relative w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2 px-3 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
-                type="button" 
-                id="ClientDropdown" 
-                aria-haspopup="true" 
-                aria-expanded="false">
-            <span class="block truncate text-gray-500">Choose Client</span>
-            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.23 8.29a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
-            </span>
-        </button>
+                                <div class="dropdown relative">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1" for="task-for-project">Client for Project:</label>
+                                    <input type="hidden" name="client" id="selectedClient">
+                                    
+                                    <div class="relative">
+                                        <button class="relative w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2 px-3 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                                                type="button" 
+                                                id="ClientDropdown" 
+                                                aria-haspopup="true" 
+                                                aria-expanded="false">
+                                            <span class="block truncate text-gray-500">Choose Client</span>
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.23 8.29a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+                                            </span>
+                                        </button>
 
-        {{-- Added 'hidden' class and 'z-50' --}}
-        <ul id="ClientDropdownMenu" class="hidden absolute z-50 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-            <li><a class="dropdown-item text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 block" href="#" data-value="none">None</a></li>
-            @foreach($clients as $client)
-            <li>
-                <a class="dropdown-item text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 block" href="#" data-value="{{$client->id}}">
-                    <span class="font-semibold">{{$client->client_number}}</span>-<span class="truncate">{{$client->name}}</span>
-                </a>
-            </li>
-            @endforeach
-        </ul>
-    </div>
-</div>
+                                        <ul id="ClientDropdownMenu" class="hidden absolute z-50 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                                            <li><a class="dropdown-item text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 block" href="#" data-value="none">None</a></li>
+                                            @foreach($clients as $client)
+                                            <li>
+                                                <a class="dropdown-item text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 block" href="#" data-value="{{$client->id}}">
+                                                    <span class="font-semibold">{{$client->client_number}}</span>-<span class="truncate">{{$client->name}}</span>
+                                                </a>
+                                            </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-1" for="project-for-project">Contacts :</label>
                                     <div class="col-8" id="contactsDiv">
@@ -260,7 +285,7 @@
                                 </div>
                             </div>
 
-                            {{-- Form Actions (styled like target file) --}}
+                            {{-- Form Actions --}}
                             <div class="flex justify-end items-center mt-8 pt-6 border-t border-gray-200 space-x-3">
                                 @if(Auth::user()->hasRole('Responsable de projet'))
                                     <a class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300' href="{{route('Responsable_de_projet.index')}}">Cancel</a>
@@ -275,7 +300,7 @@
                                     <a class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300' href="{{route('Responsable_gestionnaire.index')}}">Cancel</a>
                                 @endif
                                 <button type="submit" name="button" class="bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2.5 rounded-lg">
-                                    Generate devis
+                                    Generate Quote
                                 </button>
                             </div>
                         </form>
@@ -287,9 +312,7 @@
     </div> {{-- End Main Wrapper --}}
 
     @livewireScripts
-    {{-- Scripts from your original file --}}
     @include('dashboard_layouts.scripts')
-    {{-- jQuery is required for the $.ajax call in your original scripts --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
@@ -301,12 +324,10 @@
         }
     });
 
-    // **UPDATED** AddInput function to generate Tailwind-styled HTML
+    // Add/Remove Task Inputs
     function addInput(divName) {
         var newdiv = document.createElement('div');
-        // Set class for the new row
         newdiv.className = 'grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border border-gray-200 rounded-lg';
-        // Set inner HTML with Tailwind-styled inputs
         newdiv.innerHTML =
             '<div>' +
                 '<textarea class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" name="task[]" rows="3"></textarea>' +
@@ -316,16 +337,13 @@
             '</div>';
         
         document.getElementById(divName).appendChild(newdiv);
-
-        // Add event listener to the new input
         const newTaskBudgetInput = newdiv.querySelector('.taskBudget');
         newTaskBudgetInput.addEventListener('input', updateProjectBudget);
     }
 
-    // Modify the removeInput function to update the budget after removing an input
     function removeInput(divName) {
         var div = document.getElementById(divName);
-        if (div.children.length > 1) { // prevent removing initial set of inputs
+        if (div.children.length > 1) {
             div.removeChild(div.lastChild);
             updateProjectBudget();
         }
@@ -333,8 +351,8 @@
 </script>
 
 <script>
+    // Client & Contact Logic
     document.addEventListener('DOMContentLoaded', function() {
-        // --- Elements ---
         const dropdownButton = document.getElementById('ClientDropdown');
         const dropdownMenu = document.getElementById('ClientDropdownMenu');
         const dropdownButtonText = dropdownButton.querySelector('span'); 
@@ -343,28 +361,23 @@
         const clientInputs = document.getElementById('clientInputs');
         const existingClientSection = document.querySelector('.existing-client-section');
 
-        // --- 1. Dropdown Toggle Logic (The Missing Part) ---
         dropdownButton.addEventListener('click', function(e) {
-            e.stopPropagation(); // Stop click from closing immediately
+            e.stopPropagation();
             dropdownMenu.classList.toggle('hidden');
         });
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
             if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
                 dropdownMenu.classList.add('hidden');
             }
         });
 
-        // --- 2. Handle New Client Checkbox ---
         newClientCheckbox.addEventListener('change', function() {
             if (this.checked) {
                 clientInputs.style.display = 'block';
                 existingClientSection.style.display = 'none';
                 selectedClientIdInput.value = '';
-                // Clear contacts
                 document.getElementById('contactsDiv').innerHTML = '';
-                // Reset dropdown
                 dropdownButtonText.textContent = 'Choose Client';
                 dropdownButtonText.classList.add('text-gray-500');
             } else {
@@ -373,12 +386,10 @@
             }
         });
 
-        // --- 3. Handle Client Selection ---
         document.querySelectorAll('.dropdown-item').forEach(item => {
             item.addEventListener('click', function(event) {
                 event.preventDefault();
                 const clientId = event.currentTarget.getAttribute('data-value');
-                // Get text cleanly (trim whitespace)
                 const clientName = event.currentTarget.textContent.replace(/\s+/g, ' ').trim();
 
                 if (clientId === 'none') {
@@ -392,13 +403,10 @@
                     selectedClientIdInput.value = clientId;
                     loadContacts(clientId);
                 }
-                
-                // Close the menu after selection
                 dropdownMenu.classList.add('hidden');
             });
         });
 
-        // --- 4. Load Contacts Function ---
         function loadContacts(clientId) {
             let baseUrl = '';
             @if(Auth::user()->hasRole('Responsable de projet'))
@@ -417,19 +425,15 @@
                 success: function(data) {
                     const contactsDiv = $('#contactsDiv');
                     contactsDiv.empty(); 
-
                     if(data.length === 0) {
                          contactsDiv.html('<p class="text-sm text-gray-500 mt-2">No contacts found.</p>');
                          return;
                     }
-
                     data.forEach(function(contact) {
                         const checkbox = `
                             <div class="flex items-center mt-2">
                                 <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" 
-                                       name="contacts[]" 
-                                       id="contact${contact.id}" 
-                                       value="${contact.id}">
+                                       name="contacts[]" id="contact${contact.id}" value="${contact.id}">
                                 <label class="ml-2 block text-sm text-gray-900" for="contact${contact.id}">
                                     ${contact.name}
                                 </label>
@@ -447,23 +451,61 @@
 </script>
 
 <script>
-    // Update total budget when task budgets change
-    function updateProjectBudget() {
-        let totalBudget = 0;
-        document.querySelectorAll('.taskBudget').forEach(function(input) {
-            let value = parseFloat(input.value);
-            if (!isNaN(value)) {
-                totalBudget += value;
-            }
-        });
-        document.getElementById('projectBudget').value = totalBudget.toFixed(2);
+    // **Budget & Type Switching Logic**
+
+    // Calculates budget from hours * rate
+    function calculateTotalBudget() {
+        const devisType = document.getElementById('devisType').value;
+        if (devisType === 'horaire') {
+            const heures = parseFloat(document.getElementById('nombreHeures').value) || 0;
+            const tarif = parseFloat(document.getElementById('tarifHoraire').value) || 0;
+            const total = heures * tarif;
+            document.getElementById('projectBudget').value = total.toFixed(2);
+        }
     }
+
+    // Calculates budget from task list
+    function updateProjectBudget() {
+        const devisType = document.getElementById('devisType').value;
+        if (devisType === 'forfait') { 
+            let totalBudget = 0;
+            document.querySelectorAll('.taskBudget').forEach(function(input) {
+                let value = parseFloat(input.value);
+                if (!isNaN(value)) {
+                    totalBudget += value;
+                }
+            });
+            document.getElementById('projectBudget').value = totalBudget.toFixed(2);
+        }
+    }
+    
     // Add event listeners to all initial task budget inputs
     document.querySelectorAll('.taskBudget').forEach(function(input) {
         input.addEventListener('input', updateProjectBudget);
     });
 
-    // Toggle between New/Existing project inputs
+    // Toggles input visibility based on Quote Type
+    function toggleDevisInputs() {
+        const devisType = document.getElementById('devisType').value;
+        const horaireInputs = document.getElementById('horaireInputs');
+        const devisDetails = document.getElementById('devisDetailsSection');
+        const projectBudgetInput = document.getElementById('projectBudget');
+
+        if (devisType === 'horaire') {
+            horaireInputs.style.display = 'grid';
+            devisDetails.style.display = 'none';
+            projectBudgetInput.readOnly = true; 
+            calculateTotalBudget();
+        } else { // 'forfait'
+            horaireInputs.style.display = 'none';
+            devisDetails.style.display = 'block';
+            projectBudgetInput.readOnly = true;
+            updateProjectBudget();
+        }
+    }
+
+    // **Project Type Switching Logic**
+
     function toggleProjectInputs() {
         var projectType = document.getElementById('projectType').value;
         var projectNameInput = document.getElementById('projectName');
@@ -471,11 +513,10 @@
 
         if (projectType === 'new') {
             projectNameInput.disabled = false;
-            projectNameInput.classList.remove('bg-gray-100'); // Make it look editable
+            projectNameInput.classList.remove('bg-gray-100');
             existingProjectNameInput.disabled = true;
-            existingProjectNameInput.classList.add('bg-gray-100'); // Make it look disabled
+            existingProjectNameInput.classList.add('bg-gray-100');
             existingProjectNameInput.value = '';
-            // Clear existing project details
             document.getElementById('projectTva').value = '';
             document.getElementById('costPerHour').value = '';
         } else if (projectType === 'existing') {
@@ -491,13 +532,11 @@
             existingProjectNameInput.disabled = true;
             existingProjectNameInput.classList.add('bg-gray-100');
             existingProjectNameInput.value = '';
-            // Clear existing project details
             document.getElementById('projectTva').value = '';
             document.getElementById('costPerHour').value = '';
         }
     }
 
-    // Populate details when an existing project is selected
     function populateProjectDetails() {
         var existingProjectSelect = document.getElementById('existingProjectName');
         var selectedOption = existingProjectSelect.options[existingProjectSelect.selectedIndex];

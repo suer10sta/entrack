@@ -78,11 +78,11 @@
                     <table class="w-full min-w-full divide-y divide-gray-200" >
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Note N</th>
-                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee Name</th>
-                                <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Budget</th>
-                                <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Created at</th>
-                                <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Note N</th>
+                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Employee Name</th>
+                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase tracking-wider">Budget</th>
+                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider">Created at</th>
+                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -91,7 +91,7 @@
                             {{-- Corrected variable from $d to $note --}}
                             {{-- Removed the 'sent' check as 'note_de_frais' might not have a 'sent' status like devis/invoices --}}
                             <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                <td class="px-4 py-3 text-blue-600 whitespace-nowrap text-sm">
                                     {{-- Use devis-link-normal style --}}
                                     @php $noteNumberDisplay = $entreprise->notedefraisPrefix . '-' . date('ymd', strtotime($note->created_at)) . $note->note_number; @endphp {{-- Changed date format --}}
                                     @php $downloadRoute = '#'; @endphp
@@ -105,15 +105,14 @@
                                     {{$note->employee_name}}
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 text-right">
-                                    {{number_format($note->budget, 2, ',', '')}}€ {{-- Format like screenshot --}}
+                                    {{number_format($note->budget, 2, ',', '')}}€ 
                                 </td>
                                 <td class="px-4 py-3 text-sm text-gray-500 text-center">
-                                    {{ $note->created_at ? \Carbon\Carbon::parse($note->created_at)->format('Y-m-d H:i:s') : '' }} {{-- Format like screenshot --}}
+                                    {{ $note->created_at ? \Carbon\Carbon::parse($note->created_at)->format('Y-m-d H:i:s') : '' }} 
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm text-right">
                                     {{-- Action Buttons - styled like screenshot --}}
-                                    <div class="flex items-center justify-end gap-2"> {{-- Adjusted gap --}}
-                                        {{-- Simplified Action Buttons based on previous logic --}}
+                                    <div class="flex items-center justify-end gap-2"> 
                                         @php $dlRoute = '#'; $delRoute = '#'; @endphp
                                         @if(Auth::user()->hasRole('Admin'))
                                             @php
@@ -146,13 +145,13 @@
                                     </div>
                                 </td>
                             </tr>
-                            @empty {{-- This block runs if $notedefrais is empty --}}
+                            @empty 
                                 <tr>
                                     <td colspan="5" class="text-center px-4 py-6 text-gray-500">
                                         No expense notes found matching your criteria.
                                     </td>
                                 </tr>
-                            @endforelse {{-- End @forelse --}}
+                            @endforelse 
                         </tbody>
                     </table>
                 </div>
@@ -160,47 +159,110 @@
 
         </main>
     </div>
-    {{-- SCRIPTS --}}
+
     @livewireScripts
-    {{-- Include Bootstrap JS ONLY if needed for other components --}}
-    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script> --}}
     @include('dashboard_layouts.scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="//unpkg.com/alpinejs" defer></script>
-
-    {{-- Unused export script --}}
+    
     <script>
-    document.getElementById('exportBtn')?.addEventListener('click', function() { /* ... unchanged ... */ });
-    </script>
+         document.addEventListener('DOMContentLoaded', function() {
+            const reportModal = document.getElementById('openDevisReportModal'); // Button to open
+            // Note: Your modal HTML is missing, so this script assumes it exists with ID 'devisReportModal'
+            const devisReportModal = document.getElementById('devisReportModal'); 
+            
+            if (reportModal && devisReportModal) {
+                reportModal.addEventListener('click', () => {
+                    devisReportModal.classList.remove('hidden');
+                });
+                
+                // Add logic for your modal's close/cancel buttons
+                document.getElementById('closeDevisReportModal')?.addEventListener('click', () => devisReportModal.classList.add('hidden'));
+                document.getElementById('cancelDevisReportBtn')?.addEventListener('click', () => devisReportModal.classList.add('hidden'));
+                
+                // Add logic for confirm button
+                document.getElementById('confirmDevisReport')?.addEventListener('click', function() {
+                     let baseUrl = '';
+                     @if(Auth::user()->hasRole('Responsable de projet')) baseUrl = "{{route('Responsable_de_projet.notedefrais.downloadRepports')}}"; @endif
+                     @if(Auth::user()->hasRole('Admin')) baseUrl = "{{route('admin.notedefrais.downloadRepports')}}"; @endif
+                     @if(Auth::user()->hasRole('Employee')) baseUrl = "{{route('employee.notedefrais.downloadRepports')}}"; @endif
+                     @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) baseUrl = "{{route('Responsable_gestionnaire.notedefrais.downloadRepports')}}"; @endif
 
-    {{-- Alpine.js date picker script (for Report button) --}}
-<script>
-        function datePicker() {
-            return {
-                // Use visible input values directly now
-                startDate: document.getElementById('startDateDisplay')?.value || '', // Initialize from display input
-                endDate: document.getElementById('endDateDisplay')?.value || '', // Initialize from display input
-                updateHref() {
-                    let baseUrl = '';
-                    @if(Auth::user()->hasRole('Responsable de projet')) baseUrl = "{{route('Responsable_de_projet.notedefrais.downloadRepports')}}"; @endif
-                    @if(Auth::user()->hasRole('Admin')) baseUrl = "{{route('admin.notedefrais.downloadRepports')}}"; @endif
-                    @if(Auth::user()->hasRole('Employee')) baseUrl = "{{route('employee.notedefrais.downloadRepports')}}"; @endif
-                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) baseUrl = "{{route('Responsable_gestionnaire.notedefrais.downloadRepports')}}"; @endif
-
+                    const startDate = document.getElementById('startDate').value;
+                    const endDate = document.getElementById('endDate').value;
                     let urlWithParams = baseUrl;
-                    // Read directly from Alpine model which is bound to the inputs
-                    if (this.startDate && this.endDate) {
-                         urlWithParams += `?startDate=${this.startDate}&endDate=${this.endDate}`;
-                    } else if (this.startDate || this.endDate) {
-                        alert('Please select both a Start Date and an End Date to generate a report for a specific period.');
-                        return; // Prevent navigation
-                    }
-                    // If neither date is selected, it downloads all reports
 
+                    if (startDate && endDate) {
+                        urlWithParams += `?startDate=${startDate}&endDate=${endDate}`;
+                    }
                     window.location.href = urlWithParams;
+                    devisReportModal.classList.add('hidden');
+                });
+            }
+
+            // --- FILTER SCRIPT ---
+            const startDateFilter = document.getElementById('startDate');
+            const endDateFilter = document.getElementById('endDate');
+            const tableBody = document.querySelector('#expenseTable tbody');
+            const allRows = tableBody.querySelectorAll('tr');
+
+            function filterTable() {
+                const startDate = startDateFilter.value;
+                const endDate = endDateFilter.value;
+                let hasVisibleRows = false;
+
+                allRows.forEach(row => {
+                    const noResultsRow = row.querySelector('td[colspan="5"]');
+                    if (noResultsRow) return; // Skip the 'no results' row
+
+                    const dateCell = row.querySelector('td:nth-child(4)');
+                    if (!dateCell) return;
+
+                    const rowDate = dateCell.textContent.trim().split(' ')[0]; // Get 'YYYY-MM-DD' part
+
+                    let show = true;
+                    if (startDate && rowDate < startDate) {
+                        show = false;
+                    }
+                    if (endDate && rowDate > endDate) {
+                        show = false;
+                    }
+
+                    if (show) {
+                        row.style.display = "";
+                        hasVisibleRows = true;
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+                
+                const noResults = tableBody.querySelector('td[colspan="5"]');
+                if(noResults){
+                    noResults.parentElement.style.display = hasVisibleRows ? 'none' : 'table-row';
                 }
             }
-        }
-</script>
+
+            if(startDateFilter) startDateFilter.addEventListener('change', filterTable);
+            if(endDateFilter) endDateFilter.addEventListener('change', filterTable);
+            filterTable(); // Run on load
+         });
+    </script>
+    
+    <div id="devisReportModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h5 class="text-lg font-semibold text-gray-800">Download Report</h5>
+                <button type="button" id="closeDevisReportModal" class="text-gray-400 hover:text-gray-600">&times;</button>
+            </div>
+            <div class="p-6">
+                <p class="text-sm text-gray-700">The report will use the Start Date and End Date you selected on the main page. If no dates are selected, all records will be downloaded.</p>
+            </div>
+            <div class="flex justify-end items-center p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
+                <button type="button" id="cancelDevisReportBtn" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+                <button type="button" id="confirmDevisReport" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700">Download PDF</button>
+            </div>
+        </div>
+    </div>
+
 </body>
+</html>

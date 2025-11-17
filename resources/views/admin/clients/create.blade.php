@@ -10,30 +10,16 @@
 </head>
 
 <body class="bg-gray-50 flex h-screen overflow-hidden">
-    {{-- 
-      ================================================================
-      Sidebar
-      Using the Blade component syntax <x-dashboard.sidebar />
-      If you don't have this component, replace it with your
-      original @include logic.
-      ================================================================
-    --}}
+    
     <x-dashboard.sidebar />
 
     <div class="flex flex-col flex-1 overflow-y-auto">
-        {{-- 
-          ================================================================
-          Navbar
-          Using the Blade component syntax <x-dashboard.navbar />
-          If you don't have this component, replace it with your
-          original @include logic.
-          ================================================================
-        --}}
+    
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
         <main class="flex-1 p-8">
-            <div class="max-w-4xl mx-auto"> {{-- Centered and max-width like the image --}}
+            <div class="max-w-4xl mx-auto">
                 
                 {{-- Header --}}
                 <div class="mb-8 text-center">
@@ -50,7 +36,7 @@
                 " enctype="multipart/form-data" autocomplete="off">
                     @csrf
 
-                    <div class="space-y-6"> {{-- This stacks the cards vertically --}}
+                    <div class="space-y-6"> 
 
                         <div class="bg-white rounded-2xl shadow-sm p-6">
                             <h2 class="text-xl font-bold text-slate-900 mb-1">Personal Infos</h2>

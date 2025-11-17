@@ -295,8 +295,8 @@
 
                             {{-- Actions du Formulaire (style Tailwind) --}}
                             <div class="flex justify-end items-center mt-8 pt-6 border-t border-gray-200 space-x-3">
-                                <a href="{{ $cancelRoute }}" class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm'>
-                                    Annuler
+                                <a href="javascript:history.back()" class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm'>
+                                Cancel
                                 </a>
                                 <button type="submit" name="button" class="inline-flex justify-center bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2.5 rounded-lg text-sm shadow-sm">
                                     Générer le devis
@@ -304,23 +304,19 @@
                             </div>
 
                         </form>
-                    </div> {{-- Fin p-6 --}}
-                </div> {{-- Fin Card --}}
-            </div> {{-- Fin max-w-4xl --}}
+                    </div> 
+                </div> 
+            </div> 
 
         </main>
-    </div> {{-- Fin Main Wrapper --}}
+    </div> 
 
-    @livewireScripts
+@livewireScripts
     
-    {{-- ORDRE DES SCRIPTS CORRIGÉ --}}
-    {{-- 1. jQuery (requis pour Bootstrap et AJAX) --}}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     
-    {{-- 2. Vos scripts de layout (qui doivent inclure Bootstrap JS pour le menu déroulant) --}}
     @include('dashboard_layouts.scripts')
     
-    {{-- 3. Le SCRIPT PERSONNALISÉ CORRECT pour CETTE page --}}
     <script>
         // Désactiver l'autocomplétion
         window.addEventListener('load', function() {

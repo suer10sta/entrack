@@ -10,7 +10,7 @@
     @livewireStyles
 </head>
 
-<body class="bg-gradient-to-br from-slate-50 to-slate-100 flex h-screen overflow-hidden">
+<body class="bg-gray-50 flex h-screen overflow-hidden">
 
     {{-- 1. Using Blade Component for Sidebar --}}
     <x-dashboard.sidebar />
@@ -19,19 +19,18 @@
         {{-- 2. Using Blade Component for Navbar --}}
         <x-dashboard.navbar />
 
-        {{-- 3. Main Content Area (Styled like your target file) --}}
-        <main class="p-8 min-h-screen ml-0 lg:ml-64 transition-all duration-300">
+        {{-- 3. Main Content Area  --}}
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8">
 
             {{-- We use max-w-3xl for a form page, 7xl is too wide --}}
             <div class="max-w-3xl mx-auto">
 
-                {{-- Header (Styled like your target file) --}}
+                {{-- Header --}}
                 <div class="mb-8">
                     <h1 class="text-4xl font-bold text-gray-900 mb-2">Add New Role</h1>
                     <p class="text-gray-600">Create a new user role for your enterprise.</p>
                 </div>
 
-                
 
                 @php
                     $storeRoute = '#'; // Default fallback
@@ -52,7 +51,7 @@
                     }
                 @endphp
 
-                {{-- 5. Form Card (Styled like your target file's cards) --}}
+                {{-- 5. Form Card  --}}
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                     
                     {{-- The form now uses the $storeRoute variable --}}
@@ -60,7 +59,7 @@
                         @csrf
                         
                         <div class="p-6">
-                            {{-- Role Name Field (Styled with Tailwind) --}}
+                            {{-- Role Name Field  --}}
                             <div class="mb-6">
                                 <label for="role_name" class="block text-sm font-medium text-gray-700 mb-2">Role Name</label>
                                 <input 
@@ -77,16 +76,16 @@
                             </div>
                         </div>
 
-                        {{-- 6. Form Actions (Buttons) --}}
+                        {{-- 6. Form Actions --}}
                         <div class="flex items-center justify-end gap-4 border-t border-gray-200 bg-gray-50 p-6 rounded-b-lg">
                             
-                            {{-- Cancel Button (Styled with Tailwind) --}}
-                            <a href="{{ $cancelRoute }}"
+                            {{-- Cancel Button --}}
+                            <a href="javascript:history.back()"
                                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
                                 Cancel
                             </a>
                             
-                            {{-- Create Button (Styled like your target file's "Add" button) --}}
+                            {{-- Create Button  --}}
                             <button 
                                 type="submit"
                                 class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
@@ -98,14 +97,11 @@
                         </div>
 
                     </form>
-                </div> {{-- End Form Card --}}
-
-            </div> {{-- End max-w-3xl --}}
+                </div> 
+            </div> 
         </main>
-    </div> {{-- End flex-col --}}
+    </div> 
 
-    {{-- Using Livewire scripts from your target file --}}
     @livewireScripts
-    {{-- The old autocomplete JS is no longer needed, as we use the 'autocomplete="off"' HTML attribute --}}
 </body>
 </html>

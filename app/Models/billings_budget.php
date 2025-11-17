@@ -9,7 +9,7 @@ class Billings_budget extends Model
 {
     use HasFactory;
 
-    protected $table = '_billings_budget';
+    protected $table = 'billings_budget';
 
 
     protected $fillable = [

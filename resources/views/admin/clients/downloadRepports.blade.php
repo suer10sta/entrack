@@ -1,107 +1,172 @@
 <style>
-    /* --- Base & Typography --- */
+    /* [MODIFIED] Styles adapted for a flowing report */
     body {
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        font-size: 14px;
-        line-height: 1.5;
+        font-family: Tahoma, sans-serif;
+        font-size: 12px;
+        color: #333333;
+        background-color: #FFFFFF;
         margin: 0;
         padding: 0;
-        color: #333;
     }
 
-    .container {
-        width: 100%;
+    /* [NEW] This wrapper constrains the width like an A4 page but allows content to flow in height */
+    .report-wrapper {
+        width: 595px;
+        min-height: 842px;
+        margin: 0 auto;
         padding: 20px;
+        padding-bottom: 100px; /* Space for footer */
+        position: relative;
     }
 
-    h2,
-    h5 {
-        margin: 0 0 5px 0;
+    .header {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 20px;
     }
 
-    /* --- Title Amelioration --- */
-    h2 {
-        font-size: 24px; /* Made larger */
-        font-weight: 600; /* Made bolder */
-        color: #111; /* Darker for more contrast */
-    }
-
-    h5 {
-        font-size: 14px;
-        font-weight: normal;
-        color: #555; /* Kept subtitle light */
-    }
-
-    /* --- Header / Details --- */
-    .details {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 30px;
-    }
-
-    .company-logo {
-        width: 80px;
+    .header img {
+        width: 100px;
         height: auto;
     }
 
-    .details-right {
-        text-align: right;
-    }
-
-    /* --- Table Styles --- */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 60px;
-    }
-
-    /* Table Header */
-    thead {
-        background-color: #0EA5E9;
-        color: white;
-    }
-
-    /* --- Table Header Title Amelioration --- */
-    th {
-        border: 1px solid #0056b3;
-        padding: 10px;
-        font-size: 12px;
-        font-weight: 700; /* Made stronger */
-        text-align: center;
-        text-transform: uppercase;
-        letter-spacing: 0.5px; /* Added spacing for uppercase text */
-    }
-
-    /* Table Body */
-    td {
-        border: 1px solid #ddd;
-        padding: 10px;
-        text-align: left;
-        font-size: 13px;
-    }
-
-    /* --- Footer --- */
-    .footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
+    .details {
         width: 100%;
         display: flex;
         justify-content: space-between;
-        font-size: 12px;
-        color: #777;
-        padding: 15px 20px;
-        box-sizing: border-box;
-        border-top: 1px solid #eee;
-        background: #fff;
+        margin-bottom: 20px;
+        position: relative;
     }
 
-    /* CSS counter for print/PDF page numbers */
-    .page-number::before {
-        content: counter(page);
+    .details-left {
+        width: 48%;
+        font-size: 12px;
     }
-</style>
+
+    .details-right {
+        width: 48%;
+        font-size: 12px;
+        text-align: right;
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+
+    .invoice-number {
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid #CCCCCC;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        text-align: left;
+        font-size: 12px;
+        word-wrap: break-word; 
+    }
+
+    th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+
+    .footer {
+        width: 595px; 
+        margin: 0 auto; 
+        padding: 20px; 
+        padding-top: 20px;
+        box-sizing: border-box; 
+        border-top: 1px solid #000;
+        position: relative; 
+    }
+
+    .footer-content {
+        position: relative;
+        width: 100%;
+        height: 50px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .footer-left {
+        position: absolute;
+        left: 0;
+        text-align: left;
+    }
+
+    .footer-center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+    }
+
+    .footer-right {
+        position: absolute;
+        right: 0;
+        text-align: right;
+    }
+
+    .footer-text {
+        color: #333333;
+        line-height: 1.4;
+        font-size: 12px; 
+    }
+
+    .logo-right {
+        text-align: left;
+    }
+    
+    .company-logo {
+        width: 100px; 
+        height: auto;
+    }
+        @media print {
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .report-wrapper {
+            width: 100%;
+            padding: 20px;
+            margin: 0;
+            min-height: 0;
+            border: none;
+            page-break-after: avoid;
+        }
+        
+        thead {
+            display: table-header-group; 
+        }
+
+        tr, td, th {
+            page-break-inside: avoid; 
+        }
+        
+        .footer {
+            width: 100%;
+            padding: 20px;
+            margin: 0;
+            position: static; 
+            page-break-before: always; 
+        }
+    }
+
+    </style>
 
 <div class="container">
 
@@ -153,8 +218,21 @@
     </table>
 
     <div class="footer">
-        <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
-        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
+        <div class="footer-content">
+            <div class="footer-left footer-text">
+                <b>{{ $entreprise->name }}</b><br>
+                <b>Numéro TVA:</b> {{ $entreprise->tva}}
+            </div>
+            <div class="footer-center footer-text">
+                {{ $entreprise->Address }}<br>
+                Tél: 0{{ $entreprise->phone }}
+            </div>
+            <div class="footer-right footer-text">
+                <b>BANK</b> : {{ $entreprise->bank_name }}<br>
+                <b>IBAN</b> : {{ $entreprise->iban }}<br>
+                <b>SWIFT/BIC</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
+            </div>
+        </div>
     </div>
 
 </div>

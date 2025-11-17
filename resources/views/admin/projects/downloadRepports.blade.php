@@ -1,120 +1,175 @@
 <style>
-    /* --- Base & Typography --- */
-    * {
-        /* Applies a more predictable box model to all elements */
-        box-sizing: border-box;
-    }
-
+    /* [MODIFIED] Styles adapted for a flowing report */
     body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        font-size: 14px; /* Increased base font size */
-        line-height: 1.6; /* Improved line spacing */
+        font-family: Tahoma, sans-serif;
+        font-size: 12px;
+        color: #333333;
+        background-color: #FFFFFF;
         margin: 0;
         padding: 0;
-        color: #333;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
     }
 
-    .container {
+    /* [NEW] This wrapper constrains the width like an A4 page but allows content to flow in height */
+    .report-wrapper {
+        width: 595px;
+        min-height: 842px;
+        margin: 0 auto;
+        padding: 20px;
+        padding-bottom: 100px; /* Space for footer */
+        position: relative;
+    }
+
+    .header {
         width: 100%;
-        padding: 30px; /* Added more breathing room */
-        box-sizing: border-box;
+        text-align: center;
+        margin-bottom: 20px;
     }
 
-    h2,
-    h5 {
-        margin: 0 0 5px 0;
-    }
-
-    h2 {
-        font-size: 22px; /* Made title stronger */
-        font-weight: 600;
-        color: #111;
-    }
-
-    h5 {
-        font-size: 14px;
-        font-weight: normal;
-        color: #555;
-    }
-
-    /* --- Header / Details --- */
-    .details {
-        display: flex;
-        justify-content: space-between;
-        align-items: center; /* Vertically aligns logo with text */
-        margin-bottom: 40px; /* More space above table */
-    }
-
-    .company-logo {
-        width: 100px; /* Slightly larger logo */
+    .header img {
+        width: 100px;
         height: auto;
     }
 
-    .details-right {
-        text-align: right;
-    }
-
-    /* --- Table Styles --- */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 60px;
-    }
-
-    /* Table Header */
-    thead {
-        background-color: #1E9FD8;
-        color: white;
-    }
-    
-    /* Unified borders for a cleaner grid */
-    th,
-    td {
-        border: 1px solid #E2E8F0; /* Single, light gray border */
-        padding: 12px 15px; /* More generous padding */
-        text-align: left;
-    }
-
-    th {
-        font-size: 12px; /* Made header font legible */
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    /* Table Body */
-    td {
-        font-size: 13px; /* Increased data font size */
-        vertical-align: top; /* Ensures long text aligns neatly */
-    }
-
-    /* --- Zebra Striping --- */
-    tbody tr:nth-of-type(even) {
-        background-color: #F7FAFC; /* Adds alternating row color */
-    }
-
-    /* --- Footer --- */
-    .footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
+    .details {
         width: 100%;
         display: flex;
         justify-content: space-between;
-        font-size: 12px;
-        color: #777;
-        padding: 20px 30px; /* Matches container padding */
-        box-sizing: border-box;
-        border-top: 1px solid #eee;
-        background: #fff;
+        margin-bottom: 20px;
+        position: relative;
     }
 
-    .page-number::before {
-        content: counter(page);
+    .details-left {
+        width: 48%;
+        font-size: 12px;
     }
-</style>
+
+    .details-right {
+        width: 48%;
+        font-size: 12px;
+        text-align: right;
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+
+    .invoice-number {
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid #CCCCCC;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        text-align: left;
+        font-size: 12px;
+        word-wrap: break-word; /* Allow long text to wrap */
+    }
+
+    th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+
+    /* [MODIFIED] Footer is no longer fixed */
+    .footer {
+        width: 595px; /* Match report width */
+        margin: 0 auto; /* Center it */
+        padding: 20px; /* Match report padding */
+        padding-top: 20px;
+        box-sizing: border-box; /* Include padding in width */
+        border-top: 1px solid #000;
+        position: relative; /* Changed from fixed */
+    }
+
+    .footer-content {
+        position: relative;
+        width: 100%;
+        height: 50px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .footer-left {
+        position: absolute;
+        left: 0;
+        text-align: left;
+    }
+
+    .footer-center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+    }
+
+    .footer-right {
+        position: absolute;
+        right: 0;
+        text-align: right;
+    }
+
+    .footer-text {
+        color: #333333;
+        line-height: 1.4;
+        font-size: 12px; 
+    }
+
+    .logo-right {
+        text-align: left;
+    }
+    
+    .company-logo {
+        width: 100px; /* From template */
+        height: auto;
+    }
+    
+    /* [NEW] Print-specific styles for flowing table */
+    @media print {
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .report-wrapper {
+            width: 100%;
+            padding: 20px;
+            margin: 0;
+            min-height: 0;
+            border: none;
+            page-break-after: avoid; /* Don't break after the main content */
+        }
+        
+        thead {
+            display: table-header-group; /* Repeat table header on each page */
+        }
+
+        tr, td, th {
+            page-break-inside: avoid; /* Try to keep rows from splitting */
+        }
+        
+        .footer {
+            width: 100%;
+            padding: 20px;
+            margin: 0;
+            position: static; /* Footer flows at the end */
+            page-break-before: always; /* Put footer on its own page if needed, or 'auto' */
+        }
+    }
+
+    </style>
 
 <div class="container">
 

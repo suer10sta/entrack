@@ -68,7 +68,7 @@
 
                         {{-- Pied de page de la carte (Actions) --}}
                         <div class="p-6 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-3">
-                            <a href="{{ $cancelRoute }}" class="inline-flex justify-center bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm">
+                            <a href="javascript:history.back()" class="inline-flex justify-center bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm">
                                 Annuler
                             </a>
                             <button type="submit" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">
