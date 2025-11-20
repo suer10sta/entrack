@@ -23,6 +23,31 @@
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
         .modal-content { animation: slideDown 0.3s ease-out; }
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Updated Custom Alert Modal to have stronger shadow */
+        .modal-content-custom {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+            border-radius: 0.75rem; /* rounded-xl */
+            /* Stronger shadow for the modal */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .close-button {
+            color: #94a3b8;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-button:hover { color: #475569; }
     </style>
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden font-sans antialiased text-slate-600">
@@ -39,13 +64,13 @@
 
             <div class="mb-6">
                 @if(session('alertmessage'))
-                    <div class="rounded-xl bg-red-50 p-4 border border-red-100 flex items-center gap-3">
+                    <div class="rounded-xl bg-red-50 p-4 border border-red-200 shadow-md flex items-center gap-3">
                         <i class="fas fa-exclamation-circle text-red-500"></i>
                         <p class="text-sm text-red-700">{{ session('alertmessage') }}</p>
                         <button type="button" class="ml-auto text-red-400 hover:text-red-600" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
                     </div>
                 @elseif(session('message'))
-                    <div class="rounded-xl bg-green-50 p-4 border border-green-100 flex items-center gap-3">
+                    <div class="rounded-xl bg-green-50 p-4 border border-green-200 shadow-md flex items-center gap-3">
                         <i class="fas fa-check-circle text-green-500"></i>
                         <p class="text-sm text-green-700">{{ session('message') }}</p>
                         <button type="button" class="ml-auto text-green-400 hover:text-green-600" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
@@ -54,7 +79,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex justify-between items-start">
+                <div class="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 flex justify-between items-start">
                     <div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Active Projects</p>
                         <h2 class="text-3xl font-bold text-slate-800">{{ $projects->count() }}</h2>
@@ -64,7 +89,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex justify-between items-start">
+                <div class="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 flex justify-between items-start">
                     <div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Tasks</p>
                         <h2 class="text-3xl font-bold text-slate-800">{{ $employees_tasks->count() }}</h2>
@@ -74,7 +99,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex justify-between items-start">
+                <div class="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 flex justify-between items-start">
                     <div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Teams</p>
                         <h2 class="text-3xl font-bold text-slate-800">0</h2>
@@ -85,7 +110,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 mb-8">
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 mb-8">
                 <div class="p-6 pb-0">
                     @php
                         $employee_id = App\Models\employees::where('user_id', Auth::user()->id)->first()->id;
@@ -243,7 +268,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 mb-8">
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 mb-8">
                 <div class="p-6">
                     <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
                         <h3 class="text-base font-bold text-slate-800">Tasks Timer Table</h3>
@@ -253,21 +278,15 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="relative">
-                            <input type="date" id="startDateInput" class="block w-full rounded-lg border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-slate-600 shadow-sm py-2.5 pl-3">
-                        </div>
-                        <div class="relative">
-                            <input type="date" id="endDateInput" class="block w-full rounded-lg border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-slate-600 shadow-sm py-2.5 pl-3" placeholder="--:--">
-                        </div>
-                        <div class="relative">
-                            <select id="projectFilterTimer" class="block w-full rounded-lg border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-slate-600 shadow-sm py-2.5 pl-3">
-                                <option value="">All Projects</option>
-                                @foreach($projects as $project)
-                                    <option value="{{ $project->id }}">{{ $project->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <input type="date" id="startDateInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                        <input type="date" id="endDateInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                        <select id="projectFilterExport" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <option value="">All Projects</option>
+                            @foreach($projects as $project)
+                                <option value="{{ $project->id }}">{{ $project->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
@@ -289,7 +308,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100">
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-200">
                 <div class="p-6 border-b border-slate-100">
                     <h3 class="text-base font-bold text-slate-800">Work Days Reports</h3>
                 </div>
@@ -341,7 +360,7 @@
             </div>
 
             <div id="customAlertModal" class="modal">
-                <div class="modal-content relative w-full max-w-md mx-auto mt-20 bg-white rounded-xl shadow-2xl p-6 text-center">
+                <div class="modal-content-custom relative w-full max-w-md mx-auto mt-20 bg-white rounded-xl shadow-2xl p-6 text-center">
                     <span class="close-button absolute top-3 right-4 text-slate-400 hover:text-slate-600 cursor-pointer text-2xl font-bold">&times;</span>
                     <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
                         <i class="fas fa-bell text-red-500 text-xl"></i>
@@ -364,9 +383,12 @@
         var taskPaused = {};
         
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize paused state
             @foreach($employees_tasks as $task)
                 @php
-                    $task_timer = App\Models\tasks_timer::where('task_employee_id', $task->id)->whereNull('end_date')->first();
+                    $task_timer = App\Models\tasks_timer::where('task_employee_id', $task->id)
+                        ->whereNull('end_date')
+                        ->first();
                 @endphp
                 @if($task_timer && $task_timer->paused === 1)
                     taskPaused["{{$task->id}}"] = true;
@@ -401,461 +423,359 @@
         });
     </script>
 
+    {{-- 2. Excel Export --}}
     <script>
-    document.getElementById('exportBtn').addEventListener('click', function() {
-        var table = document.getElementById('taskTable');
-        var wb = XLSX.utils.table_to_book(table, { sheet: 'Sheet1' });
-        var startDate = document.getElementById('startDateInput').value;
-        var endDate = document.getElementById('endDateInput').value;
-        var taskInfo = 'TasksInfo'; 
-        var fileName = startDate + '__' + endDate + '_' + taskInfo + '.xlsx';
-        XLSX.writeFile(wb, fileName);
-    });
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            var table = document.getElementById('taskTable'); 
+            var wb = XLSX.utils.table_to_book(table, { sheet: 'Sheet1' });
+            var startDate = document.getElementById('startDateInput').value;
+            var endDate = document.getElementById('endDateInput').value;
+            var taskInfo = 'TasksInfo';
+            var fileName = startDate + '__' + endDate + '_' + taskInfo + '.xlsx';
+            XLSX.writeFile(wb, fileName);
+        });
     </script>
 
+    {{-- 3. PDF Export --}}
     <script>
         document.getElementById('exportPDFBtn').addEventListener('click', function() {
             var startDate = document.getElementById('startDateInput').value;
             var endDate = document.getElementById('endDateInput').value;
             var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             var employeeId = {{ $employee_id }};
+            var url = '';
             
+            @if(Auth::user()->hasRole('Employee'))
+                var baseUrlInterval = '/employee/Pointagerepports/downloadRepports/';
+                var baseUrlDay = '/employee/Pointagerepports/downloadOneDayRepports/';
+            @elseif(Auth::user()->hasRole('Responsable de projet'))
+                var baseUrlInterval = '/Responsable_de_projet/Pointagerepports/downloadRepports/';
+                var baseUrlDay = '/Responsable_de_projet/Pointagerepports/downloadOneDayRepports/';
+            @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                var baseUrlInterval = '/Responsable_gestionnaire/Pointagerepports/downloadRepports/';
+                var baseUrlDay = '/Responsable_gestionnaire/Pointagerepports/downloadOneDayRepports/';
+            @endif
+
             if(startDate && endDate) {
-                @if(Auth::user()->hasRole('Employee'))
-                var url = '/employee/Pointagerepports/downloadRepports/' + startDate + '/' + endDate + '/' + employeeId ;
-                @endif
-                @if(Auth::user()->hasRole('Responsable de projet'))
-                var url = '/Responsable_de_projet/Pointagerepports/downloadRepports/' + startDate + '/' + endDate + '/' + employeeId ;
-                @endif
-                @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                var url = '/Responsable_gestionnaire/Pointagerepports/downloadRepports/' + startDate + '/' + endDate + '/' + employeeId ;
-                @endif
-                fetch(url, { method: 'GET', headers: { 'X-CSRF-TOKEN': csrfToken } })
-                .then(response => response.blob())
-                .then(blob => {
-                    var url = window.URL.createObjectURL(blob);
-                    var a = document.createElement('a');
-                    a.href = url; a.download = 'pointageRepports.pdf';
-                    document.body.appendChild(a); a.click(); a.remove();          
-                })
-                .catch((error) => { console.error('Error:', error); });
+                url = baseUrlInterval + startDate + '/' + endDate + '/' + employeeId;
+            } else if (startDate && !endDate) {
+                url = baseUrlDay + startDate + '/' + employeeId;
             }
-            if(startDate && !endDate) {
-                @if(Auth::user()->hasRole('Employee'))
-                var url = '/employee/Pointagerepports/downloadOneDayRepports/' + startDate + '/' + employeeId;
-                @endif
-                @if(Auth::user()->hasRole('Responsable de projet'))
-                var url = '/Responsable_de_projet/Pointagerepports/downloadOneDayRepports/' + startDate + '/' + employeeId;
-                @endif
-                @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                var url = '/Responsable_gestionnaire/Pointagerepports/downloadOneDayRepports/' + startDate + '/' + employeeId;
-                @endif
-                fetch(url, { method: 'GET', headers: { 'X-CSRF-TOKEN': csrfToken } })
+
+            if (url) {
+                fetch(url, {
+                    method: 'GET',
+                    headers: { 'X-CSRF-TOKEN': csrfToken }
+                })
                 .then(response => response.blob())
                 .then(blob => {
                     var url = window.URL.createObjectURL(blob);
                     var a = document.createElement('a');
-                    a.href = url; a.download = 'pointageRepports.pdf';
-                    document.body.appendChild(a); a.click(); a.remove();          
+                    a.href = url;
+                    a.download = 'pointageRepports.pdf';
+                    document.body.appendChild(a);
+                    a.click();      
+                    a.remove();           
                 })
                 .catch((error) => { console.error('Error:', error); });
             }
         });
     </script>
 
+    {{-- 4. Inactivity Alert Modal Logic --}}
     @php 
-        $user = App\Models\User::where('id', Auth::user()->id)->first();
-        $employee_id = App\Models\employees::where('user_id', Auth::user()->id)->first()->id;
         $tasks_timer = App\Models\tasks_timer::where('employee_id', $employee_id)->whereDate('start_date', '=', $today)->whereNull('end_date')->first();
     @endphp
-
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-        var modal = document.getElementById("customAlertModal");
-        var span = document.getElementsByClassName("close-button")[0];
-        var alertSound = document.getElementById("alertSound");
-        var alertInterval;
+            var modal = document.getElementById("customAlertModal");
+            var span = document.getElementsByClassName("close-button")[0];
+            var alertSound = document.getElementById("alertSound");
+            var alertInterval;
 
-        span.onclick = function() { modal.style.display = "none"; }
+            span.onclick = function() { modal.style.display = "none"; }
+            function showAlert() { modal.style.display = "block"; alertSound.play(); }
+            function startAlertInterval() { clearInterval(alertInterval); alertInterval = setInterval(showAlert, 300000); }
+            function clearAlertInterval() { clearInterval(alertInterval); }
 
-        function showAlert() {
-            modal.style.display = "block";
-            alertSound.play();
-        }
+            var tasksTimer = @json($tasks_timer);
 
-        function startAlertInterval() {
-            clearInterval(alertInterval);
-            alertInterval = setInterval(showAlert, 300000); 
-        }
-
-        function clearAlertInterval() { clearInterval(alertInterval); }
-
-        var tasksTimer = @json($tasks_timer);
-
-        function checkTimerState() {
-            if (!tasksTimer) {
-                startAlertInterval();
-            } else {
-                if (tasksTimer.paused === null || tasksTimer.paused === 0) {
-                    clearAlertInterval();
-                } else if (tasksTimer.paused === 1) {
+            function checkTimerState() {
+                if (!tasksTimer) {
                     startAlertInterval();
-                }
-                if (tasksTimer.pause_date !== null && tasksTimer.paused === 0) {
-                    clearAlertInterval();
+                } else {
+                    if (tasksTimer.paused === null || tasksTimer.paused === 0) {
+                        clearAlertInterval();
+                    } else if (tasksTimer.paused === 1) {
+                        startAlertInterval();
+                    }
+                    if (tasksTimer.pause_date !== null && tasksTimer.paused === 0) {
+                        clearAlertInterval();
+                    }
                 }
             }
-        }
 
-        checkTimerState();
+            checkTimerState();
 
-        var startBtn = document.getElementById('start-btn');
-        if(startBtn) { startBtn.addEventListener('click', function() { checkTimerState(); }); }
-
-        var pauseBtn = document.getElementById('pause-btn');
-        if(pauseBtn) { pauseBtn.addEventListener('click', function() { checkTimerState(); }); }
-
-        var continueBtn = document.getElementById('continue-btn');
-        if(continueBtn) { continueBtn.addEventListener('click', function() { checkTimerState(); }); }
-
-        var stopBtn = document.getElementById('stop-btn');
-        if(stopBtn) { stopBtn.addEventListener('click', function() { checkTimerState(); }); }
-    });
+            var btns = document.querySelectorAll('#start-btn, #pause-btn, #continue-btn, .stop-button');
+            btns.forEach(btn => {
+                btn.addEventListener('click', function() { checkTimerState(); });
+            });
+        });
     </script>
 
+    {{-- 5. Initialize Start Date --}}
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var today = new Date();
-        var dd = String(today.getDate()).padStart(2, '0');
-        var mm = String(today.getMonth() + 1).padStart(2, '0'); 
-        var yyyy = today.getFullYear();
-        today = yyyy + '-' + mm + '-' + dd;
-        document.getElementById('startDateInput').value = today;
-    });
+        document.addEventListener('DOMContentLoaded', function() {
+            var today = new Date().toISOString().split('T')[0];
+            document.getElementById('startDateInput').value = today;
+        });
     </script>
-
+    
     <script type="text/javascript">
         var employeeId = @json($employee_id); 
     </script>
 
+    {{-- 6. Fetch Tasks Logic (AJAX Table Population) --}}
     <script>
-    // UPDATED JAVASCRIPT TO GENERATE TAILWIND TABLE ROWS
-    document.addEventListener('DOMContentLoaded', function() {
-        var startDateInput = document.getElementById('startDateInput');
+        document.addEventListener('DOMContentLoaded', function() {
+            var startDateInput = document.getElementById('startDateInput');
+            var endDateInput = document.getElementById('endDateInput');
 
-        document.getElementById('projectFilter').addEventListener('change', function() {
-            var selectedProjectName = this.options[this.selectedIndex].text;
-            var tableRows = document.querySelectorAll('#taskTableBody tr');
-            var total = 0; 
-            var totalRecette = 0;
-            var totalDuration = 0; 
+            // Filter logic for dynamic table (Updated ID to match the export section select)
+            document.getElementById('projectFilterExport').addEventListener('change', function() {
+                // Use the selected VALUE to check for "All Projects" (empty string)
+                var selectedValue = this.value; 
+                
+                // Use the selected TEXT to compare against table content
+                var selectedText = this.options[this.selectedIndex].text.trim().toLowerCase();
+                
+                var tableRows = document.querySelectorAll('#taskTableBody tr');
+                
+                var totalDuration = 0;
 
-            var totalRow = document.querySelector('.total-row');
-            if (totalRow) { totalRow.remove(); }
-            var existingInvoiceButton = document.querySelector('.invoice-button');
-            if (existingInvoiceButton) { existingInvoiceButton.remove(); }
+                // Remove totals
+                var totalRow = document.querySelector('.total-row');
+                if (totalRow) totalRow.remove();
 
-            tableRows.forEach(row => {
-                var projectCell = row.cells[0]; 
-                if (selectedProjectName === "All Projects" || projectCell.textContent === selectedProjectName) {
-                    row.style.display = ''; 
-                    var DurationValue = row.cells[5].textContent.trim(); 
-                    var durationInSeconds = parseDuration(DurationValue);
-                    totalDuration += durationInSeconds / 3600;
-                } else {
-                    row.style.display = 'none'; 
-                }
+                tableRows.forEach(row => {
+                    var projectCell = row.cells[0];
+                    var cellText = projectCell.textContent.trim().toLowerCase();
+
+                    // Logic: If value is empty (All Projects) OR the text matches (Case Insensitive)
+                    if (selectedValue === "" || cellText === selectedText) {
+                        row.style.display = '';
+                        var DurationValue = row.cells[5].textContent.trim();
+                        var durationInSeconds = parseDuration(DurationValue);
+                        totalDuration += durationInSeconds / 3600;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Add total row
+                var tableBody = document.getElementById('taskTableBody');
+                var hours = Math.floor(totalDuration);
+                var minutes = Math.round((totalDuration - hours) * 60);
+                var formattedDuration = `${hours.toString().padStart(2, '0')}h:${minutes.toString().padStart(2, '0')}m`;
+                var totalRowHTML = `
+                  <tr class="text-center total-row bg-gray-100 font-bold">
+                    <td colspan="5"></td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${formattedDuration}</td>
+                  </tr>`;
+                tableBody.insertAdjacentHTML('beforeend', totalRowHTML);
             });
 
-            var tableBody = document.getElementById('taskTableBody');
-            var hours = Math.floor(totalDuration);
-            var minutes = Math.round((totalDuration - hours) * 60);
-            var formattedDuration = `${hours.toString().padStart(2, '0')}h:${minutes.toString().padStart(2, '0')}m`;
-            
-            // Updated HTML string with Tailwind classes
-            var totalRow = `
-                <tr class="text-center total-row bg-slate-50 font-bold">
-                <td colspan="5" class="px-6 py-4 text-right">Total:</td>
-                <td class="px-6 py-4"><span class="text-blue-600">${formattedDuration}</span></td>
-                </tr>`;
-            tableBody.insertAdjacentHTML('beforeend', totalRow);
+            window.onload = function() {
+                var currentDate = new Date().toISOString().split('T')[0];
+                startDateInput.value = currentDate;
+                var event = new Event('change');
+                startDateInput.dispatchEvent(event);
+            }
+
+            endDateInput.addEventListener('change', function() { handleDateChange(); });
+            startDateInput.addEventListener('change', function() { handleDateChange(); });
+
+            function handleDateChange() {
+                var start = startDateInput.value;
+                var end = endDateInput.value;
+                if (start && end) fetchTasksForInterval(start, end, employeeId);
+                else if (start) fetchTasksForDate(start, employeeId);
+            }
+
+            function fetchTasksForInterval(startDate, endDate, employeeId) {
+                var url = '';
+                @if(Auth::user()->hasRole('Employee')) url = '/employee/tasks/tasks-info-interval-employee/';
+                @elseif(Auth::user()->hasRole('Responsable de projet')) url = '/Responsable_de_projet/tasks/tasks-info-interval-employee/';
+                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = '/Responsable_gestionnaire/tasks/tasks-info-interval-employee/';
+                @endif
+                
+                url += startDate + '/' + endDate + '/' + employeeId;
+
+                fetchAndPopulateTable(url);
+            }
+
+            function fetchTasksForDate(selectedDate, employeeId) {
+                var url = '';
+                @if(Auth::user()->hasRole('Employee')) url = '/employee/tasks/tasks-info/';
+                @elseif(Auth::user()->hasRole('Responsable de projet')) url = '/Responsable_de_projet/tasks/tasks-info/';
+                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = '/Responsable_gestionnaire/tasks/tasks-info/';
+                @endif
+
+                url += selectedDate + '/' + employeeId;
+                fetchAndPopulateTable(url);
+            }
+
+            function fetchAndPopulateTable(url) {
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        var tableBody = document.getElementById('taskTableBody');
+                        if (tableBody) {
+                            tableBody.innerHTML = '';
+                            var totalDuration = 0;
+
+                            Promise.all(data.map(task => {
+                                var startTime = new Date(task.start_date);
+                                var endTime = task.end_date ? new Date(task.end_date) : new Date();
+                                var duration = endTime - startTime;
+                                var hours = Math.floor(duration / (1000 * 60 * 60));
+                                var minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
+                                var seconds = Math.floor((duration % (1000 * 60)) / 1000);
+                                var formattedDuration = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                                var endDateText = task.end_date ? task.end_date : 'Still working';
+
+                                var fetchurl = '';
+                                @if(Auth::user()->hasRole('Employee')) fetchurl = '/employee/tasks/get-project-name/';
+                                @elseif(Auth::user()->hasRole('Responsable de projet')) fetchurl = '/Responsable_de_projet/tasks/get-project-name/';
+                                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) fetchurl = '/Responsable_gestionnaire/tasks/get-project-name/';
+                                @endif
+
+                                return fetch(fetchurl + encodeURIComponent(task.task_id))
+                                    .then(response => response.json())
+                                    .then(projectData => {
+                                        var fetchEmpUrl = '';
+                                        @if(Auth::user()->hasRole('Employee')) fetchEmpUrl = '/employee/tasks/get-employee-name/';
+                                        @elseif(Auth::user()->hasRole('Responsable de projet')) fetchEmpUrl = '/Responsable_de_projet/tasks/get-employee-name/';
+                                        @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) fetchEmpUrl = '/Responsable_gestionnaire/tasks/get-employee-name/';
+                                        @endif
+
+                                        return fetch(fetchEmpUrl + encodeURIComponent(task.employee_id))
+                                            .then(response => response.json())
+                                            .then(employeeData => {
+                                                var rowId = 'row-' + task.id;
+                                                let d_h = Math.floor(task.duration / 60);
+                                                let d_m = task.duration % 60;
+                                                let formattedD = `${d_h.toString().padStart(2, '0')}h:${d_m.toString().padStart(2, '0')}m:00s`;
+
+                                                var row = `
+                                                  <tr id="${rowId}" class="text-center hover:bg-gray-50">
+                                                      <td class="px-4 py-3 text-sm text-gray-700">${projectData.name.toUpperCase()}</td>                      
+                                                      <td class="px-4 py-3 text-sm text-gray-700 font-medium">${task.task_name}</td>
+                                                      <td class="px-4 py-3 text-sm text-gray-700">${task.start_date}</td>
+                                                      <td class="px-4 py-3 text-sm text-gray-700">${endDateText}</td>
+                                                      <td class="px-4 py-3 text-sm text-gray-700">${task.comment ? task.comment : "No Comment"}</td>
+                                                      <td class="px-4 py-3 text-sm text-gray-700 task_duration">${task.end_date ? formattedD : ""}</td>
+                                                  </tr>`;
+                                                
+                                                tableBody.insertAdjacentHTML('beforeend', row);
+
+                                                if (task.end_date === null) {
+                                                    // Live timer logic for active tasks in this table
+                                                    var startDate = new Date(task.start_date);
+                                                    var taskId = task.id;
+                                                    var rowId = 'row-' + taskId;
+                                                    taskPaused[taskId] = task.paused === 1;
+                                                    var startTimestamp = startDate.getTime();
+                                                    var elapsedTime = 0;
+                                                    
+                                                    if(taskIntervals[taskId]) clearInterval(taskIntervals[taskId]);
+                                                    
+                                                    taskIntervals[taskId] = setInterval(function() {
+                                                        if(!taskPaused[taskId]) {
+                                                            var now = new Date();
+                                                            var durationInMilliseconds = now - startDate + elapsedTime;
+                                                            var h = Math.floor(durationInMilliseconds / 3600000);
+                                                            var m = Math.floor((durationInMilliseconds % 3600000) / 60000);
+                                                            var s = Math.floor((durationInMilliseconds % 60000) / 1000);
+                                                            var durFmt = (h < 10 ? '0' : '') + h + 'h:' + (m < 10 ? '0' : '') + m + 'm:' + (s < 10 ? '0' : '') + s + 's';
+                                                            
+                                                            var durationCell = document.querySelector('#' + rowId + ' .task_duration');
+                                                            if (durationCell) durationCell.textContent = durFmt;
+                                                            else clearInterval(taskIntervals[taskId]);
+                                                        }
+                                                    }, 1000);
+                                                }
+                                                
+                                                var rowElement = document.getElementById(rowId);
+                                                // Use the formatted duration we just calculated/fetched, NOT textContent which might be empty initially
+                                                var dString = rowElement.querySelector('.task_duration').textContent.trim();
+                                                if(dString) {
+                                                    var dSec = parseDuration(dString);
+                                                    totalDuration += dSec / 3600;
+                                                }
+                                            });
+                                    });
+                            })).then(() => {
+                                // Trigger the filter logic after data is loaded to respect any pre-selected value
+                                var event = new Event('change');
+                                document.getElementById('projectFilterExport').dispatchEvent(event);
+                            });
+                        }
+                    });
+            }
+
+            function parseDuration(durationString) {
+                if(!durationString) return 0;
+                var parts = durationString.split(':');
+                if(parts.length < 3) return 0; 
+                var hours = parseInt(parts[0].replace('h', ''), 10);
+                var minutes = parseInt(parts[1].replace('m', ''), 10);
+                var seconds = parseInt(parts[2].replace('s', ''), 10);
+                return hours * 3600 + minutes * 60 + seconds;
+            }
         });
-
-        window.onload = function() {
-            var currentDate = new Date().toISOString().split('T')[0]; 
-            startDateInput.value = currentDate;
-            var event = new Event('change');
-            startDateInput.dispatchEvent(event);
-        }
-
-        var endDateInput = document.getElementById('endDateInput');
-        endDateInput.addEventListener('change', function() {
-            var startDate = startDateInput.value;
-            var endDate = this.value;
-            if (startDate && endDate) { fetchTasksForInterval(startDate, endDate, employeeId); } 
-            else if (endDate) { fetchTasksForDate(startDate, employeeId); }
-        });
-
-        startDateInput.addEventListener('change', function() {
-            var endDate = endDateInput.value;
-            var startDate = this.value;
-            if (startDate && endDate) { fetchTasksForInterval(startDate, endDate, employeeId); } 
-            else if (startDate) { fetchTasksForDate(startDate, employeeId); }
-        });
-
-        function fetchTasksForInterval(startDate, endDate, employeeId) {
-            @if(Auth::user()->hasRole('Employee'))
-            var url = '/employee/tasks/tasks-info-interval-employee/' + startDate + '/' + endDate + '/' + employeeId;
-            @endif
-            @if(Auth::user()->hasRole('Responsable de projet'))
-            var url = '/Responsable_de_projet/tasks/tasks-info-interval-employee/' + startDate + '/' + endDate + '/' + employeeId;
-            @endif
-            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-            var url = '/Responsable_gestionnaire/tasks/tasks-info-interval-employee/' + startDate + '/' + endDate + '/' + employeeId;
-            @endif
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    var tableBody = document.getElementById('taskTableBody');
-                    if (tableBody !== null) {
-                        tableBody.innerHTML = ''; 
-                        var totalDuration = 0;
-
-                        Promise.all(data.map(task => {
-                            var startTime = new Date(task.start_date);
-                            var endTime = task.end_date ? new Date(task.end_date) : new Date(); 
-                            var duration = endTime - startTime; 
-
-                            var hours = Math.floor(duration / (1000 * 60 * 60));
-                            var minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
-                            var seconds = Math.floor((duration % (1000 * 60)) / 1000);
-                            var formattedDuration = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                            var endDateText = task.end_date ? task.end_date : '<span class="text-green-600 font-bold text-xs">Still working</span>';
-
-                            @if(Auth::user()->hasRole('Employee'))
-                            var fetchurl = '/employee/tasks/get-project-name/'
-                            @endif
-                            @if(Auth::user()->hasRole('Responsable de projet'))
-                            var fetchurl = '/Responsable_de_projet/tasks/get-project-name/'
-                            @endif
-                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                            var fetchurl = '/Responsable_gestionnaire/tasks/get-project-name/'
-                            @endif
-                            return fetch(fetchurl + encodeURIComponent(task.task_id))
-                                .then(response => response.json())
-                                .then(projectData => {
-                                    return fetch('/employee/tasks/get-employee-name/' + encodeURIComponent(task.employee_id))
-                                        .then(response => response.json())
-                                        .then(employeeData => {
-                                            var rowId = 'row-' + task.id;
-                                            let duration_hours = Math.floor(task.duration / 60);
-                                            let duration_minutes = task.duration % 60;
-                                            let duration_seconds = 0; 
-                                            let formattedDuration = `${duration_hours.toString().padStart(2, '0')}h:${duration_minutes.toString().padStart(2, '0')}m:${duration_seconds.toString().padStart(2, '0')}s`;
-
-                                            // Updated Row with Tailwind classes
-                                            var row = `
-                                      <tr id="${rowId}" class="hover:bg-slate-50 transition-colors">
-                                          <td class="px-6 py-4 text-sm text-slate-600">${projectData.name.toUpperCase()}</td>                          
-                                          <td class="px-6 py-4 text-sm text-blue-500 font-medium">${task.task_name}</td>
-                                          <td class="px-6 py-4 text-sm text-slate-500">${task.start_date}</td>
-                                          <td class="px-6 py-4 text-sm text-slate-500">${endDateText}</td>
-                                          <td class="px-6 py-4 text-sm text-slate-500">${task.comment ? task.comment : "No Comment"}</td>
-                                          <td class="task_duration px-6 py-4 text-sm font-bold text-slate-800">${task.end_date ? formattedDuration : ""}</td>
-                                      </tr>`;
-
-                                            tableBody.insertAdjacentHTML('beforeend', row);
-
-                                            if (task.end_date === null) {
-                                                var startDate = new Date(task.start_date);
-                                                var taskId = task.id;
-                                                var rowId = 'row-' + taskId;
-                                                taskPaused[taskId] = task.paused === 1;
-                                                var startTimestamp = startDate.getTime();
-                                                var elapsedTime = 0;
-                                                
-                                                if(taskIntervals[taskId]) { clearInterval(taskIntervals[taskId]); }
-                                                
-                                                taskIntervals[taskId] = setInterval(function() {
-                                                    if(!taskPaused[taskId]) {
-                                                        var now = new Date();
-                                                        var durationInMilliseconds = now - startDate + elapsedTime;
-                                                        var hours = Math.floor(durationInMilliseconds / 3600000);
-                                                        var minutes = Math.floor((durationInMilliseconds % 3600000) / 60000);
-                                                        var seconds = Math.floor((durationInMilliseconds % 60000) / 1000);
-                                                        var formattedDuration = (hours < 10 ? '0' : '') + hours + 'h:' + (minutes < 10 ? '0' : '') + minutes + 'm:' + (seconds < 10 ? '0' : '') + seconds + 's';
-                                                        var durationCell = document.querySelector('#' + rowId + ' .task_duration');
-                                                        if (durationCell) { durationCell.textContent = formattedDuration; } 
-                                                        else { clearInterval(taskIntervals[taskId]); }
-                                                    }
-                                                }, 1000); 
-                                            }
-                                            var rowElement = tableBody.lastElementChild;
-                                            var DurationValue = rowElement.cells[5].textContent.trim();
-                                            var durationInSeconds = parseDuration(DurationValue);
-                                            totalDuration += durationInSeconds / 3600;
-                                        });
-                                });
-                        })).then(() => {
-                            var hours = Math.floor(totalDuration);
-                            var minutes = Math.round((totalDuration - hours) * 60);
-                            var formattedDuration = `${hours.toString().padStart(2, '0')}h:${minutes.toString().padStart(2, '0')}m`;
-                            var totalRow = `
-                            <tr class="bg-slate-50 font-bold">
-                                <td colspan="5" class="px-6 py-4 text-right">Total:</td>
-                                <td class="px-6 py-4 text-blue-600">${formattedDuration}</td>
-                            </tr>`;
-                            tableBody.insertAdjacentHTML('beforeend', totalRow);
-                        });
-                    }
-                })
-                .catch(error => { console.error('Error fetching data:', error); });
-        }
-
-        function fetchTasksForDate(selectedDate, employeeId) {
-            let totalDuration = 0;
-            @if(Auth::user()->hasRole('Employee'))
-            var url = '/employee/tasks/tasks-info/' + selectedDate + '/' + employeeId;
-            @endif
-            @if(Auth::user()->hasRole('Responsable de projet'))
-            var url = '/Responsable_de_projet/tasks/tasks-info/' + selectedDate + '/' + employeeId;
-            @endif
-            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-            var url = '/Responsable_gestionnaire/tasks/tasks-info/' + selectedDate + '/' + employeeId;
-            @endif
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    var tableBody = document.getElementById('taskTableBody');
-                    if (tableBody !== null) {
-                        tableBody.innerHTML = ''; 
-                        Promise.all(data.map(task => {
-                            var startTime = new Date(task.start_date);
-                            var endTime = task.end_date ? new Date(task.end_date) : new Date(); 
-                            var duration = endTime - startTime; 
-                            var hours = Math.floor(duration / (1000 * 60 * 60));
-                            var minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
-                            var seconds = Math.floor((duration % (1000 * 60)) / 1000);
-                            var formattedDuration = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                            var endDateText = task.end_date ? task.end_date : '<span class="text-green-600 font-bold text-xs">Still working</span>';
-
-                            @if(Auth::user()->hasRole('Employee'))
-                            var fetchurl = '/employee/tasks/get-project-name/'
-                            @endif
-                            @if(Auth::user()->hasRole('Responsable de projet'))
-                            var fetchurl = '/Responsable_de_projet/tasks/get-project-name/'
-                            @endif
-                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                            var fetchurl = '/Responsable_gestionnaire/tasks/get-project-name/'
-                            @endif
-                            return fetch(fetchurl + encodeURIComponent(task.task_id))
-                                .then(response => response.json())
-                                .then(projectData => {
-                                    return fetch('/employee/tasks/get-employee-name/' + encodeURIComponent(task.employee_id))
-                                        .then(response => response.json())
-                                        .then(employeeData => {
-                                            var rowId = 'row-' + task.id; 
-                                            let duration_hours = Math.floor(task.duration / 60);
-                                            let duration_minutes = task.duration % 60;
-                                            let duration_seconds = 0; 
-                                            let formattedDuration = `${duration_hours.toString().padStart(2, '0')}h:${duration_minutes.toString().padStart(2, '0')}m:${duration_seconds.toString().padStart(2, '0')}s`;
-
-                                            // Updated Row with Tailwind classes
-                                            var row = `
-                                      <tr id="${rowId}" class="hover:bg-slate-50 transition-colors">
-                                          <td class="px-6 py-4 text-sm text-slate-600">${projectData.name.toUpperCase()}</td>                          
-                                          <td class="px-6 py-4 text-sm text-blue-500 font-medium">${task.task_name}</td>
-                                          <td class="px-6 py-4 text-sm text-slate-500">${task.start_date}</td>
-                                          <td class="px-6 py-4 text-sm text-slate-500">${endDateText}</td>
-                                          <td class="px-6 py-4 text-sm text-slate-500">${task.comment ? task.comment : "No Comment"}</td>
-                                          <td class="task_duration px-6 py-4 text-sm font-bold text-slate-800">${task.end_date ? formattedDuration : ""}</td>
-                                      </tr>`;
-
-                                            tableBody.insertAdjacentHTML('beforeend', row);
-
-                                            if (task.end_date === null) {
-                                                var startDate = new Date(task.start_date);
-                                                var taskId = task.id;
-                                                var rowId = 'row-' + taskId;
-                                                taskPaused[taskId] = task.paused === 1;
-                                                var startTimestamp = startDate.getTime();
-                                                var elapsedTime = 0;
-                                                
-                                                if(taskIntervals[taskId]) { clearInterval(taskIntervals[taskId]); }
-                                                
-                                                taskIntervals[taskId] = setInterval(function() {
-                                                    if(!taskPaused[taskId]) {
-                                                        var now = new Date();
-                                                        var durationInMilliseconds = now - startDate + elapsedTime;
-                                                        var hours = Math.floor(durationInMilliseconds / 3600000);
-                                                        var minutes = Math.floor((durationInMilliseconds % 3600000) / 60000);
-                                                        var seconds = Math.floor((durationInMilliseconds % 60000) / 1000);
-                                                        var formattedDuration = (hours < 10 ? '0' : '') + hours + 'h:' + (minutes < 10 ? '0' : '') + minutes + 'm:' + (seconds < 10 ? '0' : '') + seconds + 's';
-                                                        var durationCell = document.querySelector('#' + rowId + ' .task_duration');
-                                                        if (durationCell) { durationCell.textContent = formattedDuration; } 
-                                                        else { clearInterval(taskIntervals[taskId]); }
-                                                    }
-                                                }, 1000); 
-                                            }
-                                            var rowElement = tableBody.lastElementChild;
-                                            var DurationValue = rowElement.cells[5].textContent.trim();
-                                            var durationInSeconds = parseDuration(DurationValue);
-                                            totalDuration += durationInSeconds / 3600;
-                                        });
-                                });
-                        })).then(() => {
-                            var hours = Math.floor(totalDuration);
-                            var minutes = Math.round((totalDuration - hours) * 60);
-                            var formattedDuration = `${hours.toString().padStart(2, '0')}h:${minutes.toString().padStart(2, '0')}m`;
-                            var totalRow = `
-                            <tr class="bg-slate-50 font-bold">
-                                <td colspan="5" class="px-6 py-4 text-right">Total:</td>
-                                <td class="px-6 py-4 text-blue-600">${formattedDuration}</td>
-                            </tr>`;
-                            tableBody.insertAdjacentHTML('beforeend', totalRow);
-                        });
-                    }
-                })
-                .catch(error => { console.error('Error fetching data:', error); });
-        }
-
-        function parseDuration(durationString) {
-            var parts = durationString.split(':');
-            var hours = parseInt(parts[0].replace('h', ''), 10);
-            var minutes = parseInt(parts[1].replace('m', ''), 10);
-            var seconds = parseInt(parts[2].replace('s', ''), 10);
-            return hours * 3600 + minutes * 60 + seconds;
-        }
-    });
     </script>
 
+    {{-- 7. JQuery AJAX for Start/Stop --}}
     <script>
-    $(document).ready(function() {
-        $('.start-button').click(function() {
-            var taskId = $(this).data('task-id');
-            var employeeId = $(this).data('employee-id');
-            $.ajax({
-                url: '/tasks/' + taskId + '/start/' + employeeId,
-                type: 'POST',
-                data: { task_id: taskId, employee_id: employeeId },
-                success: function(response) {},
-                error: function(response) {}
+        $(document).ready(function() {
+            $('.start-button').click(function() {
+                var taskId = $(this).data('task-id');
+                var employeeId = @json($employee_id); // Fixed usage
+                $.ajax({
+                    url: '/tasks/' + taskId + '/start/' + employeeId,
+                    type: 'POST',
+                    data: { task_id: taskId, employee_id: employeeId },
+                    success: function(response) { /* handle success */ },
+                    error: function(response) { /* handle error */ }
+                });
             });
-        });
 
-        $('.stop-button').click(function() {
-            var taskId = $(this).data('task-id');
-            var employeeId = $(this).data('employee-id');
-            $.ajax({
-                url: '/tasks/' + taskId + '/stop/' + employeeId,
-                type: 'POST',
-                data: { task_id: taskId, employee_id: employeeId },
-                success: function(response) {},
-                error: function(response) {}
+            $('.stop-button').click(function() {
+                var taskId = $(this).data('task-id');
+                var employeeId = @json($employee_id); // Fixed usage
+                $.ajax({
+                    url: '/tasks/' + taskId + '/stop/' + employeeId,
+                    type: 'POST',
+                    data: { task_id: taskId, employee_id: employeeId },
+                    success: function(response) { /* handle success */ },
+                    error: function(response) { /* handle error */ }
+                });
             });
         });
-    });
     </script>
+
+    {{-- 8. Close Banner Logic --}}
+    <script>
+        function closeBanner() {
+            var closeButton = document.querySelector('#close-bar');
+            if (closeButton) closeButton.click();
+        }
+        window.onload = closeBanner;
+    </script>
+
+    {{-- 9. Client-side Filtering for Main Task Table --}}
     <script>
         document.getElementById('projectFilter').addEventListener('change', function() {
             var filter = this.value.toLowerCase();
@@ -864,13 +784,12 @@
             var shouldShowCurrentProject = false;
 
             rows.forEach(function(row) {
-                // Check if this is a project banner row (has colspan="8")
-                if (row.cells.length === 1 && row.cells[0].colSpan === 8) {
+                // Check for project header row (colspan 7)
+                if (row.cells.length === 1 && row.cells[0].colSpan === 7) {
                     currentProject = row.cells[0].textContent.trim().toLowerCase();
                     shouldShowCurrentProject = filter === "" || currentProject.includes(filter);
                     row.style.display = shouldShowCurrentProject ? "" : "none";
                 } else {
-                    // This is a task row - show it if its project is being shown
                     row.style.display = shouldShowCurrentProject ? "" : "none";
                 }
             });

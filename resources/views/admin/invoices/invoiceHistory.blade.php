@@ -65,7 +65,6 @@
                     <p class="text-sm text-gray-600">Manage and track all your invoices in one place</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    {{-- [CHANGED] Icon removed --}}
                     <button type="button" 
                             @click="$dispatch('open-modal', 'invoiceReportModal')"
                             class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
@@ -79,7 +78,6 @@
                     @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $archiveRoute = route('Responsable_gestionnaire.invoiceArchived.archiveIndex'); @endphp @endif
                     
                     @if($archiveRoute)
-                    {{-- [CHANGED] Icon removed --}}
                     <a href="{{ $archiveRoute }}" class="inline-flex items-center bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 shadow-sm">
                         View Archive
                     </a>
@@ -118,15 +116,15 @@
             @php
                 $totalPaid = App\Models\invoices_history::where('entreprise_id', Auth::user()->entreprise_id)->where('Payment_status', 1)->sum('total_ttc');
                 $totalUnpaid = App\Models\invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
-                                        ->where(function($query) {
-                                            $query->where('Payment_status', 0)->orWhereNull('Payment_status');
-                                        })->sum('total_ttc');
+                                                ->where(function($query) {
+                                                    $query->where('Payment_status', 0)->orWhereNull('Payment_status');
+                                                })->sum('total_ttc');
                 $totalAmount = $totalPaid + $totalUnpaid;
                 $totalTva = App\Models\invoices_history::where('entreprise_id', Auth::user()->entreprise_id)->sum('total_tva');
             @endphp
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {{-- Total Paid Card --}}
-                <div class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4">
+                <div onclick="filterByStatus('Paid')" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer hover:bg-gray-50 transition-colors">
                     <div class="flex-shrink-0 bg-green-100 rounded-full p-3">
                         <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -138,7 +136,7 @@
                     </div>
                 </div>
                 {{-- Total Unpaid Card --}}
-                <div class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4">
+                <div onclick="filterByStatus('Unpaid')" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer hover:bg-gray-50 transition-colors">
                     <div class="flex-shrink-0 bg-red-100 rounded-full p-3">
                         <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -150,7 +148,7 @@
                     </div>
                 </div>
                 {{-- Total Amount Card --}}
-                <div class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4">
+                <div onclick="filterByStatus('')" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer hover:bg-gray-50 transition-colors">
                     <div class="flex-shrink-0 bg-blue-100 rounded-full p-3">
                         <svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 3a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 12m15 0a2.25 2.25 0 01-2.25 2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 013 12m15 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v6" />
@@ -203,6 +201,7 @@
                             <option value="">All Invoices</option>
                             <option value="Paid">Paid</option>
                             <option value="Unpaid">Unpaid</option>
+                            <option value="Overdue">Overdue</option> {{-- [ADDED] Overdue Option --}}
                         </select>
                     </div>
                     <div>
@@ -303,42 +302,68 @@
                 @endif
 
                 {{-- Row 1, Column 2: Reminder --}}
-                @if(!$isPaid)
-                @can('Send invoice')
-                    @if(Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                        @if(!$invoice->first_reminder_date || !$invoice->second_reminder_date || !$invoice->third_reminder_date)
-                        <div x-data="{ open: false }" class="relative w-full">
-                            <button @click="open = !open" type="button" 
-                                    title="Send Reminder" 
-                                    class="w-full px-2 py-1 rounded-md bg-yellow-500 text-white hover:bg-yellow-600 text-xs font-medium">
-                                Reminder
-                            </button>
-                            <ul x-show="open" 
-                                @click.outside="open = false" 
-                                x-transition
-                                style="display: none;"
-                                class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                                @if(!$invoice->first_reminder_date)
-                                    <li><a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route((Auth::user()->hasRole('Admin') ? 'admin.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet et gestionnaire') ? 'Responsable_gestionnaire.invoice.sendManualremind' : 'employee.invoice.sendManualremind'))), ['id' => $invoice->id, 'reminder' => 1]) }}">Send Reminder 1</a></li>
-                                @endif
-                                @if($invoice->first_reminder_date && !$invoice->second_reminder_date)
-                                    <li><a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route((Auth::user()->hasRole('Admin') ? 'admin.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet et gestionnaire') ? 'Responsable_gestionnaire.invoice.sendManualremind' : 'employee.invoice.sendManualremind'))), ['id' => $invoice->id, 'reminder' => 2]) }}">Send Reminder 2</a></li>
-                                @endif
-                                @if($invoice->second_reminder_date && !$invoice->third_reminder_date)
-                                    <li><a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route((Auth::user()->hasRole('Admin') ? 'admin.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet et gestionnaire') ? 'Responsable_gestionnaire.invoice.sendManualremind' : 'employee.invoice.sendManualremind'))), ['id' => $invoice->id, 'reminder' => 3]) }}">Send Reminder 3</a></li>
-                                @endif
-                            </ul>
-                        </div>
-                        @else
-                        {{-- Empty placeholder if no reminders available --}}
-                        <div class="w-full"></div>
+@if(!$isPaid)
+    @can('Send invoice')
+        @if(Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+            
+            {{-- Check if at least one reminder is still available to send --}}
+            @if(!$invoice->first_reminder_date || !$invoice->second_reminder_date || !$invoice->third_reminder_date)
+                
+                {{-- CALCULATE BUTTON LABEL LOGIC --}}
+                @php
+                    $reminderLabel = 'Reminder'; // Default
+                    if (!$invoice->first_reminder_date) {
+                        $reminderLabel = 'Reminder 1';
+                    } elseif (!$invoice->second_reminder_date) {
+                        $reminderLabel = 'Reminder 2';
+                    } elseif (!$invoice->third_reminder_date) {
+                        $reminderLabel = 'Reminder 3';
+                    }
+                @endphp
+
+                <div x-data="{ open: false }" class="relative w-full">
+                    {{-- Updated Button Text --}}
+                    <button @click="open = !open" type="button" 
+                            title="Send Reminder" 
+                            class="w-full px-2 py-1 rounded-md bg-yellow-500 text-white hover:bg-yellow-600 text-xs font-medium flex justify-center items-center gap-1">
+                        {{ $reminderLabel }} 
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                    
+                    <ul x-show="open" 
+                        @click.outside="open = false" 
+                        x-transition
+                        style="display: none;"
+                        class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                        
+                        @if(!$invoice->first_reminder_date)
+                            <li><a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route((Auth::user()->hasRole('Admin') ? 'admin.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet et gestionnaire') ? 'Responsable_gestionnaire.invoice.sendManualremind' : 'employee.invoice.sendManualremind'))), ['id' => $invoice->id, 'reminder' => 1]) }}">Send Reminder 1</a></li>
                         @endif
-                    @endif
-                @endcan
-                @else
-                {{-- Empty placeholder if paid --}}
-                <div class="w-full"></div>
-                @endif
+                        
+                        @if($invoice->first_reminder_date && !$invoice->second_reminder_date)
+                            <li><a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route((Auth::user()->hasRole('Admin') ? 'admin.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet et gestionnaire') ? 'Responsable_gestionnaire.invoice.sendManualremind' : 'employee.invoice.sendManualremind'))), ['id' => $invoice->id, 'reminder' => 2]) }}">Send Reminder 2</a></li>
+                        @endif
+                        
+                        @if($invoice->second_reminder_date && !$invoice->third_reminder_date)
+                            <li><a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route((Auth::user()->hasRole('Admin') ? 'admin.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet et gestionnaire') ? 'Responsable_gestionnaire.invoice.sendManualremind' : 'employee.invoice.sendManualremind'))), ['id' => $invoice->id, 'reminder' => 3]) }}">Send Reminder 3</a></li>
+                        @endif
+                    </ul>
+                </div>
+            @else
+                {{-- Empty placeholder if no reminders available (all 3 sent) --}}
+                <div class="w-full px-2 py-1 rounded-md bg-gray-90 text-gray-500 border border-gray-450 text-xs font-medium flex items-center justify-center gap-1 cursor-default">
+                    <span>All Sent</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+            @endif
+        @endif
+    @endcan
+@else
+    {{-- Empty placeholder if paid --}}
+    <div class="w-full"></div>
+@endif
 
                 {{-- Row 2, Column 1: Send --}}
                 @can('Send invoice')
@@ -834,48 +859,17 @@
         window.dispatchEvent(new CustomEvent('open-modal', { detail: { id: 'partialDetailedCreditNoteModal', invoiceId: invoiceId, totalCost: totalCost } }));
     }
 
-    function sendReminder(invoiceId, reminderNumber) {
-        let url = '';
-        @if(Auth::user()->hasRole('Admin')) 
-            url = `/admin/invoice/sendManualremind?id=${invoiceId}&reminder=${reminderNumber}`; 
-        @endif
-        @if(Auth::user()->hasRole('Responsable de projet')) 
-            url = `/Responsable_de_projet/invoice/sendManualremind?id=${invoiceId}&reminder=${reminderNumber}`; 
-        @endif
-        @if(Auth::user()->hasRole('Employee')) 
-            url = `/employee/invoice/sendManualremind?id=${invoiceId}&reminder=${reminderNumber}`; 
-        @endif
-        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) 
-            url = `/Responsable_gestionnaire/invoice/sendManualremind?id=${invoiceId}&reminder=${reminderNumber}`; 
-        @endif
-
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(res => {
-            if (!res.ok) {
-                return res.text().then(text => { 
-                    throw new Error(`${res.status} ${res.statusText}: ${url}`) 
-                });
-            }
-            return res.json();
-        })
-        .then(data => {
-            if(data.success) {
-                showMessage('Reminder sent successfully', 'success');
-                setTimeout(() => window.location.reload(), 2000);
-            } else {
-                showMessage('Error sending reminder: ' + (data.message || 'Unknown error'), 'danger');
-            }
-        })
-        .catch(err => {
-            showMessage('Error sending reminder: ' + err.message, 'danger');
-            console.error(err);
-        });
+    // [NEW] Filter by status function for cards
+    function filterByStatus(status) {
+        const paymentFilter = document.getElementById('paymentFilter');
+        if (paymentFilter) {
+            // Set the value
+            paymentFilter.value = status;
+            
+            // Dispatch 'change' event so any listeners react
+            const event = new Event('change');
+            paymentFilter.dispatchEvent(event);
+        }
     }
 
     // Fonction globale pour afficher les messages
@@ -938,10 +932,13 @@
                 const clientName = row.querySelector('td:nth-child(4)')?.textContent.trim() || '';
                 const projectName = row.querySelector('td:nth-child(2)')?.textContent.trim() || '';
                 
+                // [NEW] Overdue detection for filtering
+                const isOverdueRow = row.querySelector('.invoice-link-overdue') !== null;
+                
                 const paymentButton = row.querySelector('.payment-button');
                 let paymentStatus = '';
                 if (paymentButton) {
-                    // [FIXED] Check text content instead of class
+                    // Check text content instead of class
                     const buttonText = paymentButton.textContent.trim();
                     if (buttonText === 'Paid') {
                         paymentStatus = 'Paid';
@@ -955,7 +952,17 @@
 
                 const clientMatch = clientValue === '' || clientName === clientValue;
                 const projectMatch = projectValue === '' || projectName.toUpperCase() === projectValue.toUpperCase();
-                const paymentMatch = paymentValue === '' || paymentStatus === paymentValue;
+                
+                // [MODIFIED] Enhanced Payment Matching Logic
+                let paymentMatch = false;
+                if (paymentValue === '') {
+                    paymentMatch = true;
+                } else if (paymentValue === 'Overdue') {
+                    paymentMatch = isOverdueRow;
+                } else {
+                    paymentMatch = paymentStatus === paymentValue;
+                }
+
                 const typeMatch = typeValue === '' || invoiceType === typeValue;
 
                 if (clientMatch && projectMatch && paymentMatch && typeMatch) {

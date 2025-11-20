@@ -243,11 +243,14 @@ class tasksController extends Controller
         ->get();
         if($old_employees){
             foreach ($old_employees as $old_emp){
-                $old_employee = employees::where('id', $old_emp->employee_id)->first(); 
-                $old_employee_usr= User::where('id', $old_employee->user_id)
-                ->where('is_activate', 1)
-                ->get();
-                $old_employee_users = $old_employee_users->concat($old_employee_usr);
+                $old_employee = employees::where('id', $old_emp->employee_id)->first();
+                if ($old_employee){
+                    $old_employee_usr= User::where('id', $old_employee->user_id)
+                    ->where('is_activate', 1)
+                    ->get();
+                    $old_employee_users = $old_employee_users->concat($old_employee_usr);
+                }
+                
             }
 
             $employee_users = collect();

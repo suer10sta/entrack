@@ -4,357 +4,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devis Report</title>
     <style>
-    body {
-        font-family: Tahoma, sans-serif;
-        font-size: 12px;
-        color: #333333;
-        background-color: #FFFFFF;
-        margin: 0;
-        padding: 0;
-    }
+        /* [MODIFIED] Consistent Font and Size */
+        body {
+            font-family: Tahoma, sans-serif;
+            font-size: 11px;
+            color: #333333;
+            background-color: #FFFFFF;
+            margin: 0;
+            padding: 0;
+        }
 
-    .page {
-        position: relative;
-        width: 595px;
-        min-height: 842px;
-        /* A4 height */
-        margin: 0 auto;
-        padding: 20px;
-        page-break-after: always;
-    }
+        /* [NEW] Consistent Wrapper */
+        .report-wrapper {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px 100px 20px;
+            position: relative;
+        }
 
-    /* Remove page-break-after from the last page */
-    .page:last-of-type {
-        page-break-after: avoid;
-    }
+        .header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-    .header {
-        width: 100%;
-        text-align: center;
-        margin-bottom: 20px;
-    }
+        .details {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+            padding-bottom: 10px;
+        }
 
-    .header img {
-        width: 100px;
-        height: auto;
-    }
+        .details-left {
+            width: 40%;
+            font-size: 12px;
+        }
 
-    .details {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 20px;
-        position: relative;
-    }
+        .details-right {
+            width: 58%;
+            font-size: 12px;
+            text-align: right;
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+        
+        .header-info h2 {
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+        
+        .header-info h4 {
+            margin-top: 0;
+            margin-bottom: 0;
+            font-weight: normal;
+        }
 
-    .details-left {
-        width: 48%;
-        font-size: 12px;
-    }
+        .company-logo {
+            width: 100px;
+            height: auto;
+        }
 
-    .details-right {
-        width: 48%;
-        font-size: 12px;
-        text-align: right;
-        position: absolute;
-        right: 0;
-        top: 0;
-    }
+        /* [NEW] Styled Summary Box */
+        .totals-summary {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            font-size: 11px;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 20px;
+        }
+        .summary-item strong { color: #555; }
+        .summary-item .accepted { color: #28a745; font-weight: bold; }
+        .summary-item .declined { color: #dc3545; font-weight: bold; }
+        .summary-item .pending { color: #ffc107; font-weight: bold; }
 
-    .invoice-number {
-        text-align: center;
-        font-size: 14px;
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            margin-top: 20px;
+            table-layout: fixed; 
+        }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 20px;
-    }
+        table, th, td {
+            border: 1px solid #CCCCCC;
+        }
 
-    table,
-    th,
-    td {
-        border: 1px solid #CCCCCC;
-    }
+        th, td {
+            padding: 6px 5px;
+            text-align: left;
+            font-size: 11px;
+            vertical-align: top;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
 
-    th,
-    td {
-        padding: 8px;
-        text-align: left;
-        font-size: 12px;
-    }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
 
-    th {
-        background-color: #f2f2f2;
-        font-weight: bold;
-    }
+        /* [MODIFIED] Fixed Footer */
+        .footer {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            border-top: 1px solid #000;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+        }
 
-    .totals {
-        border: none;
-        margin-top: 20px;
-        text-align: right;
-        width: 100%; /* Ensure totals table takes full width */
-    }
+        .footer-content {
+            position: relative;
+            width: 100%;
+            height: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
 
-    .totals td {
-        border: none;
-        padding: 4px 8px; /* Adjust padding for totals */
-    }
-    
-    /* [MODIFIED] Added styles for the totals table labels and values */
-    .totals .label {
-        font-weight: bold;
-        text-align: right;
-        width: 80%;
-    }
-    .totals .value {
-        font-weight: bold;
-        text-align: right;
-        white-space: nowrap;
-    }
+        .footer-left { position: absolute; left: 0; text-align: left; }
+        .footer-center { position: absolute; left: 50%; transform: translateX(-50%); text-align: center; }
+        .footer-right { position: absolute; right: 0; text-align: right; }
 
+        .footer-text {
+            color: #333333;
+            line-height: 1.4;
+            font-size: 10px;
+        }
 
-    .description {
-        width: 100%;
-        text-align: justify;
-        font-size: 12px;
-        border-top: 2px double #CCCCCC;
-        border-bottom: 2px double #CCCCCC;
-        padding: 10px 0;
-        margin-bottom: 20px;
-    }
-
-    .payment {
-        width: 100%;
-        text-align: justify;
-        font-size: 12px;
-        margin-bottom: 20px;
-    }
-
-    .footer {
-        position: fixed;
-        bottom: 4px;
-        left: 20px; /* Match page padding */
-        right: 20px; /* Match page padding */
-        width: calc(100% - 40px); /* Account for left and right padding */
-        border-top: 1px solid #000;
-        padding-top: 20px;
-    }
-
-    .footer-content {
-        position: relative;
-        width: 100%;
-        height: 50px;
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .footer-left {
-        position: absolute;
-        left: 0;
-        text-align: left;
-    }
-
-    .footer-center {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        text-align: center;
-    }
-
-    .footer-right {
-        position: absolute;
-        right: 0;
-        text-align: right;
-    }
-
-    .footer-text {
-        color: #333333;
-        line-height: 1.4;
-        font-size: 12px; /* Ensure footer text matches body */
-    }
-
-    .general-conditions {
-        text-align: justify;
-        line-height: 1.1;
-        font-size: 10px;
-        margin-bottom: 20px;
-        /* Space for footer */
-        white-space: pre-line;
-        /* Preserve line breaks */
-    }
-
-    .logo-right {
-        text-align: left;
-    }
-
-    /* Content wrapper to prevent overlap with footer */
-    .content-wrapper {
-        padding-bottom: 100px;
-        /* Space for footer */
-    }
-
-    .detailsTab {
-        border: none;
-        width: 100%;
-        margin-bottom: 5px;
-    }
-
-    .task-cell {
-        width: 80%;
-        border: 0;
-        word-wrap: break-word;
-        padding-right: 20px;
-    }
-
-    .budget-cell {
-        width: 20%;
-        border: 0;
-        text-align: right;
-        white-space: nowrap;
-    }
-    
-    .company-logo {
-        width: 100px; /* From template */
-        height: auto;
-    }
+        @media print {
+            body { margin: 0; padding: 0; }
+            .report-wrapper { width: 100%; max-width: 100%; padding: 20px; margin: 0; border: none; }
+            .footer { position: fixed; bottom: 0; width: 100%; }
+            thead { display: table-header-group; }
+            tr { page-break-inside: avoid; }
+        }
     </style>
 </head>
 
 <body>
-    <div class="page">
-        <div class="content-wrapper">
-            
-            <div class="header">
-                <div class="logo-right">
-                    <img src="{{ Storage::disk('do_spaces')->url($entreprise->image) }}" alt="Company Logo" class="company-logo">
+
+    <div class="report-wrapper">
+
+        <div class="details">
+            <div class="details-left">
+                @if(Auth::user()->entreprise && Auth::user()->entreprise->image)
+                    <img src="{{ Storage::disk('do_spaces')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                @endif
+            </div>
+            <div class="details-right">
+                <div class="header-info">
+                    <h2>Devis Table Reports</h2>
+                    <h4>Number of Devis: {{ $devis->count() }}</h4>
                 </div>
             </div>
-
-            <br><br><br>
-
-            <div class="details">
-                <div class="details-left">
-                    <p>Date: {{ date('d-m-Y') }}<br />
-                    </p>
-                </div>
-                <div class="details-right">
-                    <strong>Devis Table Reports</strong><br />
-                    Number of Devis: {{ $devis->count() }}
-                </div>
-            </div>
-            
-            <br>
-            
-            @php 
-                $Total_Accpeted = 0;
-                $Total_Declined = 0;
-                $Total_Pending = 0;
-            @endphp
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>devis N</th>
-                        <th>Project Name</th>
-                        <th>TVA</th>
-                        <th>Client Name</th>
-                        <th>Emails</th>
-                        <th>Acceptance status</th>
-                        <th>Budget</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($devis as $devi)
-                    <tr>
-                        <td>{{$entreprise->devis_prefix}}-{{$devi->devis_number}}</td>
-                        <td>
-                            @php 
-                            $project = App\Models\Project::find($devi->project_id);
-                            @endphp
-                            {{$project->name}}
-                        </td>
-                        <td>
-                            {{$project->tva}}%
-                        </td>
-                        <td>
-                            @php 
-                            $client = App\Models\Client::find($devi->client_id);
-                            @endphp
-                            {{$client->name}}
-                        </td>
-                        <td>{{$devi->emails}}</td>
-                        <td>
-                            @if($devi->acceptanceStatus == 1)
-                                Accepted
-                            @elseif($devi->acceptanceStatus == 2)
-                                Declined
-                            @else
-                                Pending 
-                            @endif
-                        </td>
-                        <td>
-                            €{{number_format($devi->budget, 2, ',', ' ')}}
-                            @if($devi->acceptanceStatus == 1)
-                                @php
-                                    $Total_Accpeted += $devi->budget;
-                                @endphp
-                            @elseif($devi->acceptanceStatus == 2)
-                                @php
-                                    $Total_Declined += $devi->budget;
-                                @endphp
-                            @else
-                                @php
-                                    $Total_Pending += $devi->budget;
-                                @endphp
-                            @endif
-                        </td> 
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-            <table class="totals">
-                <tbody>
-                    <tr>
-                        <td class="label">Totals Accepted :</td>
-                        <td class="value">€{{ number_format($Total_Accpeted, 2, ',', ' ') }}</td>
-                    </tr>
-                    <tr>
-                        <td class="label">Totals Declined :</td>
-                        <td class="value">€{{ number_format($Total_Declined, 2, ',', ' ') }}</td>
-                    </tr>
-                    <tr>
-                        <td class="label">Totals Pending :</td>
-                        <td class="value">€{{ number_format($Total_Pending, 2, ',', ' ') }}</td>
-                    </tr>
-                </tbody>
-            </table>
-
         </div>
 
-        <div class="footer">
-            <div class="footer-content">
-                <div class="footer-left footer-text">
-                    <b>{{ $entreprise->name }}</b><br>
-                    <b>Numéro TVA:</b> {{ $entreprise->tva}}
+        @php 
+            $Total_Accpeted = 0;
+            $Total_Declined = 0;
+            $Total_Pending = 0;
+        @endphp
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 12%;">Devis N</th>
+                    <th style="width: 15%;">Project Name</th>
+                    <th style="width: 6%;">TVA</th>
+                    <th style="width: 15%;">Client Name</th>
+                    <th style="width: 20%;">Emails</th>
+                    <th style="width: 10%;">Status</th>
+                    <th style="width: 10%;">Budget</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($devis as $devi)
+                <tr>
+                    <td>{{$entreprise->devis_prefix}}-{{$devi->devis_number}}</td>
+                    <td>
+                        @php 
+                        $project = App\Models\Project::find($devi->project_id);
+                        @endphp
+                        {{$project->name}}
+                    </td>
+                    <td>
+                        {{$project->tva}}%
+                    </td>
+                    <td>
+                        @php 
+                        $client = App\Models\Client::find($devi->client_id);
+                        @endphp
+                        {{$client->name}}
+                    </td>
+                    <td>{{$devi->emails}}</td>
+                    <td>
+                        @if($devi->acceptanceStatus == 1)
+                            <span style="color: #28a745; font-weight: bold;">Accepted</span>
+                        @elseif($devi->acceptanceStatus == 2)
+                            <span style="color: #dc3545; font-weight: bold;">Declined</span>
+                        @else
+                            <span style="color: #ffc107; font-weight: bold;">Pending</span> 
+                        @endif
+                    </td>
+                    <td>
+                        €{{number_format($devi->budget, 2, ',', ' ')}}
+                        @if($devi->acceptanceStatus == 1)
+                            @php $Total_Accpeted += $devi->budget; @endphp
+                        @elseif($devi->acceptanceStatus == 2)
+                            @php $Total_Declined += $devi->budget; @endphp
+                        @else
+                            @php $Total_Pending += $devi->budget; @endphp
+                        @endif
+                    </td> 
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        {{-- Summary Section using consistent styling --}}
+        <div class="totals-summary">
+            <div class="summary-row">
+                <div class="summary-item">
+                    <strong>Totals Accepted:</strong> <span class="accepted">€{{ number_format($Total_Accpeted, 2, ',', ' ') }}</span>
                 </div>
-                <div class="footer-center footer-text">
-                    {{ $entreprise->Address }}<br>
-                    Tél: 0{{ $entreprise->phone }}
+                <div class="summary-item">
+                    <strong>Totals Declined:</strong> <span class="declined">€{{ number_format($Total_Declined, 2, ',', ' ') }}</span>
                 </div>
-                <div class="footer-right footer-text">
-                    <b>BANK</b> : {{ $entreprise->bank_name }}<br>
-                    <b>IBAN</b> : {{ $entreprise->iban }}<br>
-                    <b>SWIFT/BIC</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
+                <div class="summary-item">
+                    <strong>Totals Pending:</strong> <span class="pending">€{{ number_format($Total_Pending, 2, ',', ' ') }}</span>
                 </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-left footer-text">
+                @if(Auth::user()->entreprise)
+                    <b>{{ Auth::user()->entreprise->name }}</b><br>
+                    <b>Numéro TVA:</b> {{ Auth::user()->entreprise->tva}}
+                @endif
+            </div>
+            <div class="footer-center footer-text">
+                @if(Auth::user()->entreprise)
+                    {{ Auth::user()->entreprise->Address }}<br>
+                    Tél: 0{{ Auth::user()->entreprise->phone }}
+                @endif
+            </div>
+            <div class="footer-right footer-text">
+                @if(Auth::user()->entreprise)
+                    <b>BANK</b> : {{ Auth::user()->entreprise->bank_name }}<br>
+                    <b>IBAN</b> : {{ Auth::user()->entreprise->iban }}<br>
+                    <b>SWIFT/BIC</b> : {{ Auth::user()->entreprise->swift }} / {{ Auth::user()->entreprise->bic }}
+                @endif
+                <br>
+                <span style="font-size: 9px; color: #666;">Printed: {{ date('d-m-Y') }}</span>
             </div>
         </div>
     </div>
+
 </body>
 
 </html>

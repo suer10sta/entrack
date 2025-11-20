@@ -1,185 +1,245 @@
-<style>
-body {
-    font-family: Arial, sans-serif;
+<!DOCTYPE html>
+<html lang="en">
 
-}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Note Report</title>
+    <style>
+        /* [MODIFIED] Consistent Font and Size */
+        body {
+            font-family: Tahoma, sans-serif;
+            font-size: 11px;
+            color: #333333;
+            background-color: #FFFFFF;
+            margin: 0;
+            padding: 0;
+        }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+        /* [NEW] Consistent Wrapper */
+        .report-wrapper {
+            width: 100%;
+            max-width: 800px; /* Adjusted width for fewer columns */
+            margin: 0 auto;
+            padding: 40px 20px 100px 20px;
+            position: relative;
+        }
 
-th {
-    border: 1px solid black;
-    padding: 8px;
-    text-align: left;
-    font-family: Arial, sans-serif;
-    font-size: 12px;
-    font-weight: bold;
-}
+        .header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-td {
-    border: 1px solid black;
-    padding: 8px;
-    text-align: left;
-    font-family: Arial, sans-serif;
-    font-size: 11px;
-    font-weight: normal;
-}
+        .details {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+            padding-bottom: 10px;
+        }
 
-thead {
-    background-color: #f2f2f2;
-}
+        .details-left {
+            width: 40%;
+            font-size: 12px;
+        }
 
+        .details-right {
+            width: 58%;
+            font-size: 12px;
+            text-align: right;
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+        
+        .header-info h2 {
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+        
+        .header-info h4 {
+            margin-top: 0;
+            margin-bottom: 0;
+            font-weight: normal;
+        }
 
+        .company-logo {
+            width: 100px;
+            height: auto;
+        }
 
-.company-logo {
-    width: 80px;
-    /* Adjust the width as needed */
-    margin-right: 20px;
-    /* Add some space between the image and the header info */
-}
+        /* [NEW] Styled Summary Box */
+        .totals-summary {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            font-size: 11px;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 20px;
+        }
+        .summary-item strong { color: #555; }
+        .summary-item span { font-weight: bold; color: #333; }
 
-.details {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    position: relative;
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            margin-top: 20px;
+            table-layout: fixed; 
+        }
 
-.details-left {
-    width: 48%;
-    font-size: 12px;
-}
+        table, th, td {
+            border: 1px solid #CCCCCC;
+        }
 
-.details-right {
-    width: 48%;
-    font-size: 12px;
-    text-align: right;
-    position: absolute;
-    right: 0;
-    top: 0;
-}
+        th, td {
+            padding: 6px 5px;
+            text-align: left;
+            font-size: 11px;
+            vertical-align: top;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
 
-thead {
-    background-color: #686ce4;
-    /* Updated color */
-    color: white;
-    /* Improve readability */
-}
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
 
+        /* [MODIFIED] Fixed Footer */
+        .footer {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border-top: 1px solid #000;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+        }
 
-.footer {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  position: fixed;
-  bottom: 0; /* Ensure footer sticks to the bottom */
-  left: 0; /* Align footer to the left */
-}
+        .footer-content {
+            position: relative;
+            width: 100%;
+            height: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
 
-.footer-left {
-  width: 48%;
-  font-size: 12px;
-}
+        .footer-left { position: absolute; left: 0; text-align: left; }
+        .footer-center { position: absolute; left: 50%; transform: translateX(-50%); text-align: center; }
+        .footer-right { position: absolute; right: 0; text-align: right; }
 
-.footer-right {
-  width: 48%;
-  font-size: 12px;
-  text-align: right;
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-.page-number:before {
-        content: counter(page);
-    }
+        .footer-text {
+            color: #333333;
+            line-height: 1.4;
+            font-size: 10px;
+        }
 
-    @media print {
-        th, td { font-size: 10px; } /* Even smaller font size for printing if necessary */
-    }
-</style>
+        @media print {
+            body { margin: 0; padding: 0; }
+            .report-wrapper { width: 100%; max-width: 100%; padding: 20px; margin: 0; border: none; }
+            .footer { position: fixed; bottom: 0; width: 100%; }
+            thead { display: table-header-group; }
+            tr { page-break-inside: avoid; }
+        }
+    </style>
+</head>
 
-<div class="containter">
+<body>
 
+    <div class="report-wrapper">
 
-    <div class="details">
-        <div class="details-left">
-            <img src="{{ Storage::disk('do_spaces')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+        <div class="details">
+            <div class="details-left">
+                @if(Auth::user()->entreprise && Auth::user()->entreprise->image)
+                    <img src="{{ Storage::disk('do_spaces')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                @endif
+            </div>
+            <div class="details-right">
+                <div class="header-info">
+                    <h2>Expense Note Table Reports</h2>
+                    <h4>Number of Expense Notes: {{ $notedefrais->count() }}</h4>
+                </div>
+            </div>
         </div>
-        <div class="details-right">
-            <div class="header-info">
-                <h2>Expense Note Table Reports</h2>
-                <h5>Number of Expense Notes: {{ $notedefrais->count() }}</h5>
+
+        @php 
+            $Total_budget = 0;
+        @endphp
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 30%;">Note N</th>
+                    <th style="width: 40%;">Employee Name</th>
+                    <th style="width: 30%;">Total Budget</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($notedefrais as $note)
+                <tr>
+                    <td>{{$entreprise->notedefraisPrefix}}-{{date('ym')}}{{$note->note_number}}</td>
+                    <td>
+                        {{$note->employee_name}}
+                    </td>
+                    <td>
+                        {{number_format($note->budget, 2, ',', ' ')}}€
+                        @php
+                            $Total_budget += $note->budget;
+                        @endphp
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        {{-- Summary Section using consistent styling --}}
+        <div class="totals-summary">
+            <div class="summary-row">
+                <div class="summary-item">
+                    <strong>Totals Accepted:</strong> <span>{{ number_format($Total_budget, 2, ',', ' ') }}€</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-left footer-text">
+                @if(Auth::user()->entreprise)
+                    <b>{{ Auth::user()->entreprise->name }}</b><br>
+                    <b>Numéro TVA:</b> {{ Auth::user()->entreprise->tva}}
+                @endif
+            </div>
+            <div class="footer-center footer-text">
+                @if(Auth::user()->entreprise)
+                    {{ Auth::user()->entreprise->Address }}<br>
+                    Tél: 0{{ Auth::user()->entreprise->phone }}
+                @endif
+            </div>
+            <div class="footer-right footer-text">
+                @if(Auth::user()->entreprise)
+                    <b>BANK</b> : {{ Auth::user()->entreprise->bank_name }}<br>
+                    <b>IBAN</b> : {{ Auth::user()->entreprise->iban }}<br>
+                    <b>SWIFT/BIC</b> : {{ Auth::user()->entreprise->swift }} / {{ Auth::user()->entreprise->bic }}
+                @endif
+                <br>
+                <span style="font-size: 9px; color: #666;">Printed: {{ date('d-m-Y') }}</span>
             </div>
         </div>
     </div>
-    <br><br><br>
-    @php 
-        $Total_budget = 0;
-    @endphp
-    <table>
-        <thead>
-            <tr>
-                <th>Note N</th>
-                <th>Employee Name</th>
-                <th>Total Budget</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($notedefrais as $note)
-            <tr>
-                <td>{{$entreprise->notedefraisPrefix}}-{{date('ym')}}{{$note->note_number}}</td>
-                <td>
-                    {{$note->employee_name}}
-                </td>
-                <td>
-                    {{$note->budget}}€
-                    @php
-                        $Total_budget += $note->budget;
-                    @endphp
-                </td>
-            </tr>
-            @endforeach
-            <tr style="border: none;">
-              
-                <td style="border: none;"></td>
-              
-                <td style="border: none;"><strong>Totals Accepted : </strong></td>
-                <td style="border: none;"> <strong> {{ $Total_budget }}€ </strong> </td>
-            </tr>
-            
-        </tbody>
-    </table>
 
-    <div class="footer">
-        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
-        <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
-    </div>
+</body>
 
-</div>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Find all elements that represent pages
-    const pages = document.querySelectorAll('.page');
-
-    // Check if pages exist
-    if (pages.length === 0) {
-        console.error('No pages found. Ensure your HTML structure includes elements with a .page class.');
-        return;
-    }
-
-    // Loop through each page and set the page number
-    pages.forEach((page, index) => {
-        // Find the .page-number span within the .footer of each page
-        const pageNumberElement = page.querySelector('.footer .page-number');
-        if (pageNumberElement) {
-            pageNumberElement.textContent = index + 1; // Page numbers should start from 1
-        } else {
-            console.error('Page number element not found in page ' + (index + 1));
-        }
-    });
-});
-</script>
+</html>

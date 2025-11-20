@@ -30,3 +30,15 @@
 
     </div>
 </header>
+
+@php
+    $hideTrialModalRoutes = [
+        'profile.*',
+        'subscription.*',
+        'profile.index',
+    ];
+@endphp
+
+@unless(request()->routeIs($hideTrialModalRoutes))
+    <x-modals.trial-expired :show="$showTrialExpiredModal ?? false" />
+@endunless

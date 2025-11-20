@@ -219,7 +219,7 @@
                         </table>
                     </div>
 
-                    {{-- Pagination Placeholder (wrapped in p-6 div) --}}
+                    {{-- Pagination Placeholder  --}}
                     <div class="flex items-center justify-between p-4 border-t border-gray-200">
                         <button class="text-gray-400 hover:text-gray-600 disabled:opacity-50" disabled>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" /></svg>
@@ -230,7 +230,7 @@
                         </button>
                     </div>
 
-                    {{-- Modal (also wrapped in p-6 div) --}}
+                    {{-- Modal  --}}
                     <div class="modal fade" id="employeeSelectionModal" tabindex="-1" aria-labelledby="employeeSelectionModalLabel" aria-hidden="true" style="z-index: 1050;">
                         <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
                         <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -240,9 +240,6 @@
                                     <div class="flex items-center justify-between p-4 border-b rounded-t">
                                         {{-- modal-header --}}
                                         <h5 class="text-lg font-semibold text-gray-900" id="employeeSelectionModalLabel">Select Employees and Columns</h5>
-                                        <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" data-bs-dismiss="modal" aria-label="Close">
-                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                                        </button>
                                     </div>
                                     <div class="p-6 space-y-4">
                                         {{-- modal-body --}}
@@ -324,7 +321,7 @@
                                         </form>
                                     </div>
                                     <div class="flex items-center justify-between p-4 border-t border-gray-200 rounded-b space-x-2">
-                                        <button type="button" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium px-4 py-2 rounded-lg" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" onClick="window.history.back()" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium px-4 py-2 rounded-lg" data-bs-dismiss="modal">Close</button>
                                         <div>
                                             <button type="button" class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg mr-2" id="previewReportBtn">
                                                 Preview & Email

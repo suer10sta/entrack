@@ -58,165 +58,76 @@
                 <h3 class="text-lg font-semibold text-gray-900 mt-4">Expert Support</h3>
                 <p class="text-gray-600 mt-1">Email, phone, and priority assistance</p>
             </div>
-
         </div>
+        {{-- Pricing Cards --}}
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    {{-- Solo Plan --}}
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 flex flex-col hover:shadow-xl transition-shadow duration-300">
+                        <div class="mb-4">
+                            <h2 class="text-2xl font-bold text-gray-900">Solo</h2>
+                            <p class="text-gray-500 mt-2">Perfect for freelancers</p>
+                        </div>
+                        <div class="mb-6">
+                            <span class="text-5xl font-extrabold text-gray-900">€19</span>
+                            <span class="text-gray-500 font-medium">/ month</span>
+                        </div>
+                        <a href="{{ route('subscription.choose', ['plan' => 'solo']) }}" class="block w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-center transition-colors mb-8">
+                            Choose Solo
+                        </a>
+                        <ul class="space-y-4 text-gray-600 flex-grow">
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> <strong>1 User Maximum</strong></li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Advanced Invoicing</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Unlimited Clients</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Advanced Reports</li>
+                        </ul>
+                    </div>
 
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 h-full flex flex-col">
-                <h2 class="text-2xl font-semibold text-gray-900">Solo</h2>
-                <p class="text-gray-600 mt-2">Perfect for freelancers</p>
-                
-                <div class="mt-6 mb-8">
-                    <span class="text-5xl font-bold text-gray-900">€19</span>
-                    <span class="text-gray-500">/ per month</span>
+                    <div class="bg-white rounded-2xl shadow-xl border-2 border-green-500 p-8 flex flex-col relative z-10">
+                        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                            <span class="bg-green-500 text-white text-xs font-bold uppercase tracking-wide py-1 px-3 rounded-full shadow-sm">Most Popular</span>
+                        </div>
+                        <div class="mb-4">
+                            <h2 class="text-2xl font-bold text-gray-900">Premium</h2>
+                            <p class="text-gray-500 mt-2">For growing teams</p>
+                        </div>
+                        <div class="mb-6">
+                            <span class="text-5xl font-extrabold text-gray-900">€49</span>
+                            <span class="text-gray-500 font-medium">/ month</span>
+                        </div>
+                        <a href="{{ route('subscription.choose', ['plan' => 'premium']) }}" class="block w-full py-3 px-6 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg text-center transition-colors mb-8 shadow-md">
+                            Choose Premium
+                        </a>
+                        <ul class="space-y-4 text-gray-600 flex-grow">
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> <strong>Up to 10 Users</strong></li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Advanced Invoicing</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Unlimited Clients</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Advanced Reports</li>
+                        </ul>
+                    </div>
+
+                    {{-- Pro Plan --}}
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 flex flex-col hover:shadow-xl transition-shadow duration-300">
+                        <div class="mb-4">
+                            <h2 class="text-2xl font-bold text-gray-900">Pro</h2>
+                            <p class="text-gray-500 mt-2">For large enterprises</p>
+                        </div>
+                        <div class="mb-6">
+                            <span class="text-5xl font-extrabold text-gray-900">€99</span>
+                            <span class="text-gray-500 font-medium">/ month</span>
+                        </div>
+                        <a href="{{ route('subscription.choose', ['plan' => 'pro']) }}" class="block w-full py-3 px-6 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg text-center transition-colors mb-8">
+                            Choose Pro
+                        </a>
+                        <ul class="space-y-4 text-gray-600 flex-grow">
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> <strong>Unlimited Users</strong></li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Advanced Invoicing</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Unlimited Clients</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Advanced Reports</li>
+                        </ul>
+                    </div>
                 </div>
-
-                <a href="{{route('subscription.choose', 'solo')}}" class="w-full text-center bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors">
-                    Choose Solo
-                </a>
-
-                <ul class="mt-8 space-y-4 text-gray-600 flex-grow">
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Advanced Invoicing</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Unlimited Clients</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Advanced Reports</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Priority Email Support</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Advanced Analytics</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Custom Branding</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>API Access</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>1 User Maximum</span>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-lg p-8 h-full flex flex-col ring-2 ring-green-500 relative">
-                
-                <div class="inline-flex items-center justify-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full mb-4 self-start">
-                    <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M15.5 2.833a.5.5 0 00-1 0v1.444a.5.5 0 00.5.5h.5a.5.5 0 00.5-.5V2.833a.5.5 0 00-.5-.5zm-11 0a.5.5 0 00-1 0v1.444a.5.5 0 00.5.5h.5a.5.5 0 00.5-.5V2.833a.5.5 0 00-.5-.5zM17 5.5A1.5 1.5 0 0115.5 7h-11A1.5 1.5 0 013 5.5V4a1 1 0 011-1h12a1 1 0 011 1v1.5zm-1.5 3h-11A1.5 1.5 0 003 10v6a2 2 0 002 2h10a2 2 0 002-2v-6a1.5 1.5 0 00-1.5-1.5zM5 10.5a.5.5 0 01.5-.5h9a.5.5 0 010 1h-9a.5.5 0 01-.5-.5zM5 13a.5.5 0 01.5-.5h9a.5.5 0 010 1h-9A.5.5 0 015 13z"></path></svg>
-                    Most Popular
-                </div>
-                
-                <h2 class="text-2xl font-semibold text-gray-900">Premium</h2>
-                <p class="text-gray-600 mt-2">For small teams</p>
-                
-                <div class="mt-6 mb-8">
-                    <span class="text-5xl font-bold text-gray-900">€49</span>
-                    <span class="text-gray-500">/ per month</span>
-                </div>
-
-                <a href="{{route('subscription.choose', 'premium')}}" class="w-full text-center bg-green-500 text-white font-semibold py-3 rounded-lg hover:bg-green-600 transition-colors">
-                    Choose Premium
-                </a>
-
-                <ul class="mt-8 space-y-4 text-gray-600 flex-grow">
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Advanced Invoicing</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Unlimited Clients</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Advanced Reports</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Priority Email Support</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Advanced Analytics</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Custom Branding</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>API Access</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Up to 10 Users</span>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 h-full flex flex-col">
-                <h2 class="text-2xl font-semibold text-gray-900">Pro</h2>
-                <p class="text-gray-600 mt-2">For enterprises</p>
-                
-                <div class="mt-6 mb-8">
-                    <span class="text-5xl font-bold text-gray-900">€99</span>
-                    <span class="text-gray-500">/ per month</span>
-                </div>
-
-                <a href="{{route('subscription.choose', 'pro')}}" class="w-full text-center bg-orange-500 text-white font-semibold py-3 rounded-lg hover:bg-orange-600 transition-colors">
-                    Choose Pro
-                </a>
-
-                <ul class="mt-8 space-y-4 text-gray-600 flex-grow">
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Advanced Invoicing</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Unlimited Clients</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Advanced Reports</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Priority Email Support</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Advanced Analytics</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Custom Branding</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>API Access</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <svg class="h-5 w-5 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Unlimited Users</span>
-                    </li>
-                </ul>
-            </div>
+            </div>        
         </div>
-    </div>        
-    </div>
-</body>
+    </body>
 </html>

@@ -101,7 +101,8 @@
                 $Total_Pending = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)->where('acceptanceStatus', 0)->where('archived', 1)->sum('budget');
             @endphp
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4">
+                {{-- Accepted Card --}}
+                <div id="cardAccepted" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer hover:shadow-md transition-shadow">
                     <div class="flex-shrink-0 bg-green-100 rounded-full p-3">
                         <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
                     </div>
@@ -110,7 +111,9 @@
                         <p class="text-xl font-semibold text-green-600">€{{ number_format($Total_Accpeted, 2, ',', ' ') }}</p>
                     </div>
                 </div>
-                <div class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4">
+
+                {{-- Declined Card --}}
+                <div id="cardDeclined" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer hover:shadow-md transition-shadow">
                     <div class="flex-shrink-0 bg-red-100 rounded-full p-3">
                         <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                     </div>
@@ -119,7 +122,9 @@
                         <p class="text-xl font-semibold text-red-600">€{{ number_format($Total_Declined, 2, ',', ' ') }}</p>
                     </div>
                 </div>
-                <div class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4">
+
+                {{-- Pending Card --}}
+                <div id="cardPending" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer hover:shadow-md transition-shadow">
                     <div class="flex-shrink-0 bg-yellow-100 rounded-full p-3">
                          <svg class="h-6 w-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
@@ -262,7 +267,13 @@
                                                 @if(Auth::user()->hasRole('Responsable de projet')) @php $sendRoute = route('Responsable_de_projet.devis.sendDevis'); @endphp @endif
                                                 @if(Auth::user()->hasRole('Employee')) @php $sendRoute = route('employee.devis.sendDevis'); @endphp @endif
                                                 @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $sendRoute = route('Responsable_gestionnaire.devis.sendDevis'); @endphp @endif
-                                                <form action="{{ $sendRoute }}" method="post" class="inline-block w-full"> @csrf <input type="hidden" name="devis_id" value="{{ $d->id }}"> <button type="submit" class="w-full text-white bg-gray-700 hover:bg-gray-800 font-medium rounded text-xs px-2 py-1 text-center">Send</button> </form>
+                                                <button type="button" 
+                                                        class="w-full text-white bg-gray-700 hover:bg-gray-800 font-medium rounded text-xs px-2 py-1 text-center"
+                                                        id="openSendDevisModal"
+                                                        data-devis-id="{{ $d->id }}"
+                                                        data-action="{{ $sendRoute }}">
+                                                    Send
+                                                </button>
                                             @else
                                                 <div class="w-full"></div> @endcan
 
@@ -284,11 +295,11 @@
                                             @if(Auth::user()->hasRole('Employee')) @php $unarchiveRoute = route('employee.devis.unarchive', $d->id); @endphp @endif
                                             @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $unarchiveRoute = route('Responsable_gestionnaire.devis.unarchive', $d->id); @endphp @endif
                                             <form action="{{$unarchiveRoute}}" method="post" onsubmit="return confirm('Are you sure?');" class="inline-block w-full"> @csrf <button type="submit" class="w-full text-white bg-gray-500 hover:bg-gray-600 font-medium rounded text-xs px-2 py-1 text-center">Unarchive</button> </form>
-                                        
+                                            
                                         </div>
                                     </div>
                                 </td>
-                                </tr>
+                            </tr>
                             @empty
                             <tr>
                                 <td colspan="9" class="text-center px-4 py-6 text-gray-500">
@@ -377,236 +388,263 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        
-        // --- 1. FILTER LOGIC ---
-        const clientFilter = document.getElementById('clientFilter');
-        const acceptanceFilter = document.getElementById('acceptanceFilter');
-        const tableBody = document.querySelector('#devisTable tbody');
-        const allRows = tableBody.querySelectorAll('tr');
-        
-        function filterTable() {
-            const clientValue = clientFilter.value.trim();
-            const acceptanceValue = acceptanceFilter.value.trim();
-            let hasVisibleRows = false;
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- 1. FILTER LOGIC ---
+    const clientFilter = document.getElementById('clientFilter');
+    const acceptanceFilter = document.getElementById('acceptanceFilter');
+    const tableBody = document.querySelector('#devisTable tbody');
+    const allRows = tableBody.querySelectorAll('tr');
+    
+    // [NEW] Get the new clickable cards
+    const cardAccepted = document.getElementById('cardAccepted');
+    const cardDeclined = document.getElementById('cardDeclined');
+    const cardPending = document.getElementById('cardPending');
+    
+    // [NEW] Add click listeners for the stat cards
+    if (cardAccepted) {
+        cardAccepted.addEventListener('click', function() {
+            acceptanceFilter.value = 'Accepted'; // Set dropdown value
+            filterTable(); // Call existing filter function
+        });
+    }
 
-            allRows.forEach(row => {
-                if (row.querySelector('td[colspan="9"]')) {
-                    return; // Skip the "no results" row
-                }
+    if (cardDeclined) {
+        cardDeclined.addEventListener('click', function() {
+            acceptanceFilter.value = 'Declined';
+            filterTable();
+        });
+    }
 
-                const clientCell = row.querySelector('td:nth-child(3)');
-                const statusCell = row.querySelector('td:nth-child(7)'); // 7th column is Status
+    if (cardPending) {
+        cardPending.addEventListener('click', function() {
+            acceptanceFilter.value = 'Pending';
+            filterTable();
+        });
+    }
+    
+    function filterTable() {
+        const clientValue = clientFilter.value.trim();
+        const acceptanceValue = acceptanceFilter.value.trim();
+        let hasVisibleRows = false;
 
-                if (!clientCell || !statusCell || !statusCell.querySelector('span')) {
-                    return; // Skip row if cells are missing
-                }
-
-                const clientName = clientCell.textContent.trim();
-                const statusText = statusCell.querySelector('span').textContent.trim();
-
-                const clientMatch = clientValue === "" || clientName === clientValue;
-                const acceptanceMatch = acceptanceValue === "" || statusText.includes(acceptanceValue); // Use .includes for partial match
-
-                if (clientMatch && acceptanceMatch) {
-                    row.style.display = ""; // Show row
-                    hasVisibleRows = true;
-                } else {
-                    row.style.display = "none"; // Hide row
-                }
-            });
-
-            // Toggle the "No results" message
-            const noResultsRow = tableBody.querySelector('td[colspan="9"]');
-            if (noResultsRow) {
-                noResultsRow.parentElement.style.display = hasVisibleRows ? 'none' : 'table-row';
+        allRows.forEach(row => {
+            if (row.querySelector('td[colspan="9"]')) {
+                return; // Skip the "no results" row
             }
-        }
-        
-        if (clientFilter) clientFilter.addEventListener('change', filterTable);
-        if (acceptanceFilter) acceptanceFilter.addEventListener('change', filterTable);
-        
-        // Initial filter on load
-        filterTable();
-        
-        // --- 2. DEVIS REPORT MODAL LOGIC ---
-        const devisReportModal = document.getElementById('devisReportModal');
-        const openDevisReportModalBtn = document.getElementById('openDevisReportModal');
-        const closeDevisReportModalBtn = document.getElementById('closeDevisReportModal');
-        const cancelDevisReportModalBtn = document.getElementById('cancelDevisReportBtn');
-        const confirmDevisReportBtn = document.getElementById('confirmDevisReport');
 
-        if (openDevisReportModalBtn) {
-            openDevisReportModalBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                if (devisReportModal) devisReportModal.classList.remove('hidden');
-            });
-        }
-        if (closeDevisReportModalBtn) {
-            closeDevisReportModalBtn.addEventListener('click', () => {
-                if (devisReportModal) devisReportModal.classList.add('hidden');
-            });
-        }
-        if (cancelDevisReportModalBtn) {
-            cancelDevisReportModalBtn.addEventListener('click', () => {
-                if (devisReportModal) devisReportModal.classList.add('hidden');
-            });
-        }
-        if (confirmDevisReportBtn) {
-            confirmDevisReportBtn.addEventListener('click', function() {
-                let baseUrl = '';
-                try {
-                    @if(Auth::user()->hasRole('Responsable de projet'))
-                    baseUrl = "{{route('Responsable_de_projet.Devissrepports.downloadRepports')}}";
-                    @endif
-                    @if(Auth::user()->hasRole('Admin'))
-                    baseUrl = "{{route('admin.Devissrepports.downloadRepports')}}";
-                    @endif
-                    @if(Auth::user()->hasRole('Employee'))
-                    baseUrl = "{{route('employee.Devissrepports.downloadRepports')}}";
-                    @endif
-                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                    baseUrl = "{{route('Responsable_gestionnaire.Devissrepports.downloadRepports')}}";
-                    @endif
-                } catch (e) { console.error("Error setting base URL:", e); }
+            const clientCell = row.querySelector('td:nth-child(3)');
+            const statusCell = row.querySelector('td:nth-child(7)'); // 7th column is Status
 
-                const startDate = document.getElementById('startDate')?.value || '';
-                const endDate = document.getElementById('endDate')?.value || '';
-                const selectedStatuses = Array.from(document.querySelectorAll('input[name="devisReportStatus[]"]:checked')).map(x => x.value);
-                const includeArchived = document.getElementById('include_archived')?.checked;
+            if (!clientCell || !statusCell || !statusCell.querySelector('span')) {
+                return; // Skip row if cells are missing
+            }
 
-                const params = new URLSearchParams();
-                if (startDate && endDate) {
-                    params.append('startDate', startDate);
-                    params.append('endDate', endDate);
-                }
-                if (selectedStatuses.length > 0) {
-                    params.append('filters', selectedStatuses.join(','));
-                }
-                if (includeArchived) {
-                    params.append('archived', '1');
-                }
+            const clientName = clientCell.textContent.trim();
+            const statusText = statusCell.querySelector('span').textContent.trim();
 
-                const finalUrl = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
-                window.location.href = finalUrl;
-                if (devisReportModal) devisReportModal.classList.add('hidden');
-            });
-        }
+            const clientMatch = clientValue === "" || clientName === clientValue;
+            const acceptanceMatch = acceptanceValue === "" || statusText === acceptanceValue;
 
-        // --- 3. SEND DEVIS MODAL LOGIC ---
-        const sendDevisModalEl = document.getElementById('sendDevisModal');
-        const closeSendDevisModalBtn = document.getElementById('closeSendDevisModal');
-        const cancelSendDevisModalBtn = document.getElementById('cancelSendDevisModal');
-
-        if (closeSendDevisModalBtn) {
-            closeSendDevisModalBtn.addEventListener('click', () => {
-                if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
-            });
-        }
-        if (cancelSendDevisModalBtn) {
-            cancelSendDevisModalBtn.addEventListener('click', () => {
-                if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
-            });
-        }
-
-        function handleSendClick(event) {
-            event.preventDefault();
-            const form = event.target.closest('form');
-            const devisId = form.querySelector('input[name="devis_id"]').value;
-            const formAction = form.getAttribute('action');
-            
-            document.getElementById('devis_id').value = devisId;
-            const recipientsList = document.getElementById('recipientsList');
-            recipientsList.innerHTML = '<div class="text-center">Loading...</div>';
-            
-            let contactsUrl = '';
-            @if(Auth::user()->hasRole('Admin')) contactsUrl = `/admin/devis/get-contacts/${devisId}`;
-            @elseif(Auth::user()->hasRole('Responsable de projet')) contactsUrl = `/Responsable_de_projet/devis/get-contacts/${devisId}`;
-            @elseif(Auth::user()->hasRole('Employee')) contactsUrl = `/employee/devis/get-contacts/${devisId}`;
-            @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) contactsUrl = `/Responsable_gestionnaire/devis/get-contacts/${devisId}`;
-            @endif
-
-            fetch(contactsUrl)
-                .then(response => response.json())
-                .then(data => {
-                    recipientsList.innerHTML = '';
-                    if (data.contacts && data.contacts.length > 0) {
-                        data.contacts.forEach(contact => {
-                            const div = document.createElement('div');
-                            div.className = 'flex items-center';
-                            div.innerHTML = `
-                                <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="recipients[]" value="${contact.email}" id="recipient_${contact.id}" checked>
-                                <label class="ml-2 block text-sm text-gray-900" for="recipient_${contact.id}">
-                                    ${contact.name} (${contact.email})
-                                </label>`;
-                            recipientsList.appendChild(div);
-                        });
-                    } else {
-                        recipientsList.innerHTML = '<p class="text-gray-500">No contacts found for this client</p>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    recipientsList.innerHTML = '<p class="text-red-600">Error loading contacts</p>';
-                });
-            
-            document.getElementById('sendDevisForm').action = formAction;
-            if (sendDevisModalEl) sendDevisModalEl.classList.remove('hidden');
-        }
-
-        document.querySelectorAll('form[action*="sendDevis"]').forEach(form => {
-            const submitButton = form.querySelector('button[type="submit"]');
-            if (submitButton) {
-                submitButton.addEventListener('click', handleSendClick);
+            if (clientMatch && acceptanceMatch) {
+                row.style.display = ""; // Show row
+                hasVisibleRows = true;
+            } else {
+                row.style.display = "none"; // Hide row
             }
         });
 
-        document.getElementById('confirmSend').addEventListener('click', function() {
-            const form = document.getElementById('sendDevisForm');
-            const devisId = document.getElementById('devis_id').value;
-            const selectedRecipients = Array.from(document.querySelectorAll('input[name="recipients[]"]:checked'))
-                .map(checkbox => checkbox.value);
-            
-            if (selectedRecipients.length === 0) {
-                alert('Please select at least one recipient');
-                return;
+        // Toggle the "No results" message
+        const noResultsRow = tableBody.querySelector('td[colspan="9"]');
+        if (noResultsRow) {
+            noResultsRow.parentElement.style.display = hasVisibleRows ? 'none' : 'table-row';
+        }
+    }
+    
+    if (clientFilter) clientFilter.addEventListener('change', filterTable);
+    if (acceptanceFilter) acceptanceFilter.addEventListener('change', filterTable);
+    
+    // Initial filter on load
+    filterTable();
+    
+    // --- 2. DEVIS REPORT MODAL LOGIC ---
+    const devisReportModal = document.getElementById('devisReportModal');
+    const openDevisReportModalBtn = document.getElementById('openDevisReportModal');
+    const closeDevisReportModalBtn = document.getElementById('closeDevisReportModal');
+    const cancelDevisReportModalBtn = document.getElementById('cancelDevisReportBtn');
+    const confirmDevisReportBtn = document.getElementById('confirmDevisReport');
+
+    if (openDevisReportModalBtn) {
+        openDevisReportModalBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (devisReportModal) devisReportModal.classList.remove('hidden');
+        });
+    }
+    if (closeDevisReportModalBtn) {
+        closeDevisReportModalBtn.addEventListener('click', () => {
+            if (devisReportModal) devisReportModal.classList.add('hidden');
+        });
+    }
+    if (cancelDevisReportModalBtn) {
+        cancelDevisReportModalBtn.addEventListener('click', () => {
+            if (devisReportModal) devisReportModal.classList.add('hidden');
+        });
+    }
+    if (confirmDevisReportBtn) {
+        confirmDevisReportBtn.addEventListener('click', function() {
+            let baseUrl = '';
+            try {
+                @if(Auth::user()->hasRole('Responsable de projet'))
+                baseUrl = "{{route('Responsable_de_projet.Devissrepports.downloadRepports')}}";
+                @endif
+                @if(Auth::user()->hasRole('Admin'))
+                baseUrl = "{{route('admin.Devissrepports.downloadRepports')}}";
+                @endif
+                @if(Auth::user()->hasRole('Employee'))
+                baseUrl = "{{route('employee.Devissrepports.downloadRepports')}}";
+                @endif
+                @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                baseUrl = "{{route('Responsable_gestionnaire.Devissrepports.downloadRepports')}}";
+                @endif
+            } catch (e) { console.error("Error setting base URL:", e); }
+
+            const startDate = document.getElementById('startDate')?.value || '';
+            const endDate = document.getElementById('endDate')?.value || '';
+            const selectedStatuses = Array.from(document.querySelectorAll('input[name="devisReportStatus[]"]:checked')).map(x => x.value);
+            const includeArchived = document.getElementById('include_archived')?.checked;
+
+            const params = new URLSearchParams();
+            if (startDate && endDate) {
+                params.append('startDate', startDate);
+                params.append('endDate', endDate);
+            }
+            if (selectedStatuses.length > 0) {
+                params.append('filters', selectedStatuses.join(','));
+            }
+            if (includeArchived) {
+                params.append('archived', '1');
             }
 
-            const formData = new FormData();
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            formData.append('_token', csrfToken);
-            formData.append('devis_id', devisId);
-            formData.append('recipients', JSON.stringify(selectedRecipients));
-            
-            const attachments = document.getElementById('attachments').files;
-            for (let i = 0; i < attachments.length; i++) {
-                formData.append('attachments[]', attachments[i]);
-            }
+            const finalUrl = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+            window.location.href = finalUrl;
+            if (devisReportModal) devisReportModal.classList.add('hidden');
+        });
+    }
 
-            fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
+    // --- 3. SEND DEVIS MODAL LOGIC ---
+    const sendDevisModalEl = document.getElementById('sendDevisModal');
+    const closeSendDevisModalBtn = document.getElementById('closeSendDevisModal');
+    const cancelSendDevisModalBtn = document.getElementById('cancelSendDevisModal');
+
+    if (closeSendDevisModalBtn) {
+        closeSendDevisModalBtn.addEventListener('click', () => {
+            if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
+        });
+    }
+    if (cancelSendDevisModalBtn) {
+        cancelSendDevisModalBtn.addEventListener('click', () => {
+            if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
+        });
+    }
+    
+    // Add click handler to the "Send" buttons in the table (delegated or directly attached)
+    // Since the table might have many rows, direct attachment is okay for now
+    document.querySelectorAll('#openSendDevisModal').forEach(btn => {
+        btn.addEventListener('click', handleSendClick);
+    });
+
+    function handleSendClick(event) {
+        event.preventDefault();
+        const button = event.target;
+        const devisId = button.getAttribute('data-devis-id');
+        const formAction = button.getAttribute('data-action');
+        
+        document.getElementById('devis_id').value = devisId;
+        const recipientsList = document.getElementById('recipientsList');
+        recipientsList.innerHTML = '<div class="text-center">Loading...</div>';
+        
+        // This URL should be dynamic based on user role
+        let contactsUrl = '';
+        @if(Auth::user()->hasRole('Admin')) contactsUrl = `/admin/devis/get-contacts/${devisId}`;
+        @elseif(Auth::user()->hasRole('Responsable de projet')) contactsUrl = `/Responsable_de_projet/devis/get-contacts/${devisId}`;
+        @elseif(Auth::user()->hasRole('Employee')) contactsUrl = `/employee/devis/get-contacts/${devisId}`;
+        @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) contactsUrl = `/Responsable_gestionnaire/devis/get-contacts/${devisId}`;
+        @endif
+
+        fetch(contactsUrl)
+            .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    alert('Devis sent successfully!');
-                    if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
-                    location.reload();
+                recipientsList.innerHTML = '';
+                if (data.contacts && data.contacts.length > 0) {
+                    data.contacts.forEach(contact => {
+                        const div = document.createElement('div');
+                        div.className = 'flex items-center';
+                        div.innerHTML = `
+                            <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="recipients[]" value="${contact.email}" id="recipient_${contact.id}" checked>
+                            <label class="ml-2 block text-sm text-gray-900" for="recipient_${contact.id}">
+                                ${contact.name} (${contact.email})
+                            </label>`;
+                        recipientsList.appendChild(div);
+                    });
                 } else {
-                    alert('Error sending devis: ' + data.message);
+                    recipientsList.innerHTML = '<p class="text-gray-500">No contacts found for this client</p>';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while sending the devis');
+                recipientsList.innerHTML = '<p class="text-red-600">Error loading contacts</p>';
             });
+        
+        document.getElementById('sendDevisForm').action = formAction;
+        if (sendDevisModalEl) sendDevisModalEl.classList.remove('hidden');
+    }
+
+    document.getElementById('confirmSend').addEventListener('click', function() {
+        const form = document.getElementById('sendDevisForm');
+        const devisId = document.getElementById('devis_id').value;
+        const selectedRecipients = Array.from(document.querySelectorAll('input[name="recipients[]"]:checked'))
+            .map(checkbox => checkbox.value);
+        
+        if (selectedRecipients.length === 0) {
+            alert('Please select at least one recipient');
+            return;
+        }
+
+        const formData = new FormData();
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        formData.append('_token', csrfToken);
+        formData.append('devis_id', devisId);
+        formData.append('recipients', JSON.stringify(selectedRecipients));
+        
+        const attachments = document.getElementById('attachments').files;
+        for (let i = 0; i < attachments.length; i++) {
+            formData.append('attachments[]', attachments[i]);
+        }
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Devis sent successfully!');
+                if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
+                location.reload();
+            } else {
+                alert('Error sending devis: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while sending the devis');
         });
     });
-    </script>
+});
+</script>
 </body>
 </html>

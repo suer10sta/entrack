@@ -1,106 +1,142 @@
 <style>
-body {
-    font-family: Arial, sans-serif;
+        /* [MODIFIED] Increased font size slightly for better readability (Zoom effect) */
+        body {
+            font-family: Tahoma, sans-serif;
+            font-size: 11px; /* Changed from 10px to 11px */
+            color: #333333;
+            background-color: #FFFFFF;
+            margin: 0;
+            padding: 0;
+        }
 
-}
+        .report-wrapper {
+            width: 100%;
+            max-width: 900px; 
+            margin: 0 auto;
+            padding: 40px 20px 100px 20px;
+            position: relative;
+        }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+        .header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-th {
-    border: 1px solid black;
-    padding: 8px;
-    text-align: left;
-    font-family: Arial, sans-serif;
-    font-size: 12px;
-    font-weight: bold;
-}
+        .details {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+            padding-bottom: 10px;
+        }
 
-td {
-    border: 1px solid black;
-    padding: 8px;
-    text-align: left;
-    font-family: Arial, sans-serif;
-    font-size: 11px;
-    font-weight: normal;
-}
+        .details-left {
+            width: 40%;
+            font-size: 12px;
+        }
 
-thead {
-    background-color: #f2f2f2;
-}
+        .details-right {
+            width: 58%;
+            font-size: 12px;
+            text-align: right;
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+        
+        .totals-summary {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            font-size: 11px;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .summary-item {
+            margin-right: 15px;
+            margin-bottom: 5px;
+        }
+        .summary-item strong { color: #555; }
+        .summary-item .paid { color: #28a745; font-weight: bold; }
+        .summary-item .unpaid { color: #dc3545; font-weight: bold; }
+        .summary-item .credit { color: #007bff; font-weight: bold; }
+        .summary-item .total { color: #333; font-weight: bold; }
 
+        .company-logo {
+            width: 100px;
+            height: auto;
+        }
 
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            table-layout: auto;
+        }
 
-.company-logo {
-    width: 80px;
-    /* Adjust the width as needed */
-    margin-right: 20px;
-    /* Add some space between the image and the header info */
-}
+        table, th, td {
+            border: 1px solid #CCCCCC;
+        }
 
-.details {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    position: relative;
-}
+        th, td {
+            padding: 6px;
+            text-align: left;
+            font-size: 10px;
+            vertical-align: top;
+            word-wrap: break-word;
+        }
 
-.details-left {
-    width: 48%;
-    font-size: 12px;
-}
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
 
-.details-right {
-    width: 48%;
-    font-size: 12px;
-    text-align: right;
-    position: absolute;
-    right: 0;
-    top: 0;
-}
+        .footer {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border-top: 1px solid #000;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+        }
 
-thead {
-    background-color: #1E9FD8;
-    /* Updated color */
-    color: white;
-    /* Improve readability */
-}
+        .footer-content {
+            position: relative;
+            width: 100%;
+            height: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
 
+        .footer-left { position: absolute; left: 0; text-align: left; }
+        .footer-center { position: absolute; left: 50%; transform: translateX(-50%); text-align: center; }
+        .footer-right { position: absolute; right: 0; text-align: right; }
 
-.footer {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  position: fixed;
-  bottom: 0; /* Ensure footer sticks to the bottom */
-  left: 0; /* Align footer to the left */
-}
+        .footer-text {
+            color: #333333;
+            line-height: 1.4;
+            font-size: 10px; /* Footer stays small */
+        }
 
-.footer-left {
-  width: 48%;
-  font-size: 12px;
-}
-
-.footer-right {
-  width: 48%;
-  font-size: 12px;
-  text-align: right;
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-.page-number:before {
-        content: counter(page);
-    }
-
-    @media print {
-        th, td { font-size: 10px; } /* Even smaller font size for printing if necessary */
-    }
-</style>
+        @media print {
+            body { margin: 0; padding: 0; }
+            .report-wrapper { width: 100%; max-width: 100%; padding: 20px; margin: 0; border: none; }
+            .footer { position: fixed; bottom: 0; width: 100%; }
+            thead { display: table-header-group; }
+            tr { page-break-inside: avoid; }
+        }
+    </style>
 
 <div class="containter">
 
@@ -175,33 +211,26 @@ thead {
                 </td>
             </tr>
             @endforeach
-            <tr style="border: none;">
-                <td style="border: none;"></td>
-                
-                <td style="border: none;"><strong>Totals Unpaid : </strong></td>
-                <td style="border: none;"> <strong> {{ number_format($unpaidTotal, 2, ',', '')}}€ </strong> </td> 
-            </tr>
-            <tr style="border: none;">
-                <td style="border: none;"></td>
-              
-                <td style="border: none;"><strong>Totals Paid : </strong></td>
-                <td style="border: none;"> <strong> {{  number_format($paidTotal, 2, ',', '') }}€ </strong> </td>
-            </tr>
-            <tr style="border: none;">
-                <td style="border: none;"></td>
-    
-                <td style="border: none;"><strong>Totals TVA : </strong></td>
-                <td style="border: none;"> <strong> {{ number_format($totaltva, 2, ',', '') }}€ </strong> </td>
-            </tr>
-            <tr style="border: none;">
-                <td style="border: none;"></td>
-    
-                <td style="border: none;"><strong>Totals Budget : </strong></td>
-                <td style="border: none;"> <strong> {{ number_format($totalCost, 2, ',', '') }}€ </strong> </td>
-            </tr>
+            
         </tbody>
     </table>
 
+    <div class="totals-summary">
+            <div class="summary-row">
+                <div class="summary-item">
+                    <strong>Total Paid:</strong> <span class="paid">{{ number_format($paidTotal, 2, ',', ' ') }}€</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Total Unpaid:</strong> <span class="unpaid">{{ number_format($unpaidTotal, 2, ',', ' ') }}€</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Total TVA:</strong> <span>{{ number_format($totaltva, 2, ',', ' ') }}€</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Total Budget:</strong> <span class="total">{{ number_format($totalCost, 2, ',', ' ') }}€</span>
+                </div>
+            </div>
+    </div>
     <div class="footer">
         <div class='footer-right'>Page Number: <span class="page-number"></span></div>
         <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>

@@ -19,7 +19,6 @@
         {{-- Page Content --}}
         <main class="p-6 md:p-8 lg:p-10">
             
-            {{-- This block determines the correct routes ONCE, avoiding huge repetition --}}
             @php
                 $user = Auth::user();
                 $actionRoute = '#'; 

@@ -1,24 +1,12 @@
 @props(['show' => false])
 
-{{-- 
-  This modal uses Alpine.js (x-data, x-show) to control visibility.
-  'x-data' initializes the component, and 'show: @js($show)'
-  safely passes the $showTrialExpiredModal variable from our middleware.
-  'x-cloak' hides the element until Alpine.js is ready.
---}}
+@if ($show)
 <div 
-    x-data="{ show: @js($show) }" 
-    x-show="show"
-    x-cloak
     class="fixed inset-0 z-50 flex items-center justify-center p-4"
     style="background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(3px);"
 >
     {{-- Modal Panel --}}
     <div 
-        x-show="show"
-        x-transition:enter="ease-out duration-300"
-        x-transition:enter-start="opacity-0 scale-90"
-        x-transition:enter-end="opacity-100 scale-100"
         class="bg-white rounded-lg shadow-2xl w-full max-w-md"
     >
         {{-- Red Header --}}
@@ -64,3 +52,4 @@
         </div>
     </div>
 </div>
+@endif

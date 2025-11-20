@@ -1,187 +1,252 @@
-<style>
-body {
-    font-family: Arial, sans-serif;
+<!DOCTYPE html>
+<html lang="fr">
 
-}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing Report</title>
+    <style>
+        /* [MODIFIED] Consistent Font and Size */
+        body {
+            font-family: Tahoma, sans-serif;
+            font-size: 11px;
+            color: #333333;
+            background-color: #FFFFFF;
+            margin: 0;
+            padding: 0;
+        }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+        /* [NEW] Consistent Wrapper */
+        .report-wrapper {
+            width: 100%;
+            max-width: 800px; /* Using 800px for standard A4 width feel */
+            margin: 0 auto;
+            padding: 40px 20px 100px 20px;
+            position: relative;
+        }
 
-th {
-    border: 1px solid black;
-    padding: 8px;
-    text-align: left;
-    font-family: Arial, sans-serif;
-    font-size: 12px;
-    font-weight: bold;
-}
+        .header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-td {
-    border: 1px solid black;
-    padding: 8px;
-    text-align: left;
-    font-family: Arial, sans-serif;
-    font-size: 11px;
-    font-weight: normal;
-}
+        .details {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+            padding-bottom: 10px;
+        }
 
-thead {
-    background-color: #f2f2f2;
-}
+        .details-left {
+            width: 40%;
+            font-size: 12px;
+        }
 
+        .details-right {
+            width: 58%;
+            font-size: 12px;
+            text-align: right;
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+        
+        .header-info h2 {
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+        
+        .header-info h3, .header-info h4, .header-info h5 {
+            margin-top: 0;
+            margin-bottom: 3px;
+            font-weight: normal;
+        }
 
+        .company-logo {
+            width: 100px;
+            height: auto;
+        }
 
-.company-logo {
-    width: 80px;
-    /* Adjust the width as needed */
-    margin-right: 20px;
-    /* Add some space between the image and the header info */
-}
+        /* [NEW] Section Headers */
+        h3.section-title {
+            font-size: 12px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            color: #555;
+        }
 
-.details {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    position: relative;
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            table-layout: fixed; 
+        }
 
-.details-left {
-    width: 48%;
-    font-size: 12px;
-}
+        table, th, td {
+            border: 1px solid #CCCCCC;
+        }
 
-.details-right {
-    width: 48%;
-    font-size: 12px;
-    text-align: right;
-    position: absolute;
-    right: 0;
-    top: 0;
-}
+        th, td {
+            padding: 6px 5px;
+            text-align: left;
+            font-size: 11px;
+            vertical-align: top;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
 
-thead {
-    background-color: #686ce4;
-    /* Updated color */
-    color: white;
-    /* Improve readability */
-}
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        /* Total Row Styling */
+        tr.total-row td {
+            border: none;
+            border-top: 1px solid #ccc;
+            background-color: #fafafa;
+            padding-top: 10px;
+        }
 
+        /* [MODIFIED] Fixed Footer */
+        .footer {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border-top: 1px solid #000;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+        }
 
-.footer {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  position: fixed;
-  bottom: 0; /* Ensure footer sticks to the bottom */
-  left: 0; /* Align footer to the left */
-}
+        .footer-content {
+            position: relative;
+            width: 100%;
+            height: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
 
-.footer-left {
-  width: 48%;
-  font-size: 12px;
-}
+        .footer-left { position: absolute; left: 0; text-align: left; }
+        .footer-center { position: absolute; left: 50%; transform: translateX(-50%); text-align: center; }
+        .footer-right { position: absolute; right: 0; text-align: right; }
 
-.footer-right {
-  width: 48%;
-  font-size: 12px;
-  text-align: right;
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-.page-number:before {
-        content: counter(page);
-    }
+        .footer-text {
+            color: #333333;
+            line-height: 1.4;
+            font-size: 10px;
+        }
 
-    @media print {
-        th, td { font-size: 10px; } /* Even smaller font size for printing if necessary */
-    }
-</style>
+        @media print {
+            body { margin: 0; padding: 0; }
+            .report-wrapper { width: 100%; max-width: 100%; padding: 20px; margin: 0; border: none; }
+            .footer { position: fixed; bottom: 0; width: 100%; }
+            thead { display: table-header-group; }
+            tr { page-break-inside: avoid; }
+        }
+    </style>
+</head>
 
-<div class="containter">
+<body>
 
+    <div class="report-wrapper">
 
-    <div class="details">
-        <div class="details-left">
-            <img src="{{ Storage::disk('do_spaces')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+        <div class="details">
+            <div class="details-left">
+                @if(Auth::user()->entreprise && Auth::user()->entreprise->image)
+                    <img src="{{ Storage::disk('do_spaces')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                @endif
+            </div>
+            <div class="details-right">
+                <div class="header-info">
+                    <h2>Table de dépense</h2>
+                    <h4>De date : {{ $startDate }} à {{ $endDate }}</h4>
+                    <h5>Nombre de dépense: {{ $billings->count() }}</h5>
+                </div>
+            </div>
         </div>
-        <div class="details-right">
-            <div class="header-info">
-                <h2> Table de dépense</h2>
-                <h3>De date : {{ $startDate }} a {{ $endDate }}</h3>
-                <h5>Nombre de dépense: {{ $billings->count() }}</h5>
+
+        @foreach($billings as $billing)
+            @php 
+                $Total = 0;
+            @endphp
+            
+            <h3 class="section-title">Budget : {{ $billing->budget }}€ (Date : {{ $billing->created_at->format('d-m-Y') }})</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50%;">Objet de la dépense</th>
+                        <th style="width: 25%;">Date de la dépense</th>
+                        <th style="width: 25%;">Prix de la dépense</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php 
+                        $entrepriseCharges = App\Models\entrepriseCharges::where('entreprise_id', $entreprise->id)
+                                            ->where('Billings_budget_id', $billing->id)
+                                            ->where('validated', 1)
+                                            ->orderBy('created_at')
+                                            ->get();
+                    @endphp
+                    
+                    @foreach($entrepriseCharges as $entrepriseCharge)
+                    <tr>
+                        <td>{{$entrepriseCharge->charge_name}}</td>
+                        <td>{{ $entrepriseCharge->created_at->format('d-m-Y') }}</td>
+                        <td>
+                            {{$entrepriseCharge->price}}€
+                            @php
+                                $Total += $entrepriseCharge->price;
+                            @endphp
+                        </td>
+                    </tr>
+                    @endforeach
+                    
+                    <tr class="total-row">
+                        <td></td>
+                        <td style="text-align: right; font-weight: bold;">Total :</td>
+                        <td style="font-weight: bold;">{{ number_format($Total, 3, ',', '')}}€</td> 
+                    </tr>
+                </tbody>
+            </table>
+        @endforeach
+
+    </div>
+
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-left footer-text">
+                @if(Auth::user()->entreprise)
+                    <b>{{ Auth::user()->entreprise->name }}</b><br>
+                    <b>Numéro TVA:</b> {{ Auth::user()->entreprise->tva}}
+                @endif
+            </div>
+            <div class="footer-center footer-text">
+                @if(Auth::user()->entreprise)
+                    {{ Auth::user()->entreprise->Address }}<br>
+                    Tél: 0{{ Auth::user()->entreprise->phone }}
+                @endif
+            </div>
+            <div class="footer-right footer-text">
+                @if(Auth::user()->entreprise)
+                    <b>BANK</b> : {{ Auth::user()->entreprise->bank_name }}<br>
+                    <b>IBAN</b> : {{ Auth::user()->entreprise->iban }}<br>
+                    <b>SWIFT/BIC</b> : {{ Auth::user()->entreprise->swift }} / {{ Auth::user()->entreprise->bic }}
+                @endif
+                <br>
+                <span style="font-size: 9px; color: #666;">Printed: {{ date('d-m-Y') }}</span>
             </div>
         </div>
     </div>
-    <br><br><br>
-    @foreach($billings as $billing)
-    @php 
-        $Total = 0;
-    @endphp
-    <h3>Budget : {{ $billing->budget }}€ de date : {{ $billing->created_at->format('d-m-Y') }}</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Objet de la dépense </th>
-                <th>Date de la dépense </th>
-                <th>Prix de la dépense </th>
-            </tr>
-        </thead>
-        <tbody>
-                @php 
-                    $entrepriseCharges = App\Models\entrepriseCharges::where('entreprise_id', $entreprise->id)->where('Billings_budget_id', $billing->id)->where('validated', 1)->orderBy('created_at')->get();
-                @endphp
-                @foreach($entrepriseCharges as $entrepriseCharge)
-                <tr>
-                    <td>{{$entrepriseCharge->charge_name}}</td>
-                    <td>{{ $entrepriseCharge->created_at->format('d-m-Y') }}</td>
-                    <td>
-                        {{$entrepriseCharge->price}}€
-                        @php
-                            $Total += $entrepriseCharge->price;
-                        @endphp
-                    </td>
-                </tr>
-                @endforeach
-                <tr style="border: none;">
-                    <td style="border: none;"></td>
-                    <td style="border: none;"></td>
-                    <td style="border: none;"> <strong> Total :{{ number_format($Total, 3, ',', '')}}€ </strong> </td> 
-                </tr>
-        </tbody>
-    </table>
-    @endforeach
 
-    <div class="footer">
-        <div class='footer-right'>Page : <span class="page-number"></span></div>
-        <div class='footer-left'>Date de telechargement: {{ date('d-m-Y') }}</div>
-    </div>
-
-</div>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Find all elements that represent pages
-    const pages = document.querySelectorAll('.page');
-
-    // Check if pages exist
-    if (pages.length === 0) {
-        console.error('No pages found. Ensure your HTML structure includes elements with a .page class.');
-        return;
-    }
-
-    // Loop through each page and set the page number
-    pages.forEach((page, index) => {
-        // Find the .page-number span within the .footer of each page
-        const pageNumberElement = page.querySelector('.footer .page-number');
-        if (pageNumberElement) {
-            pageNumberElement.textContent = index + 1; // Page numbers should start from 1
-        } else {
-            console.error('Page number element not found in page ' + (index + 1));
-        }
-    });
-});
-</script>
+</body>
+</html>

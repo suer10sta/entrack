@@ -16,9 +16,9 @@
         {{-- Contenu Principal --}}
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
 
-            <div class="w-full max-w-7xl mx-auto"> {{-- Utilisation de max-w-7xl pour une page large --}}
+            <div class="w-full max-w-8xl mx-auto"> 
 
-                {{-- Message d'alerte (style Tailwind) --}}
+                {{-- Message d'alerte  --}}
                 @if(session('alertmessage'))
                 <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
                     <strong class="font-bold">Erreur !</strong>
@@ -27,7 +27,7 @@
                 </div>
                 @endif
 
-                {{-- Carte de la Table (style Tailwind) --}}
+                {{-- Carte de la Table --}}
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                     <div class="p-6 border-b border-gray-200">
                         <h2 class="text-lg font-semibold text-gray-900">Détails de la Tâche</h2>

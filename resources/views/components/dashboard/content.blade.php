@@ -1,3 +1,8 @@
+@php
+    $user = Auth::user();
+    $isSoloPlan = optional(optional($user)->entreprise)->type_compt === 'solo';
+@endphp
+
 {{-- We need to load the correct Tailwind-aware CSS and JS for DataTables --}}
 <style>
     @keyframes fadeInSlideUp {
@@ -265,9 +270,11 @@
     {{-- Header and action button --}}
     <div class="p-6 flex items-center justify-between border-b border-gray-200">
         <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Team employees Overview') }}</h2>
-        <a href="{{ route('admin.employees.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">
-            + {{__('messages.Add employee')}}
-        </a>
+        @unless($isSoloPlan)
+            <a href="{{ route('admin.employees.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">
+                + {{__('messages.Add employee')}}
+            </a>
+        @endunless
     </div>
     
     {{-- Table --}}

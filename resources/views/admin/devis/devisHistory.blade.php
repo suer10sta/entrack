@@ -118,15 +118,13 @@
              </div>
              @endif
 
-             {{-- 3. Totals Cards Section --}}
+             {{-- 3. Totals  Cards Section --}}
              @php
                  $Total_Accpeted = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)->where('acceptanceStatus', 1)->sum('budget');
                  $Total_Declined = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)->where('acceptanceStatus', 2)->sum('budget');
                  $Total_Pending = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)->where('acceptanceStatus', 0)->sum('budget');
              @endphp
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {{-- Total Accepted Card --}}
-                {{-- [NEW] Added id="cardAccepted" and "cursor-pointer" --}}
                 <div id="cardAccepted" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer">
                     <div class="flex-shrink-0 bg-green-100 rounded-full p-3">
                         <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

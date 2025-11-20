@@ -24,6 +24,8 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\admin\CalendarController;
 use App\Http\Controllers\admin\SubscriptionController;
 use App\Http\Controllers\LangController;
+use App\Http\Controllers\StripeWebhookController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -105,6 +107,7 @@ Route::middleware(['auth', 'role:Admin'])->name('admin.')->prefix('admin')->grou
     Route::delete('/clients/{client}/destroy', [clientsController::class, "destroy"])->name('client.destroy');
 
     Route::put('/clients/{client}/addContact', [clientsController::class,'addContact'])->name('clients.addContact');
+
 
     Route::resource('/tasks', tasksController::class)->except(['show']);
     Route::get('/tasks/show/{task_id}', [tasksController::class,"show"])->name('tasks.show');
@@ -1759,11 +1762,23 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/choose-plan/{plan}', [SubscriptionController::class, 'choosePlan'])
          ->name('subscription.choose');
+    Route::middleware(['auth'])->group(function () {
+             // 1. Start Payment (This matches your current HTML links)
+             Route::get('/choose-plan/{plan}', [SubscriptionController::class, 'choosePlan'])
+                  ->name('subscription.choose');
+         
+             // 2. Payment Success (New route to handle DB update after Stripe)
+             Route::get('/payment/success/{plan}', [SubscriptionController::class, 'paymentSuccess'])
+                  ->name('subscription.success');
+         });
     Route::get('/edit-profile', function () {
     return view('profile.edit');
 
     });
 });
+
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
+    ->name('stripe.webhook');
 
 Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->middleware('guest')->name('password.request');
 

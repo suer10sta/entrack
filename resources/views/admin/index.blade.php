@@ -22,6 +22,5 @@
         <x-dashboard.content :data="$__data" />
     </div>
     @livewireScripts
-    <x-modals.trial-expired :show="$showTrialExpiredModal ?? false"  />
 </body>
 </html>

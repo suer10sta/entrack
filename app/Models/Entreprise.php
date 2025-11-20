@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Cashier\Billable;  
 
 class Entreprise extends Model
 {
-    use HasFactory;
+    use HasFactory, Billable;
 
     protected $fillable = [
         'name', 
@@ -40,6 +41,9 @@ class Entreprise extends Model
         'workdays_emails',
         'peppol_id',
         'peppol_sheme',
+        'stripe_id',
+        'pm_type',
+        'pm_last_four',
         'type_compt',
         'trial_ends_at'
     ];

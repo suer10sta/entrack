@@ -328,52 +328,69 @@ class employeesController extends Controller
     }
 
     public function show(Employees $employee)
-    {
-        $user_id = $employee->user_id;
-        $user = User::find($user_id);
-        $role_name = Role::where('name', '<>', 'super_admin')->pluck('name')->toArray();
-        $work_days_repports = work_days_repports::where('employee_id', $employee->id)->where('month', date('m'))->where('year', date('Y'))->first();
+{
+    $user_id = $employee->user_id;
+    $user = User::find($user_id);
+    $role_name = Role::where('name', '<>', 'super_admin')->pluck('name')->toArray();
 
-        $currentYear = strval(Carbon::now()->year);
-        $currentMonth = str_pad(Carbon::now()->month, 2, '0', STR_PAD_LEFT);
+    // [FIX 1] Use firstOrNew. 
+    // If the report exists, it loads it. If not, it creates a new empty instance so we can save data to it.
+    $work_days_repports = work_days_repports::firstOrNew([
+        'employee_id' => $employee->id,
+        'month' => date('m'),
+        'year' => date('Y')
+    ]);
 
-        $startDate = Carbon::createFromDate($currentYear, $currentMonth, 1)->startOfMonth();
-        $endDate = Carbon::createFromDate($currentYear, $currentMonth, 1)->endOfMonth();
+    $currentYear = strval(Carbon::now()->year);
+    $currentMonth = str_pad(Carbon::now()->month, 2, '0', STR_PAD_LEFT);
 
-        $totalMinutesForEmployee = tasks_timer::where('employee_id', $employee->id)
+    $startDate = Carbon::createFromDate($currentYear, $currentMonth, 1)->startOfMonth();
+    $endDate = Carbon::createFromDate($currentYear, $currentMonth, 1)->endOfMonth();
+
+    $totalMinutesForEmployee = tasks_timer::where('employee_id', $employee->id)
         ->whereBetween('start_date', [$startDate, $endDate])
         ->whereNotNull('end_date')
         ->sum('duration');
 
-        //convers minutes to hours
-        $totalHours = number_format($totalMinutesForEmployee / 60, 2);
+    // convert minutes to hours
+    $totalHours = number_format($totalMinutesForEmployee / 60, 2);
 
-        // First calculate days
-        $totalDays = $totalHours / 8.5;
-        
-        // Round up any decimal value to the next whole number
-        $daysWorked = ceil($totalDays);
+    // First calculate days
+    $totalDays = $totalHours / 8.5;
+    
+    // Round up any decimal value to the next whole number
+    $daysWorked = ceil($totalDays);
 
-        // Calculate the difference to add to hours_accumulate
-        $diff = $totalDays - $daysWorked;
+    // Calculate the difference to add to hours_accumulate
+    $diff = $totalDays - $daysWorked;
 
-        // Convert the difference from days to hours (assuming 1 day = 8.5 hours)
-        $hoursToAdd = $diff * 8.5;
+    // Convert the difference from days to hours (assuming 1 day = 8.5 hours)
+    $hoursToAdd = $diff * 8.5;
 
-        // Format hoursToAdd to two decimal places
-        $hoursToAdd = number_format($hoursToAdd, 2, '.', '');
+    // Format hoursToAdd to two decimal places
+    $hoursToAdd = number_format($hoursToAdd, 2, '.', '');
 
-        // Add the hours to hours_accumulate only if daysWorked is not equal to totalDays
-        //if ($daysWorked !== $totalDays && $daysWorked < $totalDays) {
-        //    $previous_month_hours_accumulate = work_days_repports::where('employee_id', $employee->id)->where('month', date('m', strtotime('-1 month')))->where('year', date('Y', strtotime('-1 month')))->first()->hours_accumulate;
-        //    $work_days_repports->hours_accumulate = $previous_month_hours_accumulate + $hoursToAdd;
-        //}
-        $work_days_repports->days_worked = $daysWorked;
-        $work_days_repports->save();
+    // Add the hours to hours_accumulate only if daysWorked is not equal to totalDays
+    if ($daysWorked !== $totalDays && $daysWorked < $totalDays) {
+        // [FIX 2] Safety check for previous month.
+        // The original code would crash here if this is the employee's very first month.
+        $previous_report = work_days_repports::where('employee_id', $employee->id)
+            ->where('month', date('m', strtotime('-1 month')))
+            ->where('year', date('Y', strtotime('-1 month')))
+            ->first();
 
-        
-        return view('admin.employees.view_employee', compact('employee', 'role_name', 'user', 'work_days_repports', 'totalHours'));
+        // If previous report exists, use its hours. If not, default to 0.
+        $previous_month_hours_accumulate = $previous_report ? $previous_report->hours_accumulate : 0;
+
+        $work_days_repports->hours_accumulate = $previous_month_hours_accumulate + $hoursToAdd;
     }
+
+    // Now this line is safe because $work_days_repports is guaranteed to be an object
+    $work_days_repports->days_worked = $daysWorked;
+    $work_days_repports->save();
+    
+    return view('admin.employees.view_employee', compact('employee', 'role_name', 'user', 'work_days_repports', 'totalHours'));
+}
 
     public function destroy(Employees $employee)
     {
