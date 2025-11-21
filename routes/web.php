@@ -1760,20 +1760,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // --- PAYMENT ROUTES ---
+    // 1. Start Payment
     Route::get('/choose-plan/{plan}', [SubscriptionController::class, 'choosePlan'])
          ->name('subscription.choose');
-    Route::middleware(['auth'])->group(function () {
-             // 1. Start Payment (This matches your current HTML links)
-             Route::get('/choose-plan/{plan}', [SubscriptionController::class, 'choosePlan'])
-                  ->name('subscription.choose');
-         
-             // 2. Payment Success (New route to handle DB update after Stripe)
-             Route::get('/payment/success/{plan}', [SubscriptionController::class, 'paymentSuccess'])
-                  ->name('subscription.success');
-         });
-    Route::get('/edit-profile', function () {
-    return view('profile.edit');
+    
+    // 2. Payment Success (Handle DB update after Stripe)
+    Route::get('/payment/success/{plan}', [SubscriptionController::class, 'paymentSuccess'])
+         ->name('subscription.success');
 
+    Route::get('/edit-profile', function () {
+        return view('profile.edit');
     });
 });
 

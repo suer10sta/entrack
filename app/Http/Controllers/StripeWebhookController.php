@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Laravel\Cashier\Http\Controllers\WebhookController as CashierWebhookController;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
-use Laravel\Cashier\Http\Controllers\WebhookController as CashierWebhookController;
 
 class StripeWebhookController extends CashierWebhookController
 {
@@ -16,11 +16,10 @@ class StripeWebhookController extends CashierWebhookController
         try {
             $this->syncEntreprisePlanFromPayload($payload);
         } catch (\Exception $e) {
-            // Log the error so you can fix it later, but return 200 to Stripe
             Log::error('Stripe Webhook Plan Sync Failed: ' . $e->getMessage());
         }
 
-        return $this->successMethod();
+        return parent::handleInvoicePaymentSucceeded($payload);
     }
 
     /**
@@ -28,25 +27,13 @@ class StripeWebhookController extends CashierWebhookController
      */
     protected function handleCustomerSubscriptionUpdated(array $payload): Response
     {
-        $status = strtolower($payload['data']['object']['status'] ?? '');
-
-        if ($this->subscriptionIsHealthy($status)) {
+        try {
             $this->syncEntreprisePlanFromPayload($payload);
-        } else {
-            $this->markEntrepriseAsPastDue($payload, sprintf('Subscription status "%s"', $status));
+        } catch (\Exception $e) {
+            Log::error('Stripe Webhook Update Failed: ' . $e->getMessage());
         }
 
-        return $this->successMethod();
-    }
-
-    /**
-     * Handle failed payment events by revoking access until user confirms payment.
-     */
-    protected function handleInvoicePaymentFailed(array $payload): Response
-    {
-        $this->markEntrepriseAsPastDue($payload, 'invoice.payment_failed');
-
-        return $this->successMethod();
+        return parent::handleCustomerSubscriptionUpdated($payload);
     }
 
     /**
@@ -54,10 +41,12 @@ class StripeWebhookController extends CashierWebhookController
      */
     protected function handleCustomerSubscriptionDeleted(array $payload): Response
     {
-        $customer = $this->getUserByStripeId($payload['data']['object']['customer'] ?? null);
+        // Cashier finds the Entreprise using the Stripe Customer ID
+        $entreprise = $this->getUserByStripeId($payload['data']['object']['customer'] ?? null);
 
-        if ($customer && $customer->entreprise) {
-            $customer->entreprise->forceFill([
+        if ($entreprise) {
+            // [FIXED] We operate directly on $entreprise, not $entreprise->entreprise
+            $entreprise->forceFill([
                 'type_compt' => null,
             ])->save();
         }
@@ -70,13 +59,15 @@ class StripeWebhookController extends CashierWebhookController
      */
     private function syncEntreprisePlanFromPayload(array $payload): void
     {
-        $customer = $this->getUserByStripeId($payload['data']['object']['customer'] ?? null);
+        // 1. Find the Entreprise directly
+        $entreprise = $this->getUserByStripeId($payload['data']['object']['customer'] ?? null);
 
-        if (!$customer || !$customer->entreprise) {
+        // [FIXED] Removed check for ->entreprise
+        if (!$entreprise) {
             return;
         }
 
-        $priceId = $this->extractPriceId($payload) ?? optional($customer->subscription('default'))->stripe_price;
+        $priceId = $this->extractPriceId($payload) ?? optional($entreprise->subscription('default'))->stripe_price;
 
         if (!$priceId) {
             return;
@@ -88,15 +79,13 @@ class StripeWebhookController extends CashierWebhookController
             return;
         }
 
-        $customer->entreprise->forceFill([
+        // [FIXED] Called forceFill on $entreprise directly
+        $entreprise->forceFill([
             'type_compt' => $plan,
             'trial_ends_at' => null,
         ])->save();
     }
 
-    /**
-     * Extract Stripe price ID from payload lines.
-     */
     private function extractPriceId(array $payload): ?string
     {
         $lines = $payload['data']['object']['lines']['data'] ?? null;
@@ -108,50 +97,17 @@ class StripeWebhookController extends CashierWebhookController
         return $lines[0]['price']['id'] ?? null;
     }
 
-    /**
-     * Map Stripe price IDs to internal plan codes.
-     */
     private function mapPriceIdToPlan(string $priceId): ?string
     {
-        Log::info('Webhook received Price ID from Stripe: ' . $priceId);
+        // Check your laravel.log to see if IDs match!
+        Log::info('Webhook received Price ID: ' . $priceId);
+
         return match ($priceId) {
+            // REPLACE THESE WITH YOUR EXACT STRIPE PRICE IDs
             'price_1SVBouB4LVww0Nzz5cvK9elS' => 'solo',
             'price_1SVBpHB4LVww0Nzztgb3hUSH' => 'premium',
             'price_1SVBpSB4LVww0NzzFxjCdtU1' => 'pro',
             default => null,
         };
     }
-
-    /**
-     * Is the subscription in a state where access should continue?
-     */
-    private function subscriptionIsHealthy(?string $status): bool
-    {
-        return in_array($status, ['active', 'trialing'], true);
-    }
-
-    /**
-     * Remove entreprise access until payment issues are resolved.
-     */
-    private function markEntrepriseAsPastDue(array $payload, ?string $reason = null): void
-    {
-        $customer = $this->getUserByStripeId($payload['data']['object']['customer'] ?? null);
-
-        if (!$customer || !$customer->entreprise) {
-            return;
-        }
-
-        $customer->entreprise->forceFill([
-            'type_compt' => null,
-            // Force the trial to appear expired so the UI blocks access
-            'trial_ends_at' => now()->subMinute(),
-        ])->save();
-
-        Log::warning('Entreprise access revoked until payment is confirmed.', [
-            'user_id' => $customer->id,
-            'entreprise_id' => $customer->entreprise->id,
-            'reason' => $reason,
-        ]);
-    }
 }
-

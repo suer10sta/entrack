@@ -15,12 +15,38 @@ class ProfileController extends Controller
     public function index()
     {
         // Return the profile Blade view
-        $user= Auth::user();
+        $user = Auth::user();
 
-        $user->load('employee');
-        //dd($user->employee);
+        // Load both employee AND entreprise relationships
+        $user->load('employee', 'entreprise');
+        
+        // Determine the plan key based on entreprise data
+        $entreprise = $user->entreprise;
+        
+        if ($entreprise) {
+            if ($entreprise->isOnTrial()) {
+                $planKey = 'trial';
+            } else {
+                // type_compt contains: 'solo', 'premium', or 'pro'
+                $planKey = $entreprise->type_compt ?? 'trial';
+            }
+            
+            // Calculate days left for trial
+            $daysLeft = 0;
+            if ($entreprise->isOnTrial() && $entreprise->trial_ends_at) {
+                $daysLeft = now()->diffInDays($entreprise->trial_ends_at, false);
+                $daysLeft = max(0, ceil($daysLeft)); // Ensure it's not negative
+            }
+        } else {
+            $planKey = 'trial';
+            $daysLeft = 0;
+        }
 
-        return view('admin.profile.index',['user'=>$user]);
+        return view('admin.profile.index', [
+            'user' => $user,
+            'planKey' => $planKey,
+            'daysLeft' => $daysLeft
+        ]);
     }
     
     /**
@@ -40,39 +66,35 @@ class ProfileController extends Controller
      * Update the user's profile information.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
-{
-    // 1. Get the validated data
-    $validatedData = $request->validated();
-    
-    // 2. Get the User
-    $user = $request->user();
-
-    // 3. Fill and Save data to the 'users' table
-    $user->fill($validatedData);
-
-    if ($user->isDirty('email')) {
-        $user->email_verified_at = null;
-    }
-
-    $user->save();
-
-    // 4. ADD THIS PART: Save data to the 'employees' table
-    $user->employee()->updateOrCreate(
-        ['user_id' => $user->id],  // Find the employee by user_id
-        $validatedData            // Update it with the validated data
-    );
-
-    
-
-    return Redirect::route('profile.edit')->with('status', 'profile-updated');
-}
-    public function showUpgradePage() : view
     {
-        // This will look foa file at:
-        // resources/views/profile/upgrade.blade.php
+        // 1. Get the validated data
+        $validatedData = $request->validated();
+        
+        // 2. Get the User
+        $user = $request->user();
+
+        // 3. Fill and Save data to the 'users' table
+        $user->fill($validatedData);
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        // 4. Save data to the 'employees' table
+        $user->employee()->updateOrCreate(
+            ['user_id' => $user->id],  // Find the employee by user_id
+            $validatedData            // Update it with the validated data
+        );
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+    
+    public function showUpgradePage(): View
+    {
         return view('admin.profile.upgrade_page');
     }
-    
 
     /**
      * Delete the user's account.
