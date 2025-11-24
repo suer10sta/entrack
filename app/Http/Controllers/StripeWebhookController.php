@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Laravel\Cashier\Http\Controllers\WebhookController as CashierWebhookController;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Log;
 
 class StripeWebhookController extends CashierWebhookController
@@ -19,7 +19,8 @@ class StripeWebhookController extends CashierWebhookController
             Log::error('Stripe Webhook Plan Sync Failed: ' . $e->getMessage());
         }
 
-        return parent::handleInvoicePaymentSucceeded($payload);
+        // Cashier's base controller does not implement this handler, so we simply acknowledge the webhook.
+        return $this->successMethod();
     }
 
     /**
