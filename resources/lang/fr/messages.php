@@ -17,6 +17,8 @@ return [
     'UTILIZATION' => 'UTILISATION',
     'ACTIONS' => 'ACTIONS',
     'No team' => 'Aucune équipe',
+    'No task' => 'Aucune tâche',
+    'No data' => 'Aucune donnée',
     'Are you sure you want to delete this employee?' => 'Êtes-vous sûr de vouloir supprimer cet employé ?',
 
     'Project Overview' => 'Aperçu des projets',

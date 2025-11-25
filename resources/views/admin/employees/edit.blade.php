@@ -18,6 +18,28 @@
             <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6">Assign Role</h2>
 
+                @php
+                    $currentRouteName = request()->route()->getName();
+                    $roleCreateRoute = null;
+
+                    if (Auth::user()->hasRole('Admin')) {
+                        $roleCreateRoute = route('admin.roles.create', [
+                            'assign_employee' => $employee->id,
+                            'redirect_route' => $currentRouteName,
+                        ]);
+                    } elseif (Auth::user()->hasRole('Responsable de projet')) {
+                        $roleCreateRoute = route('Responsable_de_projet.roles.create', [
+                            'assign_employee' => $employee->id,
+                            'redirect_route' => $currentRouteName,
+                        ]);
+                    } elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                        $roleCreateRoute = route('Responsable_gestionnaire.roles.create', [
+                            'assign_employee' => $employee->id,
+                            'redirect_route' => $currentRouteName,
+                        ]);
+                    }
+                @endphp
+
                 {{-- Form --}}
                 @if(Auth::user()->hasRole('Admin'))
                     <form method="POST" action="{{ route('admin.employees.update', $employee) }}">
@@ -33,7 +55,17 @@
 
                     {{-- Roles Section --}}
                     <div class="mb-8">
-                        <h5 class="text-lg font-semibold text-gray-800 mb-3">Assign Roles</h5>
+                        <div class="flex items-center justify-between mb-3">
+                            <h5 class="text-lg font-semibold text-gray-800">Assign Roles</h5>
+                            @if($roleCreateRoute)
+                                <a href="{{ $roleCreateRoute }}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium shadow-sm hover:bg-blue-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    Add New Role
+                                </a>
+                            @endif
+                        </div>
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                             @foreach($role_name as $role)
                                 @if(Auth::user()->hasRole('SuperAdmin') || (!$user->hasRole('SuperAdmin') && $role != 'SuperAdmin'))

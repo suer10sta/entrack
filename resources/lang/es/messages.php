@@ -18,6 +18,8 @@ return [
     'UTILIZATION' => 'UTILIZACIÓN',
     'ACTIONS' => 'ACCIONES',
     'No team' => 'Sin equipo',
+    'No task' => 'Sin tarea',
+    'No data' => 'Sin datos',
     'Are you sure you want to delete this employee?' => '¿Estás seguro de querer eliminar este empleado?',  
 
     'Project Overview' => 'Resumen de proyectos',

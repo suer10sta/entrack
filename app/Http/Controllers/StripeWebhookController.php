@@ -111,4 +111,24 @@ class StripeWebhookController extends CashierWebhookController
             default => null,
         };
     }
+
+    /**
+     * Gère les échecs de paiement (le début de la période de grâce de 14 jours).
+     */
+    protected function handleInvoicePaymentFailed(array $payload): Response
+    {
+        // 1. Trouver l'Entreprise
+        $entreprise = $this->getUserByStripeId($payload['data']['object']['customer'] ?? null);
+
+        if ($entreprise) {
+            // Loguer l'erreur
+            Log::warning("Paiement échoué pour l'entreprise ID: {$entreprise->id}. Début de la période de grâce de 14 jours.");
+
+            // TODO: Envoyez un e-mail à l'utilisateur ici pour lui demander de mettre à jour sa carte.
+            // Mail::to($entreprise->email)->send(new PaymentFailedWarning($entreprise));
+        }
+
+        // Toujours retourner 200 OK pour que Stripe arrête d'envoyer cet événement.
+        return $this->successMethod();
+    }
 }

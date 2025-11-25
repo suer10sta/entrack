@@ -51,12 +51,23 @@
                     }
                 @endphp
 
+                @php
+                    $assignEmployeeId = request('assign_employee');
+                    $redirectRouteName = request('redirect_route');
+                @endphp
+
                 {{-- 5. Form Card  --}}
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                     
                     {{-- The form now uses the $storeRoute variable --}}
                     <form method="POST" action="{{ $storeRoute }}" autocomplete="off">
                         @csrf
+                        @if($assignEmployeeId)
+                            <input type="hidden" name="assign_employee_id" value="{{ $assignEmployeeId }}">
+                        @endif
+                        @if($redirectRouteName)
+                            <input type="hidden" name="redirect_route" value="{{ $redirectRouteName }}">
+                        @endif
                         
                         <div class="p-6">
                             {{-- Role Name Field  --}}

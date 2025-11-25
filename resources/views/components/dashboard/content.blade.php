@@ -356,30 +356,63 @@
 
                     {{-- CURRENT TASK --}}
                     <td class="px-6 py-4 align-top">
-                        <span class="inline-block px-2 py-1 text-xs text-gray-700 bg-gray-100 rounded">
-                            {{ $employee['currentTask'] }}
-                        </span>
+                        @php
+                            $activeTimer = \App\Models\tasks_timer::with('task')
+                                ->where('employee_id', $employee->id)
+                                ->whereNull('end_date')
+                                ->latest('start_date')
+                                ->first();
+
+                            $latestAssignment = \App\Models\employees_tasks::where('employee_id', $employee->id)
+                                ->latest('updated_at')
+                                ->first();
+
+                            $currentTaskName = optional($activeTimer)->task_name
+                                ?? optional(optional($activeTimer)->task)->title
+                                ?? optional($latestAssignment)->task_name
+                                ?? ($employee['currentTask'] ?? null);
+                        @endphp
+                        @if(!empty($currentTaskName))
+                            <span class="inline-block px-2 py-1 text-xs text-gray-700 bg-gray-100 rounded">
+                                {{ $currentTaskName }}
+                            </span>
+                        @else
+                            @php
+                                $noTaskLabel = __('messages.No task');
+                            @endphp
+                            <span class="text-xs text-gray-400">
+                                {{ $noTaskLabel === 'messages.No task' ? 'No task' : $noTaskLabel }}
+                            </span>
+                        @endif
                     </td>
 
                     {{-- PROGRESS --}}
-                    <td class="px-6 py-4 align-top">-</td>
+                    <td class="px-6 py-4 align-top">
+                        <span class="text-xs text-gray-400">{{ $employee['progress'] ?? __('messages.No data') }}</span>
+                    </td>
 
                     {{-- MONTHLY STATS --}}
                     <td class="px-6 py-4 space-y-1 text-xs text-gray-600 align-top">
-                        <p>Hours: <span class="font-medium text-gray-800">{{ $employee['hours'] }}</span></p>
-                        <p>Tasks: <span class="font-medium text-gray-800">{{ $employee['tasks'] }}</span></p>
-                        <p>Days: <span class="font-medium text-gray-800">{{ $employee['days'] }}</span></p>
+                        @if(isset($employee['hours']) || isset($employee['tasks']) || isset($employee['days']))
+                            <p>Hours: <span class="font-medium text-gray-800">{{ $employee['hours'] ?? 0 }}</span></p>
+                            <p>Tasks: <span class="font-medium text-gray-800">{{ $employee['tasks'] ?? 0 }}</span></p>
+                            <p>Days: <span class="font-medium text-gray-800">{{ $employee['days'] ?? 0 }}</span></p>
+                        @else
+                            <span class="text-xs text-gray-400">{{ __('messages.No data') }}</span>
+                        @endif
                     </td>
 
                     {{-- UTILIZATION --}}
                     <td class="px-6 py-4 align-top">
                         <div class="flex items-center gap-2 mb-1">
                             <div class="flex-grow bg-gray-200 rounded-full h-1.5">
-                                <div class="bg-gray-400 h-1.5 rounded-full" style="width: {{ $employee['progress'] }}"></div>
+                                <div class="bg-gray-400 h-1.5 rounded-full" style="width: {{ $employee['progress'] ?? '0%' }}"></div>
                             </div>
-                            <span class="text-xs font-medium text-gray-700">{{ $employee['progress'] }}</span>
+                            <span class="text-xs font-medium text-gray-700">{{ $employee['progress'] ?? '0%' }}</span>
                         </div>
-                        <p class="text-xs text-gray-600">Limit: {{ $employee['limit'] }}</p>
+                        <p class="text-xs text-gray-600">
+                            {{ isset($employee['limit']) ? 'Limit: '.$employee['limit'] : __('messages.No data') }}
+                        </p>
                     </td>
 
                     {{-- ACTIONS --}}

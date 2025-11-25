@@ -185,6 +185,12 @@
                             <div class="col-12 col-lg-8 m-auto">
                                 <form class="multisteps-form__form mb-8" method="POST" action="{{route('superadmin.roles.store')}}">
                                     @csrf
+                                    @if(request('assign_employee'))
+                                        <input type="hidden" name="assign_employee_id" value="{{ request('assign_employee') }}">
+                                    @endif
+                                    @if(request('redirect_route'))
+                                        <input type="hidden" name="redirect_route" value="{{ request('redirect_route') }}">
+                                    @endif
                                     <div class="card multisteps-form__panel p-3 border-radius-xl bg-white js-active"
                                         data-animation="FadeIn">
                                         <h5 class="font-weight-bolder">New Role : </h5>

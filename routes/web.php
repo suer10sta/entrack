@@ -3,6 +3,7 @@
 use App\Models\Tasks;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AlertController;
 use App\Http\Controllers\admin\adminController;
 use App\Http\Controllers\admin\tasksController;
 use App\Http\Controllers\admin\teamsController;
@@ -416,6 +417,11 @@ Route::get('/Pointagerepports/downloadMultipleTasksRepports/{startDate}/{endDate
 
 
 
+
+Route::middleware('auth')->group(function () {
+    Route::post('/alerts/{alert}/read', [AlertController::class, 'markAsRead'])->name('alerts.read');
+    Route::delete('/alerts/{alert}', [AlertController::class, 'destroy'])->name('alerts.destroy');
+});
 
 Route::middleware(['auth', 'role:Responsable de projet'])->name('Responsable_de_projet.')->prefix('Responsable_de_projet')->group(function () {
     Route::get("/", [EmployeesIndexController::class, "index"])->name("index");

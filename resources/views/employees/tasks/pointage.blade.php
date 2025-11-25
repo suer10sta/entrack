@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>BizManager Dashboard</title>
+    <title>Entrac Dashboard</title>
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
@@ -14,7 +14,7 @@
         [x-cloak] { display: none !important; }
         
         /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 7px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
@@ -54,13 +54,14 @@
     
     <audio id="alertSound" src="{{ asset('audio/alert_sound.mp3') }}" preload="auto"></audio>
 
-    {{-- Sidebar --}}
-    <x-employees.sidebar />
+    <div class="flex flex-1 h-full overflow-hidden">
+        {{-- Sidebar --}}
+        <x-employees.sidebar />
 
-    <div class="flex flex-col flex-1 overflow-y-auto">
 
+        <div class="flex flex-col flex-1 overflow-y-auto w-full ml-64 px-4 md:px-8">
         {{-- Main Content --}}
-        <main class="container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <main class="flex flex-col flex-1 overflow-y-auto">
 
             <div class="mb-6">
                 @if(session('alertmessage'))
@@ -371,6 +372,7 @@
             </div>
 
         </main>
+        </div>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

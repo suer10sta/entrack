@@ -50,7 +50,30 @@ class RoleController extends Controller
     public function store(Request $request) {
         
         $validate=$request->validate(["name"=>"required"]);
-        Role::create($validate);
+        $role = Role::create($validate);
+
+        $assignEmployeeId = $request->input('assign_employee_id');
+        $redirectRoute = $request->input('redirect_route');
+
+        if($assignEmployeeId) {
+            $employee = Employees::with('user')->find($assignEmployeeId);
+            if($employee && $employee->user) {
+                $employee->user->assignRole($role->name);
+            }
+        }
+        
+
+        $allowedRedirectRoutes = [
+            'admin.employees.edit',
+            'Responsable_de_projet.employees.edit',
+            'Responsable_gestionnaire.employees.edit',
+        ];
+
+        if($assignEmployeeId && $redirectRoute && in_array($redirectRoute, $allowedRedirectRoutes)) {
+            return redirect()->route($redirectRoute, ['employee' => $assignEmployeeId])
+                ->with('message', 'Role Added Successfully');
+        }
+
         if(Auth::user()->hasRole('super_admin')) {
             return to_route('superadmin.roles.index')->with('message', 'Role Added Successfully');
         } else {

@@ -139,22 +139,6 @@
                 </button>
             </form>
 
-            <div class="relative my-6">
-                <div class="absolute inset-0 flex items-center">
-                    <span class="w-full border-t border-border"></span>
-                </div>
-                <div class="relative flex justify-center text-sm">
-                    <span class="bg-card px-2 text-muted">OR</span>
-                </div>
-            </div>
-
-            <div class="space-y-3">
-                <a href="#" class="w-full flex items-center justify-center py-2 px-4 rounded-md border border-border bg-card text-foreground font-medium hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                    <i class="fab fa-google mr-2"></i>
-                    Continue with Google
-                </a>
-                
-            </div>
 
             <p class="text-sm text-center text-muted mt-6">
                 Don't have an account?
