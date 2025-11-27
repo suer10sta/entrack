@@ -8,7 +8,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Generate Invoice - BizManager</title> {{-- Updated title --}}
+    <title>Generate Invoice - DailyTrac</title> {{-- Updated title --}}
 
     @vite('resources/css/app.css')
 

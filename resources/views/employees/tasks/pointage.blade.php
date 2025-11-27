@@ -226,39 +226,25 @@
                                         </td>
                                         <td class="px-6 py-4 text-right">
                                             <div class="flex justify-end gap-2">
-                                                @php $routePrefix = Auth::user()->hasRole('Employee') ? 'employee' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet' : 'Responsable_gestionnaire'); @endphp
-                                                
-                                                @if($task_timer)
-                                                    @if(($task_timer->end_date == null && $task_timer->start_date != null ) && $task_timer->paused == 1)
-                                                        <form class="inline-block" action="{{ route($routePrefix.'.tasks.resume', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST">
-                                                            @csrf
-                                                            <button type="submit" class="resume-button bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm" id="continue-btn" data-task-id="{{$task->id}}">
-                                                                Resume
-                                                            </button>
-                                                        </form>
-                                                    @else
-                                                        <form class="inline-block" action="{{ route($routePrefix.'.tasks.pause', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST">
-                                                            @csrf
-                                                            <button type="submit" class="pause-button bg-amber-400 hover:bg-amber-500 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm" id="pause-btn" data-task-id="{{$task->id}}">
-                                                                Pause
-                                                            </button>
-                                                        </form>
-                                                    @endif
-                                                @else
-                                                    <form class="inline-block" action="{{ route($routePrefix.'.tasks.start', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST">
-                                                        @csrf
-                                                        <button type="submit" class="start-button bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm" id="start-btn" data-task-id="{{$task->id}}">
-                                                            Start
-                                                        </button>
-                                                    </form>
-                                                @endif
+                                            @php $routePrefix = Auth::user()->hasRole('Employee') ? 'employee' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet' : 'Responsable_gestionnaire'); @endphp
+                                            
+                                            @unless($task_timer)
+                                                <form class="inline-block" action="{{ route($routePrefix.'.tasks.start', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="start-button bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm" id="start-btn" data-task-id="{{$task->id}}">
+                                                        Start
+                                                    </button>
+                                                </form>
+                                            @endunless
 
+                                            @if($task_timer)
                                                 <form class="inline-block stop-form" action="{{ route($routePrefix.'.tasks.stop', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST">
                                                     @csrf
                                                     <button type="submit" class="stop-button bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm" data-task-id="{{$task->id}}">
                                                         Stop
                                                     </button>
                                                 </form>
+                                            @endif
                                             </div>
                                         </td>
                                     </tr>
@@ -382,37 +368,8 @@
 
     <script>
         var taskIntervals = {};
-        var taskPaused = {};
         
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize paused state
-            @foreach($employees_tasks as $task)
-                @php
-                    $task_timer = App\Models\tasks_timer::where('task_employee_id', $task->id)
-                        ->whereNull('end_date')
-                        ->first();
-                @endphp
-                @if($task_timer && $task_timer->paused === 1)
-                    taskPaused["{{$task->id}}"] = true;
-                @else
-                    taskPaused["{{$task->id}}"] = false;
-                @endif
-            @endforeach
-            
-            document.querySelectorAll('.pause-button').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    var taskId = this.getAttribute('data-task-id');
-                    taskPaused[taskId] = true;
-                });
-            });
-            
-            document.querySelectorAll('.resume-button').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    var taskId = this.getAttribute('data-task-id');
-                    taskPaused[taskId] = false;
-                });
-            });
-            
             document.querySelectorAll('.stop-button').forEach(function(button) {
                 button.addEventListener('click', function() {
                     var taskId = this.getAttribute('data-task-id');
@@ -687,24 +644,24 @@
                                                     var startDate = new Date(task.start_date);
                                                     var taskId = task.id;
                                                     var rowId = 'row-' + taskId;
-                                                    taskPaused[taskId] = task.paused === 1;
                                                     var startTimestamp = startDate.getTime();
                                                     var elapsedTime = 0;
                                                     
                                                     if(taskIntervals[taskId]) clearInterval(taskIntervals[taskId]);
                                                     
                                                     taskIntervals[taskId] = setInterval(function() {
-                                                        if(!taskPaused[taskId]) {
-                                                            var now = new Date();
-                                                            var durationInMilliseconds = now - startDate + elapsedTime;
-                                                            var h = Math.floor(durationInMilliseconds / 3600000);
-                                                            var m = Math.floor((durationInMilliseconds % 3600000) / 60000);
-                                                            var s = Math.floor((durationInMilliseconds % 60000) / 1000);
-                                                            var durFmt = (h < 10 ? '0' : '') + h + 'h:' + (m < 10 ? '0' : '') + m + 'm:' + (s < 10 ? '0' : '') + s + 's';
-                                                            
-                                                            var durationCell = document.querySelector('#' + rowId + ' .task_duration');
-                                                            if (durationCell) durationCell.textContent = durFmt;
-                                                            else clearInterval(taskIntervals[taskId]);
+                                                        var now = new Date();
+                                                        var durationInMilliseconds = now - startDate + elapsedTime;
+                                                        var h = Math.floor(durationInMilliseconds / 3600000);
+                                                        var m = Math.floor((durationInMilliseconds % 3600000) / 60000);
+                                                        var s = Math.floor((durationInMilliseconds % 60000) / 1000);
+                                                        var durFmt = (h < 10 ? '0' : '') + h + 'h:' + (m < 10 ? '0' : '') + m + 'm:' + (s < 10 ? '0' : '') + s + 's';
+                                                        
+                                                        var durationCell = document.querySelector('#' + rowId + ' .task_duration');
+                                                        if (durationCell) durationCell.textContent = durFmt;
+                                                        else {
+                                                            clearInterval(taskIntervals[taskId]);
+                                                            delete taskIntervals[taskId];
                                                         }
                                                     }, 1000);
                                                 }

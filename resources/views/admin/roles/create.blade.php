@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BizManager Dashboard - Add Role</title>
+    <title>DailyTrac Dashboard - Add Role</title>
     
     {{-- Using Vite and Livewire styles from your target file --}}
     @vite('resources/css/app.css')

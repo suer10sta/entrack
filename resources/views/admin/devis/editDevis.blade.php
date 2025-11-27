@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BizManager Dashboard - Edit Devis</title>
+    <title>DailyTrac Dashboard - Edit Devis</title>
     @vite('resources/css/app.css')
 
     {{-- Your custom styles for ".editable" fields --}}

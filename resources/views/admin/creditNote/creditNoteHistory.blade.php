@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credit Note History - BizManager</title> 
+    <title>Credit Note History - DailyTrac</title> 
     
     @vite('resources/css/app.css')
     @livewireStyles

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier la Permission - BizManager</title>
+    <title>Modifier la Permission - DailyTrac</title>
     @vite('resources/css/app.css')
     @livewireStyles {{-- Ajouté pour la cohérence --}}
 </head>

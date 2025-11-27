@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects - BizManager</title> {{-- Updated title --}}
+    <title>Projects - DailyTrac</title> {{-- Updated title --}}
     @vite('resources/css/app.css')
     @livewireStyles
     {{-- Include dashboard_layouts.head if needed --}}

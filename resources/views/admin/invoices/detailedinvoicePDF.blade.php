@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detailed Invoice - BizManager</title> 
+    <title>Detailed Invoice - DailyTrac</title> 
     
     {{-- [CORRIGÉ 1] Ajout du Meta Tag CSRF --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">

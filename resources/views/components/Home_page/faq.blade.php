@@ -3,7 +3,7 @@
     <head> 
         <meta charset="utf-8"> 
         <meta name="viewport" content="width=device-width, initial-scale=1"> 
-        <title>FAQ | Enterprise Tracker Pro</title>
+        <title>FAQ | DailyTrac</title>
         <link rel="preconnect" href="https://fonts.bunny.net"> 
         <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" /> 
         <link rel="stylesheet" href="welcome/css/bootstrap.min.css"> 
@@ -59,25 +59,25 @@
             <div class="max-w-3xl mx-auto">
                 <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 text-center">Frequently Asked Questions</h1>
                 <p class="text-base text-gray-600 mb-10 text-center">
-                    Find answers to common questions about Enterprise Tracker Pro.
+                    Find answers to common questions about DailyTrac.
                     Can't find what you're looking for? Contact our support team.
                 </p>
 
                 {{-- FAQ Items --}}
                 <div class="space-y-4">
                     @php $faqItems = [
-                    ['id'=>1, 'question'=>'What is Enterprise Tracker Pro?',
-                    'answer'=>'Enterprise Tracker Pro is a comprehensive business management platform designed to help you manage invoices, projects, team members, and finances all in one place. It\'s built for businesses of all sizes.'],
+                    ['id'=>1, 'question'=>'What is DailyTrac?',
+                    'answer'=>'DailyTrac is a comprehensive business management platform designed to help you manage invoices, projects, team members, and finances all in one place. It\'s built for businesses of all sizes.'],
                     ['id'=>2, 'question'=>'How do I get started?',
                     'answer'=>'Getting started is easy! Simply sign up for an account, set up your company information, and start adding your clients, projects, and team members. Our onboarding guide will walk you through each step.'],
                     ['id'=>3, 'question'=>'Is my data secure?',
                     'answer'=>'Yes, we take security very seriously. All data is encrypted in transit and at rest. We comply with industry standards and regularly perform security audits to ensure your information is protected.'],
                     ['id'=>4, 'question'=>'Can I integrate with other tools?',
-                    'answer'=>'Yes, Enterprise Tracker Pro supports integrations with popular accounting software, payment processors, and communication tools. Check our integrations page for the full list.'],
+                    'answer'=>'Yes, DailyTrac supports integrations with popular accounting software, payment processors, and communication tools. Check our integrations page for the full list.'],
                     ['id'=>5, 'question'=>'What payment methods do you accept?',
                     'answer'=>'We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 14-day free trial for new users.'],
                     ['id'=>6, 'question'=>'Is there customer support available?',
-                    'answer'=>'We offer 24/7 customer support via email, chat, and phone. Our support team is dedicated to helping you get the most out of Enterprise Tracker Pro.'],
+                    'answer'=>'We offer 24/7 customer support via email, chat, and phone. Our support team is dedicated to helping you get the most out of DailyTrac.'],
                     ['id'=>7, 'question'=>'Can I export my data?',
                     'answer'=>'Yes, you can export your data in various formats including CSV, PDF, and Excel. You have full control over your data and can export it at any time.'],
                     ['id'=>8, 'question'=>'What happens if I cancel my subscription?',

@@ -21,7 +21,7 @@
                         </svg>
                     </div>
                     <span class="text-xl font-bold text-[#1F2937]">
-                        Enterprise Tracker Pro
+                    DailyTrac
                     </span>
                 </div>
 
@@ -90,7 +90,7 @@
         </div>
 
         <div class="mt-12 flex flex-col md:flex-row items-center justify-between gap-4 border-t border-[#E5E7EB] pt-6 text-sm text-[#9CA3AF]">
-            <p>© {{ date('Y') }} Enterprise Tracker Pro. All rights reserved.</p> <!-- Year updates dynamically -->
+            <p>© {{ date('Y') }} DailyTrac. All rights reserved.</p> <!-- Year updates dynamically -->
 
             <div class="flex items-center gap-2">
                 <span>Made with</span>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BizManager Sidebar</title>
+    <title>DailyTrac Sidebar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .dropdown-menu {
@@ -67,7 +67,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-lg font-semibold text-gray-900">Entrack Entrp</h1>
+                    <h1 class="text-lg font-semibold text-gray-900">DailyTrac</h1>
                     <p class="text-xs text-gray-500">Pro</p>
                 </div>
             </div>

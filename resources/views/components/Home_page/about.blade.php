@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>About | Enterprise Tracker Pro</title>
+    <title>About | DailyTrac</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net" />
     <link
@@ -163,7 +163,7 @@
             </h2>
             
             <p class="text-lg text-muted mb-10 max-w-2xl mx-auto leading-relaxed">
-                Every workflow is different. We can personalize Enterprise Tracker Pro to fit your specific needs—adding custom fields, reports, or integrations just for you.
+                Every workflow is different. We can personalize DailyTrac to fit your specific needs—adding custom fields, reports, or integrations just for you.
             </p>
 
             <a href="/contact" class="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground font-bold rounded-lg shadow-lg shadow-primary/20 hover:bg-primary/90 hover:-translate-y-1 transition-all duration-300">

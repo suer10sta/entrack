@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Devis Parameters - BizManager</title> {{-- Updated title --}}
+    <title>Devis Parameters - DailyTrac</title> {{-- Updated title --}}
     @vite('resources/css/app.css') 
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Archives des Factures - BizManager</title>
+    <title>Archives des Factures - DailyTrac</title>
     
     {{-- 1. ONLY LOAD TAILWIND (No Bootstrap) --}}
     @vite('resources/css/app.css') 

@@ -10,7 +10,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M8 13h8M8 16h8" />
         </svg>
       </div>
-      <span class="text-lg font-semibold text-white">Enterprise Tracker Pro</span>
+      <span class="text-lg font-semibold text-white">DailyTrac</span>
     </a>
 
     <!-- ===== Desktop Navigation ===== -->
