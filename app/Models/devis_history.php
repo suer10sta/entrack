@@ -32,6 +32,9 @@ class devis_history extends Model
         'sent',
         'Existing_project_id',
         'Existing_project_name',
+        'billing_type',
+        'hours',
+        'amount_per_hour',
     ];
 }
 

@@ -1198,174 +1198,198 @@ public function generateDevis()
         return view('admin.devis.generate', compact('clients', 'projects'));
     }
 
-public function saveDevisPdf(Request $request)
-{
-
-        $email = Entreprise::where('id', Auth::user()->entreprise_id )->first()->email;
-        $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();    
-
-   
-    // Save the data into the devis_history table
-    $devis = new devis_history();
-    $devis->Project_name = $request->Project_name;
-    $devis->cost_per_hour = $request->cost_per_hour;
-    $devis->budget = $request->budget;
-    $devis->tva = $request->project_tva;
-
-        if ($request->input('newclient_name')) {
-            $newClient = new Client();
-            $devis->emails = $request->emails; 
-            $newClient->name = $request->newclient_name;
-            $newClient->client_number = $request->newclient_number;
-            $newClient->phone = $request->newclient_phone;
-            $newClient->address = $request->newclient_street;
-            $newClient->city = $request->newclient_city;
-            $newClient->zip = $request->newclient_zip;
-            $newClient->due_date = 0;
-            $newClient->country = $request->newclient_country;
-            $newClient->entreprise_id = Auth::user()->entreprise_id;
-            $newClient->AcceptedDevisClient = 0;
-            $newClient->save();
-            $devis->client_id = $newClient->id;
-            $devis->client_name = $request->newclient_name;
-
-            if($request->Project_name){
-                $newProject = new Project();
-                $newProject->name = $request->Project_name; 
-                $newProject->cost_per_hour = $request->cost_per_hour;
-                $newProject->budget = $request->budget;
-                $newProject->start_date = now();
-                $newProject->tva = $request->project_tva;
-                $newProject->AcceptedDevisProject = 0;
-                $newProject->client_id = $newClient->id;
-                $newProject->entreprise_id = Auth::user()->entreprise_id;
-                $newProject->save(); 
-                $devis->project_id = $newProject->id;
-            }else{
-                $devis->project_id = $request->Existing_project_id;
-                $newProject = Project::where('id', $request->Existing_project_id)->first();
-                $devis->Existing_project_name = $newProject->name;
-            }   
-
-        }else{
-            $devis->client_id = $request->client;
-            $devis->client_name = Client::where('id', $request->client)->first()->name; 
-            
-
-            if($request->Project_name){
-                $newProject = new Project();
-                $newProject->name = $request->Project_name; 
-                $newProject->cost_per_hour = $request->cost_per_hour;
-                $newProject->budget = $request->budget;
-                $newProject->start_date = now();
-                $newProject->tva = $request->project_tva;
-                $newProject->AcceptedDevisProject = 0;
-                $newProject->client_id = $request->client;
-                $newProject->entreprise_id = Auth::user()->entreprise_id;
-                $newProject->save();
-                $devis->project_id = $newProject->id;
-            }else{
-                $devis->project_id = $request->Existing_project_id;
-                $newProject = Project::where('id', $request->Existing_project_id)->first();
-                $devis->Existing_project_name = $newProject->name;
+    public function saveDevisPdf(Request $request)
+    {
+    
+            $email = Entreprise::where('id', Auth::user()->entreprise_id )->first()->email;
+            $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();    
+    
+            $billingType = $request->input('billing_type', 'forfait');
+            $hoursInput = $request->input('hours');
+            $amountInput = $request->input('amount_per_hour');
+    
+            $hoursValue = is_numeric($hoursInput) ? (float) $hoursInput : 0;
+            $amountValue = is_numeric($amountInput) ? (float) $amountInput : 0;
+    
+            $calculatedBudget = (float) $request->input('budget', 0);
+            $costPerHour = (float) $request->input('cost_per_hour', 0);
+    
+            if ($billingType === 'horaire') {
+                $calculatedBudget = $hoursValue * $amountValue;
+                $costPerHour = $amountValue;
             }
-        }
 
-    $devis->description = $request->description;
-    $devis->entreprise_id = Auth::user()->entreprise_id;
-
-    if ($entreprise->devis_start_number == null) {
-        $lastDevisNumber = sprintf('%03d', 0);
-    } else {
-        $latestDevis = devis_history::where('entreprise_id', Auth::user()->entreprise_id)
-            ->orderBy('devis_number', 'desc')  // Order by devis_number instead of created_at
-            ->first();
-        
-        if ($latestDevis == null) {
-            // No existing devis, use the start number from entreprise
-            $lastDevisNumber = $entreprise->devis_start_number;
-            $devis->hasStartNumber = 1;
+            $storedHours = $billingType === 'horaire' ? $hoursValue : null;
+            $storedAmountPerHour = $billingType === 'horaire' ? $amountValue : null;
+    
+       
+        // Save the data into the devis_history table
+        $devis = new devis_history();
+        $devis->Project_name = $request->Project_name;
+        $devis->cost_per_hour = $costPerHour;
+        $devis->budget = $calculatedBudget;
+        $devis->tva = $request->project_tva;
+        $devis->billing_type = $billingType;
+        $devis->hours = $storedHours;
+        $devis->amount_per_hour = $storedAmountPerHour;
+    
+            if ($request->input('newclient_name')) {
+                $newClient = new Client();
+                $devis->emails = $request->emails; 
+                $newClient->name = $request->newclient_name;
+                $newClient->client_number = $request->newclient_number;
+                $newClient->phone = $request->newclient_phone;
+                $newClient->address = $request->newclient_street;
+                $newClient->city = $request->newclient_city;
+                $newClient->zip = $request->newclient_zip;
+                $newClient->due_date = 0;
+                $newClient->country = $request->newclient_country;
+                $newClient->entreprise_id = Auth::user()->entreprise_id;
+                $newClient->AcceptedDevisClient = 0;
+                $newClient->save();
+                $devis->client_id = $newClient->id;
+                $devis->client_name = $request->newclient_name;
+    
+                if($request->Project_name){
+                    $newProject = new Project();
+                    $newProject->name = $request->Project_name; 
+                    $newProject->cost_per_hour = $costPerHour;
+                    $newProject->budget = $calculatedBudget;
+                    $newProject->start_date = now();
+                    $newProject->tva = $request->project_tva;
+                    $newProject->AcceptedDevisProject = 0;
+                    $newProject->client_id = $newClient->id;
+                    $newProject->entreprise_id = Auth::user()->entreprise_id;
+                    $newProject->save(); 
+                    $devis->project_id = $newProject->id;
+                }else{
+                    $devis->project_id = $request->Existing_project_id;
+                    $newProject = Project::where('id', $request->Existing_project_id)->first();
+                    $devis->Existing_project_name = $newProject->name;
+                }   
+    
+            }else{
+                $devis->client_id = $request->client;
+                $devis->client_name = Client::where('id', $request->client)->first()->name; 
+                
+    
+                if($request->Project_name){
+                    $newProject = new Project();
+                    $newProject->name = $request->Project_name; 
+                    $newProject->cost_per_hour = $costPerHour;
+                    $newProject->budget = $calculatedBudget;
+                    $newProject->start_date = now();
+                    $newProject->tva = $request->project_tva;
+                    $newProject->AcceptedDevisProject = 0;
+                    $newProject->client_id = $request->client;
+                    $newProject->entreprise_id = Auth::user()->entreprise_id;
+                    $newProject->save();
+                    $devis->project_id = $newProject->id;
+                }else{
+                    $devis->project_id = $request->Existing_project_id;
+                    $newProject = Project::where('id', $request->Existing_project_id)->first();
+                    $devis->Existing_project_name = $newProject->name;
+                }
+            }
+    
+        $devis->description = $request->description;
+        $devis->entreprise_id = Auth::user()->entreprise_id;
+    
+        if ($entreprise->devis_start_number == null) {
+            $lastDevisNumber = sprintf('%03d', 0);
         } else {
-            // Get the highest devis number currently in use
-            $formatLength = strlen($latestDevis->devis_number);
-            $lastDevisNumber = $latestDevis->devis_number;
-        }
-    }
-
-    // Always increment from the last number
-    $nextNumber = intval($lastDevisNumber) + 1;
-    $formatLength = strlen($lastDevisNumber); // Use the same format length as the last number
-    $devis->devis_number = sprintf("%0{$formatLength}d", $nextNumber);
-
-    $devis->save();
-
-    if( $request->input('contacts') ){
-        $selectedContacts = $request->input('contacts');
-        $contacts =client_contacts::whereIn('id', $selectedContacts)->get();
-        foreach ($contacts as $c) {
-            $client_contacts_devis = new client_contacts_devis();
-            $client_contacts_devis->devis_id = $devis->id;
-            $client_contacts_devis->contact_id = $c->id;
-            $client_contacts_devis->client_id = $request->client;
-            $client_contacts_devis->devis_number = $devis->devis_number;
-            $client_contacts_devis->entreprise_id = Auth::user()->entreprise_id;
-            $client_contacts_devis->save(); 
-        }
-    }
-
-    $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();
-
-    $tasks = $request->input('task');
-    $taskBudget = $request->input('taskBudget');
-
-    // Add this new code to save task details
-    if ($tasks && $taskBudget) {
-        foreach ($tasks as $index => $task) {
-            if (!empty($task) && isset($taskBudget[$index])) {
-                $devis_detail = new devis_details();
-                $devis_detail->devis_id = $devis->id;
-                $devis_detail->task_details = $task;
-                $devis_detail->task_budget = $taskBudget[$index];
-                $devis_detail->entreprise_id = Auth::user()->entreprise_id;
-                $devis_detail->save();
+            $latestDevis = devis_history::where('entreprise_id', Auth::user()->entreprise_id)
+                ->orderBy('devis_number', 'desc')  // Order by devis_number instead of created_at
+                ->first();
+            
+            if ($latestDevis == null) {
+                // No existing devis, use the start number from entreprise
+                $lastDevisNumber = $entreprise->devis_start_number;
+                $devis->hasStartNumber = 1;
+            } else {
+                // Get the highest devis number currently in use
+                $formatLength = strlen($latestDevis->devis_number);
+                $lastDevisNumber = $latestDevis->devis_number;
             }
         }
+    
+        // Always increment from the last number
+        $nextNumber = intval($lastDevisNumber) + 1;
+        $formatLength = strlen($lastDevisNumber); // Use the same format length as the last number
+        $devis->devis_number = sprintf("%0{$formatLength}d", $nextNumber);
+    
+        $devis->save();
+    
+        if( $request->input('contacts') ){
+            $selectedContacts = $request->input('contacts');
+            $contacts =client_contacts::whereIn('id', $selectedContacts)->get();
+            foreach ($contacts as $c) {
+                $client_contacts_devis = new client_contacts_devis();
+                $client_contacts_devis->devis_id = $devis->id;
+                $client_contacts_devis->contact_id = $c->id;
+                $client_contacts_devis->client_id = $request->client;
+                $client_contacts_devis->devis_number = $devis->devis_number;
+                $client_contacts_devis->entreprise_id = Auth::user()->entreprise_id;
+                $client_contacts_devis->save(); 
+            }
+        }
+    
+        $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();
+    
+        $tasks = $request->input('task');
+        $taskBudget = $request->input('taskBudget');
+    
+        // Add this new code to save task details
+        if ($tasks && $taskBudget) {
+            foreach ($tasks as $index => $task) {
+                if (!empty($task) && isset($taskBudget[$index])) {
+                    $devis_detail = new devis_details();
+                    $devis_detail->devis_id = $devis->id;
+                    $devis_detail->task_details = $task;
+                    $devis_detail->task_budget = $taskBudget[$index];
+                    $devis_detail->entreprise_id = Auth::user()->entreprise_id;
+                    $devis_detail->save();
+                }
+            }
+        }
+        
+    
+        if($request->Project_name){
+            $project_name = $request->Project_name;
+        }else{
+            $project_name = $devis->Existing_project_name;
+        } 
+    
+    
+        // Generate a PDF file of the devis
+        $pdf = PDF::loadView('admin.devis.view', [
+            'project_name' => $project_name,
+            'prix_unitaire' => $costPerHour,
+            'budget' => $calculatedBudget,
+            'tva' => $devis->tva,
+            'description' => $request->description,
+            'entreprise' => $entreprise,
+            'devisNum' => $devis->devis_number,
+            'cost_per_hour' => $costPerHour,
+            'tasks' => $tasks,
+            'taskBudget' => $taskBudget,
+            'devis_id' => $devis->id,
+            'billing_type' => $billingType,
+            'hours' => $hoursValue,
+            'amount_per_hour' => $amountValue
+        ]);
+    
+        // Save the PDF to a do_spaces file
+        $filePath = 'devis/' . $entreprise->id . '/' . $devis->devis_number . '.pdf';
+        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+    
+        //get the full url directly
+        $fullUrl = Storage::disk('do_spaces')->url($filePath);
+    
+        return redirect($fullUrl);
+    
+        
     }
-    
-
-    if($request->Project_name){
-        $project_name = $request->Project_name;
-    }else{
-        $project_name = $devis->Existing_project_name;
-    } 
-
-
-    // Generate a PDF file of the devis
-    $pdf = PDF::loadView('admin.devis.view', [
-        'project_name' => $project_name,
-        'prix_unitaire' => $request->cost_per_hour,
-        'budget' => $request->budget,
-        'tva' => $devis->tva,
-        'description' => $request->description,
-        'entreprise' => $entreprise,
-        'devisNum' => $devis->devis_number,
-        'cost_per_hour' => $request->cost_per_hour,
-        'tasks' => $tasks,
-        'taskBudget' => $taskBudget,
-        'devis_id' => $devis->id
-    ]);
-
-    // Save the PDF to a do_spaces file
-    $filePath = 'devis/' . $entreprise->id . '/' . $devis->devis_number . '.pdf';
-    Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
-
-    //get the full url directly
-    $fullUrl = Storage::disk('do_spaces')->url($filePath);
-
-    return redirect($fullUrl);
-
-    
-}
 
 public function duplicateDevis($devis_id){
     $devis = devis_history::where('id', $devis_id)->first();
@@ -1401,13 +1425,34 @@ public function saveDuplicateDevis(Request $request)
         $email = Entreprise::where('id', Auth::user()->entreprise_id )->first()->email;
         $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();    
 
+        // Handle billing type (forfait / horaire) similarly to saveDevisPdf
+        $billingType = $request->input('billing_type', 'forfait');
+        $hoursInput = $request->input('hours');
+        $amountInput = $request->input('amount_per_hour');
+
+        $hoursValue = is_numeric($hoursInput) ? (float) $hoursInput : 0;
+        $amountValue = is_numeric($amountInput) ? (float) $amountInput : 0;
+
+        $calculatedBudget = (float) $request->input('budget', 0);
+        $costPerHour = (float) $request->input('cost_per_hour', 0);
+
+        if ($billingType === 'horaire') {
+            $calculatedBudget = $hoursValue * $amountValue;
+            $costPerHour = $amountValue;
+        }
+
+        $storedHours = $billingType === 'horaire' ? $hoursValue : null;
+        $storedAmountPerHour = $billingType === 'horaire' ? $amountValue : null;
    
     // Save the data into the devis_history table
     $devis = new devis_history();
     $devis->Project_name = $request->Project_name;
-    $devis->cost_per_hour = $request->cost_per_hour;
-    $devis->budget = $request->budget;
+    $devis->cost_per_hour = $costPerHour;
+    $devis->budget = $calculatedBudget;
     $devis->tva = $request->project_tva;
+    $devis->billing_type = $billingType;
+    $devis->hours = $storedHours;
+    $devis->amount_per_hour = $storedAmountPerHour;
 
         if ($request->input('newclient_name')) {
             $newClient = new Client();
@@ -4463,14 +4508,36 @@ public function updateDevis(Request $request, $devis_id)
     $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();    
     $devis = devis_history::findOrFail($devis_id);
     
+    // Handle billing type (forfait / horaire) similarly to saveDevisPdf
+    $billingType = $request->input('billing_type', 'forfait');
+    $hoursInput = $request->input('hours');
+    $amountInput = $request->input('amount_per_hour');
+
+    $hoursValue = is_numeric($hoursInput) ? (float) $hoursInput : 0;
+    $amountValue = is_numeric($amountInput) ? (float) $amountInput : 0;
+
+    $calculatedBudget = (float) $request->input('budget', 0);
+    $costPerHour = (float) $request->input('cost_per_hour', 0);
+
+    if ($billingType === 'horaire') {
+        $calculatedBudget = $hoursValue * $amountValue;
+        $costPerHour = $amountValue;
+    }
+
+    $storedHours = $billingType === 'horaire' ? $hoursValue : null;
+    $storedAmountPerHour = $billingType === 'horaire' ? $amountValue : null;
+
     // Store old file path for deletion
     $oldFilePath = 'devis/' . $entreprise->id . '/' . $devis->devis_number . '.pdf';
 
     // Update devis details
     $devis->Project_name = $request->Project_name;
-    $devis->cost_per_hour = $request->cost_per_hour;
-    $devis->budget = $request->budget;
+    $devis->cost_per_hour = $costPerHour;
+    $devis->budget = $calculatedBudget;
     $devis->tva = $request->project_tva;
+    $devis->billing_type = $billingType;
+    $devis->hours = $storedHours;
+    $devis->amount_per_hour = $storedAmountPerHour;
 
     if ($request->input('newclient_name')) {
         $newClient = new Client();

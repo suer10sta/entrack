@@ -20,7 +20,7 @@ use App\Http\Controllers\superadmin\PermissionController;
 use App\Http\Controllers\employees\indexController as EmployeesIndexController;
 use App\Http\Controllers\employees\tasksController as EmployeestasksController;
 use App\Http\Controllers\employees\teamsController as EmployeesteamsController;
-use App\Http\Controllers\BillitController;
+use App\Http\Controllers\admin\BillitController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\admin\CalendarController;
 use App\Http\Controllers\admin\SubscriptionController;
@@ -411,6 +411,11 @@ Route::get('/Pointagerepports/downloadMultipleTasksRepports/{startDate}/{endDate
 
     Route::get('/billit-test', [BillitController::class, 'test'])->name('billit.test');
 
+    // Billit test page and send endpoint (admin scoped)
+    Route::get('/billit-test', [BillitController::class, 'test'])->name('billit.test');
+    Route::post('/billit/send-invoice/{id}', [BillitController::class, 'sendInvoiceHistoryBillit'])->name('billit.send-invoice');
+    Route::post('/billit/send-invoice/{id}/{type}', [BillitController::class, 'sendInvoiceHistoryBillitByType'])->name('billit.send-invoice-type');
+    Route::get('/billit/invoices/{type}', [BillitController::class, 'listInvoicesByType'])->name('billit.invoices-by-type');
 });
 
 
@@ -431,6 +436,11 @@ Route::middleware(['auth', 'role:Responsable de projet'])->name('Responsable_de_
     Route::post('/tasks/{tasks}/{employee_id}/pause', [tasksController::class, 'pause'])->name('tasks.pause');
     Route::post('/tasks/{tasks}/{employee_id}/resume', [tasksController::class, 'resume'])->name('tasks.resume');
     
+    Route::get('/billit-test', [BillitController::class, 'test'])->name('billit.test');
+    Route::post('/billit/send-invoice/{id}', [BillitController::class, 'sendInvoiceHistoryBillit'])->name('billit.send-invoice');
+    Route::post('/billit/send-invoice/{id}/{type}', [BillitController::class, 'sendInvoiceHistoryBillitByType'])->name('billit.send-invoice-type');
+    Route::get('/billit/invoices/{type}', [BillitController::class, 'listInvoicesByType'])->name('billit.invoices-by-type');
+
     Route::get('tasks/tasks-info/{startDate}/{employee_id}', [EmployeestasksController::class, 'getTasksInfo'])->name('tasks.info');
     Route::get('tasks/tasks-info-interval/{startDate}/{endDate}/{employee_id}', [EmployeestasksController::class, 'getTasksInfoInterval'])->name('tasks.info-interval');
     Route::get('tasks/get-project-name/{taskName}', [TasksController::class, 'getProjectName']);
@@ -1160,6 +1170,12 @@ Route::middleware(['auth', 'role:SuperAdmin'])->name('SuperAdmin.')->prefix('Sup
     Route::post('/projects/store/{client_id}', [projectController::class,"store"])->name('projects.store');
     Route::post('/projects/{project}/status/{status}', [projectController::class,"status"])->name('projects.status'); 
     Route::post('projects/updateProject', [projectController::class,'updateProject'])->name('projects.updateProject');
+
+
+    Route::get('/billit-test', [BillitController::class, 'test'])->name('billit.test');
+Route::post('/billit/send-invoice/{id}', [BillitController::class, 'sendInvoiceHistoryBillit'])->name('billit.send-invoice');
+Route::post('/billit/send-invoice/{id}/{type}', [BillitController::class, 'sendInvoiceHistoryBillitByType'])->name('billit.send-invoice-type');
+Route::get('/billit/invoices/{type}', [BillitController::class, 'listInvoicesByType'])->name('billit.invoices-by-type');
 
     Route::resource('/todoliste', todolisteController::class)->except(['show']);
  

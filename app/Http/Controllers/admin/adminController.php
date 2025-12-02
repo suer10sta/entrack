@@ -57,6 +57,9 @@ class adminController extends Controller
             ->orderBy('client_number')
             ->get();
 
+        // Total number of projects for the stats card (all projects for this enterprise)
+        $totalProjectsCount = Project::where('entreprise_id', auth()->user()->entreprise_id)->count();
+
         $todoliste = todoliste::where('user_id', Auth::user()->id)
             ->orderBy('start', 'asc')
             ->paginate(4, ['*'], 'todoPage', $todoPage);
@@ -141,7 +144,8 @@ class adminController extends Controller
             'entreprise_infos',
             'projectsFilter',
             'dayEvents',
-            'monthlyRevenue'
+            'monthlyRevenue',
+            'totalProjectsCount'
         ));
     }
 

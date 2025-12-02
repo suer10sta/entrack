@@ -127,29 +127,49 @@
                                 </div>
                             </div>
 
-                            {{-- Quote Type Row --}}
+                            {{-- Quote Type Row (Forfait / Hourly) --}}
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                                 <div>
-                                    <label for="devisType" class="block text-sm font-medium text-gray-700 mb-1">Quote Type <span class="text-red-600">*</span></label>
-                                    <select class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom" 
-                                            id="devisType" name="devis_type" onchange="toggleDevisInputs()" required>
-                                        <option value="forfait" selected>Fixed Price</option>
-                                        <option value="horaire">Hourly</option>
-                                    </select>
+                                    <span class="block text-sm font-medium text-gray-700 mb-1">Quote Type <span class="text-red-600">*</span></span>
+                                    <div class="mt-2 flex items-center space-x-6">
+                                        <label class="inline-flex items-center">
+                                            <input type="radio"
+                                                   name="billing_type"
+                                                   id="billingForfait"
+                                                   value="forfait"
+                                                   class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                   checked>
+                                            <span class="ml-2 text-sm text-gray-700">Fixed Price</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="radio"
+                                                   name="billing_type"
+                                                   id="billingHoraire"
+                                                   value="horaire"
+                                                   class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">Hourly</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
-                            {{-- Hidden Hourly Inputs --}}
-                            <div id="horaireInputs" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6" style="display: none;">
+                            {{-- Hourly Inputs (shown when Hourly is selected) --}}
+                            <div id="hourlyInputs" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6" style="display: none;">
                                 <div>
-                                    <label for="nombreHeures" class="block text-sm font-medium text-gray-700 mb-1">Number of hours</label>
-                                    <input type="number" step="0.01" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" 
-                                           id="nombreHeures" name="nombre_heures" oninput="calculateTotalBudget()">
+                                    <label for="hourlyHours" class="block text-sm font-medium text-gray-700 mb-1">Number of hours</label>
+                                    <input type="number"
+                                           step="0.01"
+                                           class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+                                           id="hourlyHours"
+                                           name="hours">
                                 </div>
                                 <div>
-                                    <label for="tarifHoraire" class="block text-sm font-medium text-gray-700 mb-1">Hourly rate (€)</label>
-                                    <input type="number" step="0.01" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" 
-                                           id="tarifHoraire" name="tarif_horaire" oninput="calculateTotalBudget()">
+                                    <label for="hourlyAmount" class="block text-sm font-medium text-gray-700 mb-1">Amount per hour (€)</label>
+                                    <input type="number"
+                                           step="0.01"
+                                           class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+                                           id="hourlyAmount"
+                                           name="amount_per_hour">
                                 </div>
                             </div>
 
@@ -451,31 +471,37 @@
 </script>
 
 <script>
-    // **Budget & Type Switching Logic**
+    // **Budget Logic (Forfait / Hourly)**
 
-    // Calculates budget from hours * rate
-    function calculateTotalBudget() {
-        const devisType = document.getElementById('devisType').value;
-        if (devisType === 'horaire') {
-            const heures = parseFloat(document.getElementById('nombreHeures').value) || 0;
-            const tarif = parseFloat(document.getElementById('tarifHoraire').value) || 0;
-            const total = heures * tarif;
-            document.getElementById('projectBudget').value = total.toFixed(2);
-        }
-    }
-
-    // Calculates budget from task list
+    // Calculates budget based on billing type
     function updateProjectBudget() {
-        const devisType = document.getElementById('devisType').value;
-        if (devisType === 'forfait') { 
-            let totalBudget = 0;
-            document.querySelectorAll('.taskBudget').forEach(function(input) {
-                let value = parseFloat(input.value);
-                if (!isNaN(value)) {
-                    totalBudget += value;
-                }
-            });
-            document.getElementById('projectBudget').value = totalBudget.toFixed(2);
+        const projectBudgetInput = document.getElementById('projectBudget');
+        const billingHoraireRadio = document.getElementById('billingHoraire');
+
+        // Hourly: use hours * amount_per_hour
+        if (billingHoraireRadio && billingHoraireRadio.checked) {
+            const hoursInput = document.getElementById('hourlyHours');
+            const amountInput = document.getElementById('hourlyAmount');
+
+            const hours = parseFloat(hoursInput ? hoursInput.value : '') || 0;
+            const amount = parseFloat(amountInput ? amountInput.value : '') || 0;
+
+            if (projectBudgetInput) {
+                projectBudgetInput.value = (hours * amount).toFixed(2);
+            }
+            return;
+        }
+
+        // Forfait: sum task budgets
+        let totalBudget = 0;
+        document.querySelectorAll('.taskBudget').forEach(function(input) {
+            let value = parseFloat(input.value);
+            if (!isNaN(value)) {
+                totalBudget += value;
+            }
+        });
+        if (projectBudgetInput) {
+            projectBudgetInput.value = totalBudget.toFixed(2);
         }
     }
     
@@ -483,26 +509,6 @@
     document.querySelectorAll('.taskBudget').forEach(function(input) {
         input.addEventListener('input', updateProjectBudget);
     });
-
-    // Toggles input visibility based on Quote Type
-    function toggleDevisInputs() {
-        const devisType = document.getElementById('devisType').value;
-        const horaireInputs = document.getElementById('horaireInputs');
-        const devisDetails = document.getElementById('devisDetailsSection');
-        const projectBudgetInput = document.getElementById('projectBudget');
-
-        if (devisType === 'horaire') {
-            horaireInputs.style.display = 'grid';
-            devisDetails.style.display = 'none';
-            projectBudgetInput.readOnly = true; 
-            calculateTotalBudget();
-        } else { // 'forfait'
-            horaireInputs.style.display = 'none';
-            devisDetails.style.display = 'block';
-            projectBudgetInput.readOnly = true;
-            updateProjectBudget();
-        }
-    }
 
     // **Project Type Switching Logic**
 
@@ -549,5 +555,57 @@
     }
 </script>
 
-</body>
-</html>
+{{-- New script for hourly and forfait quotes --}}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const billingRadios = document.querySelectorAll('input[name="billing_type"]');
+    const hourlyInputs = document.getElementById('hourlyInputs');
+    const hoursInput = document.getElementById('hourlyHours');
+    const amountInput = document.getElementById('hourlyAmount');
+    const costPerHourInput = document.getElementById('costPerHour');
+
+    function toggleHourlyInputs() {
+        const isHoraire = document.getElementById('billingHoraire').checked;
+        if (hourlyInputs) {
+            hourlyInputs.style.display = isHoraire ? 'grid' : 'none';
+        }
+
+        // Sync and lock cost per hour when hourly is selected
+        if (costPerHourInput) {
+            if (isHoraire) {
+                costPerHourInput.readOnly = true;
+                costPerHourInput.classList.add('bg-gray-100');
+                const amount = parseFloat(amountInput ? amountInput.value : '');
+                if (!isNaN(amount)) {
+                    costPerHourInput.value = amount;
+                }
+            } else {
+                costPerHourInput.readOnly = false;
+                costPerHourInput.classList.remove('bg-gray-100');
+            }
+        }
+
+        updateProjectBudget();
+    }
+
+    function handleHourlyInputChange() {
+        const amount = parseFloat(amountInput ? amountInput.value : '');
+        if (!isNaN(amount) && costPerHourInput) {
+            costPerHourInput.value = amount;
+        }
+        updateProjectBudget();
+    }
+
+    billingRadios.forEach(function(radio) {
+        radio.addEventListener('change', toggleHourlyInputs);
+    });
+
+    [hoursInput, amountInput].forEach(function(input) {
+        if (input) {
+            input.addEventListener('input', handleHourlyInputChange);
+        }
+    });
+
+    toggleHourlyInputs();
+});
+</script>

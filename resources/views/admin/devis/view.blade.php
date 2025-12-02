@@ -251,20 +251,22 @@
             <td>
                 {{ $project_name }}
             </td>
-            <td>1</td>
             <td>
-                @if(!empty($budget))
-                {{ number_format($budget, 2, ',', ' ') }}€
-                @elseif(!empty($cost_per_hour))
-                {{ number_format($cost_per_hour, 2, ',', ' ') }}€
+                @if(isset($billing_type) && $billing_type === 'horaire')
+                    {{ number_format($hours, 2, ',', ' ') }}
+                @else
+                    1
                 @endif
             </td>
             <td>
-                @if(!empty($budget))
-                {{ number_format($budget, 2, ',', ' ') }}€
-                @elseif(!empty($cost_per_hour))
-                {{ number_format($cost_per_hour, 2, ',', ' ') }}€
+                @if(isset($billing_type) && $billing_type === 'horaire')
+                    {{ number_format($amount_per_hour, 2, ',', ' ') }}€
+                @else
+                    {{ number_format($budget, 2, ',', ' ') }}€
                 @endif
+            </td>
+            <td>
+                {{ number_format($budget, 2, ',', ' ') }}€
             </td>
         </tr>
     </tbody>
@@ -291,11 +293,21 @@
     white-space: nowrap;
 }
 </style>
+@php
+    $tasks = $tasks ?? [];
+    $taskBudget = $taskBudget ?? [];
+@endphp
 @foreach ($tasks as $index => $task)
 <table class="detailsTab">
     <tr>
         <td class="task-cell">{!! nl2br(e($task)) !!}</td>
-        <td class="budget-cell">{{ number_format($taskBudget[$index], 2, ',', ' ') }}€</td>
+        <td class="budget-cell">
+            @if(isset($billing_type) && $billing_type === 'horaire')
+                -
+            @else
+                {{ number_format($taskBudget[$index] ?? 0, 2, ',', ' ') }}€
+            @endif
+        </td>
     </tr>
 </table>
 @endforeach

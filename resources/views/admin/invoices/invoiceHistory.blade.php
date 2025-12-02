@@ -111,6 +111,14 @@
                  <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
              </div>
              @endif
+             {{-- Session ERROR Message (NEW BLOCK) --}}
+             @if(session('error'))
+             <div id="sessionErrorMessageContainer" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                 <strong class="font-bold">Error!</strong>
+                 <span class="block sm:inline">{{ session('error') }}</span>
+                 <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+             </div>
+             @endif
 
             {{-- 3. Totals Cards Section --}}
             @php
@@ -367,12 +375,57 @@
 
                 {{-- Row 2, Column 1: Send --}}
                 @can('Send invoice')
-                <button type="button" 
-                        title="{{ $invoice->sentInvoice == 0 ? 'Send Invoice' : 'Resend Invoice' }}"
-                        class="w-full px-2 py-1 rounded-md bg-gray-600 text-white hover:bg-gray-700 text-xs font-medium"
-                        @click="$dispatch('open-modal', { id: 'sendInvoiceModal', invoiceId: {{ $invoice->id }} })">
-                    Send
-                </button>
+                <div class="flex flex-col space-y-1">
+                    <button type="button" 
+                            title="{{ $invoice->sentInvoice == 0 ? 'Send Invoice' : 'Resend Invoice' }}"
+                            class="w-full px-2 py-1 rounded-md bg-gray-600 text-white hover:bg-gray-700 text-xs font-medium"
+                            @click="$dispatch('open-modal', { id: 'sendInvoiceModal', invoiceId: {{ $invoice->id }} })">
+                        Send
+                    </button>
+
+                    {{-- Send via Peppol (Billit) --}}
+                    @if(Auth::user()->hasRole('Admin'))
+                    <form action="{{ route('admin.billit.send-invoice-type', ['id' => $invoice->id, 'type' => strtolower($invoice->type ?? 'full')]) }}?channel=Peppol" 
+                          method="POST" 
+                          class="w-full billit-send">
+                        @csrf
+                        <button type="submit"
+                                class="w-full px-2 py-1 rounded-md bg-sky-500 text-white hover:bg-sky-600 text-xs font-medium">
+                            Send via Peppol
+                        </button>
+                    </form>
+                    @elseif(Auth::user()->hasRole('Responsable de projet'))
+                    <form action="{{ route('Responsable_de_projet.billit.send-invoice-type', ['id' => $invoice->id, 'type' => strtolower($invoice->type ?? 'full')]) }}?channel=Peppol" 
+                          method="POST" 
+                          class="w-full billit-send">
+                        @csrf
+                        <button type="submit"
+                                class="w-full px-2 py-1 rounded-md bg-sky-500 text-white hover:bg-sky-600 text-xs font-medium">
+                            Send via Peppol
+                        </button>
+                    </form>
+                    @elseif(Auth::user()->hasRole('Employee'))
+                    <form action="{{ route('employee.billit.send-invoice-type', ['id' => $invoice->id, 'type' => strtolower($invoice->type ?? 'full')]) }}?channel=Peppol" 
+                          method="POST" 
+                          class="w-full billit-send">
+                        @csrf
+                        <button type="submit"
+                                class="w-full px-2 py-1 rounded-md bg-sky-500 text-white hover:bg-sky-600 text-xs font-medium">
+                            Send via Peppol
+                        </button>
+                    </form>
+                    @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                    <form action="{{ route('Responsable_gestionnaire.billit.send-invoice-type', ['id' => $invoice->id, 'type' => strtolower($invoice->type ?? 'full')]) }}?channel=Peppol" 
+                          method="POST" 
+                          class="w-full billit-send">
+                        @csrf
+                        <button type="submit"
+                                class="w-full px-2 py-1 rounded-md bg-sky-500 text-white hover:bg-sky-600 text-xs font-medium">
+                            Send via Peppol
+                        </button>
+                    </form>
+                    @endif
+                </div>
                 @endcan
 
                 {{-- Row 2, Column 2: Credit Note --}}

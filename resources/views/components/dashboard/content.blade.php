@@ -168,7 +168,6 @@
                 </div>
                 <p class="text-3xl font-bold text-gray-800">{{ $data['clients']->count() }}</p>
             </div>
-            <span class="px-3 py-1.5 bg-green-50 text-green-600 font-semibold text-sm rounded-full">+12%</span>
         </div>
         <div class="relative">
             <div class="h-2 bg-blue-100 rounded-full overflow-hidden">
@@ -193,7 +192,6 @@
                 </div>
                 <p class="text-3xl font-bold text-gray-800">{{ $data['employees']->count()}}</p>
             </div>
-            <span class="px-3 py-1.5 bg-green-50 text-green-600 font-semibold text-sm rounded-full">+5%</span>
         </div>
         <div class="relative">
             <div class="h-2 bg-green-100 rounded-full overflow-hidden">
@@ -214,10 +212,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0H4m16 0l-2 9H6l-2-9" />
                         </svg>
                     </div>
-                    <h3 class="text-gray-500 text-sm font-medium">{{ __('messages.Ongoing Projects') }}</h3>
+                    <h3 class="text-gray-500 text-sm font-medium">Projects</h3>
                 </div>
-                <p class="text-3xl font-bold text-gray-800">{{ $data['projects']->count()}}</p>
-                <p class="text-sm text-gray-500 mt-1">{{ $data['projects']->count()}} active projects</p>
+                {{-- Show total number of projects for the enterprise, not only ongoing ones --}}
+                <p class="text-3xl font-bold text-gray-800">
+                    {{ $data['totalProjectsCount'] ?? ($data['projects']->total() ?? $data['projects']->count()) }}
+                </p>
             </div>
         </div>
         <div class="relative">
@@ -282,140 +282,243 @@
         <table id="employeesTable" class="w-full text-left" style="width:100%">
             <thead class="bg-gray-50">
                 <tr class="border-b border-gray-200">
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{__('messages.EMPLOYEE INFO')}}</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{__('messages.ROLE & STATUS')}}</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{__('messages.TEAMS & PROJECTS')}}</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{__('messages.CURRENT TASK')}}</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{__('messages.PROGRESS')}}</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{__('messages.MONTHLY STATS')}}</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{__('messages.UTILIZATION')}}</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{__('messages.ACTIONS')}}</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Employee</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Function</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">Current Status</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">Current Task</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">Current Project</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">Task Progress</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">Duration</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">Account Status</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">Chrono</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">Archive</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
+            @php
+                $avatarColors = ['bg-emerald-500','bg-gray-400','bg-amber-500','bg-red-500','bg-purple-500','bg-sky-500','bg-rose-800','bg-slate-700','bg-yellow-400','bg-indigo-500'];
+            @endphp
             @foreach($data['employees'] as $employee)
                 <tr class="hover:bg-gray-50">
-                    {{-- EMPLOYEE INFO --}}
-                    <td class="px-6 py-4 flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full text-white font-semibold {{ $employee['color'] }}">
-                            {{ $employee['initials'] }}
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">{{ $employee['name'] }}</p>
-                            <p class="text-xs text-gray-500">{{ $employee['email'] }}</p>
-                            <p class="text-xs text-gray-500">{{ $employee['phone'] }}</p>
-                            <p class="text-xs font-medium text-emerald-600">{{ $employee['salary'] }}</p>
+                    {{-- Employee --}}
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full text-white font-semibold {{ $avatarColors[$loop->index % count($avatarColors)] }}">
+                                {{ strtoupper(substr($employee->name, 0, 1)) }}
+                            </div>
+                            <div class="flex flex-col">
+                                <a href="{{ route('admin.employees.show', $employee->id) }}" class="text-sm font-medium text-gray-900 hover:text-blue-600">
+                                    {{ $employee->name }}
+                                </a>
+                                <p class="text-xs text-gray-500">{{ $employee->email }}</p>
+                            </div>
                         </div>
                     </td>
-                    
-                    {{-- ROLE & STATUS --}}
+
+                    {{-- Function (Roles) - previous badge style --}}
                     <td class="px-6 py-4 space-y-2 align-top">
                         <div class="flex flex-wrap gap-2">
-                            @foreach($employee['roles'] as $role)
-                            <span class="inline-block px-2 py-1 text-xs font-medium rounded {{ $role=='SuperAdmin'?'bg-fuchsia-100 text-fuchsia-700':'bg-purple-100 text-purple-700'}}">{{ $role }}</span>
-                            @endforeach
+                            @php
+                                $employeeRoles = is_array($employee->roles ?? null) ? $employee->roles : (array)($employee->roles ?? []);
+                            @endphp
+                            @forelse($employeeRoles as $role)
+                                <span class="inline-block px-2 py-1 text-xs font-medium rounded {{ $role=='SuperAdmin'?'bg-fuchsia-100 text-fuchsia-700':'bg-purple-100 text-purple-700'}}">
+                                    {{ $role }}
+                                </span>
+                            @empty
+                                <span class="text-xs text-gray-400">No Roles</span>
+                            @endforelse
                         </div>
+                        @if(!empty($employee['type']))
+                            <p class="text-xs text-gray-600 pt-1">{{ $employee['type'] }}</p>
+                        @endif
+                    </td>
+
+                    {{-- Current Status --}}
+                    <td class="px-6 py-4 text-center align-middle text-sm">
                         @php
-                            $user = \App\Models\User::find($employee->user_id);
-                            $statusRoute = '#';
-                            if ($user && $user->is_activate) {
-                                $statusText = 'Active';
-                                $buttonClasses = 'bg-green-100 text-green-800 hover:bg-green-200';
-                                $statusConfirmText = 'Deactivate this employee?';
-                                if (Auth::user()->hasRole('Admin')) $statusRoute = route('admin.employee.deactivate', $employee->id);
-                                elseif (Auth::user()->hasRole('Responsable de projet')) $statusRoute = route('Responsable_de_projet.employee.deactivate', $employee->id);
-                            } else {
-                                $statusText = 'Inactive';
-                                $buttonClasses = 'bg-red-100 text-red-800 hover:bg-red-200';
-                                $statusConfirmText = 'Activate this employee?';
-                                if (Auth::user()->hasRole('Admin')) $statusRoute = route('admin.employee.activate', $employee->id);
-                                elseif (Auth::user()->hasRole('Responsable de projet')) $statusRoute = route('Responsable_de_projet.employee.activate', $employee->id);
-                                elseif (Auth::user()->hasRole('Employee')) $statusRoute = route('employee.employee.activate', $employee->id);
-                                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $statusRoute = route('Responsable_gestionnaire.employee.activate', $employee->id);
+                            $employeeUser = \App\Models\User::find($employee->user_id);
+                        @endphp
+                        @if($employeeUser && $employeeUser->is_loggedIn == 0)
+                            <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                Off Work
+                            </span>
+                        @elseif($employeeUser && $employeeUser->is_loggedIn == 1)
+                            @php
+                                $task_timer = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    ->whereNull('end_date')
+                                    ->first();
+                            @endphp
+                            @if($task_timer)
+                                @if(($task_timer->end_date === null && $task_timer->start_date !== null) && $task_timer->paused == 1)
+                                    <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                                        On Pause
+                                    </span>
+                                @else
+                                    <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                                        On Work
+                                    </span>
+                                @endif
+                            @endif
+                        @endif
+                    </td>
+
+                    {{-- Current Task --}}
+                    <td class="px-6 py-4 text-center align-middle text-sm">
+                        @php
+                            $currentTask = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                ->whereNull('end_date')
+                                ->first();
+                        @endphp
+                        @if($currentTask && $currentTask->end_date === null)
+                            @if(auth()->user()->hasRole('Admin'))
+                                <a href="{{ route('admin.tasks.show', $currentTask->task_id) }}" class="text-xs font-semibold text-blue-600 hover:underline">
+                            @elseif(auth()->user()->hasRole('Responsable de projet'))
+                                <a href="{{ route('Responsable_de_projet.tasks.show', $currentTask->task_id) }}" class="text-xs font-semibold text-blue-600 hover:underline">
+                            @else
+                                <a href="#" class="text-xs font-semibold text-blue-600">
+                            @endif
+                                {{ $currentTask->task_name }}
+                            </a>
+                        @else
+                            <span class="text-xs text-gray-400">No Task</span>
+                        @endif
+                    </td>
+
+                    {{-- Current Project --}}
+                    <td class="px-6 py-4 text-center align-middle text-sm">
+                        @php
+                            $currentProject = null;
+                            if ($currentTask) {
+                                $project_id = \App\Models\Tasks::where('id', $currentTask->task_id)->pluck('project_id')->first();
+                                $currentProject = \App\Models\Project::where('id', $project_id)->first();
                             }
                         @endphp
-                        <form action="{{ $statusRoute }}" method="post" onsubmit="return confirm('{{ $statusConfirmText }}');" class="inline">
+                        @if($currentProject)
+                            <a href="{{ route('admin.projects.show', $currentProject->id) }}" class="text-xs font-semibold text-emerald-600 hover:underline">
+                                {{ $currentProject->name }}
+                            </a>
+                        @else
+                            <span class="text-xs text-gray-400">No Project</span>
+                        @endif
+                    </td>
+
+                    {{-- Task Progress --}}
+                    <td class="px-6 py-4 text-center align-middle text-sm">
+                        @if($currentTask && $currentTask->end_date === null)
+                            @php
+                                $task = \App\Models\Tasks::where('id', $currentTask->task_id)->first();
+                            @endphp
+                            @if($task && $task->estimated_hours !== null)
+                                @php
+                                    $tasktotalduration = \App\Models\tasks_timer::where('task_id', $currentTask->task_id)
+                                        ->where('employee_id', $employee->id)
+                                        ->sum('duration');
+                                    $taskestimatedMinutes = $task->estimated_hours * 60;
+                                    $taskprogressPercentage = $taskestimatedMinutes > 0 ? ($tasktotalduration / $taskestimatedMinutes) * 100 : 0;
+                                    $taskformattedProgressPercentage = number_format($taskprogressPercentage, 2);
+                                @endphp
+                                <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                    <div
+                                        class="h-2 rounded-full text-[10px] text-white flex items-center justify-center
+                                            @if($taskprogressPercentage < 50) bg-emerald-500
+                                            @elseif($taskprogressPercentage < 75) bg-amber-500
+                                            @else bg-red-500 @endif"
+                                        style="width: {{ $taskformattedProgressPercentage }}%;">
+                                    </div>
+                                </div>
+                                <p class="mt-1 text-xs font-medium text-gray-700">{{ $taskformattedProgressPercentage }}%</p>
+                            @else
+                                <p class="text-xs font-medium text-gray-600">No Estimated Hours Inserted</p>
+                            @endif
+                        @else
+                            <p class="text-xs font-medium text-gray-600">No Task</p>
+                        @endif
+                    </td>
+
+                    {{-- Duration --}}
+                    <td class="px-6 py-4 text-center align-middle text-sm">
+                        @if($currentTask && $currentTask->end_date === null)
+                            @php
+                                $tasktotalduration = \App\Models\tasks_timer::where('task_id', $currentTask->task_id)
+                                    ->where('employee_id', $employee->id)
+                                    ->sum('duration');
+                                $taskhours = floor($tasktotalduration / 60);
+                                $taskminutes = $tasktotalduration % 60;
+                            @endphp
+                            <span class="text-xs font-semibold text-gray-800">
+                                {{ $taskhours }}h:{{ $taskminutes }}m
+                            </span>
+                        @else
+                            <span class="text-xs font-medium text-gray-600">No Task</span>
+                        @endif
+                    </td>
+
+                    {{-- Account Status --}}
+                    <td class="px-6 py-4 text-center align-middle text-sm">
+                        @if($employeeUser && $employeeUser->is_activate == 1)
+                            <form action="{{ route('admin.employee.deactivate', $employee->id) }}"
+                                  method="post"
+                                  onsubmit="return confirm('Are you sure?');">
+                                @csrf
+                                <button type="submit"
+                                        class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 hover:bg-emerald-200">
+                                    Active
+                                </button>
+                            </form>
+                        @else
+                            <form action="{{ route('admin.employee.activate', $employee->id) }}"
+                                  method="post"
+                                  onsubmit="return confirm('Are you sure?');">
+                                @csrf
+                                <button type="submit"
+                                        class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200">
+                                    Inactive
+                                </button>
+                            </form>
+                        @endif
+                    </td>
+
+                    {{-- Chrono (Stop button only, matching legacy behaviour) --}}
+                    <td class="px-6 py-4 text-center align-middle text-sm">
+                        @php
+                            $task_timer = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                ->whereNull('end_date')
+                                ->first();
+                        @endphp
+                        @if($currentTask && $currentTask->end_date === null && $task_timer)
+                            <form class="inline-block"
+                                  action="{{ route('admin.tasks.stop', ['tasks' => $task_timer->task_employee_id, 'employee_id' => $employee->id]) }}"
+                                  method="POST"
+                                  onsubmit="return confirm('Stop timer for this task?');">
+                                @csrf
+                                <button type="submit"
+                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white hover:bg-red-600">
+                                    Stop
+                                </button>
+                            </form>
+                        @else
+                            <span class="text-xs text-gray-400">No Active Timer</span>
+                        @endif
+                    </td>
+
+                    {{-- Archive --}}
+                    <td class="px-6 py-4 text-center align-middle text-sm">
+                        <form
+                            action="{{ route('admin.employees.archive', $employee->id) }}"
+                            method="post"
+                            onsubmit="return confirm('Are you sure?');"
+                            class="inline-block">
                             @csrf
-                            <button type="submit" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $buttonClasses }} border-none cursor-pointer transition-colors">
-                                {{ $statusText }}
+                            <button type="submit"
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300">
+                                Archive
                             </button>
                         </form>
-                        <p class="text-xs text-gray-600 pt-1">{{ $employee['type'] }}</p>
                     </td>
 
-                    {{-- TEAMS & PROJECTS --}}
-                    <td class="px-6 py-4 align-top">
-                        @forelse($employee->teams as $team)
-                        <span class="inline-block px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded mb-1">
-                            {{ $team->name }}
-                        </span>
-                        @empty
-                        <span class="text-xs text-gray-400">{{__('messages.No team')}}</span>
-                        @endforelse
-                    </td>
-
-                    {{-- CURRENT TASK --}}
-                    <td class="px-6 py-4 align-top">
-                        @php
-                            $activeTimer = \App\Models\tasks_timer::with('task')
-                                ->where('employee_id', $employee->id)
-                                ->whereNull('end_date')
-                                ->latest('start_date')
-                                ->first();
-
-                            $latestAssignment = \App\Models\employees_tasks::where('employee_id', $employee->id)
-                                ->latest('updated_at')
-                                ->first();
-
-                            $currentTaskName = optional($activeTimer)->task_name
-                                ?? optional(optional($activeTimer)->task)->title
-                                ?? optional($latestAssignment)->task_name
-                                ?? ($employee['currentTask'] ?? null);
-                        @endphp
-                        @if(!empty($currentTaskName))
-                            <span class="inline-block px-2 py-1 text-xs text-gray-700 bg-gray-100 rounded">
-                                {{ $currentTaskName }}
-                            </span>
-                        @else
-                            @php
-                                $noTaskLabel = __('messages.No task');
-                            @endphp
-                            <span class="text-xs text-gray-400">
-                                {{ $noTaskLabel === 'messages.No task' ? 'No task' : $noTaskLabel }}
-                            </span>
-                        @endif
-                    </td>
-
-                    {{-- PROGRESS --}}
-                    <td class="px-6 py-4 align-top">
-                        <span class="text-xs text-gray-400">{{ $employee['progress'] ?? __('messages.No data') }}</span>
-                    </td>
-
-                    {{-- MONTHLY STATS --}}
-                    <td class="px-6 py-4 space-y-1 text-xs text-gray-600 align-top">
-                        @if(isset($employee['hours']) || isset($employee['tasks']) || isset($employee['days']))
-                            <p>Hours: <span class="font-medium text-gray-800">{{ $employee['hours'] ?? 0 }}</span></p>
-                            <p>Tasks: <span class="font-medium text-gray-800">{{ $employee['tasks'] ?? 0 }}</span></p>
-                            <p>Days: <span class="font-medium text-gray-800">{{ $employee['days'] ?? 0 }}</span></p>
-                        @else
-                            <span class="text-xs text-gray-400">{{ __('messages.No data') }}</span>
-                        @endif
-                    </td>
-
-                    {{-- UTILIZATION --}}
-                    <td class="px-6 py-4 align-top">
-                        <div class="flex items-center gap-2 mb-1">
-                            <div class="flex-grow bg-gray-200 rounded-full h-1.5">
-                                <div class="bg-gray-400 h-1.5 rounded-full" style="width: {{ $employee['progress'] ?? '0%' }}"></div>
-                            </div>
-                            <span class="text-xs font-medium text-gray-700">{{ $employee['progress'] ?? '0%' }}</span>
-                        </div>
-                        <p class="text-xs text-gray-600">
-                            {{ isset($employee['limit']) ? 'Limit: '.$employee['limit'] : __('messages.No data') }}
-                        </p>
-                    </td>
-
-                    {{-- ACTIONS --}}
+                    {{-- Actions (view / edit / delete) --}}
                     <td class="px-6 py-4 whitespace-nowrap align-top">
                         <div class="flex items-center justify-start gap-2">
                             <a href="{{ route('admin.employees.show', $employee->id) }}" class="p-1 rounded-md bg-purple-100 text-purple-700 hover:bg-purple-200" title="View Details">
@@ -452,108 +555,167 @@
             {{-- Project Overview (col-span-3) --}}
             <div class="lg:col-span-3 border-0 shadow-sm bg-white rounded-lg hover:shadow-xl animate-fadeInSlideUp" style="animation-delay: 600ms;">
                 <h2 class="p-6 text-lg font-semibold text-gray-900 border-b border-gray-200">{{__('messages.Project Overview')}}</h2>
-                {{-- Column headers --}}
-                <div class="px-6 py-3 grid grid-cols-12 gap-4 border-b border-gray-200">
-                <span class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.PROJECT INFO')}}</span>
-                <span class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.BUDGET & COSTS')}}</span>
-                <span class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.TIME TRACKING')}}</span>
-                <span class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.PROGRESS')}}</span>
-                <span class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.CLIENT & TEAMS')}}</span>
-                <span class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">{{__('messages.ACTIONS')}}</span>
-            </div>
-        
-            {{-- Project list --}}
-            <div class="divide-y divide-gray-200">
-                @foreach($data['projects'] as $project)
-                <div class="px-6 py-4 grid grid-cols-12 gap-4 items-center">
-                    
-                    {{-- PROJECT INFO (col-span-3) --}}
-                    <div class="col-span-3 flex items-center gap-3">
-                        <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full text-white font-semibold {{ $project['color'] }}">
-                            {{ strtoupper(substr($project->name, 0, 2)) }}
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">{{ $project->name}}</p>
-                            <p class="text-xs text-gray-500">Est: {{ $project->estimated_hours ?? 'N/A' }}</p>
-                        </div>
-                    </div>
 
-                    {{-- BUDGET & COSTS (col-span-2) --}}
-                    <div class="col-span-2 text-sm space-y-1">
-                        <p class="text-gray-600"><span class="text-gray-500">{{__('messages.Budget')}}:</span> <span class="font-medium text-gray-800">€{{ number_format($project->budget ?? 0, 2, ',', ' ') }}</span></p>
-                        <p class="text-gray-600"><span class="text-gray-500">{{__('messages.CPH')}}:</span> <span class="font-medium text-gray-800">€{{ number_format($project->cost_per_hour ?? 0, 2, ',', ' ') }}</span></p>
-                        <p class="text-gray-600"><span class="text-gray-500">{{__('messages.VAT')}}:</span> <span class="font-medium text-gray-800">{{ $project->tva ?? 20 }}</span></p>
-                    </div>
+                {{-- Projects table --}}
+                <div class="px-6 py-4 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Project</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Budget</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">CPH</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">TVA</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Duration</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estimated Hours</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Difference</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Progress</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Client</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Teams</th>
+                                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-100">
+                            @foreach($data['projects'] as $project)
+                                @php
+                                    $projecttasksId = \App\Models\Tasks::where('project_id', $project->id)->pluck('id');
+                                    $totalduration = \App\Models\tasks_timer::whereIn('task_id', $projecttasksId)->sum('duration');
 
-                    {{-- TIME TRACKING (col-span-2) --}}
-                    <div class="col-span-2 text-sm space-y-1">
-                        <p class="text-gray-600"><span class="text-gray-500">{{translate_text('Duration')}}:</span> <span class="font-bold text-gray-800">{{ $project->duration ?? '0h 0m' }}</span></p>
-                        <p class="font-medium text-green-500 border-b-2 border-green-500 border-dotted w-fit">{{ $project->time_difference ?? '+0h 0m' }}</p>
-                    </div>
+                                    $difference = ($project->estimated_hours ?? 0) * 60 - $totalduration;
 
-                    {{-- PROGRESS (col-span-1) --}}
-                    <div class="col-span-1">
-                         <div class="flex items-center gap-2">
-                            <div class="flex-grow bg-gray-200 rounded-full h-1.5">
-                                <div class="bg-gray-400 h-1.5 rounded-full" style="width: {{ $project['progress'] }}"></div>
-                            </div>
-                            <span class="text-xs font-medium text-gray-700">{{ $project->progress ?? '0%' }}</span>
-                        </div>
-                    </div>
+                                    $hours = floor(abs($totalduration) / 60);
+                                    $minutes = abs($totalduration) % 60;
 
-                    {{-- CLIENT & TEAMS (col-span-3) --}}
-                    <div class="col-span-3 space-y-2">
-                        <div>
-                            <p class="text-xs text-gray-500">{{translate_text('Client')}}:</p>
-                            <p class="text-sm font-medium text-blue-600">{{ $project->client->name ?? 'N/A' }}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">{{translate_text('Teams:')}}</p>
-                            <div class="flex flex-wrap gap-1 mt-1">
-                                @forelse($project->teams as $team)
-                                    <span class="inline-block px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">{{ $team->name }}</span>
-                                @empty
-                                    <span class="text-xs text-gray-500">No teams assigned</span>
-                                @endforelse
-                            </div>
-                        </div>
-                    </div>
+                                    $diffhours = floor(abs($difference) / 60);
+                                    $diffminutes = abs($difference) % 60;
 
-                    {{-- ACTIONS (col-span-1) --}}
-                    <div class="col-span-1 flex justify-end gap-2">
-                            {{-- Link to project show page --}}
-                            <a href="{{route('admin.projects.show', $project->id)}}" class="text-blue-500 hover:text-blue-700">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-.07.207-.07.431 0 .639C20.268 16.057 16.477 19 12 19c-4.478 0-8.268-2.943-9.542-7a1.186 1.186 0 010-.639z" />
-                                </svg>
-                            </a>
-                            {{-- Delete Project Form --}}
-                            <form action="{{ route('admin.projects.destroy', $project->id) }}"
-                            method="POST"
-                            onsubmit="return confirm('Are you sure?');"
-                            class="inline">
-                            @csrf
-                            @method('DELETE')
-                            
-                            <button type="submit" class="text-red-500 hover:text-red-700">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                            </button>
-                        </form>
+                                    $estimatedMinutes = ($project->estimated_hours ?? 0) * 60;
+                                    $progressPercentage = $estimatedMinutes > 0 ? ($totalduration / $estimatedMinutes) * 100 : 0;
+                                    $formattedProgressPercentage = number_format($progressPercentage, 2);
+                                @endphp
+                                <tr class="hover:bg-gray-50">
+                                    {{-- Project --}}
+                                    <td class="px-4 py-3 text-sm">
+                                        <a href="{{ route('admin.projects.show',$project->id) }}" class="font-semibold text-blue-600 hover:underline">
+                                            {{ strtoupper($project->name) }}
+                                        </a>
+                                    </td>
+
+                                    {{-- Budget --}}
+                                    <td class="px-4 py-3 text-sm font-semibold text-emerald-600">
+                                        €{{ $project->budget }}
+                                    </td>
+
+                                    {{-- CPH --}}
+                                    <td class="px-4 py-3 text-sm font-semibold text-emerald-600">
+                                        €{{ $project->cost_per_hour }}
+                                    </td>
+
+                                    {{-- TVA --}}
+                                    <td class="px-4 py-3 text-sm font-semibold text-emerald-600">
+                                        %{{ $project->tva }}
+                                    </td>
+
+                                    {{-- Duration --}}
+                                    <td class="px-4 py-3 text-sm font-semibold text-gray-800">
+                                        {{ $hours }}h:{{ $minutes }}m
+                                    </td>
+
+                                    {{-- Estimated Hours --}}
+                                    <td class="px-4 py-3 text-sm font-semibold text-gray-800">
+                                        {{ $project->estimated_hours }}h
+                                    </td>
+
+                                    {{-- Difference --}}
+                                    <td class="px-4 py-3 text-sm font-semibold">
+                                        @if($project->estimated_hours !== null)
+                                            @if($difference > 0)
+                                                <span class="text-emerald-600">+{{ $diffhours }}h:{{ $diffminutes }}m</span>
+                                            @elseif($difference < 0)
+                                                <span class="text-red-600">-{{ $diffhours }}h:{{ $diffminutes }}m</span>
+                                            @else
+                                                <span class="text-blue-600">{{ $diffhours }}h:{{ $diffminutes }}m</span>
+                                            @endif
+                                        @else
+                                            <span class="text-gray-500 text-xs">No estimate</span>
+                                        @endif
+                                    </td>
+
+                                    {{-- Progress --}}
+                                    <td class="px-4 py-3 text-sm">
+                                        @if($project->estimated_hours !== null)
+                                            <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                <div
+                                                    class="h-2 rounded-full
+                                                        @if($progressPercentage < 50) bg-emerald-500
+                                                        @elseif($progressPercentage < 75) bg-amber-500
+                                                        @else bg-red-500 @endif"
+                                                    style="width: {{ $formattedProgressPercentage }}%;">
+                                                </div>
+                                            </div>
+                                            <p class="mt-1 text-xs font-medium text-gray-700">{{ $formattedProgressPercentage }}%</p>
+                                        @else
+                                            <span class="text-xs font-medium text-gray-600">No Estimated Hours</span>
+                                        @endif
+                                    </td>
+
+                                    {{-- Client --}}
+                                    <td class="px-4 py-3 text-sm font-semibold text-gray-800">
+                                        @if($project->client)
+                                            <a href="{{ route('admin.clients.show', $project->client->id) }}" class="hover:underline text-blue-600">
+                                                {{ $project->client->name }}
+                                            </a>
+                                        @else
+                                            <span class="text-xs text-gray-500">N/A</span>
+                                        @endif
+                                    </td>
+
+                                    {{-- Teams --}}
+                                    <td class="px-4 py-3 text-sm text-gray-800">
+                                        @forelse($project->teams as $team)
+                                            <span class="inline-block px-2 py-0.5 mb-1 text-xs font-medium bg-blue-100 text-blue-700 rounded">
+                                                {{ $team->name }}
+                                            </span>
+                                        @empty
+                                            <span class="text-xs text-gray-500">No teams</span>
+                                        @endforelse
+                                    </td>
+
+                                    {{-- Actions (detail + delete) --}}
+                                    <td class="px-4 py-3 text-sm text-right whitespace-nowrap">
+                                        <div class="inline-flex items-center gap-2">
+                                            {{-- Detail / show --}}
+                                            <a href="{{ route('admin.projects.show', $project->id) }}" class="p-1 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200" title="View Details">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-.07.207-.07.431 0 .639C20.268 16.057 16.477 19 12 19c-4.478 0-8.268-2.943-9.542-7a1.186 1.186 0 010-.639z" />
+                                                </svg>
+                                            </a>
+                                            {{-- Delete --}}
+                                            <form action="{{ route('admin.projects.destroy', $project->id) }}"
+                                                  method="POST"
+                                                  onsubmit="return confirm('Are you sure?');"
+                                                  class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="p-1 rounded-md bg-red-100 text-red-700 hover:bg-red-200" title="Delete Project">
+                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    {{-- Pagination --}}
+                    <div class="mt-4 flex justify-center">
+                        {{ $data['projects']->appends(request()->except('page'))->links() }}
                     </div>
                 </div>
-                @endforeach
             </div>
-            
-            {{-- FIXED: Pagination with proper horizontal styling --}}
-            <div class="p-6 border-t border-gray-200">
-                <div class="flex items-center justify-between">
-                    {{ $data['projects']->links() }}
-                </div>
-            </div>
-        </div>
 
     {{-- Today's Events --}}
     <div class="lg:col-span-1 border-0 shadow-sm bg-white rounded-2xl hover:shadow-xl p-6 h-fit animate-fadeInSlideUp" style="animation-delay: 700ms;">
@@ -618,12 +780,12 @@
 <script>
 $(document).ready(function() {
     $('#employeesTable').DataTable({
-        pageLength: 5,
+        paging: false,
+        info: false,
         lengthChange: false,
         language: {
             search: "",
             searchPlaceholder: "{{translate_text('Search employees...')}}",
-            info: "_START_–_END_ of _TOTAL_ employees",
             paginate: {
                 previous: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>',
                 next: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>'
@@ -632,7 +794,6 @@ $(document).ready(function() {
         dom: `
             <"flex justify-between items-center mb-4"f>
             t
-            <"flex justify-between items-center mt-4"ip>
         `
     });
 });

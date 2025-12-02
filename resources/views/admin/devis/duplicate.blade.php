@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dupliquer Devis - DailyTrac</title>
     @vite('resources/css/app.css')
-    @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- Styles personnalisés de votre fichier --}}
@@ -26,13 +25,14 @@
         option {
             color: #111827;
         }
-        /* Requis pour votre menu déroulant client Bootstrap JS */
-        .dropdown-menu {
+        /* Requis pour votre menu déroulant client Bootstrap JS
+           Scoped pour ne pas impacter les sous-menus du sidebar */
+        .existing-client-section .dropdown-menu {
             display: none; 
             position: absolute;
             z-index: 1000;
         }
-        .dropdown-menu.show {
+        .existing-client-section .dropdown-menu.show {
             display: block; 
         }
         #clientInputs {
@@ -100,6 +100,13 @@
                     {{-- Corps de la carte --}}
                     <div class="p-6">
                         
+                        @php
+                            $billingType = old('billing_type', $devis->billing_type ?? 'forfait');
+                            $isHourly = $billingType === 'horaire';
+                            $hoursValue = old('hours', $devis->hours);
+                            $amountValue = old('amount_per_hour', $devis->amount_per_hour ?? $devis->cost_per_hour);
+                        @endphp
+
                         <form id="devisForm" method="POST" action="{{ $saveRoute }}" autocomplete="off">
                             @csrf
 
@@ -138,7 +145,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                                 <div>
                                     <label for="projectBudget" class="block text-sm font-medium text-gray-700 mb-1">Budget Total</label>
-                                    <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 bg-gray-100" id="projectBudget" name='budget' readonly/>
+                                    <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 bg-gray-100" id="projectBudget" name='budget' value="{{ old('budget', $devis->budget) }}" readonly/>
                                 </div>
                                 <div>
                                     <label for="costPerHour" class="block text-sm font-medium text-gray-700 mb-1">Coût par heure</label>
@@ -147,6 +154,55 @@
                                 <div>
                                     <label for="projectTva" class="block text-sm font-medium text-gray-700 mb-1">TVA Projet</label>
                                     <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" id="projectTva" name='project_tva' value="{{$devis->tva}}" />
+                                </div>
+                            </div>
+
+                            {{-- Type de devis (Forfait / Horaire) --}}
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                                <div>
+                                    <span class="block text-sm font-medium text-gray-700 mb-1">Type de devis <span class="text-red-600">*</span></span>
+                                    <div class="mt-2 flex items-center space-x-6">
+                                        <label class="inline-flex items-center">
+                                            <input type="radio"
+                                                   name="billing_type"
+                                                   id="billingForfait"
+                                                   value="forfait"
+                                                   class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                   {{ $billingType === 'forfait' ? 'checked' : '' }}>
+                                            <span class="ml-2 text-sm text-gray-700">Forfait</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="radio"
+                                                   name="billing_type"
+                                                   id="billingHoraire"
+                                                   value="horaire"
+                                                   class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                   {{ $isHourly ? 'checked' : '' }}>
+                                            <span class="ml-2 text-sm text-gray-700">Horaire</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Champs horaire (affichés si "Horaire" est sélectionné) --}}
+                            <div id="hourlyInputs" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6" style="display: {{ $isHourly ? 'grid' : 'none' }};">
+                                <div>
+                                    <label for="hourlyHours" class="block text-sm font-medium text-gray-700 mb-1">Nombre d'heures</label>
+                                    <input type="number"
+                                           step="0.01"
+                                           class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+                                           id="hourlyHours"
+                                           name="hours"
+                                           value="{{ $hoursValue }}">
+                                </div>
+                                <div>
+                                    <label for="hourlyAmount" class="block text-sm font-medium text-gray-700 mb-1">Montant par heure (€)</label>
+                                    <input type="number"
+                                           step="0.01"
+                                           class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+                                           id="hourlyAmount"
+                                           name="amount_per_hour"
+                                           value="{{ $amountValue }}">
                                 </div>
                             </div>
 
@@ -311,11 +367,10 @@
         </main>
     </div> 
 
-@livewireScripts
     
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     
-    @include('dashboard_layouts.scripts')
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     
     <script>
         // Désactiver l'autocomplétion
@@ -357,8 +412,26 @@
             }
         }
 
-        // Mettre à jour le budget total lorsque les budgets des tâches changent
+        // Mettre à jour le budget total en fonction du type de devis
         function updateProjectBudget() {
+            const projectBudgetInput = document.getElementById('projectBudget');
+            const billingHoraireRadio = document.getElementById('billingHoraire');
+
+            // Si "Horaire" est sélectionné : budget = heures * montant par heure
+            if (billingHoraireRadio && billingHoraireRadio.checked) {
+                const hoursInput = document.getElementById('hourlyHours');
+                const amountInput = document.getElementById('hourlyAmount');
+
+                const hours = parseFloat(hoursInput ? hoursInput.value : '') || 0;
+                const amount = parseFloat(amountInput ? amountInput.value : '') || 0;
+
+                if (projectBudgetInput) {
+                    projectBudgetInput.value = (hours * amount).toFixed(2);
+                }
+                return;
+            }
+
+            // Sinon (Forfait) : somme des budgets des tâches
             let totalBudget = 0;
             document.querySelectorAll('.taskBudget').forEach(function(input) {
                 let value = parseFloat(input.value);
@@ -366,7 +439,9 @@
                     totalBudget += value;
                 }
             });
-            document.getElementById('projectBudget').value = totalBudget.toFixed(2);
+            if (projectBudgetInput) {
+                projectBudgetInput.value = totalBudget.toFixed(2);
+            }
         }
         // Ajouter des écouteurs d'événements à toutes les entrées de budget de tâche initiales
         document.querySelectorAll('.taskBudget').forEach(function(input) {
@@ -519,6 +594,61 @@
                 loadContacts(selectedClientIdInput.value);
             }
         });
+    </script>
+
+    {{-- Nouveau script pour les devis horaire / forfait --}}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const billingRadios = document.querySelectorAll('input[name="billing_type"]');
+        const hourlyInputs = document.getElementById('hourlyInputs');
+        const hoursInput = document.getElementById('hourlyHours');
+        const amountInput = document.getElementById('hourlyAmount');
+        const costPerHourInput = document.getElementById('costPerHour');
+
+        function toggleHourlyInputs() {
+            const isHoraire = document.getElementById('billingHoraire').checked;
+            if (hourlyInputs) {
+                hourlyInputs.style.display = isHoraire ? 'grid' : 'none';
+            }
+
+            // Sync and lock cost per hour when hourly is selected
+            if (costPerHourInput) {
+                if (isHoraire) {
+                    costPerHourInput.readOnly = true;
+                    costPerHourInput.classList.add('bg-gray-100');
+                    const amount = parseFloat(amountInput ? amountInput.value : '');
+                    if (!isNaN(amount)) {
+                        costPerHourInput.value = amount;
+                    }
+                } else {
+                    costPerHourInput.readOnly = false;
+                    costPerHourInput.classList.remove('bg-gray-100');
+                }
+            }
+
+            updateProjectBudget();
+        }
+
+        function handleHourlyInputChange() {
+            const amount = parseFloat(amountInput ? amountInput.value : '');
+            if (!isNaN(amount) && costPerHourInput) {
+                costPerHourInput.value = amount;
+            }
+            updateProjectBudget();
+        }
+
+        billingRadios.forEach(function(radio) {
+            radio.addEventListener('change', toggleHourlyInputs);
+        });
+
+        [hoursInput, amountInput].forEach(function(input) {
+            if (input) {
+                input.addEventListener('input', handleHourlyInputChange);
+            }
+        });
+
+        toggleHourlyInputs();
+    });
     </script>
 
 </body>
