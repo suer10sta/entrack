@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Global icon button style (used for edit/delete etc.) */
+.icon-btn {
+    @apply inline-flex items-center justify-center w-8 h-8 rounded-lg text-white;
+}
+
+.icon-btn--edit {
+    @apply bg-blue-600 hover:bg-blue-700;
+}
+
+.icon-btn--delete {
+    @apply bg-red-600 hover:bg-red-700;
+}
+
+.icon-btn svg {
+    @apply w-4 h-4;
+}

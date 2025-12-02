@@ -136,11 +136,26 @@
                                             @endphp
                                         @endif
 
-                                        <a class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded text-xs px-3 py-1.5 text-center" href="{{ $dlRoute }}">Download</a>
-                                        @can('Delete expense note') {{-- Keep permission check --}}
-                                            @if($delRoute !== '#') {{-- Ensure delete route exists --}}
-                                            <form action="{{ $delRoute }}" method="post" onsubmit="return confirm('Are you sure?');" class="inline-block"> @csrf @method('DELETE') <button type="submit" class="text-white bg-red-600 hover:bg-red-700 font-medium rounded text-xs px-3 py-1.5 text-center">Delete</button> </form>
-                                            @endif
+                                        <a class="flex items-center gap-1 text-white bg-blue-600 hover:bg-blue-700 font-medium rounded text-xs px-3 py-1.5" href="{{ $dlRoute }}">
+    
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" 
+                                        d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                                    </svg>
+                                </a>
+                                        @can('Delete expense note') 
+                                            @if($delRoute !== '#') 
+                                            <form action="{{ $delRoute }}" method="post" onsubmit="return confirm('Are you sure you want to delete this expense note?');" class="inline">
+                                    @csrf 
+                                    @method('DELETE') 
+                                    <button type="submit" class="icon-btn icon-btn--delete" title="Delete">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862A2 2 0 015.995 19.142L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16" />
+                                                        </svg>
+                                    </button> 
+                                </form>                                            
+                                @endif
                                         @endcan
                                     </div>
                                 </td>

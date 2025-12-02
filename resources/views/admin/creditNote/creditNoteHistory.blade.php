@@ -8,13 +8,9 @@
     @vite('resources/css/app.css')
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    {{-- [CORRIGÉ] Le CSS de Bootstrap a été supprimé --}}
     
-    {{-- Alpine.js est chargé dans le head pour être disponible partout --}}
     <script src="//unpkg.com/alpinejs" defer></script>
     
-    {{-- jQuery (requis pour vos scripts) --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <style>
@@ -93,7 +89,7 @@
 </head>
 <body class="bg-gray-50">
 
-    <div class="flex h-screen overflow-hidden" x-data> {{-- Ajout de x-data pour les événements globaux --}}
+    <div class="flex h-screen overflow-hidden" x-data> 
         {{-- Sidebar Component --}}
         <x-dashboard.sidebar />
 
@@ -259,7 +255,7 @@
                                             @if(Auth::user()->hasRole('Admin'))
                                                 <a href="{{ route('admin.invoices.serveCreditNotePdf', $credit_note->id) }}" class="btn-view">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                                    View
+                                                    View & Download 
                                                 </a>
                                                 {{-- [CORRIGÉ] Bouton "Resend" utilise Alpine.js --}}
                                                 <button type="button" class="btn-resend"
@@ -271,7 +267,12 @@
                                                     method="post" onsubmit="return confirm('Are you sure?');" class="inline-block">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn-delete">🗑</button>
+                                                    <button type="submit" class="icon-btn icon-btn--delete">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862A2 2 0 015.995 19.142L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
                                                 </form>
                                             @endif
                                             @if(Auth::user()->hasRole('Employee'))

@@ -219,7 +219,7 @@
                                          </div>
                                     </td>
 
-                                    {{-- Action Buttons --}}
+                                    {{-- Action Buttons (icons) --}}
                                     <td class="px-2 py-2 text-xs text-gray-700">
                                         @php
                                             $canEditRoles = Auth::user()->can('Edit employee roles');
@@ -249,27 +249,35 @@
                                             }
                                         @endphp
 
-                                        <div class="flex flex-col gap-1">
+                                        <div class="flex items-center justify-center gap-2">
+                                            {{-- Edit roles --}}
                                             @if($canEditRoles)
-                                                <a href="{{ $editRoute }}" class="inline-flex items-center justify-center px-2 py-0.5 border border-transparent text-[10px] font-medium rounded shadow-sm text-white bg-blue-600 hover:bg-blue-700 whitespace-nowrap">
-                                                    Edit Roles
+                                                <a href="{{ $editRoute }}" title="Edit roles" class="icon-btn icon-btn--edit">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                              d="M15.232 5.232l3.536 3.536M4 20h4l9.5-9.5-4-4L4 16v4z" />
+                                                    </svg>
                                                 </a>
                                             @endif
-                                            
-                                            {{-- Archive Button --}}
-                                            <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm('Archive this employee?');">
+
+                                            {{-- Archive --}}
+                                            <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm('Archive this employee?');" class="inline">
                                                 @csrf
-                                                <button type="submit" class="w-full inline-flex items-center justify-center px-2 py-0.5 border border-gray-300 text-[10px] font-medium rounded shadow-sm text-gray-700 bg-white hover:bg-gray-50 whitespace-nowrap">
-                                                    Archive
+                                                <button type="submit" title="Archive employee" class="icon-btn bg-gray-500 hover:bg-gray-600">
+                                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
                                                 </button>
                                             </form>
 
+                                            {{-- Delete --}}
                                             @if($canDelete && !$isSelf)
-                                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Are you sure you want to delete this employee?');">
+                                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Are you sure you want to delete this employee?');" class="inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="w-full inline-flex items-center justify-center px-2 py-0.5 border border-transparent text-[10px] font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 whitespace-nowrap">
-                                                        Delete
+                                                    <button type="submit" title="Delete employee" class="icon-btn icon-btn--delete">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862A2 2 0 015.995 19.142L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16" />
+                                                        </svg>
                                                     </button>
                                                 </form>
                                             @endif
