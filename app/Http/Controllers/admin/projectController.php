@@ -461,10 +461,18 @@ class projectController extends Controller
 
     public function invoicehistory()
     {
+        // Show all current invoices plus paid ones (even if archived),
+        // so that the "Total Paid" card filter can display their rows.
         $invoices = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
-        ->where('archived', 0)
-        ->orderBy('created_at', 'desc')
-        ->get();
+            ->where(function ($query) {
+                $query->where('archived', 0)
+                      ->orWhere(function ($q) {
+                          $q->where('archived', 1)
+                            ->where('Payment_status', 1);
+                      });
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
         $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)->where(function($query) {
             $query->whereNull('AcceptedDevisClient')
                   ->orWhere('AcceptedDevisClient', '=', 1);

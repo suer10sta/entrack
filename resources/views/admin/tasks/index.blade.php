@@ -88,10 +88,10 @@
                 {{-- Table Wrapper --}}
                 <div class="p-0"> {{-- No padding for edge-to-edge table --}}
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse table-fixed" id="tasksTable">
+                        <table class="w-full text-left border-collapse" id="tasksTable">
                             <thead class="border-b border-gray-200 bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Project / Task</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left w-1/4">Project / Task</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Teams</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left" >Employees</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Duration</th>

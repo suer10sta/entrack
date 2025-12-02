@@ -780,6 +780,7 @@
 <script>
 $(document).ready(function() {
     $('#employeesTable').DataTable({
+        ordering: false,
         paging: false,
         info: false,
         lengthChange: false,
