@@ -12,7 +12,14 @@ class TrustProxies extends Middleware
      *
      * @var array<int, string>|string|null
      */
-    protected $proxies;
+    /**
+     * Make the framework trust every upstream proxy (OVH load balancers,
+     * nginx reverse proxies, etc.) so HTTPS detection works and asset()
+     * generates secure URLs in production.
+     *
+     * @var array<int, string>|string|null
+     */
+    protected $proxies = '*';
 
     /**
      * The headers that should be used to detect proxies.

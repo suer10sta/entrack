@@ -521,21 +521,37 @@
                     {{-- Actions (view / edit / delete) --}}
                     <td class="px-6 py-4 whitespace-nowrap align-top">
                         <div class="flex items-center justify-start gap-2">
-                            <a href="{{ route('admin.employees.show', $employee->id) }}" class="icon-btn bg-purple-600 hover:bg-purple-700" title="View Details">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            {{-- View details --}}
+                            <a href="{{ route('admin.employees.show', $employee->id) }}"
+                               title="View Details"
+                               class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-purple-600 hover:bg-purple-700">
+                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                             </a>
-                            <a href="{{ route('admin.employees.edit', $employee->id) }}" class="icon-btn icon-btn--edit" title="Edit Employee">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+
+                            {{-- Edit employee --}}
+                            <a href="{{ route('admin.employees.edit', $employee->id) }}"
+                               title="Edit Employee"
+                               class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-blue-600 hover:bg-blue-700">
+                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                 </svg>
                             </a>
-                            <form action="{{ route('admin.employees.destroy', $employee->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this employee?');" class="inline">
+
+                            {{-- Delete employee --}}
+                            <form action="{{ route('admin.employees.destroy', $employee->id) }}"
+                                  method="POST"
+                                  onsubmit="return confirm('Are you sure you want to delete this employee?');"
+                                  class="inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" title="Delete Employee" class="icon-btn icon-btn--delete">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                <button type="submit"
+                                        title="Delete Employee"
+                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-red-600 hover:bg-red-700">
+                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
                                 </button>
                             </form>
                         </div>
@@ -547,173 +563,143 @@
     </div>
 </div>
     
-        {{-- Project Overview + Events --}}
-        <div class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8 ">
+{{-- Project Overview + Events --}}
+<div class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
+    
+    {{-- Project Overview (col-span-3) --}}
+    <div class="lg:col-span-3 border-0 shadow-sm bg-white rounded-lg hover:shadow-xl animate-fadeInSlideUp" style="animation-delay: 600ms;">
+        <h2 class="p-6 text-lg font-semibold text-gray-900 border-b border-gray-200">{{__('messages.Project Overview')}}</h2>
+
+        {{-- Column headers --}}
+        <div class="px-6 py-3 grid grid-cols-12 gap-4 border-b border-gray-200">
+            <span class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.PROJECT INFO')}}</span>
+            <span class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.BUDGET & COSTS')}}</span>
+            <span class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.TIME TRACKING')}}</span>
+            <span class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.PROGRESS')}}</span>
+            <span class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.CLIENT & TEAMS')}}</span>
+            <span class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">{{__('messages.ACTIONS')}}</span>
+        </div>
         
-            {{-- Project Overview (col-span-3) --}}
-            <div class="lg:col-span-3 border-0 shadow-sm bg-white rounded-lg hover:shadow-xl animate-fadeInSlideUp" style="animation-delay: 600ms;">
-                <h2 class="p-6 text-lg font-semibold text-gray-900 border-b border-gray-200">{{__('messages.Project Overview')}}</h2>
+        {{-- Project list container --}}
+        <div id="projects-container">
+            <div class="divide-y divide-gray-200">
+                @foreach($data['projects'] as $project)
+                    @php
+                        $projecttasksId = \App\Models\Tasks::where('project_id', $project->id)->pluck('id');
+                        $totalduration = \App\Models\tasks_timer::whereIn('task_id', $projecttasksId)->sum('duration');
+                        $difference = ($project->estimated_hours ?? 0) * 60 - $totalduration;
+                        $hours = floor(abs($totalduration) / 60);
+                        $minutes = abs($totalduration) % 60;
+                        $diffhours = floor(abs($difference) / 60);
+                        $diffminutes = abs($difference) % 60;
+                        $estimatedMinutes = ($project->estimated_hours ?? 0) * 60;
+                        $progressPercentage = $estimatedMinutes > 0 ? ($totalduration / $estimatedMinutes) * 100 : 0;
+                        $formattedProgressPercentage = number_format($progressPercentage, 2);
+                        $avatarColors = ['bg-emerald-500','bg-gray-400','bg-amber-500','bg-red-500','bg-purple-500','bg-sky-500','bg-rose-800','bg-slate-700','bg-yellow-400','bg-indigo-500'];
+                    @endphp
+                    <div class="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-gray-50">
+                        
+                        {{-- PROJECT INFO (col-span-3) --}}
+                        <div class="col-span-3 flex items-center gap-3">
+                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full text-white font-semibold {{ $avatarColors[$loop->index % count($avatarColors)] }}">
+                                {{ strtoupper(substr($project->name, 0, 2)) }}
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ $project->name }}</p>
+                                <p class="text-xs text-gray-500">Est: {{ $project->estimated_hours ?? 'N/A' }}h</p>
+                            </div>
+                        </div>
 
-                {{-- Projects table --}}
-                <div class="px-6 py-4 overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Project</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Budget</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">CPH</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">TVA</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Duration</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estimated Hours</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Difference</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Progress</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Client</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Teams</th>
-                                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-100">
-                            @foreach($data['projects'] as $project)
-                                @php
-                                    $projecttasksId = \App\Models\Tasks::where('project_id', $project->id)->pluck('id');
-                                    $totalduration = \App\Models\tasks_timer::whereIn('task_id', $projecttasksId)->sum('duration');
+                        {{-- BUDGET & COSTS (col-span-2) --}}
+                        <div class="col-span-2 text-sm space-y-1">
+                            <p class="text-gray-600"><span class="text-gray-500">{{__('messages.Budget')}}:</span> <span class="font-medium text-gray-800">€{{ number_format($project->budget ?? 0, 2, ',', ' ') }}</span></p>
+                            <p class="text-gray-600"><span class="text-gray-500">{{__('messages.CPH')}}:</span> <span class="font-medium text-gray-800">€{{ number_format($project->cost_per_hour ?? 0, 2, ',', ' ') }}</span></p>
+                            <p class="text-gray-600"><span class="text-gray-500">{{__('messages.VAT')}}:</span> <span class="font-medium text-gray-800">{{ $project->tva ?? 20 }}%</span></p>
+                        </div>
 
-                                    $difference = ($project->estimated_hours ?? 0) * 60 - $totalduration;
+                        {{-- TIME TRACKING (col-span-2) --}}
+                        <div class="col-span-2 text-sm space-y-1">
+                            <p class="text-gray-600"><span class="text-gray-500">{{__('messages.Duration')}}:</span> <span class="font-bold text-gray-800">{{ $hours }}h:{{ $minutes }}m</span></p>
+                            <p class="font-medium 
+                                @if($difference > 0) text-green-500 border-b-2 border-green-500
+                                @elseif($difference < 0) text-red-500 border-b-2 border-red-500
+                                @else text-blue-500 border-b-2 border-blue-500 @endif
+                                border-dotted w-fit">
+                                @if($difference > 0)+@elseif($difference < 0)-@endif{{ $diffhours }}h:{{ $diffminutes }}m
+                            </p>
+                        </div>
 
-                                    $hours = floor(abs($totalduration) / 60);
-                                    $minutes = abs($totalduration) % 60;
-
-                                    $diffhours = floor(abs($difference) / 60);
-                                    $diffminutes = abs($difference) % 60;
-
-                                    $estimatedMinutes = ($project->estimated_hours ?? 0) * 60;
-                                    $progressPercentage = $estimatedMinutes > 0 ? ($totalduration / $estimatedMinutes) * 100 : 0;
-                                    $formattedProgressPercentage = number_format($progressPercentage, 2);
-                                @endphp
-                                <tr class="hover:bg-gray-50">
-                                    {{-- Project --}}
-                                    <td class="px-4 py-3 text-sm">
-                                        <a href="{{ route('admin.projects.show',$project->id) }}" class="font-semibold text-blue-600 hover:underline">
-                                            {{ strtoupper($project->name) }}
-                                        </a>
-                                    </td>
-
-                                    {{-- Budget --}}
-                                    <td class="px-4 py-3 text-sm font-semibold text-emerald-600">
-                                        €{{ $project->budget }}
-                                    </td>
-
-                                    {{-- CPH --}}
-                                    <td class="px-4 py-3 text-sm font-semibold text-emerald-600">
-                                        €{{ $project->cost_per_hour }}
-                                    </td>
-
-                                    {{-- TVA --}}
-                                    <td class="px-4 py-3 text-sm font-semibold text-emerald-600">
-                                        %{{ $project->tva }}
-                                    </td>
-
-                                    {{-- Duration --}}
-                                    <td class="px-4 py-3 text-sm font-semibold text-gray-800">
-                                        {{ $hours }}h:{{ $minutes }}m
-                                    </td>
-
-                                    {{-- Estimated Hours --}}
-                                    <td class="px-4 py-3 text-sm font-semibold text-gray-800">
-                                        {{ $project->estimated_hours }}h
-                                    </td>
-
-                                    {{-- Difference --}}
-                                    <td class="px-4 py-3 text-sm font-semibold">
-                                        @if($project->estimated_hours !== null)
-                                            @if($difference > 0)
-                                                <span class="text-emerald-600">+{{ $diffhours }}h:{{ $diffminutes }}m</span>
-                                            @elseif($difference < 0)
-                                                <span class="text-red-600">-{{ $diffhours }}h:{{ $diffminutes }}m</span>
-                                            @else
-                                                <span class="text-blue-600">{{ $diffhours }}h:{{ $diffminutes }}m</span>
-                                            @endif
-                                        @else
-                                            <span class="text-gray-500 text-xs">No estimate</span>
-                                        @endif
-                                    </td>
-
-                                    {{-- Progress --}}
-                                    <td class="px-4 py-3 text-sm">
-                                        @if($project->estimated_hours !== null)
-                                            <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                                                <div
-                                                    class="h-2 rounded-full
-                                                        @if($progressPercentage < 50) bg-emerald-500
-                                                        @elseif($progressPercentage < 75) bg-amber-500
-                                                        @else bg-red-500 @endif"
-                                                    style="width: {{ $formattedProgressPercentage }}%;">
-                                                </div>
-                                            </div>
-                                            <p class="mt-1 text-xs font-medium text-gray-700">{{ $formattedProgressPercentage }}%</p>
-                                        @else
-                                            <span class="text-xs font-medium text-gray-600">No Estimated Hours</span>
-                                        @endif
-                                    </td>
-
-                                    {{-- Client --}}
-                                    <td class="px-4 py-3 text-sm font-semibold text-gray-800">
-                                        @if($project->client)
-                                            <a href="{{ route('admin.clients.show', $project->client->id) }}" class="hover:underline text-blue-600">
-                                                {{ $project->client->name }}
-                                            </a>
-                                        @else
-                                            <span class="text-xs text-gray-500">N/A</span>
-                                        @endif
-                                    </td>
-
-                                    {{-- Teams --}}
-                                    <td class="px-4 py-3 text-sm text-gray-800">
-                                        @forelse($project->teams as $team)
-                                            <span class="inline-block px-2 py-0.5 mb-1 text-xs font-medium bg-blue-100 text-blue-700 rounded">
-                                                {{ $team->name }}
-                                            </span>
-                                        @empty
-                                            <span class="text-xs text-gray-500">No teams</span>
-                                        @endforelse
-                                    </td>
-
-                                    {{-- Actions (detail + delete) --}}
-                                    <td class="px-4 py-3 text-sm text-right whitespace-nowrap">
-                                        <div class="inline-flex items-center gap-2">
-                                            {{-- Detail / show --}}
-                                            <a href="{{ route('admin.projects.show', $project->id) }}" class="icon-btn bg-blue-600 hover:bg-blue-700" title="View Details">
-                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-.07.207-.07.431 0 .639C20.268 16.057 16.477 19 12 19c-4.478 0-8.268-2.943-9.542-7a1.186 1.186 0 010-.639z" />
-                                                </svg>
-                                            </a>
-                                            {{-- Delete --}}
-                                            <form action="{{ route('admin.projects.destroy', $project->id) }}"
-                                                  method="POST"
-                                                  onsubmit="return confirm('Are you sure?');"
-                                                  class="inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="icon-btn icon-btn--delete" title="Delete Project">
-                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-
-                    {{-- Pagination --}}
-                    <div class="mt-4 flex justify-center">
-                        {{ $data['projects']->appends(request()->except('page'))->links() }}
-                    </div>
+                        {{-- PROGRESS (col-span-1) --}}
+<div class="col-span-1">
+    @if($project->estimated_hours !== null)
+        <div class="flex flex-col gap-1 w-full"> 
+            <span class="text-xs font-medium text-gray-700">{{ $formattedProgressPercentage }}%</span>
+            <div class="w-full bg-gray-200 rounded-full h-1.5">
+                <div class="h-1.5 rounded-full
+                    @if($progressPercentage < 50) bg-emerald-500
+                    @elseif($progressPercentage < 75) bg-amber-500
+                    @else bg-red-500 @endif"
+                    style="width: {{ min($progressPercentage, 100) }}%;">
                 </div>
             </div>
+        </div>
+    @else
+        <span class="text-xs font-medium text-gray-600">No Estimated Hours</span>
+    @endif
+</div>
+                        {{-- CLIENT & TEAMS (col-span-3) --}}
+                        <div class="col-span-3 space-y-2">
+                            <div>
+                                <p class="text-xs text-gray-500">{{__('messages.Client')}}:</p>
+                                @if($project->client)
+                                    <p class="text-sm font-medium text-blue-600">{{ $project->client->name }}</p>
+                                @else
+                                    <p class="text-sm font-medium text-gray-500">N/A</p>
+                                @endif
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Teams :</p>
+                                <div class="flex flex-wrap gap-1 mt-1">
+                                    @forelse($project->teams as $team)
+                                        <span class="inline-block px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">{{ $team->name }}</span>
+                                    @empty
+                                        <span class="text-xs text-gray-500">No teams assigned</span>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- ACTIONS (col-span-1) --}}
+                        <div class="col-span-1 flex justify-end gap-2">
+                            <a href="{{ route('admin.projects.show', $project->id) }}" class="p-1 rounded-md bg-blue-600 text-white hover:bg-red-700">
+                                <svg class="h-5 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-.07.207-.07.431 0 .639C20.268 16.057 16.477 19 12 19c-4.478 0-8.268-2.943-9.542-7a1.186 1.186 0 010-.639z" />
+                                </svg>
+                            </a>
+                            <form action="{{ route('admin.projects.destroy', $project->id) }}"
+                                  method="POST"
+                                  onsubmit="return confirm('Are you sure?');"
+                                  class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="p-1 rounded-md bg-red-600 text-white hover:bg-red-700">
+                                    <svg class="h-5 w-4" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            {{-- Pagination --}}
+            <div class="mt-4 flex justify-center" id="pagination-container">
+                {{ $data['projects']->appends(request()->except('page'))->links() }}
+            </div>
+        </div>
+    </div>
 
     {{-- Today's Events --}}
     <div class="lg:col-span-1 border-0 shadow-sm bg-white rounded-2xl hover:shadow-xl p-6 h-fit animate-fadeInSlideUp" style="animation-delay: 700ms;">
@@ -770,30 +756,44 @@
     </div>
 </div>
 
-    </div>
-</div>
-
-@livewire('full-calendar-modal')
-
+{{-- AJAX Pagination Script --}}
 <script>
 $(document).ready(function() {
-    $('#employeesTable').DataTable({
-        ordering: false,
-        paging: false,
-        info: false,
-        lengthChange: false,
-        language: {
-            search: "",
-            searchPlaceholder: "{{translate_text('Search employees...')}}",
-            paginate: {
-                previous: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>',
-                next: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>'
+    // Handle pagination clicks
+    $(document).on('click', '#pagination-container .pagination a', function(e) {
+        e.preventDefault();
+        
+        var url = $(this).attr('href');
+        if (!url) return;
+        
+        // Add loading state
+        $('#projects-container').css('opacity', '0.5');
+        
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'html',
+            success: function(response) {
+                // Extract the projects container content from response
+                var newContent = $(response).find('#projects-container').html();
+                
+                // Update the container
+                $('#projects-container').html(newContent);
+                
+                // Scroll to projects section smoothly
+                $('html, body').animate({
+                    scrollTop: $('#projects-container').offset().top - 100
+                }, 400);
+                
+                // Remove loading state
+                $('#projects-container').css('opacity', '1');
+            },
+            error: function(xhr, status, error) {
+                console.error('Pagination error:', error);
+                $('#projects-container').css('opacity', '1');
+                alert('Error loading projects. Please try again.');
             }
-        },
-        dom: `
-            <"flex justify-between items-center mb-4"f>
-            t
-        `
+        });
     });
 });
 </script>
