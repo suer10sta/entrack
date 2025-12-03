@@ -42,6 +42,49 @@
         gap: 0.25rem;
     }
     
+    /* DataTables pagination – light theme to match dashboard */
+#employeesTable_wrapper .dataTables_paginate {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    gap: 0.25rem;
+}
+
+#employeesTable_wrapper .dataTables_paginate .paginate_button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding: 0 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #4b5563;               /* gray-600 */
+    background-color: #ffffff;    /* white */
+    border: 1px solid #e5e7eb;    /* gray-200 */
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+
+#employeesTable_wrapper .dataTables_paginate .paginate_button:hover {
+    background-color: #eff6ff;    /* blue-50 */
+    border-color: #bfdbfe;        /* blue-200 */
+    color: #1d4ed8;               /* blue-700 */
+}
+
+#employeesTable_wrapper .dataTables_paginate .paginate_button.current {
+    background-color: #1d4ed8;    /* blue-700 */
+    border-color: #1d4ed8;
+    color: #ffffff;
+}
+
+#employeesTable_wrapper .dataTables_paginate .paginate_button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f9fafb;    /* gray-50 */
+}
+
     #employeesTable_wrapper .dt-paging a,
     #employeesTable_wrapper .dt-paging button {
         display: inline-flex;
@@ -84,60 +127,31 @@
         color: #6b7280;
     }
 
-    /* FIXED: Laravel pagination styling - force horizontal layout */
-    .pagination {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center;
-        gap: 0.25rem;
-        list-style: none;
-        padding: 0;
-        margin: 0;
+    /* Laravel paginator (Jetstream/Tailwind) override */
+    .relative.z-0.inline-flex.rtl\:flex-row-reverse.shadow-sm.rounded-md {
+        box-shadow: none !important;
+        gap: 0.35rem;
     }
-    
-    .pagination li {
-        display: inline-flex !important;
-        margin: 0 !important;
+
+    .relative.z-0.inline-flex.rtl\:flex-row-reverse.shadow-sm.rounded-md > * {
+        margin-left: 0 !important;
+        border-radius: 0.5rem !important;
+        border: 1px solid #e5e7eb !important;
+        background-color: #ffffff !important;
+        color: #374151 !important;
+        transition: all 0.15s ease;
     }
-    
-    .pagination a,
-    .pagination span {
-        display: inline-flex !important;
-        align-items: center;
-        justify-content: center;
-        min-width: 2rem;
-        height: 2rem;
-        padding: 0.5rem;
-        border-radius: 0.5rem;
-        font-size: 0.875rem;
-        color: #374151;
-        background-color: #ffffff;
-        border: 1px solid #e5e7eb;
-        text-decoration: none;
-        transition: all 0.2s;
+
+    .relative.z-0.inline-flex.rtl\:flex-row-reverse.shadow-sm.rounded-md > *:hover {
+        background-color: #eff6ff !important;
+        border-color: #bfdbfe !important;
+        color: #1d4ed8 !important;
     }
-    
-    .pagination a:hover {
-        background-color: #f3f4f6;
-        border-color: #d1d5db;
-    }
-    
-    .pagination .active span {
-        background-color: #1E9FD8;
-        color: #ffffff;
-        border-color: #1E9FD8;
-        font-weight: 600;
-    }
-    
-    .pagination .disabled span {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-    
-    /* SVG icons in pagination */
-    .pagination svg {
-        width: 1.25rem;
-        height: 1.25rem;
+
+    .relative.z-0.inline-flex.rtl\:flex-row-reverse.shadow-sm.rounded-md > span[aria-current="page"] > span {
+        background-color: #1d4ed8 !important;
+        border-color: #1d4ed8 !important;
+        color: #ffffff !important;
     }
 </style>
 
@@ -760,38 +774,39 @@
 <script>
 $(document).ready(function() {
     // Handle pagination clicks
-    $(document).on('click', '#pagination-container .pagination a', function(e) {
+    $(document).on('click', '#pagination-container a', function(e) {
         e.preventDefault();
         
         var url = $(this).attr('href');
-        if (!url) return;
+        if (!url || $(this).attr('aria-disabled') === 'true') return;
         
         // Add loading state
-        $('#projects-container').css('opacity', '0.5');
+        $('#projects-container').css('opacity', '0.5').addClass('pointer-events-none');
         
         $.ajax({
             url: url,
             type: 'GET',
             dataType: 'html',
             success: function(response) {
-                // Extract the projects container content from response
-                var newContent = $(response).find('#projects-container').html();
+                // Extract the projects and pagination content from response
+                var newProjects = $(response).find('#projects-container').html();
+                var newPagination = $(response).find('#pagination-container').html();
                 
-                // Update the container
-                $('#projects-container').html(newContent);
+                // Update the containers
+                $('#projects-container').html(newProjects);
+                $('#pagination-container').html(newPagination);
                 
                 // Scroll to projects section smoothly
                 $('html, body').animate({
                     scrollTop: $('#projects-container').offset().top - 100
                 }, 400);
-                
-                // Remove loading state
-                $('#projects-container').css('opacity', '1');
             },
             error: function(xhr, status, error) {
                 console.error('Pagination error:', error);
-                $('#projects-container').css('opacity', '1');
                 alert('Error loading projects. Please try again.');
+            },
+            complete: function() {
+                $('#projects-container').css('opacity', '1').removeClass('pointer-events-none');
             }
         });
     });

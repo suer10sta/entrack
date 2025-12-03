@@ -90,19 +90,6 @@
         </div>
 
         <div class="mt-12 flex flex-col md:flex-row items-center justify-between gap-4 border-t border-[#E5E7EB] pt-6 text-sm text-[#9CA3AF]">
-            <p>© {{ date('Y') }} DailyTrac. All rights reserved.</p> <!-- Year updates dynamically -->
-
-            <div class="flex items-center gap-2">
-                <span>Made with</span>
-                <svg class="h-4 w-4 text-[#007AFF]" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                    />
-                </svg>
-                <span>in Agadir</span>
-            </div>
         </div>
     </div>
 </footer>

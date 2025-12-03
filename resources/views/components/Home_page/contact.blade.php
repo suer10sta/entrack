@@ -81,57 +81,6 @@
                         Send Message
                     </button>
                 </form>
-
-                {{-- Contact Info --}}
-                <div class="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
-                    {{-- Email --}}
-                    <div>
-                        <div class="mb-4">
-                            <!-- Icon box uses bg-secondary and text-primary -->
-                            <div class="w-14 h-14 bg-secondary text-primary flex items-center justify-center rounded-lg mx-auto">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                    stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M20 13V7a2 2 0 00-2-2H6a2 2 0 00-2 2v6M20 13v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M20 13H4" />
-                                </svg>
-                            </div>
-                        </div>
-                        <h3 class="text-sm font-semibold text-foreground mb-1">Email</h3>
-                        <p class="text-xs text-muted">support@enterprisetrackerpro.com</p>
-                    </div>
-
-                    {{-- Phone --}}
-                    <div>
-                        <div class="mb-4">
-                            <div class="w-14 h-14 bg-secondary text-primary flex items-center justify-center rounded-lg mx-auto">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                    stroke="currentColor" class="w-6 h-6">
-                                    <!-- Simplified phone icon -->
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.108l-4.423-1.106c-.44-.11-.902.055-1.173.417l-1.096 1.096c-1.026-1.913-2.333-3.22-3.22-3.22l1.096-1.096c.362-.362.527-.833.417-1.173l-1.106-4.423c-.142-.501-.602-.852-1.108-.852H3a.75.75 0 00-.75.75v.038z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <h3 class="text-sm font-semibold text-foreground mb-1">Phone</h3>
-                        <p class="text-xs text-muted">+1 (555) 123-4567</p>
-                    </div>
-
-                    {{-- Address --}}
-                    <div>
-                        <div class="mb-4">
-                            <div class="w-14 h-14 bg-secondary text-primary flex items-center justify-center rounded-lg mx-auto">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                    stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <h3 class="text-sm font-semibold text-foreground mb-1">Address</h3>
-                        <p class="text-xs text-muted">Paris, France</p>
-                    </div>
-                </div>
             </div>
         </div>
     </main>
