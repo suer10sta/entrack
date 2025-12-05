@@ -466,12 +466,14 @@ class tasksController extends Controller
 
     $task_name = $task_details->task_name;
 
+    $isSuperAdmin = Auth::user()->hasRole('super_admin') || Auth::user()->hasRole('SuperAdmin');
+
     // Check if there's an existing timer for this task that hasn't stopped yet
     $existing_timer = tasks_timer::where('task_employee_id', $task_id)
         ->whereNull('end_date')
         ->first();
 
-    if ($existing_timer) {
+    if (!$isSuperAdmin && $existing_timer) {
         return back()->with('alertmessage', 'A timer is already running for this task. Please stop the existing timer before starting a new one.');
     }
 
@@ -480,7 +482,7 @@ class tasksController extends Controller
         ->whereNull('end_date')
         ->get();
 
-    if ($existing_task_timers->isNotEmpty()) {
+    if (!$isSuperAdmin && $existing_task_timers->isNotEmpty()) {
         return back()->with('alertmessage', 'A Task is already running. Please stop it before starting a new one.');
     }
 
