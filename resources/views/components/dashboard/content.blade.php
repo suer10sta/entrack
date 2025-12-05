@@ -85,6 +85,26 @@
     background-color: #f9fafb;    /* gray-50 */
 }
 
+/* Keep prev/next consistent with light theme */
+#employeesTable_wrapper .dataTables_paginate .paginate_button.previous,
+#employeesTable_wrapper .dataTables_paginate .paginate_button.next {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: #4b5563;
+}
+#employeesTable_wrapper .dataTables_paginate .paginate_button.previous:not(.disabled):hover,
+#employeesTable_wrapper .dataTables_paginate .paginate_button.next:not(.disabled):hover {
+    background-color: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+}
+#employeesTable_wrapper .dataTables_paginate .paginate_button.previous.disabled,
+#employeesTable_wrapper .dataTables_paginate .paginate_button.next.disabled {
+    background-color: #f9fafb;
+    color: #9ca3af;
+    border-color: #e5e7eb;
+}
+
     #employeesTable_wrapper .dt-paging a,
     #employeesTable_wrapper .dt-paging button {
         display: inline-flex;
@@ -297,7 +317,6 @@
             <thead class="bg-gray-50">
                 <tr class="border-b border-gray-200">
                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Employee</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Function</th>
                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">Current Status</th>
                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">Current Task</th>
                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">Current Project</th>
@@ -326,27 +345,21 @@
                                     {{ $employee->name }}
                                 </a>
                                 <p class="text-xs text-gray-500">{{ $employee->email }}</p>
+                                {{-- Roles under email to minimize width --}}
+                                @php
+                                    $employeeRoles = is_array($employee->roles ?? null) ? $employee->roles : (array)($employee->roles ?? []);
+                                @endphp
+                                <div class="flex flex-wrap gap-1 pt-1">
+                                    @forelse($employeeRoles as $role)
+                                        <span class="inline-block px-2 py-0.5 text-[10.5px] font-medium rounded {{ $role=='SuperAdmin'?'bg-fuchsia-100 text-fuchsia-700':'bg-purple-100 text-purple-700'}}">
+                                            {{ $role }}
+                                        </span>
+                                    @empty
+                                        <span class="text-[10px] text-gray-400">No Roles</span>
+                                    @endforelse
+                                </div>
                             </div>
                         </div>
-                    </td>
-
-                    {{-- Function (Roles) - previous badge style --}}
-                    <td class="px-6 py-4 space-y-2 align-top">
-                        <div class="flex flex-wrap gap-2">
-                            @php
-                                $employeeRoles = is_array($employee->roles ?? null) ? $employee->roles : (array)($employee->roles ?? []);
-                            @endphp
-                            @forelse($employeeRoles as $role)
-                                <span class="inline-block px-2 py-1 text-xs font-medium rounded {{ $role=='SuperAdmin'?'bg-fuchsia-100 text-fuchsia-700':'bg-purple-100 text-purple-700'}}">
-                                    {{ $role }}
-                                </span>
-                            @empty
-                                <span class="text-xs text-gray-400">No Roles</span>
-                            @endforelse
-                        </div>
-                        @if(!empty($employee['type']))
-                            <p class="text-xs text-gray-600 pt-1">{{ $employee['type'] }}</p>
-                        @endif
                     </td>
 
                     {{-- Current Status --}}
@@ -532,9 +545,28 @@
                         </form>
                     </td>
 
-                    {{-- Actions (view / edit / delete) --}}
+                    {{-- Actions (view / edit / delete / tasks done today) --}}
                     <td class="px-6 py-4 whitespace-nowrap align-top">
-                        <div class="flex items-center justify-start gap-2">
+                        <div class="relative flex items-center justify-start gap-2">
+                            @php
+                                $completedTasksToday = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    ->whereDate('start_date', \Carbon\Carbon::today())
+                                    ->whereNotNull('end_date')
+                                    ->when($currentTask, fn($q) => $q->where('id', '!=', $currentTask->id))
+                                    ->orderByDesc('end_date')
+                                    ->get();
+                            @endphp
+
+                            {{-- Tasks history toggle (shows tasks done today, excluding current) --}}
+                            <button type="button"
+                                    onclick="toggleTasksTodayRow('tasks-row-{{ $employee->id }}')"
+                                    title="Show today's completed tasks"
+                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-indigo-500 hover:bg-indigo-600">
+                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                            </button>
+
                             {{-- View details --}}
                             <a href="{{ route('admin.employees.show', $employee->id) }}"
                                title="View Details"
@@ -571,6 +603,48 @@
                         </div>
                     </td>
                 </tr>
+                {{-- Task history row (hidden by default) --}}
+                <tr id="tasks-row-{{ $employee->id }}" class="hidden bg-gray-50">
+                    <td colspan="10" class="px-6 py-4">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h4 class="text-sm font-semibold text-gray-800">Task History (Today)</h4>
+                                <button type="button"
+                                        onclick="toggleTasksTodayRow('tasks-row-{{ $employee->id }}')"
+                                        class="text-xs text-gray-500 hover:text-gray-700">Close</button>
+                            </div>
+                            @forelse($completedTasksToday as $doneTask)
+                                @php
+                                    $durationMinutes = (int) $doneTask->duration;
+                                    $h = floor($durationMinutes / 60);
+                                    $m = $durationMinutes % 60;
+                                    $taskModel = \App\Models\Tasks::find($doneTask->task_id);
+                                    $projectName = null;
+                                    // Prefer direct project_id on timer if present
+                                    if (!empty($doneTask->project_id)) {
+                                        $projectName = optional(\App\Models\Project::find($doneTask->project_id))->name;
+                                    }
+                                    // Fallback to task's project
+                                    if (!$projectName && $taskModel) {
+                                        $projectName = optional($taskModel->project)->name ?? null;
+                                    }
+                                @endphp
+                                <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-medium text-gray-900">{{ $doneTask->task_name ?? ($taskModel->title ?? 'Task') }}</span>
+                                        <span class="text-xs text-gray-500">{{ $projectName ?? 'No project linked' }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700">Completed</span>
+                                        <span class="text-xs text-gray-700 whitespace-nowrap">{{ $h }}h {{ $m }}m</span>
+                                    </div>
+                                </div>
+                            @empty
+                                <p class="text-xs text-gray-500">No completed tasks today.</p>
+                            @endforelse
+                        </div>
+                    </td>
+                </tr>
             @endforeach
         </tbody>
         </table>
@@ -597,9 +671,22 @@
         {{-- Project list container --}}
         <div id="projects-container">
             <div class="divide-y divide-gray-200">
-                @foreach($data['projects'] as $project)
+            @php $hasWorkedToday = false; @endphp
+            @foreach($data['projects'] as $project)
                     @php
-                        $projecttasksId = \App\Models\Tasks::where('project_id', $project->id)->pluck('id');
+                    $projecttasksId = \App\Models\Tasks::where('project_id', $project->id)->pluck('id');
+                    // Consider timers linked by task_id OR directly by project_id
+                    $workedToday = \App\Models\tasks_timer::where(function($q) use ($projecttasksId, $project) {
+                            $q->whereIn('task_id', $projecttasksId)
+                              ->orWhere('project_id', $project->id);
+                        })
+                        ->whereDate('start_date', \Carbon\Carbon::today())
+                        ->exists();
+                    @endphp
+                    @continue(!$workedToday)
+                    @php
+                    $hasWorkedToday = true;
+                        // Track if any project was worked on today for fallback message
                         $totalduration = \App\Models\tasks_timer::whereIn('task_id', $projecttasksId)->sum('duration');
                         $difference = ($project->estimated_hours ?? 0) * 60 - $totalduration;
                         $hours = floor(abs($totalduration) / 60);
@@ -706,6 +793,11 @@
                         </div>
                     </div>
                 @endforeach
+            @unless($hasWorkedToday)
+                <div class="px-6 py-6 text-sm text-gray-600 bg-gray-50 border border-dashed border-gray-200 rounded-lg">
+                    No projects have logged work today.
+                </div>
+            @endunless
             </div>
 
             {{-- Pagination --}}
@@ -811,4 +903,17 @@ $(document).ready(function() {
         });
     });
 });
+
+// Toggle today's completed tasks popover per employee
+function toggleTasksTodayRow(id) {
+    const row = document.getElementById(id);
+    if (!row) return;
+    // close others
+    document.querySelectorAll('tr[id^="tasks-row-"]').forEach(el => {
+        if (el.id !== id) {
+            el.classList.add('hidden');
+        }
+    });
+    row.classList.toggle('hidden');
+}
 </script>

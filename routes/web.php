@@ -1775,7 +1775,11 @@ Route::get('/filter/all-tasks', [TasksController::class, 'getAllTasks']);
 
 
 
-Route::middleware('auth')->group(function () {
+Route::middleware([
+    'auth',
+    // Employees should not access profile/subscription routes
+    'role:Admin|super_admin|SuperAdmin|Responsable de projet|Responsable de projet et gestionnaire',
+])->group(function () {
     Route::get('/admin/profile', [ProfileController::class, 'index'])->name('profile');
     Route::get('/profile/upgrade', [ProfileController::class, 'showUpgradePage'])->name('profile.upgrade');
 
