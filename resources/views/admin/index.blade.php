@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>DailyTrac Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
     <style>
         [x-cloak] { display: none !important; }
     </style>
@@ -22,6 +23,7 @@
         {{-- Main Content --}}
         <x-dashboard.content :data="$__data" />
     </div>
+    <livewire:full-calendar-modal />
     @livewireScripts
 </body>
 </html>

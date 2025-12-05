@@ -179,7 +179,7 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.tailwindcss.min.css">
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
 
-<div class="flex-1 overflow-auto bg-gray-50">
+<div class="flex-1 overflow-auto bg-[#f4f4f6]">
     {{-- Main content --}}
     <div class="p-8">
 
@@ -394,21 +394,38 @@
                     {{-- Current Task --}}
                     <td class="px-6 py-4 text-center align-middle text-sm">
                         @php
-                            $currentTask = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                ->whereDate('start_date', today())
-                                ->latest()
-                                ->first();
+                            $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
+                            if ($isSuperAdmin) {
+                                // For superadmin, get all active tasks
+                                $currentTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    ->whereDate('start_date', today())
+                                    ->whereNull('end_date')
+                                    ->orderBy('start_date', 'desc')
+                                    ->get();
+                            } else {
+                                // For others, get only the latest active task
+                                $currentTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    ->whereDate('start_date', today())
+                                    ->whereNull('end_date')
+                                    ->latest()
+                                    ->take(1)
+                                    ->get();
+                            }
                         @endphp
-                        @if($currentTask && $currentTask->end_date === null)
-                            @if(auth()->user()->hasRole('Admin'))
-                                <a href="{{ route('admin.tasks.show', $currentTask->task_id) }}" class="text-xs font-semibold text-blue-600 hover:underline">
-                            @elseif(auth()->user()->hasRole('Responsable de projet'))
-                                <a href="{{ route('Responsable_de_projet.tasks.show', $currentTask->task_id) }}" class="text-xs font-semibold text-blue-600 hover:underline">
-                            @else
-                                <a href="#" class="text-xs font-semibold text-blue-600">
-                            @endif
-                                {{ $currentTask->task_name }}
-                            </a>
+                        @if($currentTasks->isNotEmpty())
+                            <div class="space-y-1">
+                                @foreach($currentTasks as $currentTask)
+                                    @if(auth()->user()->hasRole('Admin') || auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin'))
+                                        <a href="{{ route('admin.tasks.show', $currentTask->task_id) }}" class="text-xs font-semibold text-blue-600 hover:underline block">
+                                    @elseif(auth()->user()->hasRole('Responsable de projet'))
+                                        <a href="{{ route('Responsable_de_projet.tasks.show', $currentTask->task_id) }}" class="text-xs font-semibold text-blue-600 hover:underline block">
+                                    @else
+                                        <a href="#" class="text-xs font-semibold text-blue-600 block">
+                                    @endif
+                                        {{ $currentTask->task_name }}
+                                    </a>
+                                @endforeach
+                            </div>
                         @else
                             <span class="text-xs text-gray-400">No Task</span>
                         @endif
@@ -417,16 +434,42 @@
                     {{-- Current Project --}}
                     <td class="px-6 py-4 text-center align-middle text-sm">
                         @php
-                            $currentProject = null;
-                            if ($currentTask) {
-                                $project_id = \App\Models\Tasks::where('id', $currentTask->task_id)->pluck('project_id')->first();
-                                $currentProject = \App\Models\Project::where('id', $project_id)->first();
+                            $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
+                            if ($isSuperAdmin) {
+                                // For superadmin, get all active tasks
+                                $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    ->whereDate('start_date', today())
+                                    ->whereNull('end_date')
+                                    ->orderBy('start_date', 'desc')
+                                    ->get();
+                            } else {
+                                // For others, get only the latest active task
+                                $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    ->whereDate('start_date', today())
+                                    ->whereNull('end_date')
+                                    ->latest()
+                                    ->take(1)
+                                    ->get();
+                            }
+                            $currentProjects = collect();
+                            foreach ($activeTasks as $task) {
+                                $project_id = \App\Models\Tasks::where('id', $task->task_id)->pluck('project_id')->first();
+                                if ($project_id) {
+                                    $project = \App\Models\Project::find($project_id);
+                                    if ($project && !$currentProjects->contains('id', $project->id)) {
+                                        $currentProjects->push($project);
+                                    }
+                                }
                             }
                         @endphp
-                        @if($currentProject)
-                            <a href="{{ route('admin.projects.show', $currentProject->id) }}" class="text-xs font-semibold text-emerald-600 hover:underline">
-                                {{ $currentProject->name }}
-                            </a>
+                        @if($currentProjects->isNotEmpty())
+                            <div class="space-y-1">
+                                @foreach($currentProjects as $currentProject)
+                                    <a href="{{ route('admin.projects.show', $currentProject->id) }}" class="text-xs font-semibold text-emerald-600 hover:underline block">
+                                        {{ $currentProject->name }}
+                                    </a>
+                                @endforeach
+                            </div>
                         @else
                             <span class="text-xs text-gray-400">No Project</span>
                         @endif
@@ -434,13 +477,31 @@
 
                     {{-- Task Progress --}}
                     <td class="px-6 py-4 text-center align-middle text-sm">
-                        @if($currentTask && $currentTask->end_date === null)
+                        @php
+                            $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
+                            if ($isSuperAdmin) {
+                                $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    ->whereDate('start_date', today())
+                                    ->whereNull('end_date')
+                                    ->orderBy('start_date', 'desc')
+                                    ->get();
+                            } else {
+                                $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    ->whereDate('start_date', today())
+                                    ->whereNull('end_date')
+                                    ->latest()
+                                    ->take(1)
+                                    ->get();
+                            }
+                            $firstActiveTask = $activeTasks->first();
+                        @endphp
+                        @if($firstActiveTask)
                             @php
-                                $task = \App\Models\Tasks::where('id', $currentTask->task_id)->first();
+                                $task = \App\Models\Tasks::where('id', $firstActiveTask->task_id)->first();
                             @endphp
                             @if($task && $task->estimated_hours !== null)
                                 @php
-                                    $tasktotalduration = \App\Models\tasks_timer::where('task_id', $currentTask->task_id)
+                                    $tasktotalduration = \App\Models\tasks_timer::where('task_id', $firstActiveTask->task_id)
                                         ->where('employee_id', $employee->id)
                                         ->sum('duration');
                                     $taskestimatedMinutes = $task->estimated_hours * 60;
@@ -467,13 +528,38 @@
 
                     {{-- Duration --}}
                     <td class="px-6 py-4 text-center align-middle text-sm">
-                        @if($currentTask && $currentTask->end_date === null)
+                        @php
+                            $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
+                            if ($isSuperAdmin) {
+                                $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    ->whereDate('start_date', today())
+                                    ->whereNull('end_date')
+                                    ->orderBy('start_date', 'desc')
+                                    ->get();
+                            } else {
+                                $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    ->whereDate('start_date', today())
+                                    ->whereNull('end_date')
+                                    ->latest()
+                                    ->take(1)
+                                    ->get();
+                            }
+                            $firstActiveTask = $activeTasks->first();
+                        @endphp
+                        @if($firstActiveTask)
                             @php
-                                $tasktotalduration = \App\Models\tasks_timer::where('task_id', $currentTask->task_id)
-                                    ->where('employee_id', $employee->id)
-                                    ->sum('duration');
-                                $taskhours = floor($tasktotalduration / 60);
-                                $taskminutes = $tasktotalduration % 60;
+                                // Calculate duration for the current active task only
+                                $now = \Carbon\Carbon::now();
+                                $startTime = \Carbon\Carbon::parse($firstActiveTask->start_date);
+                                $currentDurationMinutes = $startTime->diffInMinutes($now);
+                                
+                                // Add any existing duration if task was paused/resumed
+                                if ($firstActiveTask->duration) {
+                                    $currentDurationMinutes += $firstActiveTask->duration;
+                                }
+                                
+                                $taskhours = floor($currentDurationMinutes / 60);
+                                $taskminutes = $currentDurationMinutes % 60;
                             @endphp
                             <span class="text-xs font-semibold text-gray-800">
                                 {{ $taskhours }}h:{{ $taskminutes }}m
@@ -511,13 +597,26 @@
                     {{-- Chrono (Stop button only, matching legacy behaviour) --}}
                     <td class="px-6 py-4 text-center align-middle text-sm">
                         @php
-                            $task_timer = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                ->whereNull('end_date')
-                                ->first();
+                            $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
+                            if ($isSuperAdmin) {
+                                $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    ->whereDate('start_date', today())
+                                    ->whereNull('end_date')
+                                    ->orderBy('start_date', 'desc')
+                                    ->get();
+                            } else {
+                                $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    ->whereDate('start_date', today())
+                                    ->whereNull('end_date')
+                                    ->latest()
+                                    ->take(1)
+                                    ->get();
+                            }
+                            $firstActiveTask = $activeTasks->first();
                         @endphp
-                        @if($currentTask && $currentTask->end_date === null && $task_timer)
+                        @if($firstActiveTask && $firstActiveTask->end_date === null)
                             <form class="inline-block"
-                                  action="{{ route('admin.tasks.stop', ['tasks' => $task_timer->task_employee_id, 'employee_id' => $employee->id]) }}"
+                                  action="{{ route('admin.tasks.stop', ['tasks' => $firstActiveTask->task_employee_id, 'employee_id' => $employee->id]) }}"
                                   method="POST"
                                   onsubmit="return confirm('Stop timer for this task?');">
                                 @csrf
@@ -550,10 +649,24 @@
                     <td class="px-6 py-4 whitespace-nowrap align-top">
                         <div class="relative flex items-center justify-start gap-2">
                             @php
+                                $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
+                                if ($isSuperAdmin) {
+                                    $activeTaskIds = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                        ->whereDate('start_date', \Carbon\Carbon::today())
+                                        ->whereNull('end_date')
+                                        ->pluck('id');
+                                } else {
+                                    $activeTaskIds = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                        ->whereDate('start_date', \Carbon\Carbon::today())
+                                        ->whereNull('end_date')
+                                        ->latest()
+                                        ->take(1)
+                                        ->pluck('id');
+                                }
                                 $completedTasksToday = \App\Models\tasks_timer::where('employee_id', $employee->id)
                                     ->whereDate('start_date', \Carbon\Carbon::today())
                                     ->whereNotNull('end_date')
-                                    ->when($currentTask, fn($q) => $q->where('id', '!=', $currentTask->id))
+                                    ->when($activeTaskIds->isNotEmpty(), fn($q) => $q->whereNotIn('id', $activeTaskIds))
                                     ->orderByDesc('end_date')
                                     ->get();
                             @endphp
@@ -570,7 +683,7 @@
 
                             {{-- View details --}}
                             <a href="{{ route('admin.employees.show', $employee->id) }}"
-                               title="View Details"
+                               title="Details Employee"
                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-purple-600 hover:bg-purple-700">
                                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -665,7 +778,7 @@
             <span class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.BUDGET & COSTS')}}</span>
             <span class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.TIME TRACKING')}}</span>
             <span class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.PROGRESS')}}</span>
-            <span class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.CLIENT & TEAMS')}}</span>
+            <span class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.CLIENT & EMPLOYEES')}}</span>
             <span class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">{{__('messages.ACTIONS')}}</span>
         </div>
         
@@ -770,7 +883,7 @@
                         @endif
                     </div>
 
-                    {{-- CLIENT & TEAMS (col-span-3) --}}
+                    {{-- CLIENT & EMPLOYEES (col-span-3) --}}
                     <div class="col-span-3 space-y-2">
                         <div>
                             <p class="text-xs text-gray-500">{{__('messages.Client')}}:</p>
@@ -781,12 +894,29 @@
                             @endif
                         </div>
                         <div>
-                            <p class="text-xs text-gray-500">Teams :</p>
+                            <p class="text-xs text-gray-500">Employees :</p>
+                            @php
+                                // Get employees who worked on this project today
+                                $projectEmployeeIds = \App\Models\tasks_timer::where(function($q) use ($project, $todayStart, $todayEnd) {
+                                        $q->where('project_id', $project->id)
+                                          ->orWhereIn('task_id', \App\Models\Tasks::where('project_id', $project->id)->pluck('id'));
+                                    })
+                                    ->where(function($q) use ($todayStart, $todayEnd) {
+                                        $q->where('start_date', '<=', $todayEnd)
+                                          ->where(function($qq) use ($todayStart) {
+                                              $qq->whereNull('end_date')
+                                                 ->orWhere('end_date', '>=', $todayStart);
+                                          });
+                                    })
+                                    ->distinct()
+                                    ->pluck('employee_id');
+                                $projectEmployees = \App\Models\Employees::whereIn('id', $projectEmployeeIds)->get();
+                            @endphp
                             <div class="flex flex-wrap gap-1 mt-1">
-                                @forelse($project->teams as $team)
-                                    <span class="inline-block px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">{{ $team->name }}</span>
+                                @forelse($projectEmployees as $emp)
+                                    <span class="inline-block px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">{{ $emp->name }}</span>
                                 @empty
-                                    <span class="text-xs text-gray-500">No teams assigned</span>
+                                    <span class="text-xs text-gray-500">No employees worked today</span>
                                 @endforelse
                             </div>
                         </div>
@@ -842,7 +972,10 @@
                 <h2 class="text-lg font-semibold text-gray-900">Today's Events</h2>
             </div>
             
-            <button onclick="window.Livewire.dispatch('openCalendarForm')" class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-1.5 rounded-lg">
+            <button type="button" 
+                    x-data
+                    @click="if(window.Livewire) { window.Livewire.dispatch('openCalendarForm'); } else { setTimeout(() => { if(window.Livewire) window.Livewire.dispatch('openCalendarForm'); }, 100); }"
+                    class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-1.5 rounded-lg">
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
@@ -881,7 +1014,10 @@
 
         {{-- Centered "View full calendar" link --}}
         <div class="text-center mt-6">
-            <button onclick="window.Livewire.dispatch('openCalendarModal')" class="text-sm font-medium text-blue-600 hover:underline">
+            <button type="button" 
+                    x-data
+                    @click="if(window.Livewire) { window.Livewire.dispatch('openCalendarModal'); } else { setTimeout(() => { if(window.Livewire) window.Livewire.dispatch('openCalendarModal'); }, 100); }"
+                    class="text-sm font-medium text-blue-600 hover:underline">
             See the full calendar
             </button>
         </div>
@@ -901,4 +1037,5 @@ function toggleTasksTodayRow(id) {
     });
     row.classList.toggle('hidden');
 }
+
 </script>

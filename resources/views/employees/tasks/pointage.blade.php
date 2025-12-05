@@ -50,7 +50,7 @@
         .close-button:hover { color: #475569; }
     </style>
 </head>
-<body class="bg-gray-50 flex h-screen overflow-hidden font-sans antialiased text-slate-600">
+<body class="bg-gray-100 flex h-screen overflow-hidden font-sans antialiased text-slate-600">
     
     <audio id="alertSound" src="{{ asset('audio/alert_sound.mp3') }}" preload="auto"></audio>
 

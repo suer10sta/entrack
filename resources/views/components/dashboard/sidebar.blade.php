@@ -72,7 +72,8 @@
                 </div>
             </div>
             <nav class="px-4 space-y-1 mt-2">
-                <a href="{{route('admin.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-blue-500 text-white font-medium">
+                <a href="{{route('admin.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-blue-500 text-white font-medium transition-colors relative">
+                    <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full"></div>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                     </svg>
@@ -80,7 +81,19 @@
                 </a>
 
                 <div>
-                    <button type="button" onclick="toggleDropdown('reports')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
+                    <button type="button" onclick="toggleDropdown('reports')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
+                        @php
+                            $isReportsPage = request()->routeIs('admin.clients.index') || 
+                                            request()->routeIs('admin.employees.index') || 
+                                            request()->routeIs('admin.teams.index') || 
+                                            request()->routeIs('admin.projects.index') || 
+                                            request()->routeIs('admin.tasks.index') || 
+                                            request()->routeIs('admin.tasks.pointage') ||
+                                            request()->routeIs('admin.workDaysReports.*');
+                        @endphp
+                        @if($isReportsPage)
+                            <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full"></div>
+                        @endif
                         <span class="flex items-center space-x-3">
                             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -92,18 +105,63 @@
                         </svg>
                     </button>
                     <div id="reports-submenu" class="ml-8 space-y-1 dropdown-menu">
-                        <a href="{{ route('admin.clients.index') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Clients Reports</a>
-                        <a href="{{ route('admin.employees.index') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Employees Reports</a>
-                        <a href="{{ route('admin.teams.index') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Teams Reports</a>
-                        <a href="{{ route('admin.projects.index') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Projects Reports</a>
-                        <a href="{{ route('admin.tasks.index') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Tasks Reports</a>
-                        <a href="{{ route('admin.tasks.pointage') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Pointage Reports</a>
-                        <a href="{{ route('admin.workDaysReports.index') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Works Days Report</a>
+                        <a href="{{ route('admin.clients.index') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.clients.index'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Clients Reports
+                        </a>
+                        <a href="{{ route('admin.employees.index') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.employees.index'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Employees Reports
+                        </a>
+                        <a href="{{ route('admin.teams.index') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.teams.index'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Teams Reports
+                        </a>
+                        <a href="{{ route('admin.projects.index') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.projects.index'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Projects Reports
+                        </a>
+                        <a href="{{ route('admin.tasks.index') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.tasks.index'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Tasks Reports
+                        </a>
+                        <a href="{{ route('admin.tasks.pointage') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.tasks.pointage'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Pointage Reports
+                        </a>
+                        <a href="{{ route('admin.workDaysReports.index') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.workDaysReports.*'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Works Days Report
+                        </a>
                     </div>
                 </div>
 
                 <div>
-                    <button type="button" onclick="toggleDropdown('invoices')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
+                    <button type="button" onclick="toggleDropdown('invoices')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
+                        @php
+                            $isInvoicesPage = request()->routeIs('admin.invoices.fullinvoice') || 
+                                            request()->routeIs('admin.invoices.generate.*') || 
+                                            request()->routeIs('admin.invoices.invoicehistory') || 
+                                            request()->routeIs('admin.invoices.parameters') || 
+                                            request()->routeIs('admin.invoice.creditNoteHistory');
+                        @endphp
+                        @if($isInvoicesPage)
+                            <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full"></div>
+                        @endif
                         <span class="flex items-center space-x-3">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
@@ -115,16 +173,49 @@
                         </svg>
                     </button>
                     <div id="invoices-submenu" class="ml-8 space-y-1 dropdown-menu">
-                        <a href="{{ route('admin.invoices.fullinvoice') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Generate</a>
-                        <a href="{{ route('admin.invoices.generate.Detailed') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Generates Reports</a>
-                        <a href="{{ route('admin.invoices.invoicehistory') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">History</a>
-                        <a href="{{ route('admin.invoices.parameters') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Parametres</a>
-                        <a href="{{ route('admin.invoice.creditNoteHistory') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Credit Note History</a>
+                        <a href="{{ route('admin.invoices.fullinvoice') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.invoices.fullinvoice'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Generate
+                        </a>
+                        <a href="{{ route('admin.invoices.generate.Detailed') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.invoices.generate.*'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Generates Reports
+                        </a>
+                        <a href="{{ route('admin.invoices.invoicehistory') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.invoices.invoicehistory'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            History
+                        </a>
+                        <a href="{{ route('admin.invoices.parameters') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.invoices.parameters'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Parametres
+                        </a>
+                        <a href="{{ route('admin.invoice.creditNoteHistory') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.invoice.creditNoteHistory'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Credit Note History
+                        </a>
                     </div>
                 </div>
 
                 <div>
-                    <button type="button" onclick="toggleDropdown('quotes')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
+                    <button type="button" onclick="toggleDropdown('quotes')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
+                        @php
+                            $isDevisPage = request()->routeIs('admin.devis.generateDevis') || 
+                                          request()->routeIs('admin.devis.devishistory') || 
+                                          request()->routeIs('admin.devis.parameters');
+                        @endphp
+                        @if($isDevisPage)
+                            <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full"></div>
+                        @endif
                         <span class="flex items-center space-x-3">
                             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.586a2 2 0 010 2.828L11.828 15H9v-2.828l8.162-8.162a2 2 0 012.828 0z" />
@@ -136,14 +227,37 @@
                         </svg>
                     </button>
                     <div id="quotes-submenu" class="ml-8 space-y-1 dropdown-menu">
-                        <a href="{{ route('admin.devis.generateDevis') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Generate</a>
-                        <a href="{{ route('admin.devis.devishistory') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">History</a>
-                        <a href="{{ route('admin.devis.parameters') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Parametre</a>
+                        <a href="{{ route('admin.devis.generateDevis') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.devis.generateDevis'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Generate
+                        </a>
+                        <a href="{{ route('admin.devis.devishistory') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.devis.devishistory'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            History
+                        </a>
+                        <a href="{{ route('admin.devis.parameters') }}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.devis.parameters'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Parametre
+                        </a>
                     </div>
                 </div>
 
                 <div>
-                    <button type="button" onclick="toggleDropdown('expense')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
+                    <button type="button" onclick="toggleDropdown('expense')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
+                        @php
+                            $isExpensePage = request()->routeIs('admin.notedefrais.generateNoteDeFrais') || 
+                                           request()->routeIs('admin.notedefrais.notedefraishistory') || 
+                                           request()->routeIs('admin.notedefrais.parameters');
+                        @endphp
+                        @if($isExpensePage)
+                            <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full"></div>
+                        @endif
                         <span class="flex items-center space-x-3">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2zM12 9v6m3-3h-6" />
@@ -155,13 +269,31 @@
                         </svg>
                     </button>
                     <div id="expense-submenu" class="ml-8 space-y-1 dropdown-menu">
-                        <a href="{{route('admin.notedefrais.generateNoteDeFrais')}}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Generate</a>
-                        <a href="{{route('admin.notedefrais.notedefraishistory')}}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">History</a>
-                        <a href="{{route('admin.notedefrais.parameters')}}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Parametre</a>
+                        <a href="{{route('admin.notedefrais.generateNoteDeFrais')}}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.notedefrais.generateNoteDeFrais'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Generate
+                        </a>
+                        <a href="{{route('admin.notedefrais.notedefraishistory')}}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.notedefrais.notedefraishistory'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            History
+                        </a>
+                        <a href="{{route('admin.notedefrais.parameters')}}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.notedefrais.parameters'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Parametre
+                        </a>
                     </div>
                 </div>
 
-                <a href="{{route('admin.pointage.index')}}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
+                <a href="{{route('admin.pointage.index')}}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
+                    @if(request()->routeIs('admin.pointage.*'))
+                        <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full"></div>
+                    @endif
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -169,7 +301,14 @@
                 </a>
 
                 <div>
-                    <button type="button" onclick="toggleDropdown('admin')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
+                    <button type="button" onclick="toggleDropdown('admin')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
+                        @php
+                            $isAdminPage = request()->routeIs('admin.roles.index') || 
+                                         request()->routeIs('admin.permissions.index');
+                        @endphp
+                        @if($isAdminPage)
+                            <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full"></div>
+                        @endif
                         <span class="flex items-center space-x-3">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -182,13 +321,26 @@
                         </svg>
                     </button>
                     <div id="admin-submenu" class="ml-8 space-y-1 dropdown-menu">
-                        <a href="{{route('admin.roles.index')}}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Roles</a>
-                        <a href="{{route('admin.permissions.index')}}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">Permissions</a>
+                        <a href="{{route('admin.roles.index')}}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.roles.index'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Roles
+                        </a>
+                        <a href="{{route('admin.permissions.index')}}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.permissions.index'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            Permissions
+                        </a>
                     </div>
                 </div>
 
                 <div>
-                    <button type="button" onclick="toggleDropdown('company')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
+                    <button type="button" onclick="toggleDropdown('company')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
+                        @if(request()->routeIs('admin.Enterprise_infos.index'))
+                            <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full"></div>
+                        @endif
                         <span class="flex items-center space-x-3">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
@@ -200,11 +352,19 @@
                         </svg>
                     </button>
                     <div id="company-submenu" class="ml-8 space-y-1 dropdown-menu">
-                        <a href="{{route('admin.Enterprise_infos.index')}}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">reports</a>
+                        <a href="{{route('admin.Enterprise_infos.index')}}" class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.Enterprise_infos.index'))
+                                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
+                            @endif
+                            reports
+                        </a>
                     </div>
                 </div>
 
-                <a href="{{route('admin.Enterprise_infos.create')}}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
+                <a href="{{route('admin.Enterprise_infos.create')}}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
+                    @if(request()->routeIs('admin.Enterprise_infos.create'))
+                        <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full"></div>
+                    @endif
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
