@@ -236,7 +236,7 @@
         <div class="content-wrapper">
             <div class="header">
                 <div class="header logo-right">
-                    <img src="{{ Storage::disk('do_spaces')->url($entreprise->image) }}"alt="Company Logo" class="company-logo">
+                    <img src="{{ Storage::disk('public')->url($entreprise->image) }}"alt="Company Logo" class="company-logo">
                 </div>
             </div>
 

@@ -72,7 +72,7 @@
                                         '#2E86C1','#641E16','#2C3E50','#F4D03F','#F4D03F']; 
                                     @endphp 
                                     @if($employee->image)
-                                        <img class="w-12 h-12 rounded-full mr-3"  src="{{ Storage::disk('do_spaces')->url('employee_images/' . $employee->image) }}" alt="employee Image">
+                                        <img class="w-12 h-12 rounded-full mr-3"  src="{{ Storage::disk('public')->url('employee_images/' . $employee->image) }}" alt="employee Image">
                                     @else
                                     <div class="w-12 h-12 rounded-full mr-3 flex items-center justify-center text-white"
                                         style="background-color: {{ $colors[0] }};">
@@ -380,7 +380,7 @@
                                             @endphp
                                             @if($member_employee->image)
                                             <img class="w-8 h-8 rounded-full mr-3 flex-shrink-0" 
-                                                src="{{ Storage::disk('do_spaces')->url('employee_images/' . $member_employee->image) }}" 
+                                                src="{{ Storage::disk('public')->url('employee_images/' . $member_employee->image) }}" 
                                                 alt="employee Image">
                                             @else
                                             <div class="w-8 h-8 rounded-full mr-3 flex items-center justify-center text-white text-sm flex-shrink-0"

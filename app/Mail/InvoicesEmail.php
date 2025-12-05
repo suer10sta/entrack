@@ -71,12 +71,12 @@ class InvoicesEmail extends Mailable
             
             // Check if the path starts with 'merged_' which indicates a merged PDF
             if (!empty($this->filePath) && is_array($this->filePath) && isset($this->filePath[0])) {
-                $pdfPath = Storage::disk('do_spaces')->url($this->filePath[0]);
+                $pdfPath = Storage::disk('public')->url($this->filePath[0]);
                 $customFilename = "{$entreprise->invoice_prefix}-{$year_forname}{$month}{$invoice->number}.pdf";
                 $attachments[] = Attachment::fromPath($pdfPath)->as($customFilename);
             } else {
                 // Original single PDF handling
-                $pdfPath = Storage::disk('do_spaces')->url("invoices/{$entreprise->id}/{$year}/{$entreprise->invoice_prefix}-{$invoice->number}.pdf");
+                $pdfPath = Storage::disk('public')->url("invoices/{$entreprise->id}/{$year}/{$entreprise->invoice_prefix}-{$invoice->number}.pdf");
                 $customFilename = "{$entreprise->invoice_prefix}-{$year_forname}{$month}{$invoice->number}.pdf";
                 $attachments[] = Attachment::fromPath($pdfPath)->as($customFilename);
             }
@@ -88,7 +88,7 @@ class InvoicesEmail extends Mailable
             $year = $invoice->created_at->format('Y'); 
             $year_forname = $invoice->created_at->format('y');
             $month = $invoice->created_at->format('m');
-            $reminderPath = Storage::disk('do_spaces')->url("invoices/{$entreprise->id}/{$year}/Reminder-{$entreprise->invoice_prefix}-{$invoice->number}.pdf");
+            $reminderPath = Storage::disk('public')->url("invoices/{$entreprise->id}/{$year}/Reminder-{$entreprise->invoice_prefix}-{$invoice->number}.pdf");
             $customFilename = "Reminder-{$entreprise->invoice_prefix}-{$year_forname}{$month}{$invoice->number}.pdf";
         
             $attachments[] = Attachment::fromPath($reminderPath)->as($customFilename);

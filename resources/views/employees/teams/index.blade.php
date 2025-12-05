@@ -126,7 +126,7 @@
                                                 @endphp
                                                 @if(App\Models\Employees::where('id', $team_member->employee_id)->first()->image)
                                                 <img class="avatar avatar-sm rounded-circle me-2" 
-                                                    src="{{ Storage::disk('do_spaces')->url('employee_images/' . App\Models\Employees::where('id', $team_member->employee_id)->first()->image) }}" 
+                                                    src="{{ Storage::disk('public')->url('employee_images/' . App\Models\Employees::where('id', $team_member->employee_id)->first()->image) }}" 
                                                     alt="employee Image">                                                
                                                     @else
                                                 <div class="avatar avatar-sm rounded-circle me-2"

@@ -160,7 +160,7 @@ class entrepriseController extends Controller
             $imagePath = 'entreprise_images/'.$entreprise->id.'/' . $imageName; // Keep the same folder structure
 
             // Store the image in Digital Ocean Spaces
-            \Storage::disk('do_spaces')->put($imagePath, file_get_contents($image), 'public');
+            \Storage::disk('public')->put($imagePath, file_get_contents($image), 'public');
             
             // Assuming 'image_name' is the column in your database where you store the image name
             $entreprise->image = $imagePath;

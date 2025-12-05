@@ -121,7 +121,7 @@
                                         @endphp
                                         @if($employee->image)
                                             <img class="h-8 w-8 rounded-full object-cover"
-                                                 src="{{ Storage::disk('do_spaces')->url('employee_images/' . $employee->image) }}"
+                                                 src="{{ Storage::disk('public')->url('employee_images/' . $employee->image) }}"
                                                  alt="{{ $employee->name }} image">
                                         @else
                                             <div class="h-8 w-8 rounded-full flex items-center justify-center text-white font-medium text-xs"

@@ -15,7 +15,7 @@
                     <tr>
                         <td valign='bottom'>
                             <div class="header logo-right">
-                                <img src="{{ Storage::disk('do_spaces')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo" style="width: 100px; height: 30px;">
+                                <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo" style="width: 100px; height: 30px;">
                             </div><br />
                         </td>
 

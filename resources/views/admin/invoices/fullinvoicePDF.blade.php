@@ -179,7 +179,7 @@
         <div class="content-wrapper">
             <div class="header">
                 <div class="logo-right">
-                <img src="{{ Storage::disk('do_spaces')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
                 </div>
             </div>
 

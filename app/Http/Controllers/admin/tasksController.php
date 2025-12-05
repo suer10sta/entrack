@@ -1348,7 +1348,7 @@ public function CustomerdownloadPointageRepports($startDate, $endDate)
         $imagePath = null;
         if ($entreprise && $entreprise->image) {
             try {
-                $imagePath = Storage::disk('do_spaces')->url($entreprise->image);
+                $imagePath = Storage::disk('public')->url($entreprise->image);
             } catch (\Exception $e) {
                 \Log::error('Error getting image path: ' . $e->getMessage());
             }

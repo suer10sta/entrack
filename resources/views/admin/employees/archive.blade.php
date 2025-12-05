@@ -75,7 +75,7 @@
                 {{-- Avatar --}}
                 <td class="px-2 py-2 whitespace-nowrap">
                     @if($employee->image)
-                        <img class="h-8 w-8 rounded-full object-cover" src="{{ Storage::disk('do_spaces')->url('employee_images/' . $employee->image) }}" alt="{{ $employee->name }}">
+                        <img class="h-8 w-8 rounded-full object-cover" src="{{ Storage::disk('public')->url('employee_images/' . $employee->image) }}" alt="{{ $employee->name }}">
                     @else
                         <div class="h-8 w-8 rounded-full flex items-center justify-center text-white font-medium" style="background-color: {{ $bgColor }};">
                             {{ strtoupper(substr($employee->name, 0, 1)) }}

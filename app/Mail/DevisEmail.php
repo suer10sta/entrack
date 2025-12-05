@@ -106,8 +106,8 @@ class DevisEmail extends Mailable
                 $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();
                 $devisPath = 'devis/' . $entreprise->id . '/' . $devis->devis_number . '.pdf';
                  try {
-                     if (Storage::disk('do_spaces')->exists($devisPath)) {
-                         $attachments[] = Attachment::fromStorageDisk('do_spaces', $devisPath)
+                     if (Storage::disk('public')->exists($devisPath)) {
+                         $attachments[] = Attachment::fromStorageDisk('public', $devisPath)
                              ->as($devis->devis_number . '.pdf')
                              ->withMime('application/pdf');
                          

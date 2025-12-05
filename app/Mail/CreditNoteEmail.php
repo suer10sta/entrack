@@ -86,9 +86,9 @@ class CreditNoteEmail extends Mailable
             
             // Try each path until we find the file
             foreach ($possiblePaths as $path) {
-                if (Storage::disk('do_spaces')->exists($path)) {
+                if (Storage::disk('public')->exists($path)) {
                     $fileName = basename($path);
-                    $attachments[] = Attachment::fromStorageDisk('do_spaces', $path)
+                    $attachments[] = Attachment::fromStorageDisk('public', $path)
                         ->as($fileName)
                         ->withMime('application/pdf');
                     \Log::info('Credit note PDF attached from: ' . $path);
@@ -103,8 +103,8 @@ class CreditNoteEmail extends Mailable
 
         // Add any additional files if provided
         foreach ($this->filePath as $file) {
-            if (Storage::disk('do_spaces')->exists($file)) {
-                $attachments[] = Attachment::fromStorageDisk('do_spaces', $file);
+            if (Storage::disk('public')->exists($file)) {
+                $attachments[] = Attachment::fromStorageDisk('public', $file);
             }
         }
 

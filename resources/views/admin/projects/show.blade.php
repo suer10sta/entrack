@@ -699,7 +699,7 @@
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
                                     @if($employee->image)
-                                        <img class="h-10 w-10 rounded-full mr-3 object-cover" src="{{ Storage::disk('do_spaces')->url('employee_images/' . $employee->image) }}" alt="employee Image">
+                                        <img class="h-10 w-10 rounded-full mr-3 object-cover" src="{{ Storage::disk('public')->url('employee_images/' . $employee->image) }}" alt="employee Image">
                                     @else
                                         <div class="h-10 w-10 rounded-full mr-3 flex items-center justify-center text-white font-semibold" style="background-color: {{ $color }};">
                                             <span>{{ $initials }}</span>

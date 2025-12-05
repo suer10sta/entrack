@@ -125,7 +125,7 @@ class employeesController extends Controller
             $imageName = time() . '.' . $image->getClientOriginalExtension();
             
             // Store the image in DO Spaces
-            Storage::disk('do_spaces')->put(
+            Storage::disk('public')->put(
                 'employee_images/' . $imageName, 
                 file_get_contents($image),
                 'public'

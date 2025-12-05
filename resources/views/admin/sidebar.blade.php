@@ -5,7 +5,7 @@
       aria-hidden="true" id="iconSidenav"></i>
     <a class="navbar-brand m-0"
       href=" {{route('admin.index')}} " >
-      <img src="{{ Storage::disk('do_spaces')->url(Auth::user()->entreprise->image) }}" alt="Entreprise Image" class="img-fluid">
+      <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Entreprise Image" class="img-fluid">
     </a>
   </div>
   <hr class="horizontal dark mt-0" />

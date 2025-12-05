@@ -45,7 +45,8 @@ class Entreprise extends Model
         'pm_type',
         'pm_last_four',
         'type_compt',
-        'trial_ends_at'
+        'trial_ends_at',
+        'account_status',
     ];
 
     protected $casts = [

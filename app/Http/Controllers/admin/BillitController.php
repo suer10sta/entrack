@@ -634,8 +634,8 @@ class BillitController extends Controller
                     $relativePath = $invoice->merged_pdf_path;
                 }
 
-                if (Storage::disk('do_spaces')->exists($relativePath)) {
-                    $binary = Storage::disk('do_spaces')->get($relativePath);
+                if (Storage::disk('public')->exists($relativePath)) {
+                    $binary = Storage::disk('public')->get($relativePath);
                     $sizeBytes = is_string($binary) ? strlen($binary) : 0;
                     $firstBytes = is_string($binary) ? substr($binary, 0, 8) : '';
                     \Log::info('Billit attach - file located', [
@@ -691,12 +691,12 @@ class BillitController extends Controller
             $defaultRelativePath = "invoices/{$entreprise->id}/{$year}/{$entreprise->invoice_prefix}-{$invoice->number}.pdf";
             $relativePath = !empty($invoice->merged_pdf_path) ? $invoice->merged_pdf_path : $defaultRelativePath;
 
-            if (!Storage::disk('do_spaces')->exists($relativePath)) {
+            if (!Storage::disk('public')->exists($relativePath)) {
                 \Log::warning('WinAuditor forward - PDF not found', ['path' => $relativePath]);
                 return;
             }
 
-            $binary = Storage::disk('do_spaces')->get($relativePath);
+            $binary = Storage::disk('public')->get($relativePath);
             if (!is_string($binary) || strlen($binary) < 100 || strncmp($binary, "%PDF-", 5) !== 0) {
                 \Log::warning('WinAuditor forward - invalid PDF content', ['path' => $relativePath]);
                 return;

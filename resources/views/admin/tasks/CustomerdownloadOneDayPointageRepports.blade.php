@@ -106,7 +106,7 @@ thead {
 
     <div class="details">
         <div class="details-left">
-        <img src="{{ Storage::disk('do_spaces')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+        <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
         </div>
         <div class="details-right">
             <div class="header-info">

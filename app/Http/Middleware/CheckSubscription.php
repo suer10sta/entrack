@@ -27,18 +27,19 @@ class CheckSubscription
 
             // This 'if' check is crucial for login/register routes
             if ($entreprise) {
-                $isExpired = $entreprise->isTrialExpired();
-                
-                
+                // Inactive if trial expired OR Stripe marked account inactive
+                $isBlocked = $entreprise->isTrialExpired()
+                    || $entreprise->account_status === 'inactive';
+
                 if ($request->routeIs('profile.*') || $request->routeIs('subscription.*') || $request->routeIs('profile.index')) {
-                    \Log::info('Route is profile/subscription - setting to false');
-                    $isExpired = false;
+                    \Log::info('Route is profile/subscription - allowing access');
+                    $isBlocked = false;
                 } else {
-                    \Log::info('Route is NOT profile - keeping value: ' . ($isExpired ? 'TRUE' : 'FALSE'));
+                    \Log::info('Route is NOT profile - blocked? ' . ($isBlocked ? 'TRUE' : 'FALSE'));
                 }
-    
-                View::share('showTrialExpiredModal', $isExpired);
-                \Log::info('Final showTrialExpiredModal: ' . ($isExpired ? 'TRUE' : 'FALSE'));
+
+                View::share('showTrialExpiredModal', $isBlocked);
+                \Log::info('Final showTrialExpiredModal: ' . ($isBlocked ? 'TRUE' : 'FALSE'));
                 \Log::info('=== End Debug ===');
             } else {
                 \Log::info('No entreprise found for user');

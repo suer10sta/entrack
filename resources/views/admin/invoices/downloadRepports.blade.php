@@ -178,7 +178,7 @@
         <div class="details">
             <div class="details-left">
                 @if(Auth::user()->entreprise && Auth::user()->entreprise->image)
-                    <img src="{{ Storage::disk('do_spaces')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                    <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
                 @endif
             </div>
             <div class="details-right">

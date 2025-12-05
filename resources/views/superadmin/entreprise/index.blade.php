@@ -43,7 +43,7 @@
                       <tr class="text-center">
                         <td>
                         <img class="avatar avatar-sm rounded-circle me-2" 
-                          src="{{ Storage::disk('do_spaces')->url('entreprise_images/' . $entreprise->image) }}" 
+                          src="{{ Storage::disk('public')->url('entreprise_images/' . $entreprise->image) }}" 
                           alt="Entreprise Image">                            
                           {{$entreprise->name}}
                         </td>

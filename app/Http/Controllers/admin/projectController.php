@@ -623,7 +623,7 @@ class projectController extends Controller
         $filePath = 'invoices/'.$entreprise->id.'/' . date('Y') . '/' . $fileName;
 
         // Save to DO Spaces
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
         // Download the PDF
         return $pdf->download($fileName);
@@ -654,7 +654,7 @@ class projectController extends Controller
         $filePath = 'invoices/'.$entreprise->id.'/' . date('Y') . '/' . $fileName;
 
         // Save to DO Spaces
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
         // Download the PDF
         return $pdf->download($fileName);
@@ -770,7 +770,7 @@ class projectController extends Controller
             $fileNameReminder = 'Reminder-'.$entreprise->invoice_prefix.'-'.$invoice->number.'.pdf';
             $filePath = 'invoices/'.$entreprise->id.'/' . date('Y') . '/' . $fileNameReminder;
             // Save to DO Spaces
-            Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+            Storage::disk('public')->put($filePath, $pdf->output(), 'public');
     
             $invoice->save();
             return view('admin.projects.invoicebydurationReminder', compact('projectinfos', 'client', 'entreprise', 'duration', 'cost', 'collection', 'invoice_id', 'invoice', 'comment', 'reminder_number', 'last_reminder_date', 'days_overdue', 'isOverdue'));
@@ -802,7 +802,7 @@ class projectController extends Controller
             $fileNameReminder = 'Reminder-'.$entreprise->invoice_prefix.'-'.$invoice->number.'.pdf';
             $filePath = 'invoices/'.$entreprise->id.'/' . date('Y') . '/' . $fileNameReminder;
             // Save to DO Spaces
-            Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+            Storage::disk('public')->put($filePath, $pdf->output(), 'public');
     
             $invoice->save();
             return view('admin.projects.partialInvoiceReminder', compact('projectinfos', 'client', 'entreprise', 'invoice_id', 'invoice', 'amount', 'comment', 'reminder_number', 'last_reminder_date', 'days_overdue', 'isOverdue'));
@@ -835,7 +835,7 @@ class projectController extends Controller
             $fileNameReminder = 'Reminder-'.$entreprise->invoice_prefix.'-'.$invoice->number.'.pdf';
             $filePath = 'invoices/'.$entreprise->id.'/' . date('Y') . '/' . $fileNameReminder;
             // Save to DO Spaces
-            Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+            Storage::disk('public')->put($filePath, $pdf->output(), 'public');
     
             $invoice->save();
             return view('admin.projects.percentageInvoiceReminder', compact('projectinfos', 'client', 'entreprise', 'invoice_id', 'invoice', 'amount', 'comment', 'reminder_number', 'last_reminder_date', 'days_overdue', 'isOverdue'));
@@ -873,7 +873,7 @@ class projectController extends Controller
             $fileNameReminder = 'Reminder-'.$entreprise->invoice_prefix.'-'.$invoice->number.'.pdf';
             $filePath = 'invoices/'.$entreprise->id.'/' . date('Y') . '/' . $fileNameReminder;
             // Save to DO Spaces
-            Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+            Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
             $invoice->save();
             return view('admin.invoices.detailedinvoiceReminder', compact('projectinfos', 'client', 'entreprise', 'invoice_id', 'invoice', 'comment', 'reminder_number', 'last_reminder_date', 'invoice', 'details', 'days_overdue', 'isOverdue'));
@@ -907,7 +907,7 @@ class projectController extends Controller
             $fileNameReminder = 'Reminder-'.$entreprise->invoice_prefix.'-'.$invoice->number.'.pdf';
             $filePath = 'invoices/'.$entreprise->id.'/' . date('Y') . '/' . $fileNameReminder;
             // Save to DO Spaces
-            Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+            Storage::disk('public')->put($filePath, $pdf->output(), 'public');
     
             $invoice->save();
             return view('admin.projects.invoiceReminder', compact('projectinfos', 'client', 'entreprise', 'number', 'invoice_id', 'invoice', 'comment', 'reminder_number', 'last_reminder_date', 'invoice', 'days_overdue', 'isOverdue'));
@@ -983,7 +983,7 @@ public function SendInvReminder(Request $request, $invoice_id, $reminder_number)
         if ($request->hasFile('file')) {
             foreach ($request->file('file') as $file) {
                 $filename = time() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('attachments', $filename, 'do_spaces');
+                $path = $file->storeAs('attachments', $filename, 'public');
                 $attachments[] = $path;
             }
         }
@@ -1065,7 +1065,7 @@ public function sendInvoice(Request $request, $invoiceId)
 
         // Verify main invoice PDF exists
         $invoicePath = 'invoices/' . $entreprise->id . '/' . $year . '/' . $entreprise->invoice_prefix . '-' . $invoice->number . '.pdf';
-        if (!Storage::disk('do_spaces')->exists($invoicePath)) {
+        if (!Storage::disk('public')->exists($invoicePath)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invoice PDF not found'
@@ -1080,7 +1080,7 @@ public function sendInvoice(Request $request, $invoiceId)
 
         // Download main invoice to temp directory
         $mainInvoicePath = $tempDir . 'main_invoice.pdf';
-        file_put_contents($mainInvoicePath, Storage::disk('do_spaces')->get($invoicePath));
+        file_put_contents($mainInvoicePath, Storage::disk('public')->get($invoicePath));
 
         // Initialize PDF merger
         $pdf = new Fpdi();
@@ -1116,7 +1116,7 @@ public function sendInvoice(Request $request, $invoiceId)
 
         // Save merged PDF
         $mergedPdfPath = 'invoices/' . $entreprise->id . '/' . $year . '/merged_' . $invoice->number . '.pdf';
-        Storage::disk('do_spaces')->put($mergedPdfPath, $pdf->Output('S'));
+        Storage::disk('public')->put($mergedPdfPath, $pdf->Output('S'));
 
         // Clean up main invoice temp file
         unlink($mainInvoicePath);
@@ -1149,7 +1149,7 @@ public function sendInvoice(Request $request, $invoiceId)
         }
 
         // Clean up merged PDF
-        Storage::disk('do_spaces')->delete($mergedPdfPath);
+        Storage::disk('public')->delete($mergedPdfPath);
 
         // Update invoice status and return response
         if (count($failedRecipients) < count($selectedRecipients)) {
@@ -1389,10 +1389,10 @@ public function generateDevis()
     
         // Save the PDF to a do_spaces file
         $filePath = 'devis/' . $entreprise->id . '/' . $devis->devis_number . '.pdf';
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
     
         //get the full url directly
-        $fullUrl = Storage::disk('do_spaces')->url($filePath);
+        $fullUrl = Storage::disk('public')->url($filePath);
     
         return redirect($fullUrl);
     
@@ -1606,10 +1606,10 @@ public function saveDuplicateDevis(Request $request)
 
     // Save the PDF to a do_spaces file
     $filePath = 'devis/' . $entreprise->id . '/' . $devis->devis_number . '.pdf';
-    Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+    Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
     //get the full url directly
-    $fullUrl = Storage::disk('do_spaces')->url($filePath);
+    $fullUrl = Storage::disk('public')->url($filePath);
 
     return redirect($fullUrl);
 
@@ -1655,7 +1655,7 @@ public function sendDevis(Request $request)
 
             // Get the main devis PDF path and content from storage
             $devisPath = 'devis/' . $entreprise->id . '/' . $devis->devis_number . '.pdf';
-            $devisContent = Storage::disk('do_spaces')->get($devisPath);
+            $devisContent = Storage::disk('public')->get($devisPath);
 
             if ($devisContent === null) {
                  throw new \Exception('Main devis PDF not found in storage.');
@@ -1792,7 +1792,7 @@ public function sendDevis(Request $request)
                 $mergedContent = file_get_contents($mergedPdfPath);
 
                 // Upload the merged PDF content back to DigitalOcean Spaces, overwriting the original devis
-                Storage::disk('do_spaces')->put($devisPath, $mergedContent);
+                Storage::disk('public')->put($devisPath, $mergedContent);
                 \Log::info('Merged PDF successfully uploaded to DigitalOcean Spaces.', ['path' => $devisPath]);
             } catch (\Exception $e) {
                  \Log::error('Error uploading merged PDF to DigitalOcean Spaces: ' . $e->getMessage(), ['path' => $devisPath, 'trace' => $e->getTraceAsString()]);
@@ -1870,7 +1870,7 @@ public function downloadDevis($id)
     $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();
     // Define the file path from do_spaces
     $filePath = 'devis/' . $entreprise->id . '/' . $id . '.pdf';
-    $fullUrl = Storage::disk('do_spaces')->get($filePath);
+    $fullUrl = Storage::disk('public')->get($filePath);
 
     // Get file from DO Spaces and return it
     return response($fullUrl, 200)
@@ -1988,7 +1988,7 @@ public function servePdf($invoiceName)
     $filePath = 'invoices/' . $entreprise->id . '/' . $invoiceYear . '/' . $entreprise->invoice_prefix . '-'.$invoice->number.'.pdf';
 
     // Get file from DO Spaces and return it
-    $file = Storage::disk('do_spaces')->get($filePath);
+    $file = Storage::disk('public')->get($filePath);
     
     return response($file, 200)
         ->header('Content-Type', 'application/pdf')
@@ -2457,7 +2457,7 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
             $creditnote_m = $credit_note->created_at->format('m');
             $creditnote_Y = $credit_note->created_at->format('Y');
             $filePath = 'creditNote/' . $entreprise->id .'/'.$creditnote_Y . '/CN-' . $creditnote_y . $creditnote_m . $credit_note->credit_note_number. '.pdf';
-            Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+            Storage::disk('public')->put($filePath, $pdf->output(), 'public');
         }
         else {
             $prixtotal = $invoice->total_htva;
@@ -2522,7 +2522,7 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
             $creditnote_m = $credit_note->created_at->format('m');
             $creditnote_Y = $credit_note->created_at->format('Y');
             $filePath = 'creditNote/' . $entreprise->id . '/'.$creditnote_Y . '/CN-' . $creditnote_y . $creditnote_m . $credit_note->credit_note_number. '.pdf';
-            Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+            Storage::disk('public')->put($filePath, $pdf->output(), 'public');
         }
 
         if(Auth::user()->hasRole('Admin')){
@@ -2635,7 +2635,7 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
         $creditnote_m = $credit_note->created_at->format('m');
         $creditnote_Y = $credit_note->created_at->format('Y');
         $filePath = 'creditNote/' . $entreprise->id . '/'.$creditnote_Y . '/CN-' . $creditnote_y . $creditnote_m . $credit_note->credit_note_number. '.pdf';
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
         if(Auth::user()->hasRole('Admin')){
             return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', 'Credit Note Created successfully!');
@@ -2746,7 +2746,7 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
         $creditnote_m = $credit_note->created_at->format('m');
         $creditnote_Y = $credit_note->created_at->format('Y');
         $filePath = 'creditNote/' . $entreprise->id . '/'.$creditnote_Y . '/CN-' . $creditnote_y . $creditnote_m . $credit_note->credit_note_number. '.pdf';
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
         if(Auth::user()->hasRole('Admin')){
             return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', 'Credit Note Created successfully!');
@@ -2857,7 +2857,7 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
         $creditnote_m = $credit_note->created_at->format('m');
         $creditnote_Y = $credit_note->created_at->format('Y');
         $filePath = 'creditNote/' . $entreprise->id . '/'.$creditnote_Y . '/CN-' . $creditnote_y . $creditnote_m . $credit_note->credit_note_number. '.pdf';
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
         if(Auth::user()->hasRole('Admin')){
             return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', 'Credit Note Created successfully!');
@@ -2934,8 +2934,8 @@ public function creditNoteHistory()
         
         // Try each path until we find the file
         foreach ($possiblePaths as $path) {
-            if (Storage::disk('do_spaces')->exists($path)) {
-                $file = Storage::disk('do_spaces')->get($path);
+            if (Storage::disk('public')->exists($path)) {
+                $file = Storage::disk('public')->get($path);
                 $filePath = $path;
                 \Log::info('Credit note PDF found at: ' . $path);
                 break;
@@ -3108,7 +3108,7 @@ public function saveNoteDeFraisPdf(Request $request)
 
         // Save the PDF to a file from do_spaces 
         $filePath = 'notedefrais/' . $entreprise->id . '/' . $entreprise->notedefraisPrefix . '-' . $note_number . '.pdf';
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
         if(Auth::user()->hasRole('Admin')){
             return redirect()->route('admin.notedefrais.notedefraishistory')->with('message', 'Note de frais created successfully!');
@@ -3142,7 +3142,7 @@ public function downloadNoteDeFrais($id)
     $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();
     
     // Get the full URL directly
-    $fileUrl = Storage::disk('do_spaces')->url('notedefrais/' . $entreprise->id . '/' . $entreprise->notedefraisPrefix . '-' . $id . '.pdf');
+    $fileUrl = Storage::disk('public')->url('notedefrais/' . $entreprise->id . '/' . $entreprise->notedefraisPrefix . '-' . $id . '.pdf');
 
     // For remote files, we should return a redirect response instead of trying to read the file locally
     return redirect($fileUrl);
@@ -3506,7 +3506,7 @@ public function confirmFullInvoice(Request $request, $projectID, $budget, $comme
             ]); 
         
             $filePath = 'invoices/' . $entreprise->id . '/' . date('Y') . '/' . $entreprise->invoice_prefix . '-' . $save_invoice->number . '.pdf';
-            Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+            Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
             if(Auth::user()->hasRole('Admin')){
                 return redirect()->route('admin.invoices.invoicehistory')->with('message', 'Invoice created successfully.');
@@ -3647,7 +3647,7 @@ public function confirmPeriodInvoice($projectID, $startdate, $enddate, $comment 
 
         // Save the PDF to a file from do_spaces
         $filePath = 'invoices/' . $entreprise->id . '/' . date('Y') . '/' . $entreprise->invoice_prefix . '-' . $save_invoice->number . '.pdf';
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
         if(Auth::user()->hasRole('Admin')){
             return redirect()->route('admin.invoices.invoicehistory')->with('message', 'Invoice created successfully.');
@@ -3794,7 +3794,7 @@ public function confirmPercentageInvoice($projectID, $percentage, $comment = nul
 
         // Save the PDF to a file from do_spaces
         $filePath = 'invoices/' . $entreprise->id . '/' . date('Y') . '/' . $entreprise->invoice_prefix . '-' . $save_invoice->number . '.pdf';
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
         if(Auth::user()->hasRole('Admin')){
             return redirect()->route('admin.invoices.invoicehistory')->with('message', 'Invoice created successfully.');
@@ -3905,7 +3905,7 @@ public function confirmPartialInvoice($projectID, $amount, $comment = null){
     
         // Save the PDF to a file from do_spaces
         $filePath = 'invoices/' . $entreprise->id . '/' . date('Y') . '/' . $entreprise->invoice_prefix . '-' . $save_invoice->number . '.pdf';
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
         if(Auth::user()->hasRole('Admin')){
             return redirect()->route('admin.invoices.invoicehistory')->with('message', 'Invoice created successfully.');
@@ -4174,7 +4174,7 @@ public function updateFullInvoice(Request $request, $id)
         ]);
 
         $filePath = 'invoices/' . $entreprise->id . '/' . date('Y') . '/' . $entreprise->invoice_prefix . '-' . $invoice->number . '.pdf';
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
         
         DB::commit();
         if(Auth::user()->hasRole('Admin')){
@@ -4260,7 +4260,7 @@ public function updatePartialInvoice(Request $request, $id)
         ]);
 
         $filePath = 'invoices/' . $entreprise->id . '/' . date('Y') . '/' . $entreprise->invoice_prefix . '-' . $invoice->number . '.pdf';
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
         
         DB::commit();
         if(Auth::user()->hasRole('Admin')){
@@ -4348,7 +4348,7 @@ public function updatePercentageInvoice(Request $request, $id)
         ]);
 
         $filePath = 'invoices/' . $entreprise->id . '/' . date('Y') . '/' . $entreprise->invoice_prefix . '-' . $invoice->number . '.pdf';
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
         
         DB::commit();
         if(Auth::user()->hasRole('Admin')){
@@ -4462,7 +4462,7 @@ public function updatePeriodInvoice(Request $request, $id)
         ]);
 
         $filePath = 'invoices/' . $entreprise->id . '/' . date('Y') . '/' . $entreprise->invoice_prefix . '-' . $invoice->number . '.pdf';
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
         
         DB::commit();
         if(Auth::user()->hasRole('Admin')){
@@ -4667,16 +4667,16 @@ public function updateDevis(Request $request, $devis_id)
     ]);
 
     // Delete old PDF if it exists
-    if (Storage::disk('do_spaces')->exists($oldFilePath)) {
-        Storage::disk('do_spaces')->delete($oldFilePath);
+    if (Storage::disk('public')->exists($oldFilePath)) {
+        Storage::disk('public')->delete($oldFilePath);
     }
 
     // Save new PDF
     $newFilePath = 'devis/' . $entreprise->id . '/' . $devis->devis_number . '.pdf';
-    Storage::disk('do_spaces')->put($newFilePath, $pdf->output(), 'public');
+    Storage::disk('public')->put($newFilePath, $pdf->output(), 'public');
 
     // Get the full URL
-    $fullUrl = Storage::disk('do_spaces')->url($newFilePath);
+    $fullUrl = Storage::disk('public')->url($newFilePath);
 
     return redirect($fullUrl)->with('success', 'Devis updated successfully');
 }
@@ -4699,7 +4699,7 @@ public function uploadProjectFile(Request $request, $projectId)
     $filePath = 'project_files/'. $entreprise->id . '/' . $project->id . '/' . $fileName;
 
     // Save the file to storage
-    Storage::disk('do_spaces')->put($filePath, file_get_contents($file), 'public');
+    Storage::disk('public')->put($filePath, file_get_contents($file), 'public');
 
     // Save file info to the database
     $projectFile = new ProjectFile();
@@ -4718,7 +4718,7 @@ public function downloadfiles($file_name)
     $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();
     $file = ProjectFile::where('file_name', $file_name)->where('entreprise_id', Auth::user()->entreprise_id)->first();
     $filePath = 'project_files/'. $entreprise->id . '/' . $file->project_id . '/' . $file->file_name;
-    return Storage::disk('do_spaces')->download($filePath);
+    return Storage::disk('public')->download($filePath);
 }
 
 //delete files
@@ -4727,7 +4727,7 @@ public function deletefiles($file_name)
     $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();
     $file = ProjectFile::where('file_name', $file_name)->where('entreprise_id', Auth::user()->entreprise_id)->first();
     $filePath = 'project_files/'. $entreprise->id . '/' . $file->project_id . '/' . $file->file_name;
-    Storage::disk('do_spaces')->delete($filePath);
+    Storage::disk('public')->delete($filePath);
     $file->delete();
     return redirect()->back()->with('success', 'File deleted successfully!');
 }
@@ -4930,7 +4930,7 @@ public function confirmDetailedInvoice($projectID, Request $request)
 
         // Save the PDF
         $filePath = 'invoices/' . $entreprise->id . '/' . date('Y') . '/' . $entreprise->invoice_prefix . '-' . $invoice->number . '.pdf';
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
         if(Auth::user()->hasRole('Admin')){
             return redirect()->route('admin.invoices.invoicehistory')
@@ -5036,7 +5036,7 @@ public function updateDetailedInvoice(Request $request, $id)
         ]);
 
         $filePath = 'invoices/' . $entreprise->id . '/' . date('Y') . '/' . $entreprise->invoice_prefix . '-' . $invoice->number . '.pdf';
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
         DB::commit();
         if(Auth::user()->hasRole('Admin')){
@@ -5288,8 +5288,8 @@ public function confirmDetailedCreditNote($invoiceID, Request $request)
         $basePath = 'creditNote/' . $entreprise->id . '/' . $yearFolder;
         
         // Check if the year folder exists, if not create it
-        if (!Storage::disk('do_spaces')->exists($basePath)) {
-            Storage::disk('do_spaces')->makeDirectory($basePath, 0775, true);
+        if (!Storage::disk('public')->exists($basePath)) {
+            Storage::disk('public')->makeDirectory($basePath, 0775, true);
         }
         
         // Format the filename to match the existing system
@@ -5298,7 +5298,7 @@ public function confirmDetailedCreditNote($invoiceID, Request $request)
         $filePath = $basePath . '/' . $fileName;
         
         // Save the file
-        Storage::disk('do_spaces')->put($filePath, $pdf->output(), 'public');
+        Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
 
         
@@ -5348,7 +5348,7 @@ public function sendCreditNote(Request $request, $credit_note_id)
             foreach ($request->file('file') as $file) {
                 $fileName = $file->getClientOriginalName();
                 $filePath = 'credit_notes/' . $entreprise->id . '/' . date('Y') . '/' . $fileName;
-                Storage::disk('do_spaces')->putFileAs(
+                Storage::disk('public')->putFileAs(
                     'credit_notes/' . $entreprise->id . '/' . date('Y'),
                     $file,
                     $fileName,
