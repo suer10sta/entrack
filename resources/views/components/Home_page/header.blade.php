@@ -16,7 +16,7 @@
     <!-- ===== Desktop Navigation ===== -->
     <nav class="hidden md:flex items-center gap-8">
       <a href="{{ route('welcome') }}#features" class="text-sm font-medium text-white hover:text-accent transition-colors">Features</a>
-      <a href="{{ route('welcome') }}#customers" class="text-sm font-medium text-white hover:text-accent transition-colors">The Three Plans</a>
+      <a href="{{ route('welcome') }}#account_type" class="text-sm font-medium text-white hover:text-accent transition-colors">The Three Plans</a>
       <a href="{{ route('about') }}" class="text-sm font-medium text-white hover:text-accent transition-colors">About Us</a>
 
       @if (Route::has('login'))

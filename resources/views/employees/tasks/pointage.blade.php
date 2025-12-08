@@ -162,7 +162,7 @@
                         <tbody class="divide-y divide-slate-100">
                             @foreach($tasksByProject as $projectName => $projectTasks)
                                 <tr>
-                                    <td colspan="8" class="px-6 py-3 bg-white">
+                                    <td colspan="8" class="px-6 py-3 bg-white text-center">
                                         <span class="text-xs font-bold text-slate-800 uppercase tracking-wide">{{ strtoupper($projectName) }}</span>
                                     </td>
                                 </tr>

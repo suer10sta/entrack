@@ -19,13 +19,6 @@
 
             {{-- Left Column --}}
             <div class="space-y-8 animate-fade-in-left" data-visible="true">
-                    <div class="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-all duration-300 hover:scale-105 hover:border-primary/40 hover:bg-primary/20">
-                        <span class="relative flex h-2 w-2">
-                            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
-                            <span class="relative inline-flex h-2 w-2 rounded-full bg-primary"></span>
-                        </span>
-                        New: Automated Reports
-                    </div>
                 
 
                 {{-- Heading & subtext (matching the design) --}}

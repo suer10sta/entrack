@@ -26,19 +26,27 @@ class tasksController extends Controller
 
 
         $projects = Project::where('entreprise_id', auth()->user()->entreprise_id)
-        ->where('archived', 0)
-        ->get();
+            ->where('archived', 0)
+            ->get();
+        $activeProjectIds = $projects->pluck('id');
         $enterpriseId = Auth::user()->entreprise_id;
         $employees = Employees::where('entreprise_id', $enterpriseId)->get();
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
 
-        $employee_tasks = employees_tasks::where('employee_id',$employee_id )->get();
-        $employee_tasks_ids= collect();
-        foreach($employee_tasks as $employee_task){
-            $employee_tasks_ids->push($employee_task->task_id);
-        }
-        $tasks= Tasks::whereIn('id', $employee_tasks_ids)->get();
-        $tasks_ordered = Tasks::whereIn('id', $employee_tasks_ids)->orderBy('end', 'asc')->get();
+        $employee_tasks_ids = employees_tasks::where('employee_id', $employee_id)->pluck('task_id');
+
+        $tasks = Tasks::whereIn('id', $employee_tasks_ids)
+            ->whereIn('project_id', $activeProjectIds)
+            ->get();
+        $tasks_ordered = Tasks::whereIn('id', $employee_tasks_ids)
+            ->whereIn('project_id', $activeProjectIds)
+            ->orderBy('end', 'asc')
+            ->get();
+
+        // Keep employees_tasks in sync with active tasks
+        $employee_tasks = employees_tasks::where('employee_id', $employee_id)
+            ->whereIn('task_id', $tasks->pluck('id'))
+            ->get();
 
         return view('employees.tasks.index', compact('employees', 'tasks', 'tasks_ordered', 'teams', 'projects'));
     }
@@ -99,8 +107,13 @@ class tasksController extends Controller
     }
 
     function pointage(){
-        $projects = Project::where('entreprise_id', auth()->user()->entreprise_id)->where('archived', 0)->get();
-        $tasks= Tasks::where('user_id', Auth::user()->id)->get();
+        $projects = Project::where('entreprise_id', auth()->user()->entreprise_id)
+            ->where('archived', 0)
+            ->get();
+        $activeProjectIds = $projects->pluck('id');
+        $tasks = Tasks::where('user_id', Auth::user()->id)
+            ->whereIn('project_id', $activeProjectIds)
+            ->get();
         $employees = Employees::where('entreprise_id', auth()->user()->entreprise_id)->get();
         $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)->get();
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();

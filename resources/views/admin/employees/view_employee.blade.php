@@ -482,6 +482,7 @@
                                             </td>
                                         </tr>
                                         @foreach($clientProjects as $project)
+                                        @continue($project->archived == 1)
                                         <tr class="hover:bg-gray-50">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 @php $projectRoute = '#'; @endphp
@@ -541,17 +542,23 @@
                     <!-- CHANGED: Added p-6 wrapper for table -->
                     <div class="p-6">
                         <div class="overflow-x-auto">
-                            @php
-                                $tasks_collection = collect([]);
-                                $employee_tasks_ids = App\Models\employees_tasks::where('employee_id', $employee->id)->get();
-                                foreach($employee_tasks_ids as $employee_task_id){
-                                    $task = App\Models\Tasks::where('id', $employee_task_id->task_id)->first();
-                                    if ($task) { // Added check in case task is null
-                                        $tasks_collection->push($task);
+                        @php
+                            $tasks_collection = collect([]);
+                            $employee_tasks_ids = App\Models\employees_tasks::where('employee_id', $employee->id)->get();
+                            foreach($employee_tasks_ids as $employee_task_id){
+                            $task = App\Models\Tasks::where('id', $employee_task_id->task_id)->first();
+                            if($task){
+                                $project = App\Models\Project::find($task->project_id);
+                                // Only include tasks from non-archived projects
+                                if($project && $project->archived == 0){
+                                    $tasks_collection->push($task);
+                                        }
                                     }
                                 }
+                                        
+                                // Group tasks by project
                                 $tasksByProject = $tasks_collection->groupBy('project_id');
-                            @endphp
+                        @endphp
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>

@@ -35,22 +35,30 @@ class indexController extends Controller
         ->where('entreprise_id', $enterpriseId)
         ->get();
 
-        $employees_tasks = employees_tasks::where('employee_id',$employee_id )->get();
-        $employee_tasks_ids= collect();
-        foreach($employees_tasks as $employee_task){
-            $employee_tasks_ids->push($employee_task->task_id);
-        }
-        $tasks= Tasks::whereIn('id', $employee_tasks_ids)->get();
-        $tasks_ordered = Tasks::whereIn('id', $employee_tasks_ids)->orderBy('end', 'asc')->get();
+        // Only include tasks that belong to active (non-archived) projects
+        $employee_tasks_ids = employees_tasks::where('employee_id', $employee_id)->pluck('task_id');
+        $activeProjectIds = Project::where('entreprise_id', auth()->user()->entreprise_id)
+            ->where('archived', 0)
+            ->pluck('id');
 
-        $employee_projects_ids= collect();
-        foreach($tasks as $t){
-            $employee_projects_ids->push($t->project_id);
-        }
+        $tasks = Tasks::whereIn('id', $employee_tasks_ids)
+            ->whereIn('project_id', $activeProjectIds)
+            ->get();
+        $tasks_ordered = Tasks::whereIn('id', $employee_tasks_ids)
+            ->whereIn('project_id', $activeProjectIds)
+            ->orderBy('end', 'asc')
+            ->get();
+
+        // Align employees_tasks collection with the filtered active tasks
+        $activeTaskIds = $tasks->pluck('id');
+        $employees_tasks = employees_tasks::where('employee_id', $employee_id)
+            ->whereIn('task_id', $activeTaskIds)
+            ->get();
+
         $projects = Project::where('entreprise_id', auth()->user()->entreprise_id)
-        ->whereIn('id', $employee_projects_ids)
-        ->where('archived', 0)
-        ->get();
+            ->where('archived', 0)
+            ->whereIn('id', $tasks->pluck('project_id'))
+            ->get();
 
         $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)->get();
 

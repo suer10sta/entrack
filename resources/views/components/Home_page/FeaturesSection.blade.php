@@ -76,7 +76,7 @@
                     </h2>
                     
                     <p class="text-lg leading-relaxed text-muted-foreground">
-                        Save time with smart automations—payment reminders, report generation, and more.
+                        Save time with smart automations—time tracking, task updates, and scheduled reports.
                     </p>
 
                     <ul class="space-y-3 pt-2">
@@ -86,7 +86,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                                 </svg>
                             </span>
-                            <span class="text-foreground">Automatic reminders</span>
+                            <span class="text-foreground">Employee management</span>
                         </li>
                         <li class="flex items-center gap-3">
                             <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -94,7 +94,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                                 </svg>
                             </span>
-                            <span class="text-foreground">Monthly reports</span>
+                            <span class="text-foreground">Calendar & event reminders</span>
                         </li>
                         <li class="flex items-center gap-3">
                             <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -102,7 +102,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                                 </svg>
                             </span>
-                            <span class="text-foreground">Bank synchronization</span>
+                            <span class="text-foreground">Daily project overview</span>
                         </li>
                         <li class="flex items-center gap-3">
                             <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -110,7 +110,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                                 </svg>
                             </span>
-                            <span class="text-foreground">Accounting exports</span>
+                            <span class="text-foreground">One-click PDF reports</span>
                         </li>
                     </ul>
                 </div>

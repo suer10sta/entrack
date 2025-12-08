@@ -791,13 +791,16 @@
                 $avatarColors = ['bg-emerald-500','bg-gray-400','bg-amber-500','bg-red-500','bg-purple-500','bg-sky-500','bg-rose-800','bg-slate-700','bg-yellow-400','bg-indigo-500'];
 
                 // Collect timers that overlap today
+                $entrepriseId = optional(Auth::user())->entreprise_id;
                 $timersToday = \App\Models\tasks_timer::where(function($q) use ($todayStart, $todayEnd) {
                         $q->where('start_date', '<=', $todayEnd)
                           ->where(function($qq) use ($todayStart) {
                               $qq->whereNull('end_date')
                                  ->orWhere('end_date', '>=', $todayStart);
                           });
-                    })->get();
+                    })
+                    ->when($entrepriseId, fn($q) => $q->where('entreprise_id', $entrepriseId))
+                    ->get();
 
                 // Gather project IDs from timers directly and via tasks
                 $projectIdsDirect = $timersToday->pluck('project_id')->filter();

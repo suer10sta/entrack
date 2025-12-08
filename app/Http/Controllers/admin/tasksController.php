@@ -73,11 +73,18 @@ class tasksController extends Controller
         })
         ->where('archived', 0)
         ->get();
+        $activeProjectIds = $projects->pluck('id');
         $enterpriseId = Auth::user()->entreprise_id;
         $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
-        $tasks = Tasks::where('entreprise_id', Auth::user()->entreprise_id)->orderBy('created_at', 'desc')->get();
-        $tasks_ordered = Tasks::where('user_id', Auth::user()->id)->orderBy('title', 'asc')->get();
+        $tasks = Tasks::where('entreprise_id', Auth::user()->entreprise_id)
+            ->whereIn('project_id', $activeProjectIds)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $tasks_ordered = Tasks::where('user_id', Auth::user()->id)
+            ->whereIn('project_id', $activeProjectIds)
+            ->orderBy('title', 'asc')
+            ->get();
         return view('admin.tasks.index', compact('employees', 'tasks', 'tasks_ordered', 'teams', 'projects'));
     }
 
@@ -604,12 +611,13 @@ public function stop($task, $employee_id)
 
             
         }elseif($start_date->diffInMinutes($end_date) > ($employee->workHours_limit*60) ){
-            
-            $work_hours_interval = new DateInterval('PT' . $employee->workHours_limit . 'H'); // This represents the work hours limit
-            $task_timer->end_date = $start_date->add($work_hours_interval); // This adds the work hours limit to the start date
-            $task_timer->duration = $employee->workHours_limit*60;
+
+            // Handle decimal hour limits safely (e.g., 8.5h) by converting to minutes
+            $limitMinutes = (int) round((float)$employee->workHours_limit * 60);
+            $task_timer->end_date = $start_date->copy()->addMinutes($limitMinutes);
+            $task_timer->duration = $limitMinutes;
             $cost_per_hour = $employee->cost_per_hour;
-            $cost = $cost_per_hour * ((float)$employee->workHours_limit);
+            $cost = $cost_per_hour * ((float)$limitMinutes/60);
             $task_timer->cost= $cost;
             $task_timer->save();
 
@@ -655,12 +663,12 @@ public function stop($task, $employee_id)
             $cost = $cost_per_hour * ((float)15/60);
             $task_timer->cost = $cost;
         } elseif($taskduration > ($employee->workHours_limit*60)){
-            // Cap duration at work hours limit
-            $work_hours_interval = new DateInterval('PT' . $employee->workHours_limit . 'H');
-            $task_timer->end_date = $start_date->add($work_hours_interval);
-            $task_timer->duration = $employee->workHours_limit*60;
+            // Cap duration at work hours limit; support decimal hours by using minutes
+            $limitMinutes = (int) round((float)$employee->workHours_limit * 60);
+            $task_timer->end_date = $start_date->copy()->addMinutes($limitMinutes);
+            $task_timer->duration = $limitMinutes;
             $cost_per_hour = $employee->cost_per_hour;
-            $cost = $cost_per_hour * ((float)$employee->workHours_limit);
+            $cost = $cost_per_hour * ((float)$limitMinutes/60);
             $task_timer->cost = $cost;
         }else{
             // Normal case - use actual calculated duration
@@ -711,23 +719,25 @@ public function checkTasksAndTime()
             // Calculate total duration including current task
             $total_duration = $today_completed_tasks + $duration;
 
-            // Convert work hours limit to minutes - ensure we handle decimals correctly
-            $work_minutes_limit = (float)$employee->workHours_limit * 60;
+            // Convert work hours limit to minutes (support decimal hours, e.g., 8.5h)
+            $work_minutes_limit = (int) round((float)$employee->workHours_limit * 60);
 
             // Only stop the task if total duration exceeds work hours limit
             if ($total_duration > $work_minutes_limit) {
                 $remaining_minutes = $work_minutes_limit - $today_completed_tasks;
                 
+                // If no time remains, cap the task at the daily limit instead of deleting it
                 if ($remaining_minutes <= 0) {
-                    // No time left in the work day
-                    $task->delete();
+                    $task->duration = $work_minutes_limit;
+                    $task->cost = $employee->cost_per_hour * ((float)$work_minutes_limit/60);
+                    $task->end_date = $start_date->copy()->addMinutes($work_minutes_limit);
                 } else {
                     // Set the task duration to remaining time
                     $task->duration = $remaining_minutes;
                     $task->cost = $employee->cost_per_hour * ((float)$remaining_minutes/60);
                     $task->end_date = $start_date->copy()->addMinutes($remaining_minutes);
-                    $task->save();
                 }
+                $task->save();
             }
             // Don't stop the task if we haven't reached the limit yet
         }

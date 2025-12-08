@@ -720,6 +720,10 @@
                                     <input x-model="selectedStatuses" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="status_unpaid" value="unpaid">
                                     <label class="ml-2 text-sm text-gray-700" for="status_unpaid">Unpaid</label>
                                 </div>
+                                <div class="flex items-center">
+                                    <input x-model="selectedStatuses" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="status_overdue" value="overdue">
+                                    <label class="ml-2 text-sm text-gray-700" for="status_overdue">Overdue</label>
+                                </div>
                             </div>
                         </div>
                         <hr class="my-4">

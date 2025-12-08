@@ -143,7 +143,8 @@
                                     </tr>
                                     {{-- Projects for this client --}}
                                     @foreach($clientProjects as $project)
-                                        <tr class="hover:bg-gray-50 project-row"> {{-- Add class for filtering --}}
+                                    @continue($project->archived == 1)
+                                        <tr class="hover:bg-gray-50 project-row"> 
                                             {{-- Project Name --}}
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 editable project-name" data-id="{{$project->id}}" data-column="name"> {{-- Add class for filtering --}}
                                                 @php

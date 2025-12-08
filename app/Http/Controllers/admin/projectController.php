@@ -52,8 +52,11 @@ class projectController extends Controller
         ->where('archived', 0)
         ->orderBy('name')
         ->get();
+        $activeProjectIds = $projects->pluck('id');
         $employees = Employees::where('entreprise_id', Auth::user()->entreprise_id)->where('archived', 0)->orderBy('name', 'asc')->get();
-        $tasks = Tasks::where('user_id', Auth::user()->id)->get();
+        $tasks = Tasks::where('user_id', Auth::user()->id)
+            ->whereIn('project_id', $activeProjectIds)
+            ->get();
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
         return view('admin.projects.index', compact('projects', 'employees', 'tasks', 'teams'));
     }
@@ -2038,11 +2041,11 @@ public function downloadInvoicesRepports(Request $request)
               ->whereDate('created_at', '<=', $endDate);
     }
 
-    // Apply optional filters (paid/unpaid)
-    $filtersParam = $request->get('filters'); // comma-separated: paid,unpaid
+    // Apply optional filters (paid/unpaid/overdue)
+    $filtersParam = $request->get('filters'); // comma-separated: paid,unpaid,overdue
     $parts = collect($filtersParam ? explode(',', $filtersParam) : [])
         ->map(fn($s) => strtolower(trim($s)))
-        ->filter(fn($s) => in_array($s, ['paid','unpaid']))
+        ->filter(fn($s) => in_array($s, ['paid','unpaid','overdue']))
         ->unique()
         ->values();
 
@@ -2080,6 +2083,13 @@ public function downloadInvoicesRepports(Request $request)
             if ($parts->contains('unpaid')) {
                 $outer->orWhere(function($q) {
                     $q->where(function($qq){ $qq->where('Payment_status', 0)->orWhereNull('Payment_status'); })
+                      ->where(function($qq){ $qq->whereNull('archived')->orWhere('archived', 0); });
+                });
+            }
+            if ($parts->contains('overdue')) {
+                $outer->orWhere(function($q) {
+                    $q->where(function($qq){ $qq->where('Payment_status', 0)->orWhereNull('Payment_status'); })
+                      ->whereDate('due_date', '<', now()->toDateString())
                       ->where(function($qq){ $qq->whereNull('archived')->orWhere('archived', 0); });
                 });
             }
