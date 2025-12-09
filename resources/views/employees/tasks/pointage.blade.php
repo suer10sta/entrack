@@ -162,7 +162,7 @@
                         <tbody class="divide-y divide-slate-100">
                             @foreach($tasksByProject as $projectName => $projectTasks)
                                 <tr>
-                                    <td colspan="8" class="px-6 py-3 bg-white text-center">
+                                    <td colspan="8" class="px-6 py-3 bg-slate-200 text-center">
                                         <span class="text-xs font-bold text-slate-800 uppercase tracking-wide">{{ strtoupper($projectName) }}</span>
                                     </td>
                                 </tr>
@@ -627,7 +627,7 @@
                                                 let d_m = task.duration % 60;
                                                 let formattedD = `${d_h.toString().padStart(2, '0')}h:${d_m.toString().padStart(2, '0')}m:00s`;
 
-                                                var row = `
+                                var row = `
                                                   <tr id="${rowId}" class="text-center hover:bg-gray-50">
                                                       <td class="px-4 py-3 text-sm text-gray-700">${projectData.name.toUpperCase()}</td>                      
                                                       <td class="px-4 py-3 text-sm text-gray-700 font-medium">${task.task_name}</td>
@@ -641,17 +641,16 @@
 
                                                 if (task.end_date === null) {
                                                     // Live timer logic for active tasks in this table
-                                                    var startDate = new Date(task.start_date);
+                                                    var startDate = new Date(task.start_date.replace(' ', 'T'));
                                                     var taskId = task.id;
                                                     var rowId = 'row-' + taskId;
-                                                    var startTimestamp = startDate.getTime();
                                                     var elapsedTime = 0;
                                                     
                                                     if(taskIntervals[taskId]) clearInterval(taskIntervals[taskId]);
                                                     
                                                     taskIntervals[taskId] = setInterval(function() {
                                                         var now = new Date();
-                                                        var durationInMilliseconds = now - startDate + elapsedTime;
+                                                        var durationInMilliseconds = Math.max(0, now - startDate + elapsedTime);
                                                         var h = Math.floor(durationInMilliseconds / 3600000);
                                                         var m = Math.floor((durationInMilliseconds % 3600000) / 60000);
                                                         var s = Math.floor((durationInMilliseconds % 60000) / 1000);

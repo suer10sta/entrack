@@ -148,16 +148,27 @@
                                             {{-- Project Name --}}
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 editable project-name" data-id="{{$project->id}}" data-column="name"> {{-- Add class for filtering --}}
                                                 @php
-                                                    $projectShowRoute = '#';
-                                                    $canViewProject = Auth::user()->can('View project');
-                                                    if ($canViewProject) {
-                                                        if (Auth::user()->hasRole('Responsable de projet')) $projectShowRoute = route('Responsable_de_projet.projects.show', $project->id);
-                                                        elseif (Auth::user()->hasRole('Admin')) $projectShowRoute = route('admin.projects.show', $project->id);
-                                                        elseif (Auth::user()->hasRole('Employee')) $projectShowRoute = route('employee.projects.show', $project->id);
-                                                        elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $projectShowRoute = route('Responsable_gestionnaire.projects.show', $project->id);
+                                                    // Resolve the correct "show" route based on role; fall back to admin
+                                                    $roleRouteMap = [
+                                                        'Admin' => 'admin.projects.show',
+                                                        'Responsable de projet' => 'Responsable_de_projet.projects.show',
+                                                        'Responsable de projet et gestionnaire' => 'Responsable_gestionnaire.projects.show',
+                                                        'Employee' => 'employee.projects.show',
+                                                    ];
+
+                                                    $projectShowRoute = null;
+                                                    foreach ($roleRouteMap as $role => $routeName) {
+                                                        if (Auth::user()->hasRole($role) && Route::has($routeName)) {
+                                                            $projectShowRoute = route($routeName, $project->id);
+                                                            break;
+                                                        }
+                                                    }
+
+                                                    if (!$projectShowRoute && Route::has('admin.projects.show')) {
+                                                        $projectShowRoute = route('admin.projects.show', $project->id);
                                                     }
                                                 @endphp
-                                                @if($canViewProject)
+                                                @if($projectShowRoute)
                                                     <a href="{{ $projectShowRoute }}" class="text-blue-600 hover:underline">
                                                         {{ strtoupper($project->name) }}
                                                     </a>

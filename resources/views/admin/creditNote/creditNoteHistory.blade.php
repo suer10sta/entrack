@@ -169,9 +169,13 @@
                             <div>
                                 <label for="typeFilter" class="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-2">Type</label>
                                 <select id="typeFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 form-select-custom">
-                                    <option value="">All Invoices</option>
-                                    <option value="Partial Period">Partial Period</option>
+                                    <option value="">All Type</option>
+                                    <option value="Detailed">Detailed</option>
+                                    <option value="Partial">Partial</option>
                                     <option value="Full Period">Full Period</option>
+                                    <option value="Partial Period">Partial Period</option>
+                                    <option value="Partial Full">Partial Full</option>
+                                    <option value="Full">Full</option>
                                 </select>
                             </div>
                         </div>
@@ -197,7 +201,19 @@
                             </thead>
                             <tbody>
                                 @foreach($credit_notes as $credit_note)
-                                <tr>
+                                @php
+                                    // Normalize a readable type label for filtering
+                                    $typeLabel = $credit_note->type;
+                                    $creditNoteKind = $credit_note->credit_note_type ?? '';
+                                    if (strtolower($credit_note->type) === 'detailed') {
+                                        $typeLabel = 'Detailed';
+                                    } elseif (strtolower($credit_note->type) === 'period') {
+                                        $typeLabel = ($creditNoteKind === 'Partial') ? 'Partial Period' : 'Full Period';
+                                    } elseif (strtolower($credit_note->type) === 'full') {
+                                        $typeLabel = ($creditNoteKind === 'Partial') ? 'Partial Full' : 'Full';
+                                    }
+                                @endphp
+                                <tr data-type="{{ strtolower($typeLabel) }}">
                                     <td>
                                         @if(Auth::user()->hasRole('Responsable de projet'))
                                         <a href="{{ route('Responsable_de_projet.invoices.serveCreditNotePdf', $credit_note->id) }}" target="_blank" class="credit-note-link">
@@ -235,7 +251,7 @@
                                     </td>
                                     <td class="text-center">{{$credit_note->start_date}}</td>
                                     <td class="text-center">{{$credit_note->end_date}}</td>
-                                    <td class="text-center">{{$credit_note->type}}</td>
+                                    <td class="text-center">{{$typeLabel}}</td>
                                     <td class="text-center">{{$credit_note->created_at}}</td>
                                     <td class="text-right amount-negative">-€{{number_format($credit_note->total_ttc, 2, '.', '')}}</td>
                                     <td>
@@ -479,17 +495,20 @@
             function filterTable() {
                 const clientValue = clientFilter.value.toLowerCase();
                 const projectValue = projectFilter.value.toLowerCase();
-                const typeValue = typeFilter.value.toLowerCase();
+                        const typeValue = typeFilter.value.toLowerCase();
 
-                const rows = document.querySelectorAll('.credit-note-table tbody tr');
+                    const rows = document.querySelectorAll('.credit-note-table tbody tr');
                 rows.forEach(row => {
                     const clientName = row.querySelector('td:nth-child(4)').textContent.trim().toLowerCase();
                     const projectName = row.querySelector('td:nth-child(2)').textContent.trim().toLowerCase();
-                    const invoiceType = row.querySelector('td:nth-child(7)').textContent.trim().toLowerCase();
+                        const invoiceType = (row.dataset.type || row.querySelector('td:nth-child(7)').textContent).trim().toLowerCase();
+
+                    const typeMatches = typeValue === '' ||
+                        (typeValue === 'partial' ? invoiceType.includes('partial') : invoiceType === typeValue);
 
                     if ((clientValue === '' || clientName.includes(clientValue)) &&
                         (projectValue === '' || projectName.includes(projectValue)) &&
-                        (typeValue === '' || invoiceType === typeValue)) {
+                        typeMatches) {
                         row.style.display = '';
                     } else {
                         row.style.display = 'none';

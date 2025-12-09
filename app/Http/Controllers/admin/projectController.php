@@ -158,7 +158,10 @@ class projectController extends Controller
         ->where('archived', 0)
         ->get();
         $employees = Employees::where('entreprise_id', Auth::user()->entreprise_id)->where('archived', 0)->orderBy('name', 'asc')->get();
-        $tasks = Tasks::where('user_id', Auth::user()->id)->get();
+        // Only tasks that belong to this project (and enterprise)
+        $tasks = Tasks::where('project_id', $project->id)
+            ->where('entreprise_id', Auth::user()->entreprise_id)
+            ->get();
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
         $client=Client::where('id',$project->client_id)->first();
         $invoices = invoices_history::where('project_id', $project->id)->get();

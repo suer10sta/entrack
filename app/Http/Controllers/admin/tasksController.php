@@ -159,13 +159,16 @@ class tasksController extends Controller
 
         foreach ($teams_employees as $employee_id) {
             $employee = Employees::where('id', $employee_id)->first();
-            $employee_task = new employees_tasks;
-            $employee_task->employee_id= $employee->id;
-            $employee_task->employee_name= $employee->name;
-            $employee_task->task_id = $task->id;
-            $employee_task->task_name= $task->title;
-            $employee_task->entreprise_id=Auth::user()->entreprise_id;
-            $employee_task->save();
+            if ($employee) {
+                $employee_task = new employees_tasks;
+                $employee_task->employee_id = $employee->id;
+                // Avoid null names to satisfy NOT NULL constraint
+                $employee_task->employee_name = $employee->name ?: 'Unknown';
+                $employee_task->task_id = $task->id;
+                $employee_task->task_name = $task->title;
+                $employee_task->entreprise_id = Auth::user()->entreprise_id;
+                $employee_task->save();
+            }
         }
 
         foreach ($teams as $team) {
@@ -190,13 +193,15 @@ class tasksController extends Controller
         $employees=$request->input('employees', []);
         foreach ($employees as $emp) {
             $employee = employees::where('user_id', $emp)->where('entreprise_id', Auth::user()->entreprise_id)->first();
-            $employee_task = new employees_tasks;
-            $employee_task->employee_id= $employee->id;
-            $employee_task->employee_name= $employee->name;
-            $employee_task->task_id = $task->id;
-            $employee_task->task_name= $task->title;
-            $employee_task->entreprise_id=Auth::user()->entreprise_id;
-            $employee_task->save();
+            if ($employee) {
+                $employee_task = new employees_tasks;
+                $employee_task->employee_id = $employee->id;
+                $employee_task->employee_name = $employee->name ?: 'Unknown';
+                $employee_task->task_id = $task->id;
+                $employee_task->task_name = $task->title;
+                $employee_task->entreprise_id = Auth::user()->entreprise_id;
+                $employee_task->save();
+            }
         }
 
         // Get all SuperAdmin users and create task assignments for each
@@ -211,7 +216,7 @@ class tasksController extends Controller
         foreach ($superAdminEmployees as $superAdminEmployee) {
             $admin_task = new employees_tasks;
             $admin_task->employee_id = $superAdminEmployee->id;
-            $admin_task->employee_name = $superAdminEmployee->name;
+            $admin_task->employee_name = $superAdminEmployee->name ?: 'Unknown';
             $admin_task->task_id = $task->id;
             $admin_task->task_name = $task->title;
             $admin_task->entreprise_id = Auth::user()->entreprise_id;
@@ -362,7 +367,7 @@ class tasksController extends Controller
             if ($employee) {
                 $employee_task = new employees_tasks;
                 $employee_task->employee_id = $employee->id;
-                $employee_task->employee_name = $employee->name;
+                $employee_task->employee_name = $employee->name ?: 'Unknown';
                 $employee_task->task_id = $task->id;
                 $employee_task->task_name = $task->title;
                 $employee_task->entreprise_id = $enterpriseId;
@@ -390,7 +395,7 @@ class tasksController extends Controller
         if ($employee) {
             $employee_task = new employees_tasks;
             $employee_task->employee_id = $employee->id;
-            $employee_task->employee_name = $employee->name;
+            $employee_task->employee_name = $employee->name ?: 'Unknown';
             $employee_task->task_id = $task->id;
             $employee_task->task_name = $task->title;
             $employee_task->entreprise_id = $enterpriseId;
@@ -580,9 +585,6 @@ public function stop($task, $employee_id)
 
     $employee_user = User::where('id', $employee->user_id)->first();
 
-    $employee_user->is_loggedIn = 0;
-    $employee_user->save();
-
 
     if (!$tasks) {
         return back()->with('error', 'Task not found.');
@@ -597,9 +599,15 @@ public function stop($task, $employee_id)
         $start_date = Carbon::parse($task_timer->start_date);
         $end_date = Carbon::parse($task_timer->end_date);
 
-        if($start_date->diffInSeconds($end_date) < 30){
+        // Check if this is the first ever timer entry for this task_employee_id
+        $hasPreviousTimers = tasks_timer::where('task_employee_id', $tasks->id)
+            ->whereNotNull('end_date')
+            ->where('id', '!=', $task_timer->id)
+            ->exists();
+
+        if($start_date->diffInSeconds($end_date) < 60){
             $task_timer->delete();
-        }elseif($start_date->diffInMinutes($end_date) < 5){
+        }elseif(!$hasPreviousTimers && $start_date->diffInMinutes($end_date) < 15){
             $add15min = new DateInterval('PT15M');            
             $task_timer->end_date = clone $start_date; // Clone to avoid modifying original start_date
             $task_timer->end_date->add($add15min); // Add 15 minutes to the start date
@@ -637,6 +645,13 @@ public function stop($task, $employee_id)
            
         }
     
+        // Update login status only if no other active timers remain
+        $activeTimers = tasks_timer::where('employee_id', $employee->id)->whereNull('end_date')->count();
+        if ($employee_user) {
+            $employee_user->is_loggedIn = $activeTimers > 0 ? 1 : 0;
+            $employee_user->save();
+        }
+
         return back()->with('success', 'Task ended successfully.');
 
     }elseif ($task_timer && $task_timer->pause_date != null && $task_timer->end_date === null) {
@@ -653,7 +668,13 @@ public function stop($task, $employee_id)
         $duration2 = $resume_date->diffInMinutes($end_date); // Time after resume
         $taskduration = $duration1 + $duration2;
 
-        if($taskduration < 5){
+        // Check if this is the first ever timer entry for this task_employee_id
+        $hasPreviousTimers = tasks_timer::where('task_employee_id', $tasks->id)
+            ->whereNotNull('end_date')
+            ->where('id', '!=', $task_timer->id)
+            ->exists();
+
+        if(!$hasPreviousTimers && $taskduration < 15){
             // For very short tasks, set minimum duration to 15 minutes
             $add15min = new DateInterval('PT15M');            
             $task_timer->end_date = clone $start_date;
@@ -678,6 +699,13 @@ public function stop($task, $employee_id)
             $task_timer->cost = $cost;
         }
         $task_timer->save();
+
+        // Update login status only if no other active timers remain
+        $activeTimers = tasks_timer::where('employee_id', $employee->id)->whereNull('end_date')->count();
+        if ($employee_user) {
+            $employee_user->is_loggedIn = $activeTimers > 0 ? 1 : 0;
+            $employee_user->save();
+        }
 
         return back()->with('success', 'Task ended successfully.');
     } 
@@ -737,7 +765,15 @@ public function checkTasksAndTime()
                     $task->cost = $employee->cost_per_hour * ((float)$remaining_minutes/60);
                     $task->end_date = $start_date->copy()->addMinutes($remaining_minutes);
                 }
+                // Mark the task as stopped at the cap
                 $task->save();
+
+                // Also mark the employee as not currently working once capped
+                $employeeUser = User::where('id', $employee->user_id)->first();
+                if ($employeeUser) {
+                    $employeeUser->is_loggedIn = 0;
+                    $employeeUser->save();
+                }
             }
             // Don't stop the task if we haven't reached the limit yet
         }
@@ -1600,7 +1636,8 @@ public function moveDuration(Request $request)
             ],
             [
                 'task_name' => $newTask->title,
-                'employee_name' => $employee->name,
+                // Protect against null names to satisfy NOT NULL constraint
+                'employee_name' => $employee->name ?: 'Unknown',
                 'entreprise_id' => auth()->user()->entreprise_id
             ]
         );

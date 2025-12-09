@@ -387,6 +387,10 @@
                                         On Work
                                     </span>
                                 @endif
+                            @else
+                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                    Off Work
+                                </span>
                             @endif
                         @endif
                     </td>
@@ -413,7 +417,13 @@
                             }
                         @endphp
                         @if($currentTasks->isNotEmpty())
-                            <div class="space-y-1">
+                            @php
+                                $taskListClasses = 'space-y-1';
+                                if ($isSuperAdmin && $currentTasks->count() > 1) {
+                                    $taskListClasses .= ' divide-y divide-gray-500';
+                                }
+                            @endphp
+                            <div class="{{ $taskListClasses }}">
                                 @foreach($currentTasks as $currentTask)
                                     @if(auth()->user()->hasRole('Admin') || auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin'))
                                         <a href="{{ route('admin.tasks.show', $currentTask->task_id) }}" class="text-xs font-semibold text-blue-600 hover:underline block">
@@ -463,7 +473,13 @@
                             }
                         @endphp
                         @if($currentProjects->isNotEmpty())
-                            <div class="space-y-1">
+                            @php
+                                $projectListClasses = 'space-y-1';
+                                if ($isSuperAdmin && $currentProjects->count() > 1) {
+                                    $projectListClasses .= ' divide-y divide-gray-300';
+                                }
+                            @endphp
+                            <div class="{{ $projectListClasses }}">
                                 @foreach($currentProjects as $currentProject)
                                     <a href="{{ route('admin.projects.show', $currentProject->id) }}" class="text-xs font-semibold text-emerald-600 hover:underline block">
                                         {{ $currentProject->name }}
@@ -546,26 +562,45 @@
                             }
                             $firstActiveTask = $activeTasks->first();
                         @endphp
-                        @if($firstActiveTask)
-                            @php
-                                // Calculate duration for the current active task only
-                                $now = \Carbon\Carbon::now();
-                                $startTime = \Carbon\Carbon::parse($firstActiveTask->start_date);
-                                $currentDurationMinutes = $startTime->diffInMinutes($now);
-                                
-                                // Add any existing duration if task was paused/resumed
-                                if ($firstActiveTask->duration) {
-                                    $currentDurationMinutes += $firstActiveTask->duration;
-                                }
-                                
-                                $taskhours = floor($currentDurationMinutes / 60);
-                                $taskminutes = $currentDurationMinutes % 60;
-                            @endphp
-                            <span class="text-xs font-semibold text-gray-800">
-                                {{ $taskhours }}h:{{ $taskminutes }}m
-                            </span>
+                        @if($activeTasks->isNotEmpty())
+                            @php $now = \Carbon\Carbon::now(); @endphp
+                            <div class="space-y-1 {{ ($isSuperAdmin && $activeTasks->count() > 1) ? 'divide-y divide-gray-500' : '' }}">
+                                @foreach($activeTasks as $activeTask)
+                                    @php
+                                        $startTime = \Carbon\Carbon::parse($activeTask->start_date);
+                                        $isPaused = $activeTask->paused == 1;
+                                        $baseSeconds = ($activeTask->duration ?? 0) * 60;
+                                        $currentDurationSeconds = $isPaused ? $baseSeconds : ($startTime->diffInSeconds($now) + $baseSeconds);
+                                        $taskhours = floor($currentDurationSeconds / 3600);
+                                        $taskminutes = floor(($currentDurationSeconds % 3600) / 60);
+                                        $taskseconds = $currentDurationSeconds % 60;
+                                        $taskName = \App\Models\employees_tasks::where('id', $activeTask->task_employee_id)->value('task_name');
+                                        $shouldShowName = $activeTasks->count() > 1;
+                                    @endphp
+                                    <div class="text-xs font-semibold text-gray-800">
+                                        @if($shouldShowName)
+                                            <span class="text-gray-600">{{ $taskName ?? ('Task '.$activeTask->task_employee_id) }}:</span>
+                                        @endif
+                                        <span class="live-duration"
+                                              data-start="{{ $activeTask->start_date }}"
+                                              data-extra-seconds="{{ $baseSeconds }}"
+                                              data-paused="{{ $isPaused ? 1 : 0 }}">
+                                            {{ $taskhours }}h:{{ sprintf('%02d', $taskminutes) }}m:{{ sprintf('%02d', $taskseconds) }}s
+                                        </span>
+                                    </div>
+                                @endforeach
+                            </div>
                         @else
-                            <span class="text-xs font-medium text-gray-600">No Task</span>
+                            @php
+                                $today = \Carbon\Carbon::today();
+                                $totalDurationMinutes = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    ->whereDate('start_date', $today)
+                                    ->whereNotNull('duration')
+                                    ->sum('duration');
+                                $h = floor($totalDurationMinutes / 60);
+                                $m = $totalDurationMinutes % 60;
+                            @endphp
+                            <span class="text-xs font-medium text-gray-700">Total today: {{ $h }}h:{{ sprintf('%02d', $m) }}m</span>
                         @endif
                     </td>
 
@@ -614,17 +649,35 @@
                             }
                             $firstActiveTask = $activeTasks->first();
                         @endphp
-                        @if($firstActiveTask && $firstActiveTask->end_date === null)
-                            <form class="inline-block"
-                                  action="{{ route('admin.tasks.stop', ['tasks' => $firstActiveTask->task_employee_id, 'employee_id' => $employee->id]) }}"
-                                  method="POST"
-                                  onsubmit="return confirm('Stop timer for this task?');">
-                                @csrf
-                                <button type="submit"
-                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white hover:bg-red-600">
-                                    Stop
+                        @if($activeTasks->isNotEmpty())
+                            @if($isSuperAdmin && $activeTasks->count() > 1)
+                                <button type="button"
+                                        class="inline-flex items-center px-3 py-1 mb-2 rounded-full text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200"
+                                        onclick="stopAllTimersForEmployee({{ $employee->id }})">
+                                    Stop all
                                 </button>
-                            </form>
+                            @endif
+                            <div class="space-y-1">
+                                @foreach($activeTasks as $activeTask)
+                                    @php
+                                        $taskName = \App\Models\employees_tasks::where('id', $activeTask->task_employee_id)->value('task_name');
+                                        $shouldShowName = $activeTasks->count() > 1;
+                                    @endphp
+                                    <form class="inline-flex items-center gap-2 stop-form-{{ $employee->id }}"
+                                          action="{{ route('admin.tasks.stop', ['tasks' => $activeTask->task_employee_id, 'employee_id' => $employee->id]) }}"
+                                          method="POST"
+                                          onsubmit="return confirm('Stop timer for this task?');">
+                                        @csrf
+                                        @if($shouldShowName)
+                                            <span class="text-xs text-gray-700">{{ $taskName ?? ('Task '.$activeTask->task_employee_id) }}</span>
+                                        @endif
+                                        <button type="submit"
+                                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white hover:bg-red-600">
+                                            Stop
+                                        </button>
+                                    </form>
+                                @endforeach
+                            </div>
                         @else
                             <span class="text-xs text-gray-400">No Active Timer</span>
                         @endif
@@ -650,25 +703,37 @@
                         <div class="relative flex items-center justify-start gap-2">
                             @php
                                 $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
+                                // Active timers for the employee today
                                 if ($isSuperAdmin) {
-                                    $activeTaskIds = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    $activeTimers = \App\Models\tasks_timer::where('employee_id', $employee->id)
                                         ->whereDate('start_date', \Carbon\Carbon::today())
                                         ->whereNull('end_date')
-                                        ->pluck('id');
+                                        ->get();
                                 } else {
-                                    $activeTaskIds = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    $activeTimers = \App\Models\tasks_timer::where('employee_id', $employee->id)
                                         ->whereDate('start_date', \Carbon\Carbon::today())
                                         ->whereNull('end_date')
                                         ->latest()
                                         ->take(1)
-                                        ->pluck('id');
+                                        ->get();
                                 }
+                                $activeTaskIds = $activeTimers->pluck('task_id')->filter()->unique();
+
                                 $completedTasksToday = \App\Models\tasks_timer::where('employee_id', $employee->id)
                                     ->whereDate('start_date', \Carbon\Carbon::today())
                                     ->whereNotNull('end_date')
-                                    ->when($activeTaskIds->isNotEmpty(), fn($q) => $q->whereNotIn('id', $activeTaskIds))
-                                    ->orderByDesc('end_date')
-                                    ->get();
+                                    // exclude any task currently active (so history shows only stopped tasks)
+                                    ->when($activeTaskIds->isNotEmpty(), fn($q) => $q->whereNotIn('task_id', $activeTaskIds))
+                                    ->get()
+                                    // Group by task (prefer task_id, otherwise fallback to task name)
+                                    ->groupBy(fn($t) => $t->task_id ?? 'name:' . ($t->task_name ?? 'unknown'))
+                                    ->map(function ($group) {
+                                        // keep latest session info, but sum durations across the day
+                                        $latest = $group->sortByDesc('end_date')->first();
+                                        $latest->total_duration = $group->sum('duration');
+                                        return $latest;
+                                    })
+                                    ->sortByDesc('end_date');
                             @endphp
 
                             {{-- Tasks history toggle (shows tasks done today, excluding current) --}}
@@ -729,7 +794,7 @@
                             </div>
                             @forelse($completedTasksToday as $doneTask)
                                 @php
-                                    $durationMinutes = (int) $doneTask->duration;
+                                    $durationMinutes = (int) ($doneTask->total_duration ?? $doneTask->duration);
                                     $h = floor($durationMinutes / 60);
                                     $m = $durationMinutes % 60;
                                     $taskModel = \App\Models\Tasks::find($doneTask->task_id);
@@ -751,6 +816,16 @@
                                     <div class="flex items-center gap-3">
                                         <span class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700">Completed</span>
                                         <span class="text-xs text-gray-700 whitespace-nowrap">{{ $h }}h {{ $m }}m</span>
+                                        <form action="{{ route('admin.tasks.start', ['tasks' => $doneTask->task_employee_id ?? $doneTask->task_id, 'employee_id' => $doneTask->employee_id]) }}"
+                                              method="POST"
+                                              class="history-start-form"
+                                              data-task-id="{{ $doneTask->task_employee_id ?? $doneTask->task_id }}">
+                                            @csrf
+                                            <button type="submit"
+                                                    class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500 text-white hover:bg-emerald-600">
+                                                Start
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             @empty
@@ -1027,18 +1102,102 @@
     </div>
 </div>
 
-{{-- Toggle today's completed tasks popover per employee --}}
+{{-- Toggle today's completed tasks popover per employee + stop-all helper --}}
 <script>
 function toggleTasksTodayRow(id) {
     const row = document.getElementById(id);
     if (!row) return;
-    // close others
-    document.querySelectorAll('tr[id^="tasks-row-"]').forEach(el => {
-        if (el.id !== id) {
-            el.classList.add('hidden');
-        }
-    });
     row.classList.toggle('hidden');
 }
 
+function stopAllTimersForEmployee(employeeId) {
+    const forms = document.querySelectorAll('.stop-form-' + employeeId);
+    if (!forms.length) return;
+    if (!confirm('Stop all timers for this employee?')) return;
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+    // Submit all stop forms via fetch to avoid page reload stopping the loop
+    const requests = Array.from(forms).map(form => {
+        const action = form.getAttribute('action');
+        const formData = new FormData(form); // includes _token from the form
+        return fetch(action, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': csrfToken,
+            },
+            body: formData,
+        });
+    });
+
+    Promise.all(requests)
+        .then(() => window.location.reload())
+        .catch(() => window.location.reload());
+}
+
+// Live-updating durations in the Dashboard "Duration" column (hh:mm:ss)
+function formatDurationSeconds(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(hours).padStart(2, '0')}h:${String(minutes).padStart(2, '0')}m:${String(seconds).padStart(2, '0')}s`;
+}
+
+function refreshLiveDurations() {
+    const nowMs = Date.now();
+    document.querySelectorAll('.live-duration').forEach(node => {
+        const paused = node.dataset.paused === '1';
+        const startMs = node.dataset.start ? new Date(node.dataset.start).getTime() : null;
+        const extraSeconds = parseInt(node.dataset['extraSeconds'] || '0', 10);
+        if (!startMs) return;
+        const elapsedSeconds = paused ? 0 : Math.floor((nowMs - startMs) / 1000);
+        const totalSeconds = extraSeconds + elapsedSeconds;
+        node.textContent = formatDurationSeconds(totalSeconds);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    refreshLiveDurations();
+    setInterval(refreshLiveDurations, 1000); // refresh every second
+
+    // AJAX start for history tasks; optimistic remove + auto-refresh to sync UI
+    document.querySelectorAll('.history-start-form').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = form.querySelector('button[type="submit"]');
+            const originalText = btn ? btn.textContent : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Starting...';
+            }
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            const formData = new FormData(form); // includes _token
+            try {
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        ...(csrf ? { 'X-CSRF-TOKEN': csrf } : {}),
+                    },
+                    body: formData,
+                });
+                if (!res.ok) throw new Error('Request failed');
+                // Remove the history item from the list
+                const container = form.closest('.flex.items-center.justify-between.rounded-lg.border');
+                if (container) {
+                    container.remove();
+                }
+                // Reload shortly to reflect ongoing list/status/durations everywhere
+                setTimeout(() => window.location.reload(), 400);
+            } catch (err) {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = originalText || 'Start';
+                }
+                alert('Could not start the task. Please try again.');
+            }
+        });
+    });
+});
 </script>

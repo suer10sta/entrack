@@ -220,18 +220,29 @@
                                 @foreach($projects as $project)
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        @php $projectShowRoute = '#'; @endphp
-                                        @if(Auth::user()->hasRole('Admin') && Auth::user()->can('View project'))
-                                            @php $projectShowRoute = route('admin.projects.show',$project->id); @endphp
-                                        @elseif(Auth::user()->hasRole('Responsable de projet') && Auth::user()->can('View project'))
-                                            @php $projectShowRoute = route('Responsable_de_projet.projects.show',$project->id); @endphp
-                                        @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire') && Auth::user()->can('View project'))
-                                            @php $projectShowRoute = route('Responsable_gestionnaire.projects.show',$project->id); @endphp
-                                        @elseif(Auth::user()->hasRole('Employee') && Auth::user()->can('View project'))
-                                            @php $projectShowRoute = route('employee.projects.show',$project->id); @endphp
-                                        @endif
+                                        @php
+                                            // Resolve project show route based on role; fallback to admin if available
+                                            $roleRouteMap = [
+                                                'Admin' => 'admin.projects.show',
+                                                'Responsable de projet' => 'Responsable_de_projet.projects.show',
+                                                'Responsable de projet et gestionnaire' => 'Responsable_gestionnaire.projects.show',
+                                                'Employee' => 'employee.projects.show',
+                                            ];
 
-                                        @if($projectShowRoute != '#')
+                                            $projectShowRoute = null;
+                                            foreach ($roleRouteMap as $role => $routeName) {
+                                                if (Auth::user()->hasRole($role) && Route::has($routeName)) {
+                                                    $projectShowRoute = route($routeName, $project->id);
+                                                    break;
+                                                }
+                                            }
+
+                                            if (!$projectShowRoute && Route::has('admin.projects.show')) {
+                                                $projectShowRoute = route('admin.projects.show', $project->id);
+                                            }
+                                        @endphp
+
+                                        @if($projectShowRoute)
                                             <a href="{{ $projectShowRoute }}" class="text-blue-600 hover:text-blue-800">{{ strtoupper($project->name) }}</a>
                                         @else
                                             <span class="text-gray-900">{{ strtoupper($project->name) }}</span>

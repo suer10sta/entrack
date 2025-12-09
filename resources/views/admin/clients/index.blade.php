@@ -103,15 +103,26 @@
                     {{-- Name --}}
                     <td class="px-3 py-5 text-sm text-gray-700 font-medium whitespace-normal break-words">
                          @php
-                            $showRoute = '#';
-                            $canView = Auth::user()->can('View client');
-                            if ($canView) {
-                                if (Auth::user()->hasRole('Responsable de projet')) $showRoute = route('Responsable_de_projet.clients.show', $client->id);
-                                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $showRoute = route('Responsable_gestionnaire.clients.show', $client->id);
-                                elseif (Auth::user()->hasRole('Admin')) $showRoute = route('admin.clients.show', $client->id);
+                            // Prefer a concrete route per role; if none, fall back to admin route
+                            $roleRouteMap = [
+                                'Responsable de projet' => 'Responsable_de_projet.clients.show',
+                                'Responsable de projet et gestionnaire' => 'Responsable_gestionnaire.clients.show',
+                                'Admin' => 'admin.clients.show',
+                            ];
+
+                            $showRoute = null;
+                            foreach ($roleRouteMap as $role => $routeName) {
+                                if (Auth::user()->hasRole($role) && Route::has($routeName)) {
+                                    $showRoute = route($routeName, $client->id);
+                                    break;
+                                }
+                            }
+
+                            if (!$showRoute && Route::has('admin.clients.show')) {
+                                $showRoute = route('admin.clients.show', $client->id);
                             }
                          @endphp
-                         @if($canView)
+                         @if($showRoute)
                             <a href="{{ $showRoute }}" class="text-blue-600 hover:underline">
                                 {{$client->name}}
                             </a>
