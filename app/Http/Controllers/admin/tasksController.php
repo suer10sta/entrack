@@ -36,6 +36,80 @@ class tasksController extends Controller
 {
 
     /**
+     * Stop any running timer when the employee has already reached their daily
+     * work-hour limit and prevent further work from starting. Returns true when
+     * the daily limit is reached or exceeded.
+     */
+    private function enforceDailyWorkLimit(Employees $employee): bool
+    {
+        // If no limit is configured, nothing to enforce
+        $limitMinutes = (int) round((float) ($employee->workHours_limit ?? 0) * 60);
+        if ($limitMinutes <= 0) {
+            return false;
+        }
+
+        $todayStart = Carbon::today();
+        $now = Carbon::now();
+
+        // Sum completed durations for today
+        $completedMinutes = tasks_timer::where('employee_id', $employee->id)
+            ->whereDate('start_date', $todayStart)
+            ->whereNotNull('end_date')
+            ->sum('duration');
+
+        $runningTimer = tasks_timer::where('employee_id', $employee->id)
+            ->whereNull('end_date')
+            ->latest()
+            ->first();
+
+        $runningToday = 0;
+        $preTodayDuration = 0;
+
+        if ($runningTimer) {
+            $start = Carbon::parse($runningTimer->start_date);
+            $effectiveStart = $start->greaterThan($todayStart) ? $start : $todayStart;
+
+            if ($runningTimer->pause_date !== null) {
+                $pause = Carbon::parse($runningTimer->pause_date);
+                $pauseClamped = $pause->lessThan($todayStart) ? $todayStart : ($pause->greaterThan($now) ? $now : $pause);
+                $runningToday = max(0, $effectiveStart->diffInMinutes($pauseClamped));
+            } else {
+                $runningToday = max(0, $effectiveStart->diffInMinutes($now));
+            }
+
+            $existingDuration = $runningTimer->duration ?? 0;
+            $preTodayDuration = max(0, $existingDuration - $runningToday);
+        }
+
+        $totalToday = $completedMinutes + $runningToday;
+
+        // If limit is reached or exceeded, clamp any running timer and block new work
+        if ($totalToday >= $limitMinutes) {
+            if ($runningTimer && $runningTimer->end_date === null) {
+                $remainingMinutes = max(0, $limitMinutes - $completedMinutes);
+                $effectiveStart = Carbon::parse($runningTimer->start_date)->greaterThan($todayStart)
+                    ? Carbon::parse($runningTimer->start_date)
+                    : $todayStart;
+
+                $runningTimer->duration = $preTodayDuration + $remainingMinutes;
+                $runningTimer->cost = $employee->cost_per_hour * ((float) $runningTimer->duration / 60);
+                $runningTimer->end_date = $effectiveStart->copy()->addMinutes($remainingMinutes);
+                $runningTimer->save();
+            }
+
+            $employeeUser = User::where('id', $employee->user_id)->first();
+            if ($employeeUser) {
+                $employeeUser->is_loggedIn = 0;
+                $employeeUser->save();
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Normalize incoming IDs (JSON string | array | collection | scalar) to array of integers.
      */
     private function normalizeIds($ids)
@@ -466,6 +540,11 @@ class tasksController extends Controller
 
     $employee_user->is_loggedIn = 1;
     $employee_user->save();
+
+        // Prevent starting when daily limit is already reached; no message by request
+        if ($this->enforceDailyWorkLimit($employee)) {
+            return back();
+        }
     
     // Get the task details
     $task_details = employees_tasks::where('id', $task_id)
@@ -560,6 +639,11 @@ public function resume($task, $employee_id)
     if (!$tasks) {
         return back()->with('error', 'Task not found.');
     }
+
+        // Prevent resuming when daily limit is already reached; no message by request
+        if ($this->enforceDailyWorkLimit($employee)) {
+            return back();
+        }
 
     $task_timer = tasks_timer::where('task_employee_id', $tasks->id)->latest()->first();
 
@@ -727,44 +811,51 @@ public function checkTasksAndTime()
             $employee = Employees::where('id', $task->employee_id)->first();
             if (!$employee) continue;
 
-            $start_date = Carbon::parse($task->start_date);
+            $todayStart = Carbon::today();
+            $todayEnd = Carbon::today()->endOfDay();
             $current_time = now();
-            
-            // If task is paused, handle differently
+
+            // Clamp the running/paused duration to "today" only
+            $taskStart = Carbon::parse($task->start_date);
+            $effectiveStart = $taskStart->greaterThan($todayStart) ? $taskStart : $todayStart;
+
             if ($task->pause_date !== null) {
-                $duration = $task->duration; // Keep existing duration for paused tasks
+                // Task is paused: use pause_date/resume tracking but clamp to today
+                $pauseEnd = Carbon::parse($task->pause_date);
+                // Duration already accumulated lives in $task->duration; limit it to today's window
+                $pausedWindowEnd = $pauseEnd->lessThan($todayStart) ? $todayStart : ($pauseEnd->greaterThan($todayEnd) ? $todayEnd : $pauseEnd);
+                $durationToday = max(0, $effectiveStart->diffInMinutes($pausedWindowEnd));
             } else {
-                $duration = $start_date->diffInMinutes($current_time);
+                // Running: measure from today's start (or task start if later) to now
+                $durationToday = max(0, $effectiveStart->diffInMinutes($current_time));
             }
 
-            // Get all completed tasks for today for this employee
+            // Get all completed tasks for today for this employee (already capped durations)
             $today_completed_tasks = tasks_timer::where('employee_id', $task->employee_id)
                 ->whereDate('start_date', Carbon::today())
                 ->whereNotNull('end_date') 
                 ->where('id', '!=', $task->id)
                 ->sum('duration');
 
-            // Calculate total duration including current task
-            $total_duration = $today_completed_tasks + $duration;
+            // Calculate total duration including current task (today only)
+            $total_duration = $today_completed_tasks + $durationToday;
 
             // Convert work hours limit to minutes (support decimal hours, e.g., 8.5h)
             $work_minutes_limit = (int) round((float)$employee->workHours_limit * 60);
 
             // Only stop the task if total duration exceeds work hours limit
             if ($total_duration > $work_minutes_limit) {
-                $remaining_minutes = $work_minutes_limit - $today_completed_tasks;
-                
-                // If no time remains, cap the task at the daily limit instead of deleting it
-                if ($remaining_minutes <= 0) {
-                    $task->duration = $work_minutes_limit;
-                    $task->cost = $employee->cost_per_hour * ((float)$work_minutes_limit/60);
-                    $task->end_date = $start_date->copy()->addMinutes($work_minutes_limit);
-                } else {
-                    // Set the task duration to remaining time
-                    $task->duration = $remaining_minutes;
-                    $task->cost = $employee->cost_per_hour * ((float)$remaining_minutes/60);
-                    $task->end_date = $start_date->copy()->addMinutes($remaining_minutes);
-                }
+                $remaining_minutes = max(0, $work_minutes_limit - $today_completed_tasks);
+
+                // Set the task duration to remaining time (today) while keeping any pre-today time intact if present
+                $existingDuration = $task->duration ?? 0;
+                $preTodayDuration = max(0, $existingDuration - $durationToday); // best-effort separation
+                $task->duration = $preTodayDuration + $remaining_minutes;
+                $task->cost = $employee->cost_per_hour * ((float)$task->duration/60);
+
+                // End date anchored from effectiveStart to avoid extending into previous days
+                $task->end_date = $effectiveStart->copy()->addMinutes($remaining_minutes);
+
                 // Mark the task as stopped at the cap
                 $task->save();
 

@@ -139,11 +139,11 @@
                         <select id="projectFilter" class="block w-48 rounded-lg border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-slate-600 shadow-sm py-2 px-3">
                             <option value="">All Projects</option>
                             @foreach($projects as $project)
-                                <option value="{{ $project->name }}">{{ $project->name }}</option>
-                            @endforeach
-                        </select>
+                            <option value="{{ $project->name }}">{{ $project->name }}</option>
+                             @endforeach
+                            </select>
+                        </div>
                     </div>
-                </div>
 
                 <div class="overflow-x-auto custom-scrollbar">
                     <table id="tasksTable" class="w-full text-left border-collapse">
@@ -154,7 +154,7 @@
                                 <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Estimated Hours</th>
                                 <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Difference</th>
                                 <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-32">Progress</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Timing</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Comments</th>
                                 <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Today's Duration</th>
                                 <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Action</th>
                             </tr>
@@ -172,6 +172,13 @@
                                         $task_name = App\Models\Tasks::where('id', $task_id)->first();
                                         $task_timer = App\Models\tasks_timer::where('task_employee_id', $task->id)->whereNull('end_date')->first();
                                         $employee_id = App\Models\employees::where('user_id', Auth::user()->id)->first()->id;
+                                        $routePrefix = Auth::user()->hasRole('Employee')
+                                            ? 'employee'
+                                            : (Auth::user()->hasRole('Responsable de projet')
+                                                ? 'Responsable_de_projet'
+                                                : (Auth::user()->hasRole('Responsable de projet et gestionnaire')
+                                                    ? 'Responsable_gestionnaire'
+                                                    : 'employee'));
                                     @endphp
                                     <tr class="hover:bg-slate-50 transition-colors">
                                         <td class="px-6 py-4">
@@ -213,7 +220,7 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 text-sm text-slate-600">
-                                            On track
+                                            {{ $task->comment ?? 'No Comment' }}
                                         </td>
                                         <td class="px-6 py-4 text-sm font-bold text-slate-800">
                                             @php
@@ -229,8 +236,12 @@
                                             @php $routePrefix = Auth::user()->hasRole('Employee') ? 'employee' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet' : 'Responsable_gestionnaire'); @endphp
                                             
                                             @unless($task_timer)
-                                                <form class="inline-block" action="{{ route($routePrefix.'.tasks.start', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST">
+                                                <form class="inline-flex items-center gap-2" action="{{ route($routePrefix.'.tasks.start', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST">
                                                     @csrf
+                                                    <input type="text"
+                                                           name="comment"
+                                                           placeholder="Enter comment"
+                                                           class="border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring focus:ring-emerald-200">
                                                     <button type="submit" class="start-button bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm" id="start-btn" data-task-id="{{$task->id}}">
                                                         Start
                                                     </button>
@@ -366,6 +377,7 @@
     <script src="https://unpkg.com/jspdf-autotable@3.5.17/dist/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
 
+    
     <script>
         var taskIntervals = {};
         
@@ -742,8 +754,8 @@
             var shouldShowCurrentProject = false;
 
             rows.forEach(function(row) {
-                // Check for project header row (colspan 7)
-                if (row.cells.length === 1 && row.cells[0].colSpan === 7) {
+                // Check for project header row (colspan matches the header divider row)
+                if (row.cells.length === 1 && row.cells[0].colSpan === 8) {
                     currentProject = row.cells[0].textContent.trim().toLowerCase();
                     shouldShowCurrentProject = filter === "" || currentProject.includes(filter);
                     row.style.display = shouldShowCurrentProject ? "" : "none";
@@ -756,3 +768,4 @@
 
 </body>
 </html>
+

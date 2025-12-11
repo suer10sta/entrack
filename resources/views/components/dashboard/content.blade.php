@@ -373,7 +373,9 @@
                             </span>
                         @elseif($employeeUser && $employeeUser->is_loggedIn == 1)
                             @php
+                                // Align status with other columns: only consider timers started today and still open
                                 $task_timer = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    ->whereDate('start_date', today())
                                     ->whereNull('end_date')
                                     ->first();
                             @endphp
@@ -821,6 +823,10 @@
                                               class="history-start-form"
                                               data-task-id="{{ $doneTask->task_employee_id ?? $doneTask->task_id }}">
                                             @csrf
+                                            <input type="text"
+                                                   name="comment"
+                                                   placeholder="Enter comment"
+                                                   class="border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring focus:ring-emerald-200">
                                             <button type="submit"
                                                     class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500 text-white hover:bg-emerald-600">
                                                 Start
