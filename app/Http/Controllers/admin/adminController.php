@@ -592,4 +592,43 @@ class adminController extends Controller
 
         return $html;
     }
+
+    public function refreshProjects(Request $request)
+    {
+        if (!$request->ajax()) {
+            abort(404);
+        }
+
+        $todayStart = \Carbon\Carbon::today();
+        $todayEnd = \Carbon\Carbon::today()->endOfDay();
+        $entrepriseId = optional(Auth::user())->entreprise_id;
+
+        // Collect timers that overlap today
+        $timersToday = \App\Models\tasks_timer::where(function ($q) use ($todayStart, $todayEnd) {
+            $q->where('start_date', '<=', $todayEnd)
+                ->where(function ($qq) use ($todayStart) {
+                    $qq->whereNull('end_date')
+                        ->orWhere('end_date', '>=', $todayStart);
+                });
+        })
+            ->when($entrepriseId, fn($q) => $q->where('entreprise_id', $entrepriseId))
+            ->get();
+
+        // Gather project IDs from timers directly and via tasks
+        $projectIdsDirect = $timersToday->pluck('project_id')->filter();
+        $taskIds = $timersToday->pluck('task_id')->filter();
+        $projectIdsFromTasks = $taskIds->isNotEmpty()
+            ? \App\Models\Tasks::whereIn('id', $taskIds)->pluck('project_id')
+            : collect();
+        $projectIdsToday = $projectIdsDirect->merge($projectIdsFromTasks)->unique()->filter();
+
+        $projectsToday = $projectIdsToday->isNotEmpty()
+            ? \App\Models\Project::whereIn('id', $projectIdsToday)->get()
+            : collect();
+
+        return response()->json([
+            'html' => view('components.dashboard.project-overview-list', compact('projectsToday'))->render(),
+            'success' => true
+        ]);
+    }
 }

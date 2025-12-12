@@ -16,4 +16,4 @@ class CheckRunningTasks extends Command
         $tasksController->checkTasksAndTime();
         $this->info('Running tasks check completed');
     }
-} 
+}

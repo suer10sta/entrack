@@ -65,6 +65,65 @@ class tasksController extends Controller
         }));
     }
 
+    /**
+     * Check if an employee is a SuperAdmin
+     */
+    private function isEmployeeSuperAdmin($employee)
+    {
+        if (!$employee || !$employee->user_id) {
+            return false;
+        }
+
+        $user = User::find($employee->user_id);
+        if (!$user) {
+            return false;
+        }
+
+        return $user->hasRole('SuperAdmin') || $user->hasRole('super_admin');
+    }
+
+    /**
+     * Validate that non-SuperAdmin employees can only have one ongoing/active task
+     * If there's no ongoing task timer, employee is "off work" and can be assigned a new task
+     */
+    private function validateEmployeeTaskLimit($employee, $currentTaskId = null)
+    {
+        // SuperAdmin employees can have multiple ongoing tasks
+        if ($this->isEmployeeSuperAdmin($employee)) {
+            return true;
+        }
+
+        // Check if employee has any active/ongoing task timers (tasks that are currently running)
+        // An active task timer is one where end_date is null
+        $activeTaskTimersQuery = tasks_timer::where('employee_id', $employee->id)
+            ->whereNull('end_date')
+            ->where('entreprise_id', Auth::user()->entreprise_id);
+
+        // Exclude current task if updating (check if current task has an active timer)
+        if ($currentTaskId) {
+            // Get the employee_task record for this task
+            $currentEmployeeTask = employees_tasks::where('employee_id', $employee->id)
+                ->where('task_id', $currentTaskId)
+                ->where('entreprise_id', Auth::user()->entreprise_id)
+                ->first();
+
+            if ($currentEmployeeTask) {
+                // Exclude timers for the current task being updated
+                $activeTaskTimersQuery->where('task_employee_id', '!=', $currentEmployeeTask->id);
+            }
+        }
+
+        $activeTaskCount = $activeTaskTimersQuery->count();
+
+        // Non-SuperAdmin employees can only have one ongoing task at a time
+        // If there's no ongoing task, they're "off work" and can be assigned a new task
+        if ($activeTaskCount > 0) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function index()
     {
         $projects = Project::where('entreprise_id', Auth::user()->entreprise_id)->where(function ($query) {
@@ -152,6 +211,26 @@ class tasksController extends Controller
 
         foreach ($teams_employees as $employee_id) {
             $employee = Employees::where('id', $employee_id)->first();
+
+            if (!$employee) {
+                continue;
+            }
+
+            // Check if employee already has this task assigned
+            $existingTask = employees_tasks::where('employee_id', $employee->id)
+                ->where('task_id', $task->id)
+                ->where('entreprise_id', Auth::user()->entreprise_id)
+                ->first();
+
+            if ($existingTask) {
+                continue; // Skip if already assigned
+            }
+
+            // Validate task limit for non-SuperAdmin employees (check for ongoing tasks)
+            if (!$this->validateEmployeeTaskLimit($employee)) {
+                return back()->with('alertmessage', 'Employee ' . $employee->name . ' already has an ongoing task. Only SuperAdmin can have multiple ongoing tasks.');
+            }
+
             $employee_task = new employees_tasks;
             $employee_task->employee_id = $employee->id;
             $employee_task->employee_name = $employee->name;
@@ -183,6 +262,26 @@ class tasksController extends Controller
         $employees = $request->input('employees', []);
         foreach ($employees as $emp) {
             $employee = employees::where('user_id', $emp)->where('entreprise_id', Auth::user()->entreprise_id)->first();
+
+            if (!$employee) {
+                continue;
+            }
+
+            // Check if employee already has this task assigned
+            $existingTask = employees_tasks::where('employee_id', $employee->id)
+                ->where('task_id', $task->id)
+                ->where('entreprise_id', Auth::user()->entreprise_id)
+                ->first();
+
+            if ($existingTask) {
+                continue; // Skip if already assigned
+            }
+
+            // Validate task limit for non-SuperAdmin employees (check for ongoing tasks)
+            if (!$this->validateEmployeeTaskLimit($employee)) {
+                return back()->with('alertmessage', 'Employee ' . $employee->name . ' already has an ongoing task. Only SuperAdmin can have multiple ongoing tasks.');
+            }
+
             $employee_task = new employees_tasks;
             $employee_task->employee_id = $employee->id;
             $employee_task->employee_name = $employee->name;
@@ -349,6 +448,21 @@ class tasksController extends Controller
             foreach ($team_members as $member) {
                 $employee = Employees::find($member->employee_id);
                 if ($employee) {
+                    // Check if employee already has this task assigned
+                    $existingTask = employees_tasks::where('employee_id', $employee->id)
+                        ->where('task_id', $task->id)
+                        ->where('entreprise_id', $enterpriseId)
+                        ->first();
+
+                    if ($existingTask) {
+                        continue; // Skip if already assigned
+                    }
+
+                    // Validate task limit for non-SuperAdmin employees (check for ongoing tasks)
+                    if (!$this->validateEmployeeTaskLimit($employee, $task->id)) {
+                        return back()->with('alertmessage', 'Employee ' . $employee->name . ' already has an ongoing task. Only SuperAdmin can have multiple ongoing tasks.');
+                    }
+
                     $employee_task = new employees_tasks;
                     $employee_task->employee_id = $employee->id;
                     $employee_task->employee_name = $employee->name;
@@ -377,6 +491,21 @@ class tasksController extends Controller
         foreach ($employees as $employee_id) {
             $employee = Employees::where('user_id', $employee_id)->first();
             if ($employee) {
+                // Check if employee already has this task assigned
+                $existingTask = employees_tasks::where('employee_id', $employee->id)
+                    ->where('task_id', $task->id)
+                    ->where('entreprise_id', $enterpriseId)
+                    ->first();
+
+                if ($existingTask) {
+                    continue; // Skip if already assigned
+                }
+
+                // Validate task limit for non-SuperAdmin employees (check for ongoing tasks)
+                if (!$this->validateEmployeeTaskLimit($employee, $task->id)) {
+                    return back()->with('alertmessage', 'Employee ' . $employee->name . ' already has an ongoing task. Only SuperAdmin can have multiple ongoing tasks.');
+                }
+
                 $employee_task = new employees_tasks;
                 $employee_task->employee_id = $employee->id;
                 $employee_task->employee_name = $employee->name;
@@ -472,12 +601,16 @@ class tasksController extends Controller
             return back()->with('alertmessage', 'A timer is already running for this task. Please stop the existing timer before starting a new one.');
         }
 
-        // Check if the current user is a SuperAdmin
-        $isSuperAdmin = Auth::user()->hasRole('SuperAdmin') || Auth::user()->hasRole('super_admin');
+        // Check if the employee is a SuperAdmin (to allow multiple tasks)
+        // We check the employee's user, not the current authenticated user
+        $isEmployeeSuperAdmin = false;
+        if ($employee_user) {
+            $isEmployeeSuperAdmin = $employee_user->hasRole('SuperAdmin') || $employee_user->hasRole('super_admin');
+        }
 
         // Check if there's any other task timer running for this employee
-        // SuperAdmin can run multiple tasks, but regular users are limited to one task at a time
-        if (!$isSuperAdmin) {
+        // SuperAdmin employees can run multiple tasks, but regular employees are limited to one task at a time
+        if (!$isEmployeeSuperAdmin) {
             $existing_task_timers = tasks_timer::where('employee_id', $employee_id)
                 ->whereNull('end_date')
                 ->get();
@@ -574,14 +707,14 @@ class tasksController extends Controller
 
         $employee_user = User::where('id', $employee->user_id)->first();
 
-        // Only set is_loggedIn to 0 if there are no other active tasks
-        // This prevents incorrect "Off Work" status when SuperAdmin has multiple running tasks
-        $remaining_active_tasks = tasks_timer::where('employee_id', $employee_id)
+        // Check active tasks to determine if status should change to Off Work
+        // If the employee has only 1 (or fewer) active tasks, they are stopping the last one, so set to Off Work.
+        // Otherwise, they still have other tasks running, so keep them On Work.
+        $active_tasks_count = tasks_timer::where('employee_id', $employee_id)
             ->whereNull('end_date')
-            ->where('task_employee_id', '!=', $task) // Exclude the task being stopped
             ->count();
 
-        if ($remaining_active_tasks == 0) {
+        if ($active_tasks_count <= 1) {
             $employee_user->is_loggedIn = 0;
             $employee_user->save();
         }

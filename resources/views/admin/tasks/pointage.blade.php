@@ -85,10 +85,10 @@
                     <button type="button" id="exportBtn" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
                         Export to Excel
                     </button>
-                    <button type="button" @click="$dispatch('open-export-modal', { isCustomer: false })" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
+                    <button type="button" id="exportPDFBtn" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
                         Export to PDF
                     </button>
-                    <button type="button" @click="$dispatch('open-export-modal', { isCustomer: true })" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
+                    <button type="button" id="exportPDFBtnCustomer" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
                         Export to PDF for Customer
                     </button>
                 </div>
@@ -520,24 +520,7 @@
         </div>
     </div>
     
-    {{-- 3. Export Report Modal --}}
-    <div x-data="exportReportModal()" x-cloak x-show="show"
-         @open-export-modal.window="open($event.detail.isCustomer)"
-         class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
-        <div @click.outside="show = false" class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-            <div class="flex items-center justify-between p-4 border-b">
-                <h5 class="text-lg font-semibold" x-text="isCustomerReport ? 'Export for Customer' : 'Export Report'"></h5>
-                <button @click="show = false" type="button" class="text-gray-400 hover:text-gray-600">&times;</button>
-            </div>
-            <div class="p-6">
-                <p class="text-sm text-gray-700">The report will use the Start Date and End Date you selected. If no dates are selected, all records will be downloaded.</p>
-            </div>
-            <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-                <button @click="show = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Cancel</button>
-                <button @click="download()" type="button" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Download PDF</button>
-            </div>
-        </div>
-    </div>
+
 
 
     {{-- SCRIPTS --}}
@@ -706,50 +689,7 @@
             }
         }
 
-        function exportReportModal() {
-            return {
-                show: false,
-                isCustomerReport: false,
-                open(isCustomer) {
-                    this.isCustomerReport = isCustomer;
-                    this.show = true;
-                },
-                download() {
-                    const startDate = document.getElementById('startDateInput').value;
-                    const endDate = document.getElementById('endDateInput').value;
-                    if (!startDate || !endDate) {
-                        alert('Please select both a Start Date and an End Date.');
-                        return;
-                    }
-                    
-                    let url;
-                    if (this.isCustomerReport) {
-                        @if(Auth::user()->hasRole('Admin')) url = '/admin/CustomerPointagerepports/preview/' + startDate + '/' + endDate; @endif
-                        @if(Auth::user()->hasRole('Responsable de projet')) url = '/Responsable_de_projet/CustomerPointagerepports/preview/' + startDate + '/' + endDate; @endif
-                        @if(Auth::user()->hasRole('Employee')) url = '/employee/CustomerPointagerepports/preview/' + startDate + '/' + endDate; @endif
-                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = '/Responsable_gestionnaire/CustomerPointagerepports/preview/' + startDate + '/' + endDate; @endif
-                    } else {
-                        @if(Auth::user()->hasRole('Admin')) url = '/admin/Pointagerepports/downloadRepports/' + startDate + '/' + endDate; @endif
-                        @if(Auth::user()->hasRole('Responsable de projet')) url = '/Responsable_de_projet/Pointagerepports/downloadRepports/' + startDate + '/' + endDate; @endif
-                        @if(Auth::user()->hasRole('Employee')) url = '/employee/Pointagerepports/downloadRepports/' + startDate + '/' + endDate; @endif
-                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = '/Responsable_gestionnaire/Pointagerepports/downloadRepports/' + startDate + '/' + endDate; @endif
-                    }
-                    
-                    const params = new URLSearchParams(new FormData(document.getElementById('filterForm')));
-                    params.delete('task[]'); // Remove the old array syntax
-                    params.append('start_date', startDate);
-                    params.append('end_date', endDate);
-                    
-                    const taskSelect = document.getElementById('taskFilter').value;
-                    if (taskSelect) {
-                        params.append('task', taskSelect); // Append single task value
-                    }
 
-                    window.location.href = `${url}?${params.toString()}`;
-                    this.show = false;
-                }
-            }
-        }
 
         // --- PAGE SCRIPT LOGIC ---
         document.addEventListener('DOMContentLoaded', function() {
@@ -1015,6 +955,179 @@
                 }
 
                 window.location.href = downloadUrl;
+            });
+
+
+            // --- PDF Export Logic (Vanilla JS) ---
+            document.getElementById('exportPDFBtn').addEventListener('click', function() {
+                var startDate = document.getElementById('startDateInput').value;
+                var endDate = document.getElementById('endDateInput').value;
+                var employeeId = document.getElementById('employeeFilter').value;
+                var projectId = document.getElementById('projectFilter').value;
+                var selectedTasks = Array.from(document.getElementById('taskFilter').selectedOptions).map(option => option.value);
+                var clientId = document.getElementById('clientFilter').value;
+                var projectName = '';
+                var projectSelect = document.getElementById('projectFilter');
+                if (projectSelect.selectedIndex > 0) {
+                    projectName = projectSelect.options[projectSelect.selectedIndex].text;
+                }
+
+                // Get CSRF token from meta tag
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                if (startDate) {
+                    var url;
+                    if (startDate && endDate) {
+                        @if(Auth::user()->hasRole('Admin'))
+                        var url = '/admin/Pointagerepports/downloadRepports/' + startDate + '/' + endDate;
+                        @endif
+                        @if(Auth::user()->hasRole('Responsable de projet'))
+                        var url = '/Responsable_de_projet/Pointagerepports/downloadRepports/' + startDate + '/' + endDate;
+                        @endif
+                        @if(Auth::user()->hasRole('Employee'))
+                        var url = '/employee/Pointagerepports/downloadRepports/' + startDate + '/' + endDate;
+                        @endif
+                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                        var url = '/Responsable_gestionnaire/Pointagerepports/downloadRepports/' + startDate + '/' + endDate;
+                        @endif
+                    } else {
+                        @if(Auth::user()->hasRole('Admin'))
+                        var url = '/admin/Pointagerepports/downloadOneDayRepports/' + startDate;
+                        @endif
+                        @if(Auth::user()->hasRole('Responsable de projet'))
+                        var url = '/Responsable_de_projet/Pointagerepports/downloadOneDayRepports/' + startDate;
+                        @endif
+                        @if(Auth::user()->hasRole('Employee'))
+                        var url = '/employee/Pointagerepports/downloadOneDayRepports/' + startDate;
+                        @endif
+                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                        var url = '/Responsable_gestionnaire/Pointagerepports/downloadOneDayRepports/' + startDate;
+                        @endif
+                    }
+
+                    var queryParams = [];
+                    if (employeeId) {
+                        queryParams.push('employeeId=' + encodeURIComponent(employeeId));
+                    }
+                    if (projectId) {
+                        queryParams.push('projectId=' + encodeURIComponent(projectId));
+                    }
+                    if (selectedTasks.length > 0) {
+                        queryParams.push('taskIds=' + encodeURIComponent(JSON.stringify(selectedTasks)));
+                    }
+                    if (clientId) {
+                        queryParams.push('clientId=' + encodeURIComponent(clientId));
+                    }
+                    
+                    // Generate a meaningful filename
+                    var fileName = 'Report_';
+                    if (projectName) {
+                        fileName += projectName.replace(/[^a-z0-9]/gi, '_') + '_';
+                    }
+                    if (startDate) {
+                        fileName += startDate;
+                    }
+                    if (endDate) {
+                        fileName += '_to_' + endDate;
+                    }
+                    fileName += '.pdf';
+                    
+                    // Add filename to query params
+                    queryParams.push('fileName=' + encodeURIComponent(fileName));
+                    
+                    if (queryParams.length > 0) {
+                        url += '?' + queryParams.join('&');
+                    }
+
+                    fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken
+                        }
+                    })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        var url = window.URL.createObjectURL(blob);
+                        var a = document.createElement('a');
+                        a.href = url;
+                        a.download = fileName;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        alert('An error occurred while generating the PDF. Please try again.');
+                    });
+                } else {
+                    alert('Please select a start date first.');
+                }
+            });
+
+            document.getElementById('exportPDFBtnCustomer').addEventListener('click', function() {
+                var startDate = document.getElementById('startDateInput').value;
+                var endDate = document.getElementById('endDateInput').value;
+                var employeeId = document.getElementById('employeeFilter').value;
+                var projectId = document.getElementById('projectFilter').value;
+                var selectedTasks = Array.from(document.getElementById('taskFilter').selectedOptions).map(option => option.value);
+                var clientId = document.getElementById('clientFilter').value;
+                var projectName = '';
+                var projectSelect = document.getElementById('projectFilter');
+                if (projectSelect.selectedIndex > 0) {
+                    projectName = projectSelect.options[projectSelect.selectedIndex].text;
+                }
+
+                if (startDate) {
+                    var url;
+                    if (startDate && endDate) {
+                        @if(Auth::user()->hasRole('Admin'))
+                        var url = '/admin/CustomerPointagerepports/preview/' + startDate + '/' + endDate;
+                        @endif
+                        @if(Auth::user()->hasRole('Responsable de projet'))
+                        var url = '/Responsable_de_projet/CustomerPointagerepports/preview/' + startDate + '/' + endDate;
+                        @endif
+                        @if(Auth::user()->hasRole('Employee'))
+                        var url = '/employee/CustomerPointagerepports/preview/' + startDate + '/' + endDate;
+                        @endif
+                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                        var url = '/Responsable_gestionnaire/CustomerPointagerepports/preview/' + startDate + '/' + endDate;
+                        @endif
+                    } else {
+                        @if(Auth::user()->hasRole('Admin'))
+                        var url = '/admin/CustomerPointagerepports/previewOneDay/' + startDate;
+                        @endif
+                        @if(Auth::user()->hasRole('Responsable de projet'))
+                        var url = '/Responsable_de_projet/CustomerPointagerepports/previewOneDay/' + startDate;
+                        @endif
+                        @if(Auth::user()->hasRole('Employee'))
+                        var url = '/employee/CustomerPointagerepports/previewOneDay/' + startDate;
+                        @endif
+                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                        var url = '/Responsable_gestionnaire/CustomerPointagerepports/previewOneDay/' + startDate;
+                        @endif
+                    }
+
+                    var queryParams = [];
+                    if (employeeId) {
+                        queryParams.push('employeeId=' + encodeURIComponent(employeeId));
+                    }
+                    if (projectId) {
+                        queryParams.push('projectId=' + encodeURIComponent(projectId));
+                    }
+                    if (selectedTasks.length > 0) {
+                        queryParams.push('taskIds=' + encodeURIComponent(JSON.stringify(selectedTasks)));
+                    }
+                    if (clientId) {
+                        queryParams.push('clientId=' + encodeURIComponent(clientId));
+                    }
+                    
+                    if (queryParams.length > 0) {
+                        url += '?' + queryParams.join('&');
+                    }
+
+                    window.location.href = url;
+                }
             });
 
         });

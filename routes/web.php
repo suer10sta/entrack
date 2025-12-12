@@ -361,6 +361,7 @@ Route::middleware(['auth', 'role:Admin'])->name('admin.')->prefix('admin')->grou
     Route::get('employeesArchived/archive', [employeesController::class, 'employeeArchiveIndex'])->name('employeesArchived.archiveIndex');
 
     Route::get('/refresh-employees', [adminController::class, 'refreshEmployees'])->name('refresh-employees');
+    Route::get('/refresh-projects', [adminController::class, 'refreshProjects'])->name('refresh-projects');
 
     Route::get('/invoices/editDetailedInvoice/{id}', [ProjectController::class, 'editDetailedInvoice'])->name('invoices.editDetailedInvoice');
     Route::post('/invoices/updateDetailedInvoice/{id}', [ProjectController::class, 'updateDetailedInvoice'])->name('invoices.updateDetailedInvoice');
