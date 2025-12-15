@@ -214,6 +214,46 @@
                                            {{ $hours }}h:{{ sprintf('%02d', $minutes) }}m
                                         </td>
                                     </tr>
+
+                                    @php
+                                        $employeeProjectTasks = App\Models\employees_tasks::where('employee_id', $employee_id)
+                                            ->whereIn('task_id', $projectTasks)
+                                            ->get()
+                                            ->unique('task_id');
+                                    @endphp
+
+                                    @forelse($employeeProjectTasks as $employeeTask)
+                                        @php
+                                            $taskModel = App\Models\Tasks::find($employeeTask->task_id);
+                                            $taskTodayDuration = App\Models\tasks_timer::where('task_id', $employeeTask->task_id)
+                                                ->where('employee_id', $employee_id)
+                                                ->whereDate('start_date', '=', $today)
+                                                ->whereNotNull('duration')
+                                                ->sum('duration');
+                                            $taskTodayHours = intdiv($taskTodayDuration, 60);
+                                            $taskTodayMinutes = $taskTodayDuration % 60;
+
+                                            $projectShowRoute = '#';
+                                            if(Auth::user()->hasRole('Admin')) $projectShowRoute = route('admin.projects.show', $project->id);
+                                            elseif(Auth::user()->hasRole('Responsable de projet')) $projectShowRoute = route('Responsable_de_projet.projects.show', $project->id);
+                                            elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $projectShowRoute = route('Responsable_gestionnaire.projects.show', $project->id);
+                                            elseif(Auth::user()->hasRole('Employee')) $projectShowRoute = route('employee.projects.show', $project->id);
+                                        @endphp
+                                        <tr class="task-row text-left bg-white hover:bg-gray-50" data-client-name="{{ strtoupper($client->name) }}" data-project-name="{{ strtoupper($project->name) }}">
+                                            <td class="px-4 py-2"></td>
+                                            <td class="px-4 py-2 text-sm font-medium text-blue-600">
+                                                <a href="{{ $projectShowRoute }}" class="hover:underline">{{ $taskModel->title ?? $employeeTask->task_name }}</a>
+                                            </td>
+                        <td class="px-4 py-2 text-sm text-gray-700">
+                                                {{ $taskTodayHours }}h:{{ sprintf('%02d', $taskTodayMinutes) }}m
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr class="task-row text-left bg-white" data-client-name="{{ strtoupper($client->name) }}" data-project-name="{{ strtoupper($project->name) }}">
+                                            <td class="px-4 py-2"></td>
+                                            <td class="px-4 py-2 text-sm text-gray-500 italic" colspan="2">No tasks assigned to this employee for this project.</td>
+                                        </tr>
+                                    @endforelse
                                 @endforeach
                             @empty
                                 {{-- Empty state row (Inspired by Devis History) --}}

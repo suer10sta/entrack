@@ -14,7 +14,7 @@
         <x-dashboard.navbar />
 
         {{-- Contenu Principal --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#eaebef] p-4 sm:p-6 lg:p-8">
 
             <div class="w-full max-w-8xl mx-auto"> 
 
@@ -152,7 +152,7 @@
                                             <div class="absolute inset-0 flex items-center justify-center">
                                                 <span class="text-xs font-semibold {{ $taskprogressPercentage > 40 ? 'text-white' : 'text-gray-700' }}">{{$taskformattedProgressPercentage}}%</span>
                                             </div>
-                                            <div class="{{ $progressColor }} h-3 rounded-full" style="width: {{$taskformattedProgressPercentage}}%"></div>
+                                            <div class="{{ $progressColor }} h-3 rounded-full" style="width: {{ min($taskprogressPercentage, 100) }}%"></div>
                                         </div>
                                     </td>
                                     

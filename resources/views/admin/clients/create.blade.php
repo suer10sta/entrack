@@ -18,7 +18,7 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <main class="flex-1 p-8">
+        <main class="flex-1 p-8 bg-[#eaebef]">
             <div class="max-w-4xl mx-auto">
                 
                 {{-- Header --}}

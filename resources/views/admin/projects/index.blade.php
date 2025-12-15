@@ -21,7 +21,7 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#eaebef] p-8">
 
             {{-- Container for the table --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">

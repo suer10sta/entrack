@@ -6,7 +6,7 @@
     <title>DailyTrac Dashboard - New Task</title>
     @vite('resources/css/app.css')
 </head>
-<body class="bg-gray-50 flex h-screen overflow-hidden">
+<body class="bg-gray-100 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
     <x-dashboard.sidebar />
 
@@ -17,7 +17,7 @@
         <x-dashboard.navbar />
 
         {{-- Page Content --}}
-        <main class="p-6 md:p-8 lg:p-10">
+        <main class="p-6 md:p-8 lg:p-10 bg-gray-100 min-h-screen">
             
             {{-- This block determines the correct routes ONCE, avoiding huge repetition --}}
             @php

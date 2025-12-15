@@ -52,7 +52,7 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#eaebef] p-4 sm:p-6 lg:p-8">
             {{-- [FIX] Using max-w-10xl for "larger" cards and space-y-6 for spacing --}}
             <div class="max-w-10xl mx-auto space-y-6"> 
                 
@@ -215,7 +215,11 @@
                                     $employee_task = $taskEmployees->where('employee_id', $current_employee_id)->first();
                                 @endphp
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">{{ $task->title }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">
+                                        <a href="{{ route('admin.tasks.show', $task->id) }}" class="text-blue-600 hover:underline font-semibold">
+                                            {{ $task->title }}
+                                        </a>
+                                    </td>
                                     <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate whitespace-normal break-words">{{ $task->description }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">
                                         @foreach($employees as $employee)
@@ -729,12 +733,6 @@
             </div>
         </main>
     </div>
-    
-    {{-- 
-    =============================================
-    ALPINE.JS MODALS (Replacing Bootstrap)
-    =============================================
-    --}}
 
     {{-- 1. Edit Date/Time Modal --}}
     <div x-data="editDateModal()" x-cloak x-show="show" 

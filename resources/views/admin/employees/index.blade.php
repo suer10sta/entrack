@@ -19,7 +19,7 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#eaebef] p-8">
 
             {{-- Container for the table --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -131,24 +131,11 @@
                                         @endif
                                     </td>
                                     {{-- Name with Link --}}
-                                    <td class="px-2 py-2 text-xs text-gray-700 editable whitespace-normal break-words" data-id="{{$employee->id}}" data-column="name">
-                                         @php
-                                            $showRoute = '#';
-                                            $canView = Auth::user()->can('View employee');
-                                            if ($canView) {
-                                                if (Auth::user()->hasRole('Responsable de projet')) $showRoute = route('Responsable_de_projet.employees.show', $employee->id);
-                                                elseif (Auth::user()->hasRole('Admin')) $showRoute = route('admin.employees.show', $employee->id);
-                                                elseif (Auth::user()->hasRole('Employee')) $showRoute = route('employee.employees.show', $employee->id);
-                                                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $showRoute = route('Responsable_gestionnaire.employees.show', $employee->id);
-                                            }
-                                         @endphp
-                                         @if($canView)
-                                            <a href="{{ $showRoute }}" class="text-blue-600 hover:underline font-medium">
-                                              {{$employee->name}}
-                                            </a>
-                                         @else
-                                            <span class="font-medium text-gray-900">{{$employee->name}}</span>
-                                         @endif
+                                    <td class="px-2 py-2 text-xs text-gray-700 whitespace-normal break-words">
+                                        <a href="{{ route('admin.employees.show', $employee->id) }}"
+                                           class="text-blue-600 hover:underline font-medium">
+                                            {{ $employee->name }}
+                                        </a>
                                     </td>
                                     {{-- Email --}}
                                     <td class="px-2 py-2 text-xs text-gray-700 editable whitespace-normal break-all" data-id="{{$employee->id}}" data-column="email">{{$employee->email}}</td>

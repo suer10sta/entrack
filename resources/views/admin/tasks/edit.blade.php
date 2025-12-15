@@ -17,7 +17,7 @@
         <x-dashboard.navbar />
 
         {{-- Page Content --}}
-        <main class="p-6 md:p-8 lg:p-10">
+        <main class="p-6 md:p-8 lg:p-10 bg-[#eaebef]">
             
             @php
                 $user = Auth::user();

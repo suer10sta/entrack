@@ -21,7 +21,7 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#eaebef] p-8">
 
             {{-- Container for the table --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -111,26 +111,14 @@
                                         $firstTask = $projectTasks->first(); // Use first task to get project name if project not found
                                     @endphp
                                     {{-- Project Header Row --}}
-                                    <tr class="bg-gray-100 project-header"> {{-- Class for filtering --}}
-                                        <td colspan="8" class="px-2 py-2 font-semibold text-gray-800 text-sm break-words">
+                                    <tr class="bg-gray-200 project-header"> {{-- Class for filtering --}}
+                                        <td colspan="8" class="px-2 py-2 font-semibold text-gray-600 text-sm break-words text-center">
                                             @php
-                                                $projectShowRoute = '#';
-                                                $canViewProject = $project && Auth::user()->can('View project'); // Check if project exists
-                                                if ($canViewProject) {
-                                                    if (Auth::user()->hasRole('Admin')) $projectShowRoute = route('admin.projects.show', $projectId);
-                                                    elseif (Auth::user()->hasRole('Responsable de projet')) $projectShowRoute = route('Responsable_de_projet.projects.show', $projectId);
-                                                    elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $projectShowRoute = route('Responsable_gestionnaire.projects.show', $projectId);
-                                                    elseif (Auth::user()->hasRole('Employee')) $projectShowRoute = route('employee.projects.show', $projectId);
-                                                }
                                                 $projectName = $project ? $project->name : ($firstTask ? $firstTask->project_name : 'Unknown Project');
                                             @endphp
-                                            @if($canViewProject)
-                                                <a href="{{ $projectShowRoute }}" class="text-blue-600 hover:underline">
-                                                    {{ $projectName }}
-                                                </a>
-                                            @else
+                                            <a href="{{ route('admin.projects.show', $projectId) }}" class="text-blue-600 hover:underline">
                                                 {{ $projectName }}
-                                            @endif
+                                            </a>
                                         </td>
                                     </tr>
 
@@ -139,22 +127,9 @@
                                         <tr class="hover:bg-gray-50 task-row"> {{-- Class for filtering --}}
                                             {{-- Task Title --}}
                                             <td class="px-6 py-4 whitespace-normal break-words text-sm font-medium text-gray-900 task-title"> 
-                                                @php
-                                                    $taskShowRoute = '#';
-                                                    $canViewTask = Auth::user()->can('View task');
-                                                     if ($canViewTask) {
-                                                        if(auth()->user()->hasRole('Admin')) $taskShowRoute = route('admin.tasks.show', $task->id);
-                                                        elseif(auth()->user()->hasRole('Responsable de projet')) $taskShowRoute = route('Responsable_de_projet.tasks.show', $task->id);
-                                                        // Add Employee/Resp Gestionnaire if needed
-                                                     }
-                                                @endphp
-                                                 @if($canViewTask)
-                                                     <a href="{{ $taskShowRoute }}" class="text-blue-600 hover:underline">
-                                                         {{ $task->title }}
-                                                     </a>
-                                                 @else
-                                                      {{ $task->title }}
-                                                 @endif
+                                                <a href="{{ route('admin.tasks.show', $task->id) }}" class="text-blue-600 hover:underline">
+                                                    {{ $task->title }}
+                                                </a>
                                             </td>
                                             {{-- Teams --}}
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

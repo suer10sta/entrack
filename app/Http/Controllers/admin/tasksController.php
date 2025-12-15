@@ -83,6 +83,23 @@ class tasksController extends Controller
     }
 
     /**
+     * Safely resolve an employee display name, falling back to the related user name.
+     */
+    private function getEmployeeDisplayName($employee)
+    {
+        if (!$employee) {
+            return 'Unknown';
+        }
+
+        $name = trim((string) ($employee->name ?? ''));
+        if ($name === '' && $employee->user) {
+            $name = trim((string) ($employee->user->name ?? ''));
+        }
+
+        return $name !== '' ? $name : 'Unknown';
+    }
+
+    /**
      * Validate that non-SuperAdmin employees can only have one ongoing/active task
      * If there's no ongoing task timer, employee is "off work" and can be assigned a new task
      */
@@ -233,7 +250,7 @@ class tasksController extends Controller
 
             $employee_task = new employees_tasks;
             $employee_task->employee_id = $employee->id;
-            $employee_task->employee_name = $employee->name;
+            $employee_task->employee_name = $this->getEmployeeDisplayName($employee);
             $employee_task->task_id = $task->id;
             $employee_task->task_name = $task->title;
             $employee_task->entreprise_id = Auth::user()->entreprise_id;
@@ -284,7 +301,7 @@ class tasksController extends Controller
 
             $employee_task = new employees_tasks;
             $employee_task->employee_id = $employee->id;
-            $employee_task->employee_name = $employee->name;
+            $employee_task->employee_name = $this->getEmployeeDisplayName($employee);
             $employee_task->task_id = $task->id;
             $employee_task->task_name = $task->title;
             $employee_task->entreprise_id = Auth::user()->entreprise_id;
@@ -303,7 +320,7 @@ class tasksController extends Controller
         foreach ($superAdminEmployees as $superAdminEmployee) {
             $admin_task = new employees_tasks;
             $admin_task->employee_id = $superAdminEmployee->id;
-            $admin_task->employee_name = $superAdminEmployee->name;
+            $admin_task->employee_name = $this->getEmployeeDisplayName($superAdminEmployee);
             $admin_task->task_id = $task->id;
             $admin_task->task_name = $task->title;
             $admin_task->entreprise_id = Auth::user()->entreprise_id;
@@ -465,7 +482,7 @@ class tasksController extends Controller
 
                     $employee_task = new employees_tasks;
                     $employee_task->employee_id = $employee->id;
-                    $employee_task->employee_name = $employee->name;
+                    $employee_task->employee_name = $this->getEmployeeDisplayName($employee);
                     $employee_task->task_id = $task->id;
                     $employee_task->task_name = $task->title;
                     $employee_task->entreprise_id = $enterpriseId;
@@ -508,7 +525,7 @@ class tasksController extends Controller
 
                 $employee_task = new employees_tasks;
                 $employee_task->employee_id = $employee->id;
-                $employee_task->employee_name = $employee->name;
+                $employee_task->employee_name = $this->getEmployeeDisplayName($employee);
                 $employee_task->task_id = $task->id;
                 $employee_task->task_name = $task->title;
                 $employee_task->entreprise_id = $enterpriseId;
@@ -856,6 +873,11 @@ class tasksController extends Controller
 
                 // Convert work hours limit to minutes - ensure we handle decimals correctly
                 $work_minutes_limit = (float) $employee->workHours_limit * 60;
+
+                // If no limit is defined or set to 0, don't auto-stop the task
+                if ($work_minutes_limit <= 0) {
+                    continue;
+                }
 
                 // Only stop the task if total duration exceeds work hours limit
                 if ($total_duration > $work_minutes_limit) {
@@ -1742,7 +1764,7 @@ class tasksController extends Controller
                 ],
                 [
                     'task_name' => $newTask->title,
-                    'employee_name' => $employee->name,
+                    'employee_name' => $this->getEmployeeDisplayName($employee),
                     'entreprise_id' => auth()->user()->entreprise_id
                 ]
             );

@@ -15,7 +15,7 @@
 
         {{-- Main Content --}}
 
-        <main class="flex-1 p-8">
+        <main class="flex-1 p-8 bg-[#eaebef]">
 
             <div class="max-w-7xl mx-auto">
                 {{-- Header --}}

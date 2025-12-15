@@ -1,66 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-@include('dashboard_layouts.head')
-<body class="bg-gray-50 font-sans antialiased">
-    <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false }">
-        <!-- Sidebar -->
-        <aside class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 lg:translate-x-0 lg:static lg:inset-0"
-            :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}">
-            @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee') || Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                @include('employees.sidebar')
-            @endif
-            @if(Auth::user()->hasRole('Admin'))
-                @include('admin.sidebar')
-            @endif
-        </aside>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Report Preview</title>
+    @vite('resources/css/app.css')
+    @livewireStyles
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+    {{-- Sidebar --}}
+    <x-dashboard.sidebar />
 
-        <!-- Main ContentWrapper -->
-        <div class="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-            <!-- Header -->
-            <header class="bg-white border-b border-gray-200 sticky top-0 z-30">
-                <div class="flex items-center justify-between px-4 py-3">
-                    <div class="flex items-center gap-3">
-                        <button @click="sidebarOpen = true" class="text-gray-500 focus:outline-none lg:hidden">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                        </button>
-                        <h1 class="text-xl font-bold text-gray-800">Customer Report Preview</h1>
+    {{-- Main wrapper --}}
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        {{-- Navbar --}}
+        <x-dashboard.navbar />
+
+        {{-- Content --}}
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+            <div class="max-w-7xl mx-auto space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Tasks</p>
+                        <h1 class="text-2xl font-bold text-gray-900">Customer report preview</h1>
+                        <p class="text-sm text-gray-600">
+                            {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} – {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }} · {{ $projectName }}
+                        </p>
                     </div>
-                    <div class="flex items-center gap-4">
-                        @include('dashboard_layouts.navbar')
-                    </div>
+                    <a href="{{ route('admin.tasks.pointage') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12l7.5-7.5M3 12h18"/></svg>
+                        Back to tasks
+                    </a>
                 </div>
-            </header>
 
-            <!-- Main Content -->
-            <main class="w-full grow p-6">
-                <div class="flex flex-col lg:flex-row gap-6 h-full">
-                    <!-- Left Column: PDF Preview -->
-                    <div class="w-full lg:w-2/3 flex flex-col">
-                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col h-full min-h-[600px]">
-                            <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                                <h4 class="text-lg font-semibold text-gray-800">PDF Preview</h4>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {{-- PDF preview --}}
+                    <div class="lg:col-span-2">
+                        <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
+                                <div>
+                                    <h2 class="text-base font-semibold text-gray-900">PDF preview</h2>
+                                    <p class="text-sm text-gray-600">Check the worksheet before sending it to the customer.</p>
+                                </div>
                             </div>
-                            <div class="flex-1 bg-gray-100 p-0 relative">
-                                <iframe src="{{ $pdfUrl }}" class="w-full h-full absolute inset-0 border-0"></iframe>
+                            <div class="relative bg-gray-100 min-h-[620px]">
+                                <iframe src="{{ $pdfUrl }}" class="absolute inset-0 w-full h-full border-0 rounded-b-lg"></iframe>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right Column: Email Options -->
-                    <div class="w-full lg:w-1/3">
-                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden sticky top-6">
-                            <div class="p-4 border-b border-gray-200 bg-gray-50">
-                                <h4 class="text-lg font-semibold text-gray-800">Email Options</h4>
+                    {{-- Email form --}}
+                    <div class="lg:col-span-1">
+                        <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden lg:sticky lg:top-6">
+                            <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
+                                <h2 class="text-base font-semibold text-gray-900">Send by email</h2>
+                                <p class="text-sm text-gray-600">Recipients will receive the attached worksheet PDF.</p>
                             </div>
-                            <div class="p-6">
+                            <div class="p-6 space-y-6">
                                 @if(session('success'))
-                                    <div class="mb-4 p-4 rounded-lg bg-green-50 border border-green-200 text-green-700 flex items-center gap-2">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                        {{ session('success') }}
+                                    <div class="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-800">
+                                        <svg class="w-5 h-5 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                                        <div class="text-sm font-medium">{{ session('success') }}</div>
                                     </div>
                                 @endif
 
-                                <form action="{{ route('admin.CustomerPointagerepports.send') }}" method="POST">
+                                <form action="{{ route('admin.CustomerPointagerepports.send') }}" method="POST" class="space-y-5">
                                     @csrf
                                     <input type="hidden" name="start_date" value="{{ $startDate }}">
                                     <input type="hidden" name="end_date" value="{{ $endDate }}">
@@ -70,24 +74,24 @@
                                     <input type="hidden" name="client_id" value="{{ $clientId }}">
                                     <input type="hidden" name="redirect_to" value="{{ route('admin.index') }}">
 
-                                    <div class="mb-4">
-                                        <label for="recipients" class="block text-sm font-medium text-gray-700 mb-1">Recipients (comma-separated)</label>
+                                    <div class="space-y-1">
+                                        <label for="recipients" class="text-sm font-medium text-gray-700">Recipients (comma-separated)</label>
                                         <textarea id="recipients" name="recipients" rows="3" required
-                                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5"
+                                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                             placeholder="email@example.com, another@example.com">{{ implode(',', $projectContacts) }}</textarea>
                                     </div>
 
-                                    <div class="mb-4">
-                                        <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                                    <div class="space-y-1">
+                                        <label for="subject" class="text-sm font-medium text-gray-700">Subject</label>
                                         <input type="text" id="subject" name="subject" required
                                             value="Worksheet - {{ $projectName }} - {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}"
-                                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5">
+                                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                                     </div>
 
-                                    <div class="mb-6">
-                                        <label for="body" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                                    <div class="space-y-1">
+                                        <label for="body" class="text-sm font-medium text-gray-700">Message</label>
                                         <textarea id="body" name="body" rows="8" required
-                                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5">Bonjour,
+                                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">Bonjour,
 Je vous transmets ci-joint le worksheet pour validation.
 
 N'hésitez pas à me contacter si vous avez besoin de précisions ou de documents complémentaires.
@@ -96,13 +100,13 @@ Merci d'avance pour votre retour.
 Bien à vous</textarea>
                                     </div>
 
-                                    <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                                        <button type="submit" class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full sm:w-auto transition-colors">
-                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                                            Send Email
+                                    <div class="flex flex-col sm:flex-row gap-3">
+                                        <button type="submit" class="inline-flex justify-center items-center px-4 py-2 text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full sm:w-auto">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                            Send email
                                         </button>
-                                        <a href="{{ route('admin.tasks.pointage') }}" class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 w-full sm:w-auto transition-colors">
-                                            Back to Tasks
+                                        <a href="{{ route('admin.tasks.pointage') }}" class="inline-flex justify-center items-center px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 w-full sm:w-auto">
+                                            Cancel
                                         </a>
                                     </div>
                                 </form>
@@ -110,20 +114,10 @@ Bien à vous</textarea>
                         </div>
                     </div>
                 </div>
-            </main>
-        </div>
-        
-        <!-- Mobile Sidebar Overlay -->
-        <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden" 
-             x-transition:enter="transition-opacity ease-linear duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition-opacity ease-linear duration-300"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-             style="display: none;"></div>
+            </div>
+        </main>
     </div>
 
-    @include('dashboard_layouts.scripts')
+    @livewireScripts
 </body>
 </html>

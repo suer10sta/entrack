@@ -14,7 +14,7 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <main class="flex-1 p-6">
+        <main class="flex-1 p-6 bg-[#eaebef]">
         {{-- Header --}}
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-6 rounded-lg shadow border border-gray-200 mb-4">
           <h1 class="text-lg font-semibold text-gray-900">Archived Employees</h1>

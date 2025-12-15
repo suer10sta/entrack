@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -74,7 +74,7 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8 space-y-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#eaebef] p-8 space-y-8">
 
             {{-- 1. Header Section --}}
             <div class="flex flex-wrap justify-between items-center gap-4">
@@ -299,9 +299,16 @@
                             
                                 @foreach($tasks as $task)
                                     @php 
-                                        $task_project_id = App\Models\Tasks::where('id', $task->task_id)->first()->project_id;
-                                        $project = App\Models\Project::where('id', $task_project_id)->first();
-                                        $employee = App\Models\Employees::where('id', $task->employee_id)->first();
+                                        // Use cached relationships if present; fall back to DB lookups safely
+                                        $taskModel = App\Models\Tasks::find($task->task_id);
+                                        $task_project_id = $task->project_id ?? optional($taskModel)->project_id;
+                                        $project = $task_project_id ? App\Models\Project::find($task_project_id) : null;
+                                        $employee = App\Models\Employees::find($task->employee_id);
+
+                                        // Skip rendering if any critical relation is missing to avoid runtime errors
+                                        if (!$taskModel || !$project || !$employee) {
+                                            continue;
+                                        }
                                         $groupTotalDuration += $task->duration;
                                         $groupTotal += $task->end_date ? $task->cost : 0;
                                         $groupTotalRecette += $task->end_date ? (($task->duration / 60) * $project->cost_per_hour) : 0;
@@ -404,14 +411,15 @@
                                                 @if($task->end_date)
                                                 <button type="button" class="inline-flex justify-center w-full text-white bg-blue-600 hover:bg-blue-700 font-medium rounded text-xs px-2 py-1 text-center" 
                                                     @click="$dispatch('open-move-modal', {
-                                                        taskId: {{$task->id}}, 
+                                                        timerId: {{$task->id}}, 
+                                                        taskId: {{$task->task_id}}, 
                                                         projectId: {{$task_project_id}}, 
                                                         employeeId: {{$task->employee_id}}, 
                                                         startDate: '{{\Carbon\Carbon::parse($task->start_date)->format('Y-m-d\TH:i')}}', 
                                                         endDate: '{{\Carbon\Carbon::parse($task->end_date)->format('Y-m-d\TH:i')}}', 
                                                         duration: {{$task->duration}}
                                                     })">
-                                                    Move
+                                                    Move Duration
                                                 </button>
                                                 @endif
                                             </div>
@@ -508,7 +516,7 @@
                 </div>
                 <div>
                     <label for="moveDuration" class="block text-sm font-medium text-gray-700 mb-1">Duration (HH:MM)</label>
-                    <input type="text" x-model="duration" id="moveDuration" @input="validateDurationFormat"
+                    <input type="text" x-model="duration" id="moveDuration" @input="validateDurationFormat()"
                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
                            placeholder="00h:00m" pattern="^(\d+)h:(\d{2})m$">
                 </div>
@@ -591,10 +599,24 @@
             }
         }
         
+        @php
+            $rolePrefix = 'admin';
+            if (auth()->user()->hasRole('Responsable de projet')) {
+                $rolePrefix = 'Responsable_de_projet';
+            } elseif (auth()->user()->hasRole('Employee')) {
+                $rolePrefix = 'employee';
+            } elseif (auth()->user()->hasRole('Responsable de projet et gestionnaire')) {
+                $rolePrefix = 'Responsable_gestionnaire';
+            }
+            // super_admin / SuperAdmin fallback to admin prefix by default
+        @endphp
+        const rolePrefix = @json($rolePrefix);
+
         function moveDurationModal() {
             return {
                 show: false,
-                originalTaskId: null,
+                originalTimerId: null,
+                currentTaskId: null,
                 projectId: '',
                 taskId: '',
                 employeeId: '',
@@ -602,12 +624,15 @@
                 endDate: '',
                 duration: '',
                 durationMinutes: 0,
+                originalDuration: 0,
                 open(detail) {
-                    this.originalTaskId = detail.taskId;
+                    this.originalTimerId = detail.timerId;
+                    this.currentTaskId = detail.taskId;
                     this.projectId = detail.projectId;
                     this.employeeId = detail.employeeId;
                     this.startDate = detail.startDate;
                     this.endDate = detail.endDate;
+                    this.originalDuration = detail.duration;
                     this.durationMinutes = detail.duration;
                     this.duration = this.minutesToHoursMinutes(detail.duration);
                     this.loadTasks(detail.taskId);
@@ -619,7 +644,7 @@
                     @if(Auth::user()->hasRole('Responsable de projet')) url = `/Responsable_de_projet/tasks/get-project-tasks/${this.projectId}`; @endif
                     @if(Auth::user()->hasRole('Employee')) url = `/employee/tasks/get-project-tasks/${this.projectId}`; @endif
                     @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = `/Responsable_gestionnaire/tasks/get-project-tasks/${this.projectId}`; @endif
-                    
+
                     fetch(url)
                         .then(response => response.json())
                         .then(tasks => {
@@ -647,6 +672,8 @@
                 validateDurationFormat() {
                     if (/^(\d+)h:(\d{2})m$/.test(this.duration)) {
                         this.durationMinutes = this.hoursMinutesToMinutes(this.duration);
+                        // keep string normalized (e.g. 1h:5m -> 01h:05m)
+                        this.duration = this.minutesToHoursMinutes(this.durationMinutes);
                     }
                 },
                 saveMove() {
@@ -654,12 +681,23 @@
                         alert('Please enter duration in format (e.g., 01h:30m or 10h:00m)');
                         return;
                     }
+                    if (this.durationMinutes <= 0) {
+                        alert('Duration must be greater than 0 minutes.');
+                        return;
+                    }
+                    if (this.durationMinutes > this.originalDuration) {
+                        alert('You cannot move more time than the original duration.');
+                        return;
+                    }
                     const formData = {
-                        original_task_id: this.originalTaskId, new_task_id: this.taskId,
+                        original_task_id: this.originalTimerId, 
+                        new_task_id: this.taskId || this.currentTaskId,
                         employee_id: this.employeeId, start_date: this.startDate,
-                        end_date: this.endDate, duration: this.durationMinutes,
+                        end_date: this.endDate,
+                        duration: this.durationMinutes,
                         _token: '{{ csrf_token() }}'
                     };
+
                     let url = '';
                     @if(Auth::user()->hasRole('Admin')) url = '/admin/tasks/move-duration'; @endif
                     @if(Auth::user()->hasRole('Responsable de projet')) url = '/Responsable_de_projet/tasks/move-duration'; @endif
@@ -667,7 +705,9 @@
                     @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = '/Responsable_gestionnaire/tasks/move-duration'; @endif
 
                     $.ajax({
-                        url: url, type: 'POST', data: formData,
+                        url: url,
+                        type: 'POST',
+                        data: formData,
                         success: (response) => {
                             if (response.status === 'success') location.reload();
                             else alert('Failed: ' + (response.message || 'Unknown error'));
@@ -959,7 +999,7 @@
 
 
             // --- PDF Export Logic (Vanilla JS) ---
-            document.getElementById('exportPDFBtn').addEventListener('click', function() {
+    document.getElementById('exportPDFBtn').addEventListener('click', function() {
                 var startDate = document.getElementById('startDateInput').value;
                 var endDate = document.getElementById('endDateInput').value;
                 var employeeId = document.getElementById('employeeFilter').value;
@@ -975,35 +1015,13 @@
                 // Get CSRF token from meta tag
                 var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-                if (startDate) {
-                    var url;
-                    if (startDate && endDate) {
-                        @if(Auth::user()->hasRole('Admin'))
-                        var url = '/admin/Pointagerepports/downloadRepports/' + startDate + '/' + endDate;
-                        @endif
-                        @if(Auth::user()->hasRole('Responsable de projet'))
-                        var url = '/Responsable_de_projet/Pointagerepports/downloadRepports/' + startDate + '/' + endDate;
-                        @endif
-                        @if(Auth::user()->hasRole('Employee'))
-                        var url = '/employee/Pointagerepports/downloadRepports/' + startDate + '/' + endDate;
-                        @endif
-                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                        var url = '/Responsable_gestionnaire/Pointagerepports/downloadRepports/' + startDate + '/' + endDate;
-                        @endif
-                    } else {
-                        @if(Auth::user()->hasRole('Admin'))
-                        var url = '/admin/Pointagerepports/downloadOneDayRepports/' + startDate;
-                        @endif
-                        @if(Auth::user()->hasRole('Responsable de projet'))
-                        var url = '/Responsable_de_projet/Pointagerepports/downloadOneDayRepports/' + startDate;
-                        @endif
-                        @if(Auth::user()->hasRole('Employee'))
-                        var url = '/employee/Pointagerepports/downloadOneDayRepports/' + startDate;
-                        @endif
-                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                        var url = '/Responsable_gestionnaire/Pointagerepports/downloadOneDayRepports/' + startDate;
-                        @endif
-                    }
+        if (startDate) {
+            var url;
+            if (startDate && endDate) {
+                url = '/' + rolePrefix + '/Pointagerepports/downloadRepports/' + startDate + '/' + endDate;
+            } else {
+                url = '/' + rolePrefix + '/Pointagerepports/downloadOneDayRepports/' + startDate;
+            }
 
                     var queryParams = [];
                     if (employeeId) {
@@ -1079,34 +1097,12 @@
                 }
 
                 if (startDate) {
-                    var url;
-                    if (startDate && endDate) {
-                        @if(Auth::user()->hasRole('Admin'))
-                        var url = '/admin/CustomerPointagerepports/preview/' + startDate + '/' + endDate;
-                        @endif
-                        @if(Auth::user()->hasRole('Responsable de projet'))
-                        var url = '/Responsable_de_projet/CustomerPointagerepports/preview/' + startDate + '/' + endDate;
-                        @endif
-                        @if(Auth::user()->hasRole('Employee'))
-                        var url = '/employee/CustomerPointagerepports/preview/' + startDate + '/' + endDate;
-                        @endif
-                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                        var url = '/Responsable_gestionnaire/CustomerPointagerepports/preview/' + startDate + '/' + endDate;
-                        @endif
-                    } else {
-                        @if(Auth::user()->hasRole('Admin'))
-                        var url = '/admin/CustomerPointagerepports/previewOneDay/' + startDate;
-                        @endif
-                        @if(Auth::user()->hasRole('Responsable de projet'))
-                        var url = '/Responsable_de_projet/CustomerPointagerepports/previewOneDay/' + startDate;
-                        @endif
-                        @if(Auth::user()->hasRole('Employee'))
-                        var url = '/employee/CustomerPointagerepports/previewOneDay/' + startDate;
-                        @endif
-                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                        var url = '/Responsable_gestionnaire/CustomerPointagerepports/previewOneDay/' + startDate;
-                        @endif
-                    }
+            var url;
+            if (startDate && endDate) {
+                url = '/' + rolePrefix + '/CustomerPointagerepports/preview/' + startDate + '/' + endDate;
+            } else {
+                url = '/' + rolePrefix + '/CustomerPointagerepports/previewOneDay/' + startDate;
+            }
 
                     var queryParams = [];
                     if (employeeId) {
