@@ -9,7 +9,11 @@
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     {{-- Main wrapper --}}
     <div class="flex flex-col flex-1 overflow-y-auto">
@@ -33,9 +37,34 @@
                     </a>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {{-- PDF preview --}}
-                    <div class="lg:col-span-2">
+                @php
+                    $hasSkippedTasks = isset($skippedTasks) && is_array($skippedTasks) && count($skippedTasks) > 0;
+                @endphp
+
+                @if($hasSkippedTasks)
+                    <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 flex items-start gap-3">
+                        <svg class="w-5 h-5 text-amber-500 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.007v.008H12v-.008zm9-3.75a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="text-sm text-amber-800">
+                            <p class="font-medium">
+                                Some tasks were not included in the customer PDF because their data is incomplete or inconsistent.
+                            </p>
+                            <p class="mt-1">
+                                The rest of the report has been generated correctly. You can review the skipped tasks details.
+                            </p>
+                            <button type="button"
+                                    onclick="window.showCustomerSkippedTasksModal()"
+                                    class="mt-2 inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-amber-900 bg-amber-100 hover:bg-amber-200 border border-amber-200">
+                                View skipped tasks
+                            </button>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="space-y-6">
+                    {{-- PDF preview (full width, very large) --}}
+                    <div>
                         <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
                             <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
                                 <div>
@@ -43,14 +72,14 @@
                                     <p class="text-sm text-gray-600">Check the worksheet before sending it to the customer.</p>
                                 </div>
                             </div>
-                            <div class="relative bg-gray-100 min-h-[620px]">
+                            <div class="relative bg-gray-100 min-h-[85vh]">
                                 <iframe src="{{ $pdfUrl }}" class="absolute inset-0 w-full h-full border-0 rounded-b-lg"></iframe>
                             </div>
                         </div>
                     </div>
 
                     {{-- Email form --}}
-                    <div class="lg:col-span-1">
+                    <div>
                         <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden lg:sticky lg:top-6">
                             <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
                                 <h2 class="text-base font-semibold text-gray-900">Send by email</h2>
@@ -119,5 +148,113 @@ Bien à vous</textarea>
     </div>
 
     @livewireScripts
+
+    @if($hasSkippedTasks)
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Optionally auto-open the modal on load
+                // window.showCustomerSkippedTasksModal();
+            });
+
+            window.showCustomerSkippedTasksModal = function() {
+                var modal = document.getElementById('customerSkippedTasksModal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                }
+            };
+
+            window.closeCustomerSkippedTasksModal = function() {
+                var modal = document.getElementById('customerSkippedTasksModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                }
+            };
+        </script>
+
+        <!-- Skipped tasks modal for customer report -->
+        <div id="customerSkippedTasksModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4">
+                <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        Tasks not included in the customer PDF
+                    </h3>
+                    <button type="button"
+                            onclick="closeCustomerSkippedTasksModal()"
+                            class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                        <span class="sr-only">Close</span>
+                        &times;
+                    </button>
+                </div>
+                <div class="px-4 py-3 text-sm text-gray-700 border-b border-gray-100">
+                    These tasks were skipped because their data is incomplete or inconsistent
+                    (for example: missing project, missing hourly rate, or missing links).
+                    You can fix them later; the rest of the worksheet is correct.
+                </div>
+                <div class="px-4 py-3 max-h-96 overflow-y-auto">
+                    <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
+                                    Task
+                                </th>
+                                <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
+                                    Project
+                                </th>
+                                <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
+                                    Employee
+                                </th>
+                                <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
+                                    Start date
+                                </th>
+                                <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
+                                    End date
+                                </th>
+                                <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
+                                    Duration
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white">
+                            @foreach($skippedTasks as $task)
+                                @php
+                                    $durationMinutes = $task['duration'] ?? 0;
+                                    $hours = floor($durationMinutes / 60);
+                                    $minutes = $durationMinutes % 60;
+                                    $durationText = sprintf('%02dh:%02dm', $hours, $minutes);
+                                @endphp
+                                <tr>
+                                    <td class="px-3 py-2 text-sm text-gray-700 border-b border-gray-200">
+                                        {{ $task['task_name'] ?? '' }}
+                                    </td>
+                                    <td class="px-3 py-2 text-sm text-gray-700 border-b border-gray-200">
+                                        {{ $task['project_name'] ?? '' }}
+                                    </td>
+                                    <td class="px-3 py-2 text-sm text-gray-700 border-b border-gray-200">
+                                        {{ $task['employee_name'] ?? '' }}
+                                    </td>
+                                    <td class="px-3 py-2 text-sm text-gray-700 border-b border-gray-200">
+                                        {{ $task['start_date'] ?? '' }}
+                                    </td>
+                                    <td class="px-3 py-2 text-sm text-gray-700 border-b border-gray-200">
+                                        {{ $task['end_date'] ?? '' }}
+                                    </td>
+                                    <td class="px-3 py-2 text-sm text-gray-700 border-b border-gray-200">
+                                        {{ $durationText }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="px-4 py-3 flex justify-end border-t border-gray-200">
+                    <button type="button"
+                            onclick="closeCustomerSkippedTasksModal()"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 </body>
 </html>

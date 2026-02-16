@@ -106,7 +106,7 @@ thead {
 
     <div class="details">
         <div class="details-left">
-            <img src="{{ Storage::disk('public')->url('entreprise_images/' . $entreprise->image) }}" alt="Company Logo"
+            <img src="{{ storage_path('app/public/' . $entreprise->image) }}" alt="Company Logo"
                 class="company-logo">
         </div>
         <div class="details-right">

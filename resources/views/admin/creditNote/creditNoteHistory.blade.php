@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credit Note History - DailyTrac</title> 
+    <title>Credit Note History - DalyTrac</title> 
     
     @vite('resources/css/app.css')
     @livewireStyles
@@ -91,7 +91,11 @@
 
     <div class="flex h-screen overflow-hidden" x-data> 
         {{-- Sidebar Component --}}
+        @if(Auth::user()->hasRole('Admin'))
         <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
         {{-- Main Wrapper (Navbar + Content) --}}
         <div class="flex flex-col flex-1 overflow-y-auto">
@@ -217,22 +221,22 @@
                                     <td>
                                         @if(Auth::user()->hasRole('Responsable de projet'))
                                         <a href="{{ route('Responsable_de_projet.invoices.serveCreditNotePdf', $credit_note->id) }}" target="_blank" class="credit-note-link">
-                                            NC-{{date('ym')}}{{$credit_note->credit_note_number}}
+                                            NC-{{ $credit_note->created_at->format('ym') }}{{ $credit_note->credit_note_number }}
                                         </a>
                                         @endif
                                         @if(Auth::user()->hasRole('Admin'))
                                         <a href="{{ route('admin.invoices.serveCreditNotePdf', $credit_note->id ) }}" target="_blank" class="credit-note-link">
-                                            NC-{{date('ym')}}{{$credit_note->credit_note_number}}
+                                            NC-{{ $credit_note->created_at->format('ym') }}{{ $credit_note->credit_note_number }}
                                         </a>
                                         @endif
                                         @if(Auth::user()->hasRole('Employee'))
                                         <a href="{{ route('employee.invoices.serveCreditNotePdf', $credit_note->id) }}" target="_blank" class="credit-note-link">
-                                            NC-{{date('ym')}}{{$credit_note->credit_note_number}}
+                                            NC-{{ $credit_note->created_at->format('ym') }}{{ $credit_note->credit_note_number }}
                                         </a>
                                         @endif
                                         @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
                                         <a href="{{ route('Responsable_gestionnaire.invoices.serveCreditNotePdf', $credit_note->id) }}" target="_blank" class="credit-note-link">
-                                            NC-{{date('ym')}}{{$credit_note->credit_note_number}}
+                                            NC-{{ $credit_note->created_at->format('ym') }}{{ $credit_note->credit_note_number }}
                                         </a>
                                         @endif
                                     </td>

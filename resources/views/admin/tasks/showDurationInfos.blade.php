@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}"> {{-- IMPORTANT pour AJAX --}}
-    <title>DailyTrac Dashboard</title>
+    <title>DalyTrac Dashboard</title>
     @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     <div class="flex flex-col flex-1 overflow-y-auto">
         {{-- Navbar --}}

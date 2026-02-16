@@ -1,0 +1,104 @@
+===========================================
+FIX FILE PERMISSIONS ON VPS
+===========================================
+
+The error shows PHP can't read files due to permissions.
+Run these commands on your VPS:
+
+===========================================
+STEP 1: Fix App Directory Permissions
+===========================================
+# Navigate to your app directory
+cd /var/www/entrack
+
+# Set ownership (replace www-data with nginx if using Nginx)
+sudo chown -R www-data:www-data /var/www/entrack
+
+# OR if you want ubuntu user to own it (and add www-data to group):
+sudo chown -R ubuntu:www-data /var/www/entrack
+
+# Set directory permissions (directories should be 755)
+sudo find /var/www/entrack -type d -exec chmod 755 {} \;
+
+# Set file permissions (files should be 644)
+sudo find /var/www/entrack -type f -exec chmod 644 {} \;
+
+# Make artisan executable
+sudo chmod +x /var/www/entrack/artisan
+
+# Make storage and bootstrap/cache writable
+sudo chmod -R 775 /var/www/entrack/storage
+sudo chmod -R 775 /var/www/entrack/bootstrap/cache
+
+# Set ownership for storage and cache
+sudo chown -R www-data:www-data /var/www/entrack/storage
+sudo chown -R www-data:www-data /var/www/entrack/bootstrap/cache
+
+===========================================
+STEP 2: Specific Fix for TranslateHelper.php
+===========================================
+# Make sure the Helpers directory and file are accessible
+sudo chmod 755 /var/www/entrack/app/Helpers
+sudo chmod 644 /var/www/entrack/app/Helpers/TranslateHelper.php
+
+# Set ownership
+sudo chown www-data:www-data /var/www/entrack/app/Helpers/TranslateHelper.php
+
+===========================================
+STEP 3: Alternative - Quick Fix (if above doesn't work)
+===========================================
+# Give read access to all files recursively
+cd /var/www/entrack
+sudo chmod -R 755 /var/www/entrack
+sudo chmod -R 644 /var/www/entrack/*.php
+sudo chmod -R 755 /var/www/entrack/app
+sudo chmod -R 755 /var/www/entrack/vendor
+
+===========================================
+STEP 4: Try Running Migrations Again
+===========================================
+php artisan migrate
+
+# If still permission errors, try with sudo (but this is not ideal)
+# sudo -u www-data php artisan migrate
+
+===========================================
+RECOMMENDED APPROACH (Best Practice)
+===========================================
+# Set proper ownership
+sudo chown -R www-data:www-data /var/www/entrack
+
+# Set directory permissions
+sudo find /var/www/entrack -type d -exec chmod 755 {} \;
+
+# Set file permissions  
+sudo find /var/www/entrack -type f -exec chmod 644 {} \;
+
+# Make storage and cache writable
+sudo chmod -R 775 /var/www/entrack/storage
+sudo chmod -R 775 /var/www/entrack/bootstrap/cache
+sudo chown -R www-data:www-data /var/www/entrack/storage
+sudo chown -R www-data:www-data /var/www/entrack/bootstrap/cache
+
+# Make artisan executable
+sudo chmod +x /var/www/entrack/artisan
+
+===========================================
+VERIFY PERMISSIONS
+===========================================
+# Check the problematic file
+ls -la /var/www/entrack/app/Helpers/TranslateHelper.php
+
+# Should show something like:
+# -rw-r--r-- 1 www-data www-data ... TranslateHelper.php
+
+# Check directory permissions
+ls -ld /var/www/entrack/app/Helpers
+
+# Should show:
+# drwxr-xr-x ... Helpers
+
+===========================================
+DONE!
+===========================================
+

@@ -93,7 +93,18 @@ class ProfileController extends Controller
     
     public function showUpgradePage(): View
     {
-        return view('admin.profile.upgrade_page');
+        $entreprise = Auth::user()?->entreprise;
+        $renewalSync = $entreprise
+            ? $entreprise->renewalSyncStatus()
+            : [
+                'state' => 'unknown',
+                'is_synced' => false,
+                'expected' => 'auto',
+                'stripe' => null,
+                'label' => 'No entreprise linked to this account.',
+            ];
+
+        return view('admin.profile.upgrade_page', compact('renewalSync'));
     }
 
     /**

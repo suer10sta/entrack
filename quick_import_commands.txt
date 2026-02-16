@@ -1,0 +1,77 @@
+===========================================
+QUICK IMPORT COMMANDS - Copy and Paste
+===========================================
+
+YOUR DATABASE INFO:
+- Database: old_app_backup
+- Username: postgres
+- Password: 0000
+- VPS IP: 51.75.205.36
+- VPS User: ubuntu
+- VPS Password: bureaumerciervps1748+*
+
+===========================================
+STEP 1: Transfer file from Windows to VPS
+===========================================
+Open PowerShell and run:
+
+scp "C:\Users\Admin\Desktop\full_backup2_utf8.sql" ubuntu@51.75.205.36:/home/ubuntu/
+
+(Enter password: bureaumerciervps1748+*)
+
+
+===========================================
+STEP 2: SSH into VPS
+===========================================
+In PowerShell:
+
+ssh ubuntu@51.75.205.36
+
+(Enter password: bureaumerciervps1748+*)
+
+
+===========================================
+STEP 3: On VPS - Import Database
+===========================================
+⚠️ IMPORTANT: The database already has tables/data. You need to DROP it first!
+
+Once logged into VPS, run these commands:
+
+# Ensure PostgreSQL is running
+sudo systemctl status postgresql
+
+# Fix file permissions (so postgres user can read the file)
+sudo chmod 644 /home/ubuntu/full_backup2_utf8.sql
+
+# OPTION 1: Drop and recreate database (CLEAN IMPORT - RECOMMENDED)
+# This will DELETE all existing data in old_app_backup!
+sudo -u postgres psql -c "DROP DATABASE IF EXISTS old_app_backup;"
+sudo -u postgres createdb old_app_backup
+
+# Import the SQL file (now it's clean)
+sed 's/\\connect db/\\connect old_app_backup/g' /home/ubuntu/full_backup2_utf8.sql | sudo -u postgres psql -d old_app_backup
+
+# OR OPTION 2: If you want to keep existing data, drop all tables first:
+# sudo -u postgres psql -d old_app_backup -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+# sed 's/\\connect db/\\connect old_app_backup/g' /home/ubuntu/full_backup2_utf8.sql | sudo -u postgres psql -d old_app_backup
+
+
+===========================================
+STEP 4: Verify Import
+===========================================
+# List all tables
+sudo -u postgres psql -d old_app_backup -c "\dt"
+
+# Count tables
+sudo -u postgres psql -d old_app_backup -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';"
+
+# View table names
+sudo -u postgres psql -d old_app_backup -c "SELECT tablename FROM pg_tables WHERE schemaname='public';"
+
+
+===========================================
+DONE!
+===========================================
+Your database should now be imported to old_app_backup.
+Your Laravel .env already points to this database, so you're good to go!
+

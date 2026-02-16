@@ -27,20 +27,53 @@ class CheckSubscription
 
             // This 'if' check is crucial for login/register routes
             if ($entreprise) {
-                // Inactive if trial expired OR Stripe marked account inactive
+                // Check if subscription is canceled
+                $hasCanceledSubscription = method_exists($entreprise, 'hasCanceledSubscription') 
+                    ? $entreprise->hasCanceledSubscription() 
+                    : false;
+                
+                // Inactive if trial expired OR account explicitly marked inactive OR subscription is canceled
                 $isBlocked = $entreprise->isTrialExpired()
-                    || $entreprise->account_status === 'inactive';
+                    || $entreprise->account_status === 'inactive'
+                    || $hasCanceledSubscription;
 
-                if ($request->routeIs('profile.*') || $request->routeIs('subscription.*') || $request->routeIs('profile.index')) {
-                    \Log::info('Route is profile/subscription - allowing access');
+                // Never block entreprises that are exempt from blocking (e.g. ID = 43)
+                if (method_exists($entreprise, 'isBlockingExempt') && $entreprise->isBlockingExempt()) {
+                    $isBlocked = false;
+                }
+
+                // Allow access to profile & subscription routes so they can upgrade,
+                // and always allow logout so blocked users can sign out.
+                if (
+                    $request->routeIs('profile.*')
+                    || $request->routeIs('subscription.*')
+                    || $request->routeIs('profile.index')
+                    || $request->routeIs('logout')
+                ) {
+                    \Log::info('Route is profile/subscription/logout - allowing access');
                     $isBlocked = false;
                 } else {
                     \Log::info('Route is NOT profile - blocked? ' . ($isBlocked ? 'TRUE' : 'FALSE'));
                 }
 
+                // Share flag for any UI modal logic
                 View::share('showTrialExpiredModal', $isBlocked);
                 \Log::info('Final showTrialExpiredModal: ' . ($isBlocked ? 'TRUE' : 'FALSE'));
                 \Log::info('=== End Debug ===');
+
+                // If blocked, force redirect to upgrade page and prevent access to other interfaces
+                if ($isBlocked) {
+                    // Set appropriate message based on the reason
+                    if ($hasCanceledSubscription) {
+                        return redirect()->route('profile.upgrade')
+                            ->with('error', 'Your subscription has been canceled. Please reactivate your plan to continue using the application.');
+                    } elseif ($entreprise->account_status === 'inactive') {
+                        return redirect()->route('profile.upgrade')
+                            ->with('error', 'Your account is inactive. Please reactivate your subscription to continue using the application.');
+                    } else {
+                        return redirect()->route('profile.upgrade');
+                    }
+                }
             } else {
                 \Log::info('No entreprise found for user');
             }

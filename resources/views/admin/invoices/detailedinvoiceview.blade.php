@@ -97,8 +97,8 @@
 <body>
     <div class="container">
         <div class="header">
-            @if($entreprise->logo)
-                <img src="{{ asset('storage/'.$entreprise->logo) }}" alt="Logo">
+            @if($entreprise->image)
+                <img src="{{ Storage::disk('public')->url($entreprise->image) }}" alt="Logo">
             @endif
             <div>{{ $entreprise->name }}</div>
         </div>

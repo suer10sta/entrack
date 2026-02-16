@@ -1,234 +1,212 @@
-<!DOCTYPE html>
-<html lang="en">
+<style>
+body {
+    font-family: Arial, sans-serif;
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasks Report</title>
-    <style>
-        /* [MODIFIED] Consistent Font and Size */
-        body {
-            font-family: Tahoma, sans-serif;
-            font-size: 11px;
-            color: #333333;
-            background-color: #FFFFFF;
-            margin: 0;
-            padding: 0;
-        }
+}
 
-        /* [NEW] Consistent Wrapper */
-        .report-wrapper {
-            width: 100%;
-            max-width: 900px; /* Matches Employee report width for consistency */
-            margin: 0 auto;
-            padding: 40px 20px 100px 20px;
-            position: relative;
-        }
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
-        .header {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 30px;
-        }
+th {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+}
 
-        .details {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 40px;
-            position: relative;
-            padding-bottom: 10px;
-        }
+td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+    font-family: Arial, sans-serif;
+    font-size: 9px;
+    font-weight: normal;
+}
 
-        .details-left {
-            width: 40%;
-            font-size: 12px;
-        }
+thead {
+    background-color: #f2f2f2;
+}
 
-        .details-right {
-            width: 58%;
-            font-size: 12px;
-            text-align: right;
-            position: absolute;
-            right: 0;
-            top: 0;
-        }
-        
-        .header-info h2 {
-            margin-top: 0;
-            margin-bottom: 5px;
-        }
-        
-        .header-info h4 {
-            margin-top: 0;
-            margin-bottom: 0;
-            font-weight: normal;
-        }
 
-        .company-logo {
-            width: 100px;
-            height: auto;
-        }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            margin-top: 20px;
-            table-layout: fixed; 
-        }
+.company-logo {
+    width: 80px;
+    /* Adjust the width as needed */
+    margin-right: 20px;
+    /* Add some space between the image and the header info */
+}
 
-        table, th, td {
-            border: 1px solid #CCCCCC;
-        }
+.details {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    position: relative;
+}
 
-        th, td {
-            padding: 6px 5px;
-            text-align: left;
-            font-size: 11px;
-            vertical-align: top;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
+.details-left {
+    width: 48%;
+    font-size: 12px;
+}
 
-        th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
+.details-right {
+    width: 48%;
+    font-size: 12px;
+    text-align: right;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
 
-        /* [MODIFIED] Fixed Footer */
-        .footer {
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-            border-top: 1px solid #000;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: white;
-        }
+thead {
+    background-color: #686ce4;
+    /* Updated color */
+    color: white;
+    /* Improve readability */
+}
 
-        .footer-content {
-            position: relative;
-            width: 100%;
-            height: 50px;
-            display: flex;
-            justify-content: space-between;
-        }
 
-        .footer-left { position: absolute; left: 0; text-align: left; }
-        .footer-center { position: absolute; left: 50%; transform: translateX(-50%); text-align: center; }
-        .footer-right { position: absolute; right: 0; text-align: right; }
+.footer {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    position: fixed;
+    bottom: 0;
+    /* Ensure footer sticks to the bottom */
+    left: 0;
+    /* Align footer to the left */
+}
 
-        .footer-text {
-            color: #333333;
-            line-height: 1.4;
-            font-size: 10px;
-        }
+.footer-left {
+    width: 48%;
+    font-size: 12px;
+}
 
-        @media print {
-            body { margin: 0; padding: 0; }
-            .report-wrapper { width: 100%; max-width: 100%; padding: 20px; margin: 0; border: none; }
-            .footer { position: fixed; bottom: 0; width: 100%; }
-            thead { display: table-header-group; }
-            tr { page-break-inside: avoid; }
-        }
-    </style>
-</head>
+.footer-right {
+    width: 48%;
+    font-size: 12px;
+    text-align: right;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
 
-<body>
-    <div class="report-wrapper">
+.page-number:before {
+    content: counter(page);
+}
+</style>
 
-        <div class="details">
-            <div class="details-left">
-                @if(Auth::user()->entreprise && Auth::user()->entreprise->image)
-                    <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
-                @endif
-            </div>
-            <div class="details-right">
-                <div class="header-info">
-                    <h2>Tasks Table Reports</h2>
-                    <h4>Number of Tasks: {{ $tasks->count() }}</h4>
-                </div>
+<div class="containter">
+
+
+    <div class="details">
+        <div class="details-left">
+        <img src="{{ storage_path('app/public/' . $entreprise->image) }}" alt="Company Logo" class="company-logo">
+        </div>
+        <div class="details-right">
+            <div class="header-info">
+                <h2>Tasks Table Reports</h2>
+                <h5>Number of Tasks: {{ $tasks->count() }}</h5>
             </div>
         </div>
-
-        <div style="height: 20px;"></div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 15%;">Task Name</th>
-                    <th style="width: 15%;">Project Name</th>
-                    <th style="width: 10%;">Start Date</th>
-                    <th style="width: 10%;">End Date</th>
-                    <th style="width: 15%;">Employees</th>
-                    <th style="width: 15%;">Teams</th>
-                    <th style="width: 20%;">Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($tasks as $task)
-                <tr>
-                    <td>{{$task->title}}</td>
-                    <td>{{$task->project_name}}</td>
-                    <td>{{$task->start}}</td>
-                    <td>{{$task->end}}</td>
-                    <td>
-                        @php
-                        $employee_id = App\Models\employees_tasks::where('task_id', $task->id)->pluck('employee_id');
-                        @endphp
-                        @foreach(App\Models\Employees::whereIn('id', $employee_id)->get() as $employee)
-                        <div>- {{$employee->name}}</div>
-                        @endforeach
-                    </td>
-                    <td>
-                        @php
-                        $team_tasks = App\Models\team_tasks::where('task_id', $task->id)->get();
-                        @endphp
-                        @forelse($team_tasks as $team_task)
-                            @php
-                            $team = App\Models\Teams::find($team_task->team_id);
-                            @endphp
-                            <div>- {{$team->name}}</div>
-                        @empty
-                            <div>-</div>
-                        @endforelse
-                    </td>
-                    <td>{{$task->description}}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-
     </div>
+    <br><br><br>
+    <table>
+        <thead>
+            <tr>
+                <th>Task Name</th>
+                <th>Project Name</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Employees</th>
+                <th>Teams</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($tasks as $task)
+            <tr>
+                <td>{{ $task->title }}</td>
+                <td>{{ $task->project_name }}</td>
+                <td>{{ $task->start }}</td>
+                <td>{{ $task->end }}</td>
+                <td>
+                    @php
+                        // Use preloaded collection from controller to avoid N+1 queries
+                        $taskEmployees = isset($employeesByTask) ? ($employeesByTask[$task->id] ?? collect()) : collect();
+                    @endphp
+                    @forelse($taskEmployees as $empTask)
+                        <span class="badge badge-dot me-4">
+                            <i class="bg-info"></i>
+                            <span class="text-dark text-xs">
+                                {{ optional($empTask->employee)->name ?? $empTask->employee_name ?? '' }}
+                            </span>
+                        </span>
+                        <br>
+                    @empty
+                        <span class="badge badge-dot me-4">
+                            <i class="bg-info"></i>
+                            <span class="text-dark text-xs">No employees</span>
+                        </span>
+                    @endforelse
+                </td>
+                <td>
+                    @php
+                        // Use preloaded collection from controller to avoid N+1 queries
+                        $taskTeams = isset($teamsByTask) ? ($teamsByTask[$task->id] ?? collect()) : collect();
+                    @endphp
+                    @forelse($taskTeams as $teamTask)
+                        <span class="badge badge-dot me-4">
+                            <i class="bg-info"></i>
+                            <span class="text-dark text-xs">
+                                {{ optional($teamTask->team)->name ?? '' }}
+                            </span>
+                        </span>
+                        <br>
+                    @empty
+                        <span class="badge badge-dot me-4">
+                            <i class="bg-info"></i>
+                            <span class="text-dark text-xs">No team</span>
+                        </span>
+                    @endforelse
+                </td>
+                <td>{{ $task->description }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
 
     <div class="footer">
-        <div class="footer-content">
-            <div class="footer-left footer-text">
-                @if(Auth::user()->entreprise)
-                    <b>{{ Auth::user()->entreprise->name }}</b><br>
-                    <b>Numéro TVA:</b> {{ Auth::user()->entreprise->tva}}
-                @endif
-            </div>
-            <div class="footer-center footer-text">
-                @if(Auth::user()->entreprise)
-                    {{ Auth::user()->entreprise->Address }}<br>
-                    Tél: 0{{ Auth::user()->entreprise->phone }}
-                @endif
-            </div>
-            <div class="footer-right footer-text">
-                @if(Auth::user()->entreprise)
-                    <b>BANK</b> : {{ Auth::user()->entreprise->bank_name }}<br>
-                    <b>IBAN</b> : {{ Auth::user()->entreprise->iban }}<br>
-                    <b>SWIFT/BIC</b> : {{ Auth::user()->entreprise->swift }} / {{ Auth::user()->entreprise->bic }}
-                @endif
-                <br>
-                <span style="font-size: 9px; color: #666;">Printed: {{ date('d-m-Y') }}</span>
-            </div>
-        </div>
+        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
+        <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
     </div>
-</body>
-</html>
+
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Find all elements that represent pages
+    const pages = document.querySelectorAll('.page');
+
+    // Check if pages exist
+    if (pages.length === 0) {
+        console.error('No pages found. Ensure your HTML structure includes elements with a .page class.');
+        return;
+    }
+
+    // Loop through each page and set the page number
+    pages.forEach((page, index) => {
+        // Find the .page-number span within the .footer of each page
+        const pageNumberElement = page.querySelector('.footer .page-number');
+        if (pageNumberElement) {
+            pageNumberElement.textContent = index + 1; // Page numbers should start from 1
+        } else {
+            console.error('Page number element not found in page ' + (index + 1));
+        }
+    });
+});
+</script>

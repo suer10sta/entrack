@@ -161,7 +161,7 @@
                     <br>
                     Numéro client : {{ $client->client_number }}
                     <br>
-                    Numéro de facture : {{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif
+                    Numéro de facture : {{$invoice->created_at->format('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif
                     <br>
                     Rappel numéro : {{$reminder_number}}
                     @if($days_overdue > 0)
@@ -187,7 +187,7 @@
         }
         @endphp
         <div class="invoice-number">
-        Rappel Facture : {{$entreprise->invoice_prefix}}-{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif
+        Rappel Facture : {{$entreprise->invoice_prefix}}-{{$invoice->created_at->format('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif
         </div>
 
             @if(isset($invoice) && $invoice->hours !== null)
@@ -271,7 +271,7 @@
             <strong>{{number_format($budget + ($budget*($projectinfos->tva/100)), 2, ',', '')}}€</strong> sur le compte mentionné
             ci-dessous avant le
             {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}
-            en mentionnant le numéro Facture <strong>{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif</strong>
+            en mentionnant le numéro Facture <strong>{{$invoice->created_at->format('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif</strong>
             <br>
             - Dans le cas de livraison intracommunautaire pour les services :  "Autoliquidation Art 21 § 2 du code TVA belge"
             <br>

@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DailyTrac Dashboard</title>
+    <title>DalyTrac Dashboard</title>
     @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
     <div class="flex flex-col flex-1 overflow-y-auto">
         {{-- Navbar --}}
         <x-dashboard.navbar />
@@ -78,18 +82,6 @@
                                 @endif
                             @endforeach
                         </div>
-                    </div>
-
-                    {{-- Timezone --}}
-                    <div class="mb-8">
-                        <h5 class="text-lg font-semibold text-gray-800 mb-3">Timezone Settings</h5>
-                        <select name="timezone"     class="w-full md:w-1/3 rounded-xl border-gray-300 focus:ring-blue-500 focus:border-blue-500 text-base py-2 px-4 shadow-sm bg-white">
-                            @foreach (timezone_identifiers_list() as $timezone)
-                                <option value="{{ $timezone }}" @if($user->timezone == $timezone) selected @endif>
-                                    {{ $timezone }}
-                                </option>
-                            @endforeach
-                        </select>
                     </div>
 
                     {{-- Buttons --}}

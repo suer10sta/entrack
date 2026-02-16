@@ -10,7 +10,11 @@
 
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     <div class="flex flex-col flex-1 overflow-y-auto">
         {{-- Navbar --}}
@@ -43,6 +47,9 @@
                     <form method="POST" action="{{route('Responsable_gestionnaire.projects.store', $client_id)}}" autocomplete="off" class="space-y-6">
                     @endif
                         @csrf
+                        @if(!empty($parent_id))
+                            <input type="hidden" name="parent_id" value="{{ $parent_id }}">
+                        @endif
 
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
                             <div class="md:col-span-4">

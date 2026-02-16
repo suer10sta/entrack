@@ -17,14 +17,25 @@
     @foreach($projectsToday as $project)
         @php
             $projecttasksId = \App\Models\Tasks::where('project_id', $project->id)->pluck('id');
-            // Calculate project metrics
+            // Calculate today's work duration for this project
+            $today = \Carbon\Carbon::today();
+            $todayDuration = \App\Models\tasks_timer::where(function ($q) use ($projecttasksId, $project) {
+                $q->whereIn('task_id', $projecttasksId)
+                    ->orWhere('project_id', $project->id);
+            })
+            ->whereDate('start_date', $today)
+            ->whereNotNull('duration')
+            ->sum('duration');
+            
+            // Calculate total duration for comparison with estimated hours
             $totalduration = \App\Models\tasks_timer::where(function ($q) use ($projecttasksId, $project) {
                 $q->whereIn('task_id', $projecttasksId)
                     ->orWhere('project_id', $project->id);
             })->sum('duration');
+            
             $difference = ($project->estimated_hours ?? 0) * 60 - $totalduration;
-            $hours = floor(abs($totalduration) / 60);
-            $minutes = abs($totalduration) % 60;
+            $hours = floor(abs($todayDuration) / 60);
+            $minutes = abs($todayDuration) % 60;
             $diffhours = floor(abs($difference) / 60);
             $diffminutes = abs($difference) % 60;
             $estimatedMinutes = ($project->estimated_hours ?? 0) * 60;
@@ -56,7 +67,7 @@
                         class="font-medium text-gray-800">€{{ number_format($project->cost_per_hour ?? 0, 2, ',', ' ') }}</span>
                 </p>
                 <p class="text-gray-600"><span class="text-gray-500">{{__('messages.VAT')}}:</span>
-                    <span class="font-medium text-gray-800">{{ $project->tva ?? 20 }}%</span>
+                    <span class="font-medium text-gray-800">{{ $project->tva ?? 0 }}%</span>
                 </p>
             </div>
 

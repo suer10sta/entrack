@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dupliquer Devis - DailyTrac</title>
+    <title>Dupliquer Devis - DalyTrac</title>
     @vite('resources/css/app.css')
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -47,7 +47,11 @@
             style="display: none; visibility: hidden"></iframe></noscript>
 
     {{-- Sidebar Component --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     {{-- Conteneur principal (Navbar + Contenu) --}}
     <div class="flex flex-col flex-1 overflow-y-auto">
@@ -103,6 +107,7 @@
                         @php
                             $billingType = old('billing_type', $devis->billing_type ?? 'forfait');
                             $isHourly = $billingType === 'horaire';
+                            $isDetailedHourly = $billingType === 'detailed_hourly';
                             $hoursValue = old('hours', $devis->hours);
                             $amountValue = old('amount_per_hour', $devis->amount_per_hour ?? $devis->cost_per_hour);
                         @endphp
@@ -116,24 +121,23 @@
                                     <label for="projectType" class="block text-sm font-medium text-gray-700 mb-1">Sélectionner le type de projet <span class="text-red-600">*</span></label>
                                     <select class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom" id="projectType" name="project_type" onchange="toggleProjectInputs()" required>
                                         <option value="">Sélectionner</option>
-                                        <option value="new">Nouveau Projet</option>
-                                        <option value="existing" selected>Projet Existant</option> {{-- 'selected' par défaut pour la duplication --}}
+                                        <option value="new" {{ $devis->Existing_project_name === null ? 'selected' : '' }}>Nouveau Projet</option>
+                                        <option value="existing" {{ $devis->Existing_project_name !== null ? 'selected' : '' }}>Projet Existant</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label for="projectName" class="block text-sm font-medium text-gray-700 mb-1">Nom du nouveau projet <span class="text-red-600">*</span></label>
-                                    <input type="text" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 bg-gray-100" id="projectName" name="Project_name" value="{{ $devis->Project_name ?? '' }}" disabled required />
+                                    <input type="text" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 {{ $devis->Existing_project_name !== null ? 'bg-gray-100' : '' }}" id="projectName" name="Project_name" value="{{ $devis->Existing_project_name === null ? ($devis->Project_name ?? '') : '' }}" {{ $devis->Existing_project_name !== null ? 'disabled' : '' }} required />
                                 </div>
                                 <div>
                                     <label for="existingProjectId" class="block text-sm font-medium text-gray-700 mb-1">Nom du projet existant <span class="text-red-600">*</span></label>
                                     {{-- NOTE : 'existingProjectName' a été renommé en 'existingProjectId' pour correspondre à votre 'name' --}}
-                                    <select class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom" id="existingProjectId" name="Existing_project_id" required onchange="populateProjectDetails()">
+                                    <select class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom {{ $devis->Existing_project_name === null ? 'bg-gray-100' : '' }}" id="existingProjectId" name="Existing_project_id" {{ $devis->Existing_project_name === null ? 'disabled' : '' }} {{ $devis->Existing_project_name === null ? '' : 'required' }} onchange="populateProjectDetails()">
                                         <option value="">Sélectionner un projet</option>
                                         @foreach($projects as $project)
                                             <option value="{{ $project->id }}" 
-                                                    {{ $project->id == $devis->project_id ? 'selected' : '' }}
+                                                    {{ ($devis->Existing_project_name !== null && $project->id == $devis->project_id) ? 'selected' : '' }}
                                                     data-tva="{{ $project->tva }}" 
-                                                    data-cost-per-hour="{{ $project->cost_per_hour }}">
                                                 {{ $project->name }}
                                             </option>
                                         @endforeach
@@ -142,14 +146,10 @@
                             </div>
 
                             {{-- Ligne Détails Projet (Grille Tailwind) --}}
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                                 <div>
                                     <label for="projectBudget" class="block text-sm font-medium text-gray-700 mb-1">Budget Total</label>
                                     <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 bg-gray-100" id="projectBudget" name='budget' value="{{ old('budget', $devis->budget) }}" readonly/>
-                                </div>
-                                <div>
-                                    <label for="costPerHour" class="block text-sm font-medium text-gray-700 mb-1">Coût par heure</label>
-                                    <input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" id="costPerHour" name='cost_per_hour' value="{{$devis->cost_per_hour}}"/>
                                 </div>
                                 <div>
                                     <label for="projectTva" class="block text-sm font-medium text-gray-700 mb-1">TVA Projet</label>
@@ -157,7 +157,7 @@
                                 </div>
                             </div>
 
-                            {{-- Type de devis (Forfait / Horaire) --}}
+                            {{-- Type de devis (Forfait / Horaire / Detailed Hourly) --}}
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                                 <div>
                                     <span class="block text-sm font-medium text-gray-700 mb-1">Type de devis <span class="text-red-600">*</span></span>
@@ -179,6 +179,15 @@
                                                    class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                                    {{ $isHourly ? 'checked' : '' }}>
                                             <span class="ml-2 text-sm text-gray-700">Horaire</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="radio"
+                                                   name="billing_type"
+                                                   id="billingDetailedHourly"
+                                                   value="detailed_hourly"
+                                                   class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                   {{ $isDetailedHourly ? 'checked' : '' }}>
+                                            <span class="ml-2 text-sm text-gray-700">Horaire Détaillé</span>
                                         </label>
                                     </div>
                                 </div>
@@ -213,29 +222,63 @@
                             </div>
                             
                             {{-- Entrées Dynamiques --}}
-                            <div class="mt-6">
+                            <div id="devisDetailsSection" class="mt-6" style="display: {{ $isHourly ? 'none' : 'block' }};">
                                 <label class="block text-base font-semibold text-gray-800 mb-2">Détails du Devis</label>
                                 <div id="dynamicInput" class="space-y-4">
                                     @forelse($devis_details as $detail)
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border border-gray-200 rounded-lg">
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Détails <span class="text-red-600">*</span></label>
-                                                <textarea class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" name="task[]" rows="3" required>{{ $detail->task_details }}</textarea>
+                                        <div class="grid grid-cols-12 gap-4 p-4 border border-gray-200 rounded-lg detail-row">
+                                            <div class="col-span-12 md:col-span-4">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Détails</label>
+                                                <textarea class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" name="task[]" rows="3">{{ $detail->task_details }}</textarea>
                                             </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Budget <span class="text-red-600">*</span></label>
-                                                <input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskBudget" name="taskBudget[]" value="{{ $detail->task_budget }}" required />
+                                            <div class="col-span-12 md:col-span-2 task-hours-column" style="display: {{ $isDetailedHourly ? 'block' : 'none' }};">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre d'heures</label>
+                                                <input type="number" step="0.01" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskHours" name="taskHours[]" value="{{ $detail->hours ?? '' }}" />
+                                            </div>
+                                            <div class="col-span-12 md:col-span-2 task-budget-column">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Budget</label>
+                                                <input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskBudget" name="taskBudget[]" value="{{ $detail->task_budget }}" />
+                                            </div>
+                                            <div class="col-span-12 md:col-span-2 task-cost-per-hour-column" style="display: {{ $isDetailedHourly ? 'block' : 'none' }};">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Coût par heure</label>
+                                                <input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskCostPerHour" name="taskCostPerHour[]" value="{{ $detail->cost_per_hour ?? '' }}" />
+                                            </div>
+                                            <div class="col-span-12 md:col-span-2 task-total-column">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Total</label>
+                                                <input type="text" class="block w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 sm:text-sm py-2 px-3 taskTotal" readonly value="{{ $isDetailedHourly && isset($detail->hours) && isset($detail->cost_per_hour) ? number_format(($detail->hours ?? 0) * ($detail->cost_per_hour ?? 0), 2) : ($detail->task_budget ?? '0.00') }}" />
+                                            </div>
+                                            <div class="col-span-12 md:col-span-1 flex items-end">
+                                                <button type="button" class="inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700" style="margin-bottom: 35px;" onclick="deleteDetailRow(this)">
+                                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                                                </button>
                                             </div>
                                         </div>
                                     @empty
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border border-gray-200 rounded-lg">
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Détails <span class="text-red-600">*</span></label>
-                                                <textarea class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" name="task[]" rows="3" required></textarea>
+                                        <div class="grid grid-cols-12 gap-4 p-4 border border-gray-200 rounded-lg detail-row">
+                                            <div class="col-span-12 md:col-span-4">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Détails</label>
+                                                <textarea class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" name="task[]" rows="3"></textarea>
                                             </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Budget <span class="text-red-600">*</span></label>
-                                                <input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskBudget" name="taskBudget[]" required />
+                                            <div class="col-span-12 md:col-span-2 task-hours-column" style="display: {{ $isDetailedHourly ? 'block' : 'none' }};">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre d'heures</label>
+                                                <input type="number" step="0.01" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskHours" name="taskHours[]" />
+                                            </div>
+                                            <div class="col-span-12 md:col-span-2 task-budget-column">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Budget</label>
+                                                <input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskBudget" name="taskBudget[]" />
+                                            </div>
+                                            <div class="col-span-12 md:col-span-2 task-cost-per-hour-column" style="display: {{ $isDetailedHourly ? 'block' : 'none' }};">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Coût par heure</label>
+                                                <input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskCostPerHour" name="taskCostPerHour[]" />
+                                            </div>
+                                            <div class="col-span-12 md:col-span-2 task-total-column">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Total</label>
+                                                <input type="text" class="block w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 sm:text-sm py-2 px-3 taskTotal" readonly />
+                                            </div>
+                                            <div class="col-span-12 md:col-span-1 flex items-end">
+                                                <button type="button" class="inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700" style="margin-bottom: 35px;" onclick="deleteDetailRow(this)">
+                                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                                                </button>
                                             </div>
                                         </div>
                                     @endforelse
@@ -270,14 +313,14 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Nom : <span class="text-red-600">*</span></label>
-                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="Nom complet" name="newclient_name" required />
+                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="Nom complet" name="newclient_name" data-required="true" />
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Numéro Client : <span class="text-red-600">*</span></label>
                                         @error('client_number')
                                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                                         @enderror
-                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" pattern="[0-9]*" inputmode="numeric" placeholder="Numéro Client" name="newclient_number" required />
+                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" pattern="[0-9]*" inputmode="numeric" placeholder="Numéro Client" name="newclient_number" data-required="true" />
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
@@ -289,21 +332,21 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Rue : <span class="text-red-600">*</span></label>
-                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="Votre adresse complète ici" name="newclient_street" required />
+                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="Votre adresse complète ici" name="newclient_street" data-required="true" />
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Ville : <span class="text-red-600">*</span></label>
-                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="Ville" name="newclient_city" required />
+                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="Ville" name="newclient_city" data-required="true" />
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Code Postal : <span class="text-red-600">*</span></label>
-                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" pattern="[0-9]*" inputmode="numeric" placeholder="Code Postal" name="newclient_zip" required />
+                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" pattern="[0-9]*" inputmode="numeric" placeholder="Code Postal" name="newclient_zip" data-required="true" />
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Pays : <span class="text-red-600">*</span></label>
-                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="Pays" name="newclient_country" required />
+                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="Pays" name="newclient_country" data-required="true" />
                                     </div>
                                 </div>
                                 <div class="pt-4">
@@ -384,22 +427,75 @@
         // **MIS À JOUR** Fonction AddInput pour générer du HTML Tailwind
         function addInput(divName) {
             var newdiv = document.createElement('div');
-            newdiv.className = 'grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border border-gray-200 rounded-lg';
+            const isDetailedHourly = document.getElementById('billingDetailedHourly') && document.getElementById('billingDetailedHourly').checked;
+            const hoursColumnDisplay = isDetailedHourly ? 'block' : 'none';
+            
+            newdiv.className = 'grid grid-cols-12 gap-4 p-4 border border-gray-200 rounded-lg detail-row';
+            
+            let hoursColumnHtml = '';
+            if (isDetailedHourly) {
+                hoursColumnHtml = '<div class="col-span-12 md:col-span-2 task-hours-column" style="display: ' + hoursColumnDisplay + ';">' +
+                    '<label class="block text-sm font-medium text-gray-700 mb-1">Nombre d\'heures</label>' +
+                    '<input type="number" step="0.01" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskHours" name="taskHours[]" />' +
+                '</div>';
+            } else {
+                hoursColumnHtml = '<div class="col-span-12 md:col-span-2 task-hours-column" style="display: none;">' +
+                    '<label class="block text-sm font-medium text-gray-700 mb-1">Nombre d\'heures</label>' +
+                    '<input type="number" step="0.01" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskHours" name="taskHours[]" />' +
+                '</div>';
+            }
+            
+            const budgetColumnDisplay = isDetailedHourly ? 'none' : 'block';
+            const costPerHourColumnDisplay = isDetailedHourly ? 'block' : 'none';
+            const totalColumnDisplay = 'block';
+            
             newdiv.innerHTML =
-                '<div>' +
-                    '<label class="block text-sm font-medium text-gray-700 mb-1">Détails <span class="text-red-600">*</span></label>' +
-                    '<textarea class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" name="task[]" rows="3" required></textarea>' +
+                '<div class="col-span-12 md:col-span-4">' +
+                    '<label class="block text-sm font-medium text-gray-700 mb-1">Détails</label>' +
+                    '<textarea class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" name="task[]" rows="3"></textarea>' +
                 '</div>' +
-                '<div>' +
-                    '<label class="block text-sm font-medium text-gray-700 mb-1">Budget <span class="text-red-600">*</span></label>' +
-                    '<input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskBudget" name="taskBudget[]" required />' +
+                hoursColumnHtml +
+                '<div class="col-span-12 md:col-span-2 task-budget-column" style="display: ' + budgetColumnDisplay + ';">' +
+                    '<label class="block text-sm font-medium text-gray-700 mb-1">Budget</label>' +
+                    '<input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskBudget" name="taskBudget[]" />' +
+                '</div>' +
+                '<div class="col-span-12 md:col-span-2 task-cost-per-hour-column" style="display: ' + costPerHourColumnDisplay + ';">' +
+                    '<label class="block text-sm font-medium text-gray-700 mb-1">Coût par heure</label>' +
+                    '<input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskCostPerHour" name="taskCostPerHour[]" />' +
+                '</div>' +
+                '<div class="col-span-12 md:col-span-2 task-total-column" style="display: ' + totalColumnDisplay + ';">' +
+                    '<label class="block text-sm font-medium text-gray-700 mb-1">Total</label>' +
+                    '<input type="text" class="block w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 sm:text-sm py-2 px-3 taskTotal" readonly />' +
+                '</div>' +
+                '<div class="col-span-12 md:col-span-1 flex items-end">' +
+                    '<button type="button" class="inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700" style="margin-bottom: 35px;" onclick="deleteDetailRow(this)">' +
+                        '<svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>' +
+                    '</button>' +
                 '</div>';
             
             document.getElementById(divName).appendChild(newdiv);
             
             const newTaskBudgetInput = newdiv.querySelector('.taskBudget');
+            const newTaskHoursInput = newdiv.querySelector('.taskHours');
+            const newTaskCostPerHourInput = newdiv.querySelector('.taskCostPerHour');
             if (newTaskBudgetInput) {
                  newTaskBudgetInput.addEventListener('input', updateProjectBudget);
+            }
+            if (newTaskHoursInput) {
+                 newTaskHoursInput.addEventListener('input', updateProjectBudget);
+            }
+            if (newTaskCostPerHourInput) {
+                 newTaskCostPerHourInput.addEventListener('input', updateProjectBudget);
+            }
+        }
+
+        function deleteDetailRow(button) {
+            const detailRows = document.querySelectorAll('.detail-row');
+            if (detailRows.length > 1) {
+                button.closest('.detail-row').remove();
+                updateProjectBudget();
+            } else {
+                alert('At least one detail row must remain.');
             }
         }
 
@@ -416,6 +512,7 @@
         function updateProjectBudget() {
             const projectBudgetInput = document.getElementById('projectBudget');
             const billingHoraireRadio = document.getElementById('billingHoraire');
+            const billingDetailedHourlyRadio = document.getElementById('billingDetailedHourly');
 
             // Si "Horaire" est sélectionné : budget = heures * montant par heure
             if (billingHoraireRadio && billingHoraireRadio.checked) {
@@ -431,21 +528,59 @@
                 return;
             }
 
-            // Sinon (Forfait) : somme des budgets des tâches
+            // Si "Horaire Détaillé" est sélectionné : somme de (heures tâche * coût par heure tâche) pour chaque détail
+            if (billingDetailedHourlyRadio && billingDetailedHourlyRadio.checked) {
+                let totalBudget = 0;
+                
+                document.querySelectorAll('.detail-row').forEach(function(row) {
+                    const hoursInput = row.querySelector('.taskHours');
+                    const costPerHourInput = row.querySelector('.taskCostPerHour');
+                    const totalInput = row.querySelector('.taskTotal');
+                    
+                    const hours = parseFloat(hoursInput ? hoursInput.value : '') || 0;
+                    const costPerHour = parseFloat(costPerHourInput ? costPerHourInput.value : '') || 0;
+                    const total = hours * costPerHour;
+                    
+                    if (totalInput) {
+                        totalInput.value = total.toFixed(2);
+                    }
+                    
+                    totalBudget += total;
+                });
+                
+                if (projectBudgetInput) {
+                    projectBudgetInput.value = totalBudget.toFixed(2);
+                }
+                return;
+            }
+
+            // Sinon (Forfait) : somme des budgets des tâches et mise à jour des totaux
             let totalBudget = 0;
-            document.querySelectorAll('.taskBudget').forEach(function(input) {
-                let value = parseFloat(input.value);
-                if (!isNaN(value)) {
-                    totalBudget += value;
+            document.querySelectorAll('.detail-row').forEach(function(row) {
+                const budgetInput = row.querySelector('.taskBudget');
+                const totalInput = row.querySelector('.taskTotal');
+                
+                if (budgetInput) {
+                    let value = parseFloat(budgetInput.value);
+                    if (!isNaN(value)) {
+                        totalBudget += value;
+                        if (totalInput) {
+                            totalInput.value = value.toFixed(2);
+                        }
+                    } else if (totalInput) {
+                        totalInput.value = '0.00';
+                    }
                 }
             });
             if (projectBudgetInput) {
                 projectBudgetInput.value = totalBudget.toFixed(2);
             }
         }
-        // Ajouter des écouteurs d'événements à toutes les entrées de budget de tâche initiales
-        document.querySelectorAll('.taskBudget').forEach(function(input) {
-            input.addEventListener('input', updateProjectBudget);
+        // Ajouter des écouteurs d'événements à toutes les entrées de budget, heures et coût par heure
+        document.getElementById('dynamicInput').addEventListener('input', function(e) {
+            if (e.target.classList.contains('taskBudget') || e.target.classList.contains('taskHours') || e.target.classList.contains('taskCostPerHour')) {
+                updateProjectBudget();
+            }
         });
         // Calculer le budget au chargement de la page
         updateProjectBudget(); 
@@ -459,27 +594,34 @@
             if (projectType === 'new') {
                 projectNameInput.disabled = false;
                 projectNameInput.classList.remove('bg-gray-100'); 
+                projectNameInput.required = true;
                 existingProjectSelect.disabled = true;
                 existingProjectSelect.classList.add('bg-gray-100'); 
+                existingProjectSelect.required = false;
                 existingProjectSelect.value = '';
                 document.getElementById('projectTva').value = '';
-                document.getElementById('costPerHour').value = '';
             } else if (projectType === 'existing') {
                 projectNameInput.disabled = true;
                 projectNameInput.classList.add('bg-gray-100');
+                projectNameInput.required = false;
                 projectNameInput.value = '';
                 existingProjectSelect.disabled = false;
                 existingProjectSelect.classList.remove('bg-gray-100');
+                existingProjectSelect.required = true;
+                @if($devis->Existing_project_name !== null)
+                    existingProjectSelect.value = '{{ $devis->project_id }}';
+                @endif
                 populateProjectDetails(); // Remplir les détails pour la sélection actuelle
             } else {
                 projectNameInput.disabled = true;
                 projectNameInput.classList.add('bg-gray-100');
+                projectNameInput.required = false;
                 projectNameInput.value = '';
                 existingProjectSelect.disabled = true;
                 existingProjectSelect.classList.add('bg-gray-100');
+                existingProjectSelect.required = false;
                 existingProjectSelect.value = '';
                 document.getElementById('projectTva').value = '';
-                document.getElementById('costPerHour').value = '';
             }
         }
 
@@ -489,10 +631,8 @@
             var selectedOption = existingProjectSelect.options[existingProjectSelect.selectedIndex];
             
             var tva = selectedOption.getAttribute('data-tva') || '';
-            var costPerHour = selectedOption.getAttribute('data-cost-per-hour') || '';
             
             document.getElementById('projectTva').value = tva;
-            document.getElementById('costPerHour').value = costPerHour;
         }
 
         // Logique pour le menu déroulant Bootstrap et le chargement des contacts
@@ -517,11 +657,20 @@
                     document.getElementById('contactsDiv').innerHTML = '';
                     dropdownButtonText.textContent = 'Choisir un Client';
                     dropdownButtonText.classList.add('text-gray-500');
-                    newClientInputs.forEach(input => input.disabled = false); // Activer les champs nouveau client
+                    newClientInputs.forEach(input => {
+                        input.disabled = false; // Activer les champs nouveau client
+                        // Ajouter l'attribut required si le champ a data-required="true"
+                        if (input.getAttribute('data-required') === 'true') {
+                            input.required = true;
+                        }
+                    });
                 } else {
                     clientInputs.style.display = 'none';
                     existingClientSection.style.display = 'grid'; 
-                    newClientInputs.forEach(input => input.disabled = true); // Désactiver les champs nouveau client
+                    newClientInputs.forEach(input => {
+                        input.disabled = true; // Désactiver les champs nouveau client
+                        input.required = false; // Retirer l'attribut required quand caché
+                    });
                 }
             });
 
@@ -603,37 +752,54 @@
         const hourlyInputs = document.getElementById('hourlyInputs');
         const hoursInput = document.getElementById('hourlyHours');
         const amountInput = document.getElementById('hourlyAmount');
-        const costPerHourInput = document.getElementById('costPerHour');
 
         function toggleHourlyInputs() {
             const isHoraire = document.getElementById('billingHoraire').checked;
+            const isDetailedHourly = document.getElementById('billingDetailedHourly').checked;
+            
             if (hourlyInputs) {
                 hourlyInputs.style.display = isHoraire ? 'grid' : 'none';
             }
 
-            // Sync and lock cost per hour when hourly is selected
-            if (costPerHourInput) {
-                if (isHoraire) {
-                    costPerHourInput.readOnly = true;
-                    costPerHourInput.classList.add('bg-gray-100');
-                    const amount = parseFloat(amountInput ? amountInput.value : '');
-                    if (!isNaN(amount)) {
-                        costPerHourInput.value = amount;
-                    }
-                } else {
-                    costPerHourInput.readOnly = false;
-                    costPerHourInput.classList.remove('bg-gray-100');
-                }
+            // Hide devis details section when Hourly is selected
+            const devisDetailsSection = document.getElementById('devisDetailsSection');
+            if (devisDetailsSection) {
+                devisDetailsSection.style.display = isHoraire ? 'none' : 'block';
             }
+
+            // Show/hide columns in devis details based on billing type
+            const taskHoursColumns = document.querySelectorAll('.task-hours-column');
+            const taskBudgetColumns = document.querySelectorAll('.task-budget-column');
+            const taskCostPerHourColumns = document.querySelectorAll('.task-cost-per-hour-column');
+            const taskTotalColumns = document.querySelectorAll('.task-total-column');
+            
+            taskHoursColumns.forEach(function(column) {
+                column.style.display = isDetailedHourly ? 'block' : 'none';
+            });
+            
+            taskBudgetColumns.forEach(function(column) {
+                column.style.display = isDetailedHourly ? 'none' : 'block';
+            });
+            
+            taskCostPerHourColumns.forEach(function(column) {
+                column.style.display = isDetailedHourly ? 'block' : 'none';
+            });
+            
+            // Total column is always shown
+            taskTotalColumns.forEach(function(column) {
+                column.style.display = 'block';
+            });
+
+            // Update grid columns based on billing type (using 12-column grid)
+            const detailRows = document.querySelectorAll('.detail-row');
+            detailRows.forEach(function(row) {
+                row.className = 'grid grid-cols-12 gap-4 p-4 border border-gray-200 rounded-lg detail-row';
+            });
 
             updateProjectBudget();
         }
 
         function handleHourlyInputChange() {
-            const amount = parseFloat(amountInput ? amountInput.value : '');
-            if (!isNaN(amount) && costPerHourInput) {
-                costPerHourInput.value = amount;
-            }
             updateProjectBudget();
         }
 
@@ -644,6 +810,13 @@
         [hoursInput, amountInput].forEach(function(input) {
             if (input) {
                 input.addEventListener('input', handleHourlyInputChange);
+            }
+        });
+
+        // Add event listeners to task hours and cost per hour inputs
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('taskHours') || e.target.classList.contains('taskCostPerHour')) {
+                updateProjectBudget();
             }
         });
 

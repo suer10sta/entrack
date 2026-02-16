@@ -14,7 +14,7 @@ class BillitService
     public function __construct()
     {
         $this->apiKey = config('services.billit.api_key');
-        $this->baseUrl = rtrim((string) config('services.billit.base_url', 'https://api.sandbox.billit.be'), '/');
+        $this->baseUrl = rtrim((string) config('services.billit.base_url'), '/');
         $this->defaultChannel = (string) config('services.billit.channel', 'Peppol');
     }
 

@@ -1,21 +1,11 @@
 <aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between h-screen fixed left-0 top-0 z-50 overflow-y-auto custom-scrollbar">
     <div>
-        <div class="p-6 flex items-center space-x-3">
-            <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center shadow-md shadow-blue-200">
-                <span class="text-white font-bold text-xl">
-                    {{ substr(App\Models\Employees::where('user_id', Auth::user()->id)->first()->name ?? 'E', 0, 1) }}
-                </span>
-            </div>
-            <div class="overflow-hidden">
-                <h1 class="text-sm font-bold text-gray-900 truncate">
-                    {{ App\Models\Employees::where('user_id', Auth::user()->id)->first()->name }}
-                </h1>
-                <p class="text-xs text-gray-500">
-                    @if(Auth::user()->hasRole('Responsable de projet')) Project Manager
-                    @elseif(Auth::user()->hasRole('Employee')) Employee
-                    @else Manager @endif
-                </p>
-            </div>
+        <div class="pl-3 pr-4 pt-3 pb-2 flex items-start overflow-hidden">
+            <img
+                src="{{ asset('img/DalytracLogo.png') }}"
+                alt="DalyTrac logo"
+                class="-ml-4 h-20 w-auto object-contain"
+            />
         </div>
 
         <nav class="px-4 space-y-1 mt-2 pb-20">

@@ -74,10 +74,12 @@ class PermissionController extends Controller
         $validated=$request->validate(["name"=>"required"]);
         $permission->update($validated);
         $permissions=Permission::all();
+        $enterpriseId = Auth::user()->entreprise_id;
         $employees = Employees::where('entreprise_id', $enterpriseId)->get();
         $tasks= Tasks::where('user_id', Auth::user()->id)->get();
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
         $projects = Project::where('entreprise_id', auth()->user()->entreprise_id)->get();
+        $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)->get();
         if(Auth::user()->hasRole('super_admin')) {
             return view("superadmin.Permissions.index", compact("permissions"))->with('message', 'Permission Updated Successfully');
         } else {

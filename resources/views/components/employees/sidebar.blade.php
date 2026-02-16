@@ -1,4 +1,4 @@
-<aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between h-screen fixed left-0 top-0 z-50 overflow-y-auto custom-scrollbar">
+<aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between h-screen overflow-y-auto custom-scrollbar">
     <div>
         <div class="p-6 flex items-center space-x-3">
             <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center shadow-md shadow-blue-200">
@@ -30,6 +30,21 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 <span>Dashboard</span>
             </a>
+
+            @can('Planning')
+            @php
+                $planningRoute = '#';
+                if(Auth::user()->hasRole('Responsable de projet')) $planningRoute = route('Responsable_de_projet.calendar.index');
+                elseif(Auth::user()->hasRole('Employee')) $planningRoute = route('employee.calendar.index');
+                elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $planningRoute = route('Responsable_gestionnaire.calendar.index');
+            @endphp
+            <a href="{{ $planningRoute }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl {{ request()->routeIs('*.calendar.*') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50' }} transition-colors font-medium">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Planning</span>
+            </a>
+            @endcan
 
             <div>
                 <button type="button" onclick="toggleDropdown('reporting')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">

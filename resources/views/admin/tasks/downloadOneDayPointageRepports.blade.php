@@ -106,7 +106,7 @@ thead {
 
     <div class="details">
         <div class="details-left">
-        <img src="{{ Storage::disk('do_spaces')->url($entreprise->image) }}" alt="Company Logo" class="company-logo">
+        <img src="{{ storage_path('app/public/' . $entreprise->image) }}" alt="Company Logo" class="company-logo">
         </div>
         <div class="details-right">
             <div class="header-info">
@@ -139,10 +139,11 @@ thead {
             <tr>
                 <td>
                     @php
-                        $projectid = App\Models\Tasks::where('id', $task->task_id)->pluck('project_id');
-                        $project = App\Models\Project::where('id', $projectid)->first();
+                        // Get a single project_id value instead of a collection
+                        $projectId = App\Models\Tasks::where('id', $task->task_id)->value('project_id');
+                        $project = $projectId ? App\Models\Project::find($projectId) : null;
                     @endphp
-                    {{$project->name}}
+                    {{ $project ? $project->name : '' }}
                 </td>
                 <td>{{$task->task_name}}</td>
                 <td>
@@ -168,10 +169,13 @@ thead {
                     @endphp
                 </td>
                 <td>
-                    {{ number_format(($task->duration / 60) * ($project->cost_per_hour), 2, ',', ' ') }}€
                     @php
-                        $totalRecette += ($task->duration/60)*($project->cost_per_hour);
+                        // Safely handle missing project or missing cost_per_hour
+                        $costPerHour = $project && isset($project->cost_per_hour) ? $project->cost_per_hour : 0;
+                        $rowRecette = ($task->duration / 60) * $costPerHour;
+                        $totalRecette += $rowRecette;
                     @endphp
+                    {{ number_format($rowRecette, 2, ',', ' ') }}€
                 </td>
             </tr>
             @endforeach

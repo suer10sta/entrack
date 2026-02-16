@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse; 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\File;
+use setasign\Fpdi\Fpdi;
 
 class BillitController extends Controller
 {
@@ -146,29 +148,44 @@ class BillitController extends Controller
             return response()->json(['success' => false, 'message' => 'Enterprise not found for invoice'], 404);
         }
 
-        $orderData = $this->mapInvoiceToBillitPayload($invoice, $client, $project, $entreprise);
+        // Build payload to create the invoice/order in Billit only.
+        // We deliberately do NOT trigger the Billit "commands/send" endpoint here,
+        // so that the user can send the invoice manually from within Billit (Peppol/email/etc.).
+        $orderData = $this->mapInvoiceToBillitPayload($invoice, $client, $project, $entreprise, null, $request);
 
-        // Optional: force a preferred PEPPOL identifier via query (?preferred_identifier=9925:BE0823758741)
-        $preferredIdentifier = trim((string)$request->query('preferred_identifier', ''));
-        if ($preferredIdentifier !== '') {
-            if (preg_match('/^(\d{4}):([\w\d]+)$/', $preferredIdentifier, $m)) {
-                $scheme = $m[1];
-                $value = $m[2];
-                // Force ReceiverEndpointID (PEPPOL)
-                $orderData['ReceiverEndpointID'] = [
-                    'schemeID' => $scheme,
-                    'value' => $value,
-                ];
-                // Add preference hint (both casings for forward-compatibility)
-                $orderData['ElectronicInvoicing'] = [ 'PreferredIdentifier' => $preferredIdentifier ];
-                $orderData['electronicInvoicing'] = [ 'preferredIdentifier' => $preferredIdentifier ];
-            } else {
-                \Log::warning('Preferred identifier has unexpected format; expected scheme:value', [ 'preferred_identifier' => $preferredIdentifier ]);
-            }
-        }
+        /**
+         * ORIGINAL AUTO-SEND LOGIC (now disabled on purpose):
+         *
+         * // Optional: force a preferred PEPPOL identifier via query (?preferred_identifier=9925:BE0823758741)
+         * $preferredIdentifier = trim((string)$request->query('preferred_identifier', ''));
+         * if ($preferredIdentifier !== '') {
+         *     if (preg_match('/^(\d{4}):([\w\d]+)$/', $preferredIdentifier, $m)) {
+         *         $scheme = $m[1];
+         *         $value  = $m[2];
+         *         // Force ReceiverEndpointID (PEPPOL)
+         *         $orderData['ReceiverEndpointID'] = [
+         *             'schemeID' => $scheme,
+         *             'value'    => $value,
+         *         ];
+         *         // Add preference hint (both casings for forward-compatibility)
+         *         $orderData['ElectronicInvoicing']  = [ 'PreferredIdentifier'  => $preferredIdentifier ];
+         *         $orderData['electronicInvoicing'] = [ 'preferredIdentifier' => $preferredIdentifier ];
+         *     } else {
+         *         \Log::warning(
+         *             'Preferred identifier has unexpected format; expected scheme:value',
+         *             [ 'preferred_identifier' => $preferredIdentifier ]
+         *         );
+         *     }
+         * }
+         *
+         * // AUTO-SEND (Peppol / Email) – now commented:
+         * $channel  = $request->query('channel'); // e.g., 'Email' to force email sending
+         * $response = $this->billitService->sendInvoiceViaPeppol($orderData, $channel);
+         */
+
         try {
-            $channel = $request->query('channel'); // e.g., 'Email' to force email sending
-            $response = $this->billitService->sendInvoiceViaPeppol($orderData, $channel);
+            // Only create the order in Billit; no automatic Peppol/email sending.
+            $response = $this->billitService->sendInvoice($orderData);
 
             // Optional forward to provided recipients (from contacts modal)
             $recipientsJson = (string)$request->input('forward_recipients', '');
@@ -183,6 +200,10 @@ class BillitController extends Controller
                     }
                 }
             }
+
+            // Mark invoice as sent
+            $invoice->sentInvoice = 1;
+            $invoice->save();
 
             return response()->json(['success' => true, 'billit_response' => $response]);
         } catch (\Exception $e) {
@@ -226,24 +247,35 @@ class BillitController extends Controller
         return back()->with('error', 'Entreprise introuvable pour cette facture.');
     }
 
-    $orderData = $this->mapInvoiceToBillitPayload($invoice, $client, $project, $entreprise, $type);
+    // Build payload to create the invoice/order in Billit only.
+    // We deliberately do NOT trigger the Billit "commands/send" endpoint here,
+    // so that the user can send the invoice manually from within Billit (Peppol/email/etc.).
+    $orderData = $this->mapInvoiceToBillitPayload($invoice, $client, $project, $entreprise, $type, $request);
 
-    // Optional PEPPOL preferred ID
-    $preferredIdentifier = trim((string)$request->query('preferred_identifier', ''));
-    if ($preferredIdentifier !== '') {
-        if (preg_match('/^(\d{4}):([\w\d]+)$/', $preferredIdentifier, $m)) {
-            $orderData['ReceiverEndpointID'] = [
-                'schemeID' => $m[1],
-                'value' => $m[2],
-            ];
-            $orderData['ElectronicInvoicing'] = [ 'PreferredIdentifier' => $preferredIdentifier ];
-            $orderData['electronicInvoicing'] = [ 'preferredIdentifier' => $preferredIdentifier ];
-        }
-    }
+    /**
+     * ORIGINAL AUTO-SEND LOGIC (now disabled on purpose):
+     *
+     * // Optional PEPPOL preferred ID
+     * $preferredIdentifier = trim((string)$request->query('preferred_identifier', ''));
+     * if ($preferredIdentifier !== '') {
+     *     if (preg_match('/^(\d{4}):([\w\d]+)$/', $preferredIdentifier, $m)) {
+     *         $orderData['ReceiverEndpointID'] = [
+     *             'schemeID' => $m[1],
+     *             'value'    => $m[2],
+     *         ];
+     *         $orderData['ElectronicInvoicing']  = [ 'PreferredIdentifier'  => $preferredIdentifier ];
+     *         $orderData['electronicInvoicing'] = [ 'preferredIdentifier' => $preferredIdentifier ];
+     *     }
+     * }
+     *
+     * // AUTO-SEND (Peppol / Email) – now commented:
+     * $channel  = $request->query('channel');
+     * $response = $this->billitService->sendInvoiceViaPeppol($orderData, $channel);
+     */
 
     try {
-        $channel = $request->query('channel');
-        $response = $this->billitService->sendInvoiceViaPeppol($orderData, $channel);
+        // Only create the order in Billit; no automatic Peppol/email sending.
+        $response = $this->billitService->sendInvoice($orderData);
 
         // Optional email forwarding
         $recipientsJson = (string)$request->input('forward_recipients', '');
@@ -258,6 +290,10 @@ class BillitController extends Controller
                 }
             }
         }
+
+        // Mark invoice as sent
+        $invoice->sentInvoice = 1;
+        $invoice->save();
 
         return back()->with('success', 'Facture envoyée avec succès via Billit (' . $type . ')');
 
@@ -398,7 +434,7 @@ class BillitController extends Controller
      * Helper to map invoices_history and Client to Billit order payload
      * Based on your full invoice structure
      */
-    protected function mapInvoiceToBillitPayload($invoice, $client, $project = null, $entreprise = null, $type = null)
+    protected function mapInvoiceToBillitPayload($invoice, $client, $project = null, $entreprise = null, $type = null, Request $request = null)
     {
         // Calculate dates
         $invoiceDate = $invoice->created_at ? $invoice->created_at->format('Y-m-d') : now()->format('Y-m-d');
@@ -621,6 +657,7 @@ class BillitController extends Controller
         }
 
         // Try to attach our generated PDF invoice file to Billit payload (if available)
+        // If attachments are provided, merge PDF attachments with the invoice PDF
         try {
             if ($entreprise && $invoice && isset($invoice->created_at, $invoice->number)) {
                 $year = $invoice->created_at->format('Y');
@@ -634,23 +671,36 @@ class BillitController extends Controller
                     $relativePath = $invoice->merged_pdf_path;
                 }
 
-                if (Storage::disk('public')->exists($relativePath)) {
-                    $binary = Storage::disk('public')->get($relativePath);
-                    $sizeBytes = is_string($binary) ? strlen($binary) : 0;
-                    $firstBytes = is_string($binary) ? substr($binary, 0, 8) : '';
+                // Check if we have PDF attachments to merge
+                $mergedPdfBinary = null;
+                if ($request && $request->hasFile('attachments')) {
+                    $mergedPdfBinary = $this->mergeInvoiceWithAttachments($invoice, $entreprise, $relativePath, $request);
+                }
+
+                // Use merged PDF if available, otherwise use original
+                $pdfBinary = $mergedPdfBinary;
+                if ($pdfBinary === null && Storage::disk('public')->exists($relativePath)) {
+                    $pdfBinary = Storage::disk('public')->get($relativePath);
+                }
+
+                if ($pdfBinary && is_string($pdfBinary)) {
+                    $sizeBytes = strlen($pdfBinary);
+                    $firstBytes = substr($pdfBinary, 0, 8);
                     \Log::info('Billit attach - file located', [
                         'path' => $relativePath,
+                        'merged' => $mergedPdfBinary !== null,
                         'size_bytes' => $sizeBytes,
-                        'first8' => bin2hex((string)$firstBytes),
+                        'first8' => bin2hex($firstBytes),
                     ]);
 
                     // Basic PDF validation: non-empty and starts with %PDF-
-                    $looksPdf = is_string($binary) && $sizeBytes > 100 && strncmp($binary, "%PDF-", 5) === 0;
+                    $looksPdf = $sizeBytes > 100 && strncmp($pdfBinary, "%PDF-", 5) === 0;
                     if ($looksPdf) {
                         $fileName = "{$entreprise->invoice_prefix}-{$yearForName}{$month}{$invoice->number}.pdf";
-                        $base64 = base64_encode($binary);
+                        $base64 = base64_encode($pdfBinary);
                         \Log::info('Billit attach - base64 prepared', [
                             'length' => strlen($base64),
+                            'merged' => $mergedPdfBinary !== null,
                         ]);
                         // Per Billit docs: to replace Billit's generated PDF, use OrderPDF
                         // Ref: https://docs.billit.be/docs/include-your-own-pdf-and-attachments
@@ -662,22 +712,240 @@ class BillitController extends Controller
                         \Log::warning('Billit attach - PDF validation failed', [
                             'path' => $relativePath,
                             'size_bytes' => $sizeBytes,
-                            'starts_with' => is_string($binary) ? substr($binary, 0, 5) : null,
+                            'starts_with' => substr($pdfBinary, 0, 5),
                         ]);
                     }
                 } else {
-                    \Log::warning('Billit attach - file not found on do_spaces', [
+                    \Log::warning('Billit attach - file not found or could not be read', [
                         'path' => $relativePath,
+                        'has_merged' => $mergedPdfBinary !== null,
                     ]);
                 }
             }
         } catch (\Throwable $e) {
             \Log::warning('Could not attach PDF to Billit payload', [
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
         }
 
+        // Process non-PDF attachments (Excel, CSV, images) and add to OrderAttachments
+        if ($request) {
+            $this->processAttachments($request, $payload);
+        }
+
         return $payload;
+    }
+
+    /**
+     * Merge invoice PDF with PDF attachments using Fpdi
+     * Returns the merged PDF binary content, or null if no PDFs to merge
+     */
+    protected function mergeInvoiceWithAttachments($invoice, $entreprise, $invoicePath, Request $request): ?string
+    {
+        try {
+            // Check if invoice PDF exists
+            if (!Storage::disk('public')->exists($invoicePath)) {
+                \Log::warning('Billit merge - invoice PDF not found', ['path' => $invoicePath]);
+                return null;
+            }
+
+            // Get PDF attachments
+            $files = $request->file('attachments');
+            if (!is_array($files)) {
+                $files = [$files];
+            }
+
+            $pdfFiles = [];
+            foreach ($files as $file) {
+                if ($file && $file->isValid() && $file->getClientMimeType() === 'application/pdf') {
+                    $pdfFiles[] = $file;
+                }
+            }
+
+            // If no PDF attachments, return null (use original invoice PDF)
+            if (empty($pdfFiles)) {
+                return null;
+            }
+
+            // Create temporary directory for PDF processing
+            $tempDir = storage_path('app/temp/');
+            if (!File::exists($tempDir)) {
+                File::makeDirectory($tempDir, 0755, true);
+            }
+
+            // Download main invoice to temp directory
+            $mainInvoicePath = $tempDir . 'main_invoice_' . uniqid() . '.pdf';
+            file_put_contents($mainInvoicePath, Storage::disk('public')->get($invoicePath));
+
+            // Initialize PDF merger
+            $pdf = new Fpdi();
+            
+            // Add main invoice to merged PDF
+            $pageCount = $pdf->setSourceFile($mainInvoicePath);
+            for ($i = 1; $i <= $pageCount; $i++) {
+                $template = $pdf->importPage($i);
+                $pdf->AddPage();
+                $pdf->useTemplate($template);
+            }
+
+            // Add PDF attachments
+            $tempFiles = [$mainInvoicePath];
+            foreach ($pdfFiles as $file) {
+                try {
+                    $tempPath = $tempDir . 'attachment_' . uniqid() . '.pdf';
+                    move_uploaded_file($file->getPathname(), $tempPath);
+                    $tempFiles[] = $tempPath;
+                    
+                    // Add pages from attachment PDF
+                    $pageCount = $pdf->setSourceFile($tempPath);
+                    for ($i = 1; $i <= $pageCount; $i++) {
+                        $template = $pdf->importPage($i);
+                        $pdf->AddPage();
+                        $pdf->useTemplate($template);
+                    }
+                    
+                    \Log::info('Billit merge - PDF attachment added', [
+                        'file' => $file->getClientOriginalName(),
+                        'pages' => $pageCount,
+                    ]);
+                } catch (\Throwable $e) {
+                    \Log::warning('Billit merge - failed to add PDF attachment', [
+                        'file' => $file->getClientOriginalName(),
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+
+            // Get merged PDF content
+            $mergedPdfContent = $pdf->Output('S');
+
+            // Clean up temp files
+            foreach ($tempFiles as $tempFile) {
+                if (file_exists($tempFile)) {
+                    unlink($tempFile);
+                }
+            }
+
+            \Log::info('Billit merge - PDFs merged successfully', [
+                'invoice_path' => $invoicePath,
+                'attachments_count' => count($pdfFiles),
+                'merged_size' => strlen($mergedPdfContent),
+            ]);
+
+            return $mergedPdfContent;
+        } catch (\Throwable $e) {
+            \Log::error('Billit merge - error merging PDFs', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Process uploaded non-PDF attachments and add them to the Billit order payload
+     * PDFs are handled separately by merging with the invoice PDF
+     * Supported file types: Excel (.xlsx, .xls), CSV, JPEG, PNG
+     */
+    protected function processAttachments(?Request $request, array &$orderData): void
+    {
+        if (!$request || !$request->hasFile('attachments')) {
+            return;
+        }
+
+        $files = $request->file('attachments');
+        if (!is_array($files)) {
+            $files = [$files];
+        }
+
+        $allowedMimeTypes = [
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+            'application/vnd.ms-excel', // .xls
+            'text/csv',
+            'text/plain', // CSV can also be text/plain
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+        ];
+
+        $allowedExtensions = ['xlsx', 'xls', 'csv', 'jpg', 'jpeg', 'png'];
+        $maxFileSize = 10 * 1024 * 1024; // 10MB
+
+        $attachments = [];
+
+        foreach ($files as $file) {
+            if (!$file || !$file->isValid()) {
+                \Log::warning('Billit attachment - invalid file', [
+                    'file' => $file ? $file->getClientOriginalName() : 'null',
+                ]);
+                continue;
+            }
+
+            // Skip PDF files (they are merged with invoice PDF)
+            if ($file->getClientMimeType() === 'application/pdf') {
+                continue;
+            }
+
+            // Validate file size
+            if ($file->getSize() > $maxFileSize) {
+                \Log::warning('Billit attachment - file too large', [
+                    'file' => $file->getClientOriginalName(),
+                    'size' => $file->getSize(),
+                    'max' => $maxFileSize,
+                ]);
+                continue;
+            }
+
+            // Validate file type
+            $mimeType = $file->getMimeType();
+            $extension = strtolower($file->getClientOriginalExtension());
+
+            if (!in_array($mimeType, $allowedMimeTypes) && !in_array($extension, $allowedExtensions)) {
+                \Log::warning('Billit attachment - unsupported file type', [
+                    'file' => $file->getClientOriginalName(),
+                    'mime' => $mimeType,
+                    'extension' => $extension,
+                ]);
+                continue;
+            }
+
+            try {
+                $fileContent = file_get_contents($file->getRealPath());
+                if ($fileContent === false) {
+                    \Log::warning('Billit attachment - could not read file', [
+                        'file' => $file->getClientOriginalName(),
+                    ]);
+                    continue;
+                }
+
+                $base64Content = base64_encode($fileContent);
+                $fileName = $file->getClientOriginalName();
+
+                $attachments[] = [
+                    'FileName' => $fileName,
+                    'FileContent' => $base64Content,
+                ];
+
+                \Log::info('Billit attachment - file processed', [
+                    'file' => $fileName,
+                    'size' => strlen($fileContent),
+                    'base64_length' => strlen($base64Content),
+                ]);
+            } catch (\Throwable $e) {
+                \Log::error('Billit attachment - processing error', [
+                    'file' => $file->getClientOriginalName(),
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        if (!empty($attachments)) {
+            $orderData['OrderAttachments'] = $attachments;
+            \Log::info('Billit attachments - added to payload', [
+                'count' => count($attachments),
+            ]);
+        }
     }
 
     protected function sendInvoicePdfToEmail($invoice, $entreprise, string $email): void

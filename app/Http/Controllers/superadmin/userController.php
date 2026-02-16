@@ -93,7 +93,7 @@ class userController extends Controller
         $workhourslimit = $request->workHours_limit;
         // Create the associated employee
         $employee = new Employees([
-            'name' => $user->name,
+            'name' => $entreprise->name,
             'age' => null,
             'cnss' => $validated['CNSS'],
             'phoneNumber' => $validated['phoneNumber'],

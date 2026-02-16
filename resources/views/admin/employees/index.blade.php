@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employees - DailyTrac</title>
+    <title>Employees - DalyTrac</title>
     @vite('resources/css/app.css')
     @livewireStyles
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
 
     {{-- Sidebar Component --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     {{-- Main Wrapper (Navbar + Content) --}}
     <div class="flex flex-col flex-1 overflow-y-auto">
@@ -131,7 +135,8 @@
                                         @endif
                                     </td>
                                     {{-- Name with Link --}}
-                                    <td class="px-2 py-2 text-xs text-gray-700 whitespace-normal break-words">
+                                    <td class="px-2 py-2 text-xs text-gray-700 editable whitespace-normal break-words font-medium"
+                                        data-id="{{$employee->id}}" data-column="name" title="Double-click to edit">
                                         <a href="{{ route('admin.employees.show', $employee->id) }}"
                                            class="text-blue-600 hover:underline font-medium">
                                             {{ $employee->name }}

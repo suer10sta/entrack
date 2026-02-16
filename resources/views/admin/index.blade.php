@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>DailyTrac Dashboard</title>
+    <title>DalyTrac Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
     <style>
@@ -15,7 +15,11 @@
     <div class="fixed top-0 right-0 bg-black text-white p-2 text-xs z-50">
     </div>
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
     <div class="flex flex-col flex-1 overflow-y-auto">
         {{-- Navbar --}}
         <x-dashboard.navbar />

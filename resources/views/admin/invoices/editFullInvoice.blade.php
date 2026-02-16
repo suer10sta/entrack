@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Full Invoice - DailyTrac</title>
+    <title>Edit Full Invoice - DalyTrac</title>
     @vite('resources/css/app.css')
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -25,7 +25,11 @@
 <body class="bg-gray-50 flex h-screen overflow-hidden font-sans">
     
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     {{-- Conteneur principal (Navbar + Contenu) --}}
     <div class="flex flex-col flex-1 overflow-y-auto">

@@ -190,7 +190,9 @@
         <div class="content-wrapper">
             <div class="header">
                 <div class="logo-right">
-                    <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                    @if(Auth::user()->entreprise && Auth::user()->entreprise->image)
+                        <img src="{{ storage_path('app/public/' . Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                    @endif
                 </div>
             </div>
 
@@ -204,7 +206,7 @@
                         Numéro client : {{ $client->client_number }} <br>
                         Numéro de facture : {{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif
                         @if(!empty($devis_number))<br>
-                        Sold devis : {{$entreprise->devis_prefix}}-{{$devis_number}}
+                        Solde devis : {{$entreprise->devis_prefix}}-{{$devis_number}}
                         @endif
                     </p>
                 </div>

@@ -10,5 +10,6 @@ class Teams extends Model
     use HasFactory;
     protected $fillable = [
         'name',
+        'entreprise_id',
     ];
 }

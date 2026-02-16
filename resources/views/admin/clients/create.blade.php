@@ -11,7 +11,11 @@
 
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     <div class="flex flex-col flex-1 overflow-y-auto">
     
@@ -25,6 +29,24 @@
                 <div class="mb-8 text-center">
                     <h1 class="text-4xl font-bold text-slate-900 mb-2">Add New Client</h1>
                 </div>
+
+                {{-- Error Messages --}}
+                @if ($errors->any())
+                    <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                        <div class="font-semibold mb-2">Please fix the following errors:</div>
+                        <ul class="list-disc list-inside space-y-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                        {{ session('error') }}
+                    </div>
+                @endif
 
                 {{-- Form --}}
                 <form method="POST" action="
@@ -47,8 +69,11 @@
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">Name <span
                                                 class="text-red-500">*</span></label>
-                                        <input type="text" name="name" placeholder="Full Name"
-                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                        @error('name')
+                                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                        @enderror
+                                        <input type="text" name="name" value="{{ old('name') }}" placeholder="Full Name"
+                                            class="w-full border @error('name') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">Client Number <span
@@ -56,20 +81,26 @@
                                         @error('client_number')
                                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                                         @enderror
-                                        <input type="text" name="client_number" placeholder="Client Number"
-                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                        <input type="text" name="client_number" value="{{ old('client_number') }}" placeholder="Client Number"
+                                            class="w-full border @error('client_number') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                                        <input type="text" name="email" placeholder="*****@gmail.com"
-                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                        @error('email')
+                                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                        @enderror
+                                        <input type="text" name="email" value="{{ old('email') }}" placeholder="*****@gmail.com"
+                                            class="w-full border @error('email') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">Phone</label>
-                                        <input type="number" name="phone" placeholder="Phone Number"
-                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                        @error('phone')
+                                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                        @enderror
+                                        <input type="number" name="phone" value="{{ old('phone') }}" placeholder="Phone Number"
+                                            class="w-full border @error('phone') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                 </div>
                             </div>
@@ -84,28 +115,40 @@
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">Street <span
                                                 class="text-red-500">*</span></label>
-                                        <input type="text" name="address" placeholder="Your Full Address Here"
-                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                        @error('address')
+                                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                        @enderror
+                                        <input type="text" name="address" value="{{ old('address') }}" placeholder="Your Full Address Here"
+                                            class="w-full border @error('address') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">City <span
                                                 class="text-red-500">*</span></label>
-                                        <input type="text" name="city" placeholder="City"
-                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                        @error('city')
+                                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                        @enderror
+                                        <input type="text" name="city" value="{{ old('city') }}" placeholder="City"
+                                            class="w-full border @error('city') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">Zip Code <span
                                                 class="text-red-500">*</span></label>
-                                        <input type="number" name="zip" placeholder="Zip Code"
-                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                        @error('zip')
+                                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                        @enderror
+                                        <input type="number" name="zip" value="{{ old('zip') }}" placeholder="Zip Code"
+                                            class="w-full border @error('zip') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">Country <span
                                                 class="text-red-500">*</span></label>
-                                        <input type="text" name="country" placeholder="Country"
-                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                        @error('country')
+                                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                        @enderror
+                                        <input type="text" name="country" value="{{ old('country') }}" placeholder="Country"
+                                            class="w-full border @error('country') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                 </div>
                             </div>
@@ -125,8 +168,11 @@
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">Due Date (days)
                                             <span class="text-red-500">*</span></label>
-                                        <input type="text" name="due_date" placeholder="Due Date by Days"
-                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                        @error('due_date')
+                                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                        @enderror
+                                        <input type="text" name="due_date" value="{{ old('due_date') }}" placeholder="Due Date by Days"
+                                            class="w-full border @error('due_date') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                 </div>
 

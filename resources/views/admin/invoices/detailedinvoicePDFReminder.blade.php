@@ -236,7 +236,9 @@
         <div class="content-wrapper">
             <div class="header">
                 <div class="header logo-right">
-                    <img src="{{ Storage::disk('public')->url($entreprise->image) }}"alt="Company Logo" class="company-logo">
+                    @if($entreprise->image)
+                        <img src="{{ storage_path('app/public/' . $entreprise->image) }}" alt="Company Logo" class="company-logo">
+                    @endif
                 </div>
             </div>
 
@@ -248,7 +250,7 @@
                         Date du rappel: {{ $last_reminder_date }}<br/>
                         Échéance: {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}<br>
                         Numéro client : {{ $client->client_number }}<br>
-                        Numéro de facture : {{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif<br>
+                        Numéro de facture : {{ $invoice->created_at->format('ym') }}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif<br>
                         Rappel numéro : {{$reminder_number}}
                         @if($isOverdue)
                             <br>
@@ -268,7 +270,7 @@
             <br><br><br>
 
             <div class="invoice-number">
-            Rappel Facture : {{$entreprise->invoice_prefix}}-{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif
+            Rappel Facture : {{$entreprise->invoice_prefix}}-{{ $invoice->created_at->format('ym') }}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif
             </div>
 
             <table>
@@ -335,7 +337,7 @@
                 <div class="payment">
                     - Veuillez payer le montant de <strong>{{number_format($total_ttc, 2, ',', '')}}€</strong> 
                     sur le compte mentionné ci-dessous avant le {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}
-                    en mentionnant le numéro Facture <strong>{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif</strong>
+                    en mentionnant le numéro Facture <strong>{{ $invoice->created_at->format('ym') }}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif</strong>
                     <br>
                     - Dans le cas de livraison intracommunautaire pour les services :  "Autoliquidation Art 21 § 2 du code TVA belge"
                     <br>

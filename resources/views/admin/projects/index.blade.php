@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects - DailyTrac</title> {{-- Updated title --}}
+    <title>Projects - DalyTrac</title> {{-- Updated title --}}
     @vite('resources/css/app.css')
     @livewireStyles
     {{-- Include dashboard_layouts.head if needed --}}
@@ -12,7 +12,12 @@
 <body class="bg-gray-50 flex h-screen overflow-hidden">
 
     {{-- Sidebar Component --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
+    
 
     {{-- Main Wrapper (Navbar + Content) --}}
     <div class="flex flex-col flex-1 overflow-y-auto">

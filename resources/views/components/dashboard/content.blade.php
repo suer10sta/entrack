@@ -357,22 +357,23 @@
                                 Current Status</th>
                             <th
                                 class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
-                                Current Task</th>
-                            <th
-                                class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
                                 Current Project</th>
                             <th
                                 class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
-                                Task Progress</th>
+                                Current Task</th>
+                                
+                            {{--<th
+                                class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
+                                Task Progress</th> --}}
                             <th
                                 class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
                                 Duration</th>
                             <th
                                 class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
-                                Account Status</th>
+                                Chrono</th>
                             <th
                                 class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
-                                Chrono</th>
+                                Account Status</th>
                             <th
                                 class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
                                 Archive</th>
@@ -457,6 +458,77 @@
                                     @endif
                                 </td>
 
+                                {{-- Current Project --}}
+                                <td class="px-6 py-4 text-center align-middle text-sm cell-current-project">
+                                    @php
+                                        $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
+                                        if ($isSuperAdmin) {
+                                            // For superadmin, get all active tasks
+                                            $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                                ->whereDate('start_date', today())
+                                                ->whereNull('end_date')
+                                                ->orderBy('start_date', 'desc')
+                                                ->get();
+                                        } else {
+                                            // For others, get only the latest active task
+                                            $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                                ->whereDate('start_date', today())
+                                                ->whereNull('end_date')
+                                                ->latest()
+                                                ->take(1)
+                                                ->get();
+                                        }
+
+                                        // Group active tasks by project so each task line has a matching project line
+                                        $groupedActiveTasksProjects = $activeTasks
+                                            ->map(function ($t) {
+                                                $projectId = \App\Models\Tasks::where('id', $t->task_id)->value('project_id');
+                                                $t->project_for_grouping = $projectId ?? 0;
+                                                return $t;
+                                            })
+                                            ->sortBy('project_for_grouping')
+                                            ->groupBy('project_for_grouping');
+                                    @endphp
+                                    @if($activeTasks->isNotEmpty())
+                                        <div class="space-y-3">
+                                            @foreach($groupedActiveTasksProjects as $projectId => $projectTasks)
+                                                @php
+                                                    $project = $projectId
+                                                        ? \App\Models\Project::find($projectId)
+                                                        : null;
+                                                    $linesCount = $projectTasks->count();
+                                                    // Determine if this project has any active (running) timer
+                                                    $hasActiveTimer = $projectTasks->contains(function ($t) {
+                                                        return $t->end_date === null && (int) ($t->paused ?? 0) === 0;
+                                                    });
+                                                    $projectTextClasses = 'text-xs font-semibold ' . ($hasActiveTimer ? 'text-emerald-600' : 'text-gray-400');
+                                                    $linkClasses = $hasActiveTimer ? 'hover:underline block' : 'block';
+                                                @endphp
+                                                <div class="space-y-1 w-full {{ !$loop->last ? 'pb-2 border-b border-gray-200' : '' }}">
+                                                    {{-- First line: project name aligned with first task of this project --}}
+                                                    <div class="{{ $projectTextClasses }}">
+                                                        @if($project)
+                                                            <a href="{{ route('admin.projects.show', $project->id) }}"
+                                                                class="{{ $linkClasses }}">
+                                                                {{ $project->name }}
+                                                            </a>
+                                                        @else
+                                                            <span class="text-gray-400 block">No Project</span>
+                                                        @endif
+                                                    </div>
+
+                                                    {{-- Extra spacer lines so tasks/durations/chrono stay aligned --}}
+                                                    @for($i = 1; $i < $linesCount; $i++)
+                                                        <div class="text-xs">&nbsp;</div>
+                                                    @endfor
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <span class="text-xs text-gray-400">No Project</span>
+                                    @endif
+                                </td>
+
                                 {{-- Current Task --}}
                                 <td class="px-6 py-4 text-center align-middle text-sm cell-current-task">
                                     @php
@@ -484,9 +556,12 @@
                                             if ($isSuperAdmin && $currentTasks->count() > 1) {
                                                 $taskListClasses .= ' divide-y divide-gray-500';
                                             }
+                                            // Ensure each task name appears only once, even if there are multiple timers
+                                            $tasksById = $currentTasks->groupBy('task_id');
                                         @endphp
                                         <div class="{{ $taskListClasses }}">
-                                            @foreach($currentTasks as $currentTask)
+                                            @foreach($tasksById as $taskId => $taskGroup)
+                                                @php $currentTask = $taskGroup->first(); @endphp
                                                 @if(auth()->user()->hasRole('Admin') || auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin'))
                                                     <a href="{{ route('admin.tasks.show', $currentTask->task_id) }}"
                                                         class="text-xs font-semibold text-blue-600 hover:underline block">
@@ -505,58 +580,7 @@
                                     @endif
                                 </td>
 
-                                {{-- Current Project --}}
-                                <td class="px-6 py-4 text-center align-middle text-sm cell-current-project">
-                                    @php
-                                        $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
-                                        if ($isSuperAdmin) {
-                                            // For superadmin, get all active tasks
-                                            $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereDate('start_date', today())
-                                                ->whereNull('end_date')
-                                                ->orderBy('start_date', 'desc')
-                                                ->get();
-                                        } else {
-                                            // For others, get only the latest active task
-                                            $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereDate('start_date', today())
-                                                ->whereNull('end_date')
-                                                ->latest()
-                                                ->take(1)
-                                                ->get();
-                                        }
-                                        $currentProjects = collect();
-                                        foreach ($activeTasks as $task) {
-                                            $project_id = \App\Models\Tasks::where('id', $task->task_id)->pluck('project_id')->first();
-                                            if ($project_id) {
-                                                $project = \App\Models\Project::find($project_id);
-                                                if ($project && !$currentProjects->contains('id', $project->id)) {
-                                                    $currentProjects->push($project);
-                                                }
-                                            }
-                                        }
-                                    @endphp
-                                    @if($currentProjects->isNotEmpty())
-                                        @php
-                                            $projectListClasses = 'space-y-1';
-                                            if ($isSuperAdmin && $currentProjects->count() > 1) {
-                                                $projectListClasses .= ' divide-y divide-gray-300';
-                                            }
-                                        @endphp
-                                        <div class="{{ $projectListClasses }}">
-                                            @foreach($currentProjects as $currentProject)
-                                                <a href="{{ route('admin.projects.show', $currentProject->id) }}"
-                                                    class="text-xs font-semibold text-emerald-600 hover:underline block">
-                                                    {{ $currentProject->name }}
-                                                </a>
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        <span class="text-xs text-gray-400">No Project</span>
-                                    @endif
-                                </td>
-
-                                {{-- Task Progress --}}
+                                {{-- Task Progress 
                                 <td class="px-6 py-4 text-center align-middle text-sm cell-task-progress">
                                     @php
                                         $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
@@ -606,92 +630,84 @@
                                     @else
                                         <p class="text-xs font-medium text-gray-600">No Task</p>
                                     @endif
-                                </td>
+                                </td> --}}
 
                                 {{-- Duration --}}
                                 <td class="px-6 py-4 text-center align-middle text-sm cell-duration">
                                     @php
-                                        $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
-                                        if ($isSuperAdmin) {
-                                            $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereDate('start_date', today())
-                                                ->whereNull('end_date')
-                                                ->orderBy('start_date', 'desc')
-                                                ->get();
-                                        } else {
-                                            $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereDate('start_date', today())
-                                                ->whereNull('end_date')
-                                                ->latest()
-                                                ->take(1)
-                                                ->get();
-                                        }
-                                        $firstActiveTask = $activeTasks->first();
+                                        // Show TOTAL worked time today per task, grouped by project (initial render)
+                                        $today = \Carbon\Carbon::today();
+                                        $timersToday = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                            ->whereDate('start_date', $today)
+                                            ->orderBy('start_date', 'desc')
+                                            ->get();
                                     @endphp
-                                    @if($activeTasks->isNotEmpty())
-                                        @php $now = \Carbon\Carbon::now(); @endphp
-                                        <div
-                                            class="space-y-1 {{ ($isSuperAdmin && $activeTasks->count() > 1) ? 'divide-y divide-gray-500' : '' }}">
-                                            @foreach($activeTasks as $activeTask)
-                                                @php
-                                                    $startTime = \Carbon\Carbon::parse($activeTask->start_date);
-                                                    $isPaused = $activeTask->paused == 1;
-                                                    $baseSeconds = ($activeTask->duration ?? 0) * 60;
-                                                    $currentDurationSeconds = $isPaused ? $baseSeconds : ($startTime->diffInSeconds($now) + $baseSeconds);
-                                                    $taskhours = floor($currentDurationSeconds / 3600);
-                                                    $taskminutes = floor(($currentDurationSeconds % 3600) / 60);
-                                                    $taskseconds = $currentDurationSeconds % 60;
-                                                    $taskName = \App\Models\employees_tasks::where('id', $activeTask->task_employee_id)->value('task_name');
-                                                    $shouldShowName = $activeTasks->count() > 1;
-                                                @endphp
-                                                <div class="text-xs font-semibold text-gray-800">
-                                                    @if($shouldShowName)
-                                                        <span
-                                                            class="text-gray-600">{{ $taskName ?? ('Task ' . $activeTask->task_employee_id) }}:</span>
+                                    @if($timersToday->isNotEmpty())
+                                        @php
+                                            $now = \Carbon\Carbon::now();
+                                            $groupedActiveTasks = $timersToday
+                                                ->map(function ($t) {
+                                                    $projectId = \App\Models\Tasks::where('id', $t->task_id)->value('project_id');
+                                                    $t->project_for_grouping = $projectId ?? 0;
+                                                    return $t;
+                                                })
+                                                ->sortBy('project_for_grouping')
+                                                ->groupBy('project_for_grouping');
+                                        @endphp
+                                        <div class="space-y-3">
+                                            @foreach($groupedActiveTasks as $projectId => $projectTasks)
+                                                <div class="space-y-1 w-full {{ !$loop->last ? 'pb-2 border-b border-gray-200' : '' }}">
+                                                    @php
+                                                        $tasksById = $projectTasks->groupBy('task_id');
+                                                        $project = $projectId ? \App\Models\Project::find($projectId) : null;
+                                                    @endphp
+                                                    @foreach($tasksById as $taskId => $taskTimers)
+                                                        @php
+                                                            $totalMinutes = 0;
+                                                            foreach ($taskTimers as $timer) {
+                                                                $baseMinutes = (int) ($timer->duration ?? 0);
+                                                                if ($timer->end_date === null) {
+                                                                    $startTime = \Carbon\Carbon::parse($timer->start_date);
+                                                                    if ($timer->paused == 1) {
+                                                                        $totalMinutes += $baseMinutes;
+                                                                    } else {
+                                                                        $elapsedSeconds = $startTime->diffInSeconds($now);
+                                                                        $totalMinutes += $baseMinutes + (int) floor($elapsedSeconds / 60);
+                                                                    }
+                                                                } else {
+                                                                    $totalMinutes += $baseMinutes;
+                                                                }
+                                                            }
+                                                            $hours = floor($totalMinutes / 60);
+                                                            $minutes = $totalMinutes % 60;
+                                                        @endphp
+                                                        <div class="text-xs">
+                                                            <div class="font-semibold text-gray-800">
+                                                                {{ $hours }}h:{{ sprintf('%02d', $minutes) }}m
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                    
+                                                    {{-- Project total (all time) --}}
+                                                    @if($project)
+                                                        @php
+                                                            $projecttasksId = \App\Models\Tasks::where('project_id', $project->id)->pluck('id');
+                                                            $projectTotalMinutes = \App\Models\tasks_timer::where(function ($q) use ($projecttasksId, $project) {
+                                                                $q->whereIn('task_id', $projecttasksId)
+                                                                    ->orWhere('project_id', $project->id);
+                                                            })->where('employee_id', $employee->id)->sum('duration');
+                                                            $projectTotalHours = floor($projectTotalMinutes / 60);
+                                                            $projectTotalMins = $projectTotalMinutes % 60;
+                                                        @endphp
+                                                        <div class="text-xs text-gray-500 mt-1 pt-1 border-t border-gray-200">
+                                                            Total: {{ $projectTotalHours }}h:{{ sprintf('%02d', $projectTotalMins) }}m
+                                                        </div>
                                                     @endif
-                                                    <span class="live-duration" data-start="{{ $activeTask->start_date }}"
-                                                        data-extra-seconds="{{ $baseSeconds }}"
-                                                        data-paused="{{ $isPaused ? 1 : 0 }}">
-                                                        {{ $taskhours }}h:{{ sprintf('%02d', $taskminutes) }}m:{{ sprintf('%02d', $taskseconds) }}s
-                                                    </span>
                                                 </div>
                                             @endforeach
                                         </div>
                                     @else
-                                        @php
-                                            $today = \Carbon\Carbon::today();
-                                            $totalDurationMinutes = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereDate('start_date', $today)
-                                                ->whereNotNull('duration')
-                                                ->sum('duration');
-                                            $h = floor($totalDurationMinutes / 60);
-                                            $m = $totalDurationMinutes % 60;
-                                        @endphp
-                                        <span class="text-xs font-medium text-gray-700">Total today:
-                                            {{ $h }}h:{{ sprintf('%02d', $m) }}m</span>
-                                    @endif
-                                </td>
-
-                                {{-- Account Status --}}
-                                <td class="px-6 py-4 text-center align-middle text-sm cell-account-status">
-                                    @if($employeeUser && $employeeUser->is_activate == 1)
-                                        <form action="{{ route('admin.employee.deactivate', $employee->id) }}" method="post"
-                                            onsubmit="return confirm('Are you sure?');">
-                                            @csrf
-                                            <button type="submit"
-                                                class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 hover:bg-emerald-200">
-                                                Active
-                                            </button>
-                                        </form>
-                                    @else
-                                        <form action="{{ route('admin.employee.activate', $employee->id) }}" method="post"
-                                            onsubmit="return confirm('Are you sure?');">
-                                            @csrf
-                                            <button type="submit"
-                                                class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200">
-                                                Inactive
-                                            </button>
-                                        </form>
+                                        <span class="text-xs font-medium text-gray-700">No work today</span>
                                     @endif
                                 </td>
 
@@ -723,29 +739,60 @@
                                                 Stop all
                                             </button>
                                         @endif
-                                        <div class="space-y-1">
-                                            @foreach($activeTasks as $activeTask)
-                                                @php
-                                                    $taskName = \App\Models\employees_tasks::where('id', $activeTask->task_employee_id)->value('task_name');
-                                                    $shouldShowName = $activeTasks->count() > 1;
-                                                @endphp
-                                                <form class="inline-flex items-center gap-2 stop-form-{{ $employee->id }}"
-                                                    action="{{ route('admin.tasks.stop', ['tasks' => $activeTask->task_employee_id, 'employee_id' => $employee->id]) }}"
-                                                    method="POST" data-confirm="Stop timer for this task?">
-                                                    @csrf
-                                                    @if($shouldShowName)
-                                                        <span
-                                                            class="text-xs text-gray-700">{{ $taskName ?? ('Task ' . $activeTask->task_employee_id) }}</span>
-                                                    @endif
-                                                    <button type="submit"
-                                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white hover:bg-red-600">
-                                                        Stop
-                                                    </button>
-                                                </form>
+                                        @php
+                                            // Group active tasks by project for visual separation in Chrono
+                                            $groupedActiveTasksChrono = $activeTasks
+                                                ->map(function ($t) {
+                                                    $projectId = \App\Models\Tasks::where('id', $t->task_id)->value('project_id');
+                                                    $t->project_for_grouping = $projectId ?? 0;
+                                                    return $t;
+                                                })
+                                                ->sortBy('project_for_grouping')
+                                                ->groupBy('project_for_grouping');
+                                        @endphp
+                                        <div class="space-y-3 flex flex-col items-center">
+                                            @foreach($groupedActiveTasksChrono as $projectId => $projectTasks)
+                                                <div class="space-y-1 w-full flex flex-col items-center {{ !$loop->last ? 'pb-2 border-b border-gray-200' : '' }}">
+                                                    @foreach($projectTasks as $activeTask)
+                                                        <form
+                                                            class="flex items-center justify-center gap-2 stop-form-{{ $employee->id }}"
+                                                            action="{{ route('admin.tasks.stop', ['tasks' => $activeTask->task_employee_id, 'employee_id' => $employee->id]) }}"
+                                                            method="POST" data-confirm="Stop timer for this task?">
+                                                            @csrf
+                                                            <button type="submit"
+                                                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white hover:bg-red-600">
+                                                                Stop
+                                                            </button>
+                                                        </form>
+                                                    @endforeach
+                                                </div>
                                             @endforeach
                                         </div>
                                     @else
                                         <span class="text-xs text-gray-400">No Active Timer</span>
+                                    @endif
+                                </td>
+
+                                {{-- Account Status --}}
+                                <td class="px-6 py-4 text-center align-middle text-sm cell-account-status">
+                                    @if($employeeUser && $employeeUser->is_activate == 1)
+                                        <form action="{{ route('admin.employee.deactivate', $employee->id) }}" method="post"
+                                            onsubmit="return confirm('Are you sure?');">
+                                            @csrf
+                                            <button type="submit"
+                                                class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 hover:bg-emerald-200">
+                                                Active
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form action="{{ route('admin.employee.activate', $employee->id) }}" method="post"
+                                            onsubmit="return confirm('Are you sure?');">
+                                            @csrf
+                                            <button type="submit"
+                                                class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200">
+                                                Inactive
+                                            </button>
+                                        </form>
                                     @endif
                                 </td>
 
@@ -917,30 +964,30 @@
         {{-- Project Overview + Events --}}
         <div class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-            {{-- Project Overview (col-span-3) --}}
+            {{-- Employee Overview (col-span-3) --}}
             <div class="lg:col-span-3 border-0 shadow-sm bg-white rounded-lg hover:shadow-xl animate-fadeInSlideUp"
                 style="animation-delay: 600ms;">
                 <h2 class="p-6 text-lg font-semibold text-gray-900 border-b border-gray-200">
-                    {{__('messages.Project Overview')}} - Today's Work
+                    Employee Overview - Today's Work
                 </h2>
 
                 {{-- Column headers --}}
                 <div class="px-6 py-3 grid grid-cols-12 gap-4 border-b border-gray-200">
                     <span
-                        class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.PROJECT INFO')}}</span>
+                        class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">EMPLOYEES</span>
                     <span
-                        class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.BUDGET & COSTS')}}</span>
+                        class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">PROJECTS & CLIENT</span>
                     <span
-                        class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.TIME TRACKING')}}</span>
+                        class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">TIME TRACKING</span>
                     <span
-                        class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.PROGRESS')}}</span>
+                        class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">TASKS</span>
                     <span
-                        class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{__('messages.CLIENT & EMPLOYEES')}}</span>
+                        class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">TASK DURATION</span>
                     <span
-                        class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">{{__('messages.ACTIONS')}}</span>
+                        class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">ACTIONS</span>
                 </div>
 
-                {{-- Project list container --}}
+                {{-- Employee list container --}}
                 <div id="projects-container">
                     @php
                         $hasWorkedToday = false;
@@ -960,20 +1007,14 @@
                             ->when($entrepriseId, fn($q) => $q->where('entreprise_id', $entrepriseId))
                             ->get();
 
-                        // Gather project IDs from timers directly and via tasks
-                        $projectIdsDirect = $timersToday->pluck('project_id')->filter();
-                        $taskIds = $timersToday->pluck('task_id')->filter();
-                        $projectIdsFromTasks = $taskIds->isNotEmpty()
-                            ? \App\Models\Tasks::whereIn('id', $taskIds)->pluck('project_id')
-                            : collect();
-                        $projectIdsToday = $projectIdsDirect->merge($projectIdsFromTasks)->unique()->filter();
-
-                        $projectsToday = $projectIdsToday->isNotEmpty()
-                            ? \App\Models\Project::whereIn('id', $projectIdsToday)->get()
+                        // Group timers by employee and collect their projects
+                        $employeeIdsToday = $timersToday->pluck('employee_id')->filter()->unique();
+                        $employeesToday = $employeeIdsToday->isNotEmpty()
+                            ? \App\Models\Employees::whereIn('id', $employeeIdsToday)->get()
                             : collect();
                     @endphp
 
-                    @include('components.dashboard.project-overview-list', ['projectsToday' => $projectsToday])
+                    @include('components.dashboard.employee-overview-list', ['employeesToday' => $employeesToday, 'timersToday' => $timersToday])
 
                 </div>
             </div>

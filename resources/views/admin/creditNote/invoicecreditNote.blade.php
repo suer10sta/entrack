@@ -145,7 +145,9 @@
     <div class="container">
         <div class="header">
             <div class="header logo-right">
-            <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+            @if($entreprise->image)
+                        <img src="{{ storage_path('app/public/' . $entreprise->image) }}" alt="Company Logo" class="company-logo">
+                    @endif
             </div>
         </div>
 
@@ -239,14 +241,27 @@
             </tbody>
         </table>
 
+        @if($projectinfos->description || $comment)
         <div class="description">
-        <strong>- Description du projet :</strong><br>
-            {{ $projectinfos->description }}
+            @if($projectinfos->description)
+            <strong> - Informations :</strong><br>
+            {!! nl2br(e($projectinfos->description)) !!}<br>
+            @endif
+            @if($comment)
+            <strong>Commentaire:</strong><br>
+            {!! nl2br(e($comment)) !!}
+            @endif
         </div>
+        @endif
 
         <div class="payment">
-           
+            - Cette note de crédit annule @if($partial)partiellement @else totalement @endif la facture {{$entreprise->invoice_prefix}}-{{date('ym')}}{{$invoice->number}}
+            <br>
+            - Dans le cas de livraison intracommunautaire pour les services :  "Autoliquidation Art 21 § 2 du code TVA belge"
+            <br>
+            - Voir conditions générales en annexe
         </div>
+        
         <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
             @if(Auth::user()->hasRole('Admin'))
             <form action="{{ route('admin.creditNote.confirm', ['id' => $invoice->id, 'noteType' => $type, 'noteAmount' => $budget]) }}" method="POST" style="display: inline-block;">

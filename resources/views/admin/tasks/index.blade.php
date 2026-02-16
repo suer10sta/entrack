@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasks - DailyTrac</title> {{-- Updated title --}}
+    <title>Tasks - DalyTrac</title> {{-- Updated title --}}
     @vite('resources/css/app.css')
     @livewireStyles
     {{-- Include dashboard_layouts.head if needed --}}
@@ -12,7 +12,11 @@
 <body class="bg-gray-50 flex h-screen overflow-hidden">
 
     {{-- Sidebar Component --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     {{-- Main Wrapper (Navbar + Content) --}}
     <div class="flex flex-col flex-1 overflow-y-auto">
@@ -167,20 +171,26 @@
                                                      @php
                                                          // Eager load employees for performance
                                                          $task_employees = App\Models\employees_tasks::with('employee')->where('task_id', $task->id)->get();
-                                                         $employeeShowRoute = '#';
                                                          $canViewEmployee = Auth::user()->can('View employee');
-                                                          if ($canViewEmployee) {
-                                                            if (Auth::user()->hasRole('Admin')) $employeeShowRoute = route('admin.employees.show', '[ID]'); // Need ID placeholder
-                                                            elseif (Auth::user()->hasRole('Responsable de projet')) $employeeShowRoute = route('Responsable_de_projet.employees.show', '[ID]');
-                                                            elseif (Auth::user()->hasRole('Employee')) $employeeShowRoute = route('employee.employees.show', '[ID]');
-                                                            elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $employeeShowRoute = route('Responsable_gestionnaire.employees.show', '[ID]');
-                                                          }
                                                      @endphp
                                                      @forelse($task_employees as $emp_task)
                                                         @if($emp_task->employee) {{-- Check if employee exists --}}
                                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
                                                              @if($canViewEmployee)
-                                                                 <a href="{{ str_replace('[ID]', $emp_task->employee->id, $employeeShowRoute) }}" class="hover:underline">{{ $emp_task->employee->name }}</a>
+                                                                 @php
+                                                                     // Build the correct employee show route based on role and current employee id
+                                                                     $employeeShowRoute = '#';
+                                                                     if (Auth::user()->hasRole('Admin')) {
+                                                                         $employeeShowRoute = route('admin.employees.show', $emp_task->employee_id);
+                                                                     } elseif (Auth::user()->hasRole('Responsable de projet')) {
+                                                                         $employeeShowRoute = route('Responsable_de_projet.employees.show', $emp_task->employee_id);
+                                                                     } elseif (Auth::user()->hasRole('Employee')) {
+                                                                         $employeeShowRoute = route('employee.employees.show', $emp_task->employee_id);
+                                                                     } elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                                                                         $employeeShowRoute = route('Responsable_gestionnaire.employees.show', $emp_task->employee_id);
+                                                                     }
+                                                                 @endphp
+                                                                 <a href="{{ $employeeShowRoute }}" class="hover:underline">{{ $emp_task->employee->name }}</a>
                                                              @else
                                                                  {{ $emp_task->employee->name }}
                                                              @endif

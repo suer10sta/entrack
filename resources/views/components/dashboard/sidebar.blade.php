@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DailyTrac Sidebar</title>
+    <title>DalyTrac Sidebar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .dropdown-menu {
@@ -62,18 +62,13 @@
 <body class="bg-gray-100">
     <aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between h-screen">
         <div>
-            <div class="p-6 flex items-center space-x-3">
-                <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                </div>
-                <div>
-                    <h1 class="text-lg font-semibold text-gray-900">DailyTrac</h1>
-                    <p class="text-xs text-gray-500">Pro</p>
-                </div>
+            <div class="px-6 pt-3 pb-1 flex items-center overflow-hidden">
+                <img
+                    src="{{ asset('img/dalytraclogo.png') }}"
+                    alt="DalyTrac logo"
+                    class="h-18 w-auto object-contain"
+                    style="transform: scale(1.8);transform-origin: left center;margin-left: -90px;margin-top: -22px;margin-bottom: -38px;"
+                /> 
             </div>
             <nav class="px-4 space-y-1 mt-2">
                 <a href="{{route('admin.index') }}"
@@ -87,6 +82,7 @@
                     <span>Dashboard</span>
                 </a>
 
+                @canany(['View client', 'View employee', 'View teams', 'View project', 'View task', 'Pointage reports', 'View pointage', 'Manage workDaysReports'])
                 <div>
                     <button type="button" onclick="toggleDropdown('reports')"
                         class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
@@ -118,6 +114,7 @@
                         </svg>
                     </button>
                     <div id="reports-submenu" class="ml-8 space-y-1 dropdown-menu">
+                        @can('View client')
                         <a href="{{ route('admin.clients.index') }}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
                             @if(request()->routeIs('admin.clients.index'))
@@ -127,6 +124,8 @@
                             @endif
                             Clients Reports
                         </a>
+                        @endcan
+                        @can('View employee')
                         <a href="{{ route('admin.employees.index') }}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
                             @if(request()->routeIs('admin.employees.index'))
@@ -136,6 +135,8 @@
                             @endif
                             Employees Reports
                         </a>
+                        @endcan
+                        @can('View teams')
                         <a href="{{ route('admin.teams.index') }}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
                             @if(request()->routeIs('admin.teams.index'))
@@ -145,6 +146,8 @@
                             @endif
                             Teams Reports
                         </a>
+                        @endcan
+                        @can('View project')
                         <a href="{{ route('admin.projects.index') }}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
                             @if(request()->routeIs('admin.projects.index'))
@@ -154,6 +157,8 @@
                             @endif
                             Projects Reports
                         </a>
+                        @endcan
+                        @can('View task')
                         <a href="{{ route('admin.tasks.index') }}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
                             @if(request()->routeIs('admin.tasks.index'))
@@ -163,6 +168,8 @@
                             @endif
                             Tasks Reports
                         </a>
+                        @endcan
+                        @canany(['Pointage reports', 'View pointage'])
                         <a href="{{ route('admin.tasks.pointage') }}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
                             @if(request()->routeIs('admin.tasks.pointage'))
@@ -172,6 +179,8 @@
                             @endif
                             Pointage Reports
                         </a>
+                        @endcanany
+                        @can('Manage workDaysReports')
                         <a href="{{ route('admin.workDaysReports.index') }}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
                             @if(request()->routeIs('admin.workDaysReports.*'))
@@ -181,9 +190,12 @@
                             @endif
                             Works Days Report
                         </a>
+                        @endcan
                     </div>
                 </div>
+                @endcanany
 
+                @canany(['Create invoice', 'View invoices', 'Send invoice'])
                 <div>
                     <button type="button" onclick="toggleDropdown('invoices')"
                         class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
@@ -213,6 +225,7 @@
                         </svg>
                     </button>
                     <div id="invoices-submenu" class="ml-8 space-y-1 dropdown-menu">
+                        @can('Create invoice')
                         <a href="{{ route('admin.invoices.fullinvoice') }}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
                             @if(request()->routeIs('admin.invoices.fullinvoice'))
@@ -229,16 +242,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Generates Reports
-                        </a>
-                        <a href="{{ route('admin.invoices.invoicehistory') }}"
-                            class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
-                            @if(request()->routeIs('admin.invoices.invoicehistory'))
-                                <div
-                                    class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
-                                </div>
-                            @endif
-                            History
+                            Generate Detailed
                         </a>
                         <a href="{{ route('admin.invoices.parameters') }}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
@@ -249,6 +253,17 @@
                             @endif
                             Parametres
                         </a>
+                        @endcan
+                        @can('View invoices')
+                        <a href="{{ route('admin.invoices.invoicehistory') }}"
+                            class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.invoices.invoicehistory'))
+                                <div
+                                    class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
+                                </div>
+                            @endif
+                            History
+                        </a>
                         <a href="{{ route('admin.invoice.creditNoteHistory') }}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
                             @if(request()->routeIs('admin.invoice.creditNoteHistory'))
@@ -258,9 +273,12 @@
                             @endif
                             Credit Note History
                         </a>
+                        @endcan
                     </div>
                 </div>
+                @endcanany
 
+                @canany(['Create devis', 'view devis', 'Send devis'])
                 <div>
                     <button type="button" onclick="toggleDropdown('quotes')"
                         class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
@@ -288,6 +306,7 @@
                         </svg>
                     </button>
                     <div id="quotes-submenu" class="ml-8 space-y-1 dropdown-menu">
+                        @can('Create devis')
                         <a href="{{ route('admin.devis.generateDevis') }}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
                             @if(request()->routeIs('admin.devis.generateDevis'))
@@ -296,15 +315,6 @@
                                 </div>
                             @endif
                             Generate
-                        </a>
-                        <a href="{{ route('admin.devis.devishistory') }}"
-                            class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
-                            @if(request()->routeIs('admin.devis.devishistory'))
-                                <div
-                                    class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
-                                </div>
-                            @endif
-                            History
                         </a>
                         <a href="{{ route('admin.devis.parameters') }}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
@@ -315,9 +325,23 @@
                             @endif
                             Parametre
                         </a>
+                        @endcan
+                        @can('view devis')
+                        <a href="{{ route('admin.devis.devishistory') }}"
+                            class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
+                            @if(request()->routeIs('admin.devis.devishistory'))
+                                <div
+                                    class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
+                                </div>
+                            @endif
+                            History
+                        </a>
+                        @endcan
                     </div>
                 </div>
+                @endcanany
 
+                @can('Create expense note')
                 <div>
                     <button type="button" onclick="toggleDropdown('expense')"
                         class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
@@ -375,7 +399,9 @@
                         </a>
                     </div>
                 </div>
+                @endcan
 
+                @canany(['Pointage', 'View pointage'])
                 <a href="{{route('admin.pointage.index')}}"
                     class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
                     @if(request()->routeIs('admin.pointage.*'))
@@ -388,7 +414,9 @@
                     </svg>
                     <span>Time Tracking</span>
                 </a>
+                @endcanany
 
+                @can('Planning')
                 <a href="{{route('admin.calendar.index')}}"
                     class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
                     @if(request()->routeIs('admin.calendar.*'))
@@ -401,7 +429,10 @@
                     </svg>
                     <span>Planning</span>
                 </a>
+                @endcan
 
+               
+                @canany(['Assign Superadmin role', 'Edit employee roles'])
                 <div>
                     <button type="button" onclick="toggleDropdown('admin')"
                         class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
@@ -429,6 +460,7 @@
                         </svg>
                     </button>
                     <div id="admin-submenu" class="ml-8 space-y-1 dropdown-menu">
+                        @canany(['Assign Superadmin role', 'Edit employee roles'])
                         <a href="{{route('admin.roles.index')}}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
                             @if(request()->routeIs('admin.roles.index'))
@@ -438,6 +470,8 @@
                             @endif
                             Roles
                         </a>
+                        @endcanany
+                        @can('Assign Superadmin role')
                         <a href="{{route('admin.permissions.index')}}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
                             @if(request()->routeIs('admin.permissions.index'))
@@ -447,8 +481,10 @@
                             @endif
                             Permissions
                         </a>
+                        @endcan
                     </div>
                 </div>
+                @endcanany
 
                 <a href="{{route('admin.Enterprise_infos.index')}}"
                     class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
@@ -464,6 +500,7 @@
                     <span>Company Info</span>
                 </a>
 
+                @can('Billings')
                 <a href="{{route('admin.Enterprise_infos.create')}}"
                     class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative">
                     @if(request()->routeIs('admin.Enterprise_infos.create'))
@@ -477,6 +514,7 @@
                     </svg>
                     <span>Billing</span>
                 </a>
+                @endcan
             </nav>
         </div>
 

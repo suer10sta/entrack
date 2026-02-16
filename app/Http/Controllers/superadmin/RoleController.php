@@ -115,12 +115,27 @@ class RoleController extends Controller
             ->delete();
 
         // Add new permissions for this enterprise
-        foreach ($request->permissions as $permission_id) {
-            EnterpriseRolePermission::create([
-                'entreprise_id' => $entreprise_id,
-                'role_id' => $role->id,
-                'permission_id' => $permission_id
-            ]);
+        if ($request->has('permissions') && is_array($request->permissions)) {
+            foreach ($request->permissions as $permission_id) {
+                EnterpriseRolePermission::create([
+                    'entreprise_id' => $entreprise_id,
+                    'role_id' => $role->id,
+                    'permission_id' => $permission_id
+                ]);
+            }
+        }
+
+        // Redirect to roles index based on user role
+        if(Auth::user()->hasRole('super_admin')) {
+            return to_route('superadmin.roles.index')->with('message', 'Permissions updated successfully');
+        } elseif(Auth::user()->hasRole('Admin')) {
+            return to_route('admin.roles.index')->with('message', 'Permissions updated successfully');
+        } elseif(Auth::user()->hasRole('Responsable de projet')) {
+            return to_route('Responsable_de_projet.roles.index')->with('message', 'Permissions updated successfully');
+        } elseif(Auth::user()->hasRole('Employee')) {
+            return to_route('employee.roles.index')->with('message', 'Permissions updated successfully');
+        } elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+            return to_route('Responsable_gestionnaire.roles.index')->with('message', 'Permissions updated successfully');
         }
 
         return redirect()->back()->with('message', 'Permissions updated successfully');

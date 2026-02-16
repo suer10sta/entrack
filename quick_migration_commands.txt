@@ -1,0 +1,72 @@
+===========================================
+QUICK MIGRATION COMMANDS
+===========================================
+
+After importing database, run these to apply new migrations:
+
+=========================================== 
+STEP 1: SSH into VPS
+===========================================
+ssh ubuntu@51.75.205.36
+(Password: bureaumerciervps1748+*)
+
+===========================================
+STEP 2: Navigate to Laravel App
+===========================================
+# Find your app directory (adjust path as needed)
+cd /var/www/html
+# OR
+cd /var/www/your-app-name
+
+# Verify you're in the right place
+ls -la artisan
+
+===========================================
+STEP 3: Check Current Migrations
+===========================================
+# See what migrations are already in the database
+sudo -u postgres psql -d old_app_backup -c "SELECT migration FROM migrations ORDER BY migration DESC LIMIT 20;"
+
+===========================================
+STEP 4: Run Pending Migrations
+===========================================
+# See what will run (dry run)
+php artisan migrate --pretend
+
+# Run all pending migrations
+php artisan migrate
+
+# With verbose output to see progress
+php artisan migrate -v
+
+===========================================
+STEP 5: Verify
+===========================================
+# Check migrations table again
+sudo -u postgres psql -d old_app_backup -c "SELECT migration FROM migrations ORDER BY migration DESC LIMIT 10;"
+
+# Check Laravel migration status
+php artisan migrate:status
+
+===========================================
+OPTIONAL: Backup Before Migrations
+===========================================
+# Create backup before running migrations
+sudo -u postgres pg_dump old_app_backup > /home/ubuntu/backup_before_migrations_$(date +%Y%m%d_%H%M%S).sql
+
+===========================================
+TROUBLESHOOTING
+===========================================
+# If connection issues, verify .env file
+cat .env | grep DB_
+
+# Check database connection
+php artisan db:show
+
+# Check specific migration status
+php artisan migrate:status | grep -i "2025_12"
+
+===========================================
+DONE!
+===========================================
+

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoices History - DailyTrac</title>
+    <title>Invoices History - DalyTrac</title>
     
     @vite('resources/css/app.css') 
     @livewireStyles
@@ -47,7 +47,11 @@
 <body class="bg-gray-100 flex h-screen overflow-hidden font-sans">
 
     {{-- Sidebar Component --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     {{-- Main Wrapper (Navbar + Content) --}}
     <div class="flex flex-col flex-1 overflow-y-auto" x-data>
@@ -66,7 +70,7 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <button type="button" 
-                            @click="$dispatch('open-modal', 'invoiceReportModal')"
+                            id="openInvoiceReportModal"
                             class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
                         Invoices Reports PDF
                     </button>
@@ -122,6 +126,7 @@
 
             {{-- 3. Totals Cards Section --}}
             @php
+                $currentYear = date('Y');
                 $totalPaid = App\Models\invoices_history::where('entreprise_id', Auth::user()->entreprise_id)->where('Payment_status', 1)->sum('total_ttc');
                 $totalUnpaid = App\Models\invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
                                                 ->where(function($query) {
@@ -129,6 +134,22 @@
                                                 })->sum('total_ttc');
                 $totalAmount = $totalPaid + $totalUnpaid;
                 $totalTva = App\Models\invoices_history::where('entreprise_id', Auth::user()->entreprise_id)->sum('total_tva');
+                
+                // Current year totals
+                $totalPaidCurrentYear = App\Models\invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
+                                                    ->where('Payment_status', 1)
+                                                    ->whereYear('created_at', $currentYear)
+                                                    ->sum('total_ttc');
+                $totalUnpaidCurrentYear = App\Models\invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
+                                                    ->where(function($query) {
+                                                        $query->where('Payment_status', 0)->orWhereNull('Payment_status');
+                                                    })
+                                                    ->whereYear('created_at', $currentYear)
+                                                    ->sum('total_ttc');
+                $totalAmountCurrentYear = $totalPaidCurrentYear + $totalUnpaidCurrentYear;
+                $totalTvaCurrentYear = App\Models\invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
+                                                    ->whereYear('created_at', $currentYear)
+                                                    ->sum('total_tva');
             @endphp
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {{-- Total Paid Card --}}
@@ -138,9 +159,10 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                     </div>
-                    <div>
+                    <div class="flex-1">
                         <p class="text-xs text-gray-500 uppercase font-medium">TOTAL PAID</p>
                         <p class="text-xl font-semibold text-green-600">€{{ number_format($totalPaid, 2, ',', '.') }}</p>
+                        <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($totalPaidCurrentYear, 2, ',', '.') }}</p>
                     </div>
                 </div>
                 {{-- Total Unpaid Card --}}
@@ -150,9 +172,10 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     </div>
-                    <div>
+                    <div class="flex-1">
                         <p class="text-xs text-gray-500 uppercase font-medium">TOTAL UNPAID</p>
                         <p class="text-xl font-semibold text-red-600">€{{ number_format($totalUnpaid, 2, ',', '.') }}</p>
+                        <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($totalUnpaidCurrentYear, 2, ',', '.') }}</p>
                     </div>
                 </div>
                 {{-- Total Amount Card --}}
@@ -162,9 +185,10 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 3a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 12m15 0a2.25 2.25 0 01-2.25 2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 013 12m15 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v6" />
                         </svg>
                     </div>
-                    <div>
+                    <div class="flex-1">
                         <p class="text-xs text-gray-500 uppercase font-medium">TOTAL AMOUNT</p>
                         <p class="text-xl font-semibold text-blue-600">€{{ number_format($totalAmount, 2, ',', '.') }}</p>
+                        <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($totalAmountCurrentYear, 2, ',', '.') }}</p>
                     </div>
                 </div>
                 {{-- Total TVA Card --}}
@@ -174,9 +198,10 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25V13.5zm0 2.25h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25V18zm2.498-6.75h.007v.008h-.007v-.008zm0 2.25h.007v.008h-.007V13.5zm0 2.25h.007v.008h-.007v-.008zm0 2.25h.007v.008h-.007V18zm2.504-6.75h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V13.5zm0 2.25h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V18zm2.498-6.75h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V13.5zM8.25 6h7.5v2.25h-7.5V6zM12 2.25c-1.892 0-3.758.11-5.593.322C5.307 2.7 4.5 3.65 4.5 4.757V19.5a2.25 2.25 0 002.25 2.25h10.5a2.25 2.25 0 002.25-2.25V4.757c0-1.108-.806-2.057-1.907-2.185A48.208 48.208 0 0012 2.25z" />
                         </svg>
                     </div>
-                    <div>
+                    <div class="flex-1">
                         <p class="text-xs text-gray-500 uppercase font-medium">TOTAL TVA</p>
                         <p class="text-xl font-semibold text-gray-800">€{{ number_format($totalTva, 2, ',', '.') }}</p>
+                        <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($totalTvaCurrentYear, 2, ',', '.') }}</p>
                     </div>
                 </div>
             </div>
@@ -244,7 +269,7 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
 @forelse($invoices as $invoice)
-<tr class="hover:bg-gray-50">
+<tr class="{{ $invoice->sentInvoice == 1 ? 'bg-green-50 hover:bg-green-100' : 'hover:bg-gray-50' }}">
     <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
         @php
             $dueDate = \Carbon\Carbon::parse($invoice->due_date);
@@ -343,63 +368,27 @@
                         style="display: none;"
                         class="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                         @if($invoice->type == 'Detailed' && $detailedCreditNoteRoute)
-                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                   @click.prevent="showPartialDetailedPopup({{ $invoice->id }}, {{ $invoice->total_ttc }}); open = false;">Partial</a></li>
+                                <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                   onclick="event.preventDefault(); showPartialDetailedPopup({{ $invoice->id }}, {{ $invoice->total_ttc }});">Partial</a></li>
                             <li><a href="{{ route($detailedCreditNoteRoute, $invoice->id) }}?type=full"
                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Full</a></li>
                         @elseif($creditNoteRoute)
                             <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                   @click.prevent="showPartialPopup({{ $invoice->id }}, {{ $invoice->total_ttc }}); open = false;">Partial</a></li>
+                                   onclick="event.preventDefault(); showPartialPopup({{ $invoice->id }}, {{ $invoice->total_ttc }});">Partial</a></li>
                             <li><a href="{{ route($creditNoteRoute, $invoice->id) }}?type=full"
                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Full</a></li>
                         @endif
                     </ul>
                 </div>
 
-                {{-- Send (Email / Peppol) --}}
+                {{-- Send (Email + Peppol Combined) --}}
                 @can('Send invoice')
-                    <div x-data="{ open: false }" class="relative">
-                        <button @click="open = !open" type="button"
-                                title="Send Invoice"
-                                class="px-3 py-1 rounded-md bg-gray-600 text-white hover:bg-gray-700 text-xs font-medium flex items-center gap-1">
-                            Send
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                        </button>
-
-                        @if(Auth::user()->hasRole('Admin'))
-                            <form x-ref="peppolForm" action="{{ route('admin.billit.send-invoice-type', ['id' => $invoice->id, 'type' => strtolower($invoice->type ?? 'full')]) }}?channel=Peppol" method="POST" class="hidden">@csrf</form>
-                        @elseif(Auth::user()->hasRole('Responsable de projet'))
-                            <form x-ref="peppolForm" action="{{ route('Responsable_de_projet.billit.send-invoice-type', ['id' => $invoice->id, 'type' => strtolower($invoice->type ?? 'full')]) }}?channel=Peppol" method="POST" class="hidden">@csrf</form>
-                        @elseif(Auth::user()->hasRole('Employee'))
-                            <form x-ref="peppolForm" action="{{ route('employee.billit.send-invoice-type', ['id' => $invoice->id, 'type' => strtolower($invoice->type ?? 'full')]) }}?channel=Peppol" method="POST" class="hidden">@csrf</form>
-                        @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                            <form x-ref="peppolForm" action="{{ route('Responsable_gestionnaire.billit.send-invoice-type', ['id' => $invoice->id, 'type' => strtolower($invoice->type ?? 'full')]) }}?channel=Peppol" method="POST" class="hidden">@csrf</form>
-                        @endif
-
-                        <ul x-show="open"
-                            @click.outside="open = false"
-                            x-transition
-                            style="display: none;"
-                            class="absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                            <li>
-                                <a href="#"
-                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                   @click.prevent="
-                                        open = false;
-                                        window.dispatchEvent(new CustomEvent('open-modal', { detail: { id: 'sendInvoiceModal', invoiceId: {{ $invoice->id }} } }));
-                                   ">
-                                    Send by Email
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                   @click.prevent="open = false; $refs.peppolForm.submit();">
-                                    Send via Peppol
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    <button type="button"
+                            title="Send Invoice"
+                            class="px-3 py-1 rounded-md bg-gray-600 text-white hover:bg-gray-700 text-xs font-medium flex items-center gap-1"
+                            onclick="event.preventDefault(); if(window.openCombinedSendModal) window.openCombinedSendModal({{ $invoice->id }}, '{{ strtolower($invoice->type ?? 'full') }}'); else setTimeout(function(){ if(window.openCombinedSendModal) window.openCombinedSendModal({{ $invoice->id }}, '{{ strtolower($invoice->type ?? 'full') }}'); }, 100);">
+                        Send
+                    </button>
                 @endcan
             </div>
         @else
@@ -485,59 +474,23 @@
                             style="display: none;"
                             class="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                             @if($invoice->type == 'Detailed' && $detailedCreditNoteRoute)
-                                <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" @click.prevent="showPartialDetailedPopup({{ $invoice->id }}, {{ $invoice->total_ttc }}); open = false;">Partial</a></li>
+                                <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="event.preventDefault(); showPartialDetailedPopup({{ $invoice->id }}, {{ $invoice->total_ttc }});">Partial</a></li>
                                 <li><a href="{{ route($detailedCreditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Full</a></li>
                             @elseif($creditNoteRoute)
-                                <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" @click.prevent="showPartialPopup({{ $invoice->id }}, {{ $invoice->total_ttc }}); open = false;">Partial</a></li>
+                                <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="event.preventDefault(); showPartialPopup({{ $invoice->id }}, {{ $invoice->total_ttc }});">Partial</a></li>
                                 <li><a href="{{ route($creditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Full</a></li>
                             @endif
                         </ul>
                     </div>
 
-                    {{-- Send --}}
+                    {{-- Send (Email + Peppol Combined) --}}
                     @can('Send invoice')
-                        <div x-data="{ open: false }" class="relative w-full">
-                            <button @click="open = !open" type="button"
-                                    title="Send Invoice"
-                                    class="w-full px-2 py-1 rounded-md bg-gray-600 text-white hover:bg-gray-700 text-xs font-medium flex justify-center items-center gap-1">
-                                Send
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                            </button>
-
-                            @if(Auth::user()->hasRole('Admin'))
-                                <form x-ref="peppolForm" action="{{ route('admin.billit.send-invoice-type', ['id' => $invoice->id, 'type' => strtolower($invoice->type ?? 'full')]) }}?channel=Peppol" method="POST" class="hidden">@csrf</form>
-                            @elseif(Auth::user()->hasRole('Responsable de projet'))
-                                <form x-ref="peppolForm" action="{{ route('Responsable_de_projet.billit.send-invoice-type', ['id' => $invoice->id, 'type' => strtolower($invoice->type ?? 'full')]) }}?channel=Peppol" method="POST" class="hidden">@csrf</form>
-                            @elseif(Auth::user()->hasRole('Employee'))
-                                <form x-ref="peppolForm" action="{{ route('employee.billit.send-invoice-type', ['id' => $invoice->id, 'type' => strtolower($invoice->type ?? 'full')]) }}?channel=Peppol" method="POST" class="hidden">@csrf</form>
-                            @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                <form x-ref="peppolForm" action="{{ route('Responsable_gestionnaire.billit.send-invoice-type', ['id' => $invoice->id, 'type' => strtolower($invoice->type ?? 'full')]) }}?channel=Peppol" method="POST" class="hidden">@csrf</form>
-                            @endif
-
-                            <ul x-show="open"
-                                @click.outside="open = false"
-                                x-transition
-                                style="display: none;"
-                                class="absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                                <li>
-                                    <a href="#"
-                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                       @click.prevent="
-                                            open = false;
-                                            window.dispatchEvent(new CustomEvent('open-modal', { detail: { id: 'sendInvoiceModal', invoiceId: {{ $invoice->id }} } }));
-                                       ">
-                                        Send by Email
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#"
-                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                       @click.prevent="open = false; $refs.peppolForm.submit();">
-                                        Send via Peppol
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
+                        <button type="button"
+                                title="Send Invoice"
+                                class="w-full px-2 py-1 rounded-md bg-gray-600 text-white hover:bg-gray-700 text-xs font-medium flex justify-center items-center gap-1"
+                                onclick="event.preventDefault(); if(window.openCombinedSendModal) window.openCombinedSendModal({{ $invoice->id }}, '{{ strtolower($invoice->type ?? 'full') }}'); else setTimeout(function(){ if(window.openCombinedSendModal) window.openCombinedSendModal({{ $invoice->id }}, '{{ strtolower($invoice->type ?? 'full') }}'); }, 100);">
+                            Send
+                        </button>
                     @endcan
                 </div>
             </div>
@@ -619,19 +572,16 @@
     </div>
 </div> 
 
-            {{-- Modals (No changes made here) --}}
-            <div x-data="sendInvoiceModal()" x-show="show" 
-                 @open-modal.window="if ($event.detail.id === 'sendInvoiceModal') open($event.detail.invoiceId)"
-                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-                 class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50" style="display: none;">
-                <div x-show="show" x-transition @click.outside="show = false" class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
-                    <div class="flex items-center justify-between p-4 border-b">
-                        <h5 class="text-lg font-semibold">Send Invoice</h5>
-                        <button @click="show = false" type="button" class="text-gray-400 hover:text-gray-600">&times;</button>
+            {{-- Modals --}}
+            <div id="sendInvoiceModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-lg mx-4">
+                    <div class="flex justify-between items-center p-4 border-b">
+                        <h5 class="text-lg font-semibold text-gray-800">Send Invoice</h5>
+                        <button type="button" id="closeSendInvoiceModal" class="text-gray-400 hover:text-gray-600">&times;</button>
                     </div>
-                    <form id="sendInvoiceForm" @submit.prevent="submitForm">
+                    <form id="sendInvoiceForm" method="POST" enctype="multipart/form-data">
                         @csrf
+                        <input type="hidden" name="invoice_id" id="invoice_id">
                         <div class="p-6 space-y-4">
                             <div>
                                 <h6 class="text-sm font-medium text-gray-700 mb-2">Select Recipients:</h6>
@@ -643,85 +593,188 @@
                             </div>
                         </div>
                         <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-                            <button @click="show = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Close</button>
+                            <button type="button" id="cancelSendInvoiceModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Close</button>
                             <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Send Invoice</button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <div x-data="partialCreditNoteModal()" x-show="show" 
-                 @open-modal.window="if ($event.detail.id === 'partialCreditNoteModal') open($event.detail.invoiceId, $event.detail.totalCost)"
-                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-                 class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50" style="display: none;">
-                <div x-show="show" x-transition @click.outside="show = false" class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-                    <div class="flex items-center justify-between p-4 border-b">
-                        <h5 class="text-lg font-semibold">Partial Credit Note</h5>
-                        <button @click="show = false" type="button" class="text-gray-400 hover:text-gray-600">&times;</button>
+            {{-- Peppol Send Modal --}}
+            <div id="sendPeppolModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-lg mx-4">
+                    <div class="flex justify-between items-center p-4 border-b">
+                        <h5 class="text-lg font-semibold text-gray-800">Send Invoice via Peppol</h5>
+                        <button type="button" id="closeSendPeppolModal" class="text-gray-400 hover:text-gray-600">&times;</button>
                     </div>
-                    <form @submit.prevent="submitForm">
+                    <form id="sendPeppolForm" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="invoice_id" id="peppol_invoice_id">
+                        <input type="hidden" name="invoice_type" id="peppol_invoice_type">
+                        <div class="p-6 space-y-4">
+                            <div class="text-sm text-gray-700">
+                                <p class="mb-2">
+                                    You are about to send this invoice via <span class="font-semibold">Peppol</span>.
+                                </p>
+                                <p class="mb-4">
+                                    Please confirm that you want to proceed. This action will send the invoice through the Peppol network.
+                                </p>
+                            </div>
+                            
+                            {{-- File Attachments Section --}}
+                            <div class="border-t pt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Attach Files (Optional)
+                                    <span class="text-xs text-gray-500 font-normal">(PDF, Excel, CSV, JPEG, PNG)</span>
+                                </label>
+                                <div class="mt-2">
+                                    <input type="file" 
+                                           id="peppol_attachments" 
+                                           name="attachments[]" 
+                                           multiple 
+                                           accept=".pdf,.xlsx,.xls,.csv,.jpg,.jpeg,.png"
+                                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer border border-gray-300 rounded-lg">
+                                    <p class="mt-1 text-xs text-gray-500">You can select multiple files. Maximum file size: 10MB per file.</p>
+                                </div>
+                                
+                                {{-- Selected Files Display --}}
+                                <div id="peppol_selected_files" class="mt-3 space-y-2 hidden">
+                                    <p class="text-xs font-medium text-gray-700">Selected files:</p>
+                                    <ul id="peppol_files_list" class="text-xs text-gray-600 space-y-1"></ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
+                            <button type="button" id="cancelSendPeppolModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Annuler</button>
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Confirmer l'envoi via Peppol</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {{-- Combined Send Modal (Email + Peppol) --}}
+            <div id="combinedSendModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-xl mx-4">
+                    <div class="flex justify-between items-center p-4 border-b">
+                        <h5 class="text-lg font-semibold text-gray-800">Send Invoice</h5>
+                        <button type="button" id="closeCombinedSendModal" class="text-gray-400 hover:text-gray-600">&times;</button>
+                    </div>
+                    <form id="combinedSendForm" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="invoice_id" id="combined_invoice_id">
+                        <input type="hidden" name="invoice_type" id="combined_invoice_type">
+                        <div class="p-6 space-y-5">
+                            <div>
+                                <h6 class="text-sm font-medium text-gray-700 mb-2">Choose how to send:</h6>
+                                <div class="space-y-2">
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" id="combined_send_email" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">Send via Email</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" id="combined_send_peppol" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">Send via Peppol</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {{-- Email recipients (visible only when email is checked) --}}
+                            <div id="combined_email_section" class="space-y-2 hidden">
+                                <h6 class="text-sm font-medium text-gray-700">Select Recipients (Email):</h6>
+                                <div id="combinedRecipientsList" class="space-y-2 p-3 border border-gray-200 rounded-lg bg-gray-50 h-40 overflow-y-auto text-sm text-gray-700">
+                                    <div class="text-center text-gray-500">Loading...</div>
+                                </div>
+                            </div>
+
+                            {{-- Attachments for both channels --}}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Attach Files (Optional)
+                                    <span class="text-xs text-gray-500 font-normal">(PDF, Excel, CSV, JPEG, PNG – max 10MB each)</span>
+                                </label>
+                                <input type="file"
+                                       id="combined_attachments"
+                                       name="combined_attachments[]"
+                                       multiple
+                                       accept=".pdf,.xlsx,.xls,.csv,.jpg,.jpeg,.png"
+                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer border border-gray-300 rounded-lg">
+                                <div id="combined_selected_files" class="mt-3 space-y-2 hidden">
+                                    <p class="text-xs font-medium text-gray-700">Selected files:</p>
+                                    <ul id="combined_files_list" class="text-xs text-gray-600 space-y-1"></ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
+                            <button type="button" id="cancelCombinedSendModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Close</button>
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Send</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {{-- Partial Credit Note Modal --}}
+            <div id="partialCreditNoteModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+                    <div class="flex justify-between items-center p-4 border-b">
+                        <h5 class="text-lg font-semibold text-gray-800">Partial Credit Note</h5>
+                        <button type="button" id="closePartialCreditNoteModal" class="text-gray-400 hover:text-gray-600">&times;</button>
+                    </div>
+                    <form id="partialCreditNoteForm">
                         <div class="p-6">
                             <label for="partialAmount" class="block text-sm font-medium text-gray-700 mb-2">Enter Amount:</label>
-                            <input type="number" x-model="amount" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" id="partialAmount" step="0.0001" required>
-                            <span x-show="error" x-text="errorMessage" class="text-red-600 text-sm mt-1"></span>
+                            <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" id="partialAmount" step="0.0001" required>
+                            <span id="partialAmountError" class="text-red-600 text-sm mt-1 hidden"></span>
                         </div>
                         <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-                            <button @click="show = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Close</button>
+                            <button type="button" id="cancelPartialCreditNoteModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Close</button>
                             <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Submit</button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <div x-data="partialDetailedCreditNoteModal()" x-show="show" 
-                 @open-modal.window="if ($event.detail.id === 'partialDetailedCreditNoteModal') open($event.detail.invoiceId, $event.detail.totalCost)"
-                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-                 class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50" style="display: none;">
-                <div x-show="show" x-transition @click.outside="show = false" class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-                    <div class="flex items-center justify-between p-4 border-b">
-                        <h5 class="text-lg font-semibold">Partial Credit Note (Detailed)</h5>
-                        <button @click="show = false" type="button" class="text-gray-400 hover:text-gray-600">&times;</button>
+            {{-- Partial Detailed Credit Note Modal --}}
+            <div id="partialDetailedCreditNoteModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+                    <div class="flex justify-between items-center p-4 border-b">
+                        <h5 class="text-lg font-semibold text-gray-800">Partial Credit Note (Detailed)</h5>
+                        <button type="button" id="closePartialDetailedCreditNoteModal" class="text-gray-400 hover:text-gray-600">&times;</button>
                     </div>
-                    <form @submit.prevent="submitForm">
+                    <form id="partialDetailedCreditNoteForm">
                         <div class="p-6">
                             <label for="partialDetailedAmount" class="block text-sm font-medium text-gray-700 mb-2">Enter Amount:</label>
-                            <input type="number" x-model="amount" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" id="partialDetailedAmount" step="0.0001" required>
-                            <span x-show="error" x-text="errorMessage" class="text-red-600 text-sm mt-1"></span>
+                            <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" id="partialDetailedAmount" step="0.0001" required>
+                            <span id="partialDetailedAmountError" class="text-red-600 text-sm mt-1 hidden"></span>
                         </div>
                         <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-                            <button @click="show = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Close</button>
+                            <button type="button" id="cancelPartialDetailedCreditNoteModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Close</button>
                             <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Submit</button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <div x-data="invoiceReportModal()" x-show="show" 
-                 @open-modal.window="if ($event.detail === 'invoiceReportModal') show = true"
-                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-                 class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50" style="display: none;">
-                <div x-show="show" x-transition @click.outside="show = false" class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-                    <div class="flex items-center justify-between p-4 border-b">
-                        <h5 class="text-lg font-semibold">Download Invoices Reports</h5>
-                        <button @click="show = false" type="button" class="text-gray-400 hover:text-gray-600">&times;</button>
+            {{-- Invoice Report Modal --}}
+            <div id="invoiceReportModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+                    <div class="flex justify-between items-center p-4 border-b">
+                        <h5 class="text-lg font-semibold text-gray-800">Download Invoices Reports</h5>
+                        <button type="button" id="closeInvoiceReportModal" class="text-gray-400 hover:text-gray-600">&times;</button>
                     </div>
                     <div class="p-6 space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Choose payment statuses (optional):</label>
                             <div class="space-y-2">
                                 <div class="flex items-center">
-                                    <input x-model="selectedStatuses" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="status_paid" value="paid">
+                                    <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="status_paid" value="paid">
                                     <label class="ml-2 text-sm text-gray-700" for="status_paid">Paid</label>
                                 </div>
                                 <div class="flex items-center">
-                                    <input x-model="selectedStatuses" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="status_unpaid" value="unpaid">
+                                    <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="status_unpaid" value="unpaid">
                                     <label class="ml-2 text-sm text-gray-700" for="status_unpaid">Unpaid</label>
                                 </div>
                                 <div class="flex items-center">
-                                    <input x-model="selectedStatuses" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="status_overdue" value="overdue">
+                                    <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="status_overdue" value="overdue">
                                     <label class="ml-2 text-sm text-gray-700" for="status_overdue">Overdue</label>
                                 </div>
                             </div>
@@ -731,37 +784,37 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Choose invoice types (optional):</label>
                             <div class="space-y-2">
                                 <div class="flex items-center">
-                                    <input x-model="selectedTypes" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="type_partial" value="partial">
+                                    <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="type_partial" value="partial">
                                     <label class="ml-2 text-sm text-gray-700" for="type_partial">Partial</label>
                                 </div>
                                 <div class="flex items-center">
-                                    <input x-model="selectedTypes" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="type_percentage" value="percentage">
+                                    <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="type_percentage" value="percentage">
                                     <label class="ml-2 text-sm text-gray-700" for="type_percentage">Percentage</label>
                                 </div>
                                 <div class="flex items-center">
-                                    <input x-model="selectedTypes" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="type_full" value="full">
+                                    <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="type_full" value="full">
                                     <label class="ml-2 text-sm text-gray-700" for="type_full">Full</label>
                                 </div>
                                 <div class="flex items-center">
-                                    <input x-model="selectedTypes" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="type_period" value="period">
+                                    <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="type_period" value="period">
                                     <label class="ml-2 text-sm text-gray-700" for="type_period">Period</label>
                                 </div>
                                 <div class="flex items-center">
-                                    <input x-model="selectedTypes" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="type_detailed" value="detailed">
+                                    <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="type_detailed" value="detailed">
                                     <label class="ml-2 text-sm text-gray-700" for="type_detailed">Detailed</label>
                                 </div>
                             </div>
                         </div>
                         <hr class="my-4">
                         <div class="flex items-center">
-                            <input x-model="creditNoteApplied" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="credit_note_applied" value="1">
+                            <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="credit_note_applied" value="1">
                             <label class="ml-2 text-sm text-gray-700" for="credit_note_applied">Credit note applied</label>
                         </div>
                         <small class="text-gray-500 text-xs">Date range (optional) will be applied from the fields at the top.</small>
                     </div>
                     <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-                        <button @click="show = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Cancel</button>
-                        <button @click="downloadReport" type="button" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Download PDF</button>
+                        <button type="button" id="cancelInvoiceReportModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Cancel</button>
+                        <button type="button" id="confirmInvoiceReport" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Download PDF</button>
                     </div>
                 </div>
             </div>
@@ -777,20 +830,70 @@
         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
     });
 
-    // --- Fonctions Alpine pour les Modals ---
+    // Global functions for opening modals (defined early so they're available immediately)
+    window.showPartialPopup = function(invoiceId, totalCost) {
+        window.dispatchEvent(new CustomEvent('open-modal', { detail: { id: 'partialCreditNoteModal', invoiceId: invoiceId, totalCost: totalCost } }));
+    };
+    window.showPartialDetailedPopup = function(invoiceId, totalCost) {
+        window.dispatchEvent(new CustomEvent('open-modal', { detail: { id: 'partialDetailedCreditNoteModal', invoiceId: invoiceId, totalCost: totalCost } }));
+    };
+    
+    // Global modal opening functions (will be defined in DOMContentLoaded, but we'll set up placeholders)
+    window.openSendInvoiceModal = null;
+    window.openSendPeppolModal = null;
+    window.openCombinedSendModal = null;
+    window.openPartialCreditNoteModal = null;
+    window.openPartialDetailedCreditNoteModal = null;
+    
+    // Set up event listener immediately (not waiting for DOMContentLoaded)
+    window.addEventListener('open-modal', function(event) {
+        const detail = event.detail;
+        if (detail.id === 'sendInvoiceModal' && detail.invoiceId && window.openSendInvoiceModal) {
+            window.openSendInvoiceModal(detail.invoiceId);
+        } else if (detail.id === 'sendPeppolModal' && detail.invoiceId && window.openSendPeppolModal) {
+            window.openSendPeppolModal(detail.invoiceId, detail.invoiceType);
+        } else if (detail.id === 'partialCreditNoteModal' && detail.invoiceId && detail.totalCost && window.openPartialCreditNoteModal) {
+            window.openPartialCreditNoteModal(detail.invoiceId, detail.totalCost);
+        } else if (detail.id === 'partialDetailedCreditNoteModal' && detail.invoiceId && detail.totalCost && window.openPartialDetailedCreditNoteModal) {
+            window.openPartialDetailedCreditNoteModal(detail.invoiceId, detail.totalCost);
+        } else if ((detail === 'invoiceReportModal' || detail.id === 'invoiceReportModal')) {
+            const invoiceReportModal = document.getElementById('invoiceReportModal');
+            if (invoiceReportModal) invoiceReportModal.classList.remove('hidden');
+        }
+    });
 
-    function sendInvoiceModal() {
-        return {
-            show: false,
-            invoiceId: null,
-            form: document.getElementById('sendInvoiceForm'),
-            open(invoiceId) {
-                this.invoiceId = invoiceId;
-                this.show = true;
-                this.updateFormAction();
-                this.fetchRecipients();
-            },
-            updateFormAction() {
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- MODAL HANDLING (Vanilla JS like devisHistory) ---
+        
+        // Send Invoice Modal
+        const sendInvoiceModal = document.getElementById('sendInvoiceModal');
+        const closeSendInvoiceModalBtn = document.getElementById('closeSendInvoiceModal');
+        const cancelSendInvoiceModalBtn = document.getElementById('cancelSendInvoiceModal');
+        const sendInvoiceForm = document.getElementById('sendInvoiceForm');
+        
+        if (closeSendInvoiceModalBtn) {
+            closeSendInvoiceModalBtn.addEventListener('click', () => {
+                if (sendInvoiceModal) sendInvoiceModal.classList.add('hidden');
+            });
+        }
+        if (cancelSendInvoiceModalBtn) {
+            cancelSendInvoiceModalBtn.addEventListener('click', () => {
+                if (sendInvoiceModal) sendInvoiceModal.classList.add('hidden');
+            });
+        }
+        
+        // Handle Send Invoice Form Submission
+        if (sendInvoiceForm) {
+            sendInvoiceForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const invoiceId = document.getElementById('invoice_id').value;
+                const selectedRecipients = Array.from(document.querySelectorAll('input[name="selected_recipients[]"]:checked')).map(checkbox => checkbox.value);
+                
+                if (selectedRecipients.length === 0) {
+                    showMessage('Please select at least one recipient', 'danger');
+                    return;
+                }
+                
                 let actionUrl = '';
                 @if(Auth::user()->hasRole('Admin')) 
                     actionUrl = '{{ route("admin.invoice.sendInvoice", ":invoice_id") }}';
@@ -801,146 +904,642 @@
                 @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) 
                     actionUrl = '{{ route("Responsable_gestionnaire.invoice.sendInvoice", ":invoice_id") }}';
                 @endif
-                this.form.action = actionUrl.replace(':invoice_id', this.invoiceId);
-            },
-            fetchRecipients() {
-                fetch(`/admin/invoice/${this.invoiceId}/recipients`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const recipientsList = document.getElementById('recipientsList');
-                        recipientsList.innerHTML = '';
-                        if (data.recipients && data.recipients.length > 0) {
-                            data.recipients.forEach(recipient => {
-                                const recipientDiv = document.createElement('div');
-                                recipientDiv.className = 'mb-2 flex items-center';
-                                const checkbox = document.createElement('input');
-                                checkbox.type = 'checkbox';
-                                checkbox.name = 'selected_recipients[]';
-                                checkbox.value = recipient.email;
-                                checkbox.id = `recipient-${recipient.email}`;
-                                checkbox.className = 'form-check-input h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-2';
-                                checkbox.checked = recipient.is_comptable === 1;
-                                const label = document.createElement('label');
-                                label.className = 'form-check-label text-sm text-gray-700';
-                                label.htmlFor = `recipient-${recipient.email}`;
-                                label.innerHTML = `<strong>${recipient.name}</strong> (${recipient.email})`;
-                                recipientDiv.appendChild(checkbox);
-                                recipientDiv.appendChild(label);
-                                recipientsList.appendChild(recipientDiv);
-                            });
-                        } else {
-                            recipientsList.innerHTML = '<p class="text-sm text-gray-500">No recipients found</p>';
-                        }
-                    })
-                    .catch(error => { 
-                        console.error('Error fetching recipients:', error);
-                        document.getElementById('recipientsList').innerHTML = '<p class="text-sm text-red-600">Error loading recipients</p>';
-                    });
-            },
-            submitForm() {
-                const selectedRecipients = Array.from(document.querySelectorAll('input[name="selected_recipients[]"]:checked')).map(checkbox => checkbox.value);
-                if (selectedRecipients.length === 0) { 
-                    showMessage('Please select at least one recipient', 'danger');
-                    return; 
-                }
-                const formData = new FormData(this.form);
+                actionUrl = actionUrl.replace(':invoice_id', invoiceId);
+                
+                const formData = new FormData(sendInvoiceForm);
                 formData.delete('selected_recipients[]');
-                formData.append('selected_recipients', JSON.stringify(selectedRecipients));
-
-                fetch(this.form.action, { 
+                selectedRecipients.forEach(recipient => {
+                    formData.append('selected_recipients[]', recipient);
+                });
+                
+                fetch(actionUrl, {
                     method: 'POST',
                     body: formData,
                     headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            try {
+                                return JSON.parse(text);
+                            } catch {
+                                throw new Error('Server error: ' + response.status);
+                            }
+                        });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
-                        this.show = false;
+                        if (sendInvoiceModal) sendInvoiceModal.classList.add('hidden');
                         showMessage(data.message, 'success');
                         setTimeout(() => window.location.reload(), 2000);
-                    } else { 
+                    } else {
                         showMessage('Error sending invoice: ' + (data.message || 'Unknown error'), 'danger');
                     }
                 })
-                .catch(error => { 
+                .catch(error => {
                     console.error('Error:', error);
                     showMessage('An error occurred while sending the invoice. Please try again.', 'danger');
                 });
+            });
+        }
+        
+        // Function to open Send Invoice Modal
+        window.openSendInvoiceModal = function(invoiceId) {
+            document.getElementById('invoice_id').value = invoiceId;
+            const recipientsList = document.getElementById('recipientsList');
+            recipientsList.innerHTML = '<div class="text-center">Loading...</div>';
+            
+            let recipientsUrl = '';
+            @if(Auth::user()->hasRole('Admin'))
+                recipientsUrl = '/admin/invoice/' + invoiceId + '/recipients';
+            @elseif(Auth::user()->hasRole('Responsable de projet'))
+                recipientsUrl = '/Responsable_de_projet/invoice/' + invoiceId + '/recipients';
+            @elseif(Auth::user()->hasRole('Employee'))
+                recipientsUrl = '/employee/invoice/' + invoiceId + '/recipients';
+            @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                recipientsUrl = '/Responsable_gestionnaire/invoice/' + invoiceId + '/recipients';
+            @endif
+            
+            fetch(recipientsUrl)
+                .then(response => response.json())
+                .then(data => {
+                    recipientsList.innerHTML = '';
+                    if (data.recipients && data.recipients.length > 0) {
+                        data.recipients.forEach(recipient => {
+                            const div = document.createElement('div');
+                            div.className = 'mb-2 flex items-center';
+                            div.innerHTML = `
+                                <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-2" type="checkbox" name="selected_recipients[]" value="${recipient.email}" id="recipient-${recipient.email}" ${recipient.is_comptable === 1 ? 'checked' : ''}>
+                                <label class="text-sm text-gray-700" for="recipient-${recipient.email}"><strong>${recipient.name}</strong> (${recipient.email})</label>
+                            `;
+                            recipientsList.appendChild(div);
+                        });
+                    } else {
+                        recipientsList.innerHTML = '<p class="text-sm text-gray-500">No recipients found</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    recipientsList.innerHTML = '<p class="text-sm text-red-600">Error loading recipients</p>';
+                });
+            
+            if (sendInvoiceModal) sendInvoiceModal.classList.remove('hidden');
+        };
+        
+        // Send Peppol Modal
+        const sendPeppolModal = document.getElementById('sendPeppolModal');
+        const closeSendPeppolModalBtn = document.getElementById('closeSendPeppolModal');
+        const cancelSendPeppolModalBtn = document.getElementById('cancelSendPeppolModal');
+        const sendPeppolForm = document.getElementById('sendPeppolForm');
+        
+        if (closeSendPeppolModalBtn) {
+            closeSendPeppolModalBtn.addEventListener('click', () => {
+                if (sendPeppolModal) sendPeppolModal.classList.add('hidden');
+            });
+        }
+        if (cancelSendPeppolModalBtn) {
+            cancelSendPeppolModalBtn.addEventListener('click', () => {
+                if (sendPeppolModal) sendPeppolModal.classList.add('hidden');
+            });
+        }
+        
+        // Handle Send Peppol Form Submission
+        if (sendPeppolForm) {
+            sendPeppolForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const invoiceId = document.getElementById('peppol_invoice_id').value;
+                const invoiceType = document.getElementById('peppol_invoice_type').value;
+
+                let actionUrl = '';
+                @if(Auth::user()->hasRole('Admin')) 
+                    actionUrl = '{{ route("admin.billit.send-invoice-type", ["id" => ":invoice_id", "type" => ":invoice_type"]) }}';
+                @elseif(Auth::user()->hasRole('Responsable de projet')) 
+                    actionUrl = '{{ route("Responsable_de_projet.billit.send-invoice-type", ["id" => ":invoice_id", "type" => ":invoice_type"]) }}';
+                @elseif(Auth::user()->hasRole('Employee')) 
+                    actionUrl = '{{ route("employee.billit.send-invoice-type", ["id" => ":invoice_id", "type" => ":invoice_type"]) }}';
+                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) 
+                    actionUrl = '{{ route("Responsable_gestionnaire.billit.send-invoice-type", ["id" => ":invoice_id", "type" => ":invoice_type"]) }}';
+                @endif
+                actionUrl = actionUrl.replace(':invoice_id', invoiceId).replace(':invoice_type', invoiceType) + '?channel=Peppol';
+                
+                const formData = new FormData(sendPeppolForm);
+                
+                fetch(actionUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
+                })
+                .then(response => {
+                    if (response.redirected || response.ok) {
+                        if (sendPeppolModal) sendPeppolModal.classList.add('hidden');
+                        showMessage('Invoice sent successfully via Peppol', 'success');
+                        setTimeout(() => window.location.reload(), 2000);
+                        return;
+                    }
+                    return response.text().then(text => {
+                        try {
+                            const data = JSON.parse(text);
+                            if (data.success) {
+                                if (sendPeppolModal) sendPeppolModal.classList.add('hidden');
+                                showMessage(data.message || 'Invoice sent successfully via Peppol', 'success');
+                                setTimeout(() => window.location.reload(), 2000);
+                            } else {
+                                showMessage('Error sending invoice: ' + (data.message || 'Unknown error'), 'danger');
+                            }
+                        } catch {
+                            if (sendPeppolModal) sendPeppolModal.classList.add('hidden');
+                            showMessage('Invoice sent successfully via Peppol', 'success');
+                            setTimeout(() => window.location.reload(), 2000);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('An error occurred while sending the invoice. Please try again.', 'danger');
+                });
+            }); 
+        }
+        
+        // Function to open Send Peppol Modal (simple confirmation, no recipients)
+        window.openSendPeppolModal = function(invoiceId, invoiceType) {
+            document.getElementById('peppol_invoice_id').value = invoiceId;
+            document.getElementById('peppol_invoice_type').value = invoiceType || 'full';
+            
+            // Reset file input and selected files display
+            const fileInput = document.getElementById('peppol_attachments');
+            const selectedFilesDiv = document.getElementById('peppol_selected_files');
+            const filesList = document.getElementById('peppol_files_list');
+            if (fileInput) fileInput.value = '';
+            if (selectedFilesDiv) selectedFilesDiv.classList.add('hidden');
+            if (filesList) filesList.innerHTML = '';
+            
+            if (sendPeppolModal) sendPeppolModal.classList.remove('hidden');
+        };
+        
+        // Handle file selection display for Peppol modal
+        const peppolFileInput = document.getElementById('peppol_attachments');
+        if (peppolFileInput) {
+            peppolFileInput.addEventListener('change', function(e) {
+                const files = Array.from(e.target.files);
+                const selectedFilesDiv = document.getElementById('peppol_selected_files');
+                const filesList = document.getElementById('peppol_files_list');
+                
+                if (files.length === 0) {
+                    if (selectedFilesDiv) selectedFilesDiv.classList.add('hidden');
+                    if (filesList) filesList.innerHTML = '';
+                    return;
+                }
+                
+                // Validate files
+                const allowedExtensions = ['pdf', 'xlsx', 'xls', 'csv', 'jpg', 'jpeg', 'png'];
+                const maxFileSize = 10 * 1024 * 1024; // 10MB
+                const validFiles = [];
+                const errors = [];
+                
+                files.forEach((file) => {
+                    const extension = file.name.split('.').pop().toLowerCase();
+                    const fileSize = file.size;
+                    
+                    if (!allowedExtensions.includes(extension)) {
+                        errors.push(`${file.name}: Unsupported file type. Allowed: PDF, Excel, CSV, JPEG, PNG`);
+                        return;
+                    }
+                    
+                    if (fileSize > maxFileSize) {
+                        errors.push(`${file.name}: File too large (max 10MB)`);
+                        return;
+                    }
+                    
+                    validFiles.push(file);
+                });
+                
+                // Show errors if any
+                if (errors.length > 0) {
+                    alert('File validation errors:\n\n' + errors.join('\n'));
+                    // Remove invalid files from input
+                    const dataTransfer = new DataTransfer();
+                    validFiles.forEach(file => dataTransfer.items.add(file));
+                    e.target.files = dataTransfer.files;
+                }
+                
+                // Display valid files
+                if (validFiles.length === 0) {
+                    if (selectedFilesDiv) selectedFilesDiv.classList.add('hidden');
+                    if (filesList) filesList.innerHTML = '';
+                    return;
+                }
+                
+                if (selectedFilesDiv) selectedFilesDiv.classList.remove('hidden');
+                if (filesList) {
+                    filesList.innerHTML = '';
+                    validFiles.forEach((file, index) => {
+                        const li = document.createElement('li');
+                        li.className = 'flex items-center justify-between bg-gray-50 px-2 py-1 rounded';
+                        li.innerHTML = `
+                            <span class="truncate flex-1">${file.name}</span>
+                            <span class="text-gray-400 ml-2">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                        `;
+                        filesList.appendChild(li);
+                    });
+                }
+            });
+        }
+
+        // Combined Send Modal (Email + Peppol)
+        const combinedSendModal = document.getElementById('combinedSendModal');
+        const closeCombinedSendModalBtn = document.getElementById('closeCombinedSendModal');
+        const cancelCombinedSendModalBtn = document.getElementById('cancelCombinedSendModal');
+        const combinedSendForm = document.getElementById('combinedSendForm');
+        const combinedSendEmailCheckbox = document.getElementById('combined_send_email');
+        const combinedSendPeppolCheckbox = document.getElementById('combined_send_peppol');
+        const combinedEmailSection = document.getElementById('combined_email_section');
+        const combinedRecipientsList = document.getElementById('combinedRecipientsList');
+        const combinedAttachmentsInput = document.getElementById('combined_attachments');
+        const combinedSelectedFilesDiv = document.getElementById('combined_selected_files');
+        const combinedFilesList = document.getElementById('combined_files_list');
+
+        function toggleCombinedEmailSection() {
+            if (!combinedEmailSection) return;
+            if (combinedSendEmailCheckbox && combinedSendEmailCheckbox.checked) {
+                combinedEmailSection.classList.remove('hidden');
+            } else {
+                combinedEmailSection.classList.add('hidden');
             }
         }
-    }
 
-    function partialCreditNoteModal() {
-        return {
-            show: false,
-            invoiceId: null,
-            totalCost: 0,
-            amount: null,
-            error: false,
-            errorMessage: '',
-            open(invoiceId, totalCost) {
-                this.invoiceId = invoiceId;
-                this.totalCost = parseFloat(totalCost);
-                this.amount = null;
-                this.error = false;
-                this.show = true;
-            },
-            submitForm() {
-                this.error = false;
-                const amount = parseFloat(this.amount);
+        if (combinedSendEmailCheckbox) {
+            combinedSendEmailCheckbox.addEventListener('change', toggleCombinedEmailSection);
+        }
+
+        if (closeCombinedSendModalBtn) {
+            closeCombinedSendModalBtn.addEventListener('click', () => {
+                if (combinedSendModal) combinedSendModal.classList.add('hidden');
+            });
+        }
+        if (cancelCombinedSendModalBtn) {
+            cancelCombinedSendModalBtn.addEventListener('click', () => {
+                if (combinedSendModal) combinedSendModal.classList.add('hidden');
+            });
+        }
+
+        // Open Combined modal
+        window.openCombinedSendModal = function(invoiceId, invoiceType) {
+            const invoiceIdInput = document.getElementById('combined_invoice_id');
+            const invoiceTypeInput = document.getElementById('combined_invoice_type');
+            if (invoiceIdInput) invoiceIdInput.value = invoiceId;
+            if (invoiceTypeInput) invoiceTypeInput.value = invoiceType || 'full';
+
+            if (combinedSendEmailCheckbox) combinedSendEmailCheckbox.checked = false;
+            if (combinedSendPeppolCheckbox) combinedSendPeppolCheckbox.checked = false;
+            toggleCombinedEmailSection();
+
+            if (combinedAttachmentsInput) {
+                combinedAttachmentsInput.value = '';
+            }
+            if (combinedSelectedFilesDiv) combinedSelectedFilesDiv.classList.add('hidden');
+            if (combinedFilesList) combinedFilesList.innerHTML = '';
+
+            if (combinedRecipientsList) {
+                combinedRecipientsList.innerHTML = '<div class="text-center text-gray-500">Loading...</div>';
+            }
+
+            let recipientsUrl = '';
+            @if(Auth::user()->hasRole('Admin'))
+                recipientsUrl = '/admin/invoice/' + invoiceId + '/recipients';
+            @elseif(Auth::user()->hasRole('Responsable de projet'))
+                recipientsUrl = '/Responsable_de_projet/invoice/' + invoiceId + '/recipients';
+            @elseif(Auth::user()->hasRole('Employee'))
+                recipientsUrl = '/employee/invoice/' + invoiceId + '/recipients';
+            @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                recipientsUrl = '/Responsable_gestionnaire/invoice/' + invoiceId + '/recipients';
+            @endif
+
+            if (recipientsUrl && combinedRecipientsList) {
+                fetch(recipientsUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        combinedRecipientsList.innerHTML = '';
+                        if (data.recipients && data.recipients.length > 0) {
+                            data.recipients.forEach(recipient => {
+                                const div = document.createElement('div');
+                                div.className = 'mb-2 flex items-center';
+                                div.innerHTML = `
+                                    <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-2" type="checkbox" name="combined_selected_recipients[]" value="${recipient.email}" id="combined-recipient-${recipient.email}" ${recipient.is_comptable === 1 ? 'checked' : ''}>
+                                    <label class="text-sm text-gray-700" for="combined-recipient-${recipient.email}"><strong>${recipient.name}</strong> (${recipient.email})</label>
+                                `;
+                                combinedRecipientsList.appendChild(div);
+                            });
+                        } else {
+                            combinedRecipientsList.innerHTML = '<p class="text-sm text-gray-500">No recipients found</p>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        combinedRecipientsList.innerHTML = '<p class="text-sm text-red-600">Error loading recipients</p>';
+                    });
+            }
+
+            if (combinedSendModal) combinedSendModal.classList.remove('hidden');
+        };
+
+        // Handle file selection display for combined modal
+        if (combinedAttachmentsInput) {
+            combinedAttachmentsInput.addEventListener('change', function(e) {
+                const files = Array.from(e.target.files);
+                if (!combinedSelectedFilesDiv || !combinedFilesList) return;
+
+                if (files.length === 0) {
+                    combinedSelectedFilesDiv.classList.add('hidden');
+                    combinedFilesList.innerHTML = '';
+                    return;
+                }
+
+                const allowedExtensions = ['pdf', 'xlsx', 'xls', 'csv', 'jpg', 'jpeg', 'png'];
+                const maxFileSize = 10 * 1024 * 1024;
+                const validFiles = [];
+                const errors = [];
+
+                files.forEach((file) => {
+                    const extension = file.name.split('.').pop().toLowerCase();
+                    const fileSize = file.size;
+
+                    if (!allowedExtensions.includes(extension)) {
+                        errors.push(`${file.name}: Unsupported file type. Allowed: PDF, Excel, CSV, JPEG, PNG`);
+                        return;
+                    }
+
+                    if (fileSize > maxFileSize) {
+                        errors.push(`${file.name}: File too large (max 10MB)`);
+                        return;
+                    }
+
+                    validFiles.push(file);
+                });
+
+                if (errors.length > 0) {
+                    alert('File validation errors:\n\n' + errors.join('\n'));
+                    const dataTransfer = new DataTransfer();
+                    validFiles.forEach(file => dataTransfer.items.add(file));
+                    e.target.files = dataTransfer.files;
+                }
+
+                const finalFiles = validFiles.length > 0 ? validFiles : [];
+                if (finalFiles.length === 0) {
+                    combinedSelectedFilesDiv.classList.add('hidden');
+                    combinedFilesList.innerHTML = '';
+                    return;
+                }
+
+                combinedSelectedFilesDiv.classList.remove('hidden');
+                combinedFilesList.innerHTML = '';
+                finalFiles.forEach(file => {
+                    const li = document.createElement('li');
+                    li.className = 'flex items-center justify-between bg-gray-50 px-2 py-1 rounded';
+                    li.innerHTML = `
+                        <span class="truncate flex-1">${file.name}</span>
+                        <span class="text-gray-400 ml-2">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                    `;
+                    combinedFilesList.appendChild(li);
+                });
+            });
+        }
+
+        if (combinedSendForm) {
+            combinedSendForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const sendEmail = combinedSendEmailCheckbox && combinedSendEmailCheckbox.checked;
+                const sendPeppol = combinedSendPeppolCheckbox && combinedSendPeppolCheckbox.checked;
+
+                if (!sendEmail && !sendPeppol) {
+                    showMessage('Please select at least one sending option (Email or Peppol).', 'danger');
+                    return;
+                }
+
+                const invoiceId = document.getElementById('combined_invoice_id')?.value;
+                const invoiceType = document.getElementById('combined_invoice_type')?.value || 'full';
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                let attachmentsFiles = [];
+                if (combinedAttachmentsInput) {
+                    attachmentsFiles = Array.from(combinedAttachmentsInput.files);
+                }
+
+                try {
+                    // First: send by email if requested
+                    if (sendEmail) {
+                        const selectedRecipients = Array.from(document.querySelectorAll('input[name="combined_selected_recipients[]"]:checked')).map(cb => cb.value);
+                        if (selectedRecipients.length === 0) {
+                            showMessage('Please select at least one email recipient.', 'danger');
+                            return;
+                        }
+
+                        let emailActionUrl = '';
+                        @if(Auth::user()->hasRole('Admin')) 
+                            emailActionUrl = '{{ route("admin.invoice.sendInvoice", ":invoice_id") }}';
+                        @elseif(Auth::user()->hasRole('Responsable de projet')) 
+                            emailActionUrl = '{{ route("Responsable_de_projet.invoice.sendInvoice", ":invoice_id") }}';
+                        @elseif(Auth::user()->hasRole('Employee')) 
+                            emailActionUrl = '{{ route("employee.invoice.sendInvoice", ":invoice_id") }}';
+                        @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) 
+                            emailActionUrl = '{{ route("Responsable_gestionnaire.invoice.sendInvoice", ":invoice_id") }}';
+                        @endif
+                        emailActionUrl = emailActionUrl.replace(':invoice_id', invoiceId);
+
+                        const emailFormData = new FormData();
+                        selectedRecipients.forEach(recipient => {
+                            emailFormData.append('selected_recipients[]', recipient);
+                        });
+                        attachmentsFiles.forEach(file => {
+                            emailFormData.append('file[]', file);
+                        });
+
+                        const emailResponse = await fetch(emailActionUrl, {
+                            method: 'POST',
+                            body: emailFormData,
+                            headers: { 'X-CSRF-TOKEN': csrfToken }
+                        });
+
+                        if (!emailResponse.ok) {
+                            const text = await emailResponse.text();
+                            try {
+                                const data = JSON.parse(text);
+                                if (!data.success) {
+                                    showMessage('Error sending invoice by email: ' + (data.message || 'Unknown error'), 'danger');
+                                    return;
+                                }
+                            } catch {
+                                throw new Error('Server error while sending email: ' + emailResponse.status);
+                            }
+                        } else {
+                            const data = await emailResponse.json();
+                            if (!data.success) {
+                                showMessage('Error sending invoice by email: ' + (data.message || 'Unknown error'), 'danger');
+                                return;
+                            }
+                        }
+                    }
+
+                    // Second: send via Peppol if requested
+                    if (sendPeppol) {
+                        let peppolActionUrl = '';
+                        @if(Auth::user()->hasRole('Admin')) 
+                            peppolActionUrl = '{{ route("admin.billit.send-invoice-type", ["id" => ":invoice_id", "type" => ":invoice_type"]) }}';
+                        @elseif(Auth::user()->hasRole('Responsable de projet')) 
+                            peppolActionUrl = '{{ route("Responsable_de_projet.billit.send-invoice-type", ["id" => ":invoice_id", "type" => ":invoice_type"]) }}';
+                        @elseif(Auth::user()->hasRole('Employee')) 
+                            peppolActionUrl = '{{ route("employee.billit.send-invoice-type", ["id" => ":invoice_id", "type" => ":invoice_type"]) }}';
+                        @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) 
+                            peppolActionUrl = '{{ route("Responsable_gestionnaire.billit.send-invoice-type", ["id" => ":invoice_id", "type" => ":invoice_type"]) }}';
+                        @endif
+                        peppolActionUrl = peppolActionUrl.replace(':invoice_id', invoiceId).replace(':invoice_type', invoiceType) + '?channel=Peppol';
+
+                        const peppolFormData = new FormData();
+                        attachmentsFiles.forEach(file => {
+                            peppolFormData.append('attachments[]', file);
+                        });
+
+                        const peppolResponse = await fetch(peppolActionUrl, {
+                            method: 'POST',
+                            body: peppolFormData,
+                            headers: { 'X-CSRF-TOKEN': csrfToken }
+                        });
+
+                        if (!(peppolResponse.redirected || peppolResponse.ok)) {
+                            const text = await peppolResponse.text();
+                            try {
+                                const data = JSON.parse(text);
+                                if (!data.success) {
+                                    showMessage('Error sending invoice via Peppol: ' + (data.message || 'Unknown error'), 'danger');
+                                    return;
+                                }
+                            } catch {
+                                showMessage('Error sending invoice via Peppol.', 'danger');
+                                return;
+                            }
+                        }
+                    }
+
+                    if (combinedSendModal) combinedSendModal.classList.add('hidden');
+
+                    if (sendEmail && sendPeppol) {
+                        showMessage('Invoice sent successfully by email and via Peppol.', 'success');
+                    } else if (sendEmail) {
+                        showMessage('Invoice sent successfully by email.', 'success');
+                    } else if (sendPeppol) {
+                        showMessage('Invoice sent successfully via Peppol.', 'success');
+                    }
+
+                    setTimeout(() => window.location.reload(), 2000);
+                } catch (error) {
+                    console.error('Error:', error);
+                    showMessage('An error occurred while sending the invoice. Please try again.', 'danger');
+                }
+            });
+        }
+
+        // Partial Credit Note Modal
+        const partialCreditNoteModal = document.getElementById('partialCreditNoteModal');
+        const closePartialCreditNoteModalBtn = document.getElementById('closePartialCreditNoteModal');
+        const cancelPartialCreditNoteModalBtn = document.getElementById('cancelPartialCreditNoteModal');
+        const partialCreditNoteForm = document.getElementById('partialCreditNoteForm');
+        let currentPartialInvoiceId = null;
+        let currentPartialTotalCost = 0;
+        
+        if (closePartialCreditNoteModalBtn) {
+            closePartialCreditNoteModalBtn.addEventListener('click', () => {
+                if (partialCreditNoteModal) partialCreditNoteModal.classList.add('hidden');
+            });
+        }
+        if (cancelPartialCreditNoteModalBtn) {
+            cancelPartialCreditNoteModalBtn.addEventListener('click', () => {
+                if (partialCreditNoteModal) partialCreditNoteModal.classList.add('hidden');
+            });
+        }
+        
+        if (partialCreditNoteForm) {
+            partialCreditNoteForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const amountInput = document.getElementById('partialAmount');
+                const errorSpan = document.getElementById('partialAmountError');
+                const amount = parseFloat(amountInput.value);
+                
+                errorSpan.classList.add('hidden');
+                
                 if (isNaN(amount) || amount <= 0) {
-                    this.error = true;
-                    this.errorMessage = 'Please enter a valid amount greater than 0.';
+                    errorSpan.textContent = 'Please enter a valid amount greater than 0.';
+                    errorSpan.classList.remove('hidden');
                     return;
                 }
-                if (amount > this.totalCost) {
-                    this.error = true;
-                    this.errorMessage = 'Amount exceeds total cost.';
+                if (amount > currentPartialTotalCost) {
+                    errorSpan.textContent = 'Amount exceeds total cost.';
+                    errorSpan.classList.remove('hidden');
                     return;
                 }
+                
                 let url = '';
                 @if(Auth::user()->hasRole('Responsable de projet'))
-                    url = `{{ route('Responsable_de_projet.invoice.creditNote', '') }}/${this.invoiceId}?type=partial&amount=${amount}`;
+                    url = `{{ route('Responsable_de_projet.invoice.creditNote', '') }}/${currentPartialInvoiceId}?type=partial&amount=${amount}`;
                 @elseif(Auth::user()->hasRole('Admin'))
-                    url = `{{ route('admin.invoice.creditNote', '') }}/${this.invoiceId}?type=partial&amount=${amount}`;
+                    url = `{{ route('admin.invoice.creditNote', '') }}/${currentPartialInvoiceId}?type=partial&amount=${amount}`;
                 @elseif(Auth::user()->hasRole('Employee'))
-                    url = `{{ route('employee.invoice.creditNote', '') }}/${this.invoiceId}?type=partial&amount=${amount}`;
+                    url = `{{ route('employee.invoice.creditNote', '') }}/${currentPartialInvoiceId}?type=partial&amount=${amount}`;
                 @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                    url = `{{ route('Responsable_gestionnaire.invoice.creditNote', '') }}/${this.invoiceId}?type=partial&amount=${amount}`;
+                    url = `{{ route('Responsable_gestionnaire.invoice.creditNote', '') }}/${currentPartialInvoiceId}?type=partial&amount=${amount}`;
                 @endif
                 window.location.href = url;
-            }
+            });
         }
-    }
-    
-    function partialDetailedCreditNoteModal() {
-        return {
-            show: false,
-            invoiceId: null,
-            totalCost: 0,
-            amount: null,
-            error: false,
-            errorMessage: '',
-            open(invoiceId, totalCost) {
-                this.invoiceId = invoiceId;
-                this.totalCost = parseFloat(totalCost);
-                this.amount = null;
-                this.error = false;
-                this.show = true;
-            },
-            submitForm() {
-                this.error = false;
-                const amount = parseFloat(this.amount);
+        
+        window.openPartialCreditNoteModal = function(invoiceId, totalCost) {
+            currentPartialInvoiceId = invoiceId;
+            currentPartialTotalCost = parseFloat(totalCost);
+            document.getElementById('partialAmount').value = '';
+            document.getElementById('partialAmountError').classList.add('hidden');
+            if (partialCreditNoteModal) partialCreditNoteModal.classList.remove('hidden');
+        };
+        
+        // Partial Detailed Credit Note Modal
+        const partialDetailedCreditNoteModal = document.getElementById('partialDetailedCreditNoteModal');
+        const closePartialDetailedCreditNoteModalBtn = document.getElementById('closePartialDetailedCreditNoteModal');
+        const cancelPartialDetailedCreditNoteModalBtn = document.getElementById('cancelPartialDetailedCreditNoteModal');
+        const partialDetailedCreditNoteForm = document.getElementById('partialDetailedCreditNoteForm');
+        let currentPartialDetailedInvoiceId = null;
+        let currentPartialDetailedTotalCost = 0;
+        
+        if (closePartialDetailedCreditNoteModalBtn) {
+            closePartialDetailedCreditNoteModalBtn.addEventListener('click', () => {
+                if (partialDetailedCreditNoteModal) partialDetailedCreditNoteModal.classList.add('hidden');
+            });
+        }
+        if (cancelPartialDetailedCreditNoteModalBtn) {
+            cancelPartialDetailedCreditNoteModalBtn.addEventListener('click', () => {
+                if (partialDetailedCreditNoteModal) partialDetailedCreditNoteModal.classList.add('hidden');
+            });
+        }
+        
+        if (partialDetailedCreditNoteForm) {
+            partialDetailedCreditNoteForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const amountInput = document.getElementById('partialDetailedAmount');
+                const errorSpan = document.getElementById('partialDetailedAmountError');
+                const amount = parseFloat(amountInput.value);
+                
+                errorSpan.classList.add('hidden');
+                
                 if (isNaN(amount) || amount <= 0) {
-                    this.error = true;
-                    this.errorMessage = 'Please enter a valid amount greater than 0.';
+                    errorSpan.textContent = 'Please enter a valid amount greater than 0.';
+                    errorSpan.classList.remove('hidden');
                     return;
                 }
-                if (amount > this.totalCost) {
-                    this.error = true;
-                    this.errorMessage = 'Amount exceeds total cost.';
+                if (amount > currentPartialDetailedTotalCost) {
+                    errorSpan.textContent = 'Amount exceeds total cost.';
+                    errorSpan.classList.remove('hidden');
                     return;
                 }
+                
                 let url = '';
                 @if(Auth::user()->hasRole('Admin'))
                     url = '{{ route("admin.invoice.detailedCreditNote", ":id") }}?type=partial&amount=' + amount;
@@ -951,45 +1550,94 @@
                 @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
                     url = '{{ route("Responsable_gestionnaire.invoice.detailedCreditNote", ":id") }}?type=partial&amount=' + amount;
                 @endif
-                window.location.href = url.replace(':id', this.invoiceId);
-            }
+                window.location.href = url.replace(':id', currentPartialDetailedInvoiceId);
+            });
         }
-    }
-
-    function invoiceReportModal() {
-        return {
-            show: false,
-            selectedStatuses: [],
-            selectedTypes: [],
-            creditNoteApplied: false,
-            downloadReport() {
+        
+        window.openPartialDetailedCreditNoteModal = function(invoiceId, totalCost) {
+            currentPartialDetailedInvoiceId = invoiceId;
+            currentPartialDetailedTotalCost = parseFloat(totalCost);
+            document.getElementById('partialDetailedAmount').value = '';
+            document.getElementById('partialDetailedAmountError').classList.add('hidden');
+            if (partialDetailedCreditNoteModal) partialDetailedCreditNoteModal.classList.remove('hidden');
+        };
+        
+        // Invoice Report Modal
+        const invoiceReportModal = document.getElementById('invoiceReportModal');
+        const openInvoiceReportModalBtn = document.getElementById('openInvoiceReportModal');
+        const closeInvoiceReportModalBtn = document.getElementById('closeInvoiceReportModal');
+        const cancelInvoiceReportModalBtn = document.getElementById('cancelInvoiceReportModal');
+        const confirmInvoiceReportBtn = document.getElementById('confirmInvoiceReport');
+        
+        if (openInvoiceReportModalBtn) {
+            openInvoiceReportModalBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (invoiceReportModal) invoiceReportModal.classList.remove('hidden');
+            });
+        }
+        
+        if (closeInvoiceReportModalBtn) {
+            closeInvoiceReportModalBtn.addEventListener('click', () => {
+                if (invoiceReportModal) invoiceReportModal.classList.add('hidden');
+            });
+        }
+        if (cancelInvoiceReportModalBtn) {
+            cancelInvoiceReportModalBtn.addEventListener('click', () => {
+                if (invoiceReportModal) invoiceReportModal.classList.add('hidden');
+            });
+        }
+        
+        if (confirmInvoiceReportBtn) {
+            confirmInvoiceReportBtn.addEventListener('click', function() {
                 let baseUrl = '';
                 @if(Auth::user()->hasRole('Responsable de projet')) baseUrl = "{{route('Responsable_de_projet.Invoicessrepports.downloadRepports')}}"; @endif
                 @if(Auth::user()->hasRole('Admin')) baseUrl = "{{route('admin.Invoicessrepports.downloadRepports')}}"; @endif
                 @if(Auth::user()->hasRole('Employee')) baseUrl = "{{route('employee.Invoicessrepports.downloadRepports')}}"; @endif
                 @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) baseUrl = "{{route('Responsable_gestionnaire.Invoicessrepports.downloadRepports')}}"; @endif
-
+                
                 const startDate = document.getElementById('startDate')?.value || '';
                 const endDate = document.getElementById('endDate')?.value || '';
+                const selectedStatuses = Array.from(document.querySelectorAll('#invoiceReportModal input[type="checkbox"][id^="status_"]:checked')).map(x => x.value);
+                const selectedTypes = Array.from(document.querySelectorAll('#invoiceReportModal input[type="checkbox"][id^="type_"]:checked')).map(x => x.value);
+                const creditNoteApplied = document.getElementById('credit_note_applied')?.checked;
+                
                 const params = new URLSearchParams();
-                if (startDate && endDate) { params.append('startDate', startDate); params.append('endDate', endDate); }
-                if (this.selectedStatuses.length > 0) { params.append('filters', this.selectedStatuses.join(',')); }
-                if (this.selectedTypes.length > 0) { params.append('types', this.selectedTypes.join(',')); }
-                if (this.creditNoteApplied) { params.append('credit_note', '1'); }
+                if (startDate && endDate) {
+                    params.append('startDate', startDate);
+                    params.append('endDate', endDate);
+                }
+                if (selectedStatuses.length > 0) {
+                    params.append('filters', selectedStatuses.join(','));
+                }
+                if (selectedTypes.length > 0) {
+                    params.append('types', selectedTypes.join(','));
+                }
+                if (creditNoteApplied) {
+                    params.append('credit_note', '1');
+                }
+                
                 const finalUrl = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
                 window.location.href = finalUrl;
-                this.show = false;
-            }
+                if (invoiceReportModal) invoiceReportModal.classList.add('hidden');
+            });
         }
-    }
-
-    // Fonctions globales pour ouvrir les modaux
-    function showPartialPopup(invoiceId, totalCost) {
-        window.dispatchEvent(new CustomEvent('open-modal', { detail: { id: 'partialCreditNoteModal', invoiceId: invoiceId, totalCost: totalCost } }));
-    }
-    function showPartialDetailedPopup(invoiceId, totalCost) {
-        window.dispatchEvent(new CustomEvent('open-modal', { detail: { id: 'partialDetailedCreditNoteModal', invoiceId: invoiceId, totalCost: totalCost } }));
-    }
+        
+        // Listen for modal open events
+        window.addEventListener('open-modal', function(event) {
+            const detail = event.detail;
+            if (detail.id === 'sendInvoiceModal' && detail.invoiceId) {
+                openSendInvoiceModal(detail.invoiceId);
+            } else if (detail.id === 'sendPeppolModal' && detail.invoiceId) {
+                openSendPeppolModal(detail.invoiceId, detail.invoiceType);
+            } else if (detail.id === 'partialCreditNoteModal' && detail.invoiceId && detail.totalCost) {
+                openPartialCreditNoteModal(detail.invoiceId, detail.totalCost);
+            } else if (detail.id === 'partialDetailedCreditNoteModal' && detail.invoiceId && detail.totalCost) {
+                openPartialDetailedCreditNoteModal(detail.invoiceId, detail.totalCost);
+            } else if (detail === 'invoiceReportModal' || detail.id === 'invoiceReportModal') {
+                if (invoiceReportModal) invoiceReportModal.classList.remove('hidden');
+            }
+        });
+    });
 
     // [NEW] Filter by status function for cards
     function filterByStatus(status) {

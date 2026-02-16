@@ -9,6 +9,7 @@ class Project extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'parent_id',
         'name',
         'description',
         'budget',
@@ -38,5 +39,15 @@ class Project extends Model
     public function timers()
     {
         return $this->hasMany(tasks_timer::class, 'project_id');
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    public function subprojects()
+    {
+        return $this->hasMany(self::class, 'parent_id');
     }
 }

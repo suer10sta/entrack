@@ -17,6 +17,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
+use App\Models\EnterpriseRolePermission;
+use App\Models\Role as RoleModel;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Support\Facades\File;
 use Carbon\Carbon;
@@ -164,6 +166,9 @@ class employeesController extends Controller
             $users->assignRole($role);
         }
 
+        // Automatically assign permissions based on roles
+        $this->assignRolePermissions($roles, $enterpriseId);
+
         // Associate the user_id with the newly created user
         $employee->user_id = $users->id;
         $employee->save();
@@ -243,6 +248,9 @@ class employeesController extends Controller
 
         $user->syncRoles($roles);
         
+        // Automatically assign permissions based on roles
+        $this->assignRolePermissions($roles, $user->entreprise_id);
+        
         // Update timezone if provided
         if ($timezone) {
             $user->timezone = $timezone;
@@ -265,11 +273,14 @@ class employeesController extends Controller
         $Employee = Employees::find($request->id);
         $work_days_repports = work_days_repports::where('employee_id', $Employee->id)->where('month', date('m'))->where('year', date('Y'))->first();
 
-        $timezone = $request->input('timezone');
-         // Update timezone if provided
-         if ($timezone) {
-            $user->timezone = $timezone;
-            $user->save();
+        // If the request is to update the timezone, update the linked user's timezone
+        if ($request->column === 'timezone') {
+            $user = $Employee->user;
+            if ($user) {
+                $user->timezone = $request->content;
+                $user->save();
+            }
+            return response()->json(['success'=>'Employee timezone updated successfully.']);
         }
 
         if($request->column == 'salary')
@@ -427,6 +438,9 @@ class employeesController extends Controller
 
         // Assign the selected roles
         $user->assignRole($roles);
+
+        // Automatically assign permissions based on roles
+        $this->assignRolePermissions($roles, $user->entreprise_id);
 
         return back()->with('message', 'Roles assigned successfully');
 
@@ -1106,6 +1120,70 @@ public function sendEmail(Request $request)
         return response()->json(['message' => 'Email sent successfully']);
     } catch (\Exception $e) {
         return response()->json(['error' => 'Failed to send email: ' . $e->getMessage()], 500);
+    }
+}
+
+/**
+ * Automatically assign permissions to roles based on role type
+ */
+private function assignRolePermissions(array $roleNames, $entrepriseId)
+{
+    foreach ($roleNames as $roleName) {
+        $role = RoleModel::where('name', $roleName)->first();
+        
+        if (!$role) {
+            continue;
+        }
+
+        $permissionsToAssign = [];
+
+        // Define permissions for each role
+        switch ($roleName) {
+            case 'Employee':
+            case 'employee':
+                $permissionsToAssign = ['Planning', 'Pointage', 'Pointage reports'];
+                break;
+            
+            case 'Responsable de projet':
+                $permissionsToAssign = [
+                    'Manage workDaysReports',
+                    'Planning',
+                    'Pointage',
+                    'Add task',
+                    'Update task',
+                    'View task',
+                    'View project'
+                ];
+                break;
+            
+            case 'Responsable de projet et gestionnaire':
+                $permissionsToAssign = [
+                    'Add task',
+                    'Billings',
+                    'Manage workDaysReports',
+                    'Planning',
+                    'Pointage',
+                    'Update task',
+                    'View project',
+                    'View task'
+                ];
+                break;
+        }
+
+        // Assign permissions to the role for this enterprise
+        if (!empty($permissionsToAssign)) {
+            foreach ($permissionsToAssign as $permissionName) {
+                $permission = Permission::where('name', $permissionName)->first();
+                
+                if ($permission) {
+                    EnterpriseRolePermission::firstOrCreate([
+                        'entreprise_id' => $entrepriseId,
+                        'role_id' => $role->id,
+                        'permission_id' => $permission->id
+                    ]);
+                }
+            }
+        }
     }
 }
 

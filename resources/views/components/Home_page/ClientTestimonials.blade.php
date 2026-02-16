@@ -6,7 +6,7 @@ $clients = [
 ];
 
 $testimonials = [
-    ['id'=>1, 'text'=>"DailyTrac has transformed the way we manage our projects and invoices. The interface is intuitive and the features are exactly what we needed.", 'author'=>'Marie Dubois', 'company'=>'Smart Ladies', 'role'=>'CEO'],
+    ['id'=>1, 'text'=>"DalyTrac has transformed the way we manage our projects and invoices. The interface is intuitive and the features are exactly what we needed.", 'author'=>'Marie Dubois', 'company'=>'Smart Ladies', 'role'=>'CEO'],
     ['id'=>2, 'text'=>"Thanks to this platform, we reduced our billing time by 60%. Real-time project tracking is a real asset for our team.", 'author'=>'Pierre Martin', 'company'=>'Shoes Factory', 'role'=>'Chief Financial Officer'],
     ['id'=>3, 'text'=>"A complete solution that meets all our business management needs. Customer support is outstanding and frequent updates always bring useful new features.", 'author'=>'Sophie Laurent', 'company'=>'Tech Solutions', 'role'=>'Project Manager'],
 ];

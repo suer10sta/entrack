@@ -149,7 +149,7 @@ class entrepriseController extends Controller
     public function updateImage(Request $request)
     {
         $request->validate([
-            'entreprise_image' => 'required',
+            'entreprise_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
     
         $entreprise = Entreprise::where('id', auth()->user()->entreprise_id)->first();
@@ -157,12 +157,23 @@ class entrepriseController extends Controller
         if ($request->hasFile('entreprise_image')) {
             $image = $request->file('entreprise_image');
             $imageName = time().'.'.$image->getClientOriginalExtension();
-            $imagePath = 'entreprise_images/'.$entreprise->id.'/' . $imageName; // Keep the same folder structure
+            $imagePath = 'entreprise_images/'.$entreprise->id.'/'.$imageName;
 
-            // Store the image in Digital Ocean Spaces
-            \Storage::disk('public')->put($imagePath, file_get_contents($image), 'public');
+            // Delete old image if it exists
+            if ($entreprise->image && Storage::disk('public')->exists($entreprise->image)) {
+                Storage::disk('public')->delete($entreprise->image);
+            }
+
+            // Ensure directory exists
+            $directory = 'entreprise_images/'.$entreprise->id;
+            if (!Storage::disk('public')->exists($directory)) {
+                Storage::disk('public')->makeDirectory($directory, 0755, true);
+            }
+
+            // Store the new image
+            Storage::disk('public')->put($imagePath, file_get_contents($image->getRealPath()), 'public');
             
-            // Assuming 'image_name' is the column in your database where you store the image name
+            // Update the database with the new image path
             $entreprise->image = $imagePath;
             $entreprise->save();
         }

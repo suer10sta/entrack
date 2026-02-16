@@ -222,31 +222,7 @@
 
     </div>
 
-    <div class="footer">
-        <div class="footer-content">
-            <div class="footer-left footer-text">
-                @if(Auth::user()->entreprise)
-                    <b>{{ Auth::user()->entreprise->name }}</b><br>
-                    <b>Numéro TVA:</b> {{ Auth::user()->entreprise->tva}}
-                @endif
-            </div>
-            <div class="footer-center footer-text">
-                @if(Auth::user()->entreprise)
-                    {{ Auth::user()->entreprise->Address }}<br>
-                    Tél: 0{{ Auth::user()->entreprise->phone }}
-                @endif
-            </div>
-            <div class="footer-right footer-text">
-                @if(Auth::user()->entreprise)
-                    <b>BANK</b> : {{ Auth::user()->entreprise->bank_name }}<br>
-                    <b>IBAN</b> : {{ Auth::user()->entreprise->iban }}<br>
-                    <b>SWIFT/BIC</b> : {{ Auth::user()->entreprise->swift }} / {{ Auth::user()->entreprise->bic }}
-                @endif
-                <br>
-                <span style="font-size: 9px; color: #666;">Printed: {{ date('d-m-Y') }}</span>
-            </div>
-        </div>
-    </div>
+    
 
 </body>
 </html>

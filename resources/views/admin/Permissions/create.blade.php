@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nouvelle Permission - DailyTrac</title>
+    <title>Nouvelle Permission - DalyTrac</title>
     @vite('resources/css/app.css')
     @livewireStyles {{-- Ajouté pour la cohérence --}}
 </head>
@@ -12,7 +12,11 @@
             style="display: none; visibility: hidden"></iframe></noscript>
 
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     <div class="flex flex-col flex-1 overflow-y-auto">
         {{-- Navbar --}}

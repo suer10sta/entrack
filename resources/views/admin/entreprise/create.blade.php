@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DailyTrac - Expenses</title>
+    <title>DalyTrac - Expenses</title>
     
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
@@ -17,9 +17,13 @@
     {{-- <noscript>...iframe...</noscript> --}}
 
     {{-- Layout powered by Blade components --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
-    <div class="flex flex-col flex-1 overflow-y-auto">
+    <div class="flex flex-col flex-1 overflow-y-auto w-full">
         <x-dashboard.navbar />
 
         {{-- Main content area using Tailwind styling --}}
@@ -372,6 +376,8 @@
                     fetchUrl = '{{ route("Responsable_de_projet.Enterprise_Billings.updateBillings") }}';
                 @elseif(Auth::user()->hasRole('Employee'))
                     fetchUrl = '{{ route("employee.Enterprise_Billings.updateBillings") }}';
+                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                    fetchUrl = '{{ route("Responsable_gestionnaire.Enterprise_Billings.updateBillings") }}';
                 @endif
                 
                 if (!fetchUrl) return; // Ne fait rien si aucune route n'est définie
@@ -418,6 +424,8 @@
                         baseUrl = "{{route('admin.entrepriseBillings.downloadRepports')}}";
                     @elseif(Auth::user()->hasRole('Employee'))
                         baseUrl = "{{route('employee.entrepriseBillings.downloadRepports')}}";
+                    @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                        baseUrl = "{{route('Responsable_gestionnaire.entrepriseBillings.downloadRepports')}}";
                     @endif
                     
                     let urlWithParams = baseUrl;
@@ -472,6 +480,8 @@
                 fetchUrl = `/Responsable_de_projet/budget/update/${budgetId}`;
             @elseif(Auth::user()->hasRole('Employee'))
                 fetchUrl = `/employee/budget/update/${budgetId}`;
+            @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                fetchUrl = `/Responsable_gestionnaire/budget/update/${budgetId}`;
             @endif
 
             if (!fetchUrl) return;

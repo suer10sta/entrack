@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DailyTrac Dashboard - Update Task</title>
+    <title>DalyTrac Dashboard - Update Task</title>
     @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     {{-- Main content area --}}
     <div class="flex flex-col flex-1 overflow-y-auto">
@@ -72,6 +76,28 @@
                             </div>
                         </div>
 
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <div>
+                                <label for="start_date" class="block text-sm font-medium text-gray-700">
+                                    Start Date <span class="text-red-600">*</span>
+                                </label>
+                                <input type="date" id="start_date" name="start"
+                                    value="{{ old('start', $task->start ?? '') }}"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                            </div>
+                            
+                            <div>
+                                <label for="end_date" class="block text-sm font-medium text-gray-700">
+                                    End Date
+                                </label>
+                                <input type="date" id="end_date" name="end"
+                                    value="{{ old('end', $task->end ?? '') }}"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                            </div>
+                        </div>
+
+
+
                         <div class="mt-6">
                             <label for="TaskDescription" class="block text-sm font-medium text-gray-700">
                                 Task Description
@@ -84,9 +110,9 @@
                         <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                             {{-- Employees Checkboxes --}}
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">
+                                <div class="block text-sm font-medium text-gray-700">
                                     Assign Employees <span class="text-red-600">*</span>
-                                </label>
+                                </div>
                                 <div class="mt-2 space-y-2">
                                     
                                     {{-- CORRECTED LOGIC: Loops assigned employees (checked) --}}
@@ -119,9 +145,9 @@
                             
                             {{-- Teams Checkboxes --}}
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">
+                                <div class="block text-sm font-medium text-gray-700">
                                     Assign Teams
-                                </label>
+                                </div>
                                 <div class="mt-2 space-y-2">
 
                                     {{-- 
@@ -162,10 +188,10 @@
                         {{-- Form Action Buttons --}}
                         <div class="flex justify-end items-center gap-x-4 mt-8 pt-4 border-t border-gray-200">
                             {{-- Single "Cancel" link --}}
-                            <a href="javascript:history.back()" 
+                            <button type="button" id="cancelButton"
                                class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
                                 Cancel
-                            </a>
+                            </button>
                             
                             <button type="submit"
                                     class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
@@ -199,6 +225,37 @@
 
                     // Update the hidden input value
                     selectedProjectInput.value = selectedProject;
+                });
+            });
+        }
+
+        // Cancel button handler
+        const cancelButton = document.getElementById('cancelButton');
+        if (cancelButton) {
+            cancelButton.addEventListener('click', function() {
+                window.history.back();
+            });
+        }
+
+        // Prevent accidental form submission - ensure form only submits via Save button
+        const form = document.querySelector('form[method="POST"]');
+        if (form) {
+            // Prevent form submission on Enter key in any input field
+            form.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    if (e.target !== submitButton) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            });
+
+            // Ensure checkboxes don't accidentally trigger form submission
+            document.querySelectorAll('input[type="checkbox"][name="employees[]"], input[type="checkbox"][name="teams[]"]').forEach(checkbox => {
+                checkbox.addEventListener('click', function(e) {
+                    // Allow checkbox to toggle normally, just stop any propagation issues
+                    e.stopPropagation();
                 });
             });
         }

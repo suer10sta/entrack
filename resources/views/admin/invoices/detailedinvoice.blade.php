@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detailed Invoice - DailyTrac</title> 
+    <title>Detailed Invoice - DalyTrac</title> 
     @vite('resources/css/app.css')
     @livewireStyles
     
@@ -30,7 +30,11 @@
 <body class="bg-gray-50 flex h-screen overflow-hidden">
 
     {{-- Sidebar Component --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     {{-- Main Wrapper (Navbar + Content) --}}
     <div class="flex flex-col flex-1 overflow-y-auto">
@@ -66,7 +70,13 @@
                                     @foreach($projects as $project)
                                     <option value="{{ $project->id }}" data-cost-per-hour="{{ $project->cost_per_hour }}" data-tva="{{ $project->tva }}">
                                         @if(preg_match('/^(\d+)(.*)/', $project->name, $matches)){{ $matches[1] }}{{ $matches[2] }}@else{{ strtoupper($project->name) }}@endif
-                                        - @if($project->budget){{ $project->budget - $project->amount_billed }}€ @else<span class="text-red-600">no budget</span>@endif
+                                        - @if($project->budget)
+                                            @php
+                                                $totalBilled = \App\Models\invoices_history::where('project_id', $project->id)->where('Payment_status', '!=', -1)->sum('total_htva');
+                                                $unbilledBudget = $project->budget - $totalBilled;
+                                            @endphp
+                                            {{ number_format(max($unbilledBudget, 0), 2, '.', '') }}€
+                                        @else<span class="text-red-600">no budget</span>@endif
                                     </option>
                                     @endforeach
                                 </select>

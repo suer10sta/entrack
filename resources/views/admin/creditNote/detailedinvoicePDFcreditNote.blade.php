@@ -198,7 +198,9 @@
         <div class="content-wrapper">
             <div class="header">
                 <div class="logo-right">
-                    <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                    @if($entreprise->image)
+                        <img src="{{ storage_path('app/public/' . $entreprise->image) }}" alt="Company Logo" class="company-logo">
+                    @endif
                 </div>
             </div>
 
@@ -243,7 +245,7 @@
                     @foreach($details as $detail)
                     <tr>
                         <td>{{$detail['description']}}</td>
-                        <td>-{{$detail['quantity']}}</td>
+                        <td>-{{ number_format($detail['quantity'], 2, ',', '') }}</td>
                         <td>{{number_format($detail['unit_price'], 2, ',', '')}}€</td>
                         <td>-{{number_format($detail['total'], 2, ',', '')}}€</td>
                         @if($partial == 1)

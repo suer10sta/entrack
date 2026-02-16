@@ -1,0 +1,42 @@
+===========================================
+FIX: Drop Database and Import Cleanly
+===========================================
+
+Your database already has tables/data. You need to drop it first!
+
+Run these commands on your VPS:
+
+===========================================
+STEP 1: Fix file permissions
+===========================================
+sudo chmod 644 /home/ubuntu/full_backup2_utf8.sql
+
+===========================================
+STEP 2: Drop existing database
+===========================================
+⚠️ WARNING: This will DELETE all data in old_app_backup!
+
+# Drop the database (disconnect all connections first)
+sudo -u postgres psql -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'old_app_backup' AND pid <> pg_backend_pid();"
+sudo -u postgres psql -c "DROP DATABASE IF EXISTS old_app_backup;"
+
+===========================================
+STEP 3: Create fresh database
+===========================================
+sudo -u postgres createdb old_app_backup
+
+===========================================
+STEP 4: Import SQL file
+===========================================
+sed 's/\\connect db/\\connect old_app_backup/g' /home/ubuntu/full_backup2_utf8.sql | sudo -u postgres psql -d old_app_backup
+
+===========================================
+STEP 5: Verify import
+===========================================
+sudo -u postgres psql -d old_app_backup -c "\dt"
+sudo -u postgres psql -d old_app_backup -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';"
+
+===========================================
+DONE!
+===========================================
+

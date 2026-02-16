@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Quote - DailyTrac</title>
+    <title>New Devis - DalyTrac</title>
     @vite('resources/css/app.css')
     @livewireStyles
     <style>
@@ -37,7 +37,11 @@
             style="display: none; visibility: hidden"></iframe></noscript>
 
     {{-- Sidebar Component --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     {{-- Main Wrapper (Navbar + Content)  --}}
     <div class="flex flex-col flex-1 overflow-y-auto">
@@ -64,7 +68,7 @@
                     
                     {{-- Card Header --}}
                     <div class="p-6 border-b border-gray-200">
-                        <h6 class="text-lg font-semibold text-gray-900">New Quote</h6>
+                        <h6 class="text-lg font-semibold text-gray-900">New Devis</h6>
                         <p class="text-sm text-gray-600 mt-1">Create new Offer</p>
                     </div>
 
@@ -105,21 +109,23 @@
                                     <select class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom bg-gray-100" id="existingProjectName" name="Existing_project_id" disabled onchange="populateProjectDetails()">
                                         <option value="">Select a project</option>
                                         @foreach($projects as $project)
-                                            <option value="{{ $project->id }}" data-tva="{{ $project->tva }}" data-cost-per-hour="{{ $project->cost_per_hour }}">{{ $project->name }}</option>
+                                            <option
+                                                value="{{ $project->id }}"
+                                                data-tva="{{ $project->tva }}"
+                                                data-client-id="{{ $project->client_id }}"
+                                            >
+                                                {{ $project->name }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
 
                             {{-- Project Details Row --}}
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                                 <div>
                                     <label for="projectBudget" class="block text-sm font-medium text-gray-700 mb-1">Total Budget</label>
                                     <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 bg-gray-100" id="projectBudget" name='budget' readonly/>
-                                </div>
-                                <div>
-                                    <label for="costPerHour" class="block text-sm font-medium text-gray-700 mb-1">Cost per Hour</label>
-                                    <input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" id="costPerHour" name='cost_per_hour' />
                                 </div>
                                 <div>
                                     <label for="projectTva" class="block text-sm font-medium text-gray-700 mb-1">Project TVA</label>
@@ -127,10 +133,10 @@
                                 </div>
                             </div>
 
-                            {{-- Quote Type Row (Forfait / Hourly) --}}
+                            {{-- Devis Type Row (Forfait / Hourly / Detailed Hourly) --}}
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                                 <div>
-                                    <span class="block text-sm font-medium text-gray-700 mb-1">Quote Type <span class="text-red-600">*</span></span>
+                                    <span class="block text-sm font-medium text-gray-700 mb-1">Devis Type <span class="text-red-600">*</span></span>
                                     <div class="mt-2 flex items-center space-x-6">
                                         <label class="inline-flex items-center">
                                             <input type="radio"
@@ -148,6 +154,14 @@
                                                    value="horaire"
                                                    class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                             <span class="ml-2 text-sm text-gray-700">Hourly</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="radio"
+                                                   name="billing_type"
+                                                   id="billingDetailedHourly"
+                                                   value="detailed_hourly"
+                                                   class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">Detailed Hourly</span>
                                         </label>
                                     </div>
                                 </div>
@@ -175,23 +189,40 @@
 
                             {{-- Description --}}
                             <div class="mt-6">
-                                <label for="projectDescription" class="block text-sm font-medium text-gray-700 mb-1">Quote Description <span class="text-red-600">*</span></label>
+                                <label for="projectDescription" class="block text-sm font-medium text-gray-700 mb-1">Devis Description <span class="text-red-600">*</span></label>
                                 <textarea class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" id="projectDescription" rows="5" name="description"></textarea>
                             </div>
                             
                             {{-- Dynamic Inputs (Tasks) --}}
                             <div id="devisDetailsSection" class="mt-6">
-                                <label class="block text-base font-semibold text-gray-800 mb-2">Quote Details</label>
+                                <label class="block text-base font-semibold text-gray-800 mb-2">Devis Details</label>
                                 <div id="dynamicInput" class="space-y-4">
                                     {{-- Initial Row --}}
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border border-gray-200 rounded-lg">
-                                        <div>
+                                    <div class="grid grid-cols-12 gap-4 p-4 border border-gray-200 rounded-lg detail-row">
+                                        <div class="col-span-12 md:col-span-4">
                                             <label class="block text-sm font-medium text-gray-700 mb-1">Details <span class="text-red-600">*</span></label>
                                             <textarea class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" name="task[]" rows="3"></textarea>
                                         </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Budget <span class="text-red-600">*</span></label>
+                                        <div class="col-span-12 md:col-span-2 task-hours-column" style="display: none;">
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of Hours <span class="text-red-600">*</span></label>
+                                            <input type="number" step="0.01" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskHours" name="taskHours[]" />
+                                        </div>
+                                        <div class="col-span-12 md:col-span-2 task-budget-column">
+                                            <label class="block text-sm font-medium text-gray-700 mb-1 budget-label">Budget <span class="text-red-600">*</span></label>
                                             <input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskBudget" name="taskBudget[]" />
+                                        </div>
+                                        <div class="col-span-12 md:col-span-2 task-cost-per-hour-column" style="display: none;">
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Cost per Hour <span class="text-red-600">*</span></label>
+                                            <input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskCostPerHour" name="taskCostPerHour[]" />
+                                        </div>
+                                        <div class="col-span-12 md:col-span-2 task-total-column">
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Total</label>
+                                            <input type="text" class="block w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 sm:text-sm py-2 px-3 taskTotal" readonly />
+                                        </div>
+                                        <div class="col-span-12 md:col-span-1 flex items-end">
+                                            <button type="button" class="inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700" style="margin-bottom: 35px;" onclick="deleteDetailRow(this)">
+                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -270,33 +301,22 @@
                             
                             {{-- Existing Client & Contacts --}}
                             <div class="existing-client-section grid grid-cols-1 md:grid-cols-3 gap-6" style="display: {{ old('emails') === null ? 'grid' : 'none' }}">
-                                <div class="dropdown relative">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1" for="task-for-project">Client for Project:</label>
-                                    <input type="hidden" name="client" id="selectedClient">
-                                    
-                                    <div class="relative">
-                                        <button class="relative w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2 px-3 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
-                                                type="button" 
-                                                id="ClientDropdown" 
-                                                aria-haspopup="true" 
-                                                aria-expanded="false">
-                                            <span class="block truncate text-gray-500">Choose Client</span>
-                                            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.23 8.29a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
-                                            </span>
-                                        </button>
-
-                                        <ul id="ClientDropdownMenu" class="hidden absolute z-50 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                                            <li><a class="dropdown-item text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 block" href="#" data-value="none">None</a></li>
-                                            @foreach($clients as $client)
-                                            <li>
-                                                <a class="dropdown-item text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 block" href="#" data-value="{{$client->id}}">
-                                                    <span class="font-semibold">{{$client->client_number}}</span>-<span class="truncate">{{$client->name}}</span>
-                                                </a>
-                                            </li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1" for="clientSelect">Client for Project:</label>
+                                    <select
+                                        id="clientSelect" 
+                                        name="client"
+                                        class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom"
+                                    >
+                                        <option value="">Choose Client</option>
+                                        <option value="none">None</option>
+                                        @foreach($clients as $client)
+                                            <option value="{{ $client->id }}">
+                                                {{ $client->client_number }} - {{ $client->name }}
+                                            </option>
+                                        @endforeach
+                                        
+                                    </select>
                                 </div>
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-1" for="project-for-project">Contacts :</label>
@@ -320,7 +340,7 @@
                                     <a class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300' href="{{route('Responsable_gestionnaire.index')}}">Cancel</a>
                                 @endif
                                 <button type="submit" name="button" class="bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2.5 rounded-lg">
-                                    Generate Quote
+                                    Generate Devis
                                 </button>
                             </div>
                         </form>
@@ -347,18 +367,66 @@
     // Add/Remove Task Inputs
     function addInput(divName) {
         var newdiv = document.createElement('div');
-        newdiv.className = 'grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border border-gray-200 rounded-lg';
+        const isDetailedHourly = document.getElementById('billingDetailedHourly') && document.getElementById('billingDetailedHourly').checked;
+        const hoursColumnDisplay = isDetailedHourly ? 'block' : 'none';
+        
+        newdiv.className = 'grid grid-cols-12 gap-4 p-4 border border-gray-200 rounded-lg detail-row';
+        
+        const budgetColumnDisplay = isDetailedHourly ? 'none' : 'block';
+        const costPerHourColumnDisplay = isDetailedHourly ? 'block' : 'none';
+        // Total column is always shown now
+        const totalColumnDisplay = 'block';
+        
         newdiv.innerHTML =
-            '<div>' +
+            '<div class="col-span-12 md:col-span-4">' +
+                '<label class="block text-sm font-medium text-gray-700 mb-1">Details <span class="text-red-600">*</span></label>' +
                 '<textarea class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" name="task[]" rows="3"></textarea>' +
             '</div>' +
-            '<div>' +
+            '<div class="col-span-12 md:col-span-2 task-hours-column" style="display: ' + hoursColumnDisplay + ';">' +
+                '<label class="block text-sm font-medium text-gray-700 mb-1">Number of Hours <span class="text-red-600">*</span></label>' +
+                '<input type="number" step="0.01" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskHours" name="taskHours[]" />' +
+            '</div>' +
+            '<div class="col-span-12 md:col-span-2 task-budget-column" style="display: ' + budgetColumnDisplay + ';">' +
+                '<label class="block text-sm font-medium text-gray-700 mb-1 budget-label">Budget <span class="text-red-600">*</span></label>' +
                 '<input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskBudget" name="taskBudget[]" />' +
+            '</div>' +
+            '<div class="col-span-12 md:col-span-2 task-cost-per-hour-column" style="display: ' + costPerHourColumnDisplay + ';">' +
+                '<label class="block text-sm font-medium text-gray-700 mb-1">Cost per Hour <span class="text-red-600">*</span></label>' +
+                '<input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskCostPerHour" name="taskCostPerHour[]" />' +
+            '</div>' +
+            '<div class="col-span-12 md:col-span-2 task-total-column" style="display: ' + totalColumnDisplay + ';">' +
+                '<label class="block text-sm font-medium text-gray-700 mb-1">Total</label>' +
+                '<input type="text" class="block w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 sm:text-sm py-2 px-3 taskTotal" readonly />' +
+            '</div>' +
+            '<div class="col-span-12 md:col-span-1 flex items-end">' +
+                '<button type="button" class="inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700" style="margin-bottom: 35px;" onclick="deleteDetailRow(this)">' +
+                    '<svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>' +
+                '</button>' +
             '</div>';
         
         document.getElementById(divName).appendChild(newdiv);
         const newTaskBudgetInput = newdiv.querySelector('.taskBudget');
-        newTaskBudgetInput.addEventListener('input', updateProjectBudget);
+        const newTaskHoursInput = newdiv.querySelector('.taskHours');
+        const newTaskCostPerHourInput = newdiv.querySelector('.taskCostPerHour');
+        if (newTaskBudgetInput) {
+            newTaskBudgetInput.addEventListener('input', updateProjectBudget);
+        }
+        if (newTaskHoursInput) {
+            newTaskHoursInput.addEventListener('input', updateProjectBudget);
+        }
+        if (newTaskCostPerHourInput) {
+            newTaskCostPerHourInput.addEventListener('input', updateProjectBudget);
+        }
+    }
+
+    function deleteDetailRow(button) {
+        const detailRows = document.querySelectorAll('.detail-row');
+        if (detailRows.length > 1) {
+            button.closest('.detail-row').remove();
+            updateProjectBudget();
+        } else {
+            alert('At least one detail row must remain.');
+        }
     }
 
     function removeInput(divName) {
@@ -371,63 +439,42 @@
 </script>
 
 <script>
-    // Client & Contact Logic
+    // Client & Contact Logic (using a native <select> for better positioning)
     document.addEventListener('DOMContentLoaded', function() {
-        const dropdownButton = document.getElementById('ClientDropdown');
-        const dropdownMenu = document.getElementById('ClientDropdownMenu');
-        const dropdownButtonText = dropdownButton.querySelector('span'); 
-        const selectedClientIdInput = document.getElementById('selectedClient');
+        const clientSelect = document.getElementById('clientSelect');
         const newClientCheckbox = document.getElementById('newClientCheckbox');
         const clientInputs = document.getElementById('clientInputs');
         const existingClientSection = document.querySelector('.existing-client-section');
-
-        dropdownButton.addEventListener('click', function(e) {
-            e.stopPropagation();
-            dropdownMenu.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', function(e) {
-            if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                dropdownMenu.classList.add('hidden');
-            }
-        });
+        const contactsDiv = document.getElementById('contactsDiv');
 
         newClientCheckbox.addEventListener('change', function() {
             if (this.checked) {
                 clientInputs.style.display = 'block';
                 existingClientSection.style.display = 'none';
-                selectedClientIdInput.value = '';
-                document.getElementById('contactsDiv').innerHTML = '';
-                dropdownButtonText.textContent = 'Choose Client';
-                dropdownButtonText.classList.add('text-gray-500');
+                clientSelect.value = '';
+                contactsDiv.innerHTML = '';
             } else {
                 clientInputs.style.display = 'none';
                 existingClientSection.style.display = 'grid';
             }
         });
 
-        document.querySelectorAll('.dropdown-item').forEach(item => {
-            item.addEventListener('click', function(event) {
-                event.preventDefault();
-                const clientId = event.currentTarget.getAttribute('data-value');
-                const clientName = event.currentTarget.textContent.replace(/\s+/g, ' ').trim();
+        if (clientSelect) {
+            clientSelect.addEventListener('change', function () {
+                const clientId = this.value;
 
-                if (clientId === 'none') {
-                    dropdownButtonText.textContent = 'Choose Client';
-                    dropdownButtonText.classList.add('text-gray-500');
-                    selectedClientIdInput.value = '';
-                    document.getElementById('contactsDiv').innerHTML = '';
-                } else {
-                    dropdownButtonText.textContent = clientName;
-                    dropdownButtonText.classList.remove('text-gray-500');
-                    selectedClientIdInput.value = clientId;
-                    loadContacts(clientId);
+                if (!clientId || clientId === 'none') {
+                    contactsDiv.innerHTML = clientId === 'none'
+                        ? '<p class="text-sm text-gray-500 mt-2">No contacts found.</p>'
+                        : '';
+                    return;
                 }
-                dropdownMenu.classList.add('hidden');
-            });
-        });
 
-        function loadContacts(clientId) {
+                window.loadContacts(clientId);
+            });
+        }
+
+        window.loadContacts = function (clientId) {
             let baseUrl = '';
             @if(Auth::user()->hasRole('Responsable de projet'))
                 baseUrl = '/Responsable_de_projet/get-contacts/';
@@ -477,6 +524,7 @@
     function updateProjectBudget() {
         const projectBudgetInput = document.getElementById('projectBudget');
         const billingHoraireRadio = document.getElementById('billingHoraire');
+        const billingDetailedHourlyRadio = document.getElementById('billingDetailedHourly');
 
         // Hourly: use hours * amount_per_hour
         if (billingHoraireRadio && billingHoraireRadio.checked) {
@@ -492,12 +540,49 @@
             return;
         }
 
-        // Forfait: sum task budgets
+        // Detailed Hourly: sum of (task hours * task cost_per_hour) for each detail
+        if (billingDetailedHourlyRadio && billingDetailedHourlyRadio.checked) {
+            let totalBudget = 0;
+            
+            document.querySelectorAll('.detail-row').forEach(function(row) {
+                const hoursInput = row.querySelector('.taskHours');
+                const costPerHourInput = row.querySelector('.taskCostPerHour');
+                const totalInput = row.querySelector('.taskTotal');
+                
+                const hours = parseFloat(hoursInput ? hoursInput.value : '') || 0;
+                const costPerHour = parseFloat(costPerHourInput ? costPerHourInput.value : '') || 0;
+                const total = hours * costPerHour;
+                
+                if (totalInput) {
+                    totalInput.value = total.toFixed(2);
+                }
+                
+                totalBudget += total;
+            });
+            
+            if (projectBudgetInput) {
+                projectBudgetInput.value = totalBudget.toFixed(2);
+            }
+            return;
+        }
+
+        // Forfait: sum task budgets and update totals
         let totalBudget = 0;
-        document.querySelectorAll('.taskBudget').forEach(function(input) {
-            let value = parseFloat(input.value);
-            if (!isNaN(value)) {
-                totalBudget += value;
+        document.querySelectorAll('.detail-row').forEach(function(row) {
+            const budgetInput = row.querySelector('.taskBudget');
+            const totalInput = row.querySelector('.taskTotal');
+            
+            if (budgetInput) {
+                let value = parseFloat(budgetInput.value);
+                if (!isNaN(value)) {
+                    totalBudget += value;
+                    // Update the total column for this row
+                    if (totalInput) {
+                        totalInput.value = value.toFixed(2);
+                    }
+                } else if (totalInput) {
+                    totalInput.value = '0.00';
+                }
             }
         });
         if (projectBudgetInput) {
@@ -509,6 +594,9 @@
     document.querySelectorAll('.taskBudget').forEach(function(input) {
         input.addEventListener('input', updateProjectBudget);
     });
+    
+    // Initialize totals for existing rows on page load
+    updateProjectBudget();
 
     // **Project Type Switching Logic**
 
@@ -524,7 +612,6 @@
             existingProjectNameInput.classList.add('bg-gray-100');
             existingProjectNameInput.value = '';
             document.getElementById('projectTva').value = '';
-            document.getElementById('costPerHour').value = '';
         } else if (projectType === 'existing') {
             projectNameInput.disabled = true;
             projectNameInput.classList.add('bg-gray-100');
@@ -539,7 +626,6 @@
             existingProjectNameInput.classList.add('bg-gray-100');
             existingProjectNameInput.value = '';
             document.getElementById('projectTva').value = '';
-            document.getElementById('costPerHour').value = '';
         }
     }
 
@@ -547,52 +633,92 @@
         var existingProjectSelect = document.getElementById('existingProjectName');
         var selectedOption = existingProjectSelect.options[existingProjectSelect.selectedIndex];
         
-        var tva = selectedOption.getAttribute('data-tva');
-        var costPerHour = selectedOption.getAttribute('data-cost-per-hour');
-        
+        if (!selectedOption) {
+            return;
+        }
+
+        var tva = selectedOption.getAttribute('data-tva') || '';
         document.getElementById('projectTva').value = tva;
-        document.getElementById('costPerHour').value = costPerHour;
+
+        // Auto-select the corresponding client when an existing project is chosen
+        var clientId = selectedOption.getAttribute('data-client-id');
+        var clientSelect = document.getElementById('clientSelect');
+        var contactsDiv = document.getElementById('contactsDiv');
+
+        if (clientSelect) {
+            clientSelect.value = clientId || '';
+
+            if (clientId) {
+                if (typeof window.loadContacts === 'function') {
+                    window.loadContacts(clientId);
+                } else {
+                    // Fallback: trigger change event to let existing handler load contacts
+                    var event = new Event('change');
+                    clientSelect.dispatchEvent(event);
+                }
+            } else if (contactsDiv) {
+                contactsDiv.innerHTML = '';
+            }
+        }
     }
 </script>
 
-{{-- New script for hourly and forfait quotes --}}
+{{-- New script for hourly and forfait Deviss --}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const billingRadios = document.querySelectorAll('input[name="billing_type"]');
     const hourlyInputs = document.getElementById('hourlyInputs');
     const hoursInput = document.getElementById('hourlyHours');
     const amountInput = document.getElementById('hourlyAmount');
-    const costPerHourInput = document.getElementById('costPerHour');
 
     function toggleHourlyInputs() {
         const isHoraire = document.getElementById('billingHoraire').checked;
+        const isDetailedHourly = document.getElementById('billingDetailedHourly').checked;
+        
         if (hourlyInputs) {
             hourlyInputs.style.display = isHoraire ? 'grid' : 'none';
         }
 
-        // Sync and lock cost per hour when hourly is selected
-        if (costPerHourInput) {
-            if (isHoraire) {
-                costPerHourInput.readOnly = true;
-                costPerHourInput.classList.add('bg-gray-100');
-                const amount = parseFloat(amountInput ? amountInput.value : '');
-                if (!isNaN(amount)) {
-                    costPerHourInput.value = amount;
-                }
-            } else {
-                costPerHourInput.readOnly = false;
-                costPerHourInput.classList.remove('bg-gray-100');
-            }
+        // Hide devis details section when Hourly is selected
+        const devisDetailsSection = document.getElementById('devisDetailsSection');
+        if (devisDetailsSection) {
+            devisDetailsSection.style.display = isHoraire ? 'none' : 'block';
         }
+
+        // Show/hide columns in devis details based on billing type
+        const taskHoursColumns = document.querySelectorAll('.task-hours-column');
+        const taskBudgetColumns = document.querySelectorAll('.task-budget-column');
+        const taskCostPerHourColumns = document.querySelectorAll('.task-cost-per-hour-column');
+        const taskTotalColumns = document.querySelectorAll('.task-total-column');
+        const budgetLabels = document.querySelectorAll('.budget-label');
+        
+        taskHoursColumns.forEach(function(column) {
+            column.style.display = isDetailedHourly ? 'block' : 'none';
+        });
+        
+        taskBudgetColumns.forEach(function(column) {
+            column.style.display = isDetailedHourly ? 'none' : 'block';
+        });
+        
+        taskCostPerHourColumns.forEach(function(column) {
+            column.style.display = isDetailedHourly ? 'block' : 'none';
+        });
+        
+        // Total column is always shown now
+        taskTotalColumns.forEach(function(column) {
+            column.style.display = 'block';
+        });
+        
+        // Update grid columns based on billing type (using 12-column grid)
+        const detailRows = document.querySelectorAll('.detail-row');
+        detailRows.forEach(function(row) {
+            row.className = 'grid grid-cols-12 gap-4 p-4 border border-gray-200 rounded-lg detail-row';
+        });
 
         updateProjectBudget();
     }
 
     function handleHourlyInputChange() {
-        const amount = parseFloat(amountInput ? amountInput.value : '');
-        if (!isNaN(amount) && costPerHourInput) {
-            costPerHourInput.value = amount;
-        }
         updateProjectBudget();
     }
 
@@ -603,6 +729,13 @@ document.addEventListener('DOMContentLoaded', function() {
     [hoursInput, amountInput].forEach(function(input) {
         if (input) {
             input.addEventListener('input', handleHourlyInputChange);
+        }
+    });
+
+    // Add event listeners to task hours and cost per hour inputs
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('taskHours') || e.target.classList.contains('taskCostPerHour')) {
+            updateProjectBudget();
         }
     });
 

@@ -33,6 +33,8 @@ return [
 
     'billit' => [
         'api_key' => env('BILLIT_API_KEY'),
+        'base_url' => env('BILLIT_BASE_URL', 'https://api.sandbox.billit.be'),
+        'channel' => env('BILLIT_CHANNEL', 'Peppol'),
     ],
 
 ];

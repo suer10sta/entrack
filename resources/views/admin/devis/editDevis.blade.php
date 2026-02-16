@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DailyTrac Dashboard - Edit Devis</title>
+    <title>DalyTrac Dashboard - Edit Devis</title>
     @vite('resources/css/app.css')
 
     {{-- Your custom styles for ".editable" fields --}}
@@ -36,7 +36,11 @@
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     {{-- Main content area --}}
     <div class="flex flex-col flex-1 overflow-y-auto">
@@ -106,6 +110,7 @@
                         @php
                             $billingType = old('billing_type', $devis->billing_type ?? 'forfait');
                             $isHourly = $billingType === 'horaire';
+                            $isDetailedHourly = $billingType === 'detailed_hourly';
                             $hoursValue = old('hours', $devis->hours);
                             $amountValue = old('amount_per_hour', $devis->amount_per_hour ?? $devis->cost_per_hour);
                         @endphp
@@ -145,26 +150,20 @@
                                 </select>
                             </div>
 
-                            <div>
-                                <label for="projectBudget" class="block text-sm font-medium text-gray-700">Total Budget</label>
-                                <input type="number" id="projectBudget" name='budget' value="{{ old('budget', $devis->budget) }}" readonly
-                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-gray-100" />
-                            </div>
-                            
-                            <div>
-                                <label for="costPerHour" class="block text-sm font-medium text-gray-700">Cost per Hour</label>
-                                <input type="number" step="0.01" id="costPerHour" name='cost_per_hour' value="{{$devis->cost_per_hour}}"
-                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
-                            </div>
+                        </div>
 
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                             <div>
-                                <label for="projectTva" class="block text-sm font-medium text-gray-700">Project TVA (%)</label>
-                                <input type="number" id="projectTva" name='project_tva' value="{{$devis->tva}}"
-                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                <label for="projectBudget" class="block text-sm font-medium text-gray-700 mb-1">Budget Total</label>
+                                <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 bg-gray-100" id="projectBudget" name='budget' value="{{ old('budget', $devis->budget) }}" readonly/>
+                            </div>
+                            <div>
+                                <label for="projectTva" class="block text-sm font-medium text-gray-700 mb-1">TVA Projet</label>
+                                <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" id="projectTva" name='project_tva' value="{{$devis->tva}}" />
                             </div>
                         </div>
 
-                        {{-- Devis Type (Forfait / Hourly) --}}
+                        {{-- Devis Type (Forfait / Hourly / Detailed Hourly) --}}
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                             <div>
                                 <span class="block text-sm font-medium text-gray-700 mb-1">Devis Type <span class="text-red-600">*</span></span>
@@ -186,6 +185,15 @@
                                                class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                                                {{ $isHourly ? 'checked' : '' }}>
                                         <span class="ml-2 text-sm text-gray-700">Hourly</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="radio"
+                                               name="billing_type"
+                                               id="billingDetailedHourly"
+                                               value="detailed_hourly"
+                                               class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                               {{ $isDetailedHourly ? 'checked' : '' }}>
+                                        <span class="ml-2 text-sm text-gray-700">Detailed Hourly</span>
                                     </label>
                                 </div>
                             </div>
@@ -219,33 +227,58 @@
                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">{{$devis->description}}</textarea>
                         </div>
 
-                        <div id="dynamicInput" class="mt-6 space-y-4">
+                        <div id="devisDetailsSection" class="mt-6" style="display: {{ $isHourly ? 'none' : 'block' }};">
                             <h3 class="text-lg font-medium text-gray-900">Devis Details</h3>
+                            <div id="dynamicInput" class="space-y-4">
                             @forelse($devis_details as $detail)
                                 <div class="grid grid-cols-12 gap-4 detail-row">
-                                    <div class="col-span-12 md:col-span-6">
+                                    <div class="col-span-12 md:col-span-4">
                                         <label class="block text-sm font-medium text-gray-700">Details <span class="text-red-600">*</span></label>
                                         <textarea class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="task[]" rows="3">{{ $detail->task_details }}</textarea>
                                     </div>
-                                    <div class="col-span-12 md:col-span-5">
+                                    <div class="col-span-12 md:col-span-2 task-hours-column" style="display: {{ $isDetailedHourly ? 'block' : 'none' }};">
+                                        <label class="block text-sm font-medium text-gray-700">Number of Hours <span class="text-red-600">*</span></label>
+                                        <input type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskHours" name="taskHours[]" value="{{ $detail->hours ?? '' }}" />
+                                    </div>
+                                    <div class="col-span-12 md:col-span-2 task-budget-column">
                                         <label class="block text-sm font-medium text-gray-700">Budget <span class="text-red-600">*</span></label>
                                         <input type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskBudget" name="taskBudget[]" value="{{ $detail->task_budget }}" />
                                     </div>
+                                    <div class="col-span-12 md:col-span-2 task-cost-per-hour-column" style="display: {{ $isDetailedHourly ? 'block' : 'none' }};">
+                                        <label class="block text-sm font-medium text-gray-700">Cost per Hour <span class="text-red-600">*</span></label>
+                                        <input type="number" step="0.0001" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskCostPerHour" name="taskCostPerHour[]" value="{{ $detail->cost_per_hour ?? '' }}" />
+                                    </div>
+                                    <div class="col-span-12 md:col-span-2 task-total-column">
+                                        <label class="block text-sm font-medium text-gray-700">Total</label>
+                                        <input type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 taskTotal" readonly value="{{ $isDetailedHourly && isset($detail->hours) && isset($detail->cost_per_hour) ? number_format(($detail->hours ?? 0) * ($detail->cost_per_hour ?? 0), 2) : ($detail->task_budget ?? '0.00') }}" />
+                                    </div>
                                     <div class="col-span-12 md:col-span-1 flex items-end">
-                                        <button type="button" class="mt-1 inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700" onclick="deleteDetailRow(this)">
+                                        <button type="button" class="mt-1 inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700" style="margin-bottom: 35px;" onclick="deleteDetailRow(this)">
                                             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
                                         </button>
                                     </div>
                                 </div>
                             @empty
                                 <div class="grid grid-cols-12 gap-4 detail-row">
-                                    <div class="col-span-12 md:col-span-6">
+                                    <div class="col-span-12 md:col-span-4">
                                         <label class="block text-sm font-medium text-gray-700">Details <span class="text-red-600">*</span></label>
                                         <textarea class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="task[]" rows="3"></textarea>
                                     </div>
-                                    <div class="col-span-12 md:col-span-5">
+                                    <div class="col-span-12 md:col-span-2 task-hours-column" style="display: {{ $isDetailedHourly ? 'block' : 'none' }};">
+                                        <label class="block text-sm font-medium text-gray-700">Number of Hours <span class="text-red-600">*</span></label>
+                                        <input type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskHours" name="taskHours[]" />
+                                    </div>
+                                    <div class="col-span-12 md:col-span-2 task-budget-column">
                                         <label class="block text-sm font-medium text-gray-700">Budget <span class="text-red-600">*</span></label>
                                         <input type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskBudget" name="taskBudget[]" />
+                                    </div>
+                                    <div class="col-span-12 md:col-span-2 task-cost-per-hour-column" style="display: {{ $isDetailedHourly ? 'block' : 'none' }};">
+                                        <label class="block text-sm font-medium text-gray-700">Cost per Hour <span class="text-red-600">*</span></label>
+                                        <input type="number" step="0.0001" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskCostPerHour" name="taskCostPerHour[]" />
+                                    </div>
+                                    <div class="col-span-12 md:col-span-2 task-total-column">
+                                        <label class="block text-sm font-medium text-gray-700">Total</label>
+                                        <input type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 taskTotal" readonly />
                                     </div>
                                     <div class="col-span-12 md:col-span-1 flex items-end">
                                         <button type="button" class="mt-1 inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700" onclick="deleteDetailRow(this)">
@@ -254,15 +287,18 @@
                                     </div>
                                 </div>
                             @endforelse
-                        </div>
+                            </div>
 
-                        <div class="flex gap-x-2 mt-4">
-                            <button type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500" onclick="addInput('dynamicInput');">
-                                Add Detail
-                            </button>
-                            <button type="button" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" onclick="removeInput('dynamicInput');">
-                                Delete Last
-                            </button>
+                            <div class="flex space-x-2 mt-4">
+                                <button type="button" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm" onclick="addInput('dynamicInput');">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                                    Add
+                                </button>
+                                <button type="button" class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg text-sm" onclick="removeInput('dynamicInput');">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                                    Delete
+                                </button>
+                            </div>
                         </div>
 
                         <div class="mt-8 border-t border-gray-200 pt-6">
@@ -463,10 +499,11 @@
             clientSelect.addEventListener('change', () => loadContacts(clientSelect.value));
             loadContacts(clientSelect.value); // Load contacts for the pre-selected client
 
-            // --- Budget Calculation (Forfait / Hourly) ---
+            // --- Budget Calculation (Forfait / Hourly / Detailed Hourly) ---
             function updateProjectBudget() {
                 const projectBudgetInput = document.getElementById('projectBudget');
                 const billingHoraireRadio = document.getElementById('billingHoraire');
+                const billingDetailedHourlyRadio = document.getElementById('billingDetailedHourly');
 
                 // Hourly: budget = hours * amount_per_hour
                 if (billingHoraireRadio && billingHoraireRadio.checked) {
@@ -482,12 +519,48 @@
                     return;
                 }
 
-                // Forfait: sum task budgets
+                // Detailed Hourly: sum of (task hours * task cost_per_hour) for each detail
+                if (billingDetailedHourlyRadio && billingDetailedHourlyRadio.checked) {
+                    let totalBudget = 0;
+                    
+                    document.querySelectorAll('.detail-row').forEach(function(row) {
+                        const hoursInput = row.querySelector('.taskHours');
+                        const costPerHourInput = row.querySelector('.taskCostPerHour');
+                        const totalInput = row.querySelector('.taskTotal');
+                        
+                        const hours = parseFloat(hoursInput ? hoursInput.value : '') || 0;
+                        const costPerHour = parseFloat(costPerHourInput ? costPerHourInput.value : '') || 0;
+                        const total = hours * costPerHour;
+                        
+                        if (totalInput) {
+                            totalInput.value = total.toFixed(2);
+                        }
+                        
+                        totalBudget += total;
+                    });
+                    
+                    if (projectBudgetInput) {
+                        projectBudgetInput.value = totalBudget.toFixed(2);
+                    }
+                    return;
+                }
+
+                // Forfait: sum task budgets and update totals
                 let totalBudget = 0;
-                document.querySelectorAll('.taskBudget').forEach(function(input) {
-                    let value = parseFloat(input.value);
-                    if (!isNaN(value)) {
-                        totalBudget += value;
+                document.querySelectorAll('.detail-row').forEach(function(row) {
+                    const budgetInput = row.querySelector('.taskBudget');
+                    const totalInput = row.querySelector('.taskTotal');
+                    
+                    if (budgetInput) {
+                        let value = parseFloat(budgetInput.value);
+                        if (!isNaN(value)) {
+                            totalBudget += value;
+                            if (totalInput) {
+                                totalInput.value = value.toFixed(2);
+                            }
+                        } else if (totalInput) {
+                            totalInput.value = '0.00';
+                        }
                     }
                 });
                 if (projectBudgetInput) {
@@ -495,9 +568,9 @@
                 }
             }
             
-            // Add listener to all current and future budget inputs
+            // Add listener to all current and future budget inputs, hours, and cost per hour
             document.getElementById('dynamicInput').addEventListener('input', function(e) {
-                if (e.target.classList.contains('taskBudget')) {
+                if (e.target.classList.contains('taskBudget') || e.target.classList.contains('taskHours') || e.target.classList.contains('taskCostPerHour')) {
                     updateProjectBudget();
                 }
             });
@@ -509,6 +582,7 @@
         function updateProjectBudget() {
             const projectBudgetInput = document.getElementById('projectBudget');
             const billingHoraireRadio = document.getElementById('billingHoraire');
+            const billingDetailedHourlyRadio = document.getElementById('billingDetailedHourly');
 
             // Hourly: budget = hours * amount_per_hour
             if (billingHoraireRadio && billingHoraireRadio.checked) {
@@ -524,12 +598,48 @@
                 return;
             }
 
-            // Forfait: sum task budgets
+            // Detailed Hourly: sum of (task hours * task cost_per_hour) for each detail
+            if (billingDetailedHourlyRadio && billingDetailedHourlyRadio.checked) {
+                let totalBudget = 0;
+                
+                document.querySelectorAll('.detail-row').forEach(function(row) {
+                    const hoursInput = row.querySelector('.taskHours');
+                    const costPerHourInput = row.querySelector('.taskCostPerHour');
+                    const totalInput = row.querySelector('.taskTotal');
+                    
+                    const hours = parseFloat(hoursInput ? hoursInput.value : '') || 0;
+                    const costPerHour = parseFloat(costPerHourInput ? costPerHourInput.value : '') || 0;
+                    const total = hours * costPerHour;
+                    
+                    if (totalInput) {
+                        totalInput.value = total.toFixed(2);
+                    }
+                    
+                    totalBudget += total;
+                });
+                
+                if (projectBudgetInput) {
+                    projectBudgetInput.value = totalBudget.toFixed(2);
+                }
+                return;
+            }
+
+            // Forfait: sum task budgets and update totals
             let totalBudget = 0;
-            document.querySelectorAll('.taskBudget').forEach(function(input) {
-                let value = parseFloat(input.value);
-                if (!isNaN(value)) {
-                    totalBudget += value;
+            document.querySelectorAll('.detail-row').forEach(function(row) {
+                const budgetInput = row.querySelector('.taskBudget');
+                const totalInput = row.querySelector('.taskTotal');
+                
+                if (budgetInput) {
+                    let value = parseFloat(budgetInput.value);
+                    if (!isNaN(value)) {
+                        totalBudget += value;
+                        if (totalInput) {
+                            totalInput.value = value.toFixed(2);
+                        }
+                    } else if (totalInput) {
+                        totalInput.value = '0.00';
+                    }
                 }
             });
             if (projectBudgetInput) {
@@ -539,23 +649,68 @@
 
         function addInput(divName) {
             var newdiv = document.createElement('div');
+            const isDetailedHourly = document.getElementById('billingDetailedHourly') && document.getElementById('billingDetailedHourly').checked;
+            const hoursColumnDisplay = isDetailedHourly ? 'block' : 'none';
+            
             newdiv.className = 'grid grid-cols-12 gap-4 detail-row';
+            
+            let hoursColumnHtml = '';
+            if (isDetailedHourly) {
+                hoursColumnHtml = `
+                <div class="col-span-12 md:col-span-2 task-hours-column" style="display: ${hoursColumnDisplay};">
+                    <label class="block text-sm font-medium text-gray-700">Number of Hours <span class="text-red-600">*</span></label>
+                    <input type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskHours" name="taskHours[]" />
+                </div>`;
+            } else {
+                hoursColumnHtml = `
+                <div class="col-span-12 md:col-span-2 task-hours-column" style="display: ${hoursColumnDisplay};">
+                    <label class="block text-sm font-medium text-gray-700">Number of Hours <span class="text-red-600">*</span></label>
+                    <input type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskHours" name="taskHours[]" />
+                </div>`;
+            }
+            
+            const budgetColumnDisplay = isDetailedHourly ? 'none' : 'block';
+            const costPerHourColumnDisplay = isDetailedHourly ? 'block' : 'none';
+            const totalColumnDisplay = 'block';
+            
             newdiv.innerHTML = `
-                <div class="col-span-12 md:col-span-6">
+                <div class="col-span-12 md:col-span-4">
                     <label class="block text-sm font-medium text-gray-700">Details <span class="text-red-600">*</span></label>
                     <textarea class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="task[]" rows="3"></textarea>
                 </div>
-                <div class="col-span-12 md:col-span-5">
+                ${hoursColumnHtml}
+                <div class="col-span-12 md:col-span-2 task-budget-column" style="display: ${budgetColumnDisplay};">
                     <label class="block text-sm font-medium text-gray-700">Budget <span class="text-red-600">*</span></label>
                     <input type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskBudget" name="taskBudget[]" />
                 </div>
+                <div class="col-span-12 md:col-span-2 task-cost-per-hour-column" style="display: ${costPerHourColumnDisplay};">
+                    <label class="block text-sm font-medium text-gray-700">Cost per Hour <span class="text-red-600">*</span></label>
+                    <input type="number" step="0.0001" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskCostPerHour" name="taskCostPerHour[]" />
+                </div>
+                <div class="col-span-12 md:col-span-2 task-total-column" style="display: ${totalColumnDisplay};">
+                    <label class="block text-sm font-medium text-gray-700">Total</label>
+                    <input type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 taskTotal" readonly />
+                </div>
                 <div class="col-span-12 md:col-span-1 flex items-end">
-                    <button type="button" class="mt-1 inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700" onclick="deleteDetailRow(this)">
+                    <button type="button" class="mt-1 inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700" style="margin-bottom: 35px;" onclick="deleteDetailRow(this)">
                         <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
                     </button>
                 </div>
             `;
             document.getElementById(divName).appendChild(newdiv);
+            
+            const newTaskBudgetInput = newdiv.querySelector('.taskBudget');
+            const newTaskHoursInput = newdiv.querySelector('.taskHours');
+            const newTaskCostPerHourInput = newdiv.querySelector('.taskCostPerHour');
+            if (newTaskBudgetInput) {
+                newTaskBudgetInput.addEventListener('input', updateProjectBudget);
+            }
+            if (newTaskHoursInput) {
+                newTaskHoursInput.addEventListener('input', updateProjectBudget);
+            }
+            if (newTaskCostPerHourInput) {
+                newTaskCostPerHourInput.addEventListener('input', updateProjectBudget);
+            }
         }
 
         function deleteDetailRow(button) {
@@ -594,37 +749,54 @@
         const hourlyInputs = document.getElementById('hourlyInputs');
         const hoursInput = document.getElementById('hourlyHours');
         const amountInput = document.getElementById('hourlyAmount');
-        const costPerHourInput = document.getElementById('costPerHour');
 
         function toggleHourlyInputs() {
             const isHoraire = document.getElementById('billingHoraire').checked;
+            const isDetailedHourly = document.getElementById('billingDetailedHourly').checked;
+            
             if (hourlyInputs) {
                 hourlyInputs.style.display = isHoraire ? 'grid' : 'none';
             }
 
-            // Sync and lock cost per hour when hourly is selected
-            if (costPerHourInput) {
-                if (isHoraire) {
-                    costPerHourInput.readOnly = true;
-                    costPerHourInput.classList.add('bg-gray-100');
-                    const amount = parseFloat(amountInput ? amountInput.value : '');
-                    if (!isNaN(amount)) {
-                        costPerHourInput.value = amount;
-                    }
-                } else {
-                    costPerHourInput.readOnly = false;
-                    costPerHourInput.classList.remove('bg-gray-100');
-                }
+            // Hide devis details section when Hourly is selected
+            const devisDetailsSection = document.getElementById('devisDetailsSection');
+            if (devisDetailsSection) {
+                devisDetailsSection.style.display = isHoraire ? 'none' : 'block';
             }
+
+            // Show/hide columns in devis details based on billing type
+            const taskHoursColumns = document.querySelectorAll('.task-hours-column');
+            const taskBudgetColumns = document.querySelectorAll('.task-budget-column');
+            const taskCostPerHourColumns = document.querySelectorAll('.task-cost-per-hour-column');
+            const taskTotalColumns = document.querySelectorAll('.task-total-column');
+            
+            taskHoursColumns.forEach(function(column) {
+                column.style.display = isDetailedHourly ? 'block' : 'none';
+            });
+            
+            taskBudgetColumns.forEach(function(column) {
+                column.style.display = isDetailedHourly ? 'none' : 'block';
+            });
+            
+            taskCostPerHourColumns.forEach(function(column) {
+                column.style.display = isDetailedHourly ? 'block' : 'none';
+            });
+            
+            // Total column is always shown
+            taskTotalColumns.forEach(function(column) {
+                column.style.display = 'block';
+            });
+
+            // Update grid columns based on billing type (using fixed 12-column grid)
+            const detailRows = document.querySelectorAll('.detail-row');
+            detailRows.forEach(function(row) {
+                row.className = 'grid grid-cols-12 gap-4 detail-row';
+            });
 
             updateProjectBudget();
         }
 
         function handleHourlyInputChange() {
-            const amount = parseFloat(amountInput ? amountInput.value : '');
-            if (!isNaN(amount) && costPerHourInput) {
-                costPerHourInput.value = amount;
-            }
             updateProjectBudget();
         }
 
@@ -635,6 +807,13 @@
         [hoursInput, amountInput].forEach(function(input) {
             if (input) {
                 input.addEventListener('input', handleHourlyInputChange);
+            }
+        });
+
+        // Add event listeners to task hours and cost per hour inputs
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('taskHours') || e.target.classList.contains('taskCostPerHour')) {
+                updateProjectBudget();
             }
         });
 

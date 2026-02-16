@@ -23,6 +23,7 @@ use App\Models\client_contacts_projects;
 use App\Models\client_contacts;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Models\calendars;
 use Illuminate\Support\Facades\Mail;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Support\Facades\File;
@@ -211,6 +212,8 @@ class tasksController extends Controller
             'entreprise_id' => $enterpriseId, // Associate with the admin's enterprise_id
             'user_id' => $user_id,
             'estimated_hours' => $request->input('estimated_hours'),
+            'start' => $request->input('start'),
+            'end' => $request->input('end'),
         ]);
 
         $task->save();
@@ -228,25 +231,6 @@ class tasksController extends Controller
 
         foreach ($teams_employees as $employee_id) {
             $employee = Employees::where('id', $employee_id)->first();
-
-            if (!$employee) {
-                continue;
-            }
-
-            // Check if employee already has this task assigned
-            $existingTask = employees_tasks::where('employee_id', $employee->id)
-                ->where('task_id', $task->id)
-                ->where('entreprise_id', Auth::user()->entreprise_id)
-                ->first();
-
-            if ($existingTask) {
-                continue; // Skip if already assigned
-            }
-
-            // Validate task limit for non-SuperAdmin employees (check for ongoing tasks)
-            if (!$this->validateEmployeeTaskLimit($employee)) {
-                return back()->with('alertmessage', 'Employee ' . $employee->name . ' already has an ongoing task. Only SuperAdmin can have multiple ongoing tasks.');
-            }
 
             $employee_task = new employees_tasks;
             $employee_task->employee_id = $employee->id;
@@ -280,25 +264,6 @@ class tasksController extends Controller
         foreach ($employees as $emp) {
             $employee = employees::where('user_id', $emp)->where('entreprise_id', Auth::user()->entreprise_id)->first();
 
-            if (!$employee) {
-                continue;
-            }
-
-            // Check if employee already has this task assigned
-            $existingTask = employees_tasks::where('employee_id', $employee->id)
-                ->where('task_id', $task->id)
-                ->where('entreprise_id', Auth::user()->entreprise_id)
-                ->first();
-
-            if ($existingTask) {
-                continue; // Skip if already assigned
-            }
-
-            // Validate task limit for non-SuperAdmin employees (check for ongoing tasks)
-            if (!$this->validateEmployeeTaskLimit($employee)) {
-                return back()->with('alertmessage', 'Employee ' . $employee->name . ' already has an ongoing task. Only SuperAdmin can have multiple ongoing tasks.');
-            }
-
             $employee_task = new employees_tasks;
             $employee_task->employee_id = $employee->id;
             $employee_task->employee_name = $this->getEmployeeDisplayName($employee);
@@ -327,15 +292,49 @@ class tasksController extends Controller
             $admin_task->save();
         }
 
+        // Create a calendar planning event linked to this task
+        // Use task/project/client data and task dates
+        $startDate = $task->start ? Carbon::parse($task->start)->startOfDay() : Carbon::now()->startOfDay();
+        $endDate = $task->end
+            ? Carbon::parse($task->end)->endOfDay()
+            : $startDate->copy()->endOfDay();
+
+        $event = calendars::create([
+            'title'        => $task->title,
+            'description'  => $task->description,
+            // Default color for task-created events (indigo-600)
+            'color'        => '#4f46e5',
+            'is_finished'  => false,
+            'start_date'   => $startDate,
+            'end_date'     => $endDate,
+            'entreprise_id'=> $enterpriseId,
+            'user_id'      => $user_id,
+            'client_id'    => $project->client_id ?? null,
+            'project_id'   => $project->id,
+            'task_id'      => $task->id,
+        ]);
+
+        // Attach all employees assigned to this task to the calendar event
+        $eventEmployeeIds = employees_tasks::where('task_id', $task->id)
+            ->where('entreprise_id', $enterpriseId)
+            ->pluck('employee_id')
+            ->unique()
+            ->values()
+            ->all();
+
+        if (!empty($eventEmployeeIds)) {
+            $event->employees()->sync($eventEmployeeIds);
+        }
+
 
         if (Auth::user()->hasRole('Admin')) {
-            return redirect()->route('admin.projects.show', $projectId)->with('message', 'Task Deleted Successfully');
+            return redirect()->route('admin.projects.show', $projectId)->with('message', 'Task Created Successfully');
         }
         if (Auth::user()->hasRole('Responsable de projet')) {
-            return redirect()->route('Responsable_de_projet.projects.show', $projectId)->with('message', 'Task Deleted Successfully');
+            return redirect()->route('Responsable_de_projet.projects.show', $projectId)->with('message', 'Task Created Successfully');
         }
         if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-            return redirect()->route('Responsable_gestionnaire.projects.show', $projectId)->with('message', 'Task Deleted Successfully');
+            return redirect()->route('Responsable_gestionnaire.projects.show', $projectId)->with('message', 'Task Created Successfully');
         }
 
     }
@@ -438,6 +437,8 @@ class tasksController extends Controller
             'title' => $validated['title'],
             'description' => $validated['description'],
             'estimated_hours' => $request->input('estimated_hours'),
+            'start' => $request->input('start'),
+            'end' => $request->input('end'),
         ]);
 
 
@@ -465,21 +466,7 @@ class tasksController extends Controller
             foreach ($team_members as $member) {
                 $employee = Employees::find($member->employee_id);
                 if ($employee) {
-                    // Check if employee already has this task assigned
-                    $existingTask = employees_tasks::where('employee_id', $employee->id)
-                        ->where('task_id', $task->id)
-                        ->where('entreprise_id', $enterpriseId)
-                        ->first();
-
-                    if ($existingTask) {
-                        continue; // Skip if already assigned
-                    }
-
-                    // Validate task limit for non-SuperAdmin employees (check for ongoing tasks)
-                    if (!$this->validateEmployeeTaskLimit($employee, $task->id)) {
-                        return back()->with('alertmessage', 'Employee ' . $employee->name . ' already has an ongoing task. Only SuperAdmin can have multiple ongoing tasks.');
-                    }
-
+            
                     $employee_task = new employees_tasks;
                     $employee_task->employee_id = $employee->id;
                     $employee_task->employee_name = $this->getEmployeeDisplayName($employee);
@@ -508,21 +495,6 @@ class tasksController extends Controller
         foreach ($employees as $employee_id) {
             $employee = Employees::where('user_id', $employee_id)->first();
             if ($employee) {
-                // Check if employee already has this task assigned
-                $existingTask = employees_tasks::where('employee_id', $employee->id)
-                    ->where('task_id', $task->id)
-                    ->where('entreprise_id', $enterpriseId)
-                    ->first();
-
-                if ($existingTask) {
-                    continue; // Skip if already assigned
-                }
-
-                // Validate task limit for non-SuperAdmin employees (check for ongoing tasks)
-                if (!$this->validateEmployeeTaskLimit($employee, $task->id)) {
-                    return back()->with('alertmessage', 'Employee ' . $employee->name . ' already has an ongoing task. Only SuperAdmin can have multiple ongoing tasks.');
-                }
-
                 $employee_task = new employees_tasks;
                 $employee_task->employee_id = $employee->id;
                 $employee_task->employee_name = $this->getEmployeeDisplayName($employee);
@@ -536,13 +508,13 @@ class tasksController extends Controller
 
 
         if (Auth::user()->hasRole('Admin')) {
-            return redirect()->route('admin.projects.show', $projectId)->with('message', 'Task Deleted Successfully');
+            return redirect()->route('admin.projects.show', $projectId)->with('message', 'Task Updated Successfully');
         }
         if (Auth::user()->hasRole('Responsable de projet')) {
-            return redirect()->route('Responsable_de_projet.projects.show', $projectId)->with('message', 'Task Deleted Successfully');
+            return redirect()->route('Responsable_de_projet.projects.show', $projectId)->with('message', 'Task Updated Successfully');
         }
         if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-            return redirect()->route('Responsable_gestionnaire.projects.show', $projectId)->with('message', 'Task Deleted Successfully');
+            return redirect()->route('Responsable_gestionnaire.projects.show', $projectId)->with('message', 'Task Updated Successfully');
         }
     }
 
@@ -567,6 +539,24 @@ class tasksController extends Controller
 
         $task->delete();
         return back()->with('message', 'task Deleted Successfully');
+    }
+
+    /**
+     * Delete a single tasks_timer entry from pointage table.
+     */
+    public function destroyTimer($id)
+    {
+        $timer = tasks_timer::where('id', $id)
+            ->where('entreprise_id', Auth::user()->entreprise_id)
+            ->first();
+
+        if (!$timer) {
+            return redirect()->back()->with('error', 'Timer entry not found or you are not authorized to delete it.');
+        }
+
+        $timer->delete();
+
+        return redirect()->back()->with('message', 'Timer entry deleted successfully.');
     }
 
     public function status(Tasks $task, Request $request, $status)
@@ -765,9 +755,10 @@ class tasksController extends Controller
 
             } elseif ($start_date->diffInMinutes($end_date) > ($employee->workHours_limit * 60)) {
 
-                $work_hours_interval = new DateInterval('PT' . $employee->workHours_limit . 'H'); // This represents the work hours limit
-                $task_timer->end_date = $start_date->add($work_hours_interval); // This adds the work hours limit to the start date
-                $task_timer->duration = $employee->workHours_limit * 60;
+                // Use minutes directly to support fractional hour limits (e.g. 8.5h = 510 minutes)
+                $work_hours_minutes = (int) round($employee->workHours_limit * 60);
+                $task_timer->end_date = (clone $start_date)->addMinutes($work_hours_minutes);
+                $task_timer->duration = $work_hours_minutes;
                 $cost_per_hour = $employee->cost_per_hour;
                 $cost = $cost_per_hour * ((float) $employee->workHours_limit);
                 $task_timer->cost = $cost;
@@ -815,10 +806,10 @@ class tasksController extends Controller
                 $cost = $cost_per_hour * ((float) 15 / 60);
                 $task_timer->cost = $cost;
             } elseif ($taskduration > ($employee->workHours_limit * 60)) {
-                // Cap duration at work hours limit
-                $work_hours_interval = new DateInterval('PT' . $employee->workHours_limit . 'H');
-                $task_timer->end_date = $start_date->add($work_hours_interval);
-                $task_timer->duration = $employee->workHours_limit * 60;
+                // Cap duration at work hours limit, supporting fractional hours
+                $work_hours_minutes = (int) round($employee->workHours_limit * 60);
+                $task_timer->end_date = (clone $start_date)->addMinutes($work_hours_minutes);
+                $task_timer->duration = $work_hours_minutes;
                 $cost_per_hour = $employee->cost_per_hour;
                 $cost = $cost_per_hour * ((float) $employee->workHours_limit);
                 $task_timer->cost = $cost;
@@ -908,13 +899,22 @@ class tasksController extends Controller
                     ->orWhere('AcceptedDevisProject', '=', 1);
             })
             ->where('archived', 0)
+            ->whereNull('parent_id')  // Exclude subprojects
             ->select('id', 'name', 'tva')  // Explicitly select the TVA field
             ->orderBy('name')
             ->get();
         $enterpriseId = Auth::user()->entreprise_id;
         $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name')->get();
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
-        $allTasks = Tasks::where('entreprise_id', Auth::user()->entreprise_id)->orderBy('title')->get();
+        
+        // Filter tasks by project if project is selected in request
+        $project_id = request()->query('project');
+        $allTasks = Tasks::where('entreprise_id', Auth::user()->entreprise_id);
+        if ($project_id != null && $project_id != '') {
+            $allTasks = $allTasks->where('project_id', $project_id);
+        }
+        $allTasks = $allTasks->orderBy('title')->get();
+        
         $tasks = Tasks::where('user_id', Auth::user()->id)->get();
 
         $employees_tasks = employees_tasks::where('entreprise_id', Auth::user()->entreprise_id)->get();
@@ -938,7 +938,7 @@ class tasksController extends Controller
 
         $today = Carbon::today()->toDateString();
 
-        // Get period invoices for today
+        // Get period invoices for today (any overlapping period)
         $periodInvoices = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
             ->where('type', 'Period')
             ->where(function ($query) use ($today) {
@@ -946,6 +946,19 @@ class tasksController extends Controller
                     ->where('end_date', '>=', $today);
             })
             ->pluck('project_id')
+            ->unique()
+            ->values()
+            ->toArray();
+
+        // Get projects that have a period invoice exactly for today (start_date == end_date == $today)
+        $projectsWithExactInvoices = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
+            ->where('type', 'Period')
+            ->whereDate('start_date', $today)
+            ->whereDate('end_date', $today)
+            ->pluck('project_id')
+            ->map(function ($id) {
+                return (int) $id;
+            })
             ->unique()
             ->values()
             ->toArray();
@@ -959,7 +972,27 @@ class tasksController extends Controller
                 return Carbon::parse($date->start_date)->format('l - Y-m-d'); // Group by date
             });
 
-        return view('admin.tasks.pointage', compact('employees_tasks', 'projects', 'employees', 'teams', 'tasks', 'allTasks', 'tasks_timer', 'clients', 'periodInvoices'));
+        // Get project IDs that have tasks_hours in the selected date range
+        $projectsWithTasks = tasks_timer::whereDate('start_date', $today)
+            ->where('entreprise_id', Auth::user()->entreprise_id)
+            ->whereNotNull('project_id')
+            ->distinct()
+            ->pluck('project_id')
+            ->toArray();
+
+        return view('admin.tasks.pointage', compact(
+            'employees_tasks',
+            'projects',
+            'employees',
+            'teams',
+            'tasks',
+            'allTasks',
+            'tasks_timer',
+            'clients',
+            'periodInvoices',
+            'projectsWithTasks',
+            'projectsWithExactInvoices'
+        ));
     }
 
 
@@ -971,6 +1004,7 @@ class tasksController extends Controller
                     ->orWhere('AcceptedDevisProject', '=', 1);
             })
             ->where('archived', 0)
+            ->whereNull('parent_id')  // Exclude subprojects
             ->select('id', 'name', 'tva')  // Explicitly select the TVA field
             ->orderBy('name')
             ->get();
@@ -1002,7 +1036,7 @@ class tasksController extends Controller
         $startDate = Carbon::parse($request->input('start_date'))->toDateString();
         $endDate = Carbon::parse($request->input('end_date'))->toDateString();
 
-        // Get period invoices for the date range
+        // Get period invoices for the date range (any overlapping period)
         $periodInvoices = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
             ->where('type', 'Period')
             ->where(function ($query) use ($startDate, $endDate) {
@@ -1013,11 +1047,20 @@ class tasksController extends Controller
                             ->where('end_date', '>=', $endDate);
                     });
             })
-            ->get();
+            ->pluck('project_id')
+            ->map(function ($id) {
+                return (int) $id;
+            })
+            ->unique()
+            ->values()
+            ->toArray();
 
-
-        // Convert to array of project IDs and ensure they are integers
-        $periodInvoices = $periodInvoices->pluck('project_id')
+        // Get projects that have a period invoice exactly matching the selected range
+        $projectsWithExactInvoices = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
+            ->where('type', 'Period')
+            ->whereDate('start_date', $startDate)
+            ->whereDate('end_date', $endDate)
+            ->pluck('project_id')
             ->map(function ($id) {
                 return (int) $id;
             })
@@ -1043,6 +1086,22 @@ class tasksController extends Controller
                 ->groupBy(function ($date) {
                     return Carbon::parse($date->start_date)->format('l - Y-m-d'); // Group by date
                 });
+            
+            // Get project IDs that have tasks_hours in the selected date range
+            $projectsWithTasks = tasks_timer::where('start_date', '>=', $startDate)
+                ->where('entreprise_id', Auth::user()->entreprise_id)
+                ->where(function ($query) use ($endDate) {
+                    $inclusiveEndDate = Carbon::parse($endDate)->addDay()->format('Y-m-d');
+                    $query->where(function ($q) use ($inclusiveEndDate) {
+                        $q->where('end_date', '<', $inclusiveEndDate)
+                            ->whereNotNull('end_date')
+                            ->orWhereNull('end_date');
+                    });
+                })
+                ->whereNotNull('project_id')
+                ->distinct()
+                ->pluck('project_id')
+                ->toArray();
         } else {
             $tasks_timer = tasks_timer::whereDate('start_date', $startDate)
                 ->where('entreprise_id', Auth::user()->entreprise_id)
@@ -1051,9 +1110,29 @@ class tasksController extends Controller
                 ->groupBy(function ($date) {
                     return Carbon::parse($date->start_date)->format('l - Y-m-d'); // Group by date
                 });
+            
+            // Get project IDs that have tasks_hours in the selected date range
+            $projectsWithTasks = tasks_timer::whereDate('start_date', $startDate)
+                ->where('entreprise_id', Auth::user()->entreprise_id)
+                ->whereNotNull('project_id')
+                ->distinct()
+                ->pluck('project_id')
+                ->toArray();
         }
 
-        return view('admin.tasks.pointage', compact('employees_tasks', 'projects', 'employees', 'teams', 'tasks', 'allTasks', 'tasks_timer', 'clients', 'periodInvoices'));
+        return view('admin.tasks.pointage', compact(
+            'employees_tasks',
+            'projects',
+            'employees',
+            'teams',
+            'tasks',
+            'allTasks',
+            'tasks_timer',
+            'clients',
+            'periodInvoices',
+            'projectsWithTasks',
+            'projectsWithExactInvoices'
+        ));
     }
 
     public function filterPointageTable(Request $request)
@@ -1064,13 +1143,22 @@ class tasksController extends Controller
                     ->orWhere('AcceptedDevisProject', '=', 1);
             })
             ->where('archived', 0)
+            ->whereNull('parent_id')  // Exclude subprojects
             ->select('id', 'name', 'tva')  // Explicitly select the TVA field
             ->orderBy('name')
             ->get();
         $enterpriseId = Auth::user()->entreprise_id;
         $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name')->get();
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
-        $allTasks = Tasks::where('entreprise_id', Auth::user()->entreprise_id)->orderBy('title')->get();
+        
+        // Filter tasks by project if project is selected
+        $project_id = $request->query('project');
+        $allTasks = Tasks::where('entreprise_id', Auth::user()->entreprise_id);
+        if ($project_id != null && $project_id != '') {
+            $allTasks = $allTasks->where('project_id', $project_id);
+        }
+        $allTasks = $allTasks->orderBy('title')->get();
+        
         $tasks = Tasks::where('user_id', Auth::user()->id)->get();
         $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)
             ->where(function ($query) {
@@ -1100,7 +1188,7 @@ class tasksController extends Controller
         $client_id = $request->query('client');
         $project_type = $request->query('project_type');
 
-        // Get period invoices for the date range
+        // Get period invoices for the date range (any overlapping period)
         $periodInvoices = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
             ->where('type', 'Period')
             ->where(function ($query) use ($startDate, $endDate) {
@@ -1111,9 +1199,25 @@ class tasksController extends Controller
                             ->where('end_date', '>=', $endDate);
                     });
             })
-            ->get()
             ->pluck('project_id')
+            ->map(function ($id) {
+                return (int) $id;
+            })
             ->unique()
+            ->values()
+            ->toArray();
+
+        // Get projects that have a period invoice exactly matching the selected range
+        $projectsWithExactInvoices = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
+            ->where('type', 'Period')
+            ->whereDate('start_date', $startDate)
+            ->whereDate('end_date', $endDate)
+            ->pluck('project_id')
+            ->map(function ($id) {
+                return (int) $id;
+            })
+            ->unique()
+            ->values()
             ->toArray();
 
         // Base query builder
@@ -1160,6 +1264,7 @@ class tasksController extends Controller
         }
 
         // Filter by multiple tasks if provided
+        // If "all" is in the array, don't filter by tasks (show all tasks)
         if (!empty($taskIds)) {
             $flatTaskIds = [];
             foreach ($taskIds as $val) {
@@ -1171,9 +1276,11 @@ class tasksController extends Controller
                     $flatTaskIds[] = $val;
                 }
             }
+            // Filter out empty values and "all" option
             $flatTaskIds = array_filter($flatTaskIds, function ($v) {
-                return $v !== '' && $v !== null;
+                return $v !== '' && $v !== null && $v !== 'all';
             });
+            // Only apply task filter if there are specific tasks selected (not "all")
             if (!empty($flatTaskIds)) {
                 $query->whereIn('task_id', $flatTaskIds);
             }
@@ -1186,7 +1293,42 @@ class tasksController extends Controller
                 return Carbon::parse($date->start_date)->format('l - Y-m-d');
             });
 
-        return view('admin.tasks.pointage', compact('employees_tasks', 'projects', 'employees', 'teams', 'tasks', 'allTasks', 'tasks_timer', 'clients', 'periodInvoices'));
+        // Get project IDs that have tasks_hours in the selected date range
+        $projectsWithTasksQuery = tasks_timer::where('entreprise_id', Auth::user()->entreprise_id);
+        
+        if ($request->input('start_date') != null && $request->input('end_date') != null) {
+            $projectsWithTasksQuery->where('start_date', '>=', $startDate)
+                ->where(function ($query) use ($endDate) {
+                    $inclusiveEndDate = Carbon::parse($endDate)->addDay()->format('Y-m-d');
+                    $query->where(function ($q) use ($inclusiveEndDate) {
+                        $q->where('end_date', '<', $inclusiveEndDate)
+                            ->whereNotNull('end_date')
+                            ->orWhereNull('end_date');
+                    });
+                });
+        } else {
+            $projectsWithTasksQuery->whereDate('start_date', $startDate);
+        }
+        
+        $projectsWithTasks = $projectsWithTasksQuery
+            ->whereNotNull('project_id')
+            ->distinct()
+            ->pluck('project_id')
+            ->toArray();
+
+        return view('admin.tasks.pointage', compact(
+            'employees_tasks',
+            'projects',
+            'employees',
+            'teams',
+            'tasks',
+            'allTasks',
+            'tasks_timer',
+            'clients',
+            'periodInvoices',
+            'projectsWithTasks',
+            'projectsWithExactInvoices'
+        ));
     }
 
     public function get_timer_state()
@@ -1429,13 +1571,52 @@ class tasksController extends Controller
 
     public function downloadTasksRepports()
     {
-        $tasks = Tasks::where('entreprise_id', auth()->user()->entreprise_id)->orderBy('project_id', 'asc')->get();
-        $entreprise = Entreprise::where('id', auth()->user()->entreprise_id)->first();
+        // Increase limits a bit to better handle larger reports
+        // (consider also raising limits in php.ini for production if needed)
+        @ini_set('max_execution_time', 300);
+        @ini_set('memory_limit', '512M');
+
+        $entrepriseId = auth()->user()->entreprise_id;
+
+        // Only select the columns we actually need in the PDF
+        $tasks = Tasks::where('entreprise_id', $entrepriseId)
+            ->orderBy('project_id', 'asc')
+            ->select('id', 'title', 'project_name', 'start', 'end', 'description')
+            ->get();
+
+        // If there are no tasks, return a very small PDF instead of doing heavy work
+        $entreprise = Entreprise::where('id', $entrepriseId)->first();
+        if ($tasks->isEmpty()) {
+            $pdf = PDF::loadView('admin.tasks.downloadRepports', [
+                'tasks' => $tasks,
+                'entreprise' => $entreprise,
+                'employeesByTask' => collect(),
+                'teamsByTask' => collect(),
+            ]);
+            return $pdf->download('tasksRepports.pdf');
+        }
+
+        $taskIds = $tasks->pluck('id');
+
+        // Preload employees and teams for all tasks in a few queries instead of inside the Blade loop
+        $employeesByTask = employees_tasks::with('employee:id,name')
+            ->whereIn('task_id', $taskIds)
+            ->get()
+            ->groupBy('task_id');
+
+        $teamsByTask = team_tasks::with('team:id,name')
+            ->whereIn('task_id', $taskIds)
+            ->get()
+            ->groupBy('task_id');
+
         $pdf = PDF::loadView('admin.tasks.downloadRepports', [
             'tasks' => $tasks,
             'entreprise' => $entreprise,
-        ]);
-        return $pdf->stream('tasksRepports.pdf');
+            'employeesByTask' => $employeesByTask,
+            'teamsByTask' => $teamsByTask,
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download('tasksRepports.pdf');
     }
 
     public function downloadPointageRepports($startDate, $endDate)
@@ -1476,8 +1657,53 @@ class tasksController extends Controller
         $entreprise = Entreprise::find(Auth::user()->entreprise_id);
         $project = $projectId ? Project::find($projectId) : null;
 
+        // Detect and filter out problematic tasks (e.g., missing project or cost_per_hour)
+        $skippedTasks = [];
+        $filteredTasks = $tasks_timer->filter(function ($task) use (&$skippedTasks) {
+            $projectId = Tasks::where('id', $task->task_id)->value('project_id');
+            $employeeName = Employees::where('id', $task->employee_id)->value('name');
+
+            $taskInfo = [
+                'task_id'       => $task->task_id,
+                'task_name'     => $task->task_name ?? ('Task #' . $task->task_id),
+                'project_id'    => $projectId,
+                'project_name'  => null,
+                'employee_id'   => $task->employee_id,
+                'employee_name' => $employeeName,
+                'start_date'    => $task->start_date,
+                'end_date'      => $task->end_date,
+                'duration'      => $task->duration,
+            ];
+
+            if (!$projectId) {
+                $skippedTasks[] = $taskInfo;
+                return false;
+            }
+
+            $projectForTask = Project::find($projectId);
+            $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
+
+            if (!$projectForTask || !isset($projectForTask->cost_per_hour)) {
+                $skippedTasks[] = $taskInfo;
+                return false;
+            }
+
+            return true;
+        })->values();
+
+        $tasks_timer = $filteredTasks;
+
         $pdf = PDF::loadView('admin.tasks.downloadPointageRepports', compact('tasks_timer', 'entreprise', 'startDate', 'endDate', 'project'));
-        return $pdf->download($fileName . '.pdf');
+
+        $response = $pdf->download($fileName . '.pdf');
+
+        if (!empty($skippedTasks)) {
+            // Encode list of skipped tasks (with details) into a response header for the frontend
+            $encoded = base64_encode(json_encode($skippedTasks));
+            $response->headers->set('X-Skipped-Tasks', $encoded);
+        }
+
+        return $response;
     }
 
     public function CustomerdownloadPointageRepports($startDate, $endDate)
@@ -1518,6 +1744,42 @@ class tasksController extends Controller
             $tasks_timer = $query->orderBy('start_date')->get();
             $entreprise = Entreprise::find(Auth::user()->entreprise_id);
             $project = $projectId ? Project::find($projectId) : null;
+
+            // Detect and filter out problematic tasks for customer PDF
+            $skippedTasks = [];
+            $filteredTasks = $tasks_timer->filter(function ($task) use (&$skippedTasks) {
+                $projectIdForTask = Tasks::where('id', $task->task_id)->value('project_id');
+                $employeeName = Employees::where('id', $task->employee_id)->value('name');
+
+                $taskInfo = [
+                    'task_id'       => $task->task_id,
+                    'task_name'     => $task->task_name ?? ('Task #' . $task->task_id),
+                    'project_id'    => $projectIdForTask,
+                    'project_name'  => null,
+                    'employee_id'   => $task->employee_id,
+                    'employee_name' => $employeeName,
+                    'start_date'    => $task->start_date,
+                    'end_date'      => $task->end_date,
+                    'duration'      => $task->duration,
+                ];
+
+                if (!$projectIdForTask) {
+                    $skippedTasks[] = $taskInfo;
+                    return false;
+                }
+
+                $projectForTask = Project::find($projectIdForTask);
+                $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
+
+                if (!$projectForTask || !isset($projectForTask->cost_per_hour)) {
+                    $skippedTasks[] = $taskInfo;
+                    return false;
+                }
+
+                return true;
+            })->values();
+
+            $tasks_timer = $filteredTasks;
 
             // Ensure the image path is valid
             $imagePath = null;
@@ -1563,7 +1825,8 @@ class tasksController extends Controller
                 'taskIds' => $taskIds,
                 'clientId' => $clientId,
                 'projectContacts' => $projectContacts,
-                'projectName' => $project ? $project->name : ''
+                'projectName' => $project ? $project->name : '',
+                'skippedTasks' => $skippedTasks,
             ]);
         } catch (\Exception $e) {
             \Log::error('PDF Generation Error: ' . $e->getMessage());
@@ -1609,8 +1872,52 @@ class tasksController extends Controller
         $entreprise = Entreprise::find(Auth::user()->entreprise_id);
         $project = $projectId ? Project::find($projectId) : null;
 
+        // Detect and filter out problematic tasks
+        $skippedTasks = [];
+        $filteredTasks = $tasks_timer->filter(function ($task) use (&$skippedTasks) {
+            $projectId = Tasks::where('id', $task->task_id)->value('project_id');
+            $employeeName = Employees::where('id', $task->employee_id)->value('name');
+
+            $taskInfo = [
+                'task_id'       => $task->task_id,
+                'task_name'     => $task->task_name ?? ('Task #' . $task->task_id),
+                'project_id'    => $projectId,
+                'project_name'  => null,
+                'employee_id'   => $task->employee_id,
+                'employee_name' => $employeeName,
+                'start_date'    => $task->start_date,
+                'end_date'      => $task->end_date,
+                'duration'      => $task->duration,
+            ];
+
+            if (!$projectId) {
+                $skippedTasks[] = $taskInfo;
+                return false;
+            }
+
+            $projectForTask = Project::find($projectId);
+            $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
+
+            if (!$projectForTask || !isset($projectForTask->cost_per_hour)) {
+                $skippedTasks[] = $taskInfo;
+                return false;
+            }
+
+            return true;
+        })->values();
+
+        $tasks_timer = $filteredTasks;
+
         $pdf = PDF::loadView('admin.tasks.downloadOneDayPointageRepports', compact('tasks_timer', 'entreprise', 'startDate', 'project'));
-        return $pdf->download($fileName . '.pdf');
+
+        $response = $pdf->download($fileName . '.pdf');
+
+        if (!empty($skippedTasks)) {
+            $encoded = base64_encode(json_encode($skippedTasks));
+            $response->headers->set('X-Skipped-Tasks', $encoded);
+        }
+
+        return $response;
     }
 
     public function CustomerdownloadOneDayRepports(Request $request, $startDate)
@@ -1651,6 +1958,42 @@ class tasksController extends Controller
         $entreprise = Entreprise::find(Auth::user()->entreprise_id);
         $project = $projectId ? Project::find($projectId) : null;
 
+        // Detect and filter out problematic tasks for customer one-day PDF
+        $skippedTasks = [];
+        $filteredTasks = $tasks_timer->filter(function ($task) use (&$skippedTasks) {
+            $projectIdForTask = Tasks::where('id', $task->task_id)->value('project_id');
+            $employeeName = Employees::where('id', $task->employee_id)->value('name');
+
+            $taskInfo = [
+                'task_id'       => $task->task_id,
+                'task_name'     => $task->task_name ?? ('Task #' . $task->task_id),
+                'project_id'    => $projectIdForTask,
+                'project_name'  => null,
+                'employee_id'   => $task->employee_id,
+                'employee_name' => $employeeName,
+                'start_date'    => $task->start_date,
+                'end_date'      => $task->end_date,
+                'duration'      => $task->duration,
+            ];
+
+            if (!$projectIdForTask) {
+                $skippedTasks[] = $taskInfo;
+                return false;
+            }
+
+            $projectForTask = Project::find($projectIdForTask);
+            $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
+
+            if (!$projectForTask || !isset($projectForTask->cost_per_hour)) {
+                $skippedTasks[] = $taskInfo;
+                return false;
+            }
+
+            return true;
+        })->values();
+
+        $tasks_timer = $filteredTasks;
+
         $pdf = PDF::loadView('admin.tasks.CustomerdownloadOneDayPointageRepports', [
             'tasks_timer' => $tasks_timer,
             'entreprise' => $entreprise,
@@ -1683,7 +2026,8 @@ class tasksController extends Controller
             'taskIds' => $taskIds,
             'clientId' => $clientId,
             'projectContacts' => $projectContacts,
-            'projectName' => $project ? $project->name : ''
+            'projectName' => $project ? $project->name : '',
+            'skippedTasks' => $skippedTasks,
         ]);
     }
 
@@ -1860,6 +2204,80 @@ class tasksController extends Controller
         return response()->json($tasks);
     }
 
+    public function moveTask(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'task_id' => 'required|exists:tasks,id',
+                'new_project_id' => 'required|exists:projects,id'
+            ]);
+
+            $enterpriseId = auth()->user()->entreprise_id;
+            
+            // Get task and verify it belongs to user's enterprise
+            $task = Tasks::where('id', $validated['task_id'])
+                ->where('entreprise_id', $enterpriseId)
+                ->first();
+
+            if (!$task) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Task not found or unauthorized access.'
+                ], 403);
+            }
+
+            // Get new project and verify it belongs to user's enterprise
+            $newProject = Project::where('id', $validated['new_project_id'])
+                ->where('entreprise_id', $enterpriseId)
+                ->where('archived', 0)
+                ->first();
+
+            if (!$newProject) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Project not found, archived, or unauthorized access.'
+                ], 403);
+            }
+
+            // Update task project_id and project_name
+            $task->project_id = $validated['new_project_id'];
+            $task->project_name = $newProject->name;
+            $task->save();
+
+            // Update all related tasks_timer entries
+            tasks_timer::where('task_id', $task->id)
+                ->update([
+                    'project_id' => $validated['new_project_id']
+                ]);
+
+            // Determine the redirect route based on user role
+            $redirectRoute = '';
+            if (Auth::user()->hasRole('Admin')) {
+                $redirectRoute = route('admin.projects.show', $validated['new_project_id']);
+            } elseif (Auth::user()->hasRole('Responsable de projet')) {
+                $redirectRoute = route('Responsable_de_projet.projects.show', $validated['new_project_id']);
+            } elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                $redirectRoute = route('Responsable_gestionnaire.projects.show', $validated['new_project_id']);
+            } elseif (Auth::user()->hasRole('Employee')) {
+                $redirectRoute = route('employee.projects.show', $validated['new_project_id']);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Task moved successfully.',
+                'redirect_url' => $redirectRoute,
+                'new_project_id' => $validated['new_project_id']
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Move Task Error: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to move task: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function getClientProjects($clientId)
     {
         // Get all projects for this client
@@ -1977,6 +2395,37 @@ class tasksController extends Controller
             $entreprise = Entreprise::find(Auth::user()->entreprise_id);
             $project = $projectId ? Project::find($projectId) : null;
 
+            // Detect problematic tasks (same rules as other customer PDFs)
+            $skippedTasks = [];
+            $tasks_timer->each(function ($task) use (&$skippedTasks) {
+                $projectIdForTask = Tasks::where('id', $task->task_id)->value('project_id');
+                $employeeName = Employees::where('id', $task->employee_id)->value('name');
+
+                $taskInfo = [
+                    'task_id'       => $task->task_id,
+                    'task_name'     => $task->task_name ?? ('Task #' . $task->task_id),
+                    'project_id'    => $projectIdForTask,
+                    'project_name'  => null,
+                    'employee_id'   => $task->employee_id,
+                    'employee_name' => $employeeName,
+                    'start_date'    => $task->start_date,
+                    'end_date'      => $task->end_date,
+                    'duration'      => $task->duration,
+                ];
+
+                if (!$projectIdForTask) {
+                    $skippedTasks[] = $taskInfo;
+                    return;
+                }
+
+                $projectForTask = Project::find($projectIdForTask);
+                $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
+
+                if (!$projectForTask || !isset($projectForTask->cost_per_hour)) {
+                    $skippedTasks[] = $taskInfo;
+                }
+            });
+
             // Get project contacts if project is selected
             $projectContacts = [];
             if ($project) {
@@ -2000,7 +2449,8 @@ class tasksController extends Controller
                 'taskIds' => $taskIds,
                 'clientId' => $clientId,
                 'projectContacts' => $projectContacts,
-                'projectName' => $project ? $project->name : ''
+                'projectName' => $project ? $project->name : '',
+                'skippedTasks' => $skippedTasks,
             ]);
         } catch (\Exception $e) {
             \Log::error('Error in previewCustomerReport: ' . $e->getMessage());
@@ -2059,6 +2509,37 @@ class tasksController extends Controller
             $entreprise = Entreprise::find(Auth::user()->entreprise_id);
             $project = $projectId ? Project::find($projectId) : null;
 
+            // Detect problematic tasks (same rules as other customer PDFs)
+            $skippedTasks = [];
+            $tasks_timer->each(function ($task) use (&$skippedTasks) {
+                $projectIdForTask = Tasks::where('id', $task->task_id)->value('project_id');
+                $employeeName = Employees::where('id', $task->employee_id)->value('name');
+
+                $taskInfo = [
+                    'task_id'       => $task->task_id,
+                    'task_name'     => $task->task_name ?? ('Task #' . $task->task_id),
+                    'project_id'    => $projectIdForTask,
+                    'project_name'  => null,
+                    'employee_id'   => $task->employee_id,
+                    'employee_name' => $employeeName,
+                    'start_date'    => $task->start_date,
+                    'end_date'      => $task->end_date,
+                    'duration'      => $task->duration,
+                ];
+
+                if (!$projectIdForTask) {
+                    $skippedTasks[] = $taskInfo;
+                    return;
+                }
+
+                $projectForTask = Project::find($projectIdForTask);
+                $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
+
+                if (!$projectForTask || !isset($projectForTask->cost_per_hour)) {
+                    $skippedTasks[] = $taskInfo;
+                }
+            });
+
             // Get project contacts if project is selected
             $projectContacts = [];
             if ($project) {
@@ -2082,7 +2563,8 @@ class tasksController extends Controller
                 'taskIds' => $taskIds,
                 'clientId' => $clientId,
                 'projectContacts' => $projectContacts,
-                'projectName' => $project ? $project->name : ''
+                'projectName' => $project ? $project->name : '',
+                'skippedTasks' => $skippedTasks,
             ]);
         } catch (\Exception $e) {
             \Log::error('Error in previewOneDayCustomerReport: ' . $e->getMessage());
@@ -2204,6 +2686,25 @@ class tasksController extends Controller
             $tasks_timer = $query->orderBy('start_date')->get();
             $entreprise = Entreprise::find(Auth::user()->entreprise_id);
             $project = $projectId ? Project::find($projectId) : null;
+
+            // Filter out problematic tasks so the streamed PDF matches preview rules
+            $filteredTasks = $tasks_timer->filter(function ($task) {
+                $projectIdForTask = Tasks::where('id', $task->task_id)->value('project_id');
+
+                if (!$projectIdForTask) {
+                    return false;
+                }
+
+                $projectForTask = Project::find($projectIdForTask);
+
+                if (!$projectForTask || !isset($projectForTask->cost_per_hour)) {
+                    return false;
+                }
+
+                return true;
+            })->values();
+
+            $tasks_timer = $filteredTasks;
 
             // Generate PDF
             $pdf = PDF::loadView('admin.tasks.CustomerdownloadPointageRepports', [

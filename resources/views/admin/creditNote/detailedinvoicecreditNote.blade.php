@@ -106,10 +106,11 @@
 
     <div class="container">
         <div class="header">
-            @if($entreprise->logo)
-                <img src="{{ asset('storage/'.$entreprise->logo) }}" alt="Logo">
-            @endif
-            <div>{{ $entreprise->name }}</div>
+            <div class="header logo-right">
+                @if($entreprise->image)
+                        <img src="{{ storage_path('app/public/' . $entreprise->image) }}" alt="Company Logo" class="company-logo">
+                    @endif
+            </div>
         </div>
 
         <div class="details-container">
@@ -153,7 +154,7 @@
                 @foreach($details as $detail)
                 <tr>
                     <td>{{$detail['description']}}</td>
-                    <td>-{{$detail['quantity']}}</td>
+                    <td>-{{ number_format($detail['quantity'], 2, ',', '') }}</td>
                     <td>{{number_format($detail['unit_price'], 2, ',', '')}}€</td>
                     <td>-{{number_format($detail['total'], 2, ',', '')}}€</td>
                     @if($partial == 1)

@@ -167,7 +167,7 @@
                         }
                     @endphp
                     @if(!empty($devis_number))<br>
-                    Sold devis : {{$entreprise->devis_prefix}}-{{$devis_number}}
+                    Solde devis : {{$entreprise->devis_prefix}}-{{$devis_number}}
                     @endif
                 </p>
             </div>

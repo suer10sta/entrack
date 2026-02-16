@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Devis History - DailyTrac</title>
+    <title>Devis History - DalyTrac</title>
     @vite('resources/css/app.css') 
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -55,7 +55,11 @@
 
 <body class="bg-gray-100 flex h-screen overflow-hidden font-sans" x-data>
     {{-- Sidebar Component --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     <div class="flex flex-col flex-1 overflow-y-auto">
         {{-- Navbar Component --}}
@@ -120,9 +124,24 @@
 
              {{-- 3. Totals  Cards Section --}}
              @php
+                 $currentYear = date('Y');
                  $Total_Accpeted = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)->where('acceptanceStatus', 1)->sum('budget');
                  $Total_Declined = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)->where('acceptanceStatus', 2)->sum('budget');
                  $Total_Pending = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)->where('acceptanceStatus', 0)->sum('budget');
+                 
+                 // Current year totals
+                 $Total_AccpetedCurrentYear = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)
+                                                        ->where('acceptanceStatus', 1)
+                                                        ->whereYear('created_at', $currentYear)
+                                                        ->sum('budget');
+                 $Total_DeclinedCurrentYear = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)
+                                                        ->where('acceptanceStatus', 2)
+                                                        ->whereYear('created_at', $currentYear)
+                                                        ->sum('budget');
+                 $Total_PendingCurrentYear = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)
+                                                        ->where('acceptanceStatus', 0)
+                                                        ->whereYear('created_at', $currentYear)
+                                                        ->sum('budget');
              @endphp
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div id="cardAccepted" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer">
@@ -131,9 +150,10 @@
                           <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                     </div>
-                    <div>
+                    <div class="flex-1">
                         <p class="text-xs text-gray-500 uppercase font-medium">TOTAL ACCEPTED</p>
-                        <p class="text-xl font-semibold text-green-600">€{{ number_format($Total_Accpeted, 2, ',', ' ') }}</p> 
+                        <p class="text-xl font-semibold text-green-600">€{{ number_format($Total_Accpeted, 2, ',', ' ') }}</p>
+                        <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($Total_AccpetedCurrentYear, 2, ',', ' ') }}</p>
                     </div>
                 </div>
                  {{-- Total Declined Card --}}
@@ -144,9 +164,10 @@
                           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     </div>
-                    <div>
+                    <div class="flex-1">
                         <p class="text-xs text-gray-500 uppercase font-medium">TOTAL DECLINED</p>
-                        <p class="text-xl font-semibold text-red-600">€{{ number_format($Total_Declined, 2, ',', ' ') }}</p> 
+                        <p class="text-xl font-semibold text-red-600">€{{ number_format($Total_Declined, 2, ',', ' ') }}</p>
+                        <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($Total_DeclinedCurrentYear, 2, ',', ' ') }}</p>
                     </div>
                 </div>
                  {{-- Total Pending Card --}}
@@ -157,9 +178,10 @@
                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                          </svg>
                     </div>
-                    <div>
+                    <div class="flex-1">
                         <p class="text-xs text-gray-500 uppercase font-medium">TOTAL PENDING</p>
                         <p class="text-xl font-semibold text-yellow-600">€{{ number_format($Total_Pending, 2, ',', ' ') }}</p>
+                        <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($Total_PendingCurrentYear, 2, ',', ' ') }}</p>
                     </div>
                 </div>
             </div>
@@ -251,7 +273,7 @@
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 text-right">
                                     @php
-                                        $devisInvoicesTotal = \App\Models\invoices_history::where('devis_id', $d->id)->sum('total_htva');
+                                        $devisInvoicesTotal = \App\Models\invoices_history::where('devis_id', $d->id)->where('Payment_status', '!=', -1)->sum('total_htva');
                                         $unbilledBudget = ($d->budget ?? 0) - ($devisInvoicesTotal ?? 0);
                                     @endphp
                                     €{{ number_format(max($unbilledBudget, 0), 2, ',', ' ') }}

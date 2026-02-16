@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DailyTrac Dashboard</title>
+    <title>DalyTrac Dashboard</title>
     @vite('resources/css/app.css')
     
     {{-- This CSS block styles the "editable" fields to look like text until double-clicked --}}
@@ -38,7 +38,11 @@
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     <div class="flex flex-col flex-1 overflow-y-auto">
         {{-- Navbar --}}
@@ -140,6 +144,18 @@
                                         <input class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent editable"    
                                             data-id="{{$employee->id}}" data-column="workhours_limit"  type="text"
                                             name="workHours_limit" value="{{ $employee->workHours_limit }}" readonly/>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">Timezone</label>
+                                        <select class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent editable-select" 
+                                            data-id="{{$employee->id}}" data-column="timezone" type="text"
+                                            name="timezone">
+                                            @foreach (timezone_identifiers_list() as $tz)
+                                                <option value="{{ $tz }}" @if($user->timezone == $tz) selected @endif>
+                                                    {{ $tz }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">&nbsp;</label>
@@ -567,6 +583,7 @@
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Est. Hours</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Difference</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Chrono</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -656,6 +673,67 @@
                                                     </div>
                                                     <div class="{{ $taskProgressColor }} h-3 rounded-full" style="width: {{min($taskformattedProgressPercentage, 100)}}%"></div>
                                                 </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                @php
+                                                    // Determine route prefix based on current user's role
+                                                    $taskRoutePrefix = 'admin.'; // Default for Admin / SuperAdmin
+                                                    if (Auth::user()->hasRole('Responsable de projet')) {
+                                                        $taskRoutePrefix = 'Responsable_de_projet.';
+                                                    } elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                                                        $taskRoutePrefix = 'Responsable_gestionnaire.';
+                                                    } elseif (Auth::user()->hasRole('Employee')) {
+                                                        $taskRoutePrefix = 'employee.';
+                                                    }
+
+                                                    // Link employees_tasks row for this employee & task
+                                                    $employeeTask = App\Models\employees_tasks::where('employee_id', $employee->id)
+                                                        ->where('task_id', $task->id)
+                                                        ->first();
+
+                                                    $taskTimer = null;
+                                                    if ($employeeTask) {
+                                                        $taskTimer = App\Models\tasks_timer::where('task_employee_id', $employeeTask->id)
+                                                            ->whereNull('end_date')
+                                                            ->first();
+                                                    }
+                                                @endphp
+
+                                                @if($employeeTask && (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('SuperAdmin') || Auth::user()->hasRole('super_admin')))
+                                                    @if(!$taskTimer)
+                                                        <form class="flex flex-col gap-1" action="{{ route($taskRoutePrefix . 'tasks.start', ['tasks' => $employeeTask->id, 'employee_id' => $employee->id]) }}" method="POST">
+                                                            @csrf
+                                                            <textarea
+                                                                name="comment"
+                                                                class="block w-full rounded-lg border-gray-300 shadow-sm sm:text-xs py-1 px-2"
+                                                                placeholder="Comment"
+                                                                rows="1"
+                                                            ></textarea>
+                                                            <button
+                                                                type="submit"
+                                                                class="mt-1 inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
+                                                            >
+                                                                Start
+                                                            </button>
+                                                        </form>
+                                                    @else
+                                                        <form
+                                                            class="flex items-center justify-center"
+                                                            action="{{ route($taskRoutePrefix . 'tasks.stop', ['tasks' => $employeeTask->id, 'employee_id' => $employee->id]) }}"
+                                                            method="POST"
+                                                        >
+                                                            @csrf
+                                                            <button
+                                                                type="submit"
+                                                                class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+                                                            >
+                                                                Stop
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                @else
+                                                    <span class="text-xs text-gray-400">-</span>
+                                                @endif
                                             </td>
                                         </tr>
                                         @endforeach
@@ -778,6 +856,39 @@ Pour Stabel</textarea>
                     });
                 }
             });
+
+            $(".editable-select").change(function(){
+                    var newContent = $(this).val();
+                    var employeeId = $(this).data('id');
+                    var columnName = $(this).attr('name');
+
+                    var updatedUrl = '';
+
+                    @if(Auth::user()->hasRole('Responsable de projet'))
+                        updatedUrl = '/Responsable_de_projet/employees/updateEmployee';
+                    @elseif(Auth::user()->hasRole('Admin'))
+                        updatedUrl = '/admin/employees/updateEmployee';
+                    @elseif(Auth::user()->hasRole('Employee'))
+                        updatedUrl = '/employee/employees/updateEmployee';
+                    @endif 
+
+                    $.ajax({
+                        url: updatedUrl, // your update route
+                        type: 'post',
+                        data: {
+                            content: newContent,
+                            id: employeeId,
+                            column: columnName,
+                            _token: '{{ csrf_token() }}' // add CSRF token for Laravel
+                        },
+                        success: function(response) {
+                            location.reload();
+                        },
+                        error: function(response) {
+                            location.reload();
+                        }
+                    });
+                });
 
             // --- Script for Work Days Table ---
             $("#editableTable").on("dblclick", ".editable", function(){

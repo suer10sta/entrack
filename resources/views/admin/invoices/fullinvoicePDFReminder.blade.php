@@ -190,7 +190,9 @@
         <div class="content-wrapper">
             <div class="header">
                 <div class="logo-right">
-                    <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                    @if(Auth::user()->entreprise && Auth::user()->entreprise->image)
+                        <img src="{{ storage_path('app/public/' . Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                    @endif
                 </div>
             </div>
 
@@ -293,7 +295,7 @@
                 <strong>{{number_format($budget + ($budget*($projectinfos->tva/100)), 2, ',', '')}}€</strong>
                 sur le compte mentionné ci-dessous avant le
                 {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}
-                en mentionnant le numéro Facture <strong>{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif</strong><br>
+                en mentionnant le numéro Facture <strong>{{ $invoice->created_at->format('ym') }}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif</strong><br>
                 - Dans le cas de livraison intracommunautaire pour les services :  "Autoliquidation Art 21 § 2 du code TVA belge"
                 <br>
                 - Voir conditions générales en annexe<br>

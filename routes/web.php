@@ -2,6 +2,7 @@
 
 use App\Models\Tasks;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\admin\adminController;
@@ -24,8 +25,13 @@ use App\Http\Controllers\admin\BillitController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\admin\CalendarController;
 use App\Http\Controllers\admin\SubscriptionController;
+use App\Http\Controllers\manager\ManagerAuthController;
+use App\Http\Controllers\manager\ManagerDashboardController;
+use App\Http\Controllers\manager\ManagerSubscriptionController;
 use App\Http\Controllers\LangController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\admin\SearchController;
 
 
 /*
@@ -47,6 +53,8 @@ Route::get('/contact', function () {
     return view('components.Home_page.contact');
 })->name('contact');
 
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+
 Route::get('/about', function () {
     return view('components.Home_page.about');
 })->name('about');
@@ -54,6 +62,14 @@ Route::get('/about', function () {
 Route::get('/faq', function () {
     return view('components.Home_page.faq');
 })->name('faq');
+
+Route::get('/demo', function () {
+    return view('components.Home_page.demo');
+})->name('demo');
+
+// Public chatbot endpoint for landing page assistant
+Route::post('/chatbot/ask', [ChatbotController::class, 'ask'])->name('chatbot.ask');
+
 Route::get('lang/change', [LangController::class, 'change'])->name('changeLang');
 
 Route::get('/dashboard', function () {
@@ -112,6 +128,7 @@ Route::middleware(['auth', 'role:Admin'])->name('admin.')->prefix('admin')->grou
     Route::resource('/tasks', tasksController::class)->except(['show']);
     Route::get('/tasks/show/{task_id}', [tasksController::class, "show"])->name('tasks.show');
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
+    Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
     Route::get('/tasks/create/{project_id}', [tasksController::class, "create"])->name('tasks.create');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
     Route::resource('/teams', teamsController::class);
@@ -171,6 +188,7 @@ Route::middleware(['auth', 'role:Admin'])->name('admin.')->prefix('admin')->grou
 
     Route::post('/invoice/{invoice}/desactivate', [projectController::class, "desactivate"])->name("invoice.deactivate");
     Route::post('/invoice/{invoice}/activate', [projectController::class, "activate"])->name("invoice.activate");
+    Route::post('/invoice/{invoice}/unarchive', [projectController::class, "unarchiveInvoice"])->name("invoice.unarchive");
 
     Route::get('/invoice/downloadPartial/{invoiceNumber}', [projectController::class, "downloadPeriodInvoice"])->name("invoice.downloadPartial");
     Route::get('/invoice/downloadFull/{invoiceNumber}', [projectController::class, "downloadFullInvoice"])->name("invoice.downloadFull");
@@ -327,6 +345,10 @@ Route::middleware(['auth', 'role:Admin'])->name('admin.')->prefix('admin')->grou
     Route::patch('/calendar/events/{id}/dates', [CalendarController::class, 'updateDates'])->name('calendar.updateDates');
 
     Route::get('/calendar/daily-events', [CalendarController::class, 'getDailyEvents'])->name('calendar.dailyEvents');
+    Route::get('/calendar/events/current-month', [CalendarController::class, 'getCurrentMonthEvents'])->name('calendar.currentMonthEvents');
+    Route::get('/calendar/send-events/preview', [CalendarController::class, 'previewSendEvents'])->name('calendar.send-events.preview');
+    Route::get('/calendar/events/pdf', [CalendarController::class, 'generateEventsPDF'])->name('calendar.events.pdf');
+    Route::post('/calendar/send-events-email', [CalendarController::class, 'sendEventsEmail'])->name('calendar.send-events-email');
 
     // Edit Full Invoice routes
     Route::get('/invoices/edit/{id}', [ProjectController::class, 'editFullInvoice'])->name('invoices.editFullInvoice');
@@ -418,6 +440,8 @@ Route::middleware(['auth', 'role:Admin'])->name('admin.')->prefix('admin')->grou
     Route::post('/billit/send-invoice/{id}', [BillitController::class, 'sendInvoiceHistoryBillit'])->name('billit.send-invoice');
     Route::post('/billit/send-invoice/{id}/{type}', [BillitController::class, 'sendInvoiceHistoryBillitByType'])->name('billit.send-invoice-type');
     Route::get('/billit/invoices/{type}', [BillitController::class, 'listInvoicesByType'])->name('billit.invoices-by-type');
+
+     Route::delete('/tasks/timer/{id}', [tasksController::class, 'destroyTimer'])->name('tasks.timer.destroy');
 });
 
 
@@ -428,6 +452,7 @@ Route::middleware(['auth', 'role:Admin'])->name('admin.')->prefix('admin')->grou
 Route::middleware('auth')->group(function () {
     Route::post('/alerts/{alert}/read', [AlertController::class, 'markAsRead'])->name('alerts.read');
     Route::delete('/alerts/{alert}', [AlertController::class, 'destroy'])->name('alerts.destroy');
+    Route::get('/search', [SearchController::class, 'search'])->name('search');
 });
 
 Route::middleware(['auth', 'role:Responsable de projet'])->name('Responsable_de_projet.')->prefix('Responsable_de_projet')->group(function () {
@@ -437,11 +462,19 @@ Route::middleware(['auth', 'role:Responsable de projet'])->name('Responsable_de_
     Route::post('/tasks/{tasks}/{employee_id}/stop', [tasksController::class, "stop"])->name('tasks.stop');
     Route::post('/tasks/{tasks}/{employee_id}/pause', [tasksController::class, 'pause'])->name('tasks.pause');
     Route::post('/tasks/{tasks}/{employee_id}/resume', [tasksController::class, 'resume'])->name('tasks.resume');
+    
+    // Calendar routes for Responsable de projet
+    Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
+    Route::get('/calendar/events', [CalendarController::class, 'getEvents'])->name('calendar.events');
+    Route::get('/calendar/daily-events', [CalendarController::class, 'getDailyEvents'])->name('calendar.dailyEvents');
+    Route::get('/calendar/events/current-month', [CalendarController::class, 'getCurrentMonthEvents'])->name('calendar.currentMonthEvents');
 
     Route::get('/billit-test', [BillitController::class, 'test'])->name('billit.test');
     Route::post('/billit/send-invoice/{id}', [BillitController::class, 'sendInvoiceHistoryBillit'])->name('billit.send-invoice');
     Route::post('/billit/send-invoice/{id}/{type}', [BillitController::class, 'sendInvoiceHistoryBillitByType'])->name('billit.send-invoice-type');
     Route::get('/billit/invoices/{type}', [BillitController::class, 'listInvoicesByType'])->name('billit.invoices-by-type');
+
+     Route::delete('/tasks/timer/{id}', [tasksController::class, 'destroyTimer'])->name('tasks.timer.destroy');
 
     Route::get('tasks/tasks-info/{startDate}/{employee_id}', [EmployeestasksController::class, 'getTasksInfo'])->name('tasks.info');
     Route::get('tasks/tasks-info-interval/{startDate}/{endDate}/{employee_id}', [EmployeestasksController::class, 'getTasksInfoInterval'])->name('tasks.info-interval');
@@ -470,6 +503,7 @@ Route::middleware(['auth', 'role:Responsable de projet'])->name('Responsable_de_
     Route::resource('/tasks', tasksController::class);
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
     Route::get('/tasks/create/{project_id}', [tasksController::class, "create"])->name('tasks.create');
+    Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
     Route::get('/Tasksrepports/downloadRepports', [tasksController::class, 'downloadTasksRepports'])->name('Tasksrepports.downloadRepports');
 
@@ -499,6 +533,7 @@ Route::middleware(['auth', 'role:Responsable de projet'])->name('Responsable_de_
     Route::resource('/tasks', tasksController::class);
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
     Route::get('/tasks/create/{project_id}', [tasksController::class, "create"])->name('tasks.create');
+    Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
     Route::resource('/teams', teamsController::class);
     Route::resource('/projects', projectController::class);
@@ -710,6 +745,10 @@ Route::middleware(['auth', 'role:Responsable de projet'])->name('Responsable_de_
     Route::patch('/calendar/events/{id}/dates', [CalendarController::class, 'updateDates'])->name('calendar.updateDates');
 
     Route::get('/calendar/daily-events', [CalendarController::class, 'getDailyEvents'])->name('calendar.dailyEvents');
+    Route::get('/calendar/events/current-month', [CalendarController::class, 'getCurrentMonthEvents'])->name('calendar.currentMonthEvents');
+    Route::get('/calendar/send-events/preview', [CalendarController::class, 'previewSendEvents'])->name('calendar.send-events.preview');
+    Route::get('/calendar/events/pdf', [CalendarController::class, 'generateEventsPDF'])->name('calendar.events.pdf');
+    Route::post('/calendar/send-events-email', [CalendarController::class, 'sendEventsEmail'])->name('calendar.send-events-email');
 
     // Edit Full Invoice routes
     Route::get('/invoices/edit/{id}', [ProjectController::class, 'editFullInvoice'])->name('invoices.editFullInvoice');
@@ -785,6 +824,9 @@ Route::middleware(['auth', 'role:Responsable de projet'])->name('Responsable_de_
 
     Route::get('/devis/get-contacts/{devisId}', [projectController::class, 'getDevisContacts'])->name('devis.getContacts');
 
+        // Update comment on a task timer (owned by the authenticated employee)
+        Route::patch('tasks/timers/{id}/comment', [\App\Http\Controllers\employees\tasksController::class, 'updateTimerComment'])->name('tasks.timers.updateComment');
+
 });
 
 
@@ -799,6 +841,12 @@ Route::middleware(['auth', 'role:Employee'])->name('employee.')->prefix('employe
     Route::post('/tasks/{tasks}/{employee_id}/stop', [tasksController::class, "stop"])->name('tasks.stop');
     Route::post('/tasks/{tasks}/{employee_id}/pause', [tasksController::class, 'pause'])->name('tasks.pause');
     Route::post('/tasks/{tasks}/{employee_id}/resume', [tasksController::class, 'resume'])->name('tasks.resume');
+    
+    // Calendar routes for employees
+    Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
+    Route::get('/calendar/events', [CalendarController::class, 'getEvents'])->name('calendar.events');
+    Route::get('/calendar/daily-events', [CalendarController::class, 'getDailyEvents'])->name('calendar.dailyEvents');
+    Route::get('/calendar/events/current-month', [CalendarController::class, 'getCurrentMonthEvents'])->name('calendar.currentMonthEvents');
 
     Route::get('tasks/tasks-info/{startDate}/{employee_id}', [EmployeestasksController::class, 'getTasksInfo'])->name('tasks.info');
     Route::get('tasks/tasks-info-interval/{startDate}/{endDate}/{employee_id}', [EmployeestasksController::class, 'getTasksInfoInterval'])->name('tasks.info-interval');
@@ -827,6 +875,7 @@ Route::middleware(['auth', 'role:Employee'])->name('employee.')->prefix('employe
     Route::resource('/tasks', tasksController::class);
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
     Route::get('/tasks/create/{project_id}', [tasksController::class, "create"])->name('tasks.create');
+    Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
     Route::get('/Tasksrepports/downloadRepports', [tasksController::class, 'downloadTasksRepports'])->name('Tasksrepports.downloadRepports');
 
@@ -856,6 +905,7 @@ Route::middleware(['auth', 'role:Employee'])->name('employee.')->prefix('employe
     Route::resource('/tasks', tasksController::class);
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
     Route::get('/tasks/create/{project_id}', [tasksController::class, "create"])->name('tasks.create');
+    Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
     Route::resource('/teams', teamsController::class);
     Route::resource('/projects', projectController::class);
@@ -1066,6 +1116,10 @@ Route::middleware(['auth', 'role:Employee'])->name('employee.')->prefix('employe
     Route::patch('/calendar/events/{id}/dates', [CalendarController::class, 'updateDates'])->name('calendar.updateDates');
 
     Route::get('/calendar/daily-events', [CalendarController::class, 'getDailyEvents'])->name('calendar.dailyEvents');
+    Route::get('/calendar/events/current-month', [CalendarController::class, 'getCurrentMonthEvents'])->name('calendar.currentMonthEvents');
+    Route::get('/calendar/send-events/preview', [CalendarController::class, 'previewSendEvents'])->name('calendar.send-events.preview');
+    Route::get('/calendar/events/pdf', [CalendarController::class, 'generateEventsPDF'])->name('calendar.events.pdf');
+    Route::post('/calendar/send-events-email', [CalendarController::class, 'sendEventsEmail'])->name('calendar.send-events-email');
 
     // Edit Full Invoice routes
     Route::get('/invoices/edit/{id}', [ProjectController::class, 'editFullInvoice'])->name('invoices.editFullInvoice');
@@ -1141,6 +1195,9 @@ Route::middleware(['auth', 'role:Employee'])->name('employee.')->prefix('employe
 
     Route::get('/devis/get-contacts/{devisId}', [projectController::class, 'getDevisContacts'])->name('devis.getContacts');
 
+        // Update comment on a task timer (owned by the authenticated employee)
+        Route::patch('tasks/timers/{id}/comment', [\App\Http\Controllers\employees\tasksController::class, 'updateTimerComment'])->name('tasks.timers.updateComment');
+
 });
 
 
@@ -1165,6 +1222,7 @@ Route::middleware(['auth', 'role:SuperAdmin'])->name('SuperAdmin.')->prefix('Sup
     Route::resource('/tasks', tasksController::class);
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
     Route::get('/tasks/create/{project_id}', [tasksController::class, "create"])->name('tasks.create');
+    Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
     Route::resource('/teams', teamsController::class);
     Route::resource('/projects', projectController::class);
@@ -1178,6 +1236,8 @@ Route::middleware(['auth', 'role:SuperAdmin'])->name('SuperAdmin.')->prefix('Sup
     Route::post('/billit/send-invoice/{id}', [BillitController::class, 'sendInvoiceHistoryBillit'])->name('billit.send-invoice');
     Route::post('/billit/send-invoice/{id}/{type}', [BillitController::class, 'sendInvoiceHistoryBillitByType'])->name('billit.send-invoice-type');
     Route::get('/billit/invoices/{type}', [BillitController::class, 'listInvoicesByType'])->name('billit.invoices-by-type');
+
+     Route::delete('/tasks/timer/{id}', [tasksController::class, 'destroyTimer'])->name('tasks.timer.destroy');
 
     Route::resource('/todoliste', todolisteController::class)->except(['show']);
 
@@ -1367,6 +1427,10 @@ Route::middleware(['auth', 'role:SuperAdmin'])->name('SuperAdmin.')->prefix('Sup
     Route::patch('/calendar/events/{id}/dates', [CalendarController::class, 'updateDates'])->name('calendar.updateDates');
 
     Route::get('/calendar/daily-events', [CalendarController::class, 'getDailyEvents'])->name('calendar.dailyEvents');
+    Route::get('/calendar/events/current-month', [CalendarController::class, 'getCurrentMonthEvents'])->name('calendar.currentMonthEvents');
+    Route::get('/calendar/send-events/preview', [CalendarController::class, 'previewSendEvents'])->name('calendar.send-events.preview');
+    Route::get('/calendar/events/pdf', [CalendarController::class, 'generateEventsPDF'])->name('calendar.events.pdf');
+    Route::post('/calendar/send-events-email', [CalendarController::class, 'sendEventsEmail'])->name('calendar.send-events-email');
 
     // Edit Full Invoice routes
     Route::get('/invoices/edit/{id}', [ProjectController::class, 'editFullInvoice'])->name('invoices.editFullInvoice');
@@ -1440,6 +1504,12 @@ Route::middleware(['auth', 'role:Responsable de projet et gestionnaire'])->name(
     Route::post('/tasks/{tasks}/{employee_id}/stop', [tasksController::class, "stop"])->name('tasks.stop');
     Route::post('/tasks/{tasks}/{employee_id}/pause', [tasksController::class, 'pause'])->name('tasks.pause');
     Route::post('/tasks/{tasks}/{employee_id}/resume', [tasksController::class, 'resume'])->name('tasks.resume');
+    
+    // Calendar routes for Responsable de projet et gestionnaire
+    Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
+    Route::get('/calendar/events', [CalendarController::class, 'getEvents'])->name('calendar.events');
+    Route::get('/calendar/daily-events', [CalendarController::class, 'getDailyEvents'])->name('calendar.dailyEvents');
+    Route::get('/calendar/events/current-month', [CalendarController::class, 'getCurrentMonthEvents'])->name('calendar.currentMonthEvents');
 
     Route::get('tasks/tasks-info/{startDate}/{employee_id}', [EmployeestasksController::class, 'getTasksInfo'])->name('tasks.info');
     Route::get('tasks/tasks-info-interval/{startDate}/{endDate}/{employee_id}', [EmployeestasksController::class, 'getTasksInfoInterval'])->name('tasks.info-interval');
@@ -1468,6 +1538,7 @@ Route::middleware(['auth', 'role:Responsable de projet et gestionnaire'])->name(
     Route::resource('/tasks', tasksController::class);
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
     Route::get('/tasks/create/{project_id}', [tasksController::class, "create"])->name('tasks.create');
+    Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
     Route::get('/Tasksrepports/downloadRepports', [tasksController::class, 'downloadTasksRepports'])->name('Tasksrepports.downloadRepports');
 
@@ -1497,6 +1568,7 @@ Route::middleware(['auth', 'role:Responsable de projet et gestionnaire'])->name(
     Route::resource('/tasks', tasksController::class);
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
     Route::get('/tasks/create/{project_id}', [tasksController::class, "create"])->name('tasks.create');
+    Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
     Route::resource('/teams', teamsController::class);
     Route::resource('/projects', projectController::class);
@@ -1706,6 +1778,10 @@ Route::middleware(['auth', 'role:Responsable de projet et gestionnaire'])->name(
     Route::patch('/calendar/events/{id}/dates', [CalendarController::class, 'updateDates'])->name('calendar.updateDates');
 
     Route::get('/calendar/daily-events', [CalendarController::class, 'getDailyEvents'])->name('calendar.dailyEvents');
+    Route::get('/calendar/events/current-month', [CalendarController::class, 'getCurrentMonthEvents'])->name('calendar.currentMonthEvents');
+    Route::get('/calendar/send-events/preview', [CalendarController::class, 'previewSendEvents'])->name('calendar.send-events.preview');
+    Route::get('/calendar/events/pdf', [CalendarController::class, 'generateEventsPDF'])->name('calendar.events.pdf');
+    Route::post('/calendar/send-events-email', [CalendarController::class, 'sendEventsEmail'])->name('calendar.send-events-email');
 
     // Edit Full Invoice routes
     Route::get('/invoices/edit/{id}', [ProjectController::class, 'editFullInvoice'])->name('invoices.editFullInvoice');
@@ -1772,10 +1848,35 @@ Route::middleware(['auth', 'role:Responsable de projet et gestionnaire'])->name(
 
     Route::get('/devis/get-contacts/{devisId}', [projectController::class, 'getDevisContacts'])->name('devis.getContacts');
 
+        // Update comment on a task timer (owned by the authenticated employee)
+        Route::patch('tasks/timers/{id}/comment', [\App\Http\Controllers\employees\tasksController::class, 'updateTimerComment'])->name('tasks.timers.updateComment');
+
 });
 
 
 
+
+// Manager routes (separate guard)
+Route::prefix('manager')->name('manager.')->group(function () {
+    Route::middleware('guest:manager')->group(function () {
+        Route::get('login', [ManagerAuthController::class, 'showLoginForm'])->name('login');
+        Route::post('login', [ManagerAuthController::class, 'login'])->name('login.submit');
+    });
+
+    Route::middleware('auth:manager')->group(function () {
+        Route::post('logout', [ManagerAuthController::class, 'logout'])->name('logout');
+        Route::get('dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');
+        Route::get('subscriptions', [ManagerSubscriptionController::class, 'index'])->name('subscriptions.index');
+        Route::get('subscriptions/{entreprise}', [ManagerSubscriptionController::class, 'show'])->name('subscriptions.show');
+        Route::delete('subscriptions/{entreprise}', [ManagerSubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
+        
+        // Manager profile routes
+        Route::get('profile', [\App\Http\Controllers\manager\ManagerProfileController::class, 'index'])->name('profile.index');
+        Route::get('profile/edit', [\App\Http\Controllers\manager\ManagerProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('profile', [\App\Http\Controllers\manager\ManagerProfileController::class, 'update'])->name('profile.update');
+        Route::patch('profile/password', [\App\Http\Controllers\manager\ManagerProfileController::class, 'updatePassword'])->name('profile.password.update');
+    });
+});
 
 Route::middleware([
     'auth',
@@ -1797,6 +1898,9 @@ Route::middleware([
     // 2. Payment Success (Handle DB update after Stripe)
     Route::get('/payment/success/{plan}', [SubscriptionController::class, 'paymentSuccess'])
         ->name('subscription.success');
+
+    Route::post('/subscription/renewal-preference', [SubscriptionController::class, 'updateRenewalPreference'])
+        ->name('subscription.renewal-preference.update');
 
     Route::get('/edit-profile', function () {
         return view('profile.edit');

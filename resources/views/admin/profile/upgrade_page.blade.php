@@ -3,18 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DailyTrac Dashboard</title>
+    <title>DalyTrac Dashboard</title>
     @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
     <div class="flex flex-col flex-1 overflow-y-auto">
         {{-- Navbar --}}
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
         <div class="container mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+        
+        {{-- Flash Messages --}}
+        @if(session('error'))
+            <div class="mb-6 rounded-lg bg-red-50 border border-red-200 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-red-800">
+                            {{ session('error') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @if(session('success'))
+            <div class="mb-6 rounded-lg bg-green-50 border border-green-200 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-green-800">
+                            {{ session('success') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @endif
         
         <div class="text-center mb-10">
             <h1 class="text-4xl font-bold text-gray-900 sm:text-5xl">
@@ -25,14 +64,57 @@
             </p>
         </div>
 
+        {{-- Renewal preference toggle --}}
+        <div class="max-w-xl mx-auto mb-10">
+            <div class="bg-white rounded-2xl shadow-md p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">Renewal preference</p>
+                    <p class="text-xs text-gray-500">Choose if your subscription renews automatically every month or if you renew it manually.</p>
+                </div>
+                @php
+                    $currentRenewalPreference = optional(Auth::user()->entreprise)->auto_renew === false ? 'manual' : 'auto';
+                @endphp
+                <div class="inline-flex items-center bg-gray-100 rounded-lg p-1">
+                    <button type="button"
+                            class="renewal-option px-3 py-1.5 text-xs font-medium rounded-md {{ $currentRenewalPreference === 'auto' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600' }}"
+                            data-renewal-value="auto">
+                        Auto renew
+                    </button>
+                    <button type="button"
+                            class="renewal-option px-3 py-1.5 text-xs font-medium rounded-md {{ $currentRenewalPreference === 'manual' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600' }}"
+                            data-renewal-value="manual">
+                        Manual renew
+                    </button>
+                </div>
+            </div>
+            <input type="hidden" id="renewalPreference" value="{{ $currentRenewalPreference }}">
+            @php
+                $renewalSync = $renewalSync ?? [
+                    'state' => 'unknown',
+                    'is_synced' => false,
+                    'label' => 'Renewal status unavailable.',
+                ];
+            @endphp
+            <div id="stripeSyncStatus"
+                 class="mt-3 inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2"
+                 data-state="{{ $renewalSync['state'] ?? 'unknown' }}"
+                 data-is-synced="{{ !empty($renewalSync['is_synced']) ? '1' : '0' }}"
+                 data-label="{{ $renewalSync['label'] ?? 'Renewal status unavailable.' }}">
+                <span id="stripeSyncBadge" class="rounded-full px-2 py-0.5 text-[11px] font-medium">Unknown</span>
+                <span class="text-xs text-gray-600">
+                    <span id="stripeSyncText">{{ $renewalSync['label'] ?? 'Renewal status unavailable.' }}</span>
+                </span>
+            </div>
+        </div>
+
         <div class="mb-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             
             <div class="bg-white rounded-2xl shadow-lg p-6">
                 <div class="flex-shrink-0 bg-purple-100 p-3 rounded-lg inline-block">
                     <svg class="h-6 w-6 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mt-4">15-Day Trial</h3>
-                <p class="text-gray-600 mt-1">Test everything unlimited for free</p>
+                <h3 class="text-lg font-semibold text-gray-900 mt-4">0-Day Trial</h3>
+                <p class="text-gray-600 mt-1">Start by choosing the plan that fits you</p>
             </div>
 
             <div class="bg-white rounded-2xl shadow-lg p-6">
@@ -72,7 +154,10 @@
                             <span class="text-5xl font-extrabold text-gray-900">€19</span>
                             <span class="text-gray-500 font-medium">/ month</span>
                         </div>
-                        <a href="{{ route('subscription.choose', ['plan' => 'solo']) }}" class="block w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-center transition-colors mb-8">
+                        <a href="{{ route('subscription.choose', ['plan' => 'solo']) }}"
+                           data-base-href="{{ route('subscription.choose', ['plan' => 'solo']) }}"
+                           data-plan-link
+                           class="block w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-center transition-colors mb-8">
                             Choose Solo
                         </a>
                         <ul class="space-y-4 text-gray-600 flex-grow">
@@ -95,7 +180,10 @@
                             <span class="text-5xl font-extrabold text-gray-900">€49</span>
                             <span class="text-gray-500 font-medium">/ month</span>
                         </div>
-                        <a href="{{ route('subscription.choose', ['plan' => 'premium']) }}" class="block w-full py-3 px-6 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg text-center transition-colors mb-8 shadow-md">
+                        <a href="{{ route('subscription.choose', ['plan' => 'premium']) }}"
+                           data-base-href="{{ route('subscription.choose', ['plan' => 'premium']) }}"
+                           data-plan-link
+                           class="block w-full py-3 px-6 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg text-center transition-colors mb-8 shadow-md">
                             Choose Premium
                         </a>
                         <ul class="space-y-4 text-gray-600 flex-grow">
@@ -116,7 +204,10 @@
                             <span class="text-5xl font-extrabold text-gray-900">€99</span>
                             <span class="text-gray-500 font-medium">/ month</span>
                         </div>
-                        <a href="{{ route('subscription.choose', ['plan' => 'pro']) }}" class="block w-full py-3 px-6 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg text-center transition-colors mb-8">
+                        <a href="{{ route('subscription.choose', ['plan' => 'pro']) }}"
+                           data-base-href="{{ route('subscription.choose', ['plan' => 'pro']) }}"
+                           data-plan-link
+                           class="block w-full py-3 px-6 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg text-center transition-colors mb-8">
                             Choose Pro
                         </a>
                         <ul class="space-y-4 text-gray-600 flex-grow">
@@ -129,5 +220,116 @@
                 </div>
             </div>        
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const renewalInput = document.getElementById('renewalPreference');
+                const planLinks = document.querySelectorAll('[data-plan-link]');
+                const renewalButtons = document.querySelectorAll('.renewal-option');
+                const saveEndpoint = '{{ route('subscription.renewal-preference.update') }}';
+                const csrfToken = '{{ csrf_token() }}';
+
+                function setActiveButton(value) {
+                    renewalButtons.forEach(btn => {
+                        btn.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+                        btn.classList.add('text-gray-600');
+                    });
+
+                    const activeButton = document.querySelector('.renewal-option[data-renewal-value="' + value + '"]');
+                    if (activeButton) {
+                        activeButton.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+                        activeButton.classList.remove('text-gray-600');
+                    }
+                }
+
+                async function savePreference(value) {
+                    const response = await fetch(saveEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: JSON.stringify({ renewal: value }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Unable to save renewal preference');
+                    }
+
+                    return response.json();
+                }
+
+                function renderSyncStatus(sync) {
+                    const statusRoot = document.getElementById('stripeSyncStatus');
+                    const badge = document.getElementById('stripeSyncBadge');
+                    const text = document.getElementById('stripeSyncText');
+                    if (!statusRoot || !badge || !text || !sync) return;
+
+                    const state = sync.state || 'unknown';
+                    const isSynced = Boolean(sync.is_synced);
+                    const label = sync.label || 'Renewal status unavailable.';
+
+                    badge.classList.remove('bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700', 'bg-gray-100', 'text-gray-700');
+                    if (state === 'synced' && isSynced) {
+                        badge.textContent = 'Synced';
+                        badge.classList.add('bg-green-100', 'text-green-700');
+                    } else if (state === 'out_of_sync') {
+                        badge.textContent = 'Not synced';
+                        badge.classList.add('bg-red-100', 'text-red-700');
+                    } else {
+                        badge.textContent = 'Unknown';
+                        badge.classList.add('bg-gray-100', 'text-gray-700');
+                    }
+
+                    text.textContent = label;
+                }
+
+                function updateLinks() {
+                    const renewal = renewalInput.value || 'auto';
+                    planLinks.forEach(link => {
+                        const baseHref = link.getAttribute('data-base-href');
+                        if (!baseHref) return;
+                        const separator = baseHref.includes('?') ? '&' : '?';
+                        link.href = baseHref + separator + 'renewal=' + encodeURIComponent(renewal);
+                    });
+                }
+
+                renewalButtons.forEach(button => {
+                    button.addEventListener('click', async function () {
+                        const value = this.getAttribute('data-renewal-value') || 'auto';
+                        const previousValue = renewalInput.value || 'auto';
+                        if (value === previousValue) {
+                            return;
+                        }
+
+                        renewalInput.value = value;
+                        setActiveButton(value);
+                        updateLinks();
+
+                        try {
+                            const result = await savePreference(value);
+                            if (result && result.stripe_sync) {
+                                renderSyncStatus(result.stripe_sync);
+                            }
+                        } catch (error) {
+                            renewalInput.value = previousValue;
+                            setActiveButton(previousValue);
+                            updateLinks();
+                            window.alert('Failed to save renewal preference. Please try again.');
+                        }
+                    });
+                });
+
+                // Initialize links on first load
+                setActiveButton(renewalInput.value || 'auto');
+                updateLinks();
+                renderSyncStatus({
+                    state: document.getElementById('stripeSyncStatus')?.dataset.state || 'unknown',
+                    is_synced: (document.getElementById('stripeSyncStatus')?.dataset.isSynced || '0') === '1',
+                    label: document.getElementById('stripeSyncStatus')?.dataset.label || 'Renewal status unavailable.',
+                });
+            });
+        </script>
     </body>
 </html>

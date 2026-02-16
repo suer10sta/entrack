@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Archives des Factures - DailyTrac</title>
+    <title>Archives des Factures - DalyTrac</title>
     
     {{-- 1. ONLY LOAD TAILWIND (No Bootstrap) --}}
     @vite('resources/css/app.css') 
@@ -31,7 +31,11 @@
 <body class="bg-gray-100 flex h-screen overflow-hidden font-sans" x-data>
 
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     <div class="flex flex-col flex-1 overflow-y-auto">
         {{-- Navbar --}}
@@ -137,7 +141,10 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($invoices as $invoice)
-                                <tr @if($invoice->Payment_status == -1) class="credit-note-row" @endif>
+                                <tr @class([
+                                    'credit-note-row' => $invoice->Payment_status == -1,
+                                    'bg-green-50 hover:bg-green-100' => $invoice->Payment_status == 1,
+                                ])>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         @php
                                             $invoiceRoute = '#';
@@ -167,18 +174,21 @@
                                         // ... all your route logic ...
                                         $activateRoute = ''; 
                                         $deactivateRoute = '';
+                                        $unarchiveRoute = '';
                                         $reminderRouteBase = '';
                                         $creditNoteRoute = '';
                                         $detailedCreditNoteRoute = '';
                                         if(Auth::user()->hasRole('Admin')) {
                                             $deactivateRoute = route('admin.invoice.deactivate', $invoice->id);
                                             $activateRoute = route('admin.invoice.activate', $invoice->id);
+                                            $unarchiveRoute = route('admin.invoice.unarchive', $invoice->id);
                                             $reminderRouteBase = 'admin.invoice.sendManualremind';
                                             $creditNoteRoute = 'admin.invoice.creditNote';
                                             $detailedCreditNoteRoute = 'admin.invoice.detailedCreditNote';
                                         } elseif(Auth::user()->hasRole('Responsable de projet')) {
                                             $deactivateRoute = route('Responsable_de_projet.invoice.deactivate', $invoice->id);
                                             $activateRoute = route('Responsable_de_projet.invoice.activate', $invoice->id);
+                                            $unarchiveRoute = route('Responsable_de_projet.invoice.unarchive', $invoice->id);
                                             $reminderRouteBase = 'Responsable_de_projet.invoice.sendManualremind';
                                             $creditNoteRoute = 'Responsable_de_projet.invoice.creditNote';
                                             $detailedCreditNoteRoute = 'Responsable_de_projet.invoice.detailedCreditNote';
@@ -198,6 +208,14 @@
                                             @csrf <button type="submit" class="payment-button px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium w-full">Impayé</button>
                                         </form>
                                         @endif
+
+                                            {{-- Unarchive button --}}
+                                            <form action="{{ $unarchiveRoute }}" method="post" onsubmit="return confirm('Désarchiver cette facture ?');" class="inline-block w-full mt-1">
+                                                @csrf
+                                                <button type="submit" class="px-3 py-1 bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 rounded-lg text-xs font-medium w-full">
+                                                    Désarchiver
+                                                </button>
+                                            </form>
         
                                         <button type="button" class="px-3 py-1 bg-gray-700 hover:bg-gray-800 text-white rounded-lg text-xs font-medium w-full"
                                             @click="$dispatch('open-send-modal', { invoiceId: {{ $invoice->id }} })">

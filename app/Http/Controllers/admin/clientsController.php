@@ -58,7 +58,8 @@ class clientsController extends Controller
                   ->orWhere('AcceptedDevisProject', '=', 1);
         })
         ->where('archived', 0)
-        ->where('client_id', $client->id)  
+        ->where('client_id', $client->id)
+        ->whereNull('parent_id')  // Exclude subprojects
         ->get();
 
         $invoices = invoices_history::where('client_id', $client->id)->orderBy('created_at', 'desc')->get();
@@ -81,22 +82,46 @@ class clientsController extends Controller
     {
         // Get the authenticated admin's enterprise_id
         $enterpriseId = Auth::user()->entreprise_id;
-        $entreprise = Auth::user()->entreprise;
-
-    // 2. VÉRIFIER LA LIMITE AVANT DE CONTINUER
-    if (!$entreprise->canAddMoreUsers()) {
         
-        // 3. Si la limite est atteinte, arrêter et renvoyer une erreur
-        return back()->with('error', 'Vous avez atteint la limite de ' . $entreprise->getUserLimit() . ' utilisateurs pour votre plan. Veuillez passer au plan Pro pour en ajouter davantage.');
-    }
         $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
             'client_number' => [
                 'required',
                 Rule::unique('clients')->where(function ($query) {
                     return $query->where('entreprise_id', Auth::user()->entreprise_id);
                 }),
             ],
-            
+            'address' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'zip' => 'required|string|max:255',
+            'country' => 'required|string|max:255',
+            'due_date' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:255',
+            'TVA' => 'nullable|string|max:255',
+            'billing_street' => 'nullable|string|max:255',
+            'billing_city' => 'nullable|string|max:255',
+            'billing_zip' => 'nullable|string|max:255',
+            'billing_country' => 'nullable|string|max:255',
+            'comp_name' => 'nullable|string|max:255',
+            'comp_email' => 'nullable|email|max:255',
+            'comp_phone' => 'nullable|string|max:255',
+            'comp_address' => 'nullable|string|max:255',
+            'contact_name' => 'nullable|array',
+            'contact_email' => 'nullable|array',
+            'contact_function' => 'nullable|array',
+            'contact_mobile_fix' => 'nullable|array',
+            'contact_address' => 'nullable|array',
+        ], [
+            'name.required' => 'The client name field is required.',
+            'client_number.required' => 'The client number field is required.',
+            'client_number.unique' => 'This client number already exists for your enterprise.',
+            'address.required' => 'The address field is required.',
+            'city.required' => 'The city field is required.',
+            'zip.required' => 'The zip code field is required.',
+            'country.required' => 'The country field is required.',
+            'due_date.required' => 'The due date field is required.',
+            'email.email' => 'Please enter a valid email address.',
         ]);
 
         // Create the associated client
@@ -174,6 +199,12 @@ class clientsController extends Controller
         if(Auth::user()->hasRole('Admin')){
             return redirect()->route('admin.clients.index')->with('message', 'client Added Successfully');
         }
+        if(Auth::user()->hasRole('Employee')){
+            return redirect()->route('employee.clients.index')->with('message', 'client Added Successfully');
+        }
+        
+        // Fallback redirect
+        return redirect()->back()->with('message', 'client Added Successfully');
     }
 
     public function edit(Client $client)

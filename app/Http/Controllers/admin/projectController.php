@@ -50,6 +50,7 @@ class projectController extends Controller
                   ->orWhere('AcceptedDevisProject', '=', 1);
         })
         ->where('archived', 0)
+        ->whereNull('parent_id')  // Exclude subprojects
         ->orderBy('name')
         ->get();
         $activeProjectIds = $projects->pluck('id');
@@ -64,18 +65,22 @@ class projectController extends Controller
     public function create($client_id)
     {
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
-        return view('admin.projects.create', compact('teams', 'client_id'));
+        $parent_id = request()->query('parent_id');
+
+        return view('admin.projects.create', compact('teams', 'client_id', 'parent_id'));
     }
     
     public function store(Request $request, $client_id)
     {
         $project = new Project();
+        $project->parent_id = $request->input('parent_id');
         $project->name = $request->name;
         $project->description = $request->description;
         $project->budget = $request->budget;
         $project->cost_per_hour = $request->cost_per_hour;
         $project->status = 0;
         $project->regie = $request->has('regie') ? 1 : 0;
+        $project->tva = $request->tva;
          
         $project->client_id = $client_id;
         $project->estimated_hours = $request->estimated_hours;
@@ -134,7 +139,7 @@ class projectController extends Controller
             $tasks= Tasks::where('project_id', $request->id)->get();
 
             foreach ($tasks as $task) {
-                $task->project_name = $Project->name;
+                $task->project_name = $Project->name; 
                 $task->save();
             }
             $client_contacts = client_contacts::where('project_id', $request->id)->get();
@@ -168,7 +173,48 @@ class projectController extends Controller
         $devis = devis_history::where('project_id', $project->id)->where('archived', 0)->orderBy('created_at', 'desc')->get();
         $entreprise_infos = Entreprise::where('id', Auth::user()->entreprise_id)->first();
         $Project_files = ProjectFile::where('project_id', $project->id)->get();
-        return view('admin.projects.show', compact('projects', 'employees', 'tasks', 'teams', 'project','client', 'invoices', 'devis', 'entreprise_infos', 'Project_files'));
+        $subprojects = Project::where('parent_id', $project->id)->where('archived', 0)->get();
+
+        // Calculate subprojects summary (total tasks and hours)
+        $subprojectsSummary = [
+            'total_tasks' => 0,
+            'total_hours' => 0,
+            'total_minutes' => 0
+        ];
+
+        if ($subprojects->count() > 0) {
+            $subprojectIds = $subprojects->pluck('id');
+            $subprojectsTasks = Tasks::whereIn('project_id', $subprojectIds)
+                ->where('entreprise_id', Auth::user()->entreprise_id)
+                ->get();
+            
+            $subprojectsSummary['total_tasks'] = $subprojectsTasks->count();
+            
+            if ($subprojectsSummary['total_tasks'] > 0) {
+                $subprojectsTaskIds = $subprojectsTasks->pluck('id');
+                $subprojectsTotalMinutes = tasks_timer::whereIn('task_id', $subprojectsTaskIds)
+                    ->sum('duration');
+                
+                $subprojectsSummary['total_minutes'] = $subprojectsTotalMinutes;
+                $subprojectsSummary['total_hours'] = floor($subprojectsTotalMinutes / 60);
+                $subprojectsSummary['remaining_minutes'] = $subprojectsTotalMinutes % 60;
+            }
+        }
+
+        return view('admin.projects.show', compact(
+            'projects',
+            'employees',
+            'tasks',
+            'teams',
+            'project',
+            'client',
+            'invoices',
+            'devis',
+            'entreprise_infos',
+            'Project_files',
+            'subprojects',
+            'subprojectsSummary'
+        ));
     }
 
     public function edit($id)
@@ -386,6 +432,10 @@ class projectController extends Controller
         }
     }
 
+    // Build list of project IDs: main project + its direct subprojects
+    $subprojectIds = Project::where('parent_id', $id)->pluck('id')->toArray();
+    $projectIds = array_merge([$id], $subprojectIds);
+
     $tasks_timer = tasks_timer::where('entreprise_id', auth()->user()->entreprise_id)
         ->where('start_date', '>=', $startdate)
         ->whereNotNull('end_date')
@@ -400,9 +450,12 @@ class projectController extends Controller
     $collection = collect();
 
     foreach ($tasks_timer as $task) {
-        $task_project_id = Tasks::where('id', $task->task_id)->first();
-        if ($task_project_id && $task_project_id->project_id == $id) {
-            $collection->push($task); // Use push() to add the task to the collection
+        $task_project = Tasks::where('id', $task->task_id)->first();
+        if ($task_project && in_array($task_project->project_id, $projectIds)) {
+            // Attach project name for annex display (main project or subproject)
+            $project = Project::find($task_project->project_id);
+            $task->project_name = $project ? $project->name : null;
+            $collection->push($task); // Include tasks for project and its subprojects
         }
     }
 
@@ -459,6 +512,7 @@ class projectController extends Controller
                 ->orWhere('AcceptedDevisProject', '=', 1);
         })
         ->where('archived', 0)
+        ->whereNull('parent_id')  // Exclude subprojects
         ->orderBy('client_id')  // This will group projects by client
         ->orderBy('name')       // This will sort projects by name within each client group
         ->get();
@@ -488,6 +542,7 @@ class projectController extends Controller
                   ->orWhere('AcceptedDevisProject', '=', 1);
         })
         ->where('archived', 0)
+        ->whereNull('parent_id')  // Exclude subprojects
         ->orderBy('client_id')
         ->get();
         $entreprise_infos = Entreprise::where('id', Auth::user()->entreprise_id)->first();
@@ -512,6 +567,17 @@ class projectController extends Controller
         $invoice->save();
 
         return redirect()->back()->with('message', 'invoice Marked Paid successfully');
+    }
+
+    /**
+     * Unarchive an invoice without changing its payment status.
+     */
+    public function unarchiveInvoice(invoices_history $invoice)
+    {
+        $invoice->archived = 0;
+        $invoice->save();
+
+        return redirect()->back()->with('message', 'Invoice unarchived successfully');
     }
 
 
@@ -589,19 +655,26 @@ class projectController extends Controller
         $enddate = $invoice->end_date;
         $enddate = Carbon::parse($enddate)->endOfDay();
 
+        // Build list of project IDs: main project + its direct subprojects
+        $subprojectIds = Project::where('parent_id', $projectinfos->id)->pluck('id')->toArray();
+        $projectIds = array_merge([$projectinfos->id], $subprojectIds);
+
         $tasks_timer = tasks_timer::where('entreprise_id', auth()->user()->entreprise_id)
         ->Where('start_date' , '>=', $startdate)
         ->whereNotNull('end_date')
         ->Where('end_date' , '<=', $enddate)
         ->orderBy('start_date', 'asc') // Order by start_date
         ->get();
-
+        
        
         $collection = collect();
-
+        
         foreach ($tasks_timer as $task) {
-            $task_project_id = Tasks::where('id', $task->task_id)->first();
-            if ($task_project_id && $task_project_id->project_id == $projectinfos->id) {
+            $task_project = Tasks::where('id', $task->task_id)->first();
+            if ($task_project && in_array($task_project->project_id, $projectIds)) {
+                // Attach project name for annex display (main project or subproject)
+                $project = Project::find($task_project->project_id);
+                $task->project_name = $project ? $project->name : null;
                 $collection->push($task); // Use push() to add the task to the collection
             }
         }
@@ -725,6 +798,10 @@ class projectController extends Controller
             $startdate = $invoice->start_date;
             $enddate = $invoice->end_date;
     
+            // Build list of project IDs: main project + its direct subprojects
+            $subprojectIds = Project::where('parent_id', $projectinfos->id)->pluck('id')->toArray();
+            $projectIds = array_merge([$projectinfos->id], $subprojectIds);
+
             $tasks_timer = tasks_timer::where('entreprise_id', auth()->user()->entreprise_id)
                 ->Where('start_date', '>=', $startdate)
                 ->whereNotNull('end_date')
@@ -736,7 +813,10 @@ class projectController extends Controller
     
             foreach ($tasks_timer as $task) {
                 $task_project_id = Tasks::where('id', $task->task_id)->first();
-                if ($task_project_id && $task_project_id->project_id == $projectinfos->id) {
+                if ($task_project_id && in_array($task_project_id->project_id, $projectIds)) {
+                    // Attach project name for annex display (main project or subproject)
+                    $project = Project::find($task_project_id->project_id);
+                    $task->project_name = $project ? $project->name : null;
                     $collection->push($task);
                 }
             }
@@ -774,7 +854,8 @@ class projectController extends Controller
             ]);
     
             $fileNameReminder = 'Reminder-'.$entreprise->invoice_prefix.'-'.$invoice->number.'.pdf';
-            $filePath = 'invoices/'.$entreprise->id.'/' . date('Y') . '/' . $fileNameReminder;
+            // Store reminder in the same year folder as the original invoice
+            $filePath = 'invoices/'.$entreprise->id.'/' . $invoice->created_at->format('Y') . '/' . $fileNameReminder;
             // Save to DO Spaces
             Storage::disk('public')->put($filePath, $pdf->output(), 'public');
     
@@ -806,7 +887,8 @@ class projectController extends Controller
             ]);
     
             $fileNameReminder = 'Reminder-'.$entreprise->invoice_prefix.'-'.$invoice->number.'.pdf';
-            $filePath = 'invoices/'.$entreprise->id.'/' . date('Y') . '/' . $fileNameReminder;
+            // Store reminder in the same year folder as the original invoice
+            $filePath = 'invoices/'.$entreprise->id.'/' . $invoice->created_at->format('Y') . '/' . $fileNameReminder;
             // Save to DO Spaces
             Storage::disk('public')->put($filePath, $pdf->output(), 'public');
     
@@ -839,7 +921,8 @@ class projectController extends Controller
             ]);
     
             $fileNameReminder = 'Reminder-'.$entreprise->invoice_prefix.'-'.$invoice->number.'.pdf';
-            $filePath = 'invoices/'.$entreprise->id.'/' . date('Y') . '/' . $fileNameReminder;
+            // Store reminder in the same year folder as the original invoice
+            $filePath = 'invoices/'.$entreprise->id.'/' . $invoice->created_at->format('Y') . '/' . $fileNameReminder;
             // Save to DO Spaces
             Storage::disk('public')->put($filePath, $pdf->output(), 'public');
     
@@ -877,7 +960,8 @@ class projectController extends Controller
             ]);
 
             $fileNameReminder = 'Reminder-'.$entreprise->invoice_prefix.'-'.$invoice->number.'.pdf';
-            $filePath = 'invoices/'.$entreprise->id.'/' . date('Y') . '/' . $fileNameReminder;
+            // Store reminder in the same year folder as the original invoice
+            $filePath = 'invoices/'.$entreprise->id.'/' . $invoice->created_at->format('Y') . '/' . $fileNameReminder;
             // Save to DO Spaces
             Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
@@ -911,7 +995,8 @@ class projectController extends Controller
             ]);
     
             $fileNameReminder = 'Reminder-'.$entreprise->invoice_prefix.'-'.$invoice->number.'.pdf';
-            $filePath = 'invoices/'.$entreprise->id.'/' . date('Y') . '/' . $fileNameReminder;
+            // Store reminder in the same year folder as the original invoice
+            $filePath = 'invoices/'.$entreprise->id.'/' . $invoice->created_at->format('Y') . '/' . $fileNameReminder;
             // Save to DO Spaces
             Storage::disk('public')->put($filePath, $pdf->output(), 'public');
     
@@ -1128,7 +1213,10 @@ public function sendInvoice(Request $request, $invoiceId)
         unlink($mainInvoicePath);
 
         // Get selected recipients from the form
-        $selectedRecipients = json_decode($request->selected_recipients, true);
+        // Handle both array and JSON string formats
+        $selectedRecipients = is_array($request->selected_recipients) 
+            ? $request->selected_recipients 
+            : json_decode($request->selected_recipients, true);
 
         if (empty($selectedRecipients)) {
             return response()->json([
@@ -1207,6 +1295,7 @@ public function generateDevis()
                   ->orWhere('AcceptedDevisProject', '=', 1);
         })
         ->where('archived', 0)
+        ->whereNull('parent_id')  // Exclude subprojects
         ->orderby('name', 'asc')
         ->get();
         return view('admin.devis.generate', compact('clients', 'projects'));
@@ -1277,9 +1366,14 @@ public function generateDevis()
                     $newProject->save(); 
                     $devis->project_id = $newProject->id;
                 }else{
+                    // Attach devis to an existing project and increase that project's budget
                     $devis->project_id = $request->Existing_project_id;
                     $newProject = Project::where('id', $request->Existing_project_id)->first();
-                    $devis->Existing_project_name = $newProject->name;
+                    if ($newProject) {
+                        $newProject->budget = (float) $newProject->budget + $calculatedBudget;
+                        $newProject->save();
+                        $devis->Existing_project_name = $newProject->name;
+                    }
                 }   
     
             }else{
@@ -1300,9 +1394,14 @@ public function generateDevis()
                     $newProject->save();
                     $devis->project_id = $newProject->id;
                 }else{
+                    // Attach devis to an existing project and increase that project's budget
                     $devis->project_id = $request->Existing_project_id;
                     $newProject = Project::where('id', $request->Existing_project_id)->first();
-                    $devis->Existing_project_name = $newProject->name;
+                    if ($newProject) {
+                        $newProject->budget = (float) $newProject->budget + $calculatedBudget;
+                        $newProject->save();
+                        $devis->Existing_project_name = $newProject->name;
+                    }
                 }
             }
     
@@ -1352,15 +1451,38 @@ public function generateDevis()
     
         $tasks = $request->input('task');
         $taskBudget = $request->input('taskBudget');
+        $taskHours = $request->input('taskHours');
+        $taskCostPerHour = $request->input('taskCostPerHour');
     
         // Add this new code to save task details
-        if ($tasks && $taskBudget) {
+        if ($tasks) {
             foreach ($tasks as $index => $task) {
-                if (!empty($task) && isset($taskBudget[$index])) {
+                if (!empty($task)) {
                     $devis_detail = new devis_details();
                     $devis_detail->devis_id = $devis->id;
                     $devis_detail->task_details = $task;
-                    $devis_detail->task_budget = $taskBudget[$index];
+                    
+                    // Handle different billing types
+                    if ($billingType === 'detailed_hourly') {
+                        // For detailed_hourly, save hours and cost_per_hour, calculate task_budget
+                        if (isset($taskHours[$index]) && is_numeric($taskHours[$index]) && 
+                            isset($taskCostPerHour[$index]) && is_numeric($taskCostPerHour[$index])) {
+                            $devis_detail->hours = (float) $taskHours[$index];
+                            $devis_detail->cost_per_hour = (float) $taskCostPerHour[$index];
+                            $devis_detail->task_budget = $devis_detail->hours * $devis_detail->cost_per_hour;
+                        } else {
+                            // Skip if required fields are missing
+                            continue;
+                        }
+                    } else {
+                        // For forfait and horaire, use taskBudget if available
+                        if (isset($taskBudget[$index]) && is_numeric($taskBudget[$index])) {
+                            $devis_detail->task_budget = (float) $taskBudget[$index];
+                        } else {
+                            $devis_detail->task_budget = 0;
+                        }
+                    }
+                    
                     $devis_detail->entreprise_id = Auth::user()->entreprise_id;
                     $devis_detail->save();
                 }
@@ -1375,6 +1497,9 @@ public function generateDevis()
         } 
     
     
+        // Get devis details from database (includes hours for detailed_hourly)
+        $devis_details = devis_details::where('devis_id', $devis->id)->get();
+        
         // Generate a PDF file of the devis
         $pdf = PDF::loadView('admin.devis.view', [
             'project_name' => $project_name,
@@ -1390,7 +1515,8 @@ public function generateDevis()
             'devis_id' => $devis->id,
             'billing_type' => $billingType,
             'hours' => $hoursValue,
-            'amount_per_hour' => $amountValue
+            'amount_per_hour' => $amountValue,
+            'devis_details' => $devis_details
         ]);
     
         // Save the PDF to a do_spaces file
@@ -1453,6 +1579,10 @@ public function saveDuplicateDevis(Request $request)
         if ($billingType === 'horaire') {
             $calculatedBudget = $hoursValue * $amountValue;
             $costPerHour = $amountValue;
+        } elseif ($billingType === 'detailed_hourly') {
+            // For detailed_hourly, budget is calculated from task hours * cost_per_hour
+            // The budget will be calculated from the form's calculated value
+            $costPerHour = (float) $request->input('cost_per_hour', 0);
         }
 
         $storedHours = $billingType === 'horaire' ? $hoursValue : null;
@@ -1498,9 +1628,14 @@ public function saveDuplicateDevis(Request $request)
                 $newProject->save(); 
                 $devis->project_id = $newProject->id;
             }else{
+                // Attach duplicated devis to an existing project and increase that project's budget
                 $devis->project_id = $request->Existing_project_id;
                 $newProject = Project::where('id', $request->Existing_project_id)->first();
-                $devis->Existing_project_name = $newProject->name;
+                if ($newProject) {
+                    $newProject->budget = (float) $newProject->budget + $calculatedBudget;
+                    $newProject->save();
+                    $devis->Existing_project_name = $newProject->name;
+                }
             }   
 
         }else{
@@ -1520,9 +1655,14 @@ public function saveDuplicateDevis(Request $request)
                 $newProject->save();
                 $devis->project_id = $newProject->id;
             }else{
+                // Attach duplicated devis to an existing project and increase that project's budget
                 $devis->project_id = $request->Existing_project_id;
                 $newProject = Project::where('id', $request->Existing_project_id)->first();
-                $devis->Existing_project_name = $newProject->name;
+                if ($newProject) {
+                    $newProject->budget = (float) $newProject->budget + $calculatedBudget;
+                    $newProject->save();
+                    $devis->Existing_project_name = $newProject->name;
+                }
             }
         }
 
@@ -1572,16 +1712,40 @@ public function saveDuplicateDevis(Request $request)
 
     $tasks = $request->input('task');
     $taskBudget = $request->input('taskBudget');
+    $taskHours = $request->input('taskHours');
+    $taskCostPerHour = $request->input('taskCostPerHour');
+    $billingType = $request->input('billing_type', 'forfait');
 
 
      // Add this new code to save task details
-     if ($tasks && $taskBudget) {
+     if ($tasks) {
         foreach ($tasks as $index => $task) {
-            if (!empty($task) && isset($taskBudget[$index])) {
+            if (!empty($task)) {
                 $devis_detail = new devis_details();
                 $devis_detail->devis_id = $devis->id;
                 $devis_detail->task_details = $task;
-                $devis_detail->task_budget = $taskBudget[$index];
+                
+                // Handle different billing types
+                if ($billingType === 'detailed_hourly') {
+                    // For detailed_hourly, save hours and cost_per_hour, calculate task_budget
+                    if (isset($taskHours[$index]) && is_numeric($taskHours[$index]) && 
+                        isset($taskCostPerHour[$index]) && is_numeric($taskCostPerHour[$index])) {
+                        $devis_detail->hours = (float) $taskHours[$index];
+                        $devis_detail->cost_per_hour = (float) $taskCostPerHour[$index];
+                        $devis_detail->task_budget = $devis_detail->hours * $devis_detail->cost_per_hour;
+                    } else {
+                        // Skip if required fields are missing
+                        continue;
+                    }
+                } else {
+                    // For forfait and horaire, use taskBudget if available
+                    if (isset($taskBudget[$index]) && is_numeric($taskBudget[$index])) {
+                        $devis_detail->task_budget = (float) $taskBudget[$index];
+                    } else {
+                        $devis_detail->task_budget = 0;
+                    }
+                }
+                
                 $devis_detail->entreprise_id = Auth::user()->entreprise_id;
                 $devis_detail->save();
             }
@@ -1595,19 +1759,26 @@ public function saveDuplicateDevis(Request $request)
     } 
 
 
+    // Get devis details from database (includes hours for detailed_hourly)
+    $devis_details = devis_details::where('devis_id', $devis->id)->get();
+    
     // Generate a PDF file of the devis
     $pdf = PDF::loadView('admin.devis.view', [
         'project_name' => $project_name,
-        'prix_unitaire' => $request->cost_per_hour,
-        'budget' => $request->budget,
+        'prix_unitaire' => $costPerHour,
+        'budget' => $calculatedBudget,
         'tva' => $devis->tva,
         'description' => $request->description,
         'entreprise' => $entreprise,
         'devisNum' => $devis->devis_number,
-        'cost_per_hour' => $request->cost_per_hour,
+        'cost_per_hour' => $costPerHour,
         'tasks' => $tasks,
         'taskBudget' => $taskBudget,
-        'devis_id' => $devis->id
+        'devis_id' => $devis->id,
+        'billing_type' => $billingType,
+        'hours' => $hoursValue,
+        'amount_per_hour' => $amountValue,
+        'devis_details' => $devis_details
     ]);
 
     // Save the PDF to a do_spaces file
@@ -2206,6 +2377,10 @@ public function generateCreditNote($id, Request $request)
 
         $enddate = Carbon::parse($enddate)->endOfDay();
 
+        // Build list of project IDs: main project + its direct subprojects
+        $subprojectIds = Project::where('parent_id', $projectinfos->id)->pluck('id')->toArray();
+        $projectIds = array_merge([$projectinfos->id], $subprojectIds);
+
         $tasks_timer = tasks_timer::where('entreprise_id', auth()->user()->entreprise_id)
         ->Where('start_date' , '>=', $startdate)
         ->whereNotNull('end_date')
@@ -2216,8 +2391,11 @@ public function generateCreditNote($id, Request $request)
         $collection = collect();
 
         foreach ($tasks_timer as $task) {
-            $task_project_id = Tasks::where('id', $task->task_id)->first();
-            if ($task_project_id && $task_project_id->project_id == $projectinfos->id) {
+            $task_project = Tasks::where('id', $task->task_id)->first();
+            if ($task_project && in_array($task_project->project_id, $projectIds)) {
+                // Attach project name for annex display (main project or subproject)
+                $project = Project::find($task_project->project_id);
+                $task->project_name = $project ? $project->name : null;
                 $collection->push($task); // Use push() to add the task to the collection
             }
         }
@@ -2233,12 +2411,16 @@ public function generateCreditNote($id, Request $request)
         if ($type === 'partial' && $amount) {
             $prixtotal = $amount; 
             $partial = true;
-            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+                ->whereYear('created_at', now()->year)
+                ->max('credit_note_number');
         }
         else {
             $prixtotal = $invoice->total_htva;
 
-            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+                ->whereYear('created_at', now()->year)
+                ->max('credit_note_number');
 
             // Check if a similar credit note already exists
             $existing_credit_note = credit_note::where('number', $invoice->number)
@@ -2250,19 +2432,24 @@ public function generateCreditNote($id, Request $request)
     
         }
 
-        return view('admin.creditNote.invoicebydurationcreditNote', compact('projectinfos', 'client', 'entreprise', 'duration', 'cost', 'collection','invoice_id', 'prixtotal', 'partial', 'last_credit_note_number', 'type', 'invoice'));
+        $comment = $invoice->comment ?? null;
+        return view('admin.creditNote.invoicebydurationcreditNote', compact('projectinfos', 'client', 'entreprise', 'duration', 'cost', 'collection','invoice_id', 'prixtotal', 'partial', 'last_credit_note_number', 'type', 'invoice', 'comment'));
 
     }elseif($invoice->type=='Full'){
         if ($type === 'partial' && $amount) {
             $budget = $amount;
             $partial = true;
-            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+                ->whereYear('created_at', now()->year)
+                ->max('credit_note_number');
             
 
         } else {
             $budget = $invoice->total_htva;
 
-            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+                ->whereYear('created_at', now()->year)
+                ->max('credit_note_number');
 
             // Check if a similar credit note already exists
             $existing_credit_note = credit_note::where('number', $invoice->number)
@@ -2280,13 +2467,16 @@ public function generateCreditNote($id, Request $request)
         $number = $latestInvoice ? $latestInvoice->number : 0; // Set number to the latest invoice number or 0 if no invoice exists
 
 
-        return view('admin.creditNote.invoicecreditNote', compact('projectinfos', 'client', 'entreprise', 'number', 'invoice_id', 'budget', 'partial', 'last_credit_note_number', 'type', 'invoice'));
+        $comment = $invoice->comment ?? null;
+        return view('admin.creditNote.invoicecreditNote', compact('projectinfos', 'client', 'entreprise', 'number', 'invoice_id', 'budget', 'partial', 'last_credit_note_number', 'type', 'invoice', 'comment'));
 
     }elseif($invoice->type=='Partial'){
         if ($type === 'partial' && $amount) {
             $budget = $amount;
             $partial = true;
-            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+                ->whereYear('created_at', now()->year)
+                ->max('credit_note_number');
 
         } else {
             if($projectinfos->budget != null){
@@ -2295,7 +2485,9 @@ public function generateCreditNote($id, Request $request)
                 $budget = 0;
             }
 
-            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+                ->whereYear('created_at', now()->year)
+                ->max('credit_note_number');
 
             // Check if a similar credit note already exists
             $existing_credit_note = credit_note::where('number', $invoice->number)
@@ -2315,13 +2507,16 @@ public function generateCreditNote($id, Request $request)
 
         
 
-        return view('admin.creditNote.invoicecreditNote', compact('projectinfos', 'client', 'entreprise', 'number', 'invoice_id', 'budget', 'partial', 'last_credit_note_number', 'type', 'invoice'));
+        $comment = $invoice->comment ?? null;
+        return view('admin.creditNote.invoicecreditNote', compact('projectinfos', 'client', 'entreprise', 'number', 'invoice_id', 'budget', 'partial', 'last_credit_note_number', 'type', 'invoice', 'comment'));
 
     }elseif($invoice->type ="Percentage"){
         if ($type === 'partial' && $amount) {
             $budget = $amount;
             $partial = true;
-            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+                ->whereYear('created_at', now()->year)
+                ->max('credit_note_number');
             
 
         } else {
@@ -2331,7 +2526,9 @@ public function generateCreditNote($id, Request $request)
                 $budget = 0;
             }
 
-            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+                ->whereYear('created_at', now()->year)
+                ->max('credit_note_number');
 
             // Check if a similar credit note already exists
             $existing_credit_note = credit_note::where('number', $invoice->number)
@@ -2353,7 +2550,8 @@ public function generateCreditNote($id, Request $request)
 
        
 
-        return view('admin.creditNote.invoicecreditNote', compact('projectinfos', 'client', 'entreprise', 'number', 'invoice_id', 'budget', 'partial', 'last_credit_note_number', 'type', 'invoice'));
+        $comment = $invoice->comment ?? null;
+        return view('admin.creditNote.invoicecreditNote', compact('projectinfos', 'client', 'entreprise', 'number', 'invoice_id', 'budget', 'partial', 'last_credit_note_number', 'type', 'invoice', 'comment'));
 
     }else{
         return redirect()->back()->with('message', 'Error');
@@ -2393,6 +2591,10 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
 
         $enddate = Carbon::parse($enddate)->endOfDay();
 
+        // Build list of project IDs: main project + its direct subprojects
+        $subprojectIds = Project::where('parent_id', $projectinfos->id)->pluck('id')->toArray();
+        $projectIds = array_merge([$projectinfos->id], $subprojectIds);
+
         $tasks_timer = tasks_timer::where('entreprise_id', auth()->user()->entreprise_id)
         ->Where('start_date' , '>=', $startdate)
         ->whereNotNull('end_date')
@@ -2403,8 +2605,11 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
         $collection = collect();
 
         foreach ($tasks_timer as $task) {
-            $task_project_id = Tasks::where('id', $task->task_id)->first();
-            if ($task_project_id && $task_project_id->project_id == $projectinfos->id) {
+            $task_project = Tasks::where('id', $task->task_id)->first();
+            if ($task_project && in_array($task_project->project_id, $projectIds)) {
+                // Attach project name for annex display (main project or subproject)
+                $project = Project::find($task_project->project_id);
+                $task->project_name = $project ? $project->name : null;
                 $collection->push($task); // Use push() to add the task to the collection
             }
         }
@@ -2420,7 +2625,9 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
         if ($type === 'partial' && $amount) {
             $prixtotal = $amount; 
             $partial = true;
-            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+                ->whereYear('created_at', now()->year)
+                ->max('credit_note_number');
 
             $credit_note = new credit_note();
             $credit_note->project_name = $invoice->project_name;
@@ -2458,8 +2665,8 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
                 'collection' => $collection,
                 'prixtotal' => $prixtotal,
                 'partial' => $partial,
-                'credit_note' => $credit_note
-    
+                'credit_note' => $credit_note,
+                'comment' => $invoice->comment ?? null,
             ]);
             $invoice->Payment_status = -1;
             $invoice->archived = 1;
@@ -2475,7 +2682,9 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
         else {
             $prixtotal = $invoice->total_htva;
 
-            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+                ->whereYear('created_at', now()->year)
+                ->max('credit_note_number');
 
             // Check if a similar credit note already exists
             $existing_credit_note = credit_note::where('number', $invoice->number)
@@ -2513,7 +2722,7 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
                  $credit_note->save();
              
 
-             $pdf = PDF::loadView('admin.creditNote.invoicebydurationPDFcreditNote', [
+            $pdf = PDF::loadView('admin.creditNote.invoicebydurationPDFcreditNote', [
                 'invoice' => $invoice, 
                 'projectinfos' => $projectinfos,
                 'client' => $client,
@@ -2523,8 +2732,8 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
                 'collection' => $collection,
                 'prixtotal' => $prixtotal,
                 'partial' => $partial,
-                'credit_note' => $credit_note
-    
+                'credit_note' => $credit_note,
+                'comment' => $invoice->comment ?? null,
             ]);
             $invoice->Payment_status = -1;
             $invoice->archived = 1;
@@ -2552,7 +2761,9 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
         if ($type === 'partial' && $amount) {
             $budget = $amount;
             $partial = true;
-            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+                ->whereYear('created_at', now()->year)
+                ->max('credit_note_number');
             $credit_note = new credit_note();
             $credit_note->project_name = $invoice->project_name;
             $credit_note->number = $invoice->number;
@@ -2582,7 +2793,9 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
         } else {
             $budget = $invoice->total_htva;
 
-            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+                ->whereYear('created_at', now()->year)
+                ->max('credit_note_number');
 
             // Check if a similar credit note already exists
             $existing_credit_note = credit_note::where('number', $invoice->number)
@@ -2637,7 +2850,8 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
             'budget' => $budget,
             'partial' => $partial, 
             'credit_note' => $credit_note,
-            'invoice' => $invoice
+            'invoice' => $invoice,
+            'comment' => $invoice->comment ?? null,
         ]);
         $invoice->Payment_status = -1;
         $invoice->archived = 1;
@@ -2664,7 +2878,9 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
         if ($type === 'partial' && $amount) {
             $budget = $amount;
             $partial = true;
-            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+                ->whereYear('created_at', now()->year)
+                ->max('credit_note_number');
             $credit_note = new credit_note();
             $credit_note->project_name = $invoice->project_name;
             $credit_note->number = $invoice->number;
@@ -2694,7 +2910,9 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
         } else {
             $budget = $invoice->total_htva;
 
-            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+                ->whereYear('created_at', now()->year)
+                ->max('credit_note_number');
 
             // Check if a similar credit note already exists
             $existing_credit_note = credit_note::where('number', $invoice->number)
@@ -2748,7 +2966,8 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
             'invoice_id' => $invoice_id,
             'budget' => $budget,
             'partial' => $partial, 
-            'credit_note' => $credit_note
+            'credit_note' => $credit_note,
+            'comment' => $invoice->comment ?? null,
         ]);
         $invoice->Payment_status = -1;
         $invoice->archived = 1;
@@ -2775,7 +2994,9 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
         if ($type === 'partial' && $amount) {
             $budget = $amount;
             $partial = true;
-            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+                ->whereYear('created_at', now()->year)
+                ->max('credit_note_number');
             $credit_note = new credit_note();
             $credit_note->project_name = $invoice->project_name;
             $credit_note->number = $invoice->number;
@@ -2805,7 +3026,9 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
         } else {
             $budget = $invoice->total_htva;
 
-            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+            $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+                ->whereYear('created_at', now()->year)
+                ->max('credit_note_number');
 
             // Check if a similar credit note already exists
             $existing_credit_note = credit_note::where('number', $invoice->number)
@@ -2888,9 +3111,10 @@ public function ConfirmCreditNote($id, $noteType, $noteAmount)
 
 }
 
-public function creditNoteHistory()
+    public function creditNoteHistory()
     {
         $credit_notes = credit_note::where('entreprise_id', Auth::user()->entreprise_id)
+        ->orderBy('created_at', 'desc')
         ->get(); 
         $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)->where(function($query) {
             $query->whereNull('AcceptedDevisClient')
@@ -3010,6 +3234,22 @@ public function destroyCreditNote($id)
             }
             if(Auth::user()->hasRole('Responsable de projet et gestionnaire')){
                 return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', 'creditnote not found.');
+            }
+        }
+
+        // Try to restore the related invoice status so it is no longer shown as credit noted
+        if ($creditnote->invoice_id) {
+            $invoice = invoices_history::find($creditnote->invoice_id);
+            if ($invoice) {
+                // Remove credit note flags; treat invoice as normal (uncredited, unpaid & unarchived)
+                $invoice->hasCreditNote = 0;
+                if ($invoice->Payment_status == -1) {
+                    $invoice->Payment_status = 0; // back to unpaid
+                }
+                if ($invoice->archived == 1) {
+                    $invoice->archived = 0; // show again in main list
+                }
+                $invoice->save();
             }
         }
 
@@ -3345,9 +3585,15 @@ public function destroyNotedeFrais($id)
     } else {
         if(!$projectinfos->budget){
             return back()->with('message', 'The project budget is not set');
-        }elseif($projectinfos->budget - $projectinfos->amount_billed == 0){
+        }
+        // Calculate total billed dynamically (exclude credit notes)
+        $totalBilled = \App\Models\invoices_history::where('project_id', $projectinfos->id)
+            ->where('Payment_status', '!=', -1) // Exclude credit notes/deleted invoices
+            ->sum('total_htva');
+        $unbilledBudget = $projectinfos->budget - $totalBilled;
+        if($unbilledBudget == 0){
             return back()->with('message', 'The project is already fully billed');
-        }elseif($projectinfos->budget - $projectinfos->amount_billed < $amount){
+        }elseif($unbilledBudget < $amount){
             return back()->with('message', 'The amount is greater than the project unbilled budget');
         }else{
             return view('admin.projects.partialInvoice', compact('projectinfos', 'client', 'entreprise', 'number', 'comment' , 'invoice_id', 'invoicerealID', 'amount', 'comment', 'principalBudget'));   
@@ -3420,9 +3666,15 @@ public function PercentageInvoice(Request $request, $projectid, $percentage)
 
     if(!$projectinfos->budget){
         return back()->with('message', 'The project budget is not set');
-    }elseif($projectinfos->budget - $projectinfos->amount_billed == 0){
+    }
+    // Calculate total billed dynamically (exclude credit notes)
+    $totalBilled = \App\Models\invoices_history::where('project_id', $projectinfos->id)
+        ->where('Payment_status', '!=', -1) // Exclude credit notes/deleted invoices
+        ->sum('total_htva');
+    $unbilledBudget = $projectinfos->budget - $totalBilled;
+    if($unbilledBudget == 0){
         return back()->with('message', 'The project is already fully billed');
-    }elseif($projectinfos->budget - $projectinfos->amount_billed < $amount){
+    }elseif($unbilledBudget < $amount){
         return back()->with('message', 'The amount is greater than the project unbilled budget');
     }else{
         return view('admin.projects.percentageInvoice', compact('projectinfos', 'client', 'entreprise', 'number', 'invoice_id', 'invoicerealID', 'amount', 'percentage', 'comment', 'principalBudget'));   
@@ -3551,6 +3803,10 @@ public function confirmPeriodInvoice($projectID, $startdate, $enddate, $comment 
         }
     }
 
+    // Build list of project IDs: main project + its direct subprojects
+    $subprojectIds = Project::where('parent_id', $projectID)->pluck('id')->toArray();
+    $projectIds = array_merge([$projectID], $subprojectIds);
+
     $tasks_timer = tasks_timer::where('entreprise_id', auth()->user()->entreprise_id)
         ->Where('start_date' , '>=', $startdate)
         ->whereNotNull('end_date')
@@ -3565,9 +3821,12 @@ public function confirmPeriodInvoice($projectID, $startdate, $enddate, $comment 
     $collection = collect();
 
     foreach ($tasks_timer as $task) {
-        $task_project_id = Tasks::where('id', $task->task_id)->first();
-        if ($task_project_id && $task_project_id->project_id == $projectID) {
-            $collection->push($task); // Use push() to add the task to the collection
+        $task_project = Tasks::where('id', $task->task_id)->first();
+        if ($task_project && in_array($task_project->project_id, $projectIds)) {
+            // Attach project name for annex display (main project or subproject)
+            $project = Project::find($task_project->project_id);
+            $task->project_name = $project ? $project->name : null;
+            $collection->push($task); // Include tasks for project and its subprojects
         }
     }
 
@@ -3621,9 +3880,11 @@ public function confirmPeriodInvoice($projectID, $startdate, $enddate, $comment 
             // Ensure comment is properly handled
             $save_invoice->comment = $comment ? base64_decode($comment) : null;
 
-            $save_invoice->total_htva = ($projectinfos->cost_per_hour * ($duration/60));
-            $save_invoice->total_tva = ($projectinfos->cost_per_hour * ($duration/60))* ($projectinfos->tva / 100);
-            $save_invoice->total_ttc = ($projectinfos->cost_per_hour * ($duration/60))+(($projectinfos->cost_per_hour * ($duration/60))* ($projectinfos->tva / 100));
+            // Use rounded hours (2 decimals) for all monetary calculations
+            $hours = round($duration / 60, 2);
+            $save_invoice->total_htva = ($projectinfos->cost_per_hour * $hours);
+            $save_invoice->total_tva = $save_invoice->total_htva * ($projectinfos->tva / 100);
+            $save_invoice->total_ttc = $save_invoice->total_htva + $save_invoice->total_tva;
 
             $save_invoice->project_id = $projectinfos->id;
             if (request()->has('devis_id') && !empty(request()->query('devis_id'))) {
@@ -4036,11 +4297,11 @@ public function unarchiveDevis($id){
     }
 }
 
-public function invoiceArchiveIndex()
+    public function invoiceArchiveIndex()
     {
         $invoices = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
         ->where('archived', 1)
-        ->orderBy('created_at')
+        ->orderBy('created_at', 'desc')
         ->get();
         $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)->where(function($query) {
             $query->whereNull('AcceptedDevisClient')
@@ -4051,6 +4312,7 @@ public function invoiceArchiveIndex()
                   ->orWhere('AcceptedDevisProject', '=', 1);
         })
         ->where('archived', 0)
+        ->whereNull('parent_id')  // Exclude subprojects
         ->get();
         $entreprise_infos = Entreprise::where('id', Auth::user()->entreprise_id)->first();
 
@@ -4069,6 +4331,7 @@ public function invoiceArchiveIndex()
                   ->orWhere('AcceptedDevisProject', '=', 1);
         })
         ->where('archived', 0)
+        ->whereNull('parent_id')  // Exclude subprojects
         ->get();
 
     return view('admin.invoices.editFullInvoice', compact('invoice', 'projects', 'entreprise'));
@@ -4087,6 +4350,7 @@ public function editPartialInvoice($id)
                   ->orWhere('AcceptedDevisProject', '=', 1);
         })
         ->where('archived', 0)
+        ->whereNull('parent_id')  // Exclude subprojects
         ->get();
 
     return view('admin.invoices.editPartialInvoice', compact('invoice', 'projects', 'entreprise'));
@@ -4103,6 +4367,7 @@ public function editPercentageInvoice($id)
                   ->orWhere('AcceptedDevisProject', '=', 1);
         })
         ->where('archived', 0)
+        ->whereNull('parent_id')  // Exclude subprojects
         ->get();
 
     return view('admin.invoices.editPercentageInvoice', compact('invoice', 'projects', 'entreprise'));
@@ -4119,6 +4384,7 @@ public function editPeriodInvoice($id)
                   ->orWhere('AcceptedDevisProject', '=', 1);
         })
         ->where('archived', 0)
+        ->whereNull('parent_id')  // Exclude subprojects
         ->get();
 
     return view('admin.invoices.editPeriodInvoice', compact('invoice', 'projects', 'entreprise'));
@@ -4157,12 +4423,16 @@ public function updateFullInvoice(Request $request, $id)
         // 4. Save the invoice first
         $invoice->save();
 
-        // 5. Update the project's billed amount
+        // 5. Update the project's billed amount (exclude credit notes)
         $totalBilled = invoices_history::where('project_id', $project->id)
             ->where('id', '!=', $invoice->id)
+            ->where('Payment_status', '!=', -1) // Exclude credit notes/deleted invoices
             ->sum('total_htva');
         
-        $totalBilled += $invoice->total_htva;
+        // Add current invoice only if it's not a credit note
+        if ($invoice->Payment_status != -1) {
+            $totalBilled += $invoice->total_htva;
+        }
         $project->amount_billed = $totalBilled;
         $project->save();
         
@@ -4244,12 +4514,16 @@ public function updatePartialInvoice(Request $request, $id)
         // 4. Save the invoice first
         $invoice->save();
 
-        // 5. Update the project's billed amount
+        // 5. Update the project's billed amount (exclude credit notes)
         $totalBilled = invoices_history::where('project_id', $project->id)
             ->where('id', '!=', $invoice->id)
+            ->where('Payment_status', '!=', -1) // Exclude credit notes/deleted invoices
             ->sum('total_htva');
         
-        $totalBilled += $invoice->total_htva;
+        // Add current invoice only if it's not a credit note
+        if ($invoice->Payment_status != -1) {
+            $totalBilled += $invoice->total_htva;
+        }
         $project->amount_billed = $totalBilled;
         $project->save();
         
@@ -4331,12 +4605,16 @@ public function updatePercentageInvoice(Request $request, $id)
         // 4. Save the invoice first
         $invoice->save();
 
-        // 5. Update the project's billed amount
+        // 5. Update the project's billed amount (exclude credit notes)
         $totalBilled = invoices_history::where('project_id', $project->id)
             ->where('id', '!=', $invoice->id)
+            ->where('Payment_status', '!=', -1) // Exclude credit notes/deleted invoices
             ->sum('total_htva');
         
-        $totalBilled += $invoice->total_htva;
+        // Add current invoice only if it's not a credit note
+        if ($invoice->Payment_status != -1) {
+            $totalBilled += $invoice->total_htva;
+        }
         $project->amount_billed = $totalBilled;
         $project->save();
         
@@ -4429,8 +4707,9 @@ public function updatePeriodInvoice(Request $request, $id)
             $invoice->project_name = $project->name;
         }
 
-        // 3. Calculate and set the new amounts
-        $total_htva = ($project->cost_per_hour * ($duration/60));
+        // 3. Calculate and set the new amounts (using rounded hours)
+        $hours = round($duration / 60, 2);
+        $total_htva = ($project->cost_per_hour * $hours);
         $total_tva = $total_htva * ($project->tva/100);
         $total_ttc = $total_htva + $total_tva;
 
@@ -4445,12 +4724,16 @@ public function updatePeriodInvoice(Request $request, $id)
         // 4. Save the invoice first
         $invoice->save();
 
-        // 5. Update the project's billed amount
+        // 5. Update the project's billed amount (exclude credit notes)
         $totalBilled = invoices_history::where('project_id', $project->id)
             ->where('id', '!=', $invoice->id)
+            ->where('Payment_status', '!=', -1) // Exclude credit notes/deleted invoices
             ->sum('total_htva');
         
-        $totalBilled += $invoice->total_htva;
+        // Add current invoice only if it's not a credit note
+        if ($invoice->Payment_status != -1) {
+            $totalBilled += $invoice->total_htva;
+        }
         $project->amount_billed = $totalBilled;
         $project->save();
         
@@ -4543,6 +4826,10 @@ public function updateDevis(Request $request, $devis_id)
     if ($billingType === 'horaire') {
         $calculatedBudget = $hoursValue * $amountValue;
         $costPerHour = $amountValue;
+    } elseif ($billingType === 'detailed_hourly') {
+        // For detailed_hourly, budget is calculated from task hours * cost_per_hour
+        // The budget will be calculated from the form's calculated value
+        $costPerHour = (float) $request->input('cost_per_hour', 0);
     }
 
     $storedHours = $billingType === 'horaire' ? $hoursValue : null;
@@ -4643,18 +4930,41 @@ public function updateDevis(Request $request, $devis_id)
 
     $tasks = $request->input('task');
     $taskBudget = $request->input('taskBudget');
+    $taskHours = $request->input('taskHours');
+    $taskCostPerHour = $request->input('taskCostPerHour');
 
     // Delete all existing devis details for this devis
     devis_details::where('devis_id', $devis->id)->delete();
 
     // Create new devis details
-    if ($tasks && $taskBudget) {
+    if ($tasks) {
         foreach ($tasks as $index => $task) {
-            if (!empty($task) && isset($taskBudget[$index])) {
+            if (!empty($task)) {
                 $devis_detail = new devis_details();
                 $devis_detail->devis_id = $devis->id;
                 $devis_detail->task_details = $task;
-                $devis_detail->task_budget = $taskBudget[$index];
+                
+                // Handle different billing types
+                if ($billingType === 'detailed_hourly') {
+                    // For detailed_hourly, save hours and cost_per_hour, calculate task_budget
+                    if (isset($taskHours[$index]) && is_numeric($taskHours[$index]) && 
+                        isset($taskCostPerHour[$index]) && is_numeric($taskCostPerHour[$index])) {
+                        $devis_detail->hours = (float) $taskHours[$index];
+                        $devis_detail->cost_per_hour = (float) $taskCostPerHour[$index];
+                        $devis_detail->task_budget = $devis_detail->hours * $devis_detail->cost_per_hour;
+                    } else {
+                        // Skip if required fields are missing
+                        continue;
+                    }
+                } else {
+                    // For forfait and horaire, use taskBudget if available
+                    if (isset($taskBudget[$index]) && is_numeric($taskBudget[$index])) {
+                        $devis_detail->task_budget = (float) $taskBudget[$index];
+                    } else {
+                        $devis_detail->task_budget = 0;
+                    }
+                }
+                
                 $devis_detail->entreprise_id = Auth::user()->entreprise_id;
                 $devis_detail->save();
             }
@@ -4664,19 +4974,26 @@ public function updateDevis(Request $request, $devis_id)
 
     $project_name = $request->Project_name ?: $devis->Existing_project_name;
 
+    // Get devis details from database (includes hours for detailed_hourly)
+    $devis_details = devis_details::where('devis_id', $devis->id)->get();
+
     // Generate new PDF
     $pdf = PDF::loadView('admin.devis.view', [
         'project_name' => $project_name,
-        'prix_unitaire' => $request->cost_per_hour,
-        'budget' => $request->budget,
+        'prix_unitaire' => $costPerHour,
+        'budget' => $calculatedBudget,
         'tva' => $devis->tva,
         'description' => $request->description,
         'entreprise' => $entreprise,
         'devisNum' => $devis->devis_number,
-        'cost_per_hour' => $request->cost_per_hour,
+        'cost_per_hour' => $costPerHour,
         'tasks' => $tasks,
         'taskBudget' => $taskBudget,
-        'devis_id' => $devis->id
+        'devis_id' => $devis->id,
+        'billing_type' => $billingType,
+        'hours' => $hoursValue,
+        'amount_per_hour' => $amountValue,
+        'devis_details' => $devis_details
     ]);
 
     // Delete old PDF if it exists
@@ -4753,6 +5070,7 @@ public function generateDetailedInvoice()
                 ->orWhere('AcceptedDevisProject', '=', 1);
         })
         ->where('archived', 0)
+        ->whereNull('parent_id')  // Exclude subprojects
         ->orderBy('client_id')  // This will group projects by client
         ->orderBy('name')       // This will sort projects by name within each client group
         ->get();
@@ -4992,10 +5310,6 @@ public function updateDetailedInvoice(Request $request, $id)
 
     DB::beginTransaction();
     try {
-        // First revert the old amount from the project
-        $project->amount_billed -= $invoice->total_htva;
-        $project->save();
-
         // Calculate new totals
         $total_htva = 0;
         $details = [];
@@ -5021,8 +5335,11 @@ public function updateDetailedInvoice(Request $request, $id)
         
         $invoice->save();
 
-        // Update project's billed amount
-        $project->amount_billed += $total_htva;
+        // Recalculate project's billed amount from all invoices (exclude credit notes)
+        $totalBilled = invoices_history::where('project_id', $project->id)
+            ->where('Payment_status', '!=', -1) // Exclude credit notes/deleted invoices
+            ->sum('total_htva');
+        $project->amount_billed = $totalBilled;
         $project->save();
 
         // Generate new PDF
@@ -5076,6 +5393,7 @@ public function getDevisByProject($projectId)
     try {
         $devis = devis_history::where('project_id', $projectId)
             ->where('acceptanceStatus', 1)
+            ->where('archived', 0) // Exclude archived devis
             ->where('entreprise_id', Auth::user()->entreprise_id)
             ->select('id', 'devis_number as number') // Make sure we're selecting the correct column name
             ->get();
@@ -5095,6 +5413,7 @@ public function getAllDevis()
         $entrepriseId = Auth::user()->entreprise_id;
         $devis = devis_history::where('entreprise_id', $entrepriseId)
             ->where('acceptanceStatus', 1)
+            ->where('archived', 0) // Exclude archived devis
             ->select('id', 'devis_number as number', 'project_id', 'budget')
             ->orderBy('created_at', 'desc')
             ->get();
@@ -5103,9 +5422,10 @@ public function getAllDevis()
         $projectNames = \App\Models\Project::whereIn('id', $devis->pluck('project_id')->filter()->unique())
             ->pluck('name', 'id');
 
-        // Calculate total billed per devis
+        // Calculate total billed per devis (exclude credit notes/deleted invoices)
         $billedPerDevis = \App\Models\invoices_history::where('entreprise_id', $entrepriseId)
             ->whereIn('devis_id', $devis->pluck('id'))
+            ->where('Payment_status', '!=', -1) // Exclude credit notes/deleted invoices
             ->selectRaw('devis_id, COALESCE(SUM(total_htva), 0) as total')
             ->groupBy('devis_id')
             ->pluck('total', 'devis_id');
@@ -5158,7 +5478,9 @@ public function createDetailedCreditNote($invoiceID, Request $request)
         $details = json_decode($invoice->details, true);
         
         // Get the last credit note number
-        $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+        $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+            ->whereYear('created_at', now()->year)
+            ->max('credit_note_number');
         if (!$last_credit_note_number) {
             $last_credit_note_number = 0;
         }
@@ -5238,7 +5560,9 @@ public function confirmDetailedCreditNote($invoiceID, Request $request)
         $entreprise = Entreprise::findOrFail(Auth::user()->entreprise_id);
         
         // Get the last credit note number
-        $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)->max('credit_note_number');
+        $last_credit_note_number = credit_note::where('entreprise_id', $invoice->entreprise_id)
+            ->whereYear('created_at', now()->year)
+            ->max('credit_note_number');
         if (!$last_credit_note_number) {
             $last_credit_note_number = 0;
         }

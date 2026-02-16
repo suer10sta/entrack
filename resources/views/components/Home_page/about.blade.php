@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>About | DailyTrac</title>
+    <title>About | DalyTrac</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net" />
     <link
@@ -28,7 +28,8 @@
     <x-Home_page.header />
 
     <main>
-      
+
+      {{-- Hero / Intro --}}
       <section class="relative pt-40 pb-24 lg:pt-48 lg:pb-32 overflow-hidden" data-aos="fade-in">
         <div class="absolute inset-0 bg-[linear-gradient(to_right,theme(colors.secondary)_1px,transparent_1px),linear-gradient(to_bottom,theme(colors.secondary)_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
         
@@ -37,15 +38,17 @@
             About Us
           </div>
           <h1 class="text-5xl lg:text-7xl font-bold text-foreground mb-8 tracking-tight">
-            Building the future of <br />
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Enterprise Management</span>
+            Meet <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">DalyTrac</span><br />
+            your operational command center
           </h1>
           <p class="text-xl text-muted max-w-3xl mx-auto leading-relaxed">
-            We strip away the complexity of business operations, giving you a clean, blue-sky environment where your team can thrive.
+            We strip away the complexity of business operations and bring your invoices, projects,
+            teams, and finances together into one calm, powerful workspace.
           </p>
         </div>
       </section>
 
+      {{-- Mission + Snapshot --}}
       <section class="py-24 bg-secondary">
         <div class="container mx-auto px-6">
             <div class="flex flex-col md:flex-row gap-12 items-center">
@@ -57,7 +60,8 @@
                         We believe software shouldn't force you to change how you work. It should adapt to you.
                     </p>
                     <p class="text-lg text-muted">
-                        Our mission is to provide a unified platform where invoices, projects, and people connect seamlessly, removing the "digital friction" that slows down modern businesses.
+                        Our mission is to provide a unified platform where invoices, projects, and people
+                        connect seamlessly, removing the “digital friction” that slows down modern businesses.
                     </p>
                 </div>
                 <div class="md:w-1/2" data-aos="fade-left">
@@ -76,6 +80,189 @@
         </div>
       </section>
 
+      {{-- Our Story --}}
+      <section class="py-24 bg-card border-y border-border">
+        <div class="container mx-auto px-6 max-w-6xl">
+          <div class="grid gap-12 lg:grid-cols-2 items-center">
+            <div data-aos="fade-right">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary text-xs font-semibold uppercase tracking-wide text-primary mb-4">
+                <span class="w-2 h-2 rounded-full bg-primary"></span>
+                Our story
+              </div>
+              <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-6">
+                Built for teams who outgrew spreadsheets and scattered tools
+              </h2>
+              <p class="text-muted mb-4 leading-relaxed">
+                DalyTrac started with a simple observation: growing businesses were juggling
+                invoices in one tool, time tracking in another, and projects in a third—while
+                trying to keep everything aligned with shared spreadsheets and endless emails.
+              </p>
+              <p class="text-muted mb-4 leading-relaxed">
+                We set out to design a system that feels as intuitive as a notebook, but as
+                powerful as an enterprise suite. A single source of truth where owners, managers,
+                and collaborators can see what’s happening and what needs to happen next.
+              </p>
+              <p class="text-muted leading-relaxed">
+                Today, DalyTrac helps teams replace fragmented workflows with a connected,
+                real-time picture of their business—without the heavy, complicated software that
+                usually comes with that power.
+              </p>
+            </div>
+
+            <div data-aos="fade-left">
+              <div class="relative">
+                <div class="absolute -inset-4 bg-gradient-to-tr from-primary/10 via-accent/10 to-transparent rounded-3xl blur-2xl"></div>
+                <div class="relative bg-background border border-border rounded-3xl p-6 md:p-8 shadow-xl">
+                  <div class="flex items-center justify-between mb-6">
+                    <div>
+                      <p class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Today
+                      </p>
+                      <p class="text-2xl font-bold text-foreground">DalyTrac at a glance</p>
+                    </div>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-secondary text-primary">
+                      Live platform
+                    </span>
+                  </div>
+
+                  <dl class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-secondary rounded-2xl p-4">
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Teams served</dt>
+                      <dd class="text-2xl font-bold text-foreground">50+</dd>
+                    </div>
+                    <div class="bg-secondary rounded-2xl p-4">
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Invoices tracked</dt>
+                      <dd class="text-2xl font-bold text-foreground">10k+</dd>
+                    </div>
+                    <div class="bg-secondary rounded-2xl p-4">
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Time entries</dt>
+                      <dd class="text-2xl font-bold text-foreground">250k+</dd>
+                    </div>
+                    <div class="bg-secondary rounded-2xl p-4">
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Countries</dt>
+                      <dd class="text-2xl font-bold text-foreground">10+</dd>
+                    </div>
+                  </dl>
+
+                  <div class="flex items-start gap-3">
+                    <div class="mt-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 6v6l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <p class="text-sm text-muted-foreground leading-relaxed">
+                      Whether you’re a small agency or a growing enterprise, DalyTrac gives you
+                      the same clarity and control over your operations—without requiring a full-time admin.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {{-- Values --}}
+      <section class="py-24 bg-background" data-aos="fade-up">
+        <div class="container mx-auto px-6 max-w-6xl">
+          <div class="text-center mb-14">
+            <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-4">Values that shape DalyTrac</h2>
+            <p class="text-muted max-w-2xl mx-auto">
+              Behind every feature is a simple idea: software should feel light, be reliable,
+              and help you make better decisions every day.
+            </p>
+          </div>
+
+          <div class="grid gap-8 md:grid-cols-3">
+            <div class="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all">
+              <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-foreground mb-2">Clarity over clutter</h3>
+              <p class="text-sm text-muted-foreground leading-relaxed">
+                We design for focus—surface what matters, hide what doesn’t, and give you a clear,
+                honest view of your work.
+              </p>
+            </div>
+
+            <div class="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all">
+              <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-foreground mb-2">Speed with stability</h3>
+              <p class="text-sm text-muted-foreground leading-relaxed">
+                DalyTrac is built to be fast and dependable—so your team can move quickly without
+                worrying about downtime or data loss.
+              </p>
+            </div>
+
+            <div class="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all">
+              <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 8h2a2 2 0 012 2v8a2 2 0 01-2 2h-2M7 8H5a2 2 0 00-2 2v8a2 2 0 002 2h2m10-8a5 5 0 00-10 0m10 0v3a5 5 0 11-10 0v-3" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-foreground mb-2">Human support</h3>
+              <p class="text-sm text-muted-foreground leading-relaxed">
+                Behind the product is a real team who listens, advises, and helps you get the
+                most out of DalyTrac—whenever you need it.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {{-- Simple timeline / How we help --}}
+      <section class="py-24 bg-card" data-aos="fade-up">
+        <div class="container mx-auto px-6 max-w-5xl">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-4">From chaos to control in three steps</h2>
+            <p class="text-muted max-w-2xl mx-auto">
+              DalyTrac is intentionally simple to roll out. Whether you’re migrating from
+              spreadsheets or another system, you can be productive in days, not months.
+            </p>
+          </div>
+
+          <ol class="space-y-8">
+            <li class="relative pl-10">
+              <span class="absolute left-0 top-1.5 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shadow-md">
+                1
+              </span>
+              <h3 class="text-lg font-semibold text-foreground mb-1">Connect your core data</h3>
+              <p class="text-sm text-muted-foreground leading-relaxed">
+                Set up your company, add clients, projects, and team members. Import existing
+                invoices and records so everything starts from a single, up-to-date source of truth.
+              </p>
+            </li>
+            <li class="relative pl-10">
+              <span class="absolute left-0 top-1.5 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shadow-md">
+                2
+              </span>
+              <h3 class="text-lg font-semibold text-foreground mb-1">Align your daily workflows</h3>
+              <p class="text-sm text-muted-foreground leading-relaxed">
+                Track time, manage tasks, send quotes, and generate invoices—all from the same
+                place. Teams see exactly what to do next, and leaders see where time and money go.
+              </p>
+            </li>
+            <li class="relative pl-10">
+              <span class="absolute left-0 top-1.5 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shadow-md">
+                3
+              </span>
+              <h3 class="text-lg font-semibold text-foreground mb-1">Decide with confidence</h3>
+              <p class="text-sm text-muted-foreground leading-relaxed">
+                Use dashboards and analytics to understand profitability, capacity, and
+                performance. Make decisions based on live numbers—not guesswork.
+              </p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      {{-- Feature overview (reassurance) --}}
       <section class="py-24 bg-card" data-aos="fade-up">
         <div class="container mx-auto px-6 max-w-7xl">
           
@@ -163,7 +350,7 @@
             </h2>
             
             <p class="text-lg text-muted mb-10 max-w-2xl mx-auto leading-relaxed">
-                Every workflow is different. We can personalize DailyTrac to fit your specific needs—adding custom fields, reports, or integrations just for you.
+                Every workflow is different. We can personalize DalyTrac to fit your specific needs—adding custom fields, reports, or integrations just for you.
             </p>
 
             <a href="/contact" class="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground font-bold rounded-lg shadow-lg shadow-primary/20 hover:bg-primary/90 hover:-translate-y-1 transition-all duration-300">

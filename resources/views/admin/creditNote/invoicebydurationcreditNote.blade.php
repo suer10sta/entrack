@@ -6,6 +6,13 @@
     .logo-right {
         text-align: left;
     }
+
+    .payment {
+            margin: 20px 0;
+            padding: 10px;
+            border-top: 1px solid #CCCCCC;
+            border-bottom: 1px solid #CCCCCC;
+        }
 </style>
 <body style='font-family:Tahoma;font-size:12px;color: #333333;background-color:#FFFFFF;'>
     <table align='center' border='0' cellpadding='0' cellspacing='0' style='height:842px; width:595px;font-size:12px;'>
@@ -15,7 +22,9 @@
                     <tr>
                         <td valign='bottom'>
                             <div class="header logo-right">
-                                <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo" style="width: 100px; height: 30px;">
+                            @if($entreprise->image)
+                        <img src="{{ storage_path('app/public/' . $entreprise->image) }}" alt="Company Logo" class="company-logo">
+                    @endif
                             </div><br />
                         </td>
 
@@ -101,7 +110,12 @@
                             </td>
                             @if($partial == 1)
                             <td valign='top' style='font-size:12px;'>
-                                <span>{{number_format(abs($projectinfos->cost_per_hour * $duration/60 + ($projectinfos->cost_per_hour * $duration/60*($projectinfos->tva/100))), 2, ',', '')}}€</span>
+                                @php
+                                    $hours = round($duration / 60, 2);
+                                    $originalHtva = $projectinfos->cost_per_hour * $hours;
+                                    $originalTva = $originalHtva * ($projectinfos->tva / 100);
+                                @endphp
+                                <span>{{ number_format(abs($originalHtva + $originalTva), 2, ',', '') }}€</span>
                             </td>
                             @endif
 
@@ -135,18 +149,36 @@
             </td>
         </tr>
     </table>
+    @if($projectinfos->description || $comment)
     <table width='100%' height='50'>
         <tr>
             <td style=' font-size:12px;text-align:justify ;border-top:double;border-bottom:double'>
-            <strong>- Description du projet :</strong><br>
-                {{$projectinfos->description}}</td>
+                @if($projectinfos->description)
+                <strong> - Informations :</strong><br>
+                {!! nl2br(e($projectinfos->description)) !!}<br>
+                @endif
+                @if($comment)
+                <strong>Commentaire:</strong><br>
+                {!! nl2br(e($comment)) !!}
+                @endif
+            </td>
         </tr>
     </table>
+    @endif
+
+    <div class="payment">
+            - Cette note de crédit annule @if($partial)partiellement @else totalement @endif la facture {{$entreprise->invoice_prefix}}-{{date('ym')}}{{$invoice->number}}
+            <br>
+            - Dans le cas de livraison intracommunautaire pour les services :  "Autoliquidation Art 21 § 2 du code TVA belge"
+            <br>
+            - Voir conditions générales en annexe
+        </div>
     <br>
 
     <table width='100%' cellspacing='0' cellpadding='2' border='1' bordercolor='#CCCCCC' '>
   <thead>
     <td bordercolor=' #ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Nom de Tache</strong></td>
+        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Projet / Sous-projet</strong></td>
         <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Date de debut </strong></td>
         <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Date de Fin</strong></td>
         <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Duree</strong></td>
@@ -159,6 +191,7 @@
             @foreach($collection as $coll)
             <tr>
                 <td valign='top' style='font-size:12px;'>{{$coll->task_name}}</td>
+                <td valign='top' style='font-size:12px;'>{{ $coll->project_name ?? $projectinfos->name }}</td>
                 <td valign='top' style='font-size:12px;'>{{ \Carbon\Carbon::parse($coll->start_date)->format('d-m-Y H:i') }}</td>
                 <td valign='top' style='font-size:12px;'>{{ \Carbon\Carbon::parse($coll->end_date)->format('d-m-Y H:i') }}</td>
                 <td valign='top' style='font-size:12px;'>
@@ -174,7 +207,7 @@
             </tr>
             @endforeach
             <tr>
-                <td colspan="3" style='font-size:12px; text-align: right;'><strong>Duree Total:</strong></td>
+                <td colspan="4" style='font-size:12px; text-align: right;'><strong>Duree Total:</strong></td>
                 <td valign='top' style='font-size:12px;'>
                     {{ floor($totalMinutes / 60) }}h:{{ sprintf('%02d', $totalMinutes % 60) }}m</td>
             </tr>

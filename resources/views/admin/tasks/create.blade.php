@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DailyTrac Dashboard - New Task</title>
+    <title>DalyTrac Dashboard - New Task</title>
     @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     {{-- Main content area --}}
     <div class="flex flex-col flex-1 overflow-y-auto">
@@ -68,6 +72,24 @@
                                     Estimated Hours
                                 </label>
                                 <input type="text" id="estimated_hours" name="estimated_hours"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <div>
+                                <label for="start_date" class="block text-sm font-medium text-gray-700">
+                                    Start Date 
+                                </label>
+                                <input type="date" id="start_date" name="start"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                            </div>
+                            
+                            <div> 
+                                <label for="end_date" class="block text-sm font-medium text-gray-700">
+                                    End Date
+                                </label>
+                                <input type="date" id="end_date" name="end"
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                             </div>
                         </div>

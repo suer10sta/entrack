@@ -3,7 +3,8 @@
 namespace App\Livewire;
 use Livewire\Component;
 use Carbon\Carbon;
-use App\Models\calendars; 
+use App\Models\calendars;
+use App\Models\User; 
 
 class FullCalendarModal extends Component
 {
@@ -54,8 +55,12 @@ class FullCalendarModal extends Component
 
     public function loadEvents()
     {
-        $this->events = calendars::where('entreprise_id', auth()->user()->entreprise_id)
+        $entreprise_id = auth()->user()->entreprise_id;
+
+        // Show all events in the same enterprise
+        $this->events = calendars::where('entreprise_id', $entreprise_id)
             ->whereDate('start_date', $this->selectedDate->toDateString())
+            ->with('creator.employee')
             ->orderBy('start_date')
             ->get();
     }

@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DailyTrac Dashboard</title>
+    <title>DalyTrac Dashboard</title>
     @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
     <div class="flex flex-col flex-1 overflow-y-auto">
         {{-- Navbar --}}
         <x-dashboard.navbar />
@@ -123,8 +127,8 @@
                                         <div class="mt-2 flex flex-col sm:flex-row sm:items-center sm:space-x-6">
                                             {{-- Logo Preview --}}
                                             <div class="flex-shrink-0 w-32 h-32 border-2 border-gray-300 border-dashed rounded-lg flex items-center justify-center mb-4 sm:mb-0 overflow-hidden bg-white">
-                                                @if($entreprise->entreprise_image)
-                                                    <img id="logo-preview" src="{{ asset('storage/' . $entreprise->entreprise_image) }}" alt="Company Logo" class="w-full h-full object-contain p-2">
+                                                @if($entreprise->image)
+                                                    <img id="logo-preview" src="{{ Storage::disk('public')->url($entreprise->image) }}" alt="Company Logo" class="w-full h-full object-contain p-2">
                                                 @else
                                                     <div id="logo-placeholder" class="text-center">
                                                         <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -193,55 +197,7 @@
                                     </div>
                                 </div>
 
-                                <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6">
-                                    {{-- Card Header --}}
-                                    <div class="mb-6">
-                                        <h5 class="text-xl font-bold text-gray-900">SMTP Configuration</h5>
-                                        <p class="text-sm text-gray-500">Mandatory information</p>
-                                    </div>
-
-                                    {{-- Form Grid (2 columns) --}}
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        @php
-                                            $smtpInputClasses = "editableSmtp mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-gray-50";
-                                        @endphp
-                                        <div>
-                                            <label class="{{ $labelClasses }}">Mail Host:</label>
-                                            <input
-                                                class="{{ $smtpInputClasses }}"
-                                                type="text" name="mail_host"
-                                                value="{{ $smtp->mail_host ?? 'Double Click to Configure it' }}"
-                                                readonly />
-                                        </div>
-
-                                        <div>
-                                            <label class="{{ $labelClasses }}">Mail Port:</label>
-                                            <input
-                                                class="{{ $smtpInputClasses }}"
-                                                type="text" name="mail_port"
-                                                value="{{$smtp->mail_port ?? 'Double Click to Configure it'}}"
-                                                readonly />
-                                        </div>
-
-                                        <div>
-                                            <label class="{{ $labelClasses }}">Mail Username:</label>
-                                            <input
-                                                class="{{ $smtpInputClasses }}"
-                                                type="text" name="mail_username"
-                                                value="{{$smtp->mail_username ?? 'Double Click to Configure it'}}"
-                                                readonly />
-                                        </div>
-
-                                        <div>
-                                            <label class="{{ $labelClasses }}">Mail Password:</label>
-                                            <input
-                                                class="{{ $smtpInputClasses }}"
-                                                type="password" name="mail_password"
-                                                value="{{$smtp->mail_password ?? 'Double Click to Configure it'}}"
-                                                readonly />
-                                        </div>
-                                    </div>
-                                </div>
+                                
 
                                 {{-- Footer Buttons --}}
                                 <div class="flex justify-between items-center mt-8 mb-8">

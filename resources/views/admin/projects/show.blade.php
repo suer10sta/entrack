@@ -3,10 +3,364 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Details - DailyTrac</title>
+    <title>Project Details - DalyTrac</title>
     @vite('resources/css/app.css')
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>
+        // Register Alpine.js components BEFORE Alpine loads
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('editDateModal', () => ({
+                show: false,
+                taskId: null,
+                field: '',
+                date: '',
+                time: '',
+                open(detail) {
+                    this.taskId = detail.taskId;
+                    this.field = detail.field;
+                    if (detail.datetime) {
+                        this.date = detail.datetime.substring(0, 10);
+                        this.time = detail.datetime.substring(11, 16);
+                    } else {
+                        const now = new Date();
+                        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                        const isoNow = now.toISOString().substring(0, 16);
+                        this.date = isoNow.substring(0, 10);
+                        this.time = isoNow.substring(11, 16);
+                    }
+                    this.show = true;
+                },
+                save() {
+                    const newValue = `${this.date} ${this.time}`;
+                    let url = '';
+                    @if(Auth::user()->hasRole('Admin')) url = `/admin/tasks/update-${this.field}/${this.taskId}`; @endif
+                    @if(Auth::user()->hasRole('Responsable de projet')) url = `/Responsable_de_projet/tasks/update-${this.field}/${this.taskId}`; @endif
+                    @if(Auth::user()->hasRole('Employee')) url = `/employee/tasks/update-${this.field}/${this.taskId}`; @endif
+                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = `/Responsable_gestionnaire/tasks/update-${this.field}/${this.taskId}`; @endif
+
+                    $.ajax({
+                        url: url, type: 'POST',
+                        data: { [this.field]: newValue, _token: '{{ csrf_token() }}' },
+                        success: (response) => {
+                            if (response.status === 'success') location.reload();
+                            else alert(response.message || 'Failed to update.');
+                        },
+                        error: (xhr) => {
+                            let msg = 'Failed to update.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                            alert(msg);
+                        }
+                    });
+                    this.show = false;
+                }
+            }));
+
+            Alpine.data('moveDurationModal', () => ({
+                show: false,
+                originalTaskId: null,
+                projectId: '',
+                taskId: '',
+                employeeId: '',
+                startDate: '',
+                endDate: '',
+                duration: '',
+                durationMinutes: 0,
+                open(detail) {
+                    this.originalTaskId = detail.taskId;
+                    this.projectId = detail.projectId;
+                    this.employeeId = detail.employeeId;
+                    this.startDate = detail.startDate;
+                    this.endDate = detail.endDate;
+                    this.durationMinutes = detail.duration;
+                    this.duration = this.minutesToHoursMinutes(detail.duration);
+                    this.loadTasks(detail.taskId);
+                    this.show = true;
+                },
+                loadTasks(selectedTaskId = null) {
+                    let url = '';
+                    @if(Auth::user()->hasRole('Admin')) url = `/admin/tasks/get-project-tasks/${this.projectId}`; @endif
+                    @if(Auth::user()->hasRole('Responsable de projet')) url = `/Responsable_de_projet/tasks/get-project-tasks/${this.projectId}`; @endif
+                    @if(Auth::user()->hasRole('Employee')) url = `/employee/tasks/get-project-tasks/${this.projectId}`; @endif
+                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = `/Responsable_gestionnaire/tasks/get-project-tasks/${this.projectId}`; @endif
+                    
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(tasks => {
+                            const taskSelect = document.getElementById('taskSelect');
+                            taskSelect.innerHTML = '';
+                            tasks.forEach(task => {
+                                const option = new Option(task.name, task.id);
+                                taskSelect.add(option);
+                            });
+                            this.taskId = selectedTaskId || (tasks.length > 0 ? tasks[0].id : '');
+                        });
+                },
+                calculateDuration() {
+                    if (!this.startDate || !this.endDate) return;
+                    const start = new Date(this.startDate);
+                    const end = new Date(this.endDate);
+                    const diffMs = end - start;
+                    if (diffMs < 0) {
+                        this.duration = '00h:00m'; this.durationMinutes = 0; return;
+                    }
+                    const minutes = Math.floor(diffMs / 60000);
+                    this.durationMinutes = minutes;
+                    this.duration = this.minutesToHoursMinutes(minutes);
+                },
+                validateDurationFormat() {
+                    if (/^(\d+)h:(\d{2})m$/.test(this.duration)) {
+                        this.durationMinutes = this.hoursMinutesToMinutes(this.duration);
+                    }
+                },
+                saveMove() {
+                    if (!this.duration.match(/^(\d+)h:(\d{2})m$/)) {
+                        alert('Please enter duration in format (e.g., 01h:30m or 10h:00m)');
+                        return;
+                    }
+                    const formData = {
+                        original_task_id: this.originalTaskId, new_task_id: this.taskId,
+                        employee_id: this.employeeId, start_date: this.startDate,
+                        end_date: this.endDate, duration: this.durationMinutes,
+                        _token: '{{ csrf_token() }}'
+                    };
+                    let url = '';
+                    @if(Auth::user()->hasRole('Admin')) url = '/admin/tasks/move-duration'; @endif
+                    @if(Auth::user()->hasRole('Responsable de projet')) url = '/Responsable_de_projet/tasks/move-duration'; @endif
+                    @if(Auth::user()->hasRole('Employee')) url = '/employee/tasks/move-duration'; @endif
+                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = '/Responsable_gestionnaire/tasks/move-duration'; @endif
+
+                    $.ajax({
+                        url: url, type: 'POST', data: formData,
+                        success: (response) => {
+                            if (response.status === 'success') location.reload();
+                            else alert('Failed: ' + (response.message || 'Unknown error'));
+                        },
+                        error: (xhr) => alert('Error: ' + xhr.responseText)
+                    });
+                    this.show = false;
+                },
+                minutesToHoursMinutes(minutes) {
+                    const hours = Math.floor(minutes / 60);
+                    const remainingMinutes = minutes % 60;
+                    return `${hours.toString().padStart(2, '0')}h:${remainingMinutes.toString().padStart(2, '0')}m`;
+                },
+                hoursMinutesToMinutes(durationString) {
+                    const matches = durationString.match(/^(\d+)h:(\d{2})m$/);
+                    if (!matches) return 0;
+                    return (parseInt(matches[1]) * 60) + parseInt(matches[2]);
+                }
+            }));
+
+            Alpine.data('exportReportModal', () => ({
+                show: false,
+                isCustomerReport: false,
+                open(isCustomer) {
+                    this.isCustomerReport = isCustomer;
+                    this.show = true;
+                },
+                download() {
+                    alert('Download logic not implemented in Alpine.js modal yet.');
+                    this.show = false;
+                }
+            }));
+
+            Alpine.data('sendInvoiceModal', () => ({
+                show: false,
+                invoiceId: null,
+                form: null,
+                open(invoiceId) {
+                    this.invoiceId = invoiceId;
+                    this.show = true;
+                    this.form = document.getElementById('sendInvoiceForm');
+                    if (this.form) {
+                        this.updateFormAction();
+                        this.fetchRecipients();
+                    }
+                },
+                updateFormAction() {
+                    let actionUrl = '';
+                    @if(Auth::user()->hasRole('Admin')) actionUrl = '{{ route("admin.invoice.sendInvoice", ":id") }}'; @endif
+                    @if(Auth::user()->hasRole('Responsable de projet')) actionUrl = '{{ route("Responsable_de_projet.invoice.sendInvoice", ":id") }}'; @endif
+                    @if(Auth::user()->hasRole('Employee')) actionUrl = '{{ route("employee.invoice.sendInvoice", ":id") }}'; @endif
+                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) actionUrl = '{{ route("Responsable_gestionnaire.invoice.sendInvoice", ":id") }}'; @endif
+                    if (this.form) {
+                        this.form.action = actionUrl.replace(':id', this.invoiceId);
+                    }
+                },
+                fetchRecipients() {
+                    let fetchUrl = '';
+                    @if(Auth::user()->hasRole('Admin')) fetchUrl = `/admin/invoice/${this.invoiceId}/recipients`; @endif
+                    @if(Auth::user()->hasRole('Responsable de projet')) fetchUrl = `/Responsable_de_projet/invoice/${this.invoiceId}/recipients`; @endif
+                    @if(Auth::user()->hasRole('Employee')) fetchUrl = `/employee/invoice/${this.invoiceId}/recipients`; @endif
+                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) fetchUrl = `/Responsable_gestionnaire/invoice/${this.invoiceId}/recipients`; @endif
+                    
+                    fetch(fetchUrl)
+                        .then(response => response.json())
+                        .then(data => {
+                            const recipientsList = document.getElementById('recipientsList');
+                            if (!recipientsList) return;
+                            recipientsList.innerHTML = '';
+                            if (data.recipients && data.recipients.length > 0) {
+                                recipientsList.innerHTML += `
+                                    <div class="flex items-center">
+                                        <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="selectAllRecipients">
+                                        <label class="ml-2 text-sm font-bold text-gray-900" for="selectAllRecipients">Select All</label>
+                                    </div>`;
+                                data.recipients.forEach(recipient => {
+                                    recipientsList.innerHTML += `
+                                        <div class="flex items-center">
+                                            <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 recipient-checkbox" type="checkbox" 
+                                                   name="selected_recipients[]" value="${recipient.email}" id="recipient-${recipient.email}" 
+                                                   ${recipient.is_comptable === 1 ? 'checked' : ''}>
+                                            <label class="ml-2 text-sm text-gray-700" for="recipient-${recipient.email}">
+                                                <strong>${recipient.name}</strong> (${recipient.email})
+                                            </label>
+                                        </div>`;
+                                });
+                                const selectAll = document.getElementById('selectAllRecipients');
+                                if (selectAll) {
+                                    selectAll.addEventListener('change', function() {
+                                        document.querySelectorAll('.recipient-checkbox').forEach(checkbox => {
+                                            checkbox.checked = this.checked;
+                                        });
+                                    });
+                                }
+                            } else {
+                                recipientsList.innerHTML = '<p class="text-sm text-gray-500">No recipients found</p>';
+                            }
+                        });
+                },
+                submitForm() {
+                    if (!this.form) return;
+                    const selectedRecipients = Array.from(document.querySelectorAll('input[name="selected_recipients[]"]:checked')).map(cb => cb.value);
+                    if (selectedRecipients.length === 0) {
+                        alert('Please select at least one recipient'); return;
+                    }
+                    const formData = new FormData(this.form);
+                    formData.delete('selected_recipients[]');
+                    formData.append('selected_recipients', JSON.stringify(selectedRecipients));
+
+                    fetch(this.form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
+                    }).then(response => response.json())
+                    .then(data => {
+                        if (data.success) location.reload();
+                        else alert(data.message || 'Error sending invoice');
+                    }).catch(error => alert('Error sending invoice.'));
+                    this.show = false;
+                }
+            }));
+
+            Alpine.data('partialCreditNoteModal', () => ({
+                show: false,
+                invoiceId: null,
+                totalCost: 0,
+                amount: null,
+                error: false,
+                errorMessage: '',
+                open(invoiceId, totalCost) {
+                    this.invoiceId = invoiceId;
+                    this.totalCost = parseFloat(totalCost);
+                    this.amount = null;
+                    this.error = false;
+                    this.show = true;
+                },
+                submitForm() {
+                    this.error = false;
+                    const amount = parseFloat(this.amount);
+                    if (isNaN(amount) || amount <= 0) {
+                        this.error = true; this.errorMessage = 'Please enter a valid amount > 0.'; return;
+                    }
+                    if (amount > this.totalCost) {
+                        this.error = true; this.errorMessage = 'Amount exceeds total cost.'; return;
+                    }
+                    let url = '';
+                    @if(Auth::user()->hasRole('Admin')) url = `{{ route('admin.invoice.creditNote', '') }}/${this.invoiceId}?type=partial&amount=${amount}`; @endif
+                    @if(Auth::user()->hasRole('Responsable de projet')) url = `{{ route('Responsable_de_projet.invoice.creditNote', '') }}/${this.invoiceId}?type=partial&amount=${amount}`; @endif
+                    @if(Auth::user()->hasRole('Employee')) url = `{{ route('employee.invoice.creditNote', '') }}/${this.invoiceId}?type=partial&amount=${amount}`; @endif
+                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = `{{ route('Responsable_gestionnaire.invoice.creditNote', '') }}/${this.invoiceId}?type=partial&amount=${amount}`; @endif
+                    
+                    fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        document.open(); document.write(html); document.close();
+                    })
+                    .catch(error => alert('An error occurred: ' + error.message));
+                }
+            }));
+
+            Alpine.data('moveTaskModal', () => ({
+                show: false,
+                taskId: null,
+                currentProjectId: null,
+                selectedProjectId: '',
+                allProjects: @json($projects),
+                get availableProjects() {
+                    return this.allProjects.filter(proj => proj.id != this.currentProjectId);
+                },
+                open(taskId, currentProjectId) {
+                    this.taskId = taskId;
+                    this.currentProjectId = currentProjectId;
+                    this.selectedProjectId = '';
+                    this.show = true;
+                },
+                moveTask() {
+                    if (!this.selectedProjectId) {
+                        alert('Please select a project to move the task to.');
+                        return;
+                    }
+                    if (this.selectedProjectId == this.currentProjectId) {
+                        alert('Please select a different project.');
+                        return;
+                    }
+                    
+                    let url = '';
+                    @if(Auth::user()->hasRole('Admin')) url = '/admin/tasks/move-task'; @endif
+                    @if(Auth::user()->hasRole('Responsable de projet')) url = '/Responsable_de_projet/tasks/move-task'; @endif
+                    @if(Auth::user()->hasRole('Employee')) url = '/employee/tasks/move-task'; @endif
+                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = '/Responsable_gestionnaire/tasks/move-task'; @endif
+
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: {
+                            task_id: this.taskId,
+                            new_project_id: this.selectedProjectId,
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: (response) => {
+                            if (response.status === 'success') {
+                                if (response.redirect_url) {
+                                    window.location.href = response.redirect_url;
+                                } else {
+                                    location.reload();
+                                }
+                            } else {
+                                alert(response.message || 'Failed to move task.');
+                            }
+                        },
+                        error: (xhr) => {
+                            let msg = 'Failed to move task.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            }
+                            alert(msg);
+                        }
+                    });
+                    this.show = false;
+                }
+            }));
+        });
+    </script>
     <script src="//unpkg.com/alpinejs" defer></script>
     <style>
         /* Table Highlight Styles */
@@ -44,7 +398,11 @@
             style="display: none; visibility: hidden"></iframe></noscript>
 
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     {{-- Main Wrapper (Navbar + Content) --}}
     <div class="flex flex-col flex-1 overflow-y-auto">
@@ -98,7 +456,11 @@
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">Unbilled</p>
-                                <p class="text-lg font-semibold text-gray-900">€{{ number_format($project->budget - $project->amount_billed, 2, ',', ' ') }}</p>
+                                @php
+                                    $totalBilled = \App\Models\invoices_history::where('project_id', $project->id)->where('Payment_status', '!=', -1)->sum('total_htva');
+                                    $unbilledBudget = $project->budget - $totalBilled;
+                                @endphp
+                                <p class="text-lg font-semibold text-gray-900">€{{ number_format(max($unbilledBudget, 0), 2, ',', ' ') }}</p>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">Cost/Hour</p>
@@ -144,15 +506,78 @@
                         </div>
                     </div>
                     @if(Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Responsable de projet'))
-                        @can('Update project')
-                            <div class="pt-4 mt-4 border-t border-gray-200 text-right">
+                        <div class="pt-4 mt-4 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-end sm:space-x-3 space-y-2 sm:space-y-0">
+                            @can('Update project')
                                 <a href="{{ route(Auth::user()->hasRole('Admin') ? 'admin.projects.edit' : 'Responsable_de_projet.projects.edit', $project->id) }}" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">
                                     Edit Project
                                 </a>
-                            </div>
-                        @endcan
+                            @endcan
+
+                            @can('Add project')
+                                @php
+                                    $createRouteName = Auth::user()->hasRole('Admin')
+                                        ? 'admin.projects.create'
+                                        : 'Responsable_de_projet.projects.create';
+                                @endphp
+                                <a href="{{ route($createRouteName, ['client_id' => $project->client_id, 'parent_id' => $project->id]) }}"
+                                   class="inline-flex justify-center bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">
+                                    Create Subproject
+                                </a>
+                            @endcan
+                        </div>
                     @endif
                 </div>
+
+                @if(isset($subprojects) && $subprojects->count() > 0)
+                    {{-- Subprojects Summary Section --}}
+                    <div class="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-sm border border-blue-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-blue-200">
+                            <h2 class="text-lg font-semibold text-gray-900 mb-4">Subprojects Summary</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                                    <p class="text-sm text-gray-500 mb-1">Total Subprojects</p>
+                                    <p class="text-2xl font-bold text-gray-900">{{ $subprojects->count() }}</p>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                                    <p class="text-sm text-gray-500 mb-1">Total Tasks</p>
+                                    <p class="text-2xl font-bold text-gray-900">{{ $subprojectsSummary['total_tasks'] ?? 0 }}</p>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                                    <p class="text-sm text-gray-500 mb-1">Total Hours</p>
+                                    <p class="text-2xl font-bold text-gray-900">
+                                        {{ $subprojectsSummary['total_hours'] ?? 0 }}h:{{ str_pad($subprojectsSummary['remaining_minutes'] ?? 0, 2, '0', STR_PAD_LEFT) }}m
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Subprojects List --}}
+                    <div class="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                            <h2 class="text-lg font-semibold text-gray-900">Subprojects</h2>
+                            <span class="text-sm text-gray-500">{{ $subprojects->count() }} total</span>
+                        </div>
+                        <div class="divide-y divide-gray-200">
+                            @foreach($subprojects as $sub)
+                                <div class="px-6 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                    <div>
+                                        <a href="{{ route(Auth::user()->hasRole('Admin') ? 'admin.projects.show' : 'Responsable_de_projet.projects.show', $sub->id) }}"
+                                           class="text-sm font-medium text-blue-600 hover:underline">
+                                            {{ $sub->name }}
+                                        </a>
+                                        <p class="text-xs text-gray-500 mt-0.5">
+                                            Budget: {{ $sub->budget ?? '-' }} | CPH: {{ $sub->cost_per_hour ?? '-' }}
+                                        </p>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-xs text-gray-500">
+                                        <span>Created: {{ $sub->created_at?->format('Y-m-d') }}</span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
 
 
                 {{-- 2. Tasks Table --}}
@@ -283,6 +708,9 @@
                                             <a href="{{ route($taskRoutePrefix . 'tasks.edit', $task->id) }}" class="p-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700" title="Edit Task">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                             </a>
+                                            <button type="button" class="p-1.5 rounded-md bg-purple-600 text-white hover:bg-purple-700" title="Move Task" @click="$dispatch('open-move-task-modal', { taskId: {{ $task->id }}, currentProjectId: {{ $project->id }} })">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
+                                            </button>
                                             @endcan
                                             @can('Delete task')
                                             <form method="post" action="{{ route($taskRoutePrefix . 'tasks.destroy', $task->id) }}" onsubmit="return confirm('Are you sure?');">
@@ -438,7 +866,7 @@
                     $devisClientIds = $devis->pluck('client_id')->filter();
                     $devisClients = \App\Models\Client::whereIn('id', $devisClientIds)->get()->keyBy('id');
                     $devisIds = $devis->pluck('id');
-                    $devisInvoicesTotal = \App\Models\invoices_history::whereIn('devis_id', $devisIds)->select('devis_id', \DB::raw('SUM(total_htva) as total'))->groupBy('devis_id')->get()->keyBy('devis_id');
+                    $devisInvoicesTotal = \App\Models\invoices_history::whereIn('devis_id', $devisIds)->where('Payment_status', '!=', -1)->select('devis_id', \DB::raw('SUM(total_htva) as total'))->groupBy('devis_id')->get()->keyBy('devis_id');
                 @endphp
                 {{-- [FIX] Removed overflow-hidden from card to prevent dropdown clipping --}}
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -884,6 +1312,66 @@
         </div>
     </div>
 
+    {{-- 6. Move Task Modal --}}
+    <div x-data="moveTaskModal()" x-cloak x-show="show" 
+         @open-move-task-modal.window="open($event.detail.taskId, $event.detail.currentProjectId)"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <div @click.outside="show = false" class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+            <div class="flex items-center justify-between p-4 border-b">
+                <h5 class="text-lg font-semibold">Move Task</h5>
+                <button @click="show = false" type="button" class="text-gray-400 hover:text-gray-600">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label for="moveProjectSelect" class="block text-sm font-medium text-gray-700 mb-1">Select Project</label>
+                    <select x-model="selectedProjectId" id="moveProjectSelect" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                        <option value="">-- Select a project --</option>
+                        <template x-for="proj in availableProjects" :key="proj.id">
+                            <option :value="proj.id" x-text="proj.name"></option>
+                        </template>
+                    </select>
+                </div>
+                <p class="text-sm text-gray-600">The task will be moved to the selected project.</p>
+            </div>
+            <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
+                <button @click="show = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Cancel</button>
+                <button @click="moveTask()" type="button" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Move Task</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- 7. Send Devis Modal --}}
+    <div id="sendDevisModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg mx-4">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h5 class="text-lg font-semibold text-gray-800" id="sendDevisModalLabel">Send Devis</h5>
+                <button type="button" id="closeSendDevisModal" class="text-gray-400 hover:text-gray-600">&times;</button>
+            </div>
+            <div class="p-6">
+                <form id="sendDevisForm" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="devis_id" id="devis_id">
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Select Recipients:</label>
+                        <div id="devisRecipientsList" class="border p-3 rounded-md h-32 overflow-y-auto bg-gray-50 space-y-2">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="attachments" class="block text-sm font-medium text-gray-700 mb-1">Additional Attachments (PDF only):</label>
+                        <input type="file" class="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:bg-gray-100 file:border-0 file:px-3 file:py-2" id="attachments" name="attachments[]" multiple accept=".pdf">
+                        <small class="text-gray-500">Select PDF files to be merged with the devis</small>
+                    </div>
+                </form>
+            </div>
+            <div class="flex justify-end items-center p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
+                <button type="button" id="cancelSendDevisModal" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Close</button>
+                <button type="button" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700" id="confirmSend">Send Devis</button>
+            </div>
+        </div>
+    </div>
+
     {{-- SCRIPTS --}}
     @include('dashboard_layouts.scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
@@ -893,295 +1381,9 @@
 
     {{-- Main Page Logic --}}
     <script>
-        function editDateModal() {
-            return {
-                show: false,
-                taskId: null,
-                field: '',
-                date: '',
-                time: '',
-                open(detail) {
-                    this.taskId = detail.taskId;
-                    this.field = detail.field;
-                    if (detail.datetime) {
-                        this.date = detail.datetime.substring(0, 10);
-                        this.time = detail.datetime.substring(11, 16);
-                    } else {
-                        const now = new Date();
-                        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-                        const isoNow = now.toISOString().substring(0, 16);
-                        this.date = isoNow.substring(0, 10);
-                        this.time = isoNow.substring(11, 16);
-                    }
-                    this.show = true;
-                },
-                save() {
-                    const newValue = `${this.date} ${this.time}`;
-                    let url = '';
-                    @if(Auth::user()->hasRole('Admin')) url = `/admin/tasks/update-${this.field}/${this.taskId}`; @endif
-                    @if(Auth::user()->hasRole('Responsable de projet')) url = `/Responsable_de_projet/tasks/update-${this.field}/${this.taskId}`; @endif
-                    @if(Auth::user()->hasRole('Employee')) url = `/employee/tasks/update-${this.field}/${this.taskId}`; @endif
-                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = `/Responsable_gestionnaire/tasks/update-${this.field}/${this.taskId}`; @endif
-
-                    $.ajax({
-                        url: url, type: 'POST',
-                        data: { [this.field]: newValue, _token: '{{ csrf_token() }}' },
-                        success: (response) => {
-                            if (response.status === 'success') location.reload();
-                            else alert(response.message || 'Failed to update.');
-                        },
-                        error: (xhr) => {
-                            let msg = 'Failed to update.';
-                            if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
-                            alert(msg);
-                        }
-                    });
-                    this.show = false;
-                }
-            }
-        }
+        // Alpine components are registered in the head section
+        // This section is for other page logic only
         
-        function moveDurationModal() {
-            return {
-                show: false,
-                originalTaskId: null,
-                projectId: '',
-                taskId: '',
-                employeeId: '',
-                startDate: '',
-                endDate: '',
-                duration: '',
-                durationMinutes: 0,
-                open(detail) {
-                    this.originalTaskId = detail.taskId;
-                    this.projectId = detail.projectId;
-                    this.employeeId = detail.employeeId;
-                    this.startDate = detail.startDate;
-                    this.endDate = detail.endDate;
-                    this.durationMinutes = detail.duration;
-                    this.duration = this.minutesToHoursMinutes(detail.duration);
-                    this.loadTasks(detail.taskId);
-                    this.show = true;
-                },
-                loadTasks(selectedTaskId = null) {
-                    let url = '';
-                    @if(Auth::user()->hasRole('Admin')) url = `/admin/tasks/get-project-tasks/${this.projectId}`; @endif
-                    @if(Auth::user()->hasRole('Responsable de projet')) url = `/Responsable_de_projet/tasks/get-project-tasks/${this.projectId}`; @endif
-                    @if(Auth::user()->hasRole('Employee')) url = `/employee/tasks/get-project-tasks/${this.projectId}`; @endif
-                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = `/Responsable_gestionnaire/tasks/get-project-tasks/${this.projectId}`; @endif
-                    
-                    fetch(url)
-                        .then(response => response.json())
-                        .then(tasks => {
-                            const taskSelect = document.getElementById('taskSelect');
-                            taskSelect.innerHTML = '';
-                            tasks.forEach(task => {
-                                const option = new Option(task.name, task.id);
-                                taskSelect.add(option);
-                            });
-                            this.taskId = selectedTaskId || (tasks.length > 0 ? tasks[0].id : '');
-                        });
-                },
-                calculateDuration() {
-                    if (!this.startDate || !this.endDate) return;
-                    const start = new Date(this.startDate);
-                    const end = new Date(this.endDate);
-                    const diffMs = end - start;
-                    if (diffMs < 0) {
-                        this.duration = '00h:00m'; this.durationMinutes = 0; return;
-                    }
-                    const minutes = Math.floor(diffMs / 60000);
-                    this.durationMinutes = minutes;
-                    this.duration = this.minutesToHoursMinutes(minutes);
-                },
-                validateDurationFormat() {
-                    if (/^(\d+)h:(\d{2})m$/.test(this.duration)) {
-                        this.durationMinutes = this.hoursMinutesToMinutes(this.duration);
-                    }
-                },
-                saveMove() {
-                    if (!this.duration.match(/^(\d+)h:(\d{2})m$/)) {
-                        alert('Please enter duration in format (e.g., 01h:30m or 10h:00m)');
-                        return;
-                    }
-                    const formData = {
-                        original_task_id: this.originalTaskId, new_task_id: this.taskId,
-                        employee_id: this.employeeId, start_date: this.startDate,
-                        end_date: this.endDate, duration: this.durationMinutes,
-                        _token: '{{ csrf_token() }}'
-                    };
-                    let url = '';
-                    @if(Auth::user()->hasRole('Admin')) url = '/admin/tasks/move-duration'; @endif
-                    @if(Auth::user()->hasRole('Responsable de projet')) url = '/Responsable_de_projet/tasks/move-duration'; @endif
-                    @if(Auth::user()->hasRole('Employee')) url = '/employee/tasks/move-duration'; @endif
-                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = '/Responsable_gestionnaire/tasks/move-duration'; @endif
-
-                    $.ajax({
-                        url: url, type: 'POST', data: formData,
-                        success: (response) => {
-                            if (response.status === 'success') location.reload();
-                            else alert('Failed: ' + (response.message || 'Unknown error'));
-                        },
-                        error: (xhr) => alert('Error: ' + xhr.responseText)
-                    });
-                    this.show = false;
-                },
-                minutesToHoursMinutes(minutes) {
-                    const hours = Math.floor(minutes / 60);
-                    const remainingMinutes = minutes % 60;
-                    return `${hours.toString().padStart(2, '0')}h:${remainingMinutes.toString().padStart(2, '0')}m`;
-                },
-                hoursMinutesToMinutes(durationString) {
-                    const matches = durationString.match(/^(\d+)h:(\d{2})m$/);
-                    if (!matches) return 0;
-                    return (parseInt(matches[1]) * 60) + parseInt(matches[2]);
-                }
-            }
-        }
-
-        function exportReportModal() {
-            return {
-                show: false,
-                isCustomerReport: false,
-                open(isCustomer) {
-                    this.isCustomerReport = isCustomer;
-                    this.show = true;
-                },
-                download() {
-                    // This function should be populated based on your export logic
-                    alert('Download logic not implemented in Alpine.js modal yet.');
-                    this.show = false;
-                }
-            }
-        }
-        
-        function sendInvoiceModal() {
-            return {
-                show: false,
-                invoiceId: null,
-                form: document.getElementById('sendInvoiceForm'),
-                open(invoiceId) {
-                    this.invoiceId = invoiceId;
-                    this.show = true;
-                    this.updateFormAction();
-                    this.fetchRecipients();
-                },
-                updateFormAction() {
-                    let actionUrl = '';
-                    @if(Auth::user()->hasRole('Admin')) actionUrl = '{{ route("admin.invoice.sendInvoice", ":id") }}'; @endif
-                    @if(Auth::user()->hasRole('Responsable de projet')) actionUrl = '{{ route("Responsable_de_projet.invoice.sendInvoice", ":id") }}'; @endif
-                    @if(Auth::user()->hasRole('Employee')) actionUrl = '{{ route("employee.invoice.sendInvoice", ":id") }}'; @endif
-                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) actionUrl = '{{ route("Responsable_gestionnaire.invoice.sendInvoice", ":id") }}'; @endif
-                    this.form.action = actionUrl.replace(':id', this.invoiceId);
-                },
-                fetchRecipients() {
-                    let fetchUrl = '';
-                    @if(Auth::user()->hasRole('Admin')) fetchUrl = `/admin/invoice/${this.invoiceId}/recipients`; @endif
-                    @if(Auth::user()->hasRole('Responsable de projet')) fetchUrl = `/Responsable_de_projet/invoice/${this.invoiceId}/recipients`; @endif
-                    @if(Auth::user()->hasRole('Employee')) fetchUrl = `/employee/invoice/${this.invoiceId}/recipients`; @endif
-                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) fetchUrl = `/Responsable_gestionnaire/invoice/${this.invoiceId}/recipients`; @endif
-                    
-                    fetch(fetchUrl)
-                        .then(response => response.json())
-                        .then(data => {
-                            const recipientsList = document.getElementById('recipientsList');
-                            recipientsList.innerHTML = '';
-                            if (data.recipients && data.recipients.length > 0) {
-                                recipientsList.innerHTML += `
-                                    <div class="flex items-center">
-                                        <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="selectAllRecipients">
-                                        <label class="ml-2 text-sm font-bold text-gray-900" for="selectAllRecipients">Select All</label>
-                                    </div>`;
-                                data.recipients.forEach(recipient => {
-                                    recipientsList.innerHTML += `
-                                        <div class="flex items-center">
-                                            <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 recipient-checkbox" type="checkbox" 
-                                                   name="selected_recipients[]" value="${recipient.email}" id="recipient-${recipient.email}" 
-                                                   ${recipient.is_comptable === 1 ? 'checked' : ''}>
-                                            <label class="ml-2 text-sm text-gray-700" for="recipient-${recipient.email}">
-                                                <strong>${recipient.name}</strong> (${recipient.email})
-                                            </label>
-                                        </div>`;
-                                });
-                                document.getElementById('selectAllRecipients').addEventListener('change', function() {
-                                    document.querySelectorAll('.recipient-checkbox').forEach(checkbox => {
-                                        checkbox.checked = this.checked;
-                                    });
-                                });
-                            } else {
-                                recipientsList.innerHTML = '<p class="text-sm text-gray-500">No recipients found</p>';
-                            }
-                        });
-                },
-                submitForm() {
-                    const selectedRecipients = Array.from(document.querySelectorAll('input[name="selected_recipients[]"]:checked')).map(cb => cb.value);
-                    if (selectedRecipients.length === 0) {
-                        alert('Please select at least one recipient'); return;
-                    }
-                    const formData = new FormData(this.form);
-                    formData.delete('selected_recipients[]');
-                    formData.append('selected_recipients', JSON.stringify(selectedRecipients));
-
-                    fetch(this.form.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
-                    }).then(response => response.json())
-                    .then(data => {
-                        if (data.success) location.reload();
-                        else alert(data.message || 'Error sending invoice');
-                    }).catch(error => alert('Error sending invoice.'));
-                    this.show = false;
-                }
-            }
-        }
-        
-        function partialCreditNoteModal() {
-            return {
-                show: false,
-                invoiceId: null,
-                totalCost: 0,
-                amount: null,
-                error: false,
-                errorMessage: '',
-                open(invoiceId, totalCost) {
-                    this.invoiceId = invoiceId;
-                    this.totalCost = parseFloat(totalCost);
-                    this.amount = null;
-                    this.error = false;
-                    this.show = true;
-                },
-                submitForm() {
-                    this.error = false;
-                    const amount = parseFloat(this.amount);
-                    if (isNaN(amount) || amount <= 0) {
-                        this.error = true; this.errorMessage = 'Please enter a valid amount > 0.'; return;
-                    }
-                    if (amount > this.totalCost) {
-                        this.error = true; this.errorMessage = 'Amount exceeds total cost.'; return;
-                    }
-                    let url = '';
-                    @if(Auth::user()->hasRole('Admin')) url = `{{ route('admin.invoice.creditNote', '') }}/${this.invoiceId}?type=partial&amount=${amount}`; @endif
-                    @if(Auth::user()->hasRole('Responsable de projet')) url = `{{ route('Responsable_de_projet.invoice.creditNote', '') }}/${this.invoiceId}?type=partial&amount=${amount}`; @endif
-                    @if(Auth::user()->hasRole('Employee')) url = `{{ route('employee.invoice.creditNote', '') }}/${this.invoiceId}?type=partial&amount=${amount}`; @endif
-                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = `{{ route('Responsable_gestionnaire.invoice.creditNote', '') }}/${this.invoiceId}?type=partial&amount=${amount}`; @endif
-                    
-                    fetch(url, {
-                        method: 'GET',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        }
-                    })
-                    .then(response => response.text())
-                    .then(html => {
-                        document.open(); document.write(html); document.close();
-                    })
-                    .catch(error => alert('An error occurred: ' + error.message));
-                }
-            }
-        }
-
         // --- PAGE SCRIPT LOGIC ---
         document.addEventListener('DOMContentLoaded', function() {
             
@@ -1296,6 +1498,134 @@
                 });
             });
             @endcan
+
+            // --- Send Devis Modal Logic ---
+            const sendDevisModalEl = document.getElementById('sendDevisModal');
+            const closeSendDevisModalBtn = document.getElementById('closeSendDevisModal');
+            const cancelSendDevisModalBtn = document.getElementById('cancelSendDevisModal');
+
+            if (closeSendDevisModalBtn) {
+                closeSendDevisModalBtn.addEventListener('click', () => {
+                    if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
+                });
+            }
+            if (cancelSendDevisModalBtn) {
+                cancelSendDevisModalBtn.addEventListener('click', () => {
+                    if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
+                });
+            }
+
+            function handleSendClick(event) {
+                event.preventDefault();
+                const form = event.target.closest('form');
+                const devisId = form.querySelector('input[name="devis_id"]').value;
+                const formAction = form.getAttribute('action');
+                
+                document.getElementById('devis_id').value = devisId;
+                const recipientsList = document.getElementById('devisRecipientsList');
+                if (!recipientsList) {
+                    console.error('devisRecipientsList not found');
+                    return;
+                }
+                recipientsList.innerHTML = '<div class="text-center">Loading...</div>';
+                
+                // This URL should be dynamic based on user role
+                let contactsUrl = '';
+                @if(Auth::user()->hasRole('Admin'))
+                contactsUrl = `/admin/devis/get-contacts/${devisId}`;
+                @elseif(Auth::user()->hasRole('Responsable de projet'))
+                contactsUrl = `/Responsable_de_projet/devis/get-contacts/${devisId}`;
+                @elseif(Auth::user()->hasRole('Employee'))
+                contactsUrl = `/employee/devis/get-contacts/${devisId}`;
+                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                contactsUrl = `/Responsable_gestionnaire/devis/get-contacts/${devisId}`;
+                @endif
+
+                document.getElementById('sendDevisForm').action = formAction;
+                
+                fetch(contactsUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        recipientsList.innerHTML = '';
+                        if (data.contacts && data.contacts.length > 0) {
+                            data.contacts.forEach(contact => {
+                                const div = document.createElement('div');
+                                div.className = 'flex items-center';
+                                div.innerHTML = `
+                                    <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" name="recipients[]" value="${contact.email}" id="recipient_${contact.id}" checked>
+                                    <label class="ml-2 block text-sm text-gray-900" for="recipient_${contact.id}">
+                                        ${contact.name} (${contact.email})
+                                    </label>`;
+                                recipientsList.appendChild(div);
+                            });
+                        } else {
+                            recipientsList.innerHTML = '<p class="text-gray-500">No contacts found for this client</p>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        recipientsList.innerHTML = '<p class="text-red-600">Error loading contacts</p>';
+                    });
+                
+                if (sendDevisModalEl) sendDevisModalEl.classList.remove('hidden');
+            }
+
+            document.querySelectorAll('form[action*="sendDevis"]').forEach(form => {
+                const submitButton = form.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    submitButton.addEventListener('click', handleSendClick);
+                }
+            });
+
+            // Handle confirm send button
+            const confirmSendBtn = document.getElementById('confirmSend');
+            if (confirmSendBtn) {
+                confirmSendBtn.addEventListener('click', function() {
+                const form = document.getElementById('sendDevisForm');
+                const devisId = document.getElementById('devis_id').value;
+                const selectedRecipients = Array.from(document.querySelectorAll('input[name="recipients[]"]:checked'))
+                    .map(checkbox => checkbox.value);
+                
+                if (selectedRecipients.length === 0) {
+                    alert('Please select at least one recipient');
+                    return;
+                }
+
+                const formData = new FormData();
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                formData.append('_token', csrfToken);
+                formData.append('devis_id', devisId);
+                formData.append('recipients', JSON.stringify(selectedRecipients));
+                
+                const attachments = document.getElementById('attachments').files;
+                for (let i = 0; i < attachments.length; i++) {
+                    formData.append('attachments[]', attachments[i]);
+                }
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert('Devis sent successfully!');
+                        if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
+                        location.reload();
+                    } else {
+                        alert('Error sending devis: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while sending the devis');
+                });
+            });
+            }
 
         });
     </script>

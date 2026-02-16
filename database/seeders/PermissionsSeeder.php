@@ -50,6 +50,7 @@ class PermissionsSeeder extends Seeder
             ['name' => 'view devis', 'entreprise_id' => 0],
             ['name' => 'view contacts', 'entreprise_id' => 0],
             ['name' => 'Billings', 'entreprise_id' => 0],
+            ['name' => 'Create planning', 'entreprise_id' => 0],
         ];
 
         foreach ($permissions as $perm) {

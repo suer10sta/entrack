@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DailyTrac Dashboard - Roles</title>
+    <title>DalyTrac Dashboard - Roles</title>
     @vite('resources/css/app.css')
     @livewireStyles
 </head>
@@ -11,7 +11,11 @@
 <body class="bg-gray-50 flex h-screen overflow-hidden">
 
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     <div class="flex flex-col flex-1 overflow-y-auto">
         {{-- Navbar --}}
@@ -44,7 +48,7 @@
                             </select>
                         </div>
 
-                        {{-- Add Role --}}
+                        {{-- Add Role 
                         <a href="{{ route('admin.roles.create') }}"
                            class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
@@ -53,7 +57,7 @@
                             </svg>
                             Add Role
                         </a>
-                    </div>
+                    </div> --}}
 
                     {{-- Search Bar --}}
                     <div class="relative">

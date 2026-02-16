@@ -194,8 +194,44 @@
         word-wrap: break-word;
         padding-right: 20px;
     }
+    
+    .hours-cell {
+        width: 15%;
+        border: 0;
+        text-align: center;
+        white-space: nowrap;
+    }
 
     .budget-cell {
+        width: 20%;
+        border: 0;
+        text-align: right;
+        white-space: nowrap;
+    }
+    
+    .task-cell-detailed {
+        width: 40%;
+        border: 0;
+        word-wrap: break-word;
+        padding-right: 10px;
+    }
+    
+    .hours-cell-detailed {
+        width: 15%;
+        border: 0;
+        text-align: center;
+        white-space: nowrap;
+    }
+    
+    .cost-per-hour-cell {
+        width: 20%;
+        border: 0;
+        text-align: right;
+        white-space: nowrap;
+        padding-right: 10px;
+    }
+    
+    .budget-cell-detailed {
         width: 20%;
         border: 0;
         text-align: right;
@@ -210,7 +246,7 @@
         <div class="content-wrapper">
             <div class="header">
                 <div class="logo-right">
-                <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                <img src="{{ storage_path('app/public/' . Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
                 </div>
             </div>
 
@@ -286,7 +322,38 @@
     word-wrap: break-word;
     padding-right: 20px;
 }
+.hours-cell {
+    width: 15%;
+    border: 0;
+    text-align: center;
+    white-space: nowrap;
+}
 .budget-cell {
+    width: 20%;
+    border: 0;
+    text-align: right;
+    white-space: nowrap;
+}
+.task-cell-detailed {
+    width: 40%;
+    border: 0;
+    word-wrap: break-word;
+    padding-right: 10px;
+}
+.hours-cell-detailed {
+    width: 15%;
+    border: 0;
+    text-align: center;
+    white-space: nowrap;
+}
+.cost-per-hour-cell {
+    width: 20%;
+    border: 0;
+    text-align: right;
+    white-space: nowrap;
+    padding-right: 10px;
+}
+.budget-cell-detailed {
     width: 20%;
     border: 0;
     text-align: right;
@@ -296,21 +363,68 @@
 @php
     $tasks = $tasks ?? [];
     $taskBudget = $taskBudget ?? [];
+    $isDetailedHourly = isset($billing_type) && $billing_type === 'detailed_hourly';
+    
+    // Use devis_details if available (for detailed_hourly with hours), otherwise use tasks array
+    if (isset($devis_details) && $devis_details->count() > 0) {
+        $useDevisDetails = true;
+    } else {
+        $useDevisDetails = false;
+    }
 @endphp
-@foreach ($tasks as $index => $task)
-<table class="detailsTab">
-    <tr>
-        <td class="task-cell">{!! nl2br(e($task)) !!}</td>
-        <td class="budget-cell">
-            @if(isset($billing_type) && $billing_type === 'horaire')
-                -
-            @else
-                {{ number_format($taskBudget[$index] ?? 0, 2, ',', ' ') }}€
-            @endif
-        </td>
-    </tr>
-</table>
-@endforeach
+
+@if($useDevisDetails)
+    @if($isDetailedHourly)
+        {{-- Separate tables for detailed hourly without borders --}}
+        @foreach ($devis_details as $detail)
+        <table class="detailsTab">
+            <tr>
+                <td class="task-cell-detailed">{!! nl2br(e($detail->task_details)) !!}</td>
+                <td class="hours-cell-detailed">
+                    {{ number_format($detail->hours ?? 0, 2, ',', ' ') }} h
+                </td>
+                <td class="cost-per-hour-cell">
+                    {{ number_format($detail->cost_per_hour ?? 0, 2, ',', ' ') }}€
+                </td>
+                <td class="budget-cell-detailed">
+                    {{ number_format($detail->task_budget ?? 0, 2, ',', ' ') }}€
+                </td>
+            </tr>
+        </table>
+        @endforeach
+    @else
+        {{-- Separate tables for non-detailed hourly --}}
+        @foreach ($devis_details as $detail)
+        <table class="detailsTab">
+            <tr>
+                <td class="task-cell">{!! nl2br(e($detail->task_details)) !!}</td>
+                <td class="budget-cell">
+                    @if(isset($billing_type) && $billing_type === 'horaire')
+                        -
+                    @else
+                        {{ number_format($detail->task_budget ?? 0, 2, ',', ' ') }}€
+                    @endif
+                </td>
+            </tr>
+        </table>
+        @endforeach
+    @endif
+@else
+    @foreach ($tasks as $index => $task)
+    <table class="detailsTab">
+        <tr>
+            <td class="task-cell">{!! nl2br(e($task)) !!}</td>
+            <td class="budget-cell">
+                @if(isset($billing_type) && $billing_type === 'horaire')
+                    -
+                @else
+                    {{ number_format($taskBudget[$index] ?? 0, 2, ',', ' ') }}€
+                @endif
+            </td>
+        </tr>
+    </table>
+    @endforeach
+@endif
 
 <style>
 .totals {
@@ -347,7 +461,8 @@
 
 <div class="payment">
     - Durée de validité de l'offre : <strong>1 mois</strong> <br>
-    - Conditions générales : voire annexes <br>
+    - Démarrage de projet : dans maximum 3 mois <br>
+    - Conditions générales : voir annexes <br>
     - Nous restons à votre disposition pour toute information complémentaire <br>
     - Si ce devis vous convient, veuillez le retourner signé et daté
 </div>

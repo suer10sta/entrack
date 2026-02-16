@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>DailyTrac Dashboard</title>
+    <title>DalyTrac Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     {{-- Tailwind is required for the color classes --}}
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,20 +26,20 @@
         // Define the look & feel for each plan
         $plans = [
             'trial' => [
-                'label' => 'Free Trial - 15 Days',
+                'label' => 'Free Trial - 0 Days',
                 'title' => 'Free Trial Features',
-                'subtitle' => 'Test everything for 15 days',
+                'subtitle' => 'Test everything for 0 days',
                 'color_theme' => 'purple',
                 'bg_theme' => 'purple',
                 'button_color' => 'bg-blue-600 hover:bg-blue-700',
-                'button_text' => 'Choose a Plan After Trial',
+                'button_text' => 'Choose a Plan',
                 'icon' => 'clock',
                 'show_timer' => true,
                 'features' => [
                     'Unlimited Invoices', 'Unlimited Clients', 
                     'Unlimited Projects', 'Advanced Reports', 
                     'Email Support', 'No Credit Card Required', 
-                    '15 Day Trial Period'
+                    '0 Day Trial Period'
                 ]
             ],
             'solo' => [
@@ -94,7 +94,11 @@
     @endphp
 
     {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
     
     <div class="flex flex-col flex-1 overflow-y-auto">
         {{-- Navbar --}}

@@ -10,7 +10,7 @@
         @hasSection('title')
             @yield('title')
         @else
-            {{ config('app.name', 'DailyTrac') }}
+            {{ config('app.name', 'DalyTrac') }}
         @endif
     </title>
 

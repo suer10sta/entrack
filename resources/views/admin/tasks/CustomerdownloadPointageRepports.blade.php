@@ -93,9 +93,7 @@ thead {
 <div class="containter">
     <div class="details">
         <div class="details-left">
-            @if(isset($imagePath) && $imagePath)
-                <img src="{{ $imagePath }}" alt="Company Logo" class="company-logo">
-            @endif
+            <img src="{{ storage_path('app/public/' . $entreprise->image) }}" alt="Company Logo" class="company-logo">
         </div>
         <div class="details-right">
             <div class="header-info">
@@ -130,10 +128,11 @@ thead {
             <tr>
                 <td>
                     @php
-                        $projectid = App\Models\Tasks::where('id', $task->task_id)->pluck('project_id');
-                        $project = App\Models\Project::where('id', $projectid)->first();
+                        // Get the single project_id value instead of a collection
+                        $projectId = App\Models\Tasks::where('id', $task->task_id)->value('project_id');
+                        $project = $projectId ? App\Models\Project::find($projectId) : null;
                     @endphp
-                    {{$project->name}}
+                    {{ $project?->name ?? 'N/A' }}
                 </td>
                 <td>{{$task->start_date}}</td>
                 <td>{{$task->end_date}}</td>

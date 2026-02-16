@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Tasks - DailyTrac</title>
+    <title>Employee Tasks - DalyTrac</title>
     @vite('resources/css/app.css')
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -44,7 +44,11 @@
 </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden font-sans">
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
     
     <div class="flex flex-col flex-1 overflow-y-auto">
         <x-dashboard.navbar />
@@ -214,46 +218,6 @@
                                            {{ $hours }}h:{{ sprintf('%02d', $minutes) }}m
                                         </td>
                                     </tr>
-
-                                    @php
-                                        $employeeProjectTasks = App\Models\employees_tasks::where('employee_id', $employee_id)
-                                            ->whereIn('task_id', $projectTasks)
-                                            ->get()
-                                            ->unique('task_id');
-                                    @endphp
-
-                                    @forelse($employeeProjectTasks as $employeeTask)
-                                        @php
-                                            $taskModel = App\Models\Tasks::find($employeeTask->task_id);
-                                            $taskTodayDuration = App\Models\tasks_timer::where('task_id', $employeeTask->task_id)
-                                                ->where('employee_id', $employee_id)
-                                                ->whereDate('start_date', '=', $today)
-                                                ->whereNotNull('duration')
-                                                ->sum('duration');
-                                            $taskTodayHours = intdiv($taskTodayDuration, 60);
-                                            $taskTodayMinutes = $taskTodayDuration % 60;
-
-                                            $projectShowRoute = '#';
-                                            if(Auth::user()->hasRole('Admin')) $projectShowRoute = route('admin.projects.show', $project->id);
-                                            elseif(Auth::user()->hasRole('Responsable de projet')) $projectShowRoute = route('Responsable_de_projet.projects.show', $project->id);
-                                            elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $projectShowRoute = route('Responsable_gestionnaire.projects.show', $project->id);
-                                            elseif(Auth::user()->hasRole('Employee')) $projectShowRoute = route('employee.projects.show', $project->id);
-                                        @endphp
-                                        <tr class="task-row text-left bg-white hover:bg-gray-50" data-client-name="{{ strtoupper($client->name) }}" data-project-name="{{ strtoupper($project->name) }}">
-                                            <td class="px-4 py-2"></td>
-                                            <td class="px-4 py-2 text-sm font-medium text-blue-600">
-                                                <a href="{{ $projectShowRoute }}" class="hover:underline">{{ $taskModel->title ?? $employeeTask->task_name }}</a>
-                                            </td>
-                        <td class="px-4 py-2 text-sm text-gray-700">
-                                                {{ $taskTodayHours }}h:{{ sprintf('%02d', $taskTodayMinutes) }}m
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr class="task-row text-left bg-white" data-client-name="{{ strtoupper($client->name) }}" data-project-name="{{ strtoupper($project->name) }}">
-                                            <td class="px-4 py-2"></td>
-                                            <td class="px-4 py-2 text-sm text-gray-500 italic" colspan="2">No tasks assigned to this employee for this project.</td>
-                                        </tr>
-                                    @endforelse
                                 @endforeach
                             @empty
                                 {{-- Empty state row (Inspired by Devis History) --}}
@@ -295,12 +259,12 @@ document.addEventListener("DOMContentLoaded", function() {
             const clientName = row.dataset.clientName.toLowerCase();
             const projectName = row.dataset.projectName.toLowerCase(); 
 
-            const clientMatch = clientQuery === "" || clientName.includes(clientQuery);
+            const clientMatch = clientQuery === "" || clientName === clientQuery;
             const searchMatch = searchQuery === "" || projectName.includes(searchQuery);
 
             if (clientMatch && searchMatch) {
                 row.style.display = "";
-                visibleClients.add(row.dataset.clientName); 
+                visibleClients.add(row.dataset.clientName);
             } else {
                 row.style.display = "none";
             }

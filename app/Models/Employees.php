@@ -72,4 +72,9 @@ class Employees extends Model
     {
         return $this->hasMany(tasks_timer::class, 'employee_id');
     }
+
+    public function calendars()
+    {
+        return $this->belongsToMany(calendars::class, 'calendar_employee', 'employee_id', 'calendar_id');
+    }
 }

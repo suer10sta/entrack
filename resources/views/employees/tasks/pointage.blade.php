@@ -59,9 +59,9 @@
         <x-employees.sidebar />
 
 
-        <div class="flex flex-col flex-1 overflow-y-auto w-full ml-64 px-4 md:px-8">
+        <div class="flex flex-col flex-1 overflow-y-auto w-full">
         {{-- Main Content --}}
-        <main class="flex flex-col flex-1 overflow-y-auto">
+        <main class="flex flex-col flex-1 overflow-y-auto w-full px-4 md:px-8">
 
             <div class="mb-6">
                 @if(session('alertmessage'))
@@ -306,7 +306,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-lg border border-slate-200">
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-200" style="margin-bottom: 25px;">
                 <div class="p-6 border-b border-slate-100">
                     <h3 class="text-base font-bold text-slate-800">Work Days Reports</h3>
                 </div>
@@ -645,7 +645,14 @@
                                                       <td class="px-4 py-3 text-sm text-gray-700 font-medium">${task.task_name}</td>
                                                       <td class="px-4 py-3 text-sm text-gray-700">${task.start_date}</td>
                                                       <td class="px-4 py-3 text-sm text-gray-700">${endDateText}</td>
-                                                      <td class="px-4 py-3 text-sm text-gray-700">${task.comment ? task.comment : "No Comment"}</td>
+                                                      <td class="px-4 py-3 text-sm text-gray-700">
+                                                          <span class="comment-display cursor-pointer hover:text-blue-600" style="display: block;">${task.comment ? task.comment : "No Comment"}</span>
+                                                          <input type="text" 
+                                                                 class="comment-input border border-gray-300 rounded px-2 py-1 text-sm text-gray-700 focus:outline-none focus:ring focus:ring-blue-200 w-full" 
+                                                                 value="${task.comment ? task.comment.replace(/"/g, '&quot;') : ''}" 
+                                                                 data-timer-id="${task.id}"
+                                                                 style="display: none;">
+                                                      </td>
                                                       <td class="px-4 py-3 text-sm text-gray-700 task_duration">${task.end_date ? formattedD : ""}</td>
                                                   </tr>`;
                                                 
@@ -764,6 +771,90 @@
                 }
             });
         });
+    </script>
+
+    {{-- 10. Inline Comment Editing --}}
+    <script>
+        // Inline comment editing handlers
+        document.addEventListener('click', function(e) {
+            const cell = e.target.closest('td');
+            if (!cell) return;
+            const display = cell.querySelector('.comment-display');
+            const input = cell.querySelector('.comment-input');
+            if (display && input && (e.target === display)) {
+                display.style.display = 'none';
+                input.style.display = 'block';
+                input.focus();
+                input.setSelectionRange(input.value.length, input.value.length);
+            }
+        });
+
+        async function saveComment(inputEl) {
+            const timerId = inputEl.getAttribute('data-timer-id');
+            const newComment = inputEl.value.trim();
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            @if(Auth::user()->hasRole('Employee'))
+            var url = `/employee/tasks/timers/${timerId}/comment`;
+            @endif
+            @if(Auth::user()->hasRole('Responsable de projet'))
+            var url = `/Responsable_de_projet/tasks/timers/${timerId}/comment`;
+            @endif
+            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+            var url = `/Responsable_gestionnaire/tasks/timers/${timerId}/comment`;
+            @endif
+            try {
+                const res = await fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ comment: newComment })
+                });
+                if (!res.ok) throw new Error('Failed to save comment');
+                const data = await res.json();
+                const cell = inputEl.closest('td');
+                const display = cell.querySelector('.comment-display');
+                display.textContent = data.comment && data.comment.length ? data.comment : 'No Comment';
+                inputEl.style.display = 'none';
+                display.style.display = '';
+                window.location.reload();
+            } catch (err) {
+                console.error(err);
+                // Revert UI on error
+                const cell = inputEl.closest('td');
+                const display = cell.querySelector('.comment-display');
+                inputEl.style.display = 'none';
+                display.style.display = '';
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const inputEl = e.target.closest('.comment-input');
+                if (inputEl) {
+                    e.preventDefault();
+                    saveComment(inputEl);
+                }
+            }
+            if (e.key === 'Escape') {
+                const inputEl = e.target.closest('.comment-input');
+                if (inputEl) {
+                    const cell = inputEl.closest('td');
+                    const display = cell.querySelector('.comment-display');
+                    inputEl.style.display = 'none';
+                    display.style.display = '';
+                }
+            }
+        });
+
+        document.addEventListener('blur', function(e) {
+            const inputEl = e.target.closest('.comment-input');
+            if (inputEl) {
+                // Save on blur
+                saveComment(inputEl);
+            }
+        }, true);
     </script>
 
 </body>

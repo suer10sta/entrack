@@ -8,10 +8,10 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Generate Invoice - DailyTrac</title> {{-- Updated title --}}
+    <title>Generate Invoice - DalyTrac</title> {{-- Updated title --}}
 
     @vite('resources/css/app.css')
-
+ 
     @livewireStyles
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -75,7 +75,11 @@
 <body class="bg-gray-20 flex h-screen overflow-hidden font-sans">
 
     {{-- Sidebar Component (Unchanged) --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
     {{-- Main Wrapper (Navbar + Content) (Unchanged) --}}
 
     <div class="flex flex-col flex-1 overflow-y-auto">
@@ -114,7 +118,11 @@
                                     @endif
                                     -
                                     @if($project->budget)
-                                        {{ $project->budget - $project->amount_billed }}€
+                                        @php
+                                            $totalBilled = \App\Models\invoices_history::where('project_id', $project->id)->where('Payment_status', '!=', -1)->sum('total_htva');
+                                            $unbilledBudget = $project->budget - $totalBilled;
+                                        @endphp
+                                        {{ number_format(max($unbilledBudget, 0), 2, '.', '') }}€
                                     @else
                                         no budget
                                     @endif
@@ -154,7 +162,11 @@
                                 <option value="{{ $project->id }}">
                                     {{ strtoupper($project->name) }} -
                                     @if($project->budget)
-                                        {{ $project->budget - $project->amount_billed }}€
+                                        @php
+                                            $totalBilled = \App\Models\invoices_history::where('project_id', $project->id)->where('Payment_status', '!=', -1)->sum('total_htva');
+                                            $unbilledBudget = $project->budget - $totalBilled;
+                                        @endphp
+                                        {{ number_format(max($unbilledBudget, 0), 2, '.', '') }}€
                                     @else
                                         no budget
                                     @endif

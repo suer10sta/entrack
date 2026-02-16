@@ -26,32 +26,123 @@
 
 <header class="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200">
     
-    <div class="flex items-center w-full max-w-lg">
+    <div class="flex items-center w-full max-w-lg" x-data="searchDropdown()" x-init="init()">
         <div class="relative w-full">
             <span class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-400">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                 </svg>
             </span>
-            {{-- CHANGED: rounded-xl to rounded-lg, border to border-gray-300, focus:border-primary to focus:border-blue-500 --}}
-            <input type="text" placeholder="{{ __('messages.search_placeholder') }}" 
-                   class="w-full pl-11 pr-4 py-2.5 border rounded-lg bg-white focus:ring-0 focus:border-blue-500 text-sm border-gray-300" />
-                   
-                {{--<select onchange="window.location.href='{{ url('lang/change') }}?lang='+this.value">
-                    <option value="en" {{ app()->getLocale() == 'en' ? 'selected' : '' }}>English</option>
-                    <option value="fr" {{ app()->getLocale() == 'fr' ? 'selected' : '' }}>French</option>
-                    <option value="es" {{ app()->getLocale() == 'es' ? 'selected' : '' }}>Spanish</option>
-                </select>--}}
+            <input 
+                type="text" 
+                placeholder="{{ __('messages.search_placeholder') }}" 
+                x-model="query"
+                @input.debounce.300ms="performSearch()"
+                @focus="showResults = true"
+                @keydown.escape="showResults = false"
+                @keydown.arrow-down.prevent="navigateResults(1)"
+                @keydown.arrow-up.prevent="navigateResults(-1)"
+                @keydown.enter.prevent="selectResult()"
+                class="w-full pl-11 pr-4 py-2.5 border rounded-lg bg-white focus:ring-0 focus:border-blue-500 text-sm border-gray-300" 
+            />
+            
+            {{-- Search Results Dropdown --}}
+            <div 
+                x-show="showResults && (results.length > 0 || (query.length >= 2 && !loading))"
+                @click.away="showResults = false"
+                x-cloak
+                x-transition:enter="transition ease-out duration-100"
+                x-transition:enter-start="transform opacity-0 scale-95"
+                x-transition:enter-end="transform opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-75"
+                x-transition:leave-start="transform opacity-100 scale-100"
+                x-transition:leave-end="transform opacity-0 scale-95"
+                class="absolute z-50 w-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto"
+            >
+                <div x-show="loading" class="px-4 py-3 text-sm text-gray-500 text-center">
+                    <span>Searching...</span>
+                </div>
+                
+                <div x-show="!loading && results.length === 0 && query.length >= 2" class="px-4 py-8 text-sm text-gray-500 text-center">
+                    No results found for "<span x-text="query"></span>"
+                </div>
+                
+                <div x-show="!loading && results.length > 0" class="py-2">
+                    <template x-for="(result, index) in results" :key="result.id + '-' + result.type">
+                        <a 
+                            :href="result.url"
+                            @click="showResults = false"
+                            :class="{
+                                'bg-blue-50': selectedIndex === index,
+                                'hover:bg-gray-50': selectedIndex !== index
+                            }"
+                            class="block px-4 py-3 border-b border-gray-100 last:border-b-0 transition-colors cursor-pointer"
+                        >
+                            <div class="flex items-start gap-3">
+                                <div class="flex-shrink-0 mt-0.5">
+                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center"
+                                         :class="{
+                                             'bg-blue-100 text-blue-600': result.type === 'client',
+                                             'bg-green-100 text-green-600': result.type === 'project',
+                                             'bg-purple-100 text-purple-600': result.type === 'task',
+                                             'bg-orange-100 text-orange-600': result.type === 'employee',
+                                             'bg-indigo-100 text-indigo-600': result.type === 'team',
+                                             'bg-red-100 text-red-600': result.type === 'invoice',
+                                             'bg-yellow-100 text-yellow-600': result.type === 'devis'
+                                         }">
+                                        <svg x-show="result.type === 'client'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                        </svg>
+                                        <svg x-show="result.type === 'project'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                                        </svg>
+                                        <svg x-show="result.type === 'task'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <svg x-show="result.type === 'employee'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                        </svg>
+                                        <svg x-show="result.type === 'team'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                        </svg>
+                                        <svg x-show="result.type === 'invoice'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <svg x-show="result.type === 'devis'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900 truncate" x-text="result.title"></p>
+                                    <p class="text-xs text-gray-500 truncate" x-text="result.subtitle"></p>
+                                    <span class="inline-block mt-1 text-xs px-2 py-0.5 rounded"
+                                          :class="{
+                                              'bg-blue-100 text-blue-700': result.type === 'client',
+                                              'bg-green-100 text-green-700': result.type === 'project',
+                                              'bg-purple-100 text-purple-700': result.type === 'task',
+                                              'bg-orange-100 text-orange-700': result.type === 'employee',
+                                              'bg-indigo-100 text-indigo-700': result.type === 'team',
+                                              'bg-red-100 text-red-700': result.type === 'invoice',
+                                              'bg-yellow-100 text-yellow-700': result.type === 'devis'
+                                          }"
+                                          x-text="result.type.charAt(0).toUpperCase() + result.type.slice(1)"></span>
+                                </div>
+                            </div>
+                        </a>
+                    </template>
+                </div>
             </div>
         </div>
+    </div>
 
 <div class="flex items-center gap-4 ml-6" x-data="alertDropdown({ initialCount: {{ $navbarAlertCount }} })" x-init="init()">
         <div class="relative">
-            <button 
+         <!-- <button 
                 @click="open = !open"
                 type="button"
                 class="relative p-2.5 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors"
-            >
+            > 
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-600">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
                 </svg>
@@ -61,7 +152,7 @@
                     x-cloak
                     class="absolute top-0 right-0 block h-5 w-5 rounded-full bg-red-500 text-white text-xs font-semibold flex items-center justify-center transform translate-x-1/2 -translate-y-1/2"
                 ></span>
-            </button>
+            </button> -->
 
             <div 
                 x-show="open"
@@ -131,13 +222,13 @@
                         </div>
                     @endforeach
 
-                    <div 
+                    <!-- <div 
                         class="px-4 py-8 text-center text-sm text-gray-500"
                         x-show="showEmptyState"
                         x-cloak
                     >
                         No notifications scheduled for the next hour.
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
@@ -163,6 +254,79 @@
             alpineScript.src = 'https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js';
             alpineScript.defer = true;
             document.head.appendChild(alpineScript);
+        }
+
+        function searchDropdown() {
+            return {
+                query: '',
+                results: [],
+                loading: false,
+                showResults: false,
+                selectedIndex: -1,
+                searchTimeout: null,
+                init() {
+                    this.query = '';
+                    this.results = [];
+                    this.loading = false;
+                    this.showResults = false;
+                    this.selectedIndex = -1;
+                },
+                async performSearch() {
+                    if (this.query.length < 2) {
+                        this.results = [];
+                        this.showResults = false;
+                        return;
+                    }
+
+                    this.loading = true;
+                    this.selectedIndex = -1;
+
+                    try {
+                        const token = document.querySelector('meta[name="csrf-token"]')?.content;
+                        const response = await fetch('{{ route("search") }}?q=' + encodeURIComponent(this.query), {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                ...(token ? { 'X-CSRF-TOKEN': token } : {})
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Search request failed');
+                        }
+
+                        const data = await response.json();
+                        this.results = data.results || [];
+                        this.showResults = this.results.length > 0 || this.query.length >= 2;
+                    } catch (error) {
+                        console.error('Search error:', error);
+                        this.results = [];
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                navigateResults(direction) {
+                    if (this.results.length === 0) return;
+                    
+                    this.selectedIndex += direction;
+                    
+                    if (this.selectedIndex < 0) {
+                        this.selectedIndex = this.results.length - 1;
+                    } else if (this.selectedIndex >= this.results.length) {
+                        this.selectedIndex = 0;
+                    }
+                },
+                selectResult() {
+                    if (this.selectedIndex >= 0 && this.selectedIndex < this.results.length) {
+                        window.location.href = this.results[this.selectedIndex].url;
+                        this.showResults = false;
+                    } else if (this.results.length > 0) {
+                        window.location.href = this.results[0].url;
+                        this.showResults = false;
+                    }
+                }
+            };
         }
 
         function alertDropdown(config = {}) {

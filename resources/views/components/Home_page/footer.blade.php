@@ -21,7 +21,7 @@
                         </svg>
                     </div>
                     <span class="text-xl font-bold text-[#1F2937]">
-                    DailyTrac
+                    DalyTrac
                     </span>
                 </div>
 
@@ -63,7 +63,7 @@
                 ['title' => 'Quick Links', 'links' => [
                     ['label' => 'Home', 'route' => route('welcome')],
                     ['label' => 'Features', 'route' => '#features'],
-                    ['label' => 'The Three Plans', 'route' => '#account_type'] ]],
+                    ['label' => 'Plans', 'route' => '#account_type'] ]],
                 ['title' => 'Company', 'links' => [
                     ['label' => 'About Us', 'route' => route('about')],
                     ['label' => 'Contact', 'route' => route('contact')],

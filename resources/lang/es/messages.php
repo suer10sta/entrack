@@ -7,7 +7,7 @@ return [
     'Ongoing Projects' => 'Proyectos en curso',
     //{{ __('messages.Monthly Revenue') }}
     'Monthly Revenue' => 'Ingresos mensuales',
-    'Team employees Overview' => 'Resumen del equipo',
+    'Team employees Overview' => 'Resumen de empleados',
     'Add employee' => 'Agregar empleado',
     'EMPLOYEE INFO' => 'INFO EMPLEADO',
     'ROLE & STATUS' => 'ROL & ESTADO',
@@ -30,7 +30,7 @@ return [
     'Budget' => 'Presupuesto',
     'CPH' => 'Costo por hora',
     'VAT' => 'IVA',
-    'Duration' => 'Duración',
+    'Duration' => 'Duración de hoy',
     'Client' => 'Cliente',
     'Teams:' => 'Equipos:',
     'No teams assigned' => 'Sin equipos asignados',

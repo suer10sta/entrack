@@ -189,7 +189,9 @@
         <div class="content-wrappe">
             <div class="header">
                 <div class="header logo-right">
-                    <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                    @if(Auth::user()->entreprise && Auth::user()->entreprise->image)
+                        <img src="{{ storage_path('app/public/' . Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                    @endif
                 </div>
 
             </div>
@@ -202,7 +204,7 @@
                         Échéance: {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}
                         <br>
                         Numéro client : {{ $client->client_number }} <br>
-                        Numéro de facture : {{date('ym')}}@if(request()->has('number')){{request()->input('number')}}@else{{$invoice_id }}@endif<br>
+                        Numéro de facture : {{ $invoice->created_at->format('ym') }}@if(request()->has('number')){{request()->input('number')}}@else{{$invoice_id }}@endif<br>
                         Rappel numéro : {{$reminder_number}}
                         @if($isOverdue)
                             <br>
@@ -222,7 +224,7 @@
             <br><br><br><br><br>
             <div class="invoice-number">
                 Facture :
-                {{$entreprise->invoice_prefix}}-{{date('ym')}}@if(request()->has('number')){{request()->input('number')}}@else{{$invoice_id }}
+                {{$entreprise->invoice_prefix}}-{{ $invoice->created_at->format('ym') }}@if(request()->has('number')){{request()->input('number')}}@else{{$invoice_id }}
                 @endif
             </div>
 
@@ -249,7 +251,8 @@
                         <td>{{ $projectinfos->cost_per_hour }}€</td>
                         <td>
                             @php
-                            $prixtotal = $projectinfos->cost_per_hour * ($duration/60);
+                            $hours = round($duration / 60, 2);
+                            $prixtotal = $projectinfos->cost_per_hour * $hours;
                             @endphp
                             {{ number_format($prixtotal, 2, ',', '') }}€
                         </td>
@@ -305,7 +308,7 @@
                 sur le compte mentionné
                 ci-dessous avant le
                 {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}
-                en mentionnant le numéro Facture <strong>{{date('ym')}}@if(request()->has('number')){{request()->input('number')}}@else{{$invoice_id }} @endif</strong>
+                en mentionnant le numéro Facture <strong>{{ $invoice->created_at->format('ym') }}@if(request()->has('number')){{request()->input('number')}}@else{{$invoice_id }} @endif</strong>
                 <br>
                 - Dans le cas de livraison intracommunautaire pour les services :  "Autoliquidation Art 21 § 2 du code TVA belge"
                 <br>
@@ -341,6 +344,7 @@
             <table>
                 <thead>
                     <td bordercolor=' #ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Nom de Tache</strong></td>
+                    <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Projet / Sous-projet</strong></td>
                     <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Date de debut </strong>
                     </td>
                     <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Date de Fin</strong></td>
@@ -354,6 +358,7 @@
                     @foreach($collection as $coll)
                     <tr>
                         <td valign='top' style='font-size:9px;'>{{$coll->task_name}}</td>
+                        <td valign='top' style='font-size:9px;'>{{ $coll->project_name ?? $projectinfos->name }}</td>
                         <td valign='top' style='font-size:9px;'>{{ \Carbon\Carbon::parse($coll->start_date)->format('d-m-Y H:i') }}</td>
                         <td valign='top' style='font-size:9px;'>{{ \Carbon\Carbon::parse($coll->end_date)->format('d-m-Y H:i') }}</td>
                         <td valign='top' style='font-size:9px;'>
@@ -369,7 +374,7 @@
                     </tr>
                     @endforeach
                     <tr>
-                        <td colspan="3" style='font-size:9px; text-align: right;'><strong>Duree Total:</strong></td>
+                        <td colspan="4" style='font-size:9px; text-align: right;'><strong>Duree Total:</strong></td>
                         <td valign='top' style='font-size:9px;'>
                             {{ floor($totalMinutes / 60) }}h:{{ sprintf('%02d', $totalMinutes % 60) }}m
                         </td>

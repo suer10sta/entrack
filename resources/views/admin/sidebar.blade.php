@@ -210,7 +210,7 @@
           <span class="sidenav-normal"> Pointage <b class="nav-link-text ms-1"></b></span>
         </a>
       </li>
-      @endcan
+      @endcan 
 
       <li class="nav-item">
         <a class="nav-link active" data-bs-toggle="collapse" aria-expanded="false" href="#administartionCollapse">

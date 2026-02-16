@@ -179,7 +179,9 @@
         <div class="content-wrapper">
             <div class="header">
                 <div class="logo-right">
-                <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                @if(Auth::user()->entreprise && Auth::user()->entreprise->image)
+                    <img src="{{ storage_path('app/public/' . Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                @endif
                 </div>
             </div>
 

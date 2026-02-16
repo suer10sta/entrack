@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Archived Devis - DailyTrac</title>
+    <title>Archived Devis - DalyTrac</title>
     
     @vite('resources/css/app.css') 
     @livewireStyles
@@ -55,7 +55,11 @@
 <body class="bg-gray-100 flex h-screen overflow-hidden font-sans" x-data>
 
     {{-- Sidebar Component --}}
-    <x-dashboard.sidebar />
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     {{-- Main Wrapper (Navbar + Content) --}}
     <div class="flex flex-col flex-1 overflow-y-auto">
@@ -211,7 +215,7 @@
                                 <td class="px-4 py-3 whitespace-normal break-words text-sm font-semibold text-gray-900 text-right">€{{ number_format($d->budget, 2, ',', ' ') }}</td>
                                 <td class="px-4 py-3 whitespace-normal break-words text-sm font-semibold text-gray-900 text-right">
                                     @php
-                                        $devisInvoicesTotal = \App\Models\invoices_history::where('devis_id', $d->id)->sum('total_htva');
+                                        $devisInvoicesTotal = \App\Models\invoices_history::where('devis_id', $d->id)->where('Payment_status', '!=', -1)->sum('total_htva');
                                         $unbilledBudget = ($d->budget ?? 0) - ($devisInvoicesTotal ?? 0);
                                     @endphp
                                     €{{ number_format(max($unbilledBudget, 0), 2, ',', ' ') }}

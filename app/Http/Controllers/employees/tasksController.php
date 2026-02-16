@@ -162,6 +162,41 @@ class tasksController extends Controller
     return response()->json($tasks_timer);
 }
 
+public function updateTimerComment(Request $request, $id)
+    {
+        $request->validate([
+            'comment' => 'nullable|string|max:1000',
+        ]);
+
+        $timer = tasks_timer::where('id', $id)->first();
+        if (!$timer) {
+            return response()->json(['message' => 'Task timer not found'], 404);
+        }
+
+        // Ensure the authenticated user is the owner employee
+        $employeeId = Employees::where('user_id', Auth::id())->value('id');
+        if ($timer->employee_id !== $employeeId) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $comment = $request->input('comment');
+        if (is_string($comment)) {
+            $comment = trim($comment);
+            if ($comment === '') {
+                $comment = null;
+            }
+        }
+        $timer->comment = $comment;
+        $timer->save();
+
+        return response()->json([
+            'message' => 'Comment updated',
+            'comment' => $timer->comment,
+            'id' => $timer->id,
+        ]);
+    }
+
+
 public function downloadPointageRepports($startDate, $endDate, $employeeId, Request $request)
 {
     $tasks_timer = tasks_timer::where('entreprise_id', auth()->user()->entreprise_id)
