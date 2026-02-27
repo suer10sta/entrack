@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clients - DalyTrac</title> 
+    <title>{{ __('messages.Expense Note - DalyTrac') }}</title> 
     @vite('resources/css/app.css')
     @livewireStyles
     
@@ -29,7 +29,7 @@
         <!-- Main Content -->
         <div class="p-8 animate-fadeInSlideUp">
             <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8 hover:shadow-xl transition-all duration-300">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-6">New Expense Note</h2>
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6">{{ __('messages.New Expense Note') }}</h2>
 
                 @if(session('message'))
                     <div class="mb-4 p-4 rounded-lg bg-green-50 text-green-700 border border-green-200">
@@ -54,41 +54,41 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Employee Name <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">{{ __('messages.Employee Name') }} <span class="text-red-500">*</span></label>
                             <input type="text" id="employee_name" name="employee_name" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Total Budget</label>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">{{ __('messages.Total Budget') }}</label>
                             <input type="number" step="0.0001" id="projectBudget" name="budget" class="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm text-gray-700">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">Description <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">{{ __('messages.Expense Description') }} <span class="text-red-500">*</span></label>
                         <input type="text" id="projectDescription" name="description" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none">
                     </div>
 
                     <div id="dynamicInput" class="space-y-6 mt-6">
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
                             <div>
-                                <label class="block text-sm font-medium text-gray-600 mb-1">Details <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">{{ __('messages.Expense Details') }} <span class="text-red-500">*</span></label>
                                 <input type="text" name="task[]" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-600 mb-1">Quantity <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">{{ __('messages.Quantity') }} <span class="text-red-500">*</span></label>
                                 <input type="number" step="0.0001" name="quantity[]" class="taskQuantity w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-600 mb-1">Budget <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">{{ __('messages.Budget expense') }} <span class="text-red-500">*</span></label>
                                 <input type="number" step="0.0001" name="taskBudget[]" class="taskBudget w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none">
                             </div>
                         </div>
                     </div>
 
                     <div class="flex gap-3">
-                        <button type="button" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg" onclick="addInput('dynamicInput');">Add</button>
-                        <button type="button" class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-lg" onclick="removeInput('dynamicInput');">Delete</button>
+                        <button type="button" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg" onclick="addInput('dynamicInput');">{{ __('messages.Add Row Expense') }}</button>
+                        <button type="button" class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-lg" onclick="removeInput('dynamicInput');">{{ __('messages.Delete Row Expense') }}</button>
                     </div>
 
                     <div class="flex justify-end gap-3 pt-6 border-t border-gray-200">
@@ -100,10 +100,10 @@
                                 'Responsable_gestionnaire.index'))
                             )
                         }}" 
-                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Cancel</a>
+                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">{{ __('messages.Cancel') }}</a>
 
                         <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium">
-                            Generate Expense Note
+                            {{ __('messages.Generate Expense Note') }}
                         </button>
                     </div>
                 </form>

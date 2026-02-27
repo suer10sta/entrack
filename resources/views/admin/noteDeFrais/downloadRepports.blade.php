@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Note Report</title>
+    <title>{{ __('messages.Expense Note Report') }}</title>
     <style>
         /* [MODIFIED] Consistent Font and Size */
         body {
@@ -167,8 +167,8 @@
             </div>
             <div class="details-right">
                 <div class="header-info">
-                    <h2>Expense Note Table Reports</h2>
-                    <h4>Number of Expense Notes: {{ $notedefrais->count() }}</h4>
+                    <h2>{{ __('messages.Expense Note Table Reports') }}</h2>
+                    <h4>{{ __('messages.Number of Expense Notes') }}: {{ $notedefrais->count() }}</h4>
                 </div>
             </div>
         </div>
@@ -180,9 +180,9 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 30%;">Note N</th>
-                    <th style="width: 40%;">Employee Name</th>
-                    <th style="width: 30%;">Total Budget</th>
+                    <th style="width: 30%;">{{ __('messages.Note N') }}</th>
+                    <th style="width: 40%;">{{ __('messages.Employee Name') }}</th>
+                    <th style="width: 30%;">{{ __('messages.Total Budget') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -205,9 +205,9 @@
 
         {{-- Summary Section using consistent styling --}}
         <div class="totals-summary">
-            <div class="summary-row">
+                <div class="summary-row">
                 <div class="summary-item">
-                    <strong>Totals Accepted:</strong> <span>{{ number_format($Total_budget, 2, ',', ' ') }}€</span>
+                    <strong>{{ __('messages.Expense Note Totals Accepted') }}:</strong> <span>{{ number_format($Total_budget, 2, ',', ' ') }}€</span>
                 </div>
             </div>
         </div>
@@ -235,7 +235,7 @@
                     <b>SWIFT/BIC</b> : {{ Auth::user()->entreprise->swift }} / {{ Auth::user()->entreprise->bic }}
                 @endif
                 <br>
-                <span style="font-size: 9px; color: #666;">Printed: {{ date('d-m-Y') }}</span>
+                <span style="font-size: 9px; color: #666;">{{ __('messages.Printed') }}: {{ date('d-m-Y') }}</span>
             </div>
         </div>
     </div>

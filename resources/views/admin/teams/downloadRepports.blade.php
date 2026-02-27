@@ -107,8 +107,8 @@ thead {
         </div>
         <div class="details-right">
             <div class="header-info">
-                <h2>Teams Table Reports</h2>
-                <h5>Number of Teams: {{ $teams->count() }}</h5>
+                <h2>{{ __('messages.Teams Table Reports') }}</h2>
+                <h5>{{ __('messages.Number of Teams') }}: {{ $teams->count() }}</h5>
             </div>
         </div>
     </div>
@@ -116,10 +116,10 @@ thead {
     <table>
         <thead>
             <tr>
-                <th>Name</th>
-                <th>members</th>
-                <th>Projects</th>
-                <th>Tasks</th>
+                <th>{{ __('messages.Team') }}</th>
+                <th>{{ __('messages.Team Members:') }}</th>
+                <th>{{ __('messages.Projects') }}</th>
+                <th>{{ __('messages.Tasks column') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -152,8 +152,8 @@ thead {
     </table>
 
     <div class="footer">
-        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
-        <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
+        <div class='footer-right'>{{ __('messages.Page Number') }}: <span class="page-number"></span></div>
+        <div class='footer-left'>{{ __('messages.Download Date') }}: {{ date('d-m-Y') }}</div>
     </div>
 
 </div>

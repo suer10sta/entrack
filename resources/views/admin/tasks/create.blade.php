@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DalyTrac Dashboard - New Task</title>
+    <title>{{ __('messages.DalyTrac Dashboard - New Task') }}</title>
     @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden">
@@ -48,8 +48,10 @@
                 {{-- Replaced .card.card-body with Tailwind classes --}}
                 <div class="bg-white shadow-lg rounded-xl p-6 md:p-8">
                     
-                    <h2 class="text-xl font-semibold text-gray-900">New Task</h2>
-                    <p class="text-sm text-gray-600">Create a new task for the project: **{{ $project->name }}**</p>
+                    <h2 class="text-xl font-semibold text-gray-900">{{ __('messages.New Task') }}</h2>
+                    <p class="text-sm text-gray-600">
+                        {{ __('messages.Create a new task for the project') }}: <strong>{{ $project->name }}</strong>
+                    </p>
                     
                     <hr class="my-4 border-gray-200" />
 
@@ -61,7 +63,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="TaskName" class="block text-sm font-medium text-gray-700">
-                                    Task Name <span class="text-red-600">*</span>
+                                    {{ __('messages.Task Name') }} <span class="text-red-600">*</span>
                                 </label>
                                 <input type="text" id="TaskName" name="title"
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
@@ -69,9 +71,17 @@
                             
                             <div>
                                 <label for="estimated_hours" class="block text-sm font-medium text-gray-700">
-                                    Estimated Hours
+                                    {{ __('messages.Estimated Hours') }}
                                 </label>
-                                <input type="text" id="estimated_hours" name="estimated_hours"
+                                <input type="number" step="0.01" min="0" id="estimated_hours" name="estimated_hours" value="{{ old('estimated_hours') }}"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                            </div>
+
+                            <div>
+                                <label for="consumed_hours" class="block text-sm font-medium text-gray-700">
+                                    Consumed Hours
+                                </label>
+                                <input type="number" step="0.01" min="0" id="consumed_hours" name="consumed_hours" value="{{ old('consumed_hours', 0) }}"
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                             </div>
                         </div>
@@ -79,7 +89,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                             <div>
                                 <label for="start_date" class="block text-sm font-medium text-gray-700">
-                                    Start Date 
+                                    {{ __('messages.Start Date') }}
                                 </label>
                                 <input type="date" id="start_date" name="start"
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
@@ -87,7 +97,7 @@
                             
                             <div> 
                                 <label for="end_date" class="block text-sm font-medium text-gray-700">
-                                    End Date
+                                    {{ __('messages.End Date') }}
                                 </label>
                                 <input type="date" id="end_date" name="end"
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
@@ -96,7 +106,7 @@
 
                         <div class="mt-6">
                             <label for="TaskDescription" class="block text-sm font-medium text-gray-700">
-                                Task Description
+                                {{ __('messages.Task Description') }}
                             </label>
                             <textarea id="TaskDescription" name="description" rows="4"
                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
@@ -107,7 +117,7 @@
                             {{-- Employees Checkboxes --}}
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">
-                                    Assign Employees <span class="text-red-600">*</span>
+                                    {{ __('messages.Assign Employees') }} <span class="text-red-600">*</span>
                                 </label>
                                 <div class="mt-2 space-y-2">
                                     @foreach($employee_users as $employee)
@@ -125,7 +135,7 @@
                             {{-- Teams Checkboxes --}}
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">
-                                    Assign Teams
+                                    {{ __('messages.Assign Teams') }}
                                 </label>
                                 <div class="mt-2 space-y-2">
                                     @foreach($teams as $team)
@@ -146,12 +156,12 @@
                             {{-- Single "Cancel" link --}}
                             <a href="javascript:history.back()" 
                                class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                                Cancel
+                                {{ __('messages.Cancel') }}
                             </a>
                             
                             <button type="submit"
                                     class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                                Create Task
+                                {{ __('messages.Create Task') }}
                             </button>
                         </div>
                         

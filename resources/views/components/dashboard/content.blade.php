@@ -271,7 +271,7 @@
                                         d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0H4m16 0l-2 9H6l-2-9" />
                                 </svg>
                             </div>
-                            <h3 class="text-gray-500 text-sm font-medium">Projects</h3>
+                            <h3 class="text-gray-500 text-sm font-medium">{{ __('messages.Projects') }}</h3>
                         </div>
                         {{-- Show total number of projects for the enterprise, not only ongoing ones --}}
                         <p class="text-3xl font-bold text-gray-800">
@@ -350,36 +350,45 @@
                 <table id="employeesTable" class="w-full text-left" style="width:100%">
                     <thead class="bg-gray-50">
                         <tr class="border-b border-gray-200">
-                            <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Employee
+                            <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                {{ __('messages.Employee') }}
                             </th>
                             <th
                                 class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
-                                Current Status</th>
+                                {{ __('messages.Current Status') }}
+                            </th>
                             <th
                                 class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
-                                Current Project</th>
+                                {{ __('messages.Current Project') }}
+                            </th>
                             <th
                                 class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
-                                Current Task</th>
+                                {{ __('messages.Current Task') }}
+                            </th>
                                 
                             {{--<th
                                 class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
                                 Task Progress</th> --}}
                             <th
                                 class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
-                                Duration</th>
+                                {{ __('messages.Duration') }}
+                            </th>
                             <th
                                 class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
-                                Chrono</th>
+                                {{ __('messages.Chrono') }}
+                            </th>
                             <th
                                 class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
-                                Account Status</th>
+                                {{ __('messages.Account Status') }}
+                            </th>
                             <th
                                 class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
-                                Archive</th>
+                                {{ __('messages.Archive') }}
+                            </th>
                             <th
                                 class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
-                                Actions</th>
+                                {{ __('messages.Actions') }}
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -412,7 +421,7 @@
                                                         {{ $role }}
                                                     </span>
                                                 @empty
-                                                    <span class="text-[10px] text-gray-400">No Roles</span>
+                                                    <span class="text-[10px] text-gray-400">{{ __('messages.No Roles') }}</span>
                                                 @endforelse
                                             </div>
                                         </div>
@@ -427,7 +436,7 @@
                                     @if($employeeUser && $employeeUser->is_loggedIn == 0)
                                         <span
                                             class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                                            Off Work
+                                            {{ __('messages.Off Work') }}
                                         </span>
                                     @elseif($employeeUser && $employeeUser->is_loggedIn == 1)
                                         @php
@@ -441,18 +450,18 @@
                                             @if(($task_timer->end_date === null && $task_timer->start_date !== null) && $task_timer->paused == 1)
                                                 <span
                                                     class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
-                                                    On Pause
+                                                    {{ __('messages.On Pause') }}
                                                 </span>
                                             @else
                                                 <span
                                                     class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
-                                                    On Work
+                                                    {{ __('messages.On Work') }}
                                                 </span>
                                             @endif
                                         @else
                                             <span
                                                 class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                                                Off Work
+                                                {{ __('messages.Off Work') }}
                                             </span>
                                         @endif
                                     @endif
@@ -513,7 +522,7 @@
                                                                 {{ $project->name }}
                                                             </a>
                                                         @else
-                                                            <span class="text-gray-400 block">No Project</span>
+                                                            <span class="text-gray-400 block">{{ __('messages.No Project') }}</span>
                                                         @endif
                                                     </div>
 
@@ -525,7 +534,7 @@
                                             @endforeach
                                         </div>
                                     @else
-                                        <span class="text-xs text-gray-400">No Project</span>
+                                        <span class="text-xs text-gray-400">{{ __('messages.No Project') }}</span>
                                     @endif
                                 </td>
 
@@ -576,7 +585,7 @@
                                             @endforeach
                                         </div>
                                     @else
-                                        <span class="text-xs text-gray-400">No Task</span>
+                                        <span class="text-xs text-gray-400">{{ __('messages.No Task') }}</span>
                                     @endif
                                 </td>
 
@@ -609,7 +618,7 @@
                                                 $tasktotalduration = \App\Models\tasks_timer::where('task_id', $firstActiveTask->task_id)
                                                     ->where('employee_id', $employee->id)
                                                     ->sum('duration');
-                                                $taskestimatedMinutes = $task->estimated_hours * 60;
+                                                $taskestimatedMinutes = max(0, (($task->estimated_hours ?? 0) - ($task->consumed_hours ?? 0)) * 60);
                                                 $taskprogressPercentage = $taskestimatedMinutes > 0 ? ($tasktotalduration / $taskestimatedMinutes) * 100 : 0;
                                                 $taskformattedProgressPercentage = number_format($taskprogressPercentage, 2);
                                             @endphp
@@ -707,7 +716,7 @@
                                             @endforeach
                                         </div>
                                     @else
-                                        <span class="text-xs font-medium text-gray-700">No work today</span>
+                                        <span class="text-xs font-medium text-gray-700">{{ __('messages.No work today') }}</span>
                                     @endif
                                 </td>
 
@@ -736,7 +745,7 @@
                                             <button type="button"
                                                 class="inline-flex items-center px-3 py-1 mb-2 rounded-full text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200"
                                                 onclick="stopAllTimersForEmployee({{ $employee->id }})">
-                                                Stop all
+                                                {{ __('messages.Stop all') }}
                                             </button>
                                         @endif
                                         @php
@@ -757,11 +766,11 @@
                                                         <form
                                                             class="flex items-center justify-center gap-2 stop-form-{{ $employee->id }}"
                                                             action="{{ route('admin.tasks.stop', ['tasks' => $activeTask->task_employee_id, 'employee_id' => $employee->id]) }}"
-                                                            method="POST" data-confirm="Stop timer for this task?">
+                                                            method="POST" data-confirm="{{ __('messages.Stop timer for this task?') }}">
                                                             @csrf
                                                             <button type="submit"
                                                                 class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white hover:bg-red-600">
-                                                                Stop
+                                                                {{ __('messages.Stop') }}
                                                             </button>
                                                         </form>
                                                     @endforeach
@@ -769,7 +778,7 @@
                                             @endforeach
                                         </div>
                                     @else
-                                        <span class="text-xs text-gray-400">No Active Timer</span>
+                                        <span class="text-xs text-gray-400">{{ __('messages.No Active Timer') }}</span>
                                     @endif
                                 </td>
 
@@ -781,16 +790,16 @@
                                             @csrf
                                             <button type="submit"
                                                 class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 hover:bg-emerald-200">
-                                                Active
+                                                {{ __('messages.Active') }}
                                             </button>
                                         </form>
                                     @else
                                         <form action="{{ route('admin.employee.activate', $employee->id) }}" method="post"
-                                            onsubmit="return confirm('Are you sure?');">
+                                            onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
                                             @csrf
                                             <button type="submit"
                                                 class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200">
-                                                Inactive
+                                                {{ __('messages.Inactive') }}
                                             </button>
                                         </form>
                                     @endif
@@ -799,11 +808,11 @@
                                 {{-- Archive --}}
                                 <td class="px-6 py-4 text-center align-middle text-sm">
                                     <form action="{{ route('admin.employees.archive', $employee->id) }}" method="post"
-                                        onsubmit="return confirm('Are you sure?');" class="inline-block">
+                                        onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
                                         @csrf
                                         <button type="submit"
                                             class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300">
-                                            Archive
+                                            {{ __('messages.Archive') }}
                                         </button>
                                     </form>
                                 </td>
@@ -901,10 +910,10 @@
                                 <td colspan="10" class="px-6 py-4">
                                     <div class="space-y-3">
                                         <div class="flex items-center justify-between">
-                                            <h4 class="text-sm font-semibold text-gray-800">Task History (Today)</h4>
+                                            <h4 class="text-sm font-semibold text-gray-800">{{ __('messages.Task History (Today)') }}</h4>
                                             <button type="button"
                                                 onclick="toggleTasksTodayRow('tasks-row-{{ $employee->id }}')"
-                                                class="text-xs text-gray-500 hover:text-gray-700">Close</button>
+                                                class="text-xs text-gray-500 hover:text-gray-700">{{ __('messages.Close') }}</button>
                                         </div>
                                         @forelse($completedTasksToday as $doneTask)
                                             @php
@@ -926,13 +935,13 @@
                                                 class="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2">
                                                 <div class="flex flex-col">
                                                     <span
-                                                        class="text-sm font-medium text-gray-900">{{ $doneTask->task_name ?? ($taskModel->title ?? 'Task') }}</span>
+                                                        class="text-sm font-medium text-gray-900">{{ $doneTask->task_name ?? ($taskModel->title ?? __('messages.Task')) }}</span>
                                                     <span
-                                                        class="text-xs text-gray-500">{{ $projectName ?? 'No project linked' }}</span>
+                                                        class="text-xs text-gray-500">{{ $projectName ?? __('messages.No project linked') }}</span>
                                                 </div>
                                                 <div class="flex items-center gap-3">
                                                     <span
-                                                        class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700">Completed</span>
+                                                        class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700">{{ __('messages.Completed') }}</span>
                                                     <span class="text-xs text-gray-700 whitespace-nowrap">{{ $h }}h
                                                         {{ $m }}m</span>
                                                     <form
@@ -940,17 +949,17 @@
                                                         method="POST" class="history-start-form"
                                                         data-task-id="{{ $doneTask->task_employee_id ?? $doneTask->task_id }}">
                                                         @csrf
-                                                        <textarea name="comment" placeholder="Enter comment" rows="1"
+                                                        <textarea name="comment" placeholder="{{ __('messages.Enter comment') }}" rows="1"
                                                             class="border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring focus:ring-emerald-200 resize-y min-h-[32px]"></textarea>
                                                         <button type="submit"
                                                             class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500 text-white hover:bg-emerald-600">
-                                                            Start
+                                                            {{ __('messages.Start') }}
                                                         </button>
                                                     </form>
                                                 </div>
                                             </div>
                                         @empty
-                                            <p class="text-xs text-gray-500">No completed tasks today.</p>
+                                            <p class="text-xs text-gray-500">{{ __('messages.No completed tasks today.') }}</p>
                                         @endforelse
                                     </div>
                                 </td>
@@ -968,23 +977,23 @@
             <div class="lg:col-span-3 border-0 shadow-sm bg-white rounded-lg hover:shadow-xl animate-fadeInSlideUp"
                 style="animation-delay: 600ms;">
                 <h2 class="p-6 text-lg font-semibold text-gray-900 border-b border-gray-200">
-                    Employee Overview - Today's Work
+                    {{ __('messages.Employee Overview - Today\'s Work') }}
                 </h2>
 
                 {{-- Column headers --}}
                 <div class="px-6 py-3 grid grid-cols-12 gap-4 border-b border-gray-200">
                     <span
-                        class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">EMPLOYEES</span>
+                        class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('messages.EMPLOYEES') }}</span>
                     <span
-                        class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">PROJECTS & CLIENT</span>
+                        class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('messages.PROJECTS & CLIENT') }}</span>
                     <span
-                        class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">TIME TRACKING</span>
+                        class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('messages.TIME TRACKING') }}</span>
                     <span
-                        class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">TASKS</span>
+                        class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('messages.TASKS') }}</span>
                     <span
-                        class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">TASK DURATION</span>
+                        class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('messages.TASK DURATION') }}</span>
                     <span
-                        class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">ACTIONS</span>
+                        class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">{{ __('messages.Employee Actions') }}</span>
                 </div>
 
                 {{-- Employee list container --}}
@@ -1026,18 +1035,18 @@
                 <div class="flex items-center justify-between mb-1">
                     <div class="flex items-center gap-2">
                         <div class="w-1.5 h-5 bg-blue-600 rounded"></div>
-                        <h2 class="text-lg font-semibold text-gray-900">Today's Events</h2>
+                        <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Today\'s Events') }}</h2>
                     </div>
 
-                    <button type="button" x-data
-                        @click="if(window.Livewire) { window.Livewire.dispatch('openCalendarForm'); } else { setTimeout(() => { if(window.Livewire) window.Livewire.dispatch('openCalendarForm'); }, 100); }"
+                    <a href="{{ route('admin.calendar.index') }}"
                         class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-1.5 rounded-lg">
                         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="2.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            stroke-width="2.0" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z" />
                         </svg>
-                        Add Event
-                    </button>
+                        {{ __('messages.See full calendar') }}
+                    </a>
                 </div>
 
                 {{-- Date --}}
@@ -1066,19 +1075,11 @@
                         </li>
                     @empty
                         <li class="text-sm text-gray-500">
-                            No events scheduled for today.
+                            {{ __('messages.No events scheduled for today.') }}
                         </li>
                     @endforelse
                 </ul>
 
-                {{-- Centered "View full calendar" link --}}
-                <div class="text-center mt-6">
-                    <button type="button" x-data
-                        @click="if(window.Livewire) { window.Livewire.dispatch('openCalendarModal'); } else { setTimeout(() => { if(window.Livewire) window.Livewire.dispatch('openCalendarModal'); }, 100); }"
-                        class="text-sm font-medium text-blue-600 hover:underline">
-                        See the full calendar
-                    </button>
-                </div>
             </div>
         </div>
 
@@ -1095,7 +1096,7 @@
             function stopAllTimersForEmployee(employeeId) {
                 const forms = document.querySelectorAll('.stop-form-' + employeeId);
                 if (!forms.length) return;
-                if (!confirm('Stop all timers for this employee?')) return;
+                if (!confirm('{{ __('messages.Stop all timers for this employee?') }}')) return;
 
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 

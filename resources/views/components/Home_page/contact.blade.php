@@ -44,10 +44,9 @@
         <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 ">
             <div class="max-w-xl mx-auto bg-white/95 p-6 sm:p-8 lg:p-10 rounded-2xl shadow-2xl ring-1 ring-border/40 backdrop-blur-md">
 
-                <h1 class="text-3xl sm:text-4xl font-bold text-foreground mb-3 text-center">Contact Us</h1>
+                <h1 class="text-3xl sm:text-4xl font-bold text-foreground mb-3 text-center">{{ __('messages.Contact Us') }}</h1>
                 <p class="text-sm text-muted mb-8 text-center">
-                    Have a question or need assistance? We'd love to hear from you. Fill out the form below and we'll get
-                    back to you as soon as possible.
+                    {{ __('messages.Have a question or need assistance? We\'d love to hear from you. Fill out the form below and we\'ll get back to you as soon as possible.') }}
                 </p>
 
                 {{-- Mail error message --}}
@@ -79,36 +78,36 @@
                     @csrf
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
-                            <label for="name" class="block text-xs font-medium text-muted mb-2">Name</label>
+                            <label for="name" class="block text-xs font-medium text-muted mb-2">{{ __('messages.Name') }}</label>
                             <input type="text" id="name" name="name" required
                                 class="w-full px-3 py-2.5 text-sm border border-border rounded-md placeholder-muted-foreground bg-card"
-                                placeholder="Your name">
+                                placeholder="{{ __('messages.Your name') }}">
                         </div>
 
                         <div>
-                            <label for="email" class="block text-xs font-medium text-muted mb-2">Email</label>
+                            <label for="email" class="block text-xs font-medium text-muted mb-2">{{ __('messages.Email') }}</label>
                             <input type="email" id="email" name="email" required
                                 class="w-full px-3 py-2.5 text-sm border border-border rounded-md placeholder-muted-foreground bg-card"
                                 placeholder="your@email.com">
                         </div>
                     </div>
                     <div>
-                        <label for="subject" class="block text-xs font-medium text-muted mb-2">Subject</label>
+                        <label for="subject" class="block text-xs font-medium text-muted mb-2">{{ __('messages.Subject') }}</label>
                         <input type="text" id="subject" name="subject" required
                             class="w-full px-3 py-2.5 text-sm border border-border rounded-md placeholder-muted-foreground bg-card"
-                            placeholder="How can we help?">
+                            placeholder="{{ __('messages.How can we help?') }}">
                     </div>
 
                     <div>
-                        <label for="message" class="block text-xs font-medium text-muted mb-2">Message</label>
+                        <label for="message" class="block text-xs font-medium text-muted mb-2">{{ __('messages.Message') }}</label>
                         <textarea id="message" name="message" rows="5" required
                             class="w-full px-3 py-2.5 text-sm border border-border rounded-md placeholder-muted-foreground resize-none bg-card"
-                            placeholder="Tell us more about your inquiry..."></textarea>
+                            placeholder="{{ __('messages.Tell us more about your inquiry...') }}"></textarea>
                     </div>
 
                     <button type="submit"
                         class="w-full text-primary-foreground text-sm font-medium py-3 rounded-md bg-primary hover:bg-primary/90 transition-colors">
-                        Send Message
+                        {{ __('messages.Send Message') }}
                     </button>
                 </form> 
             </div>

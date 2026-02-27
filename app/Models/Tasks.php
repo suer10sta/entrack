@@ -19,5 +19,6 @@ class Tasks extends Model
         'project_name',
         'status',
         'estimated_hours',
+        'consumed_hours',
     ];
 }

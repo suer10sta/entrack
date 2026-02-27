@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teams - DalyTrac</title> {{-- Updated title --}}
+    <title>{{ __('messages.Teams - DalyTrac') }}</title> {{-- Updated title --}}
     @vite('resources/css/app.css')
     @livewireStyles
     {{-- Include dashboard_layouts.head if it contains essential meta tags or CSS links not covered by Vite --}}
@@ -32,7 +32,7 @@
 
                 {{-- Header Section --}}
                 <div class="p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <h6 class="text-lg font-semibold text-gray-900">Teams Table Overview</h6>
+                    <h6 class="text-lg font-semibold text-gray-900">{{ __('messages.Teams Table Overview') }}</h6>
 
                     {{-- Buttons --}}
                     <div class="flex flex-wrap gap-2">
@@ -47,7 +47,7 @@
                             @endphp
                             <a href="{{ $createRoute }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
                                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                                Add Team
+                                {{ __('messages.Add Team') }}
                             </a>
                         @endcan
 
@@ -61,7 +61,7 @@
                         @endphp
                         <a href="{{ $reportRoute }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                           Teams Reports PDF
+                           {{ __('messages.Teams Reports PDF') }}
                         </a>
                     </div>
                 </div>
@@ -82,9 +82,9 @@
                         <table class="w-full text-left border-collapse min-w-full">
                             <thead class="border-b border-gray-200 bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Team</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Projects</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Tasks</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Team') }}</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Projects') }}</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Tasks column') }}</th>
                                     <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left"></th> {{-- Empty header for ellipsis --}}
                                 </tr>
                             </thead>
@@ -174,7 +174,7 @@
                                 @empty
                                 <tr>
                                      <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-                                         No teams found.
+                                         {{ __('messages.No teams found.') }}
                                      </td>
                                 </tr>
                                 @endforelse
@@ -192,7 +192,7 @@
                         <div class="p-4 border-b border-gray-200 flex justify-between items-start">
                              <div>
                                  <h5 class="text-base font-semibold text-gray-900 capitalize">{{$team->name}}</h5>
-                                 <p class="text-sm text-gray-500 mt-1">Team Members:</p>
+                                 <p class="text-sm text-gray-500 mt-1">{{ __('messages.Team Members:') }}</p>
                              </div>
                              {{-- Delete Button --}}
                              @can('Delete team')
@@ -203,7 +203,7 @@
                                     elseif (Auth::user()->hasRole('Employee')) $deleteRoute = route('employee.teams.destroy',$team->id);
                                     elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $deleteRoute = route('Responsable_gestionnaire.teams.destroy',$team->id);
                                 @endphp
-                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Are you sure?');" class="inline">
+                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-red-500 hover:text-red-700 p-1 -mt-1 -mr-1"> {{-- Adjust positioning --}}
@@ -257,11 +257,11 @@
                                                 </h6>
                                                 @if($employee_user)
                                                     @if($employee_user->is_loggedIn == 0)
-                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">Off Work</span>
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">{{ __('messages.Off Work') }}</span>
                                                     @elseif($employee_user->is_loggedIn == 1)
-                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">On Work</span>
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">{{ __('messages.On Work') }}</span>
                                                     @else
-                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">On Pause</span>
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">{{ __('messages.On Pause') }}</span>
                                                     @endif
                                                 @endif
                                             </div>
@@ -269,13 +269,13 @@
                                         {{-- View Button --}}
                                         @if($canViewMember)
                                            <a href="{{ $memberShowRoute }}" class="text-xs text-blue-600 border border-blue-600 rounded px-2 py-0.5 hover:bg-blue-50">
-                                               View
+                                               {{ __('messages.View') }}
                                            </a>
                                         @endif
                                     </li>
                                     @endif
                                 @empty
-                                    <li class="text-sm text-gray-500">No members in this team.</li>
+                                    <li class="text-sm text-gray-500">{{ __('messages.No members in this team.') }}</li>
                                 @endforelse
                             </ul>
                         </div>
@@ -291,7 +291,7 @@
                                     elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $editRoute = route('Responsable_gestionnaire.teams.edit',$team->id);
                                 @endphp
                                 <a href="{{ $editRoute }}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                    Edit Team
+                                    {{ __('messages.Edit Team') }}
                                 </a>
                              @endcan
                         </div>

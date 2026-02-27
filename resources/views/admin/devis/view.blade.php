@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -257,7 +257,7 @@
             @endphp
             <div class="details">
     <div class="details-left">
-        <p>Date du Devis: {{ $devis->created_at->format('d-m-Y') }}<br />
+        <p>{{ __('messages.Quote Date') }}: {{ $devis->created_at->format('d-m-Y') }}<br />
         </p>
     </div>
    
@@ -270,16 +270,16 @@
 </div>
 
 <div class="invoice-number">
-    <h2>Devis : {{$entreprise->devis_prefix}}-{{$devisNum}}</h2>
+    <h2>{{ __('messages.Quote') }} : {{$entreprise->devis_prefix}}-{{$devisNum}}</h2>
 </div>
 <br><br>
 <table>
     <thead>
         <tr>
-            <th>Désignation</th>
-            <th>Quantite</th>
-            <th>Prix Unitaire</th>
-            <th>Montant</th>
+            <th>{{ __('messages.Designation') }}</th>
+            <th>{{ __('messages.Quantity') }}</th>
+            <th>{{ __('messages.Unit Price') }}</th>
+            <th>{{ __('messages.Amount') }}</th>
         </tr>
     </thead>
     <tbody>
@@ -308,7 +308,7 @@
     </tbody>
 </table>
 
-<h3>Details : </h3>
+<h3>{{ __('messages.Details') }} : </h3>
 
 <style>
 .detailsTab {
@@ -436,19 +436,19 @@
     <tbody>
         <tr>
             <td colspan="3" class="totals">
-                <div class="label">Total HTVA</div>
+                <div class="label">{{ __('messages.Total Excl VAT') }}</div>
                 <div class="value">{{ number_format($budget, 2, ',', ' ') }}€</div>
             </td>
         </tr>
         <tr>
             <td colspan="3" class="totals">
-                <div class="label">TVA {{ $tva }}%</div>
+                <div class="label">{{ __('messages.VAT') }} {{ $tva }}%</div>
                 <div class="value">{{ number_format($budget * ($tva / 100), 2, ',', ' ') }}€</div>
             </td>
         </tr>
         <tr>
             <td colspan="3" class="totals">
-                <div class="label">Total TTC</div>
+                <div class="label">{{ __('messages.Total Incl VAT') }}</div>
                 <div class="value"><b>{{ number_format($budget + ($budget * ($tva / 100)), 2, ',', ' ') }}€</b></div>
             </td>
         </tr>
@@ -460,11 +460,11 @@
 </div>
 
 <div class="payment">
-    - Durée de validité de l'offre : <strong>1 mois</strong> <br>
-    - Démarrage de projet : dans maximum 3 mois <br>
-    - Conditions générales : voir annexes <br>
-    - Nous restons à votre disposition pour toute information complémentaire <br>
-    - Si ce devis vous convient, veuillez le retourner signé et daté
+    - {{ __('messages.Offer validity period') }} : <strong>{{ __('messages.1 month') }}</strong> <br>
+    - {{ __('messages.Project start') }} : {{ __('messages.within maximum 3 months') }} <br>
+    - {{ __('messages.General conditions') }} : {{ __('messages.see annexes') }} <br>
+    - {{ __('messages.We remain at your disposal for any additional information') }} <br>
+    - {{ __('messages.If this quote suits you, please return it signed and dated') }}
 </div>
         </div>
 
@@ -472,16 +472,16 @@
             <div class="footer-content">
                 <div class="footer-left footer-text">
                     <b>{{ $entreprise->name }}</b><br>
-                    <b>Numéro TVA:</b> {{ $entreprise->tva}}
+                    <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
                 </div>
                 <div class="footer-center footer-text">
                     {{ $entreprise->Address }}<br>
-                    Tél: 0{{ $entreprise->phone }}
+                    {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
                 </div>
                 <div class="footer-right footer-text">
-                    <b>BANK</b> : {{ $entreprise->bank_name }}<br>
-                    <b>IBAN</b> : {{ $entreprise->iban }}<br>
-                    <b>SWIFT/BIC</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
+                    <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }}<br>
+                    <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }}<br>
+                    <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
                 </div>
             </div>
         </div>
@@ -490,7 +490,7 @@
     <!-- Second page - General Conditions -->
     <div class="page">
         <div class="content-wrapper">
-            <h2>Conditions Générales :</h2>
+            <h2>{{ __('messages.General Conditions') }} :</h2>
             <div class="general-conditions">
                 <p>{!! nl2br(e($entreprise->general_conditions_Devis)) !!}</p>
             </div>
@@ -500,16 +500,16 @@
             <div class="footer-content">
                 <div class="footer-left footer-text">
                     <b>{{ $entreprise->name }}</b><br>
-                    <b>Numéro TVA:</b> {{ $entreprise->tva}}
+                    <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
                 </div>
                 <div class="footer-center footer-text">
                     {{ $entreprise->Address }}<br>
-                    Tél: 0{{ $entreprise->phone }}
+                    {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
                 </div>
                 <div class="footer-right footer-text">
-                    <b>BANK</b> : {{ $entreprise->bank_name }}<br>
-                    <b>IBAN</b> : {{ $entreprise->iban }}<br>
-                    <b>SWIFT/BIC</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
+                    <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }}<br>
+                    <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }}<br>
+                    <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
                 </div>
             </div>
         </div>

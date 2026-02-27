@@ -47,7 +47,11 @@
                         <td>
                         @if($user->roles->count() > 0)
                             @foreach($user->roles as $role)
-                                <span class="badge bg-gradient-success">{{$role->name}}</span>
+                                @php
+                                    $roleLabelKey = 'messages.' . $role->name;
+                                    $roleLabel = __($roleLabelKey);
+                                @endphp
+                                <span class="badge bg-gradient-success">{{ $roleLabel !== $roleLabelKey ? $roleLabel : $role->name }}</span>
                             @endforeach
                         @else
                             <span class="badge bg-gradient-danger">No roles</span>

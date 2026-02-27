@@ -18,6 +18,8 @@ use App\Models\work_days_repports;
 use App\Models\Role;
 use App\Models\Permission;
 use App\Models\EnterpriseRolePermission;
+use App\Mail\AdminActivityAlertMail;
+use Illuminate\Support\Facades\Mail;
 use DateTime;
 
 
@@ -65,9 +67,8 @@ class RegisteredUserController extends Controller
             'duration' => now()->addMonths(6), // Set duration to 6 months by default
             'image' => $imageName,
             'type_compt' => null, // null means no plan selected yet
-            //'trial_ends_at' => now()->addDays(15),
-            // No free trial period (0 days) – do not set a future trial end date
-            'trial_ends_at' => null,
+            // 15-day free trial period
+            'trial_ends_at' => now()->addDays(15),
         ]);
 
         // Create the user and associate it with the entreprise
@@ -188,6 +189,23 @@ class RegisteredUserController extends Controller
 
 
         Auth::login($user);
+
+        // Notify admin that a new enterprise has registered
+        try {
+            Mail::to('dessin@bureaumercier.com')->send(new AdminActivityAlertMail(
+                'New enterprise registration',
+                'A new enterprise has registered on the platform.',
+                [
+                    'entreprise_id' => $entreprise->id,
+                    'entreprise_name' => $entreprise->name,
+                    'admin_user_id' => $user->id,
+                    'admin_email' => $user->email,
+                    'timezone' => $user->timezone,
+                ]
+            ));
+        } catch (\Throwable $alertException) {
+            // Do not block user registration on alert failures
+        }
 
         return redirect(RouteServiceProvider::HOME);
     }

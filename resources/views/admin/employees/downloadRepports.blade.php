@@ -1,30 +1,32 @@
 <style>
 body {
     font-family: Arial, sans-serif;
-
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed; /* Force columns to fit within page width */
 }
 
 th {
     border: 1px solid black;
-    padding: 8px;
+    padding: 4px; /* Reduced padding to fit more columns */
     text-align: left;
     font-family: Arial, sans-serif;
-    font-size: 12px;
+    font-size: 10px; /* Smaller font for headers */
     font-weight: bold;
+    word-wrap: break-word;
 }
 
 td {
     border: 1px solid black;
-    padding: 8px;
+    padding: 4px; /* Reduced padding */
     text-align: left;
     font-family: Arial, sans-serif;
-    font-size: 11px;
+    font-size: 9px; /* Smaller font for body cells */
     font-weight: normal;
+    word-wrap: break-word;
 }
 
 thead {
@@ -98,7 +100,8 @@ thead {
     }
 
     @media print {
-        th, td { font-size: 10px; } /* Even smaller font size for printing if necessary */
+        th { font-size: 9px; }
+        td { font-size: 8px; }
     }
 </style>
 
@@ -111,8 +114,8 @@ thead {
         </div>
         <div class="details-right">
             <div class="header-info">
-                <h2>employees Table Reports</h2>
-                <h5>Number of Employees: {{ $employees->count() }}</h5>
+                <h2>{{ __('messages.Employees Table Reports') }}</h2>
+                <h5>{{ __('messages.Number of Employees') }}: {{ $employees->count() }}</h5>
             </div>
         </div>
     </div>
@@ -120,19 +123,19 @@ thead {
     <table>
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Login Email</th>
-                <th>Contact Email</th>
-                <th>Phone</th>
-                <th>Age</th>
-                <th>CNSS</th>
-                <th>Bank Account Number</th>
-                <th>Salary</th>
-                <th>Cost Per Hour</th>
-                <th>Work Hours Limit</th>
-                <th>Cotisation CNSS</th>
-                <th>Cotisation AMO</th>
-                <th>Date Release</th>
+                <th>{{ __('messages.Name') }}</th>
+                <th>{{ __('messages.Login Email') }}</th>
+                <th>{{ __('messages.Contact Email') }}</th>
+                <th>{{ __('messages.Phone') }}</th>
+                <th>{{ __('messages.Age') }}</th>
+                <th>{{ __('messages.CNSS') }}</th>
+                <th>{{ __('messages.Bank Account Number') }}</th>
+                <th>{{ __('messages.Salary') }}</th>
+                <th>{{ __('messages.Cost Per Hour') }}</th>
+                <th>{{ __('messages.Work Hours Limit') }}</th>
+                <th>{{ __('messages.CNSS Contribution') }}</th>
+                <th>{{ __('messages.AMO Contribution') }}</th>
+                <th>{{ __('messages.Release Date') }}</th>
         
             </tr>
         </thead>
@@ -158,8 +161,8 @@ thead {
     </table>
 
     <div class="footer">
-        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
-        <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
+        <div class='footer-right'>{{ __('messages.Page Number') }}: <span class="page-number"></span></div>
+        <div class='footer-left'>{{ __('messages.Download Date') }}: {{ date('d-m-Y') }}</div>
     </div>
 
 </div>

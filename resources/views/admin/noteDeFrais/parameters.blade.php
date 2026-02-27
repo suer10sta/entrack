@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoices History - DalyTrac</title>
+    <title>{{ __('messages.Expense Note Parameters - DalyTrac') }}</title>
     @vite('resources/css/app.css') 
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -45,27 +45,27 @@
             <div class="flex flex-wrap justify-between items-center gap-4">
                 <div>
                     {{-- Adjusted header style --}}
-                    <h1 class="text-xl font-semibold text-gray-900">Expense Note Parameters</h1>
-                    <p class="text-sm text-gray-500">Configure expense note settings</p>
+                    <h1 class="text-xl font-semibold text-gray-900">{{ __('messages.Expense Note Parameters') }}</h1>
+                    <p class="text-sm text-gray-500">{{ __('messages.Configure expense note settings') }}</p>
                 </div>
             </div>
 
             {{-- 2. Expense Note Information Card --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div class="p-6">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-1">Expense Note Information</h2>
-                    <p class="text-sm text-gray-500 mb-6">Mandatory information</p>
+            <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-1">{{ __('messages.Expense Note Information') }}</h2>
+                    <p class="text-sm text-gray-500 mb-6">{{ __('messages.Mandatory information expense') }}</p>
 
                     {{-- Expense Note Prefix --}}
                     {{-- Use grid to allow for potential future fields --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Prefix</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Prefix') }}</label>
                             <input
                                 class="editable entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 bg-gray-50" {{-- Added bg-gray-50 for readonly state --}}
                                 type="text" name="notedefraisPrefix"
                                 value="{{$entreprise->notedefraisPrefix}}" readonly />
-                            <small class="text-xs text-gray-500 mt-1">Prefix used for expense note numbering (e.g., NF-). Double-click to edit.</small> {{-- Added help text --}}
+                            <small class="text-xs text-gray-500 mt-1">{{ __('messages.Prefix help expense') }}</small> {{-- Added help text --}}
                         </div>
                          {{-- Placeholder for potential second column if needed later --}}
                          <div></div>
@@ -88,11 +88,11 @@
 
                  {{-- Back Button --}}
                  <a href="{{ url()->previous() ?: $backRoute }}" class="inline-flex items-center bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 shadow-sm">
-                     Back
+                     {{ __('messages.Back') }}
                  </a>
                  {{-- Save Changes Button --}}
                  <button type="button" id="saveChangesBtn" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
-                     Save Changes
+                     {{ __('messages.Save Changes Expense') }}
                  </button>
             </div>
 
@@ -151,12 +151,12 @@
             @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) updatedUrl = '/Responsable_gestionnaire/Enterprise_infos/updateInfos'; @endif
 
             if (!updatedUrl) {
-                alert("Error: Cannot save. No permissions.");
+                alert(@json(__('messages.Cannot save. No permissions expense')));
                 return; 
             }
             
             // Give user feedback on the button
-            saveButton.prop('disabled', true).removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-yellow-500').text('Saving...');
+            saveButton.prop('disabled', true).removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-yellow-500').text(@json(__('messages.Saving Expense...')));
 
             var hasErrors = false;
 
@@ -208,15 +208,15 @@
             // --- All fields have been processed, update button feedback ---
             saveButton.prop('disabled', false);
             if (hasErrors) {
-                saveButton.removeClass('bg-yellow-500').addClass('bg-red-600').text('Error!');
-                alert('Some changes failed to save. Please check fields marked in red.');
+                saveButton.removeClass('bg-yellow-500').addClass('bg-red-600').text(@json(__('messages.Error Expense!')));
+                alert(@json(__('messages.Some changes failed to save. Please check fields marked in red.')));
             } else {
-                saveButton.removeClass('bg-yellow-500').addClass('bg-green-600').text('Saved!');
+                saveButton.removeClass('bg-yellow-500').addClass('bg-green-600').text(@json(__('messages.Saved Expense!')));
             }
             
             // Reset button text after 2 seconds
             setTimeout(() => {
-                saveButton.removeClass('bg-green-600 bg-red-600').addClass('bg-blue-600 hover:bg-blue-700').text('Save Changes');
+                saveButton.removeClass('bg-green-600 bg-red-600').addClass('bg-blue-600 hover:bg-blue-700').text(@json(__('messages.Save Changes Expense')));
             }, 2000);
         });
     });

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DalyTrac Dashboard - Roles</title>
+    <title>{{ __('messages.Roles Page Title') }}</title>
     @vite('resources/css/app.css')
     @livewireStyles
 </head>
@@ -28,8 +28,8 @@
 
                 {{-- Header --}}
                 <div class="mb-8">
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2">Roles Management</h1>
-                    <p class="text-gray-600">Manage user roles and their permissions</p>
+                    <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ __('messages.Roles Management') }}</h1>
+                    <p class="text-gray-600">{{ __('messages.Roles Management subtitle') }}</p>
                 </div>
 
                 {{-- Controls --}}
@@ -38,7 +38,7 @@
 
                         {{-- Entries per page (placeholder UI, optional Livewire binding) --}}
                         <div class="flex items-center gap-2">
-                            <label class="text-sm font-medium text-gray-700">Entries per page:</label>
+                            <label class="text-sm font-medium text-gray-700">{{ __('messages.Entries per page') }}</label>
                             <select
                                 class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="5">5</option>
@@ -70,7 +70,7 @@
                         <input
                             id="searchInput"
                             type="text"
-                            placeholder="Search roles..."
+                            placeholder="{{ __('messages.Search roles placeholder') }}"
                             class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             wire:model.live="search"
                         />
@@ -83,16 +83,38 @@
                         <table class="w-full" id="rolesTable">
                             <thead>
                                 <tr class="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-gray-200">
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">ROLE</th>
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">PERMISSIONS</th>
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">ACTIONS</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">{{ __('messages.ROLE header') }}</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">{{ __('messages.PERMISSIONS header') }}</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">{{ __('messages.ACTIONS header') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($roles as $role)
                                     <tr class="{{ $loop->even ? 'bg-gray-50' : 'bg-white' }} border-b border-gray-200 hover:bg-gray-50 transition-colors">
                                         {{-- Role name --}}
-                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $role->name }}</td>
+                                        @php
+                                            $roleRawName = trim($role->name);
+                                            $roleCandidates = array_values(array_unique([
+                                                $roleRawName,
+                                                strtolower($roleRawName),
+                                                strtoupper($roleRawName),
+                                                str_replace(['_', '-'], ' ', $roleRawName),
+                                                ucwords(strtolower(str_replace(['_', '-'], ' ', $roleRawName))),
+                                                str_replace(' ', '_', $roleRawName),
+                                                strtolower(str_replace(' ', '_', $roleRawName)),
+                                                strtoupper(str_replace(' ', '_', $roleRawName)),
+                                            ]));
+                                            $roleLabel = $roleRawName;
+                                            foreach ($roleCandidates as $candidate) {
+                                                $candidateKey = 'messages.' . $candidate;
+                                                $translated = __($candidateKey);
+                                                if ($translated !== $candidateKey) {
+                                                    $roleLabel = $translated;
+                                                    break;
+                                                }
+                                            }
+                                        @endphp
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $roleLabel }}</td>
 
                                         {{-- Permissions --}}
                                         <td class="px-6 py-4">
@@ -106,18 +128,40 @@
                                             <div class="flex flex-wrap gap-2">
                                                 @if ($enterprisePermissions->count() > 0)
                                                     @foreach ($enterprisePermissions->take(5) as $per)
+                                                        @php
+                                                            $permissionRawName = trim($per->name);
+                                                            $permissionCandidates = array_values(array_unique([
+                                                                $permissionRawName,
+                                                                strtolower($permissionRawName),
+                                                                strtoupper($permissionRawName),
+                                                                str_replace(['_', '-'], ' ', $permissionRawName),
+                                                                ucwords(strtolower(str_replace(['_', '-'], ' ', $permissionRawName))),
+                                                                str_replace(' ', '_', $permissionRawName),
+                                                                strtolower(str_replace(' ', '_', $permissionRawName)),
+                                                                strtoupper(str_replace(' ', '_', $permissionRawName)),
+                                                            ]));
+                                                            $permissionLabel = $permissionRawName;
+                                                            foreach ($permissionCandidates as $candidate) {
+                                                                $candidateKey = 'messages.' . $candidate;
+                                                                $translated = __($candidateKey);
+                                                                if ($translated !== $candidateKey) {
+                                                                    $permissionLabel = $translated;
+                                                                    break;
+                                                                }
+                                                            }
+                                                        @endphp
                                                         <span class="inline-block px-3 py-1 bg-cyan-100 text-cyan-700 text-xs font-semibold rounded-full">
-                                                            {{ $per->name }}
+                                                            {{ $permissionLabel }}
                                                         </span>
                                                     @endforeach
                                                     @if ($enterprisePermissions->count() > 5)
                                                         <span class="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded-full">
-                                                            +{{ $enterprisePermissions->count() - 5 }} more
+                                                            +{{ $enterprisePermissions->count() - 5 }} {{ __('messages.more') }}
                                                         </span>
                                                     @endif
                                                 @else
                                                     <span class="inline-block px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
-                                                        No permissions
+                                                        {{ __('messages.No permissions') }}
                                                     </span>
                                                 @endif
                                             </div>
@@ -130,7 +174,7 @@
                                                 @if (Auth::user()->hasRole('Admin'))
                                                     <a href="{{ route('admin.roles.edit', $role->id) }}"
                                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                       title="Edit">
+                                                       title="{{ __('messages.Edit') }}">
                                                         <svg xmlns="http://www.w3.org/2000/svg"
                                                              class="h-4 w-4" fill="none"
                                                              viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -153,11 +197,11 @@
                       
                       <div class="flex items-center gap-2">
                         <button class="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-100 transition-colors">
-                          Previous
+                          {{ __('messages.Previous') }}
                         </button>
                         <button class="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors">1</button>
                         <button class="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-100 transition-colors">
-                          Next
+                          {{ __('messages.Next') }}
                         </button>
                       </div>
                     </div>

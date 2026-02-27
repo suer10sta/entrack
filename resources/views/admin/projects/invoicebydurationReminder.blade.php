@@ -1,4 +1,4 @@
-<html xmlns='https://www.w3.org/1999/xhtml'>
+<html xmlns='https://www.w3.org/1999/xhtml' lang="{{ app()->getLocale() }}">
 
 <head>
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
@@ -30,17 +30,17 @@
                     </tr>
                     <table width='100%' cellspacing='0' cellpadding='0'>
                         <tr>
-                            <td valign='top' width='30%' style='font-size:12px;'>Date du rappel:
+                            <td valign='top' width='30%' style='font-size:12px;'>{{ __('messages.Reminder Date') }}:
                                 {{$last_reminder_date}}<br />
-                                Échéance: {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}
+                                {{ __('messages.Due Date') }}: {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}
                                 <br>
-                                Numéro client : {{ $client->client_number }} <br>
-                                Numéro de facture : {{$invoice->created_at->format('ym')}}@if($invoicenumber){{$invoicenumber}} @else{{$invoice_id}} @endif
+                                {{ __('messages.Client Number') }} : {{ $client->client_number }} <br>
+                                {{ __('messages.Invoice Number') }} : {{$invoice->created_at->format('ym')}}@if($invoicenumber){{$invoicenumber}} @else{{$invoice_id}} @endif
                                 <br>
-                                Rappel numéro : {{$reminder_number}}
+                                {{ __('messages.Reminder Number') }} : {{$reminder_number}}
                                 @if($isOverdue)
                             <br>
-                            <span style="color: red;">Jours en retard : {{ $days_overdue }}</span>
+                            <span style="color: red;">{{ __('messages.Days overdue') }} : {{ $days_overdue }}</span>
                         @endif
                             </td>
                             <td valign='top' width='35%'>
@@ -50,7 +50,7 @@
                                 {{ $client->billing_street }} <br />
                                 {{ $client->billing_zip }}-{{ $client->billing_city }} <br />
                                 {{ $client->billing_country }}<br />
-                                TVA Client: {{ $client->TVA }}
+                                {{ __('messages.Client VAT') }}: {{ $client->TVA }}
                             </td>
                         </tr>
                     </table>
@@ -58,7 +58,7 @@
                     <table width='100%' height='100' cellspacing='0' cellpadding='0'>
                         <tr>
                             <td>
-                                <div align='center' style='font-size: 14px;font-weight: bold;'>Rappel Facture : {{$entreprise->invoice_prefix}}-{{$invoice->created_at->format('ym')}}@if($invoicenumber){{$invoicenumber}} @else{{$invoice_id}} @endif</div>
+                                <div align='center' style='font-size: 14px;font-weight: bold;'>{{ __('messages.Invoice Reminder') }} : {{$entreprise->invoice_prefix}}-{{$invoice->created_at->format('ym')}}@if($invoicenumber){{$invoicenumber}} @else{{$invoice_id}} @endif</div>
                             </td>
                         </tr>
                     </table>
@@ -66,13 +66,13 @@
                         <tr>    
 
                             <td width='35%' bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'>
-                                <strong>Désignation
+                                <strong>{{ __('messages.Designation') }}
                                 </strong>
                             </td>
-                            <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Duration</strong>
+                            <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Duration') }}</strong>
                             </td>
-                            <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Prix Unitaire</strong></td>
-                            <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Montant</strong>
+                            <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Unit Price') }}</strong></td>
+                            <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Amount') }}</strong>
                             </td>
 
 
@@ -118,12 +118,12 @@
             <td>
                 <table width='100%' cellspacing='0' cellpadding='2' border='0'>
                     <tr>
-                        <td align='right' style='font-size:12px;'>Total HTVA</td>
+                        <td align='right' style='font-size:12px;'>{{ __('messages.Total Excl VAT') }}</td>
                         <td align='right' style='font-size:12px;'>{{ number_format($prixtotal, 2, ',', '') }}€
                         <td>
                     </tr>
                     <tr>
-                        <td align='right' style='font-size:12px;'>TVA
+                        <td align='right' style='font-size:12px;'>{{ __('messages.VAT') }}
                             
                             {{$projectinfos->tva}}%</td>
                         <td align='right' style='font-size:12px;'>{{ number_format($prixtotal*($projectinfos->tva/100), 2, ',', '') }}€
@@ -131,7 +131,7 @@
                     </tr>
                     <tr>
 
-                        <td align='right' style='font-size:12px;'><b>Total TTC</b></td>
+                        <td align='right' style='font-size:12px;'><b>{{ __('messages.Total Incl VAT') }}</b></td>
                         <td align='right' style='font-size:12px;'><b>{{number_format($prixtotal + ($prixtotal*($projectinfos->tva/100)), 2, ',', '')}}€</b></td>
                     </tr>
                 </table>
@@ -141,9 +141,9 @@
     <table width='100%' height='50'>
         <tr>
             <td style=' font-size:12px;text-align:justify ;border-top:double;border-bottom:double'>
-                <strong> - Informations :</strong> <br>
+                <strong> - {{ __('messages.Information') }} :</strong> <br>
                 {!! nl2br(e($projectinfos->description)) !!} <br>
-                <strong> - Commentaire : </strong> <br>
+                <strong> - {{ __('messages.Comment') }} : </strong> <br>
                <p style="white-space: pre-wrap;">{!! nl2br(e($comment)) !!}</p>
             </td>
         </tr>
@@ -152,11 +152,11 @@
 
     <table width='100%' cellspacing='0' cellpadding='2' border='1' bordercolor='#CCCCCC' '>
   <thead>
-    <td bordercolor=' #ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Nom de Tache</strong></td>
-        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Projet / Sous-projet</strong></td>
-        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Date de debut </strong></td>
-        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Date de Fin</strong></td>
-        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Duree</strong></td>
+    <td bordercolor=' #ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Task Name') }}</strong></td>
+        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Project / Subproject') }}</strong></td>
+        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Start Date') }} </strong></td>
+        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.End Date') }}</strong></td>
+        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Duration') }}</strong></td>
 
         </thead>
         <tbody>
@@ -182,7 +182,7 @@
             </tr>
             @endforeach
             <tr>
-                <td colspan="4" style='font-size:12px; text-align: right;'><strong>Duree Total:</strong></td>
+                <td colspan="4" style='font-size:12px; text-align: right;'><strong>{{ __('messages.Total Duration') }}:</strong></td>
                 <td valign='top' style='font-size:12px;'>
                     {{ floor($totalMinutes / 60) }}h:{{ sprintf('%02d', $totalMinutes % 60) }}m</td>
             </tr>
@@ -194,19 +194,18 @@
     <table width='100%' height='50'>
         <tr>
             <td style=' font-size:12px;text-align:justify ;'>
-                - Veuillez payer le montant de
-                <strong>{{number_format($prixtotal + ($prixtotal*($projectinfos->tva/100)), 2, ',', '')}}€</strong> sur le compte mentionné
-                ci-dessous avant le 
+                - {{ __('messages.Please pay the amount of') }}
+                <strong>{{number_format($prixtotal + ($prixtotal*($projectinfos->tva/100)), 2, ',', '')}}€</strong> {{ __('messages.on the account mentioned below before') }} 
                 {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}
-                en mentionnant le numéro Facture <strong>{{$invoice->created_at->format('ym')}}@if($invoicenumber){{$invoicenumber}} @else{{$invoice_id}} @endif</strong>
+                {{ __('messages.mentioning the invoice number') }} <strong>{{$invoice->created_at->format('ym')}}@if($invoicenumber){{$invoicenumber}} @else{{$invoice_id}} @endif</strong>
                 <br>
-                - Dans le cas de livraison intracommunautaire pour les services :  "Autoliquidation Art 21 § 2 du code TVA belge"
+                - {{ __('messages.Intracommunity delivery services note') }}
                 <br>
-                - Voir tableau des taches en annexe
+                - {{ __('messages.See tasks table in annex') }}
                 <br>
-                - Voir conditions générales en annexe
+                - {{ __('messages.See general conditions in annex') }}
                 <br>
-                - Merci de votre confiance
+                - {{ __('messages.Thank you for your trust') }}
 
             </td>
         </tr>
@@ -217,16 +216,16 @@
         <tr>
             <td width='33%' style='border-top:double medium #CCCCCC;font-size:12px;' valign='top'>
                 <b>{{$entreprise->name}}</b><br />
-                <b>Numéro TVA:</b> {{ $entreprise->tva}}<br />
+                <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}<br />
 
             </td>
             <td width='33%' style='border-top:double medium #CCCCCC; font-size:12px;' align='center' valign='top'>
                 {{$entreprise->Address}}<br />
-                Tél: 0{{$entreprise->phone}}<br />
+                {{ __('messages.Phone') }}: 0{{$entreprise->phone}}<br />
             </td>
 
             <td valign='top' width='34%' style='border-top:double medium #CCCCCC;font-size:12px;' align='right'>
-                BANK : {{$entreprise->bank_name}}<br /> IBAN : {{$entreprise->iban}} <br />SWIFT/BIC:
+                {{ __('messages.BANK') }} : {{$entreprise->bank_name}}<br /> {{ __('messages.IBAN') }} : {{$entreprise->iban}} <br />{{ __('messages.SWIFT/BIC') }}:
                 {{$entreprise->swift}} / {{$entreprise->bic}} <br />
             </td>
         </tr>
@@ -243,7 +242,7 @@
                        -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; 
                        user-select: none; background-image: none; border: 1px solid transparent; 
                        border-radius: 4px; color: #fff; background-color: #337ab7; border-color: #2e6da4;">
-            Send Rappel
+            {{ __('messages.Send Reminder') }}
         </button>
     </div>
 
@@ -258,7 +257,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="sendReminderModalLabel">Send Reminder</h5>
+                    <h5 class="modal-title" id="sendReminderModalLabel">{{ __('messages.Send Reminder') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
         @if(Auth::user()->hasRole('Admin'))
@@ -276,19 +275,19 @@
                 @csrf
                     <div class="modal-body">
                         <div class="mb-3">
-                            <h6>Select Recipients:</h6>
+                            <h6>{{ __('messages.Select Recipients') }}:</h6>
                             <div id="recipientsList" class="mb-3 p-2 border rounded">
                                 <!-- Recipients will be populated here -->
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="fileUpload" class="form-label">Upload Additional Files (Optional):</label>
+                            <label for="fileUpload" class="form-label">{{ __('messages.Upload Additional Files (Optional)') }}:</label>
                             <input type="file" class="form-control" id="fileUpload" name="file[]" multiple>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Send Reminder</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('messages.Close') }}</button>
+                        <button type="submit" class="btn btn-primary">{{ __('messages.Send Reminder') }}</button>
                     </div>
             </form>
             </div>
@@ -358,12 +357,12 @@
                             recipientsList.appendChild(recipientDiv);
                         });
                     } else {
-                        recipientsList.innerHTML = '<p class="text-muted">No recipients found</p>';
+                        recipientsList.innerHTML = '<p class="text-muted">{{ __('messages.No recipients found') }}</p>';
                     }
                 })
                 .catch(error => {
                     console.error('Error fetching recipients:', error);
-                    document.getElementById('recipientsList').innerHTML = '<p class="text-danger">Error loading recipients</p>';
+                    document.getElementById('recipientsList').innerHTML = '<p class="text-danger">{{ __('messages.Error loading recipients') }}</p>';
                 });
         });
 
@@ -376,7 +375,7 @@
                 .map(checkbox => checkbox.value);
             
             if (selectedRecipients.length === 0) {
-                showMessage('Please select at least one recipient', 'danger');
+                showMessage('{{ __('messages.Please select at least one recipient') }}', 'danger');
                 return;
             }
 
@@ -425,7 +424,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                showMessage('An error occurred while sending the reminder. Please try again.', 'danger');
+                    showMessage('{{ __('messages.An error occurred while sending the reminder') }}', 'danger');
             });
         });
 

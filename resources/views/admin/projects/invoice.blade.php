@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -153,11 +153,11 @@
 
         <div class="details">
             <div class="details-left">
-                <p>Date de facturation: <?php echo date('d-m-Y'); ?><br />
-                    Échéance:
+                <p>{{ __('messages.Invoice Date') }}: <?php echo date('d-m-Y'); ?><br />
+                    {{ __('messages.Due Date') }}:
                     {{ \Carbon\Carbon::now()->addDays(abs((int)filter_var($client->due_date, FILTER_SANITIZE_NUMBER_INT)))->format('d-m-Y') }}                    <br>
-                    Numéro client : {{ $client->client_number }} <br>
-                    Numéro de facture : {{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif
+                    {{ __('messages.Client Number') }} : {{ $client->client_number }} <br>
+                    {{ __('messages.Invoice Number') }} : {{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif
                 </p>
             </div>
             <div class="details-right">
@@ -165,7 +165,7 @@
                 {{ $client->billing_street }} <br />
                 {{ $client->billing_zip }}-{{ $client->billing_city }} <br />
                 {{ $client->billing_country }}<br />
-                TVA Client: {{ $client->TVA }}
+                {{ __('messages.Client VAT') }}: {{ $client->TVA }}
             </div>
         </div>
 
@@ -177,21 +177,21 @@
         }
         @endphp
         <div class="invoice-number">
-            Facture : {{$entreprise->invoice_prefix}}-{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif
+            {{ __('messages.Invoice') }} : {{$entreprise->invoice_prefix}}-{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif
         </div>
 
         <table>
             <thead>
                 <tr>
-                    <th>Désignation</th>
+                    <th>{{ __('messages.Designation') }}</th>
                     @if(request()->has('hours'))
-                        <th>Heures</th>
-                        <th>Coût par heure</th>
+                        <th>{{ __('messages.Hours') }}</th>
+                        <th>{{ __('messages.Cost per Hour') }}</th>
                     @else
-                        <th>Quantite</th>
-                        <th>Prix Unitaire</th>
+                        <th>{{ __('messages.Quantity') }}</th>
+                        <th>{{ __('messages.Unit Price') }}</th>
                     @endif
-                    <th>Montant</th>
+                    <th>{{ __('messages.Amount') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -219,20 +219,20 @@
             <tbody>
                 <tr>
                     <td colspan="3" class="totals">
-                        <div class="label">Total HTVA</div>
+                        <div class="label">{{ __('messages.Total Excl VAT') }}</div>
                         <div class="value">{{number_format($budget, 2, ',', '')}}€</div>
                     </td>
                 </tr>
                 <tr>
                     <td colspan="3" class="totals">
-                        <div class="label">TVA {{ $projectinfos->tva }}%
+                        <div class="label">{{ __('messages.VAT') }} {{ $projectinfos->tva }}%
                         </div>
                         <div class="value">{{number_format($budget* ($projectinfos->tva / 100), 2, ',', '')}}€</div>
                     </td>
                 </tr>
                 <tr>
                     <td colspan="3" class="totals">
-                        <div class="label">Total TTC</div>
+                        <div class="label">{{ __('messages.Total Incl VAT') }}</div>
                         <div class="value"><b>{{number_format($budget + ($budget*($projectinfos->tva/100)), 2, ',', '')}}€</b></div>
                     </td>
                 </tr>
@@ -240,24 +240,23 @@
         </table>
 
         <div class="description">
-            <strong> - Informations :</strong> <br>
+            <strong> - {{ __('messages.Information') }} :</strong> <br>
             {!! nl2br(e($projectinfos->description)) !!} <br>
-            <strong> - Commentaire : </strong> <br>
+            <strong> - {{ __('messages.Comment') }} : </strong> <br>
            <p style="white-space: pre-wrap;">{!! nl2br(e($comment)) !!}</p>
         </div>
 
         <div class="payment">
-            - Veuillez payer le montant de
-            <strong>{{number_format($budget + ($budget*($projectinfos->tva/100)), 2, ',', '')}}€</strong> sur le compte mentionné
-            ci-dessous avant le
+            - {{ __('messages.Please pay the amount of') }}
+            <strong>{{number_format($budget + ($budget*($projectinfos->tva/100)), 2, ',', '')}}€</strong> {{ __('messages.on the account mentioned below before') }}
             {{ \Carbon\Carbon::now()->addDays(abs((int)filter_var($client->due_date, FILTER_SANITIZE_NUMBER_INT)))->format('d-m-Y') }}
-            en mentionnant le numéro Facture <strong>{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif</strong>
+            {{ __('messages.mentioning the invoice number') }} <strong>{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif</strong>
             <br>
-            - Dans le cas de livraison intracommunautaire pour les services :  "Autoliquidation Art 21 § 2 du code TVA belge"
+            - {{ __('messages.Intracommunity delivery services note') }}
             <br>
-            - Voir conditions générales en annexe
+            - {{ __('messages.See general conditions in annex') }}
             <br>
-            - Merci de votre confiance
+            - {{ __('messages.Thank you for your trust') }}
 
         </div>
         <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
@@ -274,13 +273,13 @@
             ]) }}{{ $querySuffix }}" method="POST" style="display: inline-block;">
                 @csrf
                 <button type="submit" style="padding: 6px 12px; margin-bottom: 6px; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: green; border-color: green;">
-                    Confirm 
+                    {{ __('messages.Confirm') }} 
                 </button>
             </form>
             <form action="{{ route('admin.projects.declineInvoice') }}" method="POST" style="display: inline-block;">
                 @csrf
                 <button type="submit" style="padding: 6px 12px; margin-bottom: 0; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: red; border-color: red;">
-                    decline 
+                    {{ __('messages.Decline') }} 
                 </button>
             </form>
         @endif
@@ -293,13 +292,13 @@
             ]) }}{{ $querySuffix }}" method="POST" style="display: inline-block;">
                 @csrf
                 <button type="submit" style="padding: 6px 12px; margin-bottom: 6px; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: green; border-color: green;">
-                    Confirm 
+                    {{ __('messages.Confirm') }} 
                 </button>
             </form>
             <form action="{{ route('Responsable_de_projet.projects.declineInvoice') }}" method="POST" style="display: inline-block;">
                 @csrf
                 <button type="submit" style="padding: 6px 12px; margin-bottom: 0; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: red; border-color: red;">
-                    decline 
+                    {{ __('messages.Decline') }} 
                 </button>
             </form>
         @endif
@@ -312,13 +311,13 @@
             ]) }}{{ $querySuffix }}" method="POST" style="display: inline-block;">
                 @csrf
                 <button type="submit" style="padding: 6px 12px; margin-bottom: 6px; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: green; border-color: green;">
-                    Confirm 
+                    {{ __('messages.Confirm') }} 
                 </button>
             </form>
             <form action="{{ route('employee.projects.declineInvoice') }}" method="POST" style="display: inline-block;">
                 @csrf
                 <button type="submit" style="padding: 6px 12px; margin-bottom: 0; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: red; border-color: red;">
-                    decline 
+                    {{ __('messages.Decline') }} 
                 </button>
             </form>
         @endif
@@ -331,13 +330,13 @@
             ]) }}{{ $querySuffix }}" method="POST" style="display: inline-block;">
                 @csrf
                 <button type="submit" style="padding: 6px 12px; margin-bottom: 6px; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: green; border-color: green;">
-                    Confirm 
+                    {{ __('messages.Confirm') }} 
                 </button>
             </form>
             <form action="{{ route('Responsable_gestionnaire.projects.declineInvoice') }}" method="POST" style="display: inline-block;">
                 @csrf
                 <button type="submit" style="padding: 6px 12px; margin-bottom: 0; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: red; border-color: red;">
-                    decline 
+                    {{ __('messages.Decline') }} 
                 </button>
             </form>
         @endif
@@ -350,17 +349,17 @@
         <div style="float: left; width: 30%; height: 80%;text-align: center;">
             <b>{{ $entreprise->name }}</b>
             <br>
-            <b>Numéro TVA:</b> {{ $entreprise->tva}}
+            <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
         </div>
         <div style="float: left; margin-left: 5%; width: 30%; height: 80%; text-align: center;">
             {{ $entreprise->Address }}
             <br>
-            Tél: 0{{ $entreprise->phone }}
+            {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
         </div>
         <div style="float: left; margin-left: 5%; width: 30%; height: 80%; text-align: center;">
-            <b>BANK</b> : {{ $entreprise->bank_name }} <br>
-            <b>IBAN</b> : {{ $entreprise->iban }} <br>
-            <b>SWIFT/BIC/b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
+            <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }} <br>
+            <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }} <br>
+            <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
         </div>
     </div>
 </body>

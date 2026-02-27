@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clients - DalyTrac</title> 
+    <title>{{ __('messages.Clients') }} - DalyTrac</title> 
     @vite('resources/css/app.css')
     @livewireStyles
     
@@ -31,7 +31,7 @@
 
                 {{-- Header Section --}}
                 <div class="p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <h6 class="text-lg font-semibold text-gray-900">Clients Table</h6>
+                    <h6 class="text-lg font-semibold text-gray-900">{{ __('messages.Clients Table') }}</h6>
 
                     <div class="flex flex-wrap gap-2">
                         {{-- Add Client Button --}}
@@ -44,7 +44,7 @@
                             @endphp
                             <a href="{{ $createRoute }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
                                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                                Add Client
+                                {{ __('messages.Add Client') }}
                             </a>
                         @endcan
 
@@ -57,7 +57,7 @@
                         @endphp
                         <a href="{{ $reportRoute }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                           Client Reports PDF
+                           {{ __('messages.Client Reports PDF') }}
                         </a>
                     </div>
                 </div>
@@ -80,18 +80,18 @@
                 <tr>
                     {{-- Optimized column widths to fit all columns on screen --}}
                     <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">N°</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">Name</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 14%;">Email</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">{{ __('messages.Name') }}</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 14%;">{{ __('messages.Email') }}</th>
                     <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">Phone</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 11%;">Billing Address</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">VAT</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 6%;">Due Date</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 12%;">Address</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 8%;">City</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">Zip</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">Country</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 11%;">{{ __('messages.Billing Address') }}</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">{{ __('messages.VAT') }}</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 6%;">{{ __('messages.Due Date') }}</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 12%;">{{ __('messages.Address') }}</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 8%;">{{ __('messages.City') }}</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">{{ __('messages.Zip') }}</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">{{ __('messages.Country') }}</th>
                     @can('Delete client')
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 8%;">Action</th>
+                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 8%;">{{ __('messages.Action') }}</th>
                     @endcan
                 </tr>
             </thead>
@@ -187,7 +187,7 @@
                         @endphp
                         @if($client_has_invoice)
                            <div class="bg-red-50 border border-red-200 text-red-600 px-2 py-1 rounded text-[10px] font-medium leading-tight">
-                                Cannot delete:<br>Has invoices
+                                {{ __('messages.Cannot delete: Has invoices') }}
                            </div>
                         @else
                             @php
@@ -196,10 +196,10 @@
                                 elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $deleteRoute = route('Responsable_gestionnaire.clients.destroy', $client->id);
                                 elseif (Auth::user()->hasRole('Admin')) $deleteRoute = route('admin.clients.destroy', $client->id);
                             @endphp
-                            <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Are you sure?');" class="inline-block">
+                            <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" title="Delete Client"
+                                <button type="submit" title="{{ __('messages.Delete') }}"
                                         class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-red-600 hover:bg-red-700">
                                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -213,7 +213,7 @@
                 @empty
                 <tr>
                     <td colspan="12" class="px-6 py-4 text-center text-sm text-gray-500">
-                         No clients found.
+                         {{ __('messages.No clients found.') }}
                     </td>
                 </tr>
                 @endforelse
@@ -270,7 +270,7 @@
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         $parentCell.text(originalContent);
-                        alert('Error updating client: ' + errorThrown);
+                        alert('{{ __('messages.Error updating client') }}: ' + errorThrown);
                         console.error("AJAX Error:", textStatus, errorThrown, jqXHR.responseText);
                     }
                 });

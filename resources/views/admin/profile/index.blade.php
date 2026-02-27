@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>DalyTrac Dashboard</title>
+    <title>{{ __('messages.My Profile Page Title') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     {{-- Tailwind is required for the color classes --}}
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,65 +26,74 @@
         // Define the look & feel for each plan
         $plans = [
             'trial' => [
-                'label' => 'Free Trial - 0 Days',
-                'title' => 'Free Trial Features',
-                'subtitle' => 'Test everything for 0 days',
+                'label' => __('messages.Free Trial label'),
+                'title' => __('messages.Free Trial title'),
+                'subtitle' => __('messages.Free Trial subtitle'),
                 'color_theme' => 'purple',
                 'bg_theme' => 'purple',
                 'button_color' => 'bg-blue-600 hover:bg-blue-700',
-                'button_text' => 'Choose a Plan',
+                'button_text' => __('messages.Choose a Plan'),
                 'icon' => 'clock',
                 'show_timer' => true,
                 'features' => [
-                    'Unlimited Invoices', 'Unlimited Clients', 
-                    'Unlimited Projects', 'Advanced Reports', 
-                    'Email Support', 'No Credit Card Required', 
-                    '0 Day Trial Period'
+                    __('messages.Unlimited Invoices'),
+                    __('messages.Unlimited Clients'),
+                    __('messages.Unlimited Projects'),
+                    __('messages.Advanced Reports'),
+                    __('messages.Email Support'),
+                    __('messages.No Credit Card Required'),
+                    __('messages.Zero Day Trial')
                 ]
             ],
             'solo' => [
-                'label' => 'Solo Plan',
-                'title' => 'Solo Plan',
-                'subtitle' => 'Perfect for freelancers',
+                'label' => __('messages.Solo Plan label'),
+                'title' => __('messages.Solo Plan title'),
+                'subtitle' => __('messages.Solo Plan subtitle'),
                 'color_theme' => 'blue',
                 'bg_theme' => 'blue',
                 'button_color' => 'bg-blue-600 hover:bg-blue-700',
-                'button_text' => 'Solo Plan - €19/month',
+                'button_text' => __('messages.Solo Plan button'),
                 'icon' => 'user',
                 'show_timer' => false,
                 'features' => [
-                    '1 User Maximum', 'Advanced Invoicing',
-                    'Unlimited Clients', 'Advanced Reports'
+                    __('messages.One User Maximum'),
+                    __('messages.Advanced Invoicing'),
+                    __('messages.Unlimited Clients'),
+                    __('messages.Advanced Reports')
                 ]
             ],
             'premium' => [
-                'label' => 'Premium Plan',
-                'title' => 'Premium Plan',
-                'subtitle' => 'For growing teams',
+                'label' => __('messages.Premium Plan label'),
+                'title' => __('messages.Premium Plan title'),
+                'subtitle' => __('messages.Premium Plan subtitle'),
                 'color_theme' => 'emerald',
                 'bg_theme' => 'emerald',
                 'button_color' => 'bg-emerald-600 hover:bg-emerald-700',
-                'button_text' => 'Premium Plan - €49/month',
+                'button_text' => __('messages.Premium Plan button'),
                 'icon' => 'crown',
                 'show_timer' => false,
                 'features' => [
-                    'Up to 10 Users', 'Advanced Invoicing',
-                    'Unlimited Clients', 'Advanced Reports'
+                    __('messages.Up to 10 Users'),
+                    __('messages.Advanced Invoicing'),
+                    __('messages.Unlimited Clients'),
+                    __('messages.Advanced Reports')
                 ]
             ],
             'pro' => [
-                'label' => 'Pro Plan',
-                'title' => 'Pro Plan',
-                'subtitle' => 'For large enterprises',
+                'label' => __('messages.Pro Plan label'),
+                'title' => __('messages.Pro Plan title'),
+                'subtitle' => __('messages.Pro Plan subtitle'),
                 'color_theme' => 'orange',
                 'bg_theme' => 'green',
                 'button_color' => 'bg-orange-600 hover:bg-orange-700',
-                'button_text' => 'Pro Plan - €99/month',
+                'button_text' => __('messages.Pro Plan button'),
                 'icon' => 'crown',
                 'show_timer' => false,
                 'features' => [
-                    'Unlimited Users', 'Advanced Invoicing',
-                    'Unlimited Clients', 'Advanced Reports'
+                    __('messages.Unlimited Users'),
+                    __('messages.Advanced Invoicing'),
+                    __('messages.Unlimited Clients'),
+                    __('messages.Advanced Reports')
                 ]
             ]
         ];
@@ -108,8 +117,8 @@
         <div class="container mx-auto max-w-6xl p-4 md:p-8">
 
             <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">My Profile</h1>
-                <p class="text-gray-600 mt-1">Manage your account and subscription</p>
+                <h1 class="text-3xl font-bold text-gray-900">{{ __('messages.My Profile') }}</h1>
+                <p class="text-gray-600 mt-1">{{ __('messages.My Profile subtitle') }}</p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -137,7 +146,7 @@
 
                         <div class="space-y-4">
                             <div>
-                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Account Type</h3>
+                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">{{ __('messages.Account Type') }}</h3>
                                 <div class="flex items-center mt-2">
                                     {{-- Dynamic Icon based on plan --}}
                                     @if($currentPlan['icon'] === 'crown')
@@ -161,28 +170,28 @@
                             </div>
 
                             <div>
-                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Member Since</h3>
+                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">{{ __('messages.Member Since') }}</h3>
                                 <p class="text-gray-800 font-medium mt-2">
                                     {{ $user->employee?->Date_Entree ? $user->employee->Date_Entree->format('F j, Y') : now()->format('F j, Y') }}
                                 </p>
                             </div>
 
                             <div>
-                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Status</h3>
+                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">{{ __('messages.Status') }}</h3>
                                 <div class="flex items-center mt-2">
                                     @if($user->is_activate ?? true)
                                         <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                                        <span class="text-gray-800 font-medium">Active</span>
+                                        <span class="text-gray-800 font-medium">{{ __('messages.Active') }}</span>
                                     @else
                                         <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                                        <span class="text-gray-800 font-medium">Inactive</span>
+                                        <span class="text-gray-800 font-medium">{{ __('messages.Inactive') }}</span>
                                     @endif
                                 </div>
                             </div>
                         </div>
 
                         <a href="{{ route('profile.edit') }}" class="mt-8 w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 block text-center">
-                            Edit Profile
+                            {{ __('messages.Edit Profile') }}
                         </a>
                     </div>
                 </div>
@@ -224,7 +233,7 @@
                                     <div class="text-3xl font-bold text-{{ $currentPlan['color_theme'] }}-600">
                                         {{ $daysLeft }}
                                     </div>
-                                    <div class="text-xs text-gray-500 font-medium uppercase">days left</div>
+                                    <div class="text-xs text-gray-500 font-medium uppercase">{{ __('messages.days left') }}</div>
                                 </div>
                             @endif
                         </div>
@@ -241,17 +250,148 @@
                             @endforeach
                         </div>
 
-                        {{-- Action Button --}}
-                        <div class="mt-8">
+                        {{-- Plan Actions --}}
+                        <div class="mt-8 space-y-3">
                             <a href="{{ route('profile.upgrade') }}" class="w-full block {{ $currentPlan['button_color'] }} text-white py-3 px-6 rounded-lg font-bold text-center transition duration-300 shadow-md">
                                 {{ $currentPlan['button_text'] }}
                             </a>
+
+                            @if($user->entreprise && $user->entreprise->hasActiveSubscription())
+                                <form method="POST"
+                                      action="{{ route('subscription.cancel') }}"
+                                      onsubmit="return confirm('{{ __('messages.Cancel subscription confirm') }}');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                            class="w-full inline-flex items-center justify-center px-4 py-2 bg-red-50 border border-red-200 rounded-md font-semibold text-xs text-red-700 uppercase tracking-widest hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                        {{ __('messages.Cancel current subscription button') }}
+                                    </button>
+                                </form>
+                            @endif
                         </div>
 
                     </div>
                 </div>
             </div>
+
+            {{-- Danger Zone: permanently delete entreprise --}}
+            <div class="mt-10 max-w-3xl">
+                <div class="bg-white border border-red-200 rounded-lg shadow-sm p-6">
+                    <h2 class="text-lg font-bold text-red-600">{{ __('messages.Danger zone title') }}</h2>
+                    <p class="mt-2 text-sm text-gray-600">
+                        {{ __('messages.Danger zone description') }}
+                    </p>
+                    <button type="button"
+                            onclick="window.showDeleteEnterpriseModal && window.showDeleteEnterpriseModal();"
+                            class="mt-4 inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        {{ __('messages.Delete enterprise button') }}
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
+
+    {{-- Delete Enterprise Modal (two-step confirmation) --}}
+    @php
+        $enterpriseName = $user->entreprise?->name;
+    @endphp
+    <div id="delete-enterprise-modal"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 p-6">
+            <h3 class="text-lg font-semibold text-gray-900">{{ __('messages.Delete enterprise modal title') }}</h3>
+            <p class="mt-2 text-sm text-gray-600">
+                {{ __('messages.Delete enterprise modal intro prefix') }}
+                @if($enterpriseName)
+                    <span class="font-semibold text-gray-900">"{{ $enterpriseName }}"</span>
+                @else
+                    {{ __('messages.Delete enterprise modal intro account suffix') }}
+                @endif
+                {{ __('messages.Delete enterprise modal intro suffix') }}
+            </p>
+            @if($enterpriseName)
+                <p class="mt-3 text-sm text-gray-600">
+                    {{ __('messages.Delete enterprise modal type name') }}
+                </p>
+            @else
+                <p class="mt-3 text-sm text-gray-600">
+                    {{ __('messages.Delete enterprise modal type delete') }}
+                </p>
+            @endif
+
+            <div class="mt-4">
+                <input id="delete-enterprise-confirmation-input"
+                       type="text"
+                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-sm"
+                       placeholder="@if($enterpriseName) {{ $enterpriseName }} @else DELETE @endif">
+            </div>
+
+            <div class="mt-6 flex justify-end space-x-3">
+                <button type="button"
+                        onclick="window.hideDeleteEnterpriseModal && window.hideDeleteEnterpriseModal();"
+                        class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
+                    {{ __('messages.Cancel') }}
+                </button>
+                <form id="delete-enterprise-form"
+                      method="POST"
+                      action="{{ route('subscription.cancel-and-delete') }}">
+                    @csrf
+                    @method('DELETE')
+                    <input type="hidden" name="confirmation_name" value="">
+                    <button type="submit"
+                            id="delete-enterprise-confirm-button"
+                            disabled
+                            class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                        {{ __('messages.Delete enterprise modal confirm button') }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const modal = document.getElementById('delete-enterprise-modal');
+            const input = document.getElementById('delete-enterprise-confirmation-input');
+            const confirmButton = document.getElementById('delete-enterprise-confirm-button');
+            const form = document.getElementById('delete-enterprise-form');
+            const hiddenField = form ? form.querySelector('input[name="confirmation_name"]') : null;
+            const expected = @json($enterpriseName ?: 'DELETE');
+
+            window.showDeleteEnterpriseModal = function () {
+                if (!modal) return;
+                modal.classList.remove('hidden');
+                if (input) {
+                    input.value = '';
+                    input.focus();
+                }
+                if (confirmButton) {
+                    confirmButton.disabled = true;
+                }
+            };
+
+            window.hideDeleteEnterpriseModal = function () {
+                if (!modal) return;
+                modal.classList.add('hidden');
+            };
+
+            if (input && confirmButton) {
+                input.addEventListener('input', function () {
+                    const value = this.value.trim();
+                    const isValid = value === String(expected);
+                    confirmButton.disabled = !isValid;
+                    if (hiddenField) {
+                        hiddenField.value = value;
+                    }
+                });
+            }
+
+            // Close modal on ESC key
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+                    window.hideDeleteEnterpriseModal();
+                }
+            });
+        })();
+    </script>
 </body>
 </html>

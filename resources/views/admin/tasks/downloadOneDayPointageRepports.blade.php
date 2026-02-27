@@ -110,8 +110,8 @@ thead {
         </div>
         <div class="details-right">
             <div class="header-info">
-                <h2>Pointage Table Reports</h2>
-                <h5>For {{ $startDate }}</h5>
+                <h2>{{ __('messages.Pointage Table Reports') }}</h2>
+                <h5>{{ __('messages.For label') }} {{ $startDate }}</h5>
             </div>
         </div>
     </div>
@@ -124,14 +124,14 @@ thead {
     <table>
         <thead>
             <tr>
-                <th>Project Name</th>
-                <th>Task Name</th>
-                <th>Employee Name</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Duration</th>
-                <th>Operating Cost</th>
-                <th>Sales</th>
+                <th>{{ __('messages.Project Name column') }}</th>
+                <th>{{ __('messages.Task Name column') }}</th>
+                <th>{{ __('messages.Employee Name column') }}</th>
+                <th>{{ __('messages.Start Date column pointage') }}</th>
+                <th>{{ __('messages.End Date column pointage') }}</th>
+                <th>{{ __('messages.Duration column pointage') }}</th>
+                <th>{{ __('messages.Operating Cost') }}</th>
+                <th>{{ __('messages.Sales column') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -184,7 +184,7 @@ thead {
                 <td style="border: none;"></td>
                 <td style="border: none;"></td>
                 <td style="border: none;"></td>
-                <td style="border: none;"><strong>Totals : </strong></td>
+                <td style="border: none;"><strong>{{ __('messages.Totals label') }}</strong></td>
                 <td style="border: none;"> 
                     @php
                         $hours = floor($totalDuration / 60);
@@ -199,8 +199,8 @@ thead {
     </table>
 
     <div class="footer">
-        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
-        <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
+        <div class='footer-right'>{{ __('messages.Page Number') }}: <span class="page-number"></span></div>
+        <div class='footer-left'>{{ __('messages.Download Date') }}: {{ date('d-m-Y') }}</div>
     </div>
 
 </div>

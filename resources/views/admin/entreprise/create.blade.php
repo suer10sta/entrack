@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DalyTrac - Expenses</title>
+    <title>{{ __('messages.Enterprise Expenses - DalyTrac') }}</title>
     
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
@@ -31,20 +31,20 @@
             <div class="max-w-7xl mx-auto">
 
                 <div class="mb-8">
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2">Expenses</h1>
-                    <p class="text-gray-600">Track spending and manage the company budget.</p>
+                    <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ __('messages.Expenses') }}</h1>
+                    <p class="text-gray-600">{{ __('messages.Expenses subtitle') }}</p>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
                     
                     <div class="lg:col-span-1 bg-white rounded-lg shadow-sm border border-gray-200">
                         <div class="p-6 border-b border-gray-200">
-                            <h2 class="text-xl font-semibold text-gray-900">Current Budget</h2>
+                            <h2 class="text-xl font-semibold text-gray-900">{{ __('messages.Current Budget') }}</h2>
                         </div>
                         <div class="p-6 space-y-4">
                             @if($latestBudget)
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Cashbox (double-click to edit):</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Cashbox label') }}</label>
                                     <input id="budget-input-{{ $latestBudget->id }}"
                                            type="number" name="monthBudget"
                                            value="{{ $latestBudget->budget }}" readonly
@@ -52,34 +52,34 @@
                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 cursor-pointer focus:bg-white focus:cursor-text focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Remaining Balance:</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Remaining Balance') }}</label>
                                     <input id="sold-input" type="number" name="sold"
                                            value="{{$latestBudget->budget_remaining}}" readonly
                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed text-gray-500">
                                 </div>
                             @else
-                                <p class="text-sm text-gray-500">No budget has been defined yet.</p>
+                                <p class="text-sm text-gray-500">{{ __('messages.No budget defined') }}</p>
                             @endif
                         </div>
                     </div>
 
                     <div class="lg:col-span-2 space-y-8">
                         <div x-data="datePicker()" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Export Report</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ __('messages.Export Report') }}</h3>
                             <div class="flex flex-col md:flex-row md:items-end gap-4">
                                 <div class="flex-1">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Start date:</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Start Date') }}:</label>
                                     <input id="start-date" type="date" name="startDate" x-model="startDate"
                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 </div>
                                 <div class="flex-1">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">End date:</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.End Date') }}:</label>
                                     <input id="end-date" type="date" name="endDate" x-model="endDate"
                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 </div>
                                 <a href="#" @click.prevent="updateHref" id="downloadLink"
                                    class="flex-shrink-0 text-center px-4 py-2 h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-                                    Print PDF
+                                    {{ __('messages.Print PDF') }}
                                 </a>
                             </div>
                         </div>
@@ -92,18 +92,18 @@
                             elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $addBudgetRoute = route('Responsable_gestionnaire.entreprise.addBudget');
                         @endphp
                         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Add Budget to Cashbox</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ __('messages.Add Budget to Cashbox') }}</h3>
                             <form action="{{ $addBudgetRoute }}" method="post" class="flex flex-col md:flex-row md:items-end gap-4">
                                 @csrf
                                 <div class="flex-1">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">New budget:</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.New budget') }}</label>
                                     <input type="number" name="newBudget" step="0.0001"
                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                           placeholder="Amount to add">
+                                           placeholder="{{ __('messages.Amount to add') }}">
                                 </div>
                                 <button type="submit"
                                         class="flex-shrink-0 text-center px-4 py-2 h-10 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors text-sm font-medium">
-                                    Add
+                                    {{ __('messages.Add') }}
                                 </button>
                             </form>
                             @if(session('successNewBudget'))
@@ -141,7 +141,7 @@
                     @csrf
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                         <div class="p-6 border-b border-gray-200">
-                            <h2 class="text-xl font-semibold text-gray-900">New Expense</h2>
+                            <h2 class="text-xl font-semibold text-gray-900">{{ __('messages.New Expense') }}</h2>
                         </div>
                         <div class="p-6">
                             @if(session('successNewDepense'))
@@ -158,27 +158,27 @@
                             <div id="billings" class="space-y-4">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Expense description:</label>
-                                        <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" placeholder="Expense name" name="name[]" />
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Expense description') }}</label>
+                                        <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" placeholder="{{ __('messages.Expense name placeholder') }}" name="name[]" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Prix de la dépense :</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Expense price') }}</label>
                                         <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" type="number" name="price[]" step="0.0001" placeholder="0.00"/>
                                     </div>
                                 </div>
                             </div>
                             <button type="button" id="add-billing" 
                                     class="mt-4 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
-                                Ajouter une autre ligne
+                                {{ __('messages.Add another expense line') }}
                             </button>
                         </div>
                         
                         <div class="p-6 bg-gray-50 border-t border-gray-200 flex justify-end items-center gap-4">
                             <a href="{{ $cancelRoute }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
-                                Annuler
+                                {{ __('messages.Cancel') }}
                             </a>
                             <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-                                Submit
+                                {{ __('messages.Submit') }}
                             </button>
                         </div>
                     </div>
@@ -189,8 +189,8 @@
                         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                             <div class="p-6 border-b border-gray-200 flex justify-between items-center">
                                 <div>
-                                    <h3 class="text-xl font-semibold text-gray-900">Budget : {{$billing->budget}}€</h3>
-                                    <p class="text-sm text-gray-500">Créé le : {{$billing->created_at->format('d-m-Y')}}</p>
+                                    <h3 class="text-xl font-semibold text-gray-900">{{ __('messages.Budget label enterprise') }} {{$billing->budget}}€</h3>
+                                    <p class="text-sm text-gray-500">{{ __('messages.Budget created at') }} {{$billing->created_at->format('d-m-Y')}}</p>
                                 </div>
                                 @php
                                     $deleteBudgetRoute = '#';
@@ -199,7 +199,7 @@
                                     elseif (Auth::user()->hasRole('Employee')) $deleteBudgetRoute = route('employee.billing.destroy', $billing->id);
                                     elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $deleteBudgetRoute = route('Responsable_gestionnaire.billing.destroy', $billing->id);
                                 @endphp
-                                <form method="post" action="{{ $deleteBudgetRoute }}" onsubmit="return confirm('Are you sure?');">
+                                <form method="post" action="{{ $deleteBudgetRoute }}" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs font-medium">
@@ -214,24 +214,24 @@
                                 @endphp
                                 
                                 @if($entrepriseCharges->isEmpty())
-                                    <p class="p-6 text-sm text-gray-500 text-center">Aucune dépense pour ce budget.</p>
+                                    <p class="p-6 text-sm text-gray-500 text-center">{{ __('messages.No expenses for this budget') }}</p>
                                 @else
                                     @foreach($entrepriseCharges as $entrepriseCharge)
                                         <div class="p-6 space-y-4 md:space-y-0 md:grid md:grid-cols-12 md:gap-4 md:items-center">
                                             <div class="md:col-span-3">
-                                                <label class="block text-xs font-medium text-gray-500 mb-1">Objet</label>
+                                                <label class="block text-xs font-medium text-gray-500 mb-1">{{ __('messages.Expense Object') }}</label>
                                                 <input id="charge-name-{{ $entrepriseCharge->id }}" type="text" name="chargename" value="{{ $entrepriseCharge->charge_name }}" readonly
                                                        class="editable w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
                                                               {{ $entrepriseCharge->validated != 1 ? 'bg-gray-50 cursor-pointer focus:bg-white focus:cursor-text' : 'bg-gray-100 text-gray-500 cursor-not-allowed' }}">
                                             </div>
                                             <div class="md:col-span-2">
-                                                <label class="block text-xs font-medium text-gray-500 mb-1">Prix</label>
+                                                <label class="block text-xs font-medium text-gray-500 mb-1">{{ __('messages.Price') }}</label>
                                                 <input id="price-{{ $entrepriseCharge->id }}" type="text" name="price" value="{{ $entrepriseCharge->price }}€" readonly
                                                        class="editable w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
                                                               {{ $entrepriseCharge->validated != 1 ? 'bg-gray-50 cursor-pointer focus:bg-white focus:cursor-text' : 'bg-gray-100 text-gray-500 cursor-not-allowed' }}">
                                             </div>
                                             <div class="md:col-span-3">
-                                                <label class="block text-xs font-medium text-gray-500 mb-1">Date</label>
+                                                <label class="block text-xs font-medium text-gray-500 mb-1">{{ __('messages.Date') }}</label>
                                                 <input id="created_at-{{ $entrepriseCharge->id }}" type="text" name="created_at" value="{{ $entrepriseCharge->created_at->format('d-m-Y') }}" readonly
                                                        class="editable w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
                                                               {{ $entrepriseCharge->validated != 1 ? 'bg-gray-50 cursor-pointer focus:bg-white focus:cursor-text' : 'bg-gray-100 text-gray-500 cursor-not-allowed' }}">
@@ -248,7 +248,7 @@
                                                         @endphp
                                                         <form method="post" action="{{ $validateRoute }}">
                                                             @csrf
-                                                            <button type="submit" class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium">Valider</button>
+                                                            <button type="submit" class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium">{{ __('messages.Validate') }}</button>
                                                         </form>
                                                         @php
                                                             $deleteExpenseRoute = '#';
@@ -257,10 +257,10 @@
                                                             elseif (Auth::user()->hasRole('Employee')) $deleteExpenseRoute = route('employee.Enterprise_infos.destroy', $entrepriseCharge->id);
                                                             elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $deleteExpenseRoute = route('Responsable_gestionnaire.Enterprise_infos.destroy', $entrepriseCharge->id);
                                                         @endphp
-                                                        <form method="post" action="{{ $deleteExpenseRoute }}" onsubmit="return confirm('Are you sure?');">
+                                                        <form method="post" action="{{ $deleteExpenseRoute }}" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs font-medium">Delete</button>
+                                                            <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs font-medium">{{ __('messages.Delete') }}</button>
                                                         </form>
                                                     @else
                                                         @php
@@ -272,13 +272,13 @@
                                                         @endphp
                                                         <form method="post" action="{{ $unvalidateRoute }}">
                                                             @csrf
-                                                            <button type="submit" class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg hover:bg-yellow-200 transition-colors text-xs font-medium">Annuler validation</button>
+                                                            <button type="submit" class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg hover:bg-yellow-200 transition-colors text-xs font-medium">{{ __('messages.Cancel validation') }}</button>
                                                         </form>
                                                     @endif
                                                 @else
                                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
                                                                 {{ $entrepriseCharge->validated == 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
-                                                        {{ $entrepriseCharge->validated == 0 ? 'Non Validé' : 'Validé' }}
+                                                        {{ $entrepriseCharge->validated == 0 ? __('messages.Not Validated') : __('messages.Validated') }}
                                                     </span>
                                                 @endif
                                             </div>

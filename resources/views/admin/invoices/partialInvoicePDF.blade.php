@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -200,13 +200,13 @@
 
             <div class="details">
                 <div class="details-left">
-                    <p>Date de facturation: {{$is_Editing ? $invoice_last_date : $invoice_date}}<br>
-                        Échéance:
+                    <p>{{ __('messages.Invoice Date') }}: {{$is_Editing ? $invoice_last_date : $invoice_date}}<br>
+                        {{ __('messages.Due Date') }}:
                         {{$is_Editing ? $due_last_date : $due_date}}<br>
-                        Numéro client : {{ $client->client_number }} <br>
-                        Numéro de facture : {{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif
+                        {{ __('messages.Client Number') }} : {{ $client->client_number }} <br>
+                        {{ __('messages.Invoice Number') }} : {{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif
                         @if(!empty($devis_number))<br>
-                        Solde devis : {{$entreprise->devis_prefix}}-{{$devis_number}}
+                        {{ __('messages.Quote Balance') }} : {{$entreprise->devis_prefix}}-{{$devis_number}}
                         @endif
                     </p>
                 </div>
@@ -215,24 +215,24 @@
                     {{ $client->billing_street }}<br>
                     {{ $client->billing_zip }}-{{ $client->billing_city }}<br>
                     {{ $client->billing_country }}<br>
-                    TVA Client: {{ $client->TVA }}
+                    {{ __('messages.Client TVA') }}: {{ $client->TVA }}
                 </div>
             </div>
 
             <br><br><br><br><br>
 
             <div class="invoice-number">
-                Facture :
+                {{ __('messages.Invoice') }} :
                 {{$entreprise->invoice_prefix}}-{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif
             </div>
 
             <table>
                 <thead>
                     <tr>
-                        <th>Désignation</th>
-                        <th>Quantite</th>
-                        <th>Monrtant Principal</th>
-                        <th>Acompte</th>
+                        <th>{{ __('messages.Designation') }}</th>
+                        <th>{{ __('messages.Quantity') }}</th>
+                        <th>{{ __('messages.Principal Amount') }}</th>
+                        <th>{{ __('messages.Advance Payment') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -259,20 +259,20 @@
                 <tbody>
                     <tr>
                         <td colspan="3" class="totals">
-                            <div class="label">Total HTVA</div>
+                            <div class="label">{{ __('messages.Total Excl VAT') }}</div>
                             <div class="value">{{$amount}}€</div>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="3" class="totals">
-                            <div class="label">TVA {{ $projectinfos->tva }}%
+                            <div class="label">{{ __('messages.VAT') }} {{ $projectinfos->tva }}%
                             </div>
                             <div class="value">{{number_format($amount* ($projectinfos->tva / 100), 2, ',', '')}}€</div>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="3" class="totals">
-                            <div class="label">Total TTC</div>
+                            <div class="label">{{ __('messages.Total Incl VAT') }}</div>
                             <div class="value">
                                 <b>{{number_format($amount + ($amount*($projectinfos->tva/100)), 2, ',', '')}}€</b>
                             </div>
@@ -282,25 +282,23 @@
             </table>
 
             <div class="description">
-                <strong> - Informations :</strong> <br>
+                <strong> - {{ __('messages.Information') }} :</strong> <br>
                 {!! nl2br(e($projectinfos->description)) !!} <br>
-                <strong> - Commentaire : </strong> <br>
+                <strong> - {{ __('messages.Comment') }} : </strong> <br>
                <p style="white-space: pre-wrap;">{!! nl2br(e($comment)) !!}</p>
             </div>
 
             <div class="payment">
-                - Veuillez payer le montant de
-                <strong>{{number_format($amount + ($amount*($projectinfos->tva/100)), 2, ',', '')}}€</strong> sur le
-                compte mentionné
-                ci-dessous avant le
+                - {{ __('messages.Please pay the amount of') }}
+                <strong>{{number_format($amount + ($amount*($projectinfos->tva/100)), 2, ',', '')}}€</strong> {{ __('messages.on the account mentioned below before') }}
                 {{$is_Editing ? $due_last_date : $due_date}}
-                en mentionnant le numéro Facture <strong>{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif</strong>
+                {{ __('messages.mentioning the invoice number') }} <strong>{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif</strong>
                 <br>
-                - Dans le cas de livraison intracommunautaire pour les services :  "Autoliquidation Art 21 § 2 du code TVA belge"
+                - {{ __('messages.In case of intra-community delivery for services') }}:  "Autoliquidation Art 21 § 2 du code TVA belge"
                 <br>
-                - Voir conditions générales en annexe
+                - {{ __('messages.See general conditions in annex') }}
                 <br>
-                - Merci de votre confiance
+                - {{ __('messages.Thank you for your trust') }}
 
             </div>
         </div>
@@ -309,16 +307,16 @@
             <div class="footer-content">
                 <div class="footer-left footer-text">
                     <b>{{ $entreprise->name }}</b><br>
-                    <b>Numéro TVA:</b> {{ $entreprise->tva}}
+                    <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
                 </div>
                 <div class="footer-center footer-text">
                     {{ $entreprise->Address }}<br>
-                    Tél: 0{{ $entreprise->phone }}
+                    {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
                 </div>
                 <div class="footer-right footer-text">
-                    <b>BANK</b> : {{ $entreprise->bank_name }}<br>
-                    <b>IBAN</b> : {{ $entreprise->iban }}<br>
-                    <b>SWIFT/BIC/b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
+                    <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }}<br>
+                    <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }}<br>
+                    <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
                 </div>
             </div>
         </div>
@@ -327,7 +325,7 @@
     <!-- Second page - General Conditions -->
     <div class="page">
         <div class="content-wrapper">
-            <h2>Conditions Générales :</h2>
+            <h2>{{ __('messages.General Conditions') }} :</h2>
             <div class="general-conditions">
                 <p>{!! nl2br(e($entreprise->general_conditions)) !!}</p>
             </div>
@@ -337,16 +335,16 @@
             <div class="footer-content">
                 <div class="footer-left footer-text">
                     <b>{{ $entreprise->name }}</b><br>
-                    <b>Numéro TVA:</b> {{ $entreprise->tva}}
+                    <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
                 </div>
                 <div class="footer-center footer-text">
                     {{ $entreprise->Address }}<br>
-                    Tél: 0{{ $entreprise->phone }}
+                    {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
                 </div>
                 <div class="footer-right footer-text">
-                    <b>BANK</b> : {{ $entreprise->bank_name }}<br>
-                    <b>IBAN</b> : {{ $entreprise->iban }}<br>
-                    <b>SWIFT/BIC/b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
+                    <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }}<br>
+                    <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }}<br>
+                    <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
                 </div>
             </div>
         </div>

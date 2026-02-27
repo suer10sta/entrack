@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Role - DalyTrac</title>
+    <title>{{ __('messages.Edit Role - DalyTrac') }}</title>
     @vite('resources/css/app.css')
     @livewireStyles
 </head>
@@ -51,10 +51,14 @@
                         
                         {{-- En-tête de la Carte --}}
                         <div class="p-6 border-b border-gray-200">
+                            @php
+                                $roleLabelKey = 'messages.' . $role->name;
+                                $roleLabel = __($roleLabelKey);
+                            @endphp
                             <h2 class="text-lg font-semibold text-gray-900">
-                                Modifier le Rôle : {{ $role->name }}
+                                {{ __('messages.Edit Role label') }} {{ $roleLabel !== $roleLabelKey ? $roleLabel : $role->name }}
                             </h2>
-                            <p class="text-sm text-gray-600 mt-1">Informations obligatoires</p>
+                            <p class="text-sm text-gray-600 mt-1">{{ __('messages.Mandatory informations') }}</p>
                         </div>
 
                         {{-- Corps de la Carte --}}
@@ -62,7 +66,7 @@
                             
                             {{-- Champ Nom (Lecture seule) --}}
                             <div>
-                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nom :</label>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Name') }} :</label>
                                 <input type="text" name="name" id="name"
                                        class="block w-full rounded-lg border-gray-300 shadow-sm sm:text-sm py-2 px-3 bg-gray-100 cursor-not-allowed" 
                                        value="{{$role->name}}" readonly />
@@ -72,7 +76,7 @@
 
                             {{-- Section des Permissions --}}
                             <div>
-                                <h3 class="text-base font-semibold text-gray-900">Assigner les Permissions :</h3>
+                                <h3 class="text-base font-semibold text-gray-900">{{ __('messages.Assign Permissions') }}</h3>
                                 
                                 {{-- NOUVEAU : Case "Tout sélectionner" --}}
                                 <div class="flex items-center mt-4">
@@ -80,7 +84,7 @@
                                            type="checkbox" 
                                            class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                     <label for="select-all" class="ml-2 block text-sm font-bold text-gray-900">
-                                        Tout sélectionner
+                                        {{ __('messages.Select All Permissions') }}
                                     </label>
                                 </div>
                                 <hr class="my-3 border-gray-200">
@@ -106,7 +110,29 @@
                                                    class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 permission-checkbox"
                                                    {{ $hasPermission ? 'checked' : '' }}>
                                             <label for="vue-checkbox-{{ $per->id }}" class="ml-2 block text-sm text-gray-900">
-                                                {{ $per->name }}
+                                                @php
+                                                    $permissionRawName = trim($per->name);
+                                                    $permissionCandidates = array_values(array_unique([
+                                                        $permissionRawName,
+                                                        strtolower($permissionRawName),
+                                                        strtoupper($permissionRawName),
+                                                        str_replace(['_', '-'], ' ', $permissionRawName),
+                                                        ucwords(strtolower(str_replace(['_', '-'], ' ', $permissionRawName))),
+                                                        str_replace(' ', '_', $permissionRawName),
+                                                        strtolower(str_replace(' ', '_', $permissionRawName)),
+                                                        strtoupper(str_replace(' ', '_', $permissionRawName)),
+                                                    ]));
+                                                    $permissionLabel = $permissionRawName;
+                                                    foreach ($permissionCandidates as $candidate) {
+                                                        $candidateKey = 'messages.' . $candidate;
+                                                        $translated = __($candidateKey);
+                                                        if ($translated !== $candidateKey) {
+                                                            $permissionLabel = $translated;
+                                                            break;
+                                                        }
+                                                    }
+                                                @endphp
+                                                {{ $permissionLabel }}
                                             </label>
                                         </div>
                                     @endforeach
@@ -117,10 +143,10 @@
                         {{-- Pied de page de la Carte (Actions) --}}
                         <div class="p-6 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-3">
                             <a href="javascript:history.back()" class="inline-flex justify-center bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm">
-                                Annuler
+                                {{ __('messages.Cancel') }}
                             </a>
                             <button type="submit" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">
-                                Assigner
+                                {{ __('messages.Assign') }}
                             </button>
                         </div>
                         

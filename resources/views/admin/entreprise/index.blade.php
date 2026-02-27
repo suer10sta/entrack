@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DalyTrac Dashboard</title>
+    <title>{{ __('messages.Company Info - DalyTrac') }}</title>
     @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
@@ -27,14 +27,14 @@
                             <div class="w-full lg:w-10/12 xl:w-8/12 mx-auto my-4">
 
                                 {{-- Page Header --}}
-                                <h1 class="text-3xl font-bold text-gray-800">Enterprise Information</h1>
-                                <p class="text-base text-gray-500 mb-8">Manage your company details and settings</p>
+                                <h1 class="text-3xl font-bold text-gray-800">{{ __('messages.Enterprise Information') }}</h1>
+                                <p class="text-base text-gray-500 mb-8">{{ __('messages.Enterprise Information subtitle') }}</p>
 
                                 <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6">
                                     {{-- Card Header --}}
                                     <div class="mb-6">
-                                        <h5 class="text-xl font-bold text-gray-900">Enterprise Infos</h5>
-                                        <p class="text-sm text-gray-500">Mandatory information</p>
+                                        <h5 class="text-xl font-bold text-gray-900">{{ __('messages.Enterprise Infos') }}</h5>
+                                        <p class="text-sm text-gray-500">{{ __('messages.Mandatory informations') }}</p>
                                     </div>
 
                                     {{-- Form Grid (3 columns) --}}
@@ -45,7 +45,7 @@
                                         @endphp
 
                                         <div>
-                                            <label class="{{ $labelClasses }}">Name:</label>
+                                            <label class="{{ $labelClasses }}">{{ __('messages.Name') }}:</label>
                                             <input
                                                 class="{{ $inputClasses }}"
                                                 type="text" name="name" value="{{$entreprise->name}}"
@@ -53,7 +53,7 @@
                                         </div>
 
                                         <div>
-                                            <label class="{{ $labelClasses }}">Phone Number:</label>
+                                            <label class="{{ $labelClasses }}">{{ __('messages.Phone Number') }}:</label>
                                             <input
                                                 class="{{ $inputClasses }}"
                                                 type="text" name="phone" value="{{$entreprise->phone}}"
@@ -61,7 +61,7 @@
                                         </div>
 
                                         <div>
-                                            <label class="{{ $labelClasses }}">Contact Email:</label>
+                                            <label class="{{ $labelClasses }}">{{ __('messages.Contact Email') }}:</label>
                                             <input
                                                 class="{{ $inputClasses }}"
                                                 type="text" name="email" value="{{$entreprise->email}}"
@@ -69,7 +69,7 @@
                                         </div>
 
                                         <div>
-                                            <label class="{{ $labelClasses }}">Address:</label>
+                                            <label class="{{ $labelClasses }}">{{ __('messages.Address') }}:</label>
                                             <input
                                                 class="{{ $inputClasses }}"
                                                 type="text" name="Address" value="{{$entreprise->Address}}"
@@ -77,7 +77,31 @@
                                         </div>
 
                                         <div>
-                                            <label class="{{ $labelClasses }}">TVA Number:</label>
+                                            <label class="{{ $labelClasses }}">{{ __('messages.Country') }}:</label>
+                                            <input
+                                                class="{{ $inputClasses }}"
+                                                type="text" name="country" value="{{$entreprise->country}}"
+                                                readonly />
+                                        </div>
+
+                                        <div>
+                                            <label class="{{ $labelClasses }}">{{ __('messages.City') }}:</label>
+                                            <input
+                                                class="{{ $inputClasses }}"
+                                                type="text" name="city" value="{{$entreprise->city}}"
+                                                readonly />
+                                        </div>
+
+                                        <div>
+                                            <label class="{{ $labelClasses }}">{{ __('messages.Zip Code') }}:</label>
+                                            <input
+                                                class="{{ $inputClasses }}"
+                                                type="text" name="zip_code" value="{{$entreprise->zip_code}}"
+                                                readonly />
+                                        </div>
+
+                                        <div>
+                                            <label class="{{ $labelClasses }}">TVA:</label>
                                             <input
                                                 class="{{ $inputClasses }}"
                                                 type="text" name="tva" value="{{$entreprise->tva}}"
@@ -85,7 +109,7 @@
                                         </div>
 
                                         <div>
-                                            <label class="{{ $labelClasses }}">Bank Name:</label>
+                                            <label class="{{ $labelClasses }}">{{ __('messages.Bank Name') }}:</label>
                                             <input
                                                 class="{{ $inputClasses }}"
                                                 type="text" name="bank_name"
@@ -101,7 +125,7 @@
                                         </div>
 
                                         <div>
-                                            <label class="{{ $labelClasses }}">Swift/Bic:</label>
+                                            <label class="{{ $labelClasses }}">Swift/BIC:</label>
                                             <input
                                                 class="{{ $inputClasses }}"
                                                 type="text" name="bic"
@@ -110,7 +134,7 @@
                                         </div>
 
                                         <div>
-                                            <label class="{{ $labelClasses }}">Created at:</label>
+                                            <label class="{{ $labelClasses }}">{{ __('messages.Created at') }}:</label>
                                             <input
                                                 class="{{ $inputClasses }}"
                                                 type="text" name="chargename"
@@ -123,7 +147,7 @@
                                     <form action="{{ route('admin.entreprise.updateImage') }}" method="POST"
                                         enctype="multipart/form-data" class="mt-8">
                                         @csrf
-                                        <label class="{{ $labelClasses }}">Logo</label>
+                                        <label class="{{ $labelClasses }}">{{ __('messages.Logo') }}</label>
                                         <div class="mt-2 flex flex-col sm:flex-row sm:items-center sm:space-x-6">
                                             {{-- Logo Preview --}}
                                             <div class="flex-shrink-0 w-32 h-32 border-2 border-gray-300 border-dashed rounded-lg flex items-center justify-center mb-4 sm:mb-0 overflow-hidden bg-white">
@@ -134,7 +158,7 @@
                                                         <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                                                         </svg>
-                                                        <p class="mt-1 text-xs text-gray-500">No logo</p>
+                                                        <p class="mt-1 text-xs text-gray-500">{{ __('messages.No logo') }}</p>
                                                     </div>
                                                 @endif
                                             </div>
@@ -147,7 +171,7 @@
                                                         <div class="flex space-x-3">
                                                             {{-- Button for choosing file --}}
                                                             <label for="file-upload" class="cursor-pointer bg-white rounded-md border border-gray-300 py-2 px-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
-                                                                <span id="file-button-text">Choose file</span>
+                                                                <span id="file-button-text">{{ __('messages.Choose file') }}</span>
                                                             </label>
                                                             <span id="file-name" class="text-sm text-gray-500 self-center"></span>
                                                         </div>
@@ -156,7 +180,7 @@
                                                     <div>
                                                         <button type="submit"
                                                             class="inline-flex justify-center w-full sm:w-auto py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                                            Update Image
+                                                            {{ __('messages.Update Image') }}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -168,8 +192,8 @@
                                 <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6">
                                     {{-- Card Header --}}
                                     <div class="mb-6">
-                                        <h5 class="text-xl font-bold text-gray-900">Emails Backup</h5>
-                                        <p class="text-sm text-gray-500">Mandatory information</p>
+                                        <h5 class="text-xl font-bold text-gray-900">{{ __('messages.Emails Backup') }}</h5>
+                                        <p class="text-sm text-gray-500">{{ __('messages.Mandatory informations') }}</p>
                                     </div>
 
                                     {{-- Form Fields --}}
@@ -178,21 +202,21 @@
                                             $textareaClasses = "editable entrepriseInfos mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-gray-50";
                                         @endphp
                                         <div>
-                                            <label class="{{ $labelClasses }}">Emails Backup (Enter each email separated by a comma):</label>
+                                            <label class="{{ $labelClasses }}">{{ __('messages.Emails Backup label') }}</label>
                                             <textarea
                                                 class="{{ $textareaClasses }}"
                                                 name="emails_backup" rows="3" style="resize: vertical;"
                                                 readonly
-                                            >{{ $entreprise->emails_backup ?? 'Double Click to Configure it' }}</textarea>
+                                            >{{ $entreprise->emails_backup ?? __('messages.Double Click to Configure it') }}</textarea>
                                         </div>
 
                                         <div>
-                                            <label class="{{ $labelClasses }}">WorkDay/Report Receivers Emails (Enter each email separated by a comma):</label>
+                                            <label class="{{ $labelClasses }}">{{ __('messages.WorkDays Emails label') }}</label>
                                             <textarea
                                                 class="{{ $textareaClasses }}"
                                                 name="workdays_emails" rows="3" style="resize: vertical;"
                                                 readonly
-                                            >{{ $entreprise->workdays_emails ?? 'Double Click to Configure it' }}</textarea>
+                                            >{{ $entreprise->workdays_emails ?? __('messages.Double Click to Configure it') }}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -210,22 +234,22 @@
 
                                         @if(Auth::user()->hasRole('Admin'))
                                             <a class='{{ $backLinkClass }}' href="{{route('admin.index')}}">
-                                                {!! $backArrow !!} Back
+                                                {!! $backArrow !!} {{ __('messages.Back') }}
                                             </a>
                                         @endif
                                         @if(Auth::user()->hasRole('Responsable de projet'))
                                             <a class='{{ $backLinkClass }}' href="{{route('Responsable_de_projet.index')}}">
-                                                {!! $backArrow !!} Back
+                                                {!! $backArrow !!} {{ __('messages.Back') }}
                                             </a>
                                         @endif
                                         @if(Auth::user()->hasRole('Employee'))
                                             <a class='{{ $backLinkClass }}' href="{{route('employee.index')}}">
-                                                {!! $backArrow !!} Back
+                                                {!! $backArrow !!} {{ __('messages.Back') }}
                                             </a>
                                         @endif
                                         @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
                                             <a class='{{ $backLinkClass }}' href="{{route('Responsable_gestionnaire.index')}}">
-                                                {!! $backArrow !!} Back
+                                                {!! $backArrow !!} {{ __('messages.Back') }}
                                             </a>
                                         @endif
                                     </div>
@@ -234,7 +258,7 @@
                                     <div>
                                         <button type="button" id="save-changes-btn"
                                             class="inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
-                                            <span id="save-text">Save Changes</span>
+                                            <span id="save-text">{{ __('messages.Save All Changes enterprise') }}</span>
                                             <svg id="save-spinner" class="hidden animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

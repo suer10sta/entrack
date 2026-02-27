@@ -3,7 +3,7 @@
     <head> 
         <meta charset="utf-8"> 
         <meta name="viewport" content="width=device-width, initial-scale=1"> 
-        <title>FAQ | DalyTrac</title>
+        <title>{{ __('messages.FAQ') }} | DalyTrac</title>
         <link rel="preconnect" href="https://fonts.bunny.net"> 
         <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" /> 
         <link rel="stylesheet" href="welcome/css/bootstrap.min.css"> 
@@ -115,38 +115,38 @@
                         <svg class="w-3.5 h-3.5 mr-1.5 text-sky-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        Help & Support
+                        {{ __('messages.Help & Support') }}
                     </span>
-                    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">Frequently Asked Questions</h1>
+                    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">{{ __('messages.Frequently Asked Questions') }}</h1>
                     <p class="text-base text-gray-600 max-w-2xl mx-auto">
-                        Everything you need to know about using DalyTrac for your team, projects, and billing.
+                        {{ __('messages.Everything you need to know about using DalyTrac for your team, projects, and billing.') }}
                     </p>
                 </div>
 
                 <div class="mt-12 max-w-3xl mx-auto">
                     {{-- FAQ Items --}}
                     <div class="inline-flex items-center justify-center mb-6 space-x-2 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        <span class="px-3 py-1 rounded-full bg-sky-50 text-sky-600 border border-sky-100">General / Product & Billing</span>
+                        <span class="px-3 py-1 rounded-full bg-sky-50 text-sky-600 border border-sky-100">{{ __('messages.General / Product & Billing') }}</span>
                     </div>
 
                     <div class="space-y-4">
                     @php $faqItems = [
-                    ['id'=>1, 'question'=>'What is DalyTrac?',
-                    'answer'=>'DalyTrac is a comprehensive business management platform designed to help you manage invoices, projects, team members, and finances all in one place. It\'s built for businesses of all sizes.'],
-                    ['id'=>2, 'question'=>'How do I get started?',
-                    'answer'=>'Getting started is easy! Simply sign up for an account, set up your company information, and start adding your clients, projects, and team members. Our onboarding guide will walk you through each step.'],
-                    ['id'=>3, 'question'=>'Is my data secure?',
-                    'answer'=>'Yes, we take security very seriously. All data is encrypted in transit and at rest. We comply with industry standards and regularly perform security audits to ensure your information is protected.'],
-                    ['id'=>4, 'question'=>'Can I integrate with other tools?',
-                    'answer'=>'We focus on built-in time tracking, projects, invoicing, and calendar. If you need a specific integration, contact support and we’ll discuss options.'],
-                    ['id'=>5, 'question'=>'What payment methods do you accept?',
-                    'answer'=>'We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 14-day free trial for new users.'],
-                    ['id'=>6, 'question'=>'Is there customer support available?',
-                    'answer'=>'We offer 24/7 customer support via email, chat, and phone. Our support team is dedicated to helping you get the most out of DalyTrac.'],
-                    ['id'=>7, 'question'=>'Can I export my data?',
-                    'answer'=>'Data export isn’t offered in-app today. If you need an export, contact support and we’ll review options.'],
-                    ['id'=>8, 'question'=>'What happens if I cancel my subscription?',
-                    'answer'=>'You can cancel your subscription at any time. Your data will be retained for 30 days, giving you time to export it if needed. After 30 days, your account and data will be permanently deleted.'],
+                    ['id'=>1, 'question'=>__('messages.What is DalyTrac?'),
+                    'answer'=>__('messages.DalyTrac is a comprehensive business management platform designed to help you manage invoices, projects, team members, and finances all in one place. It\'s built for businesses of all sizes.')],
+                    ['id'=>2, 'question'=>__('messages.How do I get started?'),
+                    'answer'=>__('messages.Getting started is easy! Simply sign up for an account, set up your company information, and start adding your clients, projects, and team members. Our onboarding guide will walk you through each step.')],
+                    ['id'=>3, 'question'=>__('messages.Is my data secure?'),
+                    'answer'=>__('messages.Yes, we take security very seriously. All data is encrypted in transit and at rest. We comply with industry standards and regularly perform security audits to ensure your information is protected.')],
+                    ['id'=>4, 'question'=>__('messages.Can I integrate with other tools?'),
+                    'answer'=>__('messages.We focus on built-in time tracking, projects, invoicing, and calendar. If you need a specific integration, contact support and we\'ll discuss options.')],
+                    ['id'=>5, 'question'=>__('messages.What payment methods do you accept?'),
+                    'answer'=>__('messages.We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 14-day free trial for new users.')],
+                    ['id'=>6, 'question'=>__('messages.Is there customer support available?'),
+                    'answer'=>__('messages.We offer 24/7 customer support via email, chat, and phone. Our support team is dedicated to helping you get the most out of DalyTrac.')],
+                    ['id'=>7, 'question'=>__('messages.Can I export my data?'),
+                    'answer'=>__('messages.Data export isn\'t offered in-app today. If you need an export, contact support and we\'ll review options.')],
+                    ['id'=>8, 'question'=>__('messages.What happens if I cancel my subscription?'),
+                    'answer'=>__('messages.You can cancel your subscription at any time. Your data will be retained for 30 days, giving you time to export it if needed. After 30 days, your account and data will be permanently deleted.')],
                     ];
                     @endphp
                     
@@ -176,12 +176,12 @@
 
                     {{-- Contact Support Section --}}
                     <div class="support-card shadow-md shadow-sky-100 max-w-xl mx-auto">
-                        <h2 class="text-xl font-semibold text-gray-900 mb-2 text-center">Need a quick answer?</h2>
+                        <h2 class="text-xl font-semibold text-gray-900 mb-2 text-center">{{ __('messages.Need a quick answer?') }}</h2>
                         <p class="text-sm text-gray-700 mb-4 text-center">
-                            Talk to our team and get best practices for tracking time, invoices, and projects in DalyTrac.
+                            {{ __('messages.Talk to our team and get best practices for tracking time, invoices, and projects in DalyTrac.') }}
                         </p>
                         <a href="{{ url('/contact') }}" class="inline-flex items-center justify-center w-full px-5 py-2.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm font-medium">
-                            Contact support
+                            {{ __('messages.Contact support') }}
                         </a>
                     </div>
                 </div>

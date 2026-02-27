@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,31 +25,31 @@
                 {{-- Message d'alerte  --}}
                 @if(session('alertmessage'))
                 <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                    <strong class="font-bold">Erreur !</strong>
+                    <strong class="font-bold">{{ __('messages.Error!') }}</strong>
                     <span class="block sm:inline">{{ session('alertmessage') }}</span>
-                    <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+                    <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="{{ __('messages.Close') }}">&times;</button>
                 </div>
                 @endif
 
                 {{-- Carte de la Table --}}
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                     <div class="p-6 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold text-gray-900">Détails de la Tâche</h2>
+                        <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Task Details') }}</h2>
                     </div>
                     
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tâche</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Équipes</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employés</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durée</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">H. Estimées</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Différence</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progrès</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Task') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Teams') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Description') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Employees') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Duration') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Estimated Hours') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Difference') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Progress') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -79,9 +79,9 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                         @php
                                             $employee_id = App\Models\employees_tasks::where('task_id', $task->id)->pluck('employee_id');
-                                            $employees = App\Models\Employees::whereIn('id', $employee_id)
-                                                        ->where('user_id', '!=', Illuminate\Support\Facades\Auth::user()->id)
-                                                        ->get();
+                                            // Show all employees assigned to the task (including the current user),
+                                            // to be consistent with the project show view.
+                                            $employees = App\Models\Employees::whereIn('id', $employee_id)->get();
                                         @endphp
                                         @foreach($employees as $employee)
                                             @php
@@ -126,7 +126,9 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold">
                                         @php
                                             $overallTaskDuration = App\Models\tasks_timer::where('task_id', $task->id)->sum('duration');
-                                            $taskdifference = ($task->estimated_hours * 60) - $overallTaskDuration;
+                                            $estimatedMinutes = ($task->estimated_hours ?? 0) * 60;
+                                            $consumedMinutes = ($task->consumed_hours ?? 0) * 60;
+                                            $taskdifference = $estimatedMinutes - $consumedMinutes - $overallTaskDuration;
                                             $hours = floor(abs($taskdifference) / 60);
                                             $minutes = abs($taskdifference) % 60;
                                         @endphp
@@ -144,7 +146,7 @@
                                     {{-- Progrès --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 min-w-[150px]">
                                         @php
-                                            $taskestimatedMinutes = $task->estimated_hours * 60;
+                                            $taskestimatedMinutes = max(0, (($task->estimated_hours ?? 0) - ($task->consumed_hours ?? 0)) * 60);
                                             $taskprogressPercentage = $taskestimatedMinutes > 0 ? ($overallTaskDuration / $taskestimatedMinutes) * 100 : 0;
                                             $taskformattedProgressPercentage = number_format($taskprogressPercentage, 2);
                                             
@@ -180,11 +182,11 @@
                                         @endphp
 
                                         @can('Update task')
-                                        <a href="{{ $editRoute }}" class="inline-block px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium">Edit</a>
+                                        <a href="{{ $editRoute }}" class="inline-block px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium">{{ __('messages.Edit') }}</a>
                                         @endcan
                                         
                                         @can('Delete task')
-                                        <form method="post" action="{{ $deleteRoute }}" onsubmit="return confirm('Are you sure?');" class="inline-block">
+                                        <form method="post" action="{{ $deleteRoute }}" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="inline-block px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium">X</button>

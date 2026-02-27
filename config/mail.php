@@ -107,8 +107,10 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', 'Example'),
+        // Note: env() can return an empty string if the variable is set but blank (MAIL_FROM_ADDRESS=).
+        // Symfony Mailer rejects messages with an empty "From"/"Sender", so we force sensible fallbacks.
+        'address' => env('MAIL_FROM_ADDRESS') ?: 'hello@example.com',
+        'name' => env('MAIL_FROM_NAME') ?: 'Example',
     ],
 
     /*

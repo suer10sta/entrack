@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>About | DalyTrac</title>
+    <title>{{ __('messages.About Us') }} | DalyTrac</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net" />
     <link
@@ -35,15 +35,14 @@
         
         <div class="relative z-10 container mx-auto px-6 text-center">
           <div class="inline-block mb-6 px-4 py-1.5 rounded-full bg-secondary border border-border text-primary text-sm font-semibold tracking-wide uppercase">
-            About Us
+            {{ __('messages.About Us') }}
           </div>
           <h1 class="text-5xl lg:text-7xl font-bold text-foreground mb-8 tracking-tight">
-            Meet <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">DalyTrac</span><br />
-            your operational command center
+            {{ __('messages.Meet') }} <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">DalyTrac</span><br />
+            {{ __('messages.your operational command center') }}
           </h1>
           <p class="text-xl text-muted max-w-3xl mx-auto leading-relaxed">
-            We strip away the complexity of business operations and bring your invoices, projects,
-            teams, and finances together into one calm, powerful workspace.
+            {{ __('messages.We strip away the complexity of business operations and bring your invoices, projects, teams, and finances together into one calm, powerful workspace.') }}
           </p>
         </div>
       </section>
@@ -54,14 +53,13 @@
             <div class="flex flex-col md:flex-row gap-12 items-center">
                 <div class="md:w-1/2" data-aos="fade-right">
                     <h2 class="text-3xl font-bold text-foreground mb-6 border-l-4 border-primary pl-4">
-                        Our Mission
+                        {{ __('messages.Our Mission') }}
                     </h2>
                     <p class="text-lg text-muted mb-6">
-                        We believe software shouldn't force you to change how you work. It should adapt to you.
+                        {{ __('messages.We believe software shouldn\'t force you to change how you work. It should adapt to you.') }}
                     </p>
                     <p class="text-lg text-muted">
-                        Our mission is to provide a unified platform where invoices, projects, and people
-                        connect seamlessly, removing the “digital friction” that slows down modern businesses.
+                        {{ __('messages.Our mission is to provide a unified platform where invoices, projects, and people connect seamlessly, removing the "digital friction" that slows down modern businesses.') }}
                     </p>
                 </div>
                 <div class="md:w-1/2" data-aos="fade-left">
@@ -87,25 +85,19 @@
             <div data-aos="fade-right">
               <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary text-xs font-semibold uppercase tracking-wide text-primary mb-4">
                 <span class="w-2 h-2 rounded-full bg-primary"></span>
-                Our story
+                {{ __('messages.About Our Story Badge') }}
               </div>
               <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-6">
-                Built for teams who outgrew spreadsheets and scattered tools
+                {{ __('messages.About Our Story Title') }}
               </h2>
               <p class="text-muted mb-4 leading-relaxed">
-                DalyTrac started with a simple observation: growing businesses were juggling
-                invoices in one tool, time tracking in another, and projects in a third—while
-                trying to keep everything aligned with shared spreadsheets and endless emails.
+                {{ __('messages.About Our Story Paragraph 1') }}
               </p>
               <p class="text-muted mb-4 leading-relaxed">
-                We set out to design a system that feels as intuitive as a notebook, but as
-                powerful as an enterprise suite. A single source of truth where owners, managers,
-                and collaborators can see what’s happening and what needs to happen next.
+                {{ __('messages.About Our Story Paragraph 2') }}
               </p>
               <p class="text-muted leading-relaxed">
-                Today, DalyTrac helps teams replace fragmented workflows with a connected,
-                real-time picture of their business—without the heavy, complicated software that
-                usually comes with that power.
+                {{ __('messages.About Our Story Paragraph 3') }}
               </p>
             </div>
 
@@ -116,30 +108,30 @@
                   <div class="flex items-center justify-between mb-6">
                     <div>
                       <p class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Today
+                        {{ __('messages.About Today Label') }}
                       </p>
-                      <p class="text-2xl font-bold text-foreground">DalyTrac at a glance</p>
+                      <p class="text-2xl font-bold text-foreground">{{ __('messages.About DalyTrac at a glance') }}</p>
                     </div>
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-secondary text-primary">
-                      Live platform
+                      {{ __('messages.About Live platform') }}
                     </span>
                   </div>
 
                   <dl class="grid grid-cols-2 gap-4 mb-6">
                     <div class="bg-secondary rounded-2xl p-4">
-                      <dt class="text-xs font-medium text-muted-foreground mb-1">Teams served</dt>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">{{ __('messages.About Teams served') }}</dt>
                       <dd class="text-2xl font-bold text-foreground">50+</dd>
                     </div>
                     <div class="bg-secondary rounded-2xl p-4">
-                      <dt class="text-xs font-medium text-muted-foreground mb-1">Invoices tracked</dt>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">{{ __('messages.About Invoices tracked') }}</dt>
                       <dd class="text-2xl font-bold text-foreground">10k+</dd>
                     </div>
                     <div class="bg-secondary rounded-2xl p-4">
-                      <dt class="text-xs font-medium text-muted-foreground mb-1">Time entries</dt>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">{{ __('messages.About Time entries') }}</dt>
                       <dd class="text-2xl font-bold text-foreground">250k+</dd>
                     </div>
                     <div class="bg-secondary rounded-2xl p-4">
-                      <dt class="text-xs font-medium text-muted-foreground mb-1">Countries</dt>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">{{ __('messages.About Countries') }}</dt>
                       <dd class="text-2xl font-bold text-foreground">10+</dd>
                     </div>
                   </dl>
@@ -151,8 +143,7 @@
                       </svg>
                     </div>
                     <p class="text-sm text-muted-foreground leading-relaxed">
-                      Whether you’re a small agency or a growing enterprise, DalyTrac gives you
-                      the same clarity and control over your operations—without requiring a full-time admin.
+                      {{ __('messages.About Today Footnote') }}
                     </p>
                   </div>
                 </div>
@@ -166,10 +157,9 @@
       <section class="py-24 bg-background" data-aos="fade-up">
         <div class="container mx-auto px-6 max-w-6xl">
           <div class="text-center mb-14">
-            <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-4">Values that shape DalyTrac</h2>
+            <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-4">{{ __('messages.About Values Title') }}</h2>
             <p class="text-muted max-w-2xl mx-auto">
-              Behind every feature is a simple idea: software should feel light, be reliable,
-              and help you make better decisions every day.
+              {{ __('messages.About Values Subtitle') }}
             </p>
           </div>
 
@@ -180,10 +170,9 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 class="text-lg font-semibold text-foreground mb-2">Clarity over clutter</h3>
+              <h3 class="text-lg font-semibold text-foreground mb-2">{{ __('messages.About Value 1 Title') }}</h3>
               <p class="text-sm text-muted-foreground leading-relaxed">
-                We design for focus—surface what matters, hide what doesn’t, and give you a clear,
-                honest view of your work.
+                {{ __('messages.About Value 1 Body') }}
               </p>
             </div>
 
@@ -193,10 +182,9 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 class="text-lg font-semibold text-foreground mb-2">Speed with stability</h3>
+              <h3 class="text-lg font-semibold text-foreground mb-2">{{ __('messages.About Value 2 Title') }}</h3>
               <p class="text-sm text-muted-foreground leading-relaxed">
-                DalyTrac is built to be fast and dependable—so your team can move quickly without
-                worrying about downtime or data loss.
+                {{ __('messages.About Value 2 Body') }}
               </p>
             </div>
 
@@ -206,10 +194,9 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 8h2a2 2 0 012 2v8a2 2 0 01-2 2h-2M7 8H5a2 2 0 00-2 2v8a2 2 0 002 2h2m10-8a5 5 0 00-10 0m10 0v3a5 5 0 11-10 0v-3" />
                 </svg>
               </div>
-              <h3 class="text-lg font-semibold text-foreground mb-2">Human support</h3>
+              <h3 class="text-lg font-semibold text-foreground mb-2">{{ __('messages.About Value 3 Title') }}</h3>
               <p class="text-sm text-muted-foreground leading-relaxed">
-                Behind the product is a real team who listens, advises, and helps you get the
-                most out of DalyTrac—whenever you need it.
+                {{ __('messages.About Value 3 Body') }}
               </p>
             </div>
           </div>
@@ -220,10 +207,9 @@
       <section class="py-24 bg-card" data-aos="fade-up">
         <div class="container mx-auto px-6 max-w-5xl">
           <div class="text-center mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-4">From chaos to control in three steps</h2>
+            <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-4">{{ __('messages.About Timeline Title') }}</h2>
             <p class="text-muted max-w-2xl mx-auto">
-              DalyTrac is intentionally simple to roll out. Whether you’re migrating from
-              spreadsheets or another system, you can be productive in days, not months.
+              {{ __('messages.About Timeline Subtitle') }}
             </p>
           </div>
 
@@ -232,30 +218,27 @@
               <span class="absolute left-0 top-1.5 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shadow-md">
                 1
               </span>
-              <h3 class="text-lg font-semibold text-foreground mb-1">Connect your core data</h3>
+              <h3 class="text-lg font-semibold text-foreground mb-1">{{ __('messages.About Step 1 Title') }}</h3>
               <p class="text-sm text-muted-foreground leading-relaxed">
-                Set up your company, add clients, projects, and team members. Import existing
-                invoices and records so everything starts from a single, up-to-date source of truth.
+                {{ __('messages.About Step 1 Body') }}
               </p>
             </li>
             <li class="relative pl-10">
               <span class="absolute left-0 top-1.5 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shadow-md">
                 2
               </span>
-              <h3 class="text-lg font-semibold text-foreground mb-1">Align your daily workflows</h3>
+              <h3 class="text-lg font-semibold text-foreground mb-1">{{ __('messages.About Step 2 Title') }}</h3>
               <p class="text-sm text-muted-foreground leading-relaxed">
-                Track time, manage tasks, send quotes, and generate invoices—all from the same
-                place. Teams see exactly what to do next, and leaders see where time and money go.
+                {{ __('messages.About Step 2 Body') }}
               </p>
             </li>
             <li class="relative pl-10">
               <span class="absolute left-0 top-1.5 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shadow-md">
                 3
               </span>
-              <h3 class="text-lg font-semibold text-foreground mb-1">Decide with confidence</h3>
+              <h3 class="text-lg font-semibold text-foreground mb-1">{{ __('messages.About Step 3 Title') }}</h3>
               <p class="text-sm text-muted-foreground leading-relaxed">
-                Use dashboards and analytics to understand profitability, capacity, and
-                performance. Make decisions based on live numbers—not guesswork.
+                {{ __('messages.About Step 3 Body') }}
               </p>
             </li>
           </ol>
@@ -267,8 +250,8 @@
         <div class="container mx-auto px-6 max-w-7xl">
           
           <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-4">Everything you need</h2>
-            <p class="text-muted max-w-2xl mx-auto">A comprehensive suite of tools designed to replace your fragmented software stack.</p>
+            <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-4">{{ __('messages.About Everything Title') }}</h2>
+            <p class="text-muted max-w-2xl mx-auto">{{ __('messages.About Everything Subtitle') }}</p>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -279,8 +262,8 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                 </svg>
               </div>
-              <h3 class="text-xl font-bold text-foreground mb-3">Invoice Management</h3>
-              <p class="text-muted leading-relaxed">Automated billing and payment tracking to keep cash flow healthy.</p>
+              <h3 class="text-xl font-bold text-foreground mb-3">{{ __('messages.About Everything Invoice Title') }}</h3>
+              <p class="text-muted leading-relaxed">{{ __('messages.About Everything Invoice Body') }}</p>
             </div>
 
             <div class="group p-8 bg-card rounded-2xl border border-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
@@ -289,8 +272,8 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6.429 9.75L2.25 12l4.179 2.25m0-4.5l5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0l4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0l-5.571 3-5.571-3" />
                 </svg>
               </div>
-              <h3 class="text-xl font-bold text-foreground mb-3">Project Tracking</h3>
-              <p class="text-muted leading-relaxed">Real-time milestones and task delegation for complex workflows.</p>
+              <h3 class="text-xl font-bold text-foreground mb-3">{{ __('messages.About Everything Project Title') }}</h3>
+              <p class="text-muted leading-relaxed">{{ __('messages.About Everything Project Body') }}</p>
             </div>
 
             <div class="group p-8 bg-card rounded-2xl border border-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
@@ -299,8 +282,8 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                 </svg>
               </div>
-              <h3 class="text-xl font-bold text-foreground mb-3">Team Management</h3>
-              <p class="text-muted leading-relaxed">HR tools to monitor performance and allocate resources efficiently.</p>
+              <h3 class="text-xl font-bold text-foreground mb-3">{{ __('messages.About Everything Team Title') }}</h3>
+              <p class="text-muted leading-relaxed">{{ __('messages.About Everything Team Body') }}</p>
             </div>
 
             <div class="group p-8 bg-card rounded-2xl border border-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
@@ -309,8 +292,8 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
                 </svg>
               </div>
-              <h3 class="text-xl font-bold text-foreground mb-3">Advanced Analytics</h3>
-              <p class="text-muted leading-relaxed">Data-driven insights to guide your strategic decisions.</p>
+              <h3 class="text-xl font-bold text-foreground mb-3">{{ __('messages.About Everything Analytics Title') }}</h3>
+              <p class="text-muted leading-relaxed">{{ __('messages.About Everything Analytics Body') }}</p>
             </div>
 
             <div class="group p-8 bg-card rounded-2xl border border-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
@@ -319,8 +302,8 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
                 </svg>
               </div>
-              <h3 class="text-xl font-bold text-foreground mb-3">Client Relations</h3>
-              <p class="text-muted leading-relaxed">Maintain client relationships and history in one centralized place.</p>
+              <h3 class="text-xl font-bold text-foreground mb-3">{{ __('messages.About Everything Clients Title') }}</h3>
+              <p class="text-muted leading-relaxed">{{ __('messages.About Everything Clients Body') }}</p>
             </div>
 
             <div class="group p-8 bg-card rounded-2xl border border-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
@@ -329,8 +312,8 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
                 </svg>
               </div>
-              <h3 class="text-xl font-bold text-foreground mb-3">Expense Control</h3>
-              <p class="text-muted leading-relaxed">Digital logs for all company spending and budget adherence.</p>
+              <h3 class="text-xl font-bold text-foreground mb-3">{{ __('messages.About Everything Expenses Title') }}</h3>
+              <p class="text-muted leading-relaxed">{{ __('messages.About Everything Expenses Body') }}</p>
             </div>
 
           </div>
@@ -342,19 +325,19 @@
             
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card border border-border text-primary text-xs font-bold tracking-wide uppercase mb-6 shadow-sm">
                 <span class="w-2 h-2 rounded-full bg-primary"></span>
-                Personalized Solutions
+                {{ __('messages.About Personalized Badge') }}
             </div>
             
             <h2 class="text-3xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">
-                Does your business need <br/> something unique?
+                {{ __('messages.About Personalized Title Line 1') }} <br/> {{ __('messages.About Personalized Title Line 2') }}
             </h2>
             
             <p class="text-lg text-muted mb-10 max-w-2xl mx-auto leading-relaxed">
-                Every workflow is different. We can personalize DalyTrac to fit your specific needs—adding custom fields, reports, or integrations just for you.
+                {{ __('messages.About Personalized Body') }}
             </p>
 
             <a href="/contact" class="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground font-bold rounded-lg shadow-lg shadow-primary/20 hover:bg-primary/90 hover:-translate-y-1 transition-all duration-300">
-                <span>Contact Us for Customization</span>
+                <span>{{ __('messages.About Personalized CTA') }}</span>
                 <i class="fas fa-arrow-right"></i>
             </a>
         </div>

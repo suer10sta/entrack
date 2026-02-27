@@ -45,6 +45,27 @@ class entrepriseController extends Controller
 
     public function updateInfos(Request $request)
     {
+        $allowedColumns = [
+            'name',
+            'phone',
+            'email',
+            'Address',
+            'country',
+            'city',
+            'zip_code',
+            'tva',
+            'bank_name',
+            'iban',
+            'swift',
+            'bic',
+            'emails_backup',
+            'workdays_emails',
+        ];
+
+        if (!in_array($request->column, $allowedColumns, true)) {
+            return response()->json(['error' => 'Invalid field'], 422);
+        }
+
         $Entreprise = Entreprise::find($request->id);
         $Entreprise->{$request->column} = $request->content;
         $Entreprise->save();

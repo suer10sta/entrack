@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -190,16 +190,16 @@
 
         <div class="details">
             <div class="details-left">
-                <p>Date de la note de frais: <?php echo date('d-m-Y'); ?><br />
+                <p>{{ __('messages.Expense Note Date') }}: <?php echo date('d-m-Y'); ?><br />
                 </p>
             </div>
             <div class="details-right">
-                Employé : {{ $employee_name }}<br />
+                {{ __('messages.Employee') }} : {{ $employee_name }}<br />
             </div>
         </div>
 
         <div class="invoice-number">
-            <h2>Note de Frais : {{$entreprise->notedefraisPrefix}}-{{date('ym')}}{{$note_number}}</h2>
+            <h2>{{ __('messages.Expense Note') }} : {{$entreprise->notedefraisPrefix}}-{{date('ym')}}{{$note_number}}</h2>
         </div>
 <br><br>
 @php 
@@ -208,9 +208,9 @@
         <table>
             <thead>
                 <tr>
-                    <th>Details </th>
-                    <th>Quantité</th>
-                    <th>Frais</th>
+                    <th>{{ __('messages.Details') }} </th>
+                    <th>{{ __('messages.Quantity') }}</th>
+                    <th>{{ __('messages.Expense') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -227,14 +227,14 @@
                 </tr>
             @endforeach
             <tr>
-                <td><strong>Total : </strong></td>
+                <td><strong>{{ __('messages.Total') }} : </strong></td>
                 <td><strong>{{$Total_quantity}}</strong></td>
                 <td><strong>{{$budget}}€</strong></td>
             </tr>
             </tbody>
             </table>
 
-            <h3>Description : </h3>
+            <h3>{{ __('messages.Description') }} : </h3>
 
             <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
                 @if(Auth::user()->hasRole('Admin'))
@@ -249,11 +249,11 @@
                         <input type="hidden" name="quantity" value="{{ json_encode($quantity) }}">
                         <input type="hidden" name="taskBudget" value="{{ json_encode($taskBudget) }}">
                         <button type="submit" style="padding: 6px 12px; margin-bottom: 6px; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: green; border-color: green;">
-                            Confirm 
+                            {{ __('messages.Confirm') }} 
                         </button>
                     </form>
                     <a href="{{route('admin.notedefrais.notedefraishistory')}}" style="padding: 6px 12px; margin-bottom: 6px; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: red; border-color: red;">
-                        Decline
+                        {{ __('messages.Decline') }}
                     </a>
                 @endif
                 @if(Auth::user()->hasRole('Responsable de projet'))
@@ -340,17 +340,17 @@
         <div style="float: left; width: 30%; height: 80%;text-align: center;">
             <b>{{ $entreprise->name }}</b>
             <br>
-            <b>Numéro TVA:</b> {{ $entreprise->tva}}
+            <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
         </div>
         <div style="float: left; margin-left: 5%; width: 30%; height: 80%; text-align: center;">
             {{ $entreprise->Address }}
             <br>
-            Tél: 0{{ $entreprise->phone }}
+            {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
         </div>
         <div style="float: left; margin-left: 5%; width: 30%; height: 80%; text-align: center;">
-            <b>BANK</b> : {{ $entreprise->bank_name }} <br>
-            <b>IBAN</b> : {{ $entreprise->iban }} <br>
-            <b>SWIFT/BIC</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
+            <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }} <br>
+            <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }} <br>
+            <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
         </div>
     </div>
 </body>

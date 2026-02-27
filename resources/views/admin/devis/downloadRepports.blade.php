@@ -111,8 +111,8 @@ thead {
         </div>
         <div class="details-right">
             <div class="header-info">
-                <h2>Devis Table Reports</h2>
-                <h5>Number of Devis: {{ $devis->count() }}</h5>
+                <h2>{{ __('messages.Devis Table Reports') }}</h2>
+                <h5>{{ __('messages.Number of Devis') }}: {{ $devis->count() }}</h5>
             </div>
         </div>
     </div>
@@ -125,13 +125,13 @@ thead {
     <table>
         <thead>
             <tr>
-                <th>devis N</th>
-                <th>Project Name</th>
-                <th>TVA</th>
-                <th>Client Name</th>
-                <th>Emails</th>
-                <th>Acceptance status</th>
-                <th>Budget</th>
+                <th>{{ __('messages.devis N') }}</th>
+                <th>{{ __('messages.Project Name') }}</th>
+                <th>{{ __('messages.VAT') }}</th>
+                <th>{{ __('messages.Client Name') }}</th>
+                <th>{{ __('messages.Emails') }}</th>
+                <th>{{ __('messages.Acceptance status') }}</th>
+                <th>{{ __('messages.Budget') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -156,11 +156,11 @@ thead {
                 <td>{{$devi->emails}}</td>
                 <td>
                     @if($devi->acceptanceStatus == 1)
-                        Accepted
+                        {{ __('messages.Accepted') }}
                     @elseif($devi->acceptanceStatus == 2)
-                        Declined
+                        {{ __('messages.Declined') }}
                     @else
-                        Pending                    
+                        {{ __('messages.Pending') }}                    
                     @endif
                 </td>
                 <td>
@@ -189,7 +189,7 @@ thead {
                 <td style="border: none;"></td>
                 <td style="border: none;"></td>
               
-                <td style="border: none;"><strong>Totals Accepted : </strong></td>
+                <td style="border: none;"><strong>{{ __('messages.Totals Accepted') }} : </strong></td>
                 <td style="border: none;"> <strong> {{ $Total_Accpeted }}€ </strong> </td>
             </tr>
             <tr style="border: none;">
@@ -199,7 +199,7 @@ thead {
                 <td style="border: none;"></td>
                 <td style="border: none;"></td>
                 <td style="border: none;"></td>
-                <td style="border: none;"><strong>Totals Declined : </strong></td>
+                <td style="border: none;"><strong>{{ __('messages.Totals Declined') }} : </strong></td>
                 <td style="border: none;"> <strong> {{ $Total_Declined }}€ </strong> </td>
             </tr>
             <tr style="border: none;">
@@ -209,15 +209,15 @@ thead {
                 <td style="border: none;"></td>
                 <td style="border: none;"></td>
                 <td style="border: none;"></td>
-                <td style="border: none;"><strong>Totals Pending : </strong></td>
+                <td style="border: none;"><strong>{{ __('messages.Totals Pending') }} : </strong></td>
                 <td style="border: none;"> <strong> {{ $Total_Pending }}€ </strong> </td>
             </tr>
         </tbody>
     </table>
 
     <div class="footer">
-        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
-        <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
+        <div class='footer-right'>{{ __('messages.Page Number') }}: <span class="page-number"></span></div>
+        <div class='footer-left'>{{ __('messages.Download Date') }}: {{ date('d-m-Y') }}</div>
     </div>
 
 </div>

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Send Calendar Events - DalyTrac</title>
+    <title>{{ __('messages.Send Calendar Events - DalyTrac') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
@@ -38,7 +38,7 @@
                     <div class="lg:col-span-2">
                         <div class="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col h-full">
                             <div class="p-6 border-b border-gray-200">
-                                <h4 class="text-lg font-semibold text-gray-900">Calendar Events Preview - {{ $monthName }}</h4>
+                                <h4 class="text-lg font-semibold text-gray-900">{{ __('messages.Calendar Events Preview') }} - {{ $monthName }}</h4>
                             </div>
                             <div class="p-6 flex-1">
                                 <div class="w-full h-full border border-gray-200 rounded-lg overflow-hidden bg-gray-100" style="min-height: 600px;">
@@ -55,7 +55,7 @@
                     <div class="lg:col-span-1">
                         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                             <div class="p-6 border-b border-gray-200">
-                                <h4 class="text-lg font-semibold text-gray-900">Email Options</h4>
+                                <h4 class="text-lg font-semibold text-gray-900">{{ __('messages.Email Options') }}</h4>
                             </div>
                             <div class="p-6">
                                 <form id="sendEventsForm" action="{{ route('admin.calendar.send-events-email') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
@@ -66,39 +66,35 @@
                                     
                                     {{-- Recipients --}}
                                     <div>
-                                        <label for="recipients" class="block text-sm font-medium text-gray-700 mb-1">Recipients <span class="text-red-500">*</span></label>
+                                        <label for="recipients" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Recipients label') }} <span class="text-red-500">*</span></label>
                                         <textarea id="recipients" name="recipients" rows="3" 
                                                   class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
-                                                  placeholder="Enter email addresses separated by commas" required></textarea>
-                                        <p class="mt-1 text-xs text-gray-500">Separate multiple emails with commas.</p>
+                                                  placeholder="{{ __('messages.Recipients placeholder') }}" required></textarea>
+                                        <p class="mt-1 text-xs text-gray-500">{{ __('messages.Separate emails helper') }}</p>
                                     </div>
                                     
                                     {{-- Subject --}}
                                     <div>
-                                        <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Email Subject <span class="text-red-500">*</span></label>
+                                        <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Email Subject') }} <span class="text-red-500">*</span></label>
                                         <input type="text" id="subject" name="subject" 
                                                class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
-                                               value="Calendar Events - {{ $monthName }}" required>
+                                               value="{{ __('messages.Calendar Events Subject Prefix') }} {{ $monthName }}" required>
                                     </div>
                                     
                                     {{-- Body --}}
                                     <div>
-                                        <label for="body" class="block text-sm font-medium text-gray-700 mb-1">Email Body <span class="text-red-500">*</span></label>
+                                        <label for="body" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Email Body') }} <span class="text-red-500">*</span></label>
                                         <textarea id="body" name="body" rows="6" 
-                                                  class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>Hello,
-
-Please find attached the calendar events for {{ $monthName }}.
-
-Best regards</textarea>
+                                                  class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>{{ __('messages.Calendar Events default body', ['month' => $monthName]) }}</textarea>
                                     </div>
                                     
                                     {{-- Attachments --}}
                                     <div>
-                                        <label for="attachments" class="block text-sm font-medium text-gray-700 mb-1">Additional Attachments</label>
+                                        <label for="attachments" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Additional Attachments') }}</label>
                                         <input type="file" id="attachments" name="attachments[]" 
                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" 
                                                multiple>
-                                        <p class="mt-1 text-xs text-gray-500">You can attach multiple files (max 10MB each).</p>
+                                        <p class="mt-1 text-xs text-gray-500">{{ __('messages.Calendar Attachments helper') }}</p>
                                     </div>
                                     
                                     {{-- Submit Button --}}
@@ -108,7 +104,7 @@ Best regards</textarea>
                                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                             </svg>
-                                            Send Email
+                                            {{ __('messages.Send email button') }}
                                         </button>
                                     </div>
                                 </form>

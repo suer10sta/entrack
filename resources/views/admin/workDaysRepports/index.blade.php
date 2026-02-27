@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DalyTrac Dashboard</title>
+    <title>{{ __('messages.Work Days Reports Title') }}</title>
     @vite('resources/css/app.css')
     @livewireStyles {{-- Added for consistency --}}
 </head>
@@ -75,8 +75,8 @@
                 <div class="p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         {{-- Changed <h1> to <h6> and text-2xl to text-lg to match target style --}}
-                        <h6 class="text-lg font-semibold text-gray-900">Work Days Reports</h6>
-                        <p class="text-sm text-gray-500">For: {{ $currentMonthName }}-{{ $currentYear }}</p>
+                        <h6 class="text-lg font-semibold text-gray-900">{{ __('messages.Work Days Reports') }}</h6>
+                        <p class="text-sm text-gray-500">{{ __('messages.For period label') }} {{ $currentMonthName }}-{{ $currentYear }}</p>
                     </div>
                     
                     {{-- Filters and Buttons --}}
@@ -109,7 +109,7 @@
                             <form method="GET" action="{{ $filterRoute }}" class="flex items-center gap-2">
                                 <div class="flex-shrink-0">
                                     <select name="year" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none" x-model="year">
-                                        <option value="">Year</option>
+                                        <option value="">{{ __('messages.Year') }}</option>
                                         @for($i = date('Y'); $i >= 2000; $i--)
                                             <option value="{{ $i }}" {{ $i == $currentYear ? 'selected' : ''}}>{{ $i }}</option>
                                         @endfor
@@ -117,20 +117,20 @@
                                 </div>
                                 <div class="flex-shrink-0">
                                     <select name="month" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none" x-model="month">
-                                        <option value="">Month</option>
+                                        <option value="">{{ __('messages.Month') }}</option>
                                         @for($i = 1; $i <= 12; $i++)
                                             <option value="{{ $i }}" {{ $i == $monthInt ? 'selected' : ''}}>{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
                                         @endfor
                                     </select>
                                 </div>
-                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">Filter</button>
+                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">{{ __('messages.Filter') }}</button>
                             </form>
                             <button type="button" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg" data-bs-toggle="modal" data-bs-target="#employeeSelectionModal">
-                                PDF
+                                {{ __('messages.PDF button') }}
                             </button>
                             <form method="POST" action="{{ $nextMonthRoute }}" class="m-0">
                                 @csrf
-                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">Next Month</button>
+                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">{{ __('messages.Next Month') }}</button>
                             </form>
                         </div>
                     </div>
@@ -153,21 +153,21 @@
                         <table id="editableTable" class="w-full text-left border-collapse min-w-full">
                             <thead class="border-b border-gray-200 bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">NOM D'EMPLOYÉ</th>
-                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">JOURS BRUT</th>
-                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">HEURES INTERNE</th>
-                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">JRS TRAVAIL SANS JRS FERIES ET SANS JRS CONGÉS PAYÉS</th>
-                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left editable-header">ABSENCE</th>
-                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left editable-header">MALADIE</th>
-                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left editable-header">FÉRIÉS</th>
-                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">RELIQUAT CONGÉS PAYÉS</th>
-                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">JRS CONGÉ PAYÉS ACQUIS</th>
-                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left editable-header">JRS CONGÉ PAYÉS PRIS</th>
-                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">SOLDE CONGÉS PAYÉS</th>
-                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left editable-header">DATES CONGÉS PAYÉS</th>
-                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left editable-header">À RÉCUPÉRER</th>
-                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left editable-header">REMARQUES</th>
-                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left editable-header">REMARQUE INTERN</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Employee Name header') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Gross Days') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Internal Work Days') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Work Days Without Holidays') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left editable-header">{{ __('messages.Unpaid Absence Days') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left editable-header">{{ __('messages.Sick Days') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left editable-header">{{ __('messages.Holidays') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Remaining Paid Leave') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Paid Leave Acquired') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left editable-header">{{ __('messages.Paid Leave Taken') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Leave Balance') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left editable-header">{{ __('messages.Paid Leave Dates') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left editable-header">{{ __('messages.Days To Recover') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left editable-header">{{ __('messages.Remark') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left editable-header">{{ __('messages.Internal Remark') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
@@ -223,7 +223,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="15" class="px-6 py-4 text-center text-sm text-gray-500">No work day reports found for this period.</td>
+                                    <td colspan="15" class="px-6 py-4 text-center text-sm text-gray-500">{{ __('messages.No work day reports') }}</td>
                                 </tr>
                                 @endforelse
                             </tbody>
@@ -235,7 +235,7 @@
                         <button class="text-gray-400 hover:text-gray-600 disabled:opacity-50" disabled>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" /></svg>
                         </button>
-                        <span class="text-sm text-gray-600">Page 1 of 1</span>
+                        <span class="text-sm text-gray-600">{{ __('messages.Single page label') }}</span>
                         <button class="text-gray-400 hover:text-gray-600 disabled:opacity-50" disabled>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
                         </button>
@@ -250,14 +250,14 @@
                                     {{-- modal-content --}}
                                     <div class="flex items-center justify-between p-4 border-b rounded-t">
                                         {{-- modal-header --}}
-                                        <h5 class="text-lg font-semibold text-gray-900" id="employeeSelectionModalLabel">Select Employees and Columns</h5>
+                                        <h5 class="text-lg font-semibold text-gray-900" id="employeeSelectionModalLabel">{{ __('messages.Select Employees and Columns') }}</h5>
                                     </div>
                                     <div class="p-6 space-y-4">
                                         {{-- modal-body --}}
                                         <div class="mb-3">
                                             <div class="flex items-center">
                                                 <input id="selectAllEmployees" type="checkbox" checked class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                                <label for="selectAllEmployees" class="ml-2 block text-sm font-medium text-gray-900">Select All Employees</label>
+                                                <label for="selectAllEmployees" class="ml-2 block text-sm font-medium text-gray-900">{{ __('messages.Select All Employees') }}</label>
                                             </div>
                                         </div>
                                         <div class="employee-list max-h-48 overflow-y-auto space-y-2 mb-4 p-2 border rounded">
@@ -277,72 +277,72 @@
 
                                         <hr class="my-4">
 
-                                        <h6 class="text-md font-semibold text-gray-900 mb-2">Unselect Columns to Exclude</h6>
+                                        <h6 class="text-md font-semibold text-gray-900 mb-2">{{ __('messages.Unselect Columns to Exclude') }}</h6>
                                         <form id="columnSelectionForm">
                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
                                                 <div class="flex items-center">
                                                     <input id="col_work_days_gross" value="work_days_gross" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                                    <label for="col_work_days_gross" class="ml-2 block text-sm text-gray-900">JOURS BRUT</label>
+                                                    <label for="col_work_days_gross" class="ml-2 block text-sm text-gray-900">{{ __('messages.Gross Days') }}</label>
                                                 </div>
                                                 <div class="flex items-center">
                                                     <input id="col_days_worked" value="days_worked" type="checkbox"  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                                    <label for="col_days_worked" class="ml-2 block text-sm text-gray-900">HEURES INTERNE </label>
+                                                    <label for="col_days_worked" class="ml-2 block text-sm text-gray-900">{{ __('messages.Internal Work Days') }}</label>
                                                 </div>
                                                 <div class="flex items-center">
                                                     <input id="col_days_worked_gross" value="days_worked_gross" type="checkbox"  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                                    <label for="col_days_worked_gross" class="ml-2 block text-sm text-gray-900">JRS TRAVAIL SANS JRS FERIES ET SANS JRS CONGÉS PAYÉS</label>
+                                                    <label for="col_days_worked_gross" class="ml-2 block text-sm text-gray-900">{{ __('messages.Work Days Without Holidays') }}</label>
                                                 </div>
                                                 <div class="flex items-center">
                                                     <input id="col_days_of_unpaid_absence" value="days_of_unpaid_absence" type="checkbox" checked class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                                    <label for="col_days_of_unpaid_absence" class="ml-2 block text-sm text-gray-900">ABSENCE</label>
+                                                    <label for="col_days_of_unpaid_absence" class="ml-2 block text-sm text-gray-900">{{ __('messages.Unpaid Absence Days') }}</label>
                                                 </div>
                                                 <div class="flex items-center">
                                                     <input id="col_sick_days" value="sick_days" type="checkbox" checked class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                                    <label for="col_sick_days" class="ml-2 block text-sm text-gray-900">MALADIE</label>
+                                                    <label for="col_sick_days" class="ml-2 block text-sm text-gray-900">{{ __('messages.Sick Days') }}</label>
                                                 </div>
                                                 <div class="flex items-center">
                                                     <input id="col_holidays" value="holidays" type="checkbox" checked class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                                    <label for="col_holidays" class="ml-2 block text-sm text-gray-900">FÉRIÉS</label>
+                                                    <label for="col_holidays" class="ml-2 block text-sm text-gray-900">{{ __('messages.Holidays') }}</label>
                                                 </div>
                                                 <div class="flex items-center">
                                                     <input id="col_remaining_days_of_paid_leave" value="remaining_days_of_paid_leave" type="checkbox" checked class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                                    <label for="col_remaining_days_of_paid_leave" class="ml-2 block text-sm text-gray-900">RELIQUAT CONGÉS PAYÉS</label>
+                                                    <label for="col_remaining_days_of_paid_leave" class="ml-2 block text-sm text-gray-900">{{ __('messages.Remaining Paid Leave') }}</label>
                                                 </div>
                                                 <div class="flex items-center">
                                                     <input id="col_number_of_days_of_paid_leave_acquired" value="number_of_days_of_paid_leave_acquired" type="checkbox" checked class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                                    <label for="col_number_of_days_of_paid_leave_acquired" class="ml-2 block text-sm text-gray-900">JRS CONGÉ PAYÉS ACQUIS</label>
+                                                    <label for="col_number_of_days_of_paid_leave_acquired" class="ml-2 block text-sm text-gray-900">{{ __('messages.Paid Leave Acquired') }}</label>
                                                 </div>
                                                 <div class="flex items-center">
                                                     <input id="col_number_of_days_of_paid_leave_taken" value="number_of_days_of_paid_leave_taken" type="checkbox" checked class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                                    <label for="col_number_of_days_of_paid_leave_taken" class="ml-2 block text-sm text-gray-900">JRS CONGÉ PAYÉS PRIS</label>
+                                                    <label for="col_number_of_days_of_paid_leave_taken" class="ml-2 block text-sm text-gray-900">{{ __('messages.Paid Leave Taken') }}</label>
                                                 </div>
                                                 <div class="flex items-center">
                                                     <input id="col_holiday_balance" value="holiday_balance" type="checkbox" checked class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                                    <label for="col_holiday_balance" class="ml-2 block text-sm text-gray-900">SOLDE CONGÉS PAYÉS</label>
+                                                    <label for="col_holiday_balance" class="ml-2 block text-sm text-gray-900">{{ __('messages.Leave Balance') }}</label>
                                                 </div>
                                                 <div class="flex items-center">
                                                     <input id="col_days_to_recover" value="days_to_recover" type="checkbox"  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                                    <label for="col_days_to_recover" class="ml-2 block text-sm text-gray-900">À RÉCUPÉRER</label>
+                                                    <label for="col_days_to_recover" class="ml-2 block text-sm text-gray-900">{{ __('messages.Days To Recover') }}</label>
                                                 </div>
                                                 <div class="flex items-center">
                                                     <input id="col_remarque" value="remarque" type="checkbox" checked class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                                    <label for="col_remarque" class="ml-2 block text-sm text-gray-900">REMARQUES</label>
+                                                    <label for="col_remarque" class="ml-2 block text-sm text-gray-900">{{ __('messages.Remark') }}</label>
                                                 </div>
                                                 <div class="flex items-center">
                                                     <input id="col_interne_remarque" value="interne_remarque" type="checkbox"  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                                    <label for="col_interne_remarque" class="ml-2 block text-sm text-gray-900">REMARQUE INTERN</label>
+                                                    <label for="col_interne_remarque" class="ml-2 block text-sm text-gray-900">{{ __('messages.Internal Remark') }}</label>
                                                 </div>
                                             </div>
                                         </form>
                                     </div>
                                     <div class="flex items-center justify-between p-4 border-t border-gray-200 rounded-b space-x-2">
-                                        <button type="button" id="closeModalBtn" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium px-4 py-2 rounded-lg" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" id="closeModalBtn" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium px-4 py-2 rounded-lg" data-bs-dismiss="modal">{{ __('messages.Close') }}</button>
                                         <div>
                                             <button type="button" class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg mr-2" id="previewReportBtn">
-                                                Preview & Email
+                                                {{ __('messages.Preview & Email') }}
                                             </button>
                                             <button type="button" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg" id="generateReportBtn">
-                                                Download PDF
+                                                {{ __('messages.Download PDF') }}
                                             </button>
                                         </div>
                                     </div>

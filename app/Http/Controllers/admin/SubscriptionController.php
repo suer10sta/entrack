@@ -5,7 +5,9 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Laravel\Cashier\Cashier;
+use App\Mail\AdminActivityAlertMail;
 
 class SubscriptionController extends Controller
 {
@@ -30,6 +32,9 @@ class SubscriptionController extends Controller
             ], 422);
         }
 
+        // Capture previous renewal mode so we can detect real cancellations
+        $previousRenewalMode = $entreprise->auto_renew ? 'auto' : 'manual';
+
         $entreprise->forceFill([
             'auto_renew' => $renewalPreference === 'auto',
         ])->save();
@@ -51,6 +56,27 @@ class SubscriptionController extends Controller
                 } catch (\Throwable $e) {
                     // Keep request successful even if Stripe API is temporarily unavailable.
                 }
+            }
+        }
+
+        // If the user switched from auto to manual, treat it as a cancel-at-period-end
+        if ($previousRenewalMode === 'auto' && $renewalPreference === 'manual') {
+            try {
+                Mail::to('dessin@bureaumercier.com')->send(new AdminActivityAlertMail(
+                    'Subscription cancellation requested',
+                    'A user has requested to cancel their subscription at the end of the current period.',
+                    [
+                        'entreprise_id' => $entreprise->id,
+                        'entreprise_name' => $entreprise->name,
+                        'user_id' => $user->id,
+                        'user_email' => $user->email,
+                        'previous_renewal' => $previousRenewalMode,
+                        'new_renewal' => $renewalPreference,
+                        'current_plan' => $entreprise->type_compt,
+                    ]
+                ));
+            } catch (\Throwable $alertException) {
+                // Do not block API response on alert failures
             }
         }
 
@@ -82,9 +108,10 @@ class SubscriptionController extends Controller
 
         $priceId = match ($planName) {
 
-            //solo plan price 19€/month 'solo'    => env('STRIPE_PRICE_SOLO', 'price_1Sl59xB4LVww0NzzGLakC6gJ'),
+            //solo plan price 19€/month 
+            'solo'    => env('STRIPE_PRICE_SOLO', 'price_1Sl59xB4LVww0NzzGLakC6gJ'),
             //solo plan price 1€/day
-            'solo'    => env('STRIPE_PRICE_SOLO', 'price_1SzeGWB4LVww0NzztR9cOrna'),
+            //'solo'    => env('STRIPE_PRICE_SOLO', 'price_1SzeGWB4LVww0NzztR9cOrna'),
             'premium' => env('STRIPE_PRICE_PREMIUM', 'price_1Sl5B5B4LVww0NzzuRKyJNtf'),
             'pro'     => env('STRIPE_PRICE_PRO', 'price_1Sl5BcB4LVww0Nzzwstbphvv'),
         };
@@ -154,9 +181,180 @@ class SubscriptionController extends Controller
             }
         }
 
+        // Notify admin that a subscription payment has succeeded
+        try {
+            Mail::to('dessin@bureaumercier.com')->send(new AdminActivityAlertMail(
+                'New subscription payment',
+                'A subscription payment has been completed successfully.',
+                [
+                    'entreprise_id' => $entreprise->id,
+                    'entreprise_name' => $entreprise->name,
+                    'user_id' => $user->id,
+                    'user_email' => $user->email,
+                    'plan' => $planName,
+                    'renewal' => $renewalPreference,
+                ]
+            ));
+        } catch (\Throwable $alertException) {
+            // Do not block user redirect on alert failures
+        }
+
         return redirect()
             ->route('dashboard')
             ->with('success', 'Paiement réussi ! Plan ' . ucfirst($planName) . ' activé.');
+    }
+
+    /**
+     * Allow the owner to cancel the current Stripe subscription
+     * without deleting the entreprise or any associated data.
+     */
+    public function cancelSubscription(Request $request)
+    {
+        $user = Auth::user();
+        $entreprise = $user?->entreprise;
+
+        if (!$entreprise) {
+            return redirect()
+                ->route('profile')
+                ->with('alertmessage', 'Entreprise introuvable.');
+        }
+
+        $subscription = $entreprise->currentSubscription();
+
+        if (!$subscription) {
+            // Fallback: try resolving directly from Stripe in case of desync
+            $stripeSubscription = $entreprise->latestStripeSubscriptionFromApi();
+            if (!$stripeSubscription) {
+                return redirect()
+                    ->route('profile')
+                    ->with('alertmessage', 'Aucun abonnement actif à annuler.');
+            }
+
+            try {
+                Cashier::stripe()->subscriptions->cancel((string) $stripeSubscription->id);
+            } catch (\Throwable $e) {
+                return redirect()
+                    ->route('profile')
+                    ->with('alertmessage', 'Impossible d’annuler votre abonnement pour le moment. Veuillez réessayer plus tard.');
+            }
+        } else {
+            try {
+                $subscription->cancelNow();
+            } catch (\Throwable $e) {
+                return redirect()
+                    ->route('profile')
+                    ->with('alertmessage', 'Impossible d’annuler votre abonnement pour le moment. Veuillez réessayer plus tard.');
+            }
+        }
+
+        // Inform platform admin that the owner has canceled their subscription.
+        try {
+            Mail::to('dessin@bureaumercier.com')->send(new AdminActivityAlertMail(
+                'Subscription canceled by owner',
+                'A user has canceled their active subscription from the profile page.',
+                [
+                    'entreprise_id' => $entreprise->id,
+                    'entreprise_name' => $entreprise->name,
+                    'user_id' => $user->id,
+                    'user_email' => $user->email,
+                ]
+            ));
+        } catch (\Throwable $alertException) {
+            // Do not block user flow on alert failures.
+        }
+
+        return redirect()
+            ->route('profile')
+            ->with('success', 'Votre abonnement a été annulé. Vous pouvez toujours accéder à vos données, mais vous n’êtes plus facturé.');
+    }
+
+    /**
+     * Cancel the active subscription (if any) and permanently delete
+     * the entreprise and all its data. This is triggered by the owner
+     * from their profile page.
+     */
+    public function cancelAndDelete(Request $request)
+    {
+        $user = Auth::user();
+        $entreprise = $user?->entreprise;
+
+        if (!$entreprise) {
+            return redirect()
+                ->route('profile')
+                ->with('alertmessage', 'Entreprise introuvable.');
+        }
+
+        // Certain entreprises (like internal test accounts) must never be deleted.
+        if (method_exists($entreprise, 'isBlockingExempt') && $entreprise->isBlockingExempt()) {
+            return redirect()
+                ->route('profile')
+                ->with('alertmessage', 'Cette entreprise ne peut pas être supprimée depuis l’interface.');
+        }
+
+        // Server-side confirmation check for the destructive action.
+        $confirmationName = (string) $request->input('confirmation_name', '');
+        if ($confirmationName !== (string) $entreprise->name) {
+            return redirect()
+                ->route('profile')
+                ->with('alertmessage', 'La confirmation de suppression est invalide.');
+        }
+
+        // Try to cancel the Stripe subscription immediately if one exists.
+        $subscription = $entreprise->currentSubscription();
+        if ($subscription) {
+            try {
+                $subscription->cancelNow();
+            } catch (\Throwable $e) {
+                // Keep going even if immediate cancellation fails.
+            }
+        } else {
+            $stripeSubscription = $entreprise->latestStripeSubscriptionFromApi();
+            if ($stripeSubscription) {
+                try {
+                    Cashier::stripe()->subscriptions->cancel((string) $stripeSubscription->id);
+                } catch (\Throwable $e) {
+                    // Ignore Stripe API errors so the user can still close the account.
+                }
+            }
+        }
+
+        try {
+            $entrepriseId = $entreprise->id;
+            $entrepriseName = $entreprise->name;
+            $userEmail = $user->email;
+
+            // Delete entreprise and all its related data.
+            $entreprise->deleteWithData();
+
+            // Notify platform admin that an enterprise has been closed.
+            try {
+                Mail::to('dessin@bureaumercier.com')->send(new AdminActivityAlertMail(
+                    'Enterprise closed by owner',
+                    'An enterprise and its subscription have been cancelled and deleted by the owner.',
+                    [
+                        'entreprise_id' => $entrepriseId,
+                        'entreprise_name' => $entrepriseName,
+                        'user_id' => $user->id,
+                        'user_email' => $userEmail,
+                    ]
+                ));
+            } catch (\Throwable $alertException) {
+                // Do not block user flow on alert failures.
+            }
+
+            // Log the user out since their enterprise (and account) no longer exists.
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()
+                ->route('login')
+                ->with('success', 'Votre abonnement a été résilié et votre entreprise a été définitivement supprimée.');
+        } catch (\Throwable $e) {
+            return redirect()
+                ->route('profile')
+                ->with('alertmessage', 'Une erreur est survenue lors de la suppression de votre entreprise. Veuillez réessayer plus tard.');
+        }
     }
 }
 

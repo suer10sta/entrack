@@ -110,8 +110,8 @@ thead {
         </div>
         <div class="details-right">
             <div class="header-info">
-                <h2>Tasks Table Reports</h2>
-                <h5>Number of Tasks: {{ $tasks->count() }}</h5>
+                <h2>{{ __('messages.Tasks Table Reports') }}</h2>
+                <h5>{{ __('messages.Number of Tasks') }}: {{ $tasks->count() }}</h5>
             </div>
         </div>
     </div>
@@ -119,13 +119,13 @@ thead {
     <table>
         <thead>
             <tr>
-                <th>Task Name</th>
-                <th>Project Name</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Employees</th>
-                <th>Teams</th>
-                <th>Description</th>
+                <th>{{ __('messages.Task Name') }}</th>
+                <th>{{ __('messages.Project Name') }}</th>
+                <th>{{ __('messages.Start Date') }}</th>
+                <th>{{ __('messages.End Date') }}</th>
+                <th>{{ __('messages.Employees column') }}</th>
+                <th>{{ __('messages.Teams column header') }}</th>
+                <th>{{ __('messages.Description') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -151,7 +151,7 @@ thead {
                     @empty
                         <span class="badge badge-dot me-4">
                             <i class="bg-info"></i>
-                            <span class="text-dark text-xs">No employees</span>
+                            <span class="text-dark text-xs">{{ __('messages.No employees') }}</span>
                         </span>
                     @endforelse
                 </td>
@@ -171,7 +171,7 @@ thead {
                     @empty
                         <span class="badge badge-dot me-4">
                             <i class="bg-info"></i>
-                            <span class="text-dark text-xs">No team</span>
+                            <span class="text-dark text-xs">{{ __('messages.No team') }}</span>
                         </span>
                     @endforelse
                 </td>
@@ -182,8 +182,8 @@ thead {
     </table>
 
     <div class="footer">
-        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
-        <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
+        <div class='footer-right'>{{ __('messages.Page Number') }}: <span class="page-number"></span></div>
+        <div class='footer-left'>{{ __('messages.Download Date') }}: {{ date('d-m-Y') }}</div>
     </div>
 
 </div>

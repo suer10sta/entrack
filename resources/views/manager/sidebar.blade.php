@@ -2,7 +2,7 @@
     $manager = auth('manager')->user();
 @endphp
 
-<aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between h-screen">
+<aside class="w-64 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col justify-between h-screen sticky top-0 z-20">
     <div>
         <div class="p-6 flex items-center space-x-3">
         <img
@@ -39,6 +39,21 @@
                 </svg>
                 <span>Subscriptions</span>
             </a>
+
+            @php
+                $enterpriseUser = Auth::guard('web')->user();
+            @endphp
+            @if($enterpriseUser && (int) ($enterpriseUser->entreprise_id ?? 0) === 43)
+            <a href="{{ route('admin.index') }}"
+               class="flex items-center space-x-3 px-4 py-3 rounded-xl text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors relative">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+                <span>Back to Enterprise Dashboard</span>
+            </a>
+            @endif
         </nav>
     </div>
 

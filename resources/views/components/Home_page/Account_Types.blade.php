@@ -8,13 +8,13 @@
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
             </span>
-            15-Day Free Trial
+            {{ __('messages.15-Day Free Trial') }}
         </span>
         <h3 class="text-3xl lg:text-4xl font-bold text-foreground">
-            One Platform, Three Plans
+            {{ __('messages.One Platform, Three Plans') }}
         </h3>
         <p class="mx-auto max-w-2xl text-lg text-muted-foreground">
-            Enjoy <strong>every feature</strong> regardless of your plan. Simply choose the number of users you need.
+            {{ __('messages.Enjoy') }} <strong>{{ __('messages.every feature') }}</strong> {{ __('messages.regardless of your plan. Simply choose the number of users you need.') }}
         </p>
     </div>
 
@@ -72,14 +72,14 @@
                 
                 @if($account['highlight'])
                     <div class="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-yellow-400 px-6 py-1.5 text-xs font-bold text-gray-900 uppercase tracking-wider shadow-md">
-                        Recommended
+                        {{ __('messages.Recommended') }}
                     </div>
                 @endif
 
                 <div class="flex-1">
                     {{-- Plan Name --}}
                     <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-[0.2em] mb-6">
-                        {{ $account['name'] }}
+                        {{ __('messages.' . $account['name']) }}
                     </h4>
 
                     {{-- The Big Differentiator: User Count --}}
@@ -88,13 +88,13 @@
                             {{ $account['users'] }}
                         </span>
                         <span class="text-base font-medium text-gray-600 block mt-2">
-                            {{ $account['users_label'] }}
+                            {{ __('messages.' . $account['users_label']) }}
                         </span>
                     </div>
 
                     {{-- Description --}}
                     <p class="text-sm text-gray-600 mb-6">
-                        {{ $account['desc'] }}
+                        {{ __('messages.' . $account['desc']) }}
                     </p>
 
                     {{-- Badge --}}
@@ -102,25 +102,25 @@
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
-                        {{ $account['badge'] }}
+                        {{ __('messages.' . $account['badge']) }}
                     </div>
 
                     {{-- Price --}}
                     <div class="mb-8">
                         <div class="flex items-baseline gap-1">
                             <span class="text-4xl font-black text-gray-900">{{ $account['price'] }}</span>
-                            <span class="text-gray-500 text-sm font-medium">/per month</span>
+                            <span class="text-gray-500 text-sm font-medium">{{ __('messages./per month') }}</span>
                         </div>
                     </div>
 
                     {{-- Action Button --}}
                     <a href="{{ route('login') }}" class="block text-center w-full rounded-lg py-3.5 text-sm font-bold transition-all {{ $account['highlight'] ? 'bg-yellow-400 text-gray-900 hover:bg-yellow-500' : 'bg-gray-700 text-white hover:bg-gray-800' }}">
-                        Start Your Trial
+                        {{ __('messages.Start Your Trial') }}
                     </a>
 
                     {{-- Feature list --}}
                     <div class="mt-10 pt-6 border-t border-gray-200">
-                        <h5 class="text-xs font-semibold text-gray-900 mb-4">All plans include:</h5>
+                        <h5 class="text-xs font-semibold text-gray-900 mb-4">{{ __('messages.All plans include:') }}</h5>
                         <ul class="space-y-3">
                             @foreach($account['features'] as $feature)
                                 <li class="flex items-center gap-3 text-sm text-gray-700">
@@ -129,7 +129,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                         </svg>
                                     </span>
-                                    <span class="font-medium">{{ $feature }}</span>
+                                    <span class="font-medium">{{ __('messages.' . $feature) }}</span>
                                 </li>
                             @endforeach
                         </ul>

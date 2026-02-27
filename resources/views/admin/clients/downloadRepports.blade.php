@@ -108,8 +108,8 @@ thead {
                     @endif
         <div class="details-right">
             <div class="header-info">
-                <h2>Clients Table Reports</h2>
-                <h5>Number of Clients: {{ $clients->count() }}</h5>
+                <h2>{{ __('messages.Clients Table Reports') }}</h2>
+                <h5>{{ __('messages.Number of Clients') }}: {{ $clients->count() }}</h5>
             </div>
         </div>
     </div>
@@ -117,17 +117,17 @@ thead {
     <table>
         <thead>
             <tr>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Number</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Name</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Email</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Phone</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Billing Address</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">TVA</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Due Date</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Address</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">City</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Zip</th>
-                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">Country</th>
+                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">{{ __('messages.Number') }}</th>
+                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">{{ __('messages.Name') }}</th>
+                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">{{ __('messages.Email') }}</th>
+                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">{{ __('messages.Phone') }}</th>
+                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">{{ __('messages.Billing Address') }}</th>
+                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">{{ __('messages.VAT') }}</th>
+                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">{{ __('messages.Due Date') }}</th>
+                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">{{ __('messages.Address') }}</th>
+                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">{{ __('messages.City') }}</th>
+                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">{{ __('messages.Zip') }}</th>
+                <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-10">{{ __('messages.Country') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -150,8 +150,8 @@ thead {
     </table>
 
     <div class="footer">
-        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
-        <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
+        <div class='footer-right'>{{ __('messages.Page Number') }}: <span class="page-number"></span></div>
+        <div class='footer-left'>{{ __('messages.Download Date') }}: {{ date('d-m-Y') }}</div>
     </div>
 
 </div>

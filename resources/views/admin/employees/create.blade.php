@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DalyTrac Dashboard</title>
+    <title>{{ __('messages.Add New Employee') }} - DalyTrac</title>
     @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
@@ -24,19 +24,19 @@
             <div class="max-w-7xl mx-auto">
                 {{-- Header --}}
                 <div class="mb-8 text-center">
-                    <h1 class="text-4xl font-bold text-slate-900 mb-2">Add New Employee</h1>
-                    <p class="text-slate-600">Fill the mandatory information below</p>
+                    <h1 class="text-4xl font-bold text-slate-900 mb-2">{{ __('messages.Add New Employee') }}</h1>
+                    <p class="text-slate-600">{{ __('messages.Fill the mandatory information below') }}</p>
                 </div>
 
                 @if(session('error'))
     <div class="mb-4 rounded-lg bg-red-100 border border-red-400 p-4 text-sm text-red-700">
-        <strong>Error:</strong> {{ session('error') }}
+        <strong>{{ __('messages.Error') }}:</strong> {{ session('error') }}
     </div>
 @endif
 
 @if(session('message'))
     <div class="mb-4 rounded-lg bg-green-100 border border-green-400 p-4 text-sm text-green-700">
-        <strong>Success:</strong> {{ session('message') }}
+        <strong>{{ __('messages.Success') }}:</strong> {{ session('message') }}
     </div>
 @endif
                 {{-- Form --}}
@@ -49,9 +49,9 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M5.121 17.804A10.97 10.97 0 0112 15c2.485 0 4.779.815 6.879 2.191M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
-                            Personal Infos
+                            {{ __('messages.Personal Infos Section') }}
                         </h2>
-                        <p class="text-sm text-slate-500 mb-4">Mandatory informations</p>
+                        <p class="text-sm text-slate-500 mb-4">{{ __('messages.Mandatory informations') }}</p>
 
                         <form method="POST" action="
                             @if(Auth::user()->hasRole('Admin')) {{route('admin.employees.store')}} 
@@ -65,13 +65,13 @@
                             {{-- Name & Email --}}
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Name <span
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Name') }} <span
                                             class="text-red-500">*</span></label>
-                                    <input required type="text" name="name" placeholder="Full Name"
+                                    <input required type="text" name="name" placeholder="{{ __('messages.Full Name') }}"
                                         class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Login Email <span
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Login Email') }} <span
                                             class="text-red-500">*</span></label>
                                     <input required type="email" name="email" placeholder="*****@gmail.com"
                                         class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
@@ -81,13 +81,13 @@
                             {{-- Age & Company Phone --}}
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Age</label>
-                                    <input type="number" name="age" placeholder="Employee Age"
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Age') }}</label>
+                                    <input type="number" name="age" placeholder="{{ __('messages.Employee Age') }}"
                                         class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Company Phone Number</label>
-                                    <input type="number" name="Employee_number" placeholder="Company Phone Number"
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Company Phone Number') }}</label>
+                                    <input type="number" name="Employee_number" placeholder="{{ __('messages.Company Phone Number') }}"
                                         class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                 </div>
                             </div>
@@ -95,12 +95,12 @@
                             {{-- Personal Phone & Contact Email --}}
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Personal Phone</label>
-                                    <input type="number" name="phoneNumber" placeholder="Personal Phone Number"
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Personal Phone') }}</label>
+                                    <input type="number" name="phoneNumber" placeholder="{{ __('messages.Personal Phone') }}"
                                         class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Contact Email <span
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Contact Email') }} <span
                                             class="text-red-500">*</span></label>
                                     <input required type="email" name="contact_email" placeholder="Contact Email"
                                         class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
@@ -109,7 +109,7 @@
 
                             {{-- Password --}}
                             <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Password <span
+                                <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Password') }} <span
                                         class="text-red-500">*</span></label>
                                 <input required type="password" name="password" placeholder="******"
                                     class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
@@ -124,65 +124,65 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                             </svg>
-                            Professional Infos
+                            {{ __('messages.Professional Infos Section') }}
                         </h2>
-                        <p class="text-sm text-slate-500 mb-4">Mandatory informations</p>
+                        <p class="text-sm text-slate-500 mb-4">{{ __('messages.Mandatory informations') }}</p>
 
                         <div class="space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">CNSS</label>
-                                    <input type="text" name="CNSS" placeholder="CNSS Number"
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.CNSS') }}</label>
+                                    <input type="text" name="CNSS" placeholder="{{ __('messages.CNSS Number') }}"
                                         class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Bank Account Number</label>
-                                    <input type="text" name="bankAccountNumber" placeholder="Bank Account Number"
-                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Cost Per Hour <span class="text-red-500">*</span></label>
-                                    <input required type="number" name="cost_per_hour" placeholder="Cost Per Hour"
-                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Salary</label>
-                                    <input type="number" name="salary" placeholder="Salary"
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Bank Account Number') }}</label>
+                                    <input type="text" name="bankAccountNumber" placeholder="{{ __('messages.Bank Account Number') }}"
                                         class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">CNSS Contribution</label>
-                                    <input type="number" step="0.0001" name="Cotisation_CNSS" placeholder="CNSS Contribution"
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Cost Per Hour') }} <span class="text-red-500">*</span></label>
+                                    <input required type="number" name="cost_per_hour" placeholder="{{ __('messages.Cost Per Hour') }}"
                                         class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">AMO Contribution</label>
-                                    <input type="number" step="0.0001" name="Cotisation_AMO" placeholder="AMO Contribution"
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Salary') }}</label>
+                                    <input type="number" name="salary" placeholder="{{ __('messages.Salary') }}"
                                         class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Work Hours Limit <span class="text-red-500">*</span></label>
-                                    <input required type="number" step="0.0001" name="workHours_limit" placeholder="Work Hours Limit"
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.CNSS Contribution') }}</label>
+                                    <input type="number" step="0.0001" name="Cotisation_CNSS" placeholder="{{ __('messages.CNSS Contribution') }}"
                                         class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Release Date</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.AMO Contribution') }}</label>
+                                    <input type="number" step="0.0001" name="Cotisation_AMO" placeholder="{{ __('messages.AMO Contribution') }}"
+                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Work Hours Limit') }} <span class="text-red-500">*</span></label>
+                                    <input required type="number" step="0.0001" name="workHours_limit" placeholder="{{ __('messages.Work Hours Limit') }}"
+                                        class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Release Date') }}</label>
                                     <input type="date" name="Date_Release"
                                         class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Timezone</label>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Timezone') }}</label>
                                 <select name="timezone"
                                     class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent">
                                     @foreach (timezone_identifiers_list() as $timezone)
@@ -201,17 +201,21 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 11c0 1.657-1.343 3-3 3H5v-6h4c1.657 0 3 1.343 3 3zM19 11a3 3 0 00-3-3h-1v6h1a3 3 0 003-3z" />
                             </svg>
-                            Assign Roles <span class="text-red-500">*</span>
+                            {{ __('messages.Assign Roles') }} <span class="text-red-500">*</span>
                         </h2>
-                        <p class="text-sm text-slate-500 mb-4">Roles informations</p>
+                        <p class="text-sm text-slate-500 mb-4">{{ __('messages.Roles informations') }}</p>
 
                         <div class="space-y-2">
                             @foreach($roles as $role)
                                 @if(Auth::user()->hasRole('SuperAdmin') || (!$user->hasRole('SuperAdmin') && $role != 'SuperAdmin'))
+                                    @php
+                                        $roleLabelKey = 'messages.' . $role->name;
+                                        $roleLabel = __($roleLabelKey);
+                                    @endphp
                                     <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
                                         <input   type="checkbox" name="roles[]" value="{{ $role->name }}"
                                             class="w-4 h-4 rounded border-slate-300 text-green-600 focus:ring-2 focus:ring-green-500" />
-                                        <span class="text-sm font-medium text-slate-700">{{ $role->name }}</span>
+                                        <span class="text-sm font-medium text-slate-700">{{ $roleLabel !== $roleLabelKey ? $roleLabel : $role->name }}</span>
                                     </label>
                                 @endif
                             @endforeach
@@ -223,12 +227,12 @@
                 <div class="flex justify-end mt-8 gap-4">
                     <button type="button"  onclick="window.history.back()" 
                        class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">
-                       Cancel
+                       {{ __('messages.Cancel') }}
                     </button>
 
                     <button type="submit"
                         class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow">
-                        Create
+                        {{ __('messages.Create') }}
                     </button>
                 </div>
             </form>
@@ -251,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('error-message')) {
                     const msg = document.createElement('p');
                     msg.classList.add('text-red-500', 'text-sm', 'mt-1', 'error-message');
-                    msg.textContent = 'This field is required.';
+                    msg.textContent = '{{ __('messages.This field is required.') }}';
                     input.insertAdjacentElement('afterend', msg);
                 }
             } else {
@@ -270,7 +274,6 @@ document.addEventListener('DOMContentLoaded', () => {
             emailInput.classList.add('border-red-500', 'focus:ring-red-500');
             const msg = document.createElement('p');
             msg.classList.add('text-red-500', 'text-sm', 'mt-1', 'error-message');
-            msg.textContent = 'Please enter a valid email.';
             if (!emailInput.nextElementSibling || !emailInput.nextElementSibling.classList.contains('error-message')) {
                 emailInput.insertAdjacentElement('afterend', msg);
             }
@@ -283,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
             phoneInput.classList.add('border-red-500', 'focus:ring-red-500');
             const msg = document.createElement('p');
             msg.classList.add('text-red-500', 'text-sm', 'mt-1', 'error-message');
-            msg.textContent = 'The number must contain digits only.';
+            msg.textContent = '{{ __('messages.The number must contain digits only.') }}';
             if (!phoneInput.nextElementSibling || !phoneInput.nextElementSibling.classList.contains('error-message')) {
                 phoneInput.insertAdjacentElement('afterend', msg);
             }

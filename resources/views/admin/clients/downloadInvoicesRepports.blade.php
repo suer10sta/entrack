@@ -149,9 +149,9 @@
         </div>
         <div class="details-right">
             <div class="header-info">
-                <h2>Invoices Table Reports</h2>
-                <h4>Client Name: {{ $client->name }}</h4>
-                <h4>Number of Invoices: {{ $invoices->count() }}</h4>
+                <h2>{{ __('messages.Invoices Table Reports') }}</h2>
+                <h4>{{ __('messages.Client Name') }}: {{ $client->name }}</h4>
+                <h4>{{ __('messages.Number of Invoices') }}: {{ $invoices->count() }}</h4>
             </div>
         </div>
     </div>
@@ -165,9 +165,9 @@
     <table>
         <thead>
             <tr>
-                <th>Invoice N</th>
-                <th>Project Name</th>
-                <th>Cost</th>
+                <th>{{ __('messages.Invoice N') }}</th>
+                <th>{{ __('messages.Project Name') }}</th>
+                <th>{{ __('messages.Cost') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -183,7 +183,7 @@
                     <span style="{{ $isOverdue ? 'color: red;' : '' }}">
                         {{$entreprise->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
                         @if($isOverdue)
-                            <span style="color: red;">({{ $daysOverdue }} days overdue)</span>
+                            <span style="color: red;">({{ $daysOverdue }} {{ __('messages.days overdue') }})</span>
                         @endif
                     </span>
                 </td>
@@ -220,22 +220,22 @@
     <div class="totals-summary">
             <div class="summary-row">
                 <div class="summary-item">
-                    <strong>Total Paid:</strong> <span class="paid">{{ number_format($paidTotal, 2, ',', ' ') }}€</span>
+                    <strong>{{ __('messages.Total Paid') }}:</strong> <span class="paid">{{ number_format($paidTotal, 2, ',', ' ') }}€</span>
                 </div>
                 <div class="summary-item">
-                    <strong>Total Unpaid:</strong> <span class="unpaid">{{ number_format($unpaidTotal, 2, ',', ' ') }}€</span>
+                    <strong>{{ __('messages.Total Unpaid') }}:</strong> <span class="unpaid">{{ number_format($unpaidTotal, 2, ',', ' ') }}€</span>
                 </div>
                 <div class="summary-item">
-                    <strong>Total TVA:</strong> <span>{{ number_format($totaltva, 2, ',', ' ') }}€</span>
+                    <strong>{{ __('messages.Total TVA') }}:</strong> <span>{{ number_format($totaltva, 2, ',', ' ') }}€</span>
                 </div>
                 <div class="summary-item">
-                    <strong>Total Budget:</strong> <span class="total">{{ number_format($totalCost, 2, ',', ' ') }}€</span>
+                    <strong>{{ __('messages.Total Budget') }}:</strong> <span class="total">{{ number_format($totalCost, 2, ',', ' ') }}€</span>
                 </div>
             </div>
     </div>
     <div class="footer">
-        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
-        <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
+        <div class='footer-right'>{{ __('messages.Page Number') }}: <span class="page-number"></span></div>
+        <div class='footer-left'>{{ __('messages.Download Date') }}: {{ date('d-m-Y') }}</div>
     </div>
 
 </div>

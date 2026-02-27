@@ -1,4 +1,4 @@
-<html xmlns='https://www.w3.org/1999/xhtml'>
+<html xmlns='https://www.w3.org/1999/xhtml' lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
@@ -32,7 +32,7 @@
                     </tr>
                     <table width='100%' cellspacing='0' cellpadding='0'>
                         <tr>
-                            <td valign='top' width='30%' style='font-size:12px;'>Date de La Note de Credit :
+                            <td valign='top' width='30%' style='font-size:12px;'>{{ __('messages.Credit Note Date') }} :
                                 <?php echo date('d-m-Y'); ?><br />
                                 
                             </td>
@@ -43,7 +43,7 @@
                                 {{ $client->billing_street }} <br />
                                 {{ $client->billing_zip }}-{{ $client->billing_city }} <br />
                                 {{ $client->billing_country }}<br/>
-                                TVA Client: {{ $client->TVA }}
+                                {{ __('messages.Client VAT') }}: {{ $client->TVA }}
                             </td>
                         </tr>
                     </table>
@@ -58,8 +58,8 @@
                                 $invoicenumber = request()->input('invoice_number');
                                 }
                                 @endphp
-                                <div align='center' style='font-size: 14px;font-weight: bold;'> Note De Credit : NC-{{date('ym')}}{{ str_pad($last_credit_note_number + 1, 3, '0', STR_PAD_LEFT) }} 
-                                      <br> Ref: {{$entreprise->invoice_prefix}}-{{date('ym')}}@if($invoicenumber){{$invoicenumber}} @else{{$invoice_id}} @endif</div>
+                                <div align='center' style='font-size: 14px;font-weight: bold;'> {{ __('messages.Credit Note') }} : NC-{{date('ym')}}{{ str_pad($last_credit_note_number + 1, 3, '0', STR_PAD_LEFT) }} 
+                                      <br> {{ __('messages.Ref') }}: {{$entreprise->invoice_prefix}}-{{date('ym')}}@if($invoicenumber){{$invoicenumber}} @else{{$invoice_id}} @endif</div>
                             </td>
                         </tr>
                     </table>
@@ -67,16 +67,16 @@
                         <tr>
 
                             <td width='35%' bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'>
-                                <strong>Désignation
+                                <strong>{{ __('messages.Designation') }}
                                 </strong>
                             </td>
-                            <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Duration</strong>
+                            <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Duration') }}</strong>
                             </td>
-                            <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Prix Unitaire</strong></td>
-                            <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Montant</strong>
+                            <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Unit Price') }}</strong></td>
+                            <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Amount') }}</strong>
                             </td>
                             @if($partial == 1)
-                            <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Montant Original</strong>
+                            <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Original Amount') }}</strong>
                             </td>
                             @endif
 
@@ -129,12 +129,12 @@
             <td>
                 <table width='100%' cellspacing='0' cellpadding='2' border='0'>
                     <tr>
-                        <td align='right' style='font-size:12px;'>Total HTVA</td>
+                        <td align='right' style='font-size:12px;'>{{ __('messages.Total Excl VAT') }}</td>
                         <td align='right' style='font-size:12px;'>-{{ number_format(abs($prixtotal), 2, ',', '') }}€
                         <td>
                     </tr>
                     <tr>
-                        <td align='right' style='font-size:12px;'>TVA
+                        <td align='right' style='font-size:12px;'>{{ __('messages.VAT') }}
                             
                             {{$projectinfos->tva}}%</td>
                         <td align='right' style='font-size:12px;'>-{{ number_format(abs($prixtotal*($projectinfos->tva/100)), 2, ',', '') }}€
@@ -142,7 +142,7 @@
                     </tr>
                     <tr>
 
-                        <td align='right' style='font-size:12px;'><b>Total TTC</b></td>
+                        <td align='right' style='font-size:12px;'><b>{{ __('messages.Total Incl VAT') }}</b></td>
                         <td align='right' style='font-size:12px;'><b>-{{number_format(abs($prixtotal + (abs($prixtotal)*($projectinfos->tva/100))), 2, ',', '')}}€</b></td>
                     </tr>
                 </table>
@@ -154,11 +154,11 @@
         <tr>
             <td style=' font-size:12px;text-align:justify ;border-top:double;border-bottom:double'>
                 @if($projectinfos->description)
-                <strong> - Informations :</strong><br>
+                <strong> - {{ __('messages.Information') }} :</strong><br>
                 {!! nl2br(e($projectinfos->description)) !!}<br>
                 @endif
                 @if($comment)
-                <strong>Commentaire:</strong><br>
+                <strong>{{ __('messages.Comment') }}:</strong><br>
                 {!! nl2br(e($comment)) !!}
                 @endif
             </td>
@@ -167,21 +167,21 @@
     @endif
 
     <div class="payment">
-            - Cette note de crédit annule @if($partial)partiellement @else totalement @endif la facture {{$entreprise->invoice_prefix}}-{{date('ym')}}{{$invoice->number}}
+            - {{ __('messages.This credit note cancels') }} @if($partial){{ __('messages.partially') }} @else {{ __('messages.totally') }} @endif {{ __('messages.the invoice') }} {{$entreprise->invoice_prefix}}-{{date('ym')}}{{$invoice->number}}
             <br>
-            - Dans le cas de livraison intracommunautaire pour les services :  "Autoliquidation Art 21 § 2 du code TVA belge"
+            - {{ __('messages.Intracommunity delivery services note') }}
             <br>
-            - Voir conditions générales en annexe
+            - {{ __('messages.See general conditions in annex') }}
         </div>
     <br>
 
     <table width='100%' cellspacing='0' cellpadding='2' border='1' bordercolor='#CCCCCC' '>
   <thead>
-    <td bordercolor=' #ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Nom de Tache</strong></td>
-        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Projet / Sous-projet</strong></td>
-        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Date de debut </strong></td>
-        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Date de Fin</strong></td>
-        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Duree</strong></td>
+    <td bordercolor=' #ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Task Name') }}</strong></td>
+        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Project / Subproject') }}</strong></td>
+        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Start Date') }} </strong></td>
+        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.End Date') }}</strong></td>
+        <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Duration') }}</strong></td>
 
         </thead>
         <tbody>
@@ -207,7 +207,7 @@
             </tr>
             @endforeach
             <tr>
-                <td colspan="4" style='font-size:12px; text-align: right;'><strong>Duree Total:</strong></td>
+                <td colspan="4" style='font-size:12px; text-align: right;'><strong>{{ __('messages.Total Duration') }}:</strong></td>
                 <td valign='top' style='font-size:12px;'>
                     {{ floor($totalMinutes / 60) }}h:{{ sprintf('%02d', $totalMinutes % 60) }}m</td>
             </tr>
@@ -229,16 +229,16 @@
         <tr>
             <td width='33%' style='border-top:double medium #CCCCCC;font-size:12px;' valign='top'>
                 <b>{{$entreprise->name}}</b><br />
-                <b>Numéro TVA:</b> {{ $entreprise->tva}} <br>
+                <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}} <br>
 
             </td>
             <td width='33%' style='border-top:double medium #CCCCCC; font-size:12px;' align='center' valign='top'>
                 {{$entreprise->Address}}<br />
-                Tél: 0{{$entreprise->phone}}<br />
+                {{ __('messages.Phone') }}: 0{{$entreprise->phone}}<br />
             </td>
 
             <td valign='top' width='34%' style='border-top:double medium #CCCCCC;font-size:12px;' align='right'>
-                BANK : {{$entreprise->bank_name}}<br /> IBAN : {{$entreprise->iban}} <br />SWIFT/BIC:
+                {{ __('messages.BANK') }} : {{$entreprise->bank_name}}<br /> {{ __('messages.IBAN') }} : {{$entreprise->iban}} <br />{{ __('messages.SWIFT/BIC') }}:
                 {{$entreprise->swift}} / {{$entreprise->bic}} <br />
             </td>
         </tr>
@@ -252,11 +252,11 @@
             <form action="{{ route('admin.creditNote.confirm', ['id' => $invoice->id, 'noteType' => $type, 'noteAmount' => $prixtotal]) }}" method="POST" style="display: inline-block;">
                 @csrf
                 <button type="submit" style="padding: 6px 12px; margin-bottom: 6px; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: green; border-color: green;">
-                    Confirm 
+                    {{ __('messages.Confirm') }} 
                 </button>
             </form>
             <a href="{{route('admin.invoices.invoicehistory')}}" style="padding: 6px 12px; margin-bottom: 6px; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: red; border-color: red;">
-                Decline
+                {{ __('messages.Decline') }}
             </a>
             @endif
 

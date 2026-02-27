@@ -120,16 +120,21 @@ th {
                                         <td>
                                             <p class="text-sm font-weight-bold mb-0">
                                                 @if($task->estimated_hours !== null)
-                                                    @if($task->estimated_hours * 60 > $totalduration)
+                                                    @php
+                                                        $estimatedMinutes = ($task->estimated_hours ?? 0) * 60;
+                                                        $consumedMinutes = ($task->consumed_hours ?? 0) * 60;
+                                                        $remainingMinutes = $estimatedMinutes - $consumedMinutes;
+                                                    @endphp
+                                                    @if($remainingMinutes > $totalduration)
                                                         @php
-                                                            $difference = $task->estimated_hours * 60 - $totalduration; // Convert estimated hours to minutes and subtract total duration
+                                                            $difference = $remainingMinutes - $totalduration;
                                                             $hours = floor($difference / 60);
                                                             $minutes = $difference % 60;
                                                         @endphp
                                                         <span style="color: #5ce65c;">+{{$hours}}h:{{$minutes}}m</span>
                                                     @else
                                                         @php
-                                                            $difference = $totalduration - $task->estimated_hours * 60; // Convert estimated hours to minutes and subtract from total duration
+                                                            $difference = $totalduration - $remainingMinutes;
                                                             $hours = floor($difference / 60);
                                                             $minutes = $difference % 60;
                                                         @endphp

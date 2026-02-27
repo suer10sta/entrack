@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar Events - {{ $monthName }}</title>
+    <title>{{ __('messages.Calendar Events Title', ['month' => $monthName]) }}</title>
     <style>
         * {
             margin: 0;
@@ -152,7 +152,7 @@
 <body>
     <div class="calendar-container">
         <div class="calendar-header">
-            <h2>Planning Calendar - {{ $monthName }}</h2>
+            <h2>{{ __('messages.Planning Calendar') }} - {{ $monthName }}</h2>
         </div>
         
         @php
@@ -216,13 +216,13 @@
         <table class="calendar-grid">
             <thead>
                 <tr>
-                    <th>Sun</th>
-                    <th>Mon</th>
-                    <th>Tue</th>
-                    <th>Wed</th>
-                    <th>Thu</th>
-                    <th>Fri</th>
-                    <th>Sat</th>
+                    <th>{{ __('messages.Sun short') }}</th>
+                    <th>{{ __('messages.Mon short') }}</th>
+                    <th>{{ __('messages.Tue short') }}</th>
+                    <th>{{ __('messages.Wed short') }}</th>
+                    <th>{{ __('messages.Thu short') }}</th>
+                    <th>{{ __('messages.Fri short') }}</th>
+                    <th>{{ __('messages.Sat short') }}</th>
                 </tr>
             </thead>
             <tbody>

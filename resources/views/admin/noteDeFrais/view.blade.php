@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -190,19 +190,19 @@
 
         <div class="details">
             <div class="details-left">
-                <p>Date de la note de frais: <?php echo date('d-m-Y'); ?><br />
+                <p>{{ __('messages.Expense Note Date') }}: <?php echo date('d-m-Y'); ?><br />
                 </p>
             </div>
             @php
                 $notedefrais = App\Models\note_de_frais::where('id',$notedefrais_id)->first();
             @endphp
             <div class="details-right">
-                Employé : {{ $notedefrais->employee_name }}<br />
+                {{ __('messages.Employee') }} : {{ $notedefrais->employee_name }}<br />
             </div>
         </div>
 
         <div class="invoice-number">
-            <h2>Note de Frais : {{$entreprise->notedefraisPrefix}}-{{date('ym')}}{{$note_number}}</h2>
+            <h2>{{ __('messages.Expense Note') }} : {{$entreprise->notedefraisPrefix}}-{{date('ym')}}{{$note_number}}</h2>
         </div>
 <br><br>
 @php 
@@ -215,9 +215,9 @@
         <table>
             <thead>
                 <tr>
-                    <th>Details </th>
-                    <th>Quantité</th>
-                    <th>Frais</th>
+                    <th>{{ __('messages.Details') }} </th>
+                    <th>{{ __('messages.Quantity') }}</th>
+                    <th>{{ __('messages.Expense') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -234,14 +234,14 @@
                 </tr>
             @endforeach
             <tr>
-                <td><strong>Total : </strong></td>
+                <td><strong>{{ __('messages.Total') }} : </strong></td>
                 <td><strong>{{$Total_quantity}}</strong></td>
                 <td><strong>{{$budget}}€</strong></td>
             </tr>
             </tbody>
         </table>
 
-        <h3>Description : </h3>
+        <h3>{{ __('messages.Description') }} : </h3>
 
         <style>
         .detailsTab  {
@@ -268,17 +268,17 @@
         <div style="float: left; width: 30%; height: 80%;text-align: center;">
             <b>{{ $entreprise->name }}</b>
             <br>
-            <b>Numéro TVA:</b> {{ $entreprise->tva}}
+            <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
         </div>
         <div style="float: left; margin-left: 5%; width: 30%; height: 80%; text-align: center;">
             {{ $entreprise->Address }}
             <br>
-            Tél: 0{{ $entreprise->phone }}
+            {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
         </div>
         <div style="float: left; margin-left: 5%; width: 30%; height: 80%; text-align: center;">
-            <b>BANK</b> : {{ $entreprise->bank_name }} <br>
-            <b>IBAN</b> : {{ $entreprise->iban }} <br>
-            <b>SWIFT/BIC</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
+            <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }} <br>
+            <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }} <br>
+            <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
         </div>
     </div>
 </body>

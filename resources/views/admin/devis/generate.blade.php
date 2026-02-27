@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Devis - DalyTrac</title>
+    <title>{{ __('messages.New Devis - DalyTrac') }}</title>
     @vite('resources/css/app.css')
     @livewireStyles
     <style>
@@ -57,7 +57,7 @@
                 {{-- Session Message --}}
                 @if(session('message'))
                 <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                    <strong class="font-bold">Success!</strong>
+                    <strong class="font-bold">{{ __('messages.Success!') }}</strong>
                     <span class="block sm:inline">{{ session('message') }}</span>
                     <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
                 </div>
@@ -68,8 +68,8 @@
                     
                     {{-- Card Header --}}
                     <div class="p-6 border-b border-gray-200">
-                        <h6 class="text-lg font-semibold text-gray-900">New Devis</h6>
-                        <p class="text-sm text-gray-600 mt-1">Create new Offer</p>
+                        <h6 class="text-lg font-semibold text-gray-900">{{ __('messages.New Devis') }}</h6>
+                        <p class="text-sm text-gray-600 mt-1">{{ __('messages.Create new Offer') }}</p>
                     </div>
 
                     {{-- Card Body --}}
@@ -93,21 +93,21 @@
                             {{-- Project Type Row --}}
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
-                                    <label for="projectType" class="block text-sm font-medium text-gray-700 mb-1">Select Project Type <span class="text-red-600">*</span></label>
+                                    <label for="projectType" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Select Project Type') }} <span class="text-red-600">*</span></label>
                                     <select class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom" id="projectType" name="project_type" onchange="toggleProjectInputs()">
-                                        <option value="">Select</option>
-                                        <option value="new">New Project</option>
-                                        <option value="existing">Existing Project</option>
+                                        <option value="">{{ __('messages.Select option') }}</option>
+                                        <option value="new">{{ __('messages.New Project') }}</option>
+                                        <option value="existing">{{ __('messages.Existing Project') }}</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label for="projectName" class="block text-sm font-medium text-gray-700 mb-1">New Project Name <span class="text-red-600">*</span></label>
+                                    <label for="projectName" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.New Project Name') }} <span class="text-red-600">*</span></label>
                                     <input type="text" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 bg-gray-100" id="projectName" name="Project_name" disabled />
                                 </div>
                                 <div>
-                                    <label for="existingProjectName" class="block text-sm font-medium text-gray-700 mb-1">Existing Project Name <span class="text-red-600">*</span></label>
+                                    <label for="existingProjectName" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Existing Project Name') }} <span class="text-red-600">*</span></label>
                                     <select class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom bg-gray-100" id="existingProjectName" name="Existing_project_id" disabled onchange="populateProjectDetails()">
-                                        <option value="">Select a project</option>
+                                        <option value="">{{ __('messages.Select a project') }}</option>
                                         @foreach($projects as $project)
                                             <option
                                                 value="{{ $project->id }}"
@@ -124,11 +124,11 @@
                             {{-- Project Details Row --}}
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                                 <div>
-                                    <label for="projectBudget" class="block text-sm font-medium text-gray-700 mb-1">Total Budget</label>
+                                    <label for="projectBudget" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Total Budget') }}</label>
                                     <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 bg-gray-100" id="projectBudget" name='budget' readonly/>
                                 </div>
                                 <div>
-                                    <label for="projectTva" class="block text-sm font-medium text-gray-700 mb-1">Project TVA</label>
+                                    <label for="projectTva" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Project TVA') }}</label>
                                     <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" id="projectTva" name='project_tva' />
                                 </div>
                             </div>
@@ -136,7 +136,7 @@
                             {{-- Devis Type Row (Forfait / Hourly / Detailed Hourly) --}}
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                                 <div>
-                                    <span class="block text-sm font-medium text-gray-700 mb-1">Devis Type <span class="text-red-600">*</span></span>
+                                    <span class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Devis Type') }} <span class="text-red-600">*</span></span>
                                     <div class="mt-2 flex items-center space-x-6">
                                         <label class="inline-flex items-center">
                                             <input type="radio"
@@ -145,7 +145,7 @@
                                                    value="forfait"
                                                    class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                                    checked>
-                                            <span class="ml-2 text-sm text-gray-700">Fixed Price</span>
+                                            <span class="ml-2 text-sm text-gray-700">{{ __('messages.Fixed Price') }}</span>
                                         </label>
                                         <label class="inline-flex items-center">
                                             <input type="radio"
@@ -153,7 +153,7 @@
                                                    id="billingHoraire"
                                                    value="horaire"
                                                    class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                            <span class="ml-2 text-sm text-gray-700">Hourly</span>
+                                            <span class="ml-2 text-sm text-gray-700">{{ __('messages.Hourly') }}</span>
                                         </label>
                                         <label class="inline-flex items-center">
                                             <input type="radio"
@@ -161,7 +161,7 @@
                                                    id="billingDetailedHourly"
                                                    value="detailed_hourly"
                                                    class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                            <span class="ml-2 text-sm text-gray-700">Detailed Hourly</span>
+                                            <span class="ml-2 text-sm text-gray-700">{{ __('messages.Detailed Hourly') }}</span>
                                         </label>
                                     </div>
                                 </div>
@@ -170,7 +170,7 @@
                             {{-- Hourly Inputs (shown when Hourly is selected) --}}
                             <div id="hourlyInputs" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6" style="display: none;">
                                 <div>
-                                    <label for="hourlyHours" class="block text-sm font-medium text-gray-700 mb-1">Number of hours</label>
+                                    <label for="hourlyHours" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Number of hours') }}</label>
                                     <input type="number"
                                            step="0.01"
                                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
@@ -178,7 +178,7 @@
                                            name="hours">
                                 </div>
                                 <div>
-                                    <label for="hourlyAmount" class="block text-sm font-medium text-gray-700 mb-1">Amount per hour (€)</label>
+                                    <label for="hourlyAmount" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Amount per hour (€)') }}</label>
                                     <input type="number"
                                            step="0.01"
                                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
@@ -189,34 +189,34 @@
 
                             {{-- Description --}}
                             <div class="mt-6">
-                                <label for="projectDescription" class="block text-sm font-medium text-gray-700 mb-1">Devis Description <span class="text-red-600">*</span></label>
+                                <label for="projectDescription" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Devis Description') }} <span class="text-red-600">*</span></label>
                                 <textarea class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" id="projectDescription" rows="5" name="description"></textarea>
                             </div>
                             
                             {{-- Dynamic Inputs (Tasks) --}}
                             <div id="devisDetailsSection" class="mt-6">
-                                <label class="block text-base font-semibold text-gray-800 mb-2">Devis Details</label>
+                                <label class="block text-base font-semibold text-gray-800 mb-2">{{ __('messages.Devis Details') }}</label>
                                 <div id="dynamicInput" class="space-y-4">
                                     {{-- Initial Row --}}
                                     <div class="grid grid-cols-12 gap-4 p-4 border border-gray-200 rounded-lg detail-row">
                                         <div class="col-span-12 md:col-span-4">
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Details <span class="text-red-600">*</span></label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Details label') }} <span class="text-red-600">*</span></label>
                                             <textarea class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" name="task[]" rows="3"></textarea>
                                         </div>
                                         <div class="col-span-12 md:col-span-2 task-hours-column" style="display: none;">
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of Hours <span class="text-red-600">*</span></label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Number of Hours') }} <span class="text-red-600">*</span></label>
                                             <input type="number" step="0.01" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskHours" name="taskHours[]" />
                                         </div>
                                         <div class="col-span-12 md:col-span-2 task-budget-column">
-                                            <label class="block text-sm font-medium text-gray-700 mb-1 budget-label">Budget <span class="text-red-600">*</span></label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1 budget-label">{{ __('messages.Budget label devis') }} <span class="text-red-600">*</span></label>
                                             <input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskBudget" name="taskBudget[]" />
                                         </div>
                                         <div class="col-span-12 md:col-span-2 task-cost-per-hour-column" style="display: none;">
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Cost per Hour <span class="text-red-600">*</span></label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Cost per Hour') }} <span class="text-red-600">*</span></label>
                                             <input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskCostPerHour" name="taskCostPerHour[]" />
                                         </div>
                                         <div class="col-span-12 md:col-span-2 task-total-column">
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Total</label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Total label devis') }}</label>
                                             <input type="text" class="block w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 sm:text-sm py-2 px-3 taskTotal" readonly />
                                         </div>
                                         <div class="col-span-12 md:col-span-1 flex items-end">
@@ -230,11 +230,11 @@
                                 <div class="flex space-x-2 mt-4">
                                     <button type="button" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm" onclick="addInput('dynamicInput');">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>
-                                        Add
+                                        {{ __('messages.Add Row Devis') }}
                                     </button>
                                     <button type="button" class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg text-sm" onclick="removeInput('dynamicInput');">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-                                        Delete
+                                        {{ __('messages.Delete Row Devis') }}
                                     </button>
                                 </div>
                             </div>
@@ -243,73 +243,73 @@
                             <hr class="border-gray-200 my-6" />
 
                             {{-- Client Informations --}}
-                            <h5 class="text-lg font-semibold text-gray-900 mb-4">Client Information</h5>
+                            <h5 class="text-lg font-semibold text-gray-900 mb-4">{{ __('messages.Client Information') }}</h5>
                             
                             {{-- New Client Checkbox --}}
                             <div class="flex items-center mb-4">
                                 <input type="checkbox" id="newClientCheckbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                <label for="newClientCheckbox" class="ml-2 block text-sm font-medium text-gray-900">New Client</label>
+                                <label for="newClientCheckbox" class="ml-2 block text-sm font-medium text-gray-900">{{ __('messages.New Client') }}</label>
                             </div>
 
                             {{-- New Client Form --}}
                             <div id="clientInputs" style="display: none;" class="p-4 border border-gray-200 rounded-lg space-y-4 mb-6">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Name : <span class="text-red-600">*</span></label>
-                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="Full Name" name="newclient_name" />
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Name field') }} <span class="text-red-600">*</span></label>
+                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="{{ __('messages.Full Name placeholder') }}" name="newclient_name" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Client Number : <span class="text-red-600">*</span></label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Client Number field') }} <span class="text-red-600">*</span></label>
                                         @error('client_number')
                                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                                         @enderror
-                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="number" placeholder="Client Number" name="newclient_number" />
+                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="number" placeholder="{{ __('messages.Client Number placeholder') }}" name="newclient_number" />
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number : </label>
-                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="number" placeholder="Phone Number" name="newclient_phone" />
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Phone Number field') }} </label>
+                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="number" placeholder="{{ __('messages.Phone Number placeholder') }}" name="newclient_phone" />
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Street : <span class="text-red-600">*</span></label>
-                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="Your Full Address Here" name="newclient_street" />
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Street field') }} <span class="text-red-600">*</span></label>
+                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="{{ __('messages.Your Full Address Here') }}" name="newclient_street" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">City : <span class="text-red-600">*</span></label>
-                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="City" name="newclient_city" />
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.City field') }} <span class="text-red-600">*</span></label>
+                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="{{ __('messages.City placeholder') }}" name="newclient_city" />
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Zip Code : <span class="text-red-600">*</span></label>
-                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="number" placeholder="Zip Code " name="newclient_zip" />
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Zip Code field') }} <span class="text-red-600">*</span></label>
+                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="number" placeholder="{{ __('messages.Zip Code placeholder') }}" name="newclient_zip" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Country : <span class="text-red-600">*</span></label>
-                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="Country" name="newclient_country" />
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Country field') }} <span class="text-red-600">*</span></label>
+                                        <input class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" type="text" placeholder="{{ __('messages.Country placeholder') }}" name="newclient_country" />
                                     </div>
                                 </div>
                                 <div class="pt-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Emails </label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Emails') }} </label>
                                     <textarea class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" id="emails" name="emails" rows="4"></textarea>
-                                    <p class="text-sm text-gray-500 mt-1">Enter recipient email addresses, separated by commas</p>
+                                    <p class="text-sm text-gray-500 mt-1">{{ __('messages.Enter recipient email addresses, separated by commas') }}</p>
                                 </div>
                             </div>
                             
                             {{-- Existing Client & Contacts --}}
                             <div class="existing-client-section grid grid-cols-1 md:grid-cols-3 gap-6" style="display: {{ old('emails') === null ? 'grid' : 'none' }}">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1" for="clientSelect">Client for Project:</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1" for="clientSelect">{{ __('messages.Client for Project:') }}</label>
                                     <select
                                         id="clientSelect" 
                                         name="client"
                                         class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom"
                                     >
-                                        <option value="">Choose Client</option>
-                                        <option value="none">None</option>
+                                        <option value="">{{ __('messages.Choose Client') }}</option>
+                                        <option value="none">{{ __('messages.None option') }}</option>
                                         @foreach($clients as $client)
                                             <option value="{{ $client->id }}">
                                                 {{ $client->client_number }} - {{ $client->name }}
@@ -319,7 +319,7 @@
                                     </select>
                                 </div>
                                 <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1" for="project-for-project">Contacts :</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1" for="project-for-project">{{ __('messages.Contacts :') }}</label>
                                     <div class="col-8" id="contactsDiv">
                                     </div>
                                 </div>
@@ -328,19 +328,19 @@
                             {{-- Form Actions --}}
                             <div class="flex justify-end items-center mt-8 pt-6 border-t border-gray-200 space-x-3">
                                 @if(Auth::user()->hasRole('Responsable de projet'))
-                                    <a class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300' href="{{route('Responsable_de_projet.index')}}">Cancel</a>
+                                    <a class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300' href="{{route('Responsable_de_projet.index')}}">{{ __('messages.Cancel Devis') }}</a>
                                 @endif
                                 @if(Auth::user()->hasRole('Admin'))
-                                    <a class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300' href="{{route('admin.index')}}">Cancel</a>
+                                    <a class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300' href="{{route('admin.index')}}">{{ __('messages.Cancel Devis') }}</a>
                                 @endif
                                 @if(Auth::user()->hasRole('Employee'))
-                                    <a class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300' href="{{route('employee.index')}}">Cancel</a>
+                                    <a class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300' href="{{route('employee.index')}}">{{ __('messages.Cancel Devis') }}</a>
                                 @endif
                                 @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                    <a class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300' href="{{route('Responsable_gestionnaire.index')}}">Cancel</a>
+                                    <a class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300' href="{{route('Responsable_gestionnaire.index')}}">{{ __('messages.Cancel Devis') }}</a>
                                 @endif
                                 <button type="submit" name="button" class="bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2.5 rounded-lg">
-                                    Generate Devis
+                                    {{ __('messages.Generate Devis') }}
                                 </button>
                             </div>
                         </form>
@@ -425,7 +425,7 @@
             button.closest('.detail-row').remove();
             updateProjectBudget();
         } else {
-            alert('At least one detail row must remain.');
+            alert(@json(__('messages.At least one detail row must remain.')));
         }
     }
 
@@ -465,7 +465,7 @@
 
                 if (!clientId || clientId === 'none') {
                     contactsDiv.innerHTML = clientId === 'none'
-                        ? '<p class="text-sm text-gray-500 mt-2">No contacts found.</p>'
+                        ? '<p class="text-sm text-gray-500 mt-2">' + @json(__('messages.No contacts found.')) + '</p>'
                         : '';
                     return;
                 }
@@ -493,7 +493,7 @@
                     const contactsDiv = $('#contactsDiv');
                     contactsDiv.empty(); 
                     if(data.length === 0) {
-                         contactsDiv.html('<p class="text-sm text-gray-500 mt-2">No contacts found.</p>');
+                         contactsDiv.html('<p class="text-sm text-gray-500 mt-2">' + @json(__('messages.No contacts found.')) + '</p>');
                          return;
                     }
                     data.forEach(function(contact) {
@@ -510,7 +510,7 @@
                 },
                 error: function(xhr, status, error) {
                     console.error('Error loading contacts:', error);
-                    $('#contactsDiv').html('<div class="text-red-600 text-sm p-2">Error loading contacts</div>');
+                    $('#contactsDiv').html('<div class="text-red-600 text-sm p-2">' + @json(__('messages.Error loading contacts devis')) + '</div>');
                 }
             });
         }

@@ -73,11 +73,13 @@ class projectController extends Controller
     public function store(Request $request, $client_id)
     {
         $project = new Project();
-        $project->parent_id = $request->input('parent_id');
+        $parentProjectId = $request->input('parent_id');
+        $project->parent_id = $parentProjectId;
         $project->name = $request->name;
         $project->description = $request->description;
         $project->budget = $request->budget;
-        $project->cost_per_hour = $request->cost_per_hour;
+        // Ensure CPH is never null/empty when creating a project
+        $project->cost_per_hour = ($request->cost_per_hour === null || $request->cost_per_hour === '') ? 0 : $request->cost_per_hour;
         $project->status = 0;
         $project->regie = $request->has('regie') ? 1 : 0;
         $project->tva = $request->tva;
@@ -118,6 +120,21 @@ class projectController extends Controller
             $contact_projects->save();
         }
 
+        if ($parentProjectId) {
+            if(Auth::user()->hasRole('Admin')){
+                return redirect()->route('admin.projects.show', $parentProjectId);
+            }
+            if(Auth::user()->hasRole('Responsable de projet')){
+                return redirect()->route('Responsable_de_projet.projects.show', $parentProjectId);
+            }
+            if(Auth::user()->hasRole('Responsable de projet et gestionnaire')){
+                return redirect()->route('Responsable_gestionnaire.projects.show', $parentProjectId);
+            }
+            if(Auth::user()->hasRole('Employee')){
+                return redirect()->route('employee.projects.show', $parentProjectId);
+            }
+        }
+
         if(Auth::user()->hasRole('Admin')){
             return redirect()->route('admin.clients.show', $client_id);
         }
@@ -126,6 +143,9 @@ class projectController extends Controller
         }
         if(Auth::user()->hasRole('Responsable de projet et gestionnaire')){
             return redirect()->route('Responsable_gestionnaire.clients.show', $client_id);
+        }
+        if(Auth::user()->hasRole('Employee')){
+            return redirect()->route('employee.clients.show', $client_id);
         }
     }
 
@@ -229,7 +249,8 @@ class projectController extends Controller
         $project = Project::find($id);
         $project->name = $request->name;
         $project->budget = $request->budget;
-        $project->cost_per_hour = $request->cost_per_hour;
+        // Normalize empty CPH to 0 when updating as well
+        $project->cost_per_hour = ($request->cost_per_hour === null || $request->cost_per_hour === '') ? 0 : $request->cost_per_hour;
         $project->estimated_hours = $request->estimated_hours;
         $project->tva = $request->tva;
         $project->description = $request->description;
@@ -303,6 +324,7 @@ class projectController extends Controller
     {
         $project = Project::find($id);
         $client_id = $project->client_id;
+        $parentProjectId = $project->parent_id;
         $tasks = Tasks::where('project_id', $id)->get();
         foreach ($tasks as $task) {
             $employees_tasks = employees_tasks::where('task_id', $task->id)->get();
@@ -321,6 +343,22 @@ class projectController extends Controller
             $team->delete();
         }
         $project->delete();
+
+        if ($parentProjectId) {
+            if(Auth::user()->hasRole('Admin')){
+                return redirect()->route('admin.projects.show', $parentProjectId);
+            }
+            if(Auth::user()->hasRole('Responsable de projet')){
+                return redirect()->route('Responsable_de_projet.projects.show', $parentProjectId);
+            }
+            if(Auth::user()->hasRole('Responsable de projet et gestionnaire')){
+                return redirect()->route('Responsable_gestionnaire.projects.show', $parentProjectId);
+            }
+            if(Auth::user()->hasRole('Employee')){
+                return redirect()->route('employee.projects.show', $parentProjectId);
+            }
+        }
+
         if(Auth::user()->hasRole('Admin')){
             return redirect()->route('admin.clients.show', $client_id);
         }
@@ -329,6 +367,9 @@ class projectController extends Controller
         }
         if(Auth::user()->hasRole('Responsable de projet et gestionnaire')){
             return redirect()->route('Responsable_gestionnaire.clients.show', $client_id);
+        }
+        if(Auth::user()->hasRole('Employee')){
+            return redirect()->route('employee.clients.show', $client_id);
         }
     }
 

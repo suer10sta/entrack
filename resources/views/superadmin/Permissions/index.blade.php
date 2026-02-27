@@ -40,7 +40,29 @@
                     
                     @forelse($permissions as $permission)
                       <tr class="text-center">
-                        <td>{{$permission->name}}</td>
+                        @php
+                          $permissionRawName = trim($permission->name);
+                          $permissionCandidates = array_values(array_unique([
+                            $permissionRawName,
+                            strtolower($permissionRawName),
+                            strtoupper($permissionRawName),
+                            str_replace(['_', '-'], ' ', $permissionRawName),
+                            ucwords(strtolower(str_replace(['_', '-'], ' ', $permissionRawName))),
+                            str_replace(' ', '_', $permissionRawName),
+                            strtolower(str_replace(' ', '_', $permissionRawName)),
+                            strtoupper(str_replace(' ', '_', $permissionRawName)),
+                          ]));
+                          $permissionLabel = $permissionRawName;
+                          foreach ($permissionCandidates as $candidate) {
+                            $candidateKey = 'messages.' . $candidate;
+                            $translated = __($candidateKey);
+                            if ($translated !== $candidateKey) {
+                              $permissionLabel = $translated;
+                              break;
+                            }
+                          }
+                        @endphp
+                        <td>{{ $permissionLabel }}</td>
                         <td>
                           <a href="{{route('superadmin.permissions.edit', $permission->id)}}" class="btn btn-primary btn-sm">Edit</a>
                           <form action="{{route('superadmin.permissions.destroy',$permission->id) }}" method="post" onsubmit="return confirm('Are you sure?');" class="d-inline">

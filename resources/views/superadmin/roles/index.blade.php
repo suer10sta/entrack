@@ -40,11 +40,55 @@
                     <tbody>
                     @foreach($roles as $role)
                       <tr class="text-center">
-                        <td>{{$role->name}}</td>
+                        @php
+                          $roleRawName = trim($role->name);
+                          $roleCandidates = array_values(array_unique([
+                            $roleRawName,
+                            strtolower($roleRawName),
+                            strtoupper($roleRawName),
+                            str_replace(['_', '-'], ' ', $roleRawName),
+                            ucwords(strtolower(str_replace(['_', '-'], ' ', $roleRawName))),
+                            str_replace(' ', '_', $roleRawName),
+                            strtolower(str_replace(' ', '_', $roleRawName)),
+                            strtoupper(str_replace(' ', '_', $roleRawName)),
+                          ]));
+                          $roleLabel = $roleRawName;
+                          foreach ($roleCandidates as $candidate) {
+                            $candidateKey = 'messages.' . $candidate;
+                            $translated = __($candidateKey);
+                            if ($translated !== $candidateKey) {
+                              $roleLabel = $translated;
+                              break;
+                            }
+                          }
+                        @endphp
+                        <td>{{ $roleLabel }}</td>
                         <td>
                           @if($role->permissions->count() > 0)
                             @foreach($role->permissions as $per)
-                            <span class="badge bg-gradient-success">{{$per->name}}</span>
+                            @php
+                              $permissionRawName = trim($per->name);
+                              $permissionCandidates = array_values(array_unique([
+                                $permissionRawName,
+                                strtolower($permissionRawName),
+                                strtoupper($permissionRawName),
+                                str_replace(['_', '-'], ' ', $permissionRawName),
+                                ucwords(strtolower(str_replace(['_', '-'], ' ', $permissionRawName))),
+                                str_replace(' ', '_', $permissionRawName),
+                                strtolower(str_replace(' ', '_', $permissionRawName)),
+                                strtoupper(str_replace(' ', '_', $permissionRawName)),
+                              ]));
+                              $permissionLabel = $permissionRawName;
+                              foreach ($permissionCandidates as $candidate) {
+                                $candidateKey = 'messages.' . $candidate;
+                                $translated = __($candidateKey);
+                                if ($translated !== $candidateKey) {
+                                  $permissionLabel = $translated;
+                                  break;
+                                }
+                              }
+                            @endphp
+                            <span class="badge bg-gradient-success">{{ $permissionLabel }}</span>
                             @endforeach
                           @else
                             <span class="badge bg-gradient-danger">No permissions</span>

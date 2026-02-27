@@ -108,8 +108,8 @@ thead {
         </div>
         <div class="details-right">
             <div class="header-info">
-                <h2>Projects Table Reports</h2>
-                <h5>Number of Projects: {{ $projects->count() }}</h5>
+                <h2>{{ __('messages.Projects Table Reports') }}</h2>
+                <h5>{{ __('messages.Number of Projects') }}: {{ $projects->count() }}</h5>
             </div>
         </div>
     </div>
@@ -117,13 +117,13 @@ thead {
     <table>
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Budget</th>
-                <th>Cost Per Hour</th>
-                <th>Estimated Hours</th>
-                <th>TVA</th>
-                <th>Client Name</th>
-                <th>Informations</th>
+                <th>{{ __('messages.Project Name') }}</th>
+                <th>{{ __('messages.Budget') }}</th>
+                <th>{{ __('messages.Cost Per Hour') }}</th>
+                <th>{{ __('messages.Estimated Hours') }}</th>
+                <th>{{ __('messages.VAT') }}</th>
+                <th>{{ __('messages.Client Name') }}</th>
+                <th>{{ __('messages.Informations') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -145,8 +145,8 @@ thead {
     </table>
 
     <div class="footer">
-        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
-        <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
+        <div class='footer-right'>{{ __('messages.Page Number') }}: <span class="page-number"></span></div>
+        <div class='footer-left'>{{ __('messages.Download Date') }}: {{ date('d-m-Y') }}</div>
     </div>
 
 </div>

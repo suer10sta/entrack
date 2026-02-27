@@ -212,6 +212,19 @@
       </li>
       @endcan 
 
+      @php
+          $currentUser = Auth::user();
+      @endphp
+      @if($currentUser && (int) ($currentUser->entreprise_id ?? 0) === 43)
+      <li class="nav-item">
+        <a class="nav-link active" href="{{ route('manager.direct-dashboard') }}">
+          <span class="sidenav-mini-icon text-sm"> M </span>
+          <i class="fa-solid fa-chart-line" style="color: #0d6efd;"></i>
+          <span class="sidenav-normal"> Manager Dashboard <b class="nav-link-text ms-1"></b></span>
+        </a>
+      </li>
+      @endif
+
       <li class="nav-item">
         <a class="nav-link active" data-bs-toggle="collapse" aria-expanded="false" href="#administartionCollapse">
           <span class="sidenav-mini-icon"> P </span>
@@ -264,6 +277,15 @@
         </a>
       </li>
       @endcan
+
+      {{-- Help / Support: enterprise-optimized support interface --}}
+      <li class="nav-item">
+        <a class="nav-link active" href="{{ route('admin.support.create') }}">
+          <span class="sidenav-mini-icon text-sm"> ? </span>
+          <i class="fa-regular fa-circle-question" style="color: #0d6efd;"></i>
+          <span class="sidenav-normal"> Help &amp; Support <b class="nav-link-text ms-1"></b></span>
+        </a>
+      </li>
 
 
     </ul>

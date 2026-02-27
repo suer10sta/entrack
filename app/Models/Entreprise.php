@@ -46,6 +46,9 @@ class Entreprise extends Model
         'phone',
         'email',
         'Address',
+        'country',
+        'city',
+        'zip_code',
         'image', 
         'is_activated', 
         'duration',
@@ -81,6 +84,19 @@ class Entreprise extends Model
         'auto_renew',
     ];
 
+    public function getAddressAttribute($value)
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+
+        $parts = array_filter([$this->country, $this->city, $this->zip_code], function ($part) {
+            return !is_null($part) && $part !== '';
+        });
+
+        return implode(', ', $parts);
+    }
+
     protected $casts = [
         'trial_ends_at' => 'datetime',
         'auto_renew' => 'boolean',
@@ -106,11 +122,18 @@ class Entreprise extends Model
             User::where('entreprise_id', $entrepriseId)->delete();
             Employees::where('entreprise_id', $entrepriseId)->delete();
 
-            // Roles / permissions scoped to this entreprise
-            EnterpriseRolePermission::where('entreprise_id', $entrepriseId)->delete();
-            Permission::where('entreprise_id', $entrepriseId)->delete();
-            Role::where('entreprise_id', $entrepriseId)->delete();
-
+            // Roles / permissions
+            //
+            // IMPORTANT:
+            // - Roles and permissions are shared across entreprises (platform-wide),
+            //   and are linked to a specific entreprise through the
+            //   `enterprise_role_permissions` pivot table.
+            // - Deleting entries directly from `roles` or `permissions` here can
+            //   accidentally wipe global roles/permissions for all entreprises.
+            //
+            // So when an entreprise is deleted we only remove its links in the
+            // pivot table and leave the master roles/permissions intact.
+            
             // Financial configuration and budgets
             smtpConfig::where('entreprise_id', $entrepriseId)->delete();
             entrepriseCharges::where('entreprise_id', $entrepriseId)->delete();
@@ -146,9 +169,7 @@ class Entreprise extends Model
             devis_history::where('entreprise_id', $entrepriseId)->delete();
             note_de_frais::where('entreprise_id', $entrepriseId)->delete();
             credit_note::where('entreprise_id', $entrepriseId)->delete();
-            invoices_history::where('entreprise_id', $entrepriseId)
-                ->orWhere('entrepeise_id', $entrepriseId)
-                ->delete();
+            invoices_history::where('entreprise_id', $entrepriseId)->delete();
 
             // Finally delete the entreprise record itself
             $this->delete();

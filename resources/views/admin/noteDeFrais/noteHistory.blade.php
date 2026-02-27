@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoices History - DalyTrac</title>
+    <title>{{ __('messages.Expense Note History - DalyTrac') }}</title>
     @vite('resources/css/app.css') 
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -27,8 +27,8 @@
         {{--  Header Section --}}
             <div class="flex flex-wrap justify-between items-center gap-4">
                 <div>
-                    <h1 class="text-2xl font-semibold text-gray-900">Expense Note History</h1>
-                    <p class="text-sm text-gray-500">Track and manage all expense notes</p>
+                    <h1 class="text-2xl font-semibold text-gray-900">{{ __('messages.Expense Note History') }}</h1>
+                    <p class="text-sm text-gray-500">{{ __('messages.Track and manage all expense notes') }}</p>
                 </div>
                 <div class="flex items-center gap-3">
                 <button type="button" id="openDevisReportModal" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
@@ -36,7 +36,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        Expense Note Reports PDF 
+                        {{ __('messages.Expense Note Reports PDF') }} 
                     </button>
                 </div>
             </div>
@@ -49,13 +49,13 @@
                 {{-- Date Pickers --}}
                 <div class="flex flex-wrap items-end gap-4">
                     <div>
-                        <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                        <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Start Date') }}</label>
                         <input type="date" id="startDate" placeholder="jj/mm/aaaa"
                         class="block w-44 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                     </div>
                     
                     <div>
-                        <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                        <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.End Date') }}</label>
                         <input type="date" id="endDate" placeholder="jj/mm/aaaa"
                         class="block w-44 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                     </div>
@@ -69,7 +69,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-xs text-gray-500 uppercase font-medium">TOTAL ACCEPTED</p>
+                    <p class="text-xs text-gray-500 uppercase font-medium">{{ __('messages.TOTAL ACCEPTED') }}</p>
                     <p class="text-xl font-semibold text-green-600">€{{ number_format($Total_budget, 2, ',', ' ') }}</p>
                 </div>
             </div>
@@ -82,11 +82,11 @@
                     <table class="w-full min-w-full divide-y divide-gray-200" >
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Note N</th>
-                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Employee Name</th>
-                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase tracking-wider">Budget</th>
-                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider">Created at</th>
-                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">{{ __('messages.Note N') }}</th>
+                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">{{ __('messages.Employee Name') }}</th>
+                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase tracking-wider">{{ __('messages.Budget') }}</th>
+                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider">{{ __('messages.Created at expense') }}</th>
+                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase tracking-wider">{{ __('messages.Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -149,7 +149,7 @@
                                 </a>
                                         @can('Delete expense note') 
                                             @if($delRoute !== '#') 
-                                            <form action="{{ $delRoute }}" method="post" onsubmit="return confirm('Are you sure you want to delete this expense note?');" class="inline">
+                                            <form action="{{ $delRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure you want to delete this expense note?') }}');" class="inline">
                                     @csrf 
                                     @method('DELETE') 
                                     <button type="submit" title="Delete"
@@ -168,7 +168,7 @@
                             @empty 
                                 <tr>
                                     <td colspan="5" class="text-center px-4 py-6 text-gray-500">
-                                        No expense notes found matching your criteria.
+                                        {{ __('messages.No expense notes found matching your criteria.') }}
                                     </td>
                                 </tr>
                             @endforelse 
@@ -275,10 +275,10 @@
                 <button type="button" id="closeDevisReportModal" class="text-gray-400 hover:text-gray-600">&times;</button>
             </div>
             <div class="p-6">
-                <p class="text-sm text-gray-700">The report will use the Start Date and End Date you selected on the main page. If no dates are selected, all records will be downloaded.</p>
+                <p class="text-sm text-gray-700">{{ __('messages.The report will use the Start Date and End Date you selected on the main page. If no dates are selected, all records will be downloaded.') }}</p>
             </div>
             <div class="flex justify-end items-center p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-                <button type="button" id="cancelDevisReportBtn" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+                <button type="button" id="cancelDevisReportBtn" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('messages.Cancel') }}</button>
                 <button type="button" id="confirmDevisReport" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700">Download PDF</button>
             </div>
         </div>

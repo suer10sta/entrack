@@ -112,8 +112,8 @@ thead {
         </div>
         <div class="details-right">
             <div class="header-info">
-                <h2>Pointage Table Reports</h2>
-                <h5>From {{ \Carbon\Carbon::parse($startDate)->format('d-m-Y') }} To {{ \Carbon\Carbon::parse($endDate)->format('d-m-Y') }}</h5>
+                <h2>{{ __('messages.Pointage Table Reports') }}</h2>
+                <h5>{{ __('messages.From label') }} {{ \Carbon\Carbon::parse($startDate)->format('d-m-Y') }} {{ __('messages.To label') }} {{ \Carbon\Carbon::parse($endDate)->format('d-m-Y') }}</h5>
             </div>
         </div>
     </div>
@@ -134,14 +134,14 @@ thead {
         <table>
             <thead>
                 <tr>
-                    <th>Project Name</th>
-                    <th>Task Name</th>
-                    <th>Employee Name</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Duration</th>
-                    <th>Operating Cost</th>
-                    <th>Sales</th>
+                    <th>{{ __('messages.Project Name column') }}</th>
+                    <th>{{ __('messages.Task Name column') }}</th>
+                    <th>{{ __('messages.Employee Name column') }}</th>
+                    <th>{{ __('messages.Start Date column pointage') }}</th>
+                    <th>{{ __('messages.End Date column pointage') }}</th>
+                    <th>{{ __('messages.Duration column pointage') }}</th>
+                    <th>{{ __('messages.Operating Cost') }}</th>
+                    <th>{{ __('messages.Sales column') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -201,7 +201,7 @@ thead {
                 
                 <!-- Daily Totals -->
                 <tr style="background-color: #f8f9fa;">
-                    <td colspan="5" style="text-align: right;"><strong>Daily Totals:</strong></td>
+                    <td colspan="5" style="text-align: right;"><strong>{{ __('messages.Daily Totals:') }}</strong></td>
                     <td>
                         @php
                             $dailyHours = floor($dailyTotalDuration / 60);
@@ -219,7 +219,7 @@ thead {
     <!-- Grand Totals -->
     <table>
         <tr style="background-color: #e9ecef;">
-            <td colspan="5" style="text-align: right; border: none;"><strong>Grand Totals:</strong></td>
+            <td colspan="5" style="text-align: right; border: none;"><strong>{{ __('messages.Grand Totals:') }}</strong></td>
             <td style="border: 1px solid black;">
                 @php
                     $grandTotalHours = floor($grandTotalDuration / 60);

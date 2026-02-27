@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detailed Invoice - DalyTrac</title> 
+    <title>{{ __('messages.Detailed Invoice - DalyTrac') }}</title> 
     @vite('resources/css/app.css')
     @livewireStyles
     
@@ -48,7 +48,7 @@
             <div class="w-full"> 
                 @if(session('message'))
                     <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                        <strong class="font-bold">Error!</strong>
+                        <strong class="font-bold">{{ __('messages.Error!') }}</strong>
                         <span class="block sm:inline">{{ session('message') }}</span>
                         <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
                     </div>
@@ -57,16 +57,16 @@
                 {{-- Main Card --}}
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                     <div class="flex justify-between items-center p-6 pb-0 border-b border-gray-200">
-                        <h6 class="text-lg font-semibold text-gray-900">Detailed Invoice Generator</h6>
+                        <h6 class="text-lg font-semibold text-gray-900">{{ __('messages.Detailed Invoice Generator') }}</h6>
                     </div>
                     
                     <div class="p-6">
                         {{-- Project and Comment Grid --}}
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                             <div class="md:col-span-1">
-                                <label for="projectSelect" class="block text-sm font-medium text-gray-700 mb-1">Select Project</label>
+                                <label for="projectSelect" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Select Project') }}</label>
                                 <select id="projectSelect" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom" required>
-                                    <option value="">Select Project</option>
+                                    <option value="">{{ __('messages.Select Project') }}</option>
                                     @foreach($projects as $project)
                                     <option value="{{ $project->id }}" data-cost-per-hour="{{ $project->cost_per_hour }}" data-tva="{{ $project->tva }}">
                                         @if(preg_match('/^(\d+)(.*)/', $project->name, $matches)){{ $matches[1] }}{{ $matches[2] }}@else{{ strtoupper($project->name) }}@endif
@@ -76,38 +76,38 @@
                                                 $unbilledBudget = $project->budget - $totalBilled;
                                             @endphp
                                             {{ number_format(max($unbilledBudget, 0), 2, '.', '') }}€
-                                        @else<span class="text-red-600">no budget</span>@endif
+                                        @else<span class="text-red-600">{{ __('messages.No Budget') }}</span>@endif
                                     </option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="md:col-span-2">
-                                <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
-                                <textarea id="comment" name="comment" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" rows="3" placeholder="Add any additional notes or comments here..."></textarea>
+                                <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Comment') }}</label>
+                                <textarea id="comment" name="comment" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" rows="3" placeholder="{{ __('messages.Add any additional notes...') }}"></textarea>
                             </div>
                         </div>
 
                         {{-- Details Section --}}
                         <div class="mt-4">
-                            <label class="block text-base font-semibold text-gray-800 mb-2">Invoice Details</label>
+                            <label class="block text-base font-semibold text-gray-800 mb-2">{{ __('messages.Invoice Details') }}</label>
                             
                             {{-- NEW Table Structure --}}
                             <div class="overflow-x-auto rounded-lg border border-gray-200">
                                 <table class="w-full min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
                                         <tr>
-                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-5/12">Detail</th>
-                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-2/12">Quantity</th>
-                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-2/12">Unit Price (€)</th>
-                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-2/12">Total</th>
-                                            <th scope="col" class="py-3 px-4 text-center text-sm font-semibold text-gray-700 w-1/12">Action</th>
+                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-5/12">{{ __('messages.Detail') }}</th>
+                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-2/12">{{ __('messages.Quantity') }}</th>
+                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-2/12">{{ __('messages.Unit Price (€)') }}</th>
+                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-2/12">{{ __('messages.Total') }}</th>
+                                            <th scope="col" class="py-3 px-4 text-center text-sm font-semibold text-gray-700 w-1/12">{{ __('messages.Action') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody id="detailsContainer" class="bg-white divide-y divide-gray-200">
                                         {{-- Detail Row Template --}}
                                         <tr class="detail-row">
                                             <td class="p-2 px-4">
-                                                <input type="text" class="detail-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="Enter detail">
+                                                <input type="text" class="detail-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="{{ __('messages.Enter detail') }}">
                                             </td>
                                             <td class="p-2 px-4">
                                                 <input type="number" step="0.01" class="quantity-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="Quantity">
@@ -138,19 +138,19 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
                                     </svg>
-                                    Add Row
+                                    {{ __('messages.Add Row') }}
                                 </button>
                             </div>
 
                             {{-- NEW Total Amount Bar --}}
                             <div class="mt-6 bg-gray-50 border border-gray-200 rounded-lg p-4 flex justify-between items-center">
-                                <span class="text-lg font-semibold text-gray-800">Total Amount:</span>
+                                <span class="text-lg font-semibold text-gray-800">{{ __('messages.Total Amount:') }}</span>
                                 <span id="grandTotal" class="text-2xl font-bold text-blue-600">0.00€</span>
                             </div>
 
                             {{-- Generate Button --}}
                             <div class="mt-6 border-t pt-6">
-                                <button type="button" id="generateInvoiceBtn" class="bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2.5 rounded-lg">Generate Invoice</button>
+                                <button type="button" id="generateInvoiceBtn" class="bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2.5 rounded-lg">{{ __('messages.Generate Invoice') }}</button>
                             </div>
                         </div>
                     </div> 
@@ -236,11 +236,11 @@
 
                 // Validation
                 if (details.length === 0) {
-                    alert('Please add at least one valid detail row');
+                    alert(@json(__('messages.Please add at least one valid detail row')));
                     return;
                 }
                 if (!project_id) {
-                    alert('Please select a project');
+                    alert(@json(__('messages.Please select a project')));
                     return;
                 }
 
@@ -273,7 +273,7 @@
                         document.close();
                     },
                     error: function(xhr) {
-                        alert('Error generating invoice: ' + (xhr.responseJSON?.error || 'Unknown error'));
+                        alert(@json(__('messages.Error generating invoice:')) + ' ' + (xhr.responseJSON?.error || 'Unknown error'));
                     }
                 });
                 // --- END OF AJAX CALL ---

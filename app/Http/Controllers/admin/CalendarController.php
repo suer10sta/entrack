@@ -76,8 +76,10 @@ class CalendarController extends Controller
 
         $taskTimerHours = collect();
         if ($taskIds->isNotEmpty()) {
+            // Only consider ended timers (end_date not null)
             $taskTimerHours = tasks_timer::where('entreprise_id', $entreprise_id)
                 ->whereIn('task_id', $taskIds)
+                ->whereNotNull('end_date')
                 ->selectRaw('task_id, COALESCE(SUM(duration), 0) as total_duration_minutes')
                 ->groupBy('task_id')
                 ->get()
@@ -125,18 +127,22 @@ class CalendarController extends Controller
                 $projectBudget = $event->project?->budget;
                 $projectCostPerHour = $event->project?->cost_per_hour;
                 $projectEstimatedHours = $event->project?->estimated_hours;
+                $taskEstimatedHours = $event->task?->estimated_hours;
                 $projectSpent = (!is_null($projectTotalHours) && !is_null($projectCostPerHour))
                     ? round($projectTotalHours * (float) $projectCostPerHour, 2)
                     : null;
                 $taskTimerTotalHours = $event->task_id ? ($taskTimerHours[(int) $event->task_id] ?? 0.0) : null;
+                // Use task estimated hours if present, otherwise compare against 0h
+                $effectiveEstimatedHours = !is_null($taskEstimatedHours) ? (float) $taskEstimatedHours : 0.0;
                 $timerDifferenceHours = !is_null($taskTimerTotalHours)
-                    ? round($taskTimerTotalHours - $durationHours, 2)
+                    ? round($taskTimerTotalHours - $effectiveEstimatedHours, 2)
                     : null;
 
                 $isBudgetExceeded = !is_null($projectBudget) && !is_null($projectSpent) && $projectSpent > (float) $projectBudget;
                 $isProjectTimeExceeded = !is_null($projectEstimatedHours) && !is_null($projectTotalHours) && $projectTotalHours > (float) $projectEstimatedHours;
                 $isTaskTimeExceeded = !is_null($event->task?->estimated_hours) && !is_null($taskTotalHours) && $taskTotalHours > (float) $event->task->estimated_hours;
-                $isTimerTimeExceeded = !is_null($taskTimerTotalHours) && $taskTimerTotalHours > $durationHours;
+                // Time consumed (ended timers) vs selected task estimated hours (or 0h if none)
+                $isTimerTimeExceeded = !is_null($taskTimerTotalHours) && $taskTimerTotalHours > $effectiveEstimatedHours;
 
                 return [
                     'id' => $event->id,
@@ -163,7 +169,7 @@ class CalendarController extends Controller
                     'budget_consumed_hours' => $taskTimerTotalHours,
                     'task_id' => $event->task_id,
                     'task_name' => $event->task ? $event->task->title : null,
-                    'task_estimated_hours' => $event->task?->estimated_hours,
+                    'task_estimated_hours' => $taskEstimatedHours,
                     'task_total_hours' => $taskTotalHours,
                     'task_timer_total_hours' => $taskTimerTotalHours,
                     'timer_difference_hours' => $timerDifferenceHours,
@@ -183,12 +189,29 @@ class CalendarController extends Controller
 
     public function store(Request $request)
     {
+        // Normalize start/end coming from the frontend.
+        // The JS sometimes sends an empty string or "Invalid date" when a field is left blank.
+        $start = $request->input('start');
+        $end = $request->input('end');
+        $start = ($start && $start !== 'Invalid date') ? $start : null;
+        $end = ($end && $end !== 'Invalid date') ? $end : null;
+
+        // If only one of start/end is provided, copy it to the other
+        if ($start && !$end) {
+            $end = $start;
+        } elseif ($end && !$start) {
+            $start = $end;
+        }
+
+        $request->merge(['start' => $start, 'end' => $end]);
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'color' => 'required|string|size:7|starts_with:#',
-            'start' => 'required|date_format:Y-m-d H:i:s',
-            'end' => 'required|date_format:Y-m-d H:i:s|after:start',
+            'start' => 'nullable|date_format:Y-m-d H:i:s',
+            // allow end to be equal to start so single-instant events are valid
+            'end' => 'nullable|date_format:Y-m-d H:i:s|after_or_equal:start',
             'client_id' => 'nullable|integer|exists:clients,id',
             'project_id' => 'nullable|integer|exists:projects,id',
             'task_id' => 'nullable|integer|exists:tasks,id',
@@ -201,6 +224,13 @@ class CalendarController extends Controller
             $request->project_id,
             $request->task_id
         );
+
+        // Ensure at least one of start/end is present after normalization
+        if (!$start && !$end) {
+            throw ValidationException::withMessages([
+                'start' => 'Either start or end time is required.',
+            ]);
+        }
 
         $event = calendars::create([
             'title' => $request->title,
@@ -240,12 +270,28 @@ class CalendarController extends Controller
     {
         $event = calendars::findOrFail($id);
 
+        // Normalize start/end coming from the frontend.
+        $start = $request->input('start');
+        $end = $request->input('end');
+        $start = ($start && $start !== 'Invalid date') ? $start : null;
+        $end = ($end && $end !== 'Invalid date') ? $end : null;
+
+        // If only one of start/end is provided, copy it to the other
+        if ($start && !$end) {
+            $end = $start;
+        } elseif ($end && !$start) {
+            $start = $end;
+        }
+
+        $request->merge(['start' => $start, 'end' => $end]);
+
         $request->validate([
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
             'color' => 'sometimes|string|size:7|starts_with:#',
-            'start' => 'sometimes|date_format:Y-m-d H:i:s',
-            'end' => 'sometimes|date_format:Y-m-d H:i:s|after:start',
+            'start' => 'nullable|date_format:Y-m-d H:i:s',
+            // allow end to be equal to start so single-instant events are valid
+            'end' => 'nullable|date_format:Y-m-d H:i:s|after_or_equal:start',
             'client_id' => 'nullable|integer|exists:clients,id',
             'project_id' => 'nullable|integer|exists:projects,id',
             'task_id' => 'nullable|integer|exists:tasks,id',

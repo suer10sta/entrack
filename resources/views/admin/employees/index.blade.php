@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employees - DalyTrac</title>
+    <title>{{ __('messages.Employees - DalyTrac') }}</title>
     @vite('resources/css/app.css')
     @livewireStyles
 </head>
@@ -30,7 +30,7 @@
 
                 {{-- Header Section --}}
                 <div class="p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <h6 class="text-lg font-semibold text-gray-900">Employees Table</h6>
+                    <h6 class="text-lg font-semibold text-gray-900">{{ __('messages.Employees Table') }}</h6>
 
                     {{-- Buttons --}}
                     @php
@@ -49,14 +49,14 @@
                         @endphp
                         <a href="{{ $reportRoute }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                           Reports PDF
+                           {{ __('messages.Reports PDF') }}
                         </a>
 
                         {{-- Add Team Button --}}
                         @can('Add teams')
                            <a href="{{ route('admin.teams.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
                               <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                              Add Team
+                              {{ __('messages.Add Team') }}
                            </a>
                         @endcan
 
@@ -65,7 +65,7 @@
                             @can('Add employee')
                                 <a href="{{ route('admin.employees.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
                                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                                    Add Employee
+                                    {{ __('messages.Add Employee') }}
                                 </a>
                             @endcan
                         @endunless
@@ -74,7 +74,7 @@
                          @if(Auth::user()->hasRole('Admin'))
                             <a href="{{ route('admin.employeesArchived.archiveIndex') }}" class="bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
-                                Archive
+                                {{ __('messages.Archive') }}
                             </a>
                          @endif
                     </div>
@@ -97,21 +97,21 @@
                             <thead class="border-b border-gray-200 bg-gray-50">
                                 <tr>
                                     <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 2.5%;"></th> 
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">Name</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 10%;">Email</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5.5%;">Phone</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 4%;">Status</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 3%;">Age</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">CNSS</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">Bank Acc</th> 
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-right" style="width: 5%;">Salary</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-right" style="width: 5%;">Cost/Hr</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">WorkHour Limit</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-right" style="width: 5%;">CNSS Cot</th> 
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-right" style="width: 5%;">AMO Cot</th> 
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5.5%;">Release</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">Role</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 9%;">Action</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">{{ __('messages.Name') }}</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 10%;">{{ __('messages.Email') }}</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5.5%;">{{ __('messages.Phone') }}</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 4%;">{{ __('messages.Status') }}</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 3%;">{{ __('messages.Age') }}</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">{{ __('messages.CNSS') }}</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">{{ __('messages.Bank Acc') }}</th> 
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-right" style="width: 5%;">{{ __('messages.Salary') }}</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-right" style="width: 5%;">{{ __('messages.Cost/Hr') }}</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">{{ __('messages.WorkHour Limit') }}</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-right" style="width: 5%;">{{ __('messages.CNSS Cot') }}</th> 
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-right" style="width: 5%;">{{ __('messages.AMO Cot') }}</th> 
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5.5%;">{{ __('messages.Release') }}</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 7%;">{{ __('messages.Role') }}</th>
+                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 9%;">{{ __('messages.Action') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
@@ -152,7 +152,7 @@
                                             @php
                                                 $user = \App\Models\User::find($employee->user_id);
                                                 $statusRoute = '#';
-                                                $statusText = $user && $user->is_activate ? 'Active' : 'Inactive';
+                                                $statusText = $user && $user->is_activate ? __('messages.Active') : __('messages.Inactive');
                                                 $buttonColor = $user && $user->is_activate ? 'green' : 'red';
 
                                                 if ($user && $user->is_activate) {
@@ -167,7 +167,7 @@
                                             @endphp
 
                                             <form action="{{ $statusRoute }}" method="post"
-                                                  onsubmit="return confirm('{{ $user && $user->is_activate ? 'Deactivate this employee?' : 'Activate this employee?' }}');"
+                                                  onsubmit="return confirm('{{ $user && $user->is_activate ? __('messages.Deactivate this employee?') : __('messages.Activate this employee?') }}');"
                                                   class="inline">
                                                 @csrf
                                                 <button type="submit"
@@ -205,7 +205,7 @@
                                                 </span>
                                              @empty
                                                 <span class="inline-block px-1.5 py-0.5 text-[10px] font-medium rounded bg-red-100 text-red-700">
-                                                   No Role
+                                                   {{ __('messages.No Role') }}
                                                 </span>
                                              @endforelse
                                          </div>
@@ -242,21 +242,12 @@
                                         @endphp
 
                                         <div class="flex items-center justify-center gap-2">
-                                            {{-- Edit roles --}}
-                                            @if($canEditRoles)
-                                                <a href="{{ $editRoute }}" title="Edit roles"
-                                                   class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-blue-600 hover:bg-blue-700">
-                                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                              d="M15.232 5.232l3.536 3.536M4 20h4l9.5-9.5-4-4L4 16v4z" />
-                                                    </svg>
-                                                </a>
-                                            @endif
+                                            
 
                                             {{-- Archive --}}
-                                            <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm('Archive this employee?');" class="inline">
+                                            <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Archive this employee?') }}');" class="inline">
                                                 @csrf
-                                                <button type="submit" title="Archive employee"
+                                                <button type="submit" title="{{ __('messages.Archive employee') }}"
                                                         class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-gray-500 hover:bg-gray-600">
                                                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -267,10 +258,10 @@
 
                                             {{-- Delete --}}
                                             @if($canDelete && !$isSelf)
-                                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Are you sure you want to delete this employee?');" class="inline">
+                                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure you want to delete this employee?') }}');" class="inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" title="Delete employee"
+                                                    <button type="submit" title="{{ __('messages.Delete employee') }}"
                                                             class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-red-600 hover:bg-red-700">
                                                         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -285,7 +276,7 @@
                                 @empty
                                 <tr>
                                      <td colspan="16" class="px-6 py-4 text-center text-sm text-gray-500">
-                                         No employees found.
+                                         {{ __('messages.No employees found.') }}
                                      </td>
                                 </tr>
                                 @endforelse
@@ -340,7 +331,7 @@
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         $parentCell.text(originalContent);
-                        alert('Error updating employee: ' + errorThrown);
+                        alert('{{ __('messages.Error updating employee') }}: ' + errorThrown);
                         console.error("AJAX Error:", textStatus, errorThrown, jqXHR.responseText);
                     }
                 });

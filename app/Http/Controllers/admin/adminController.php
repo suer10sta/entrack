@@ -382,7 +382,7 @@ class adminController extends Controller
             if ($project) {
                 $html .= '<a href="' . route('admin.projects.show', $project->id) . '" class="' . e($linkClasses) . '">' . e($project->name) . '</a>';
             } else {
-                $html .= '<span class="text-gray-400 block">No Project</span>';
+                $html .= '<span class="text-gray-400 block">' . e(__('messages.No Project')) . '</span>';
             }
             $html .= '</div>';
 
@@ -420,7 +420,7 @@ class adminController extends Controller
         $firstActiveTask = $activeTasks->first();
 
         if (!$firstActiveTask) {
-            return '<p class="text-xs font-medium text-gray-600">No Task</p>';
+            return '<p class="text-xs font-medium text-gray-600">' . e(__('messages.No Task')) . '</p>';
         }
 
         $task = \App\Models\Tasks::where('id', $firstActiveTask->task_id)->first();
@@ -463,7 +463,7 @@ class adminController extends Controller
             ->get();
 
         if ($timersToday->isEmpty()) {
-            return '<span class="text-xs font-medium text-gray-700">No work today</span>';
+            return '<span class="text-xs font-medium text-gray-700">' . e(__('messages.No work today')) . '</span>';
         }
 
         $now = \Carbon\Carbon::now();
@@ -552,18 +552,18 @@ class adminController extends Controller
         $employeeUser = \App\Models\User::find($employee->user_id);
 
         if ($employeeUser && $employeeUser->is_activate == 1) {
-            return '<form action="' . route('admin.employee.deactivate', $employee->id) . '" method="post" data-confirm="Are you sure?">
+            return '<form action="' . route('admin.employee.deactivate', $employee->id) . '" method="post" data-confirm="' . e(__('messages.Are you sure?')) . '">
                     ' . csrf_field() . '
                     <button type="submit" class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 hover:bg-emerald-200">
-                        Active
+                        ' . e(__('messages.Active')) . '
                     </button>
                 </form>';
         }
 
-        return '<form action="' . route('admin.employee.activate', $employee->id) . '" method="post" data-confirm="Are you sure?">
+        return '<form action="' . route('admin.employee.activate', $employee->id) . '" method="post" data-confirm="' . e(__('messages.Are you sure?')) . '">
                 ' . csrf_field() . '
                 <button type="submit" class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200">
-                    Inactive
+                    ' . e(__('messages.Inactive')) . '
                 </button>
             </form>';
     }
@@ -588,13 +588,13 @@ class adminController extends Controller
         }
 
         if ($activeTasks->isEmpty()) {
-            return '<span class="text-xs text-gray-400">No Active Timer</span>';
+            return '<span class="text-xs text-gray-400">' . e(__('messages.No Active Timer')) . '</span>';
         }
 
         $html = '';
 
         if ($isSuperAdmin && $activeTasks->count() > 1) {
-            $html .= '<button type="button" class="inline-flex items-center px-3 py-1 mb-2 rounded-full text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200" onclick="stopAllTimersForEmployee(' . $employee->id . ')">Stop all</button>';
+            $html .= '<button type="button" class="inline-flex items-center px-3 py-1 mb-2 rounded-full text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200" onclick="stopAllTimersForEmployee(' . $employee->id . ')">' . e(__('messages.Stop all')) . '</button>';
         }
 
         // Group active tasks by project for visual separation in Chrono
@@ -618,9 +618,9 @@ class adminController extends Controller
             $html .= '<div class="space-y-1 w-full flex flex-col items-center' . ($hasBorder ? ' pb-2 border-b border-gray-200' : '') . '">';
 
             foreach ($projectTasks as $activeTask) {
-                $html .= '<form class="flex items-center justify-center gap-2 stop-form-' . $employee->id . '" action="' . route('admin.tasks.stop', ['tasks' => $activeTask->task_employee_id, 'employee_id' => $employee->id]) . '" method="POST" data-confirm="Stop timer for this task?">';
+                $html .= '<form class="flex items-center justify-center gap-2 stop-form-' . $employee->id . '" action="' . route('admin.tasks.stop', ['tasks' => $activeTask->task_employee_id, 'employee_id' => $employee->id]) . '" method="POST" data-confirm="' . e(__('messages.Stop')) . '">';
                 $html .= csrf_field();
-                $html .= '<button type="submit" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white hover:bg-red-600">Stop</button>';
+                $html .= '<button type="submit" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white hover:bg-red-600">' . e(__('messages.Stop')) . '</button>';
                 $html .= '</form>';
             }
 

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr"> {{-- Langue mise à jour en 'fr' --}}
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nouvelle Équipe - DalyTrac</title>
+    <title>{{ __('messages.New Team - DalyTrac') }}</title>
     @vite('resources/css/app.css')
     @livewireStyles {{-- Ajouté pour la cohérence --}}
 </head>
@@ -53,8 +53,8 @@
                         
                         {{-- En-tête de la carte --}}
                         <div class="p-6 border-b border-gray-200">
-                            <h2 class="text-lg font-semibold text-gray-900">Nouvelle Équipe</h2>
-                            <p class="text-sm text-gray-600 mt-1">Créer une nouvelle équipe</p>
+                            <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.New Team') }}</h2>
+                            <p class="text-sm text-gray-600 mt-1">{{ __('messages.Create a new team') }}</p>
                         </div>
 
                         {{-- Corps de la carte --}}
@@ -62,7 +62,7 @@
                             
                             {{-- Champ Nom --}}
                             <div>
-                                <label for="teamName" class="block text-sm font-medium text-gray-700 mb-1">Nom de l'équipe</label>
+                                <label for="teamName" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Team Name') }}</label>
                                 <input type="text" id="teamName" name='name'
                                        class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" 
                                        required />
@@ -70,7 +70,7 @@
 
                             {{-- Membres de l'équipe --}}
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Membres de l'équipe :</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Team Members:') }}</label>
                                 <div class="space-y-3">
                                     @foreach($employee_users as $employee)
                                         {{-- Case à cocher stylée Tailwind --}}
@@ -92,10 +92,10 @@
                         {{-- Pied de page de la carte (Actions) --}}
                         <div class="p-6 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-3">
                             <a href="{{ $cancelRoute }}" class="inline-flex justify-center bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm">
-                                Annuler
+                                {{ __('messages.Cancel button') }}
                             </a>
                             <button type="submit" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">
-                                Créer l'équipe
+                                {{ __('messages.Create Team') }}
                             </button>
                         </div>
 

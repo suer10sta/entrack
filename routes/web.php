@@ -32,6 +32,9 @@ use App\Http\Controllers\LangController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\admin\SearchController;
+use App\Http\Controllers\admin\SupportController;
+use App\Models\Visit;
+use Illuminate\Support\Facades\Http;
 
 
 /*
@@ -46,6 +49,61 @@ use App\Http\Controllers\admin\SearchController;
 */
 
 Route::get('/', function () {
+    try {
+        $ip = request()->ip();
+        $country = null;
+        $countryCode = null;
+        $city = null;
+        $referrer = null;
+        $utmSource = null;
+        $deviceType = null;
+
+        if ($ip && !in_array($ip, ['127.0.0.1', '::1'], true)) {
+            try {
+                $response = Http::get('http://ip-api.com/json/' . $ip . '?fields=status,country,countryCode,city');
+                if ($response->ok() && ($response['status'] ?? null) === 'success') {
+                    $country = $response['country'] ?? null;
+                    $countryCode = $response['countryCode'] ?? null;
+                    $city = $response['city'] ?? null;
+                }
+            } catch (\Throwable $e) {
+                // Ignore geo lookup failures to keep homepage responsive.
+            }
+        }
+
+        // Basic referrer / UTM / device tracking
+        $referrerHeader = request()->headers->get('referer');
+        if (is_string($referrerHeader) && $referrerHeader !== '') {
+            $referrer = parse_url($referrerHeader, PHP_URL_HOST) ?: $referrerHeader;
+        }
+
+        $utmSource = request()->query('utm_source');
+
+        $userAgent = (string) request()->userAgent();
+        $uaLower = strtolower($userAgent);
+        if (str_contains($uaLower, 'mobile') || str_contains($uaLower, 'android') || str_contains($uaLower, 'iphone')) {
+            $deviceType = 'mobile';
+        } elseif (str_contains($uaLower, 'tablet') || str_contains($uaLower, 'ipad')) {
+            $deviceType = 'tablet';
+        } else {
+            $deviceType = 'desktop';
+        }
+
+        Visit::create([
+            'ip' => $ip,
+            'country' => $country,
+            'country_code' => $countryCode,
+            'city' => $city,
+            'url' => request()->fullUrl(),
+            'user_agent' => substr($userAgent, 0, 255),
+            'referrer' => $referrer,
+            'utm_source' => $utmSource,
+            'device_type' => $deviceType,
+        ]);
+    } catch (\Throwable $e) {
+        // Never block the homepage if tracking fails.
+    }
+
     return view('welcome');
 })->name("welcome");
 
@@ -147,6 +205,12 @@ Route::middleware(['auth', 'role:Admin'])->name('admin.')->prefix('admin')->grou
     Route::delete('/todoliste/destroy', [todolisteController::class, 'destroy'])->name('todoliste.destroy');
     Route::delete('/todoliste/deleteItem/{id}', [todolisteController::class, 'deleteItem'])->name('todoliste.deleteItem');
     Route::post('/todoliste/updatestatus/{todoliste}', [todolisteController::class, 'updateStatus'])->name('todoliste.updateStatus');
+
+    // Enterprise-optimized help & support
+    Route::get('/support', [SupportController::class, 'create'])->name('support.create');
+    Route::post('/support', [SupportController::class, 'store'])->name('support.store');
+    Route::get('/support/tickets', [SupportController::class, 'index'])->name('support.index');
+    Route::delete('/support/tickets/{ticket}', [SupportController::class, 'destroy'])->name('support.destroy');
 
     Route::get('/tasks/pointage', [tasksController::class, 'pointage'])->name('tasks.pointage');
     Route::get('tasks/tasks-info/{startDate}', [TasksController::class, 'getTasksInfo'])->name('tasks.info');
@@ -1866,6 +1930,15 @@ Route::prefix('manager')->name('manager.')->group(function () {
     Route::middleware('auth:manager')->group(function () {
         Route::post('logout', [ManagerAuthController::class, 'logout'])->name('logout');
         Route::get('dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');
+        Route::get('dashboard/entreprises', [ManagerDashboardController::class, 'entreprises'])->name('dashboard.entreprises');
+        Route::get('dashboard/active-subscriptions', [ManagerDashboardController::class, 'activeSubscriptions'])->name('dashboard.active-subscriptions');
+        Route::get('dashboard/users', [ManagerDashboardController::class, 'users'])->name('dashboard.users');
+        Route::get('dashboard/users/daily-active', [ManagerDashboardController::class, 'dailyActiveUsers'])->name('dashboard.users.daily-active');
+        Route::get('dashboard/users/monthly-active', [ManagerDashboardController::class, 'monthlyActiveUsers'])->name('dashboard.users.monthly-active');
+        Route::get('dashboard/users/new-signups', [ManagerDashboardController::class, 'newSignupsUsers'])->name('dashboard.users.new-signups');
+        Route::get('dashboard/visits/non-client', [ManagerDashboardController::class, 'nonClientVisits'])->name('dashboard.visits.non-client');
+        Route::get('dashboard/visits/non-client-unique', [ManagerDashboardController::class, 'uniqueNonClientVisitors'])->name('dashboard.visits.non-client-unique');
+        Route::get('dashboard/invoices', [ManagerDashboardController::class, 'invoices'])->name('dashboard.invoices');
         Route::get('subscriptions', [ManagerSubscriptionController::class, 'index'])->name('subscriptions.index');
         Route::get('subscriptions/{entreprise}', [ManagerSubscriptionController::class, 'show'])->name('subscriptions.show');
         Route::delete('subscriptions/{entreprise}', [ManagerSubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
@@ -1901,6 +1974,39 @@ Route::middleware([
 
     Route::post('/subscription/renewal-preference', [SubscriptionController::class, 'updateRenewalPreference'])
         ->name('subscription.renewal-preference.update');
+
+    // 3. Cancel current subscription only (no data deletion)
+    Route::delete('/subscription/cancel', [SubscriptionController::class, 'cancelSubscription'])
+        ->name('subscription.cancel');
+
+    // 4. Cancel subscription (if any) and delete entreprise & all data
+    Route::delete('/subscription/cancel-and-delete', [SubscriptionController::class, 'cancelAndDelete'])
+        ->name('subscription.cancel-and-delete');
+
+    // Direct, single-click access to the manager dashboard for a specific entreprise (ID 43).
+    // This logs in the default platform manager on the manager guard and redirects to the dashboard,
+    // but only if the currently authenticated user belongs to entreprise 43.
+    Route::get('/manager/direct-dashboard', function () {
+        $user = auth()->user();
+
+        if (! $user || (int) ($user->entreprise_id ?? 0) !== 43) {
+            abort(403);
+        }
+
+        if (auth('manager')->check()) {
+            return redirect()->route('manager.dashboard');
+        }
+
+        $manager = \App\Models\Manager::first();
+
+        if (! $manager) {
+            abort(500, 'Manager account is not configured.');
+        }
+
+        auth('manager')->login($manager);
+
+        return redirect()->route('manager.dashboard');
+    })->name('manager.direct-dashboard');
 
     Route::get('/edit-profile', function () {
         return view('profile.edit');

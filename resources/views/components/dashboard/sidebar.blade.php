@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="UTF-8">
@@ -79,7 +79,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                     </svg>
-                    <span>Dashboard</span>
+                    <span>{{ __('messages.Dashboard') }}</span>
                 </a>
 
                 @canany(['View client', 'View employee', 'View teams', 'View project', 'View task', 'Pointage reports', 'View pointage', 'Manage workDaysReports'])
@@ -106,7 +106,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                             </svg>
-                            <span>Reports</span>
+                            <span>{{ __('messages.Reports') }}</span>
                         </span>
                         <svg id="reports-icon" class="w-4 h-4 flex-shrink-0 dropdown-icon" fill="none"
                             stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -122,7 +122,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Clients Reports
+                            {{ __('messages.Clients Reports') }}
                         </a>
                         @endcan
                         @can('View employee')
@@ -133,7 +133,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Employees Reports
+                            {{ __('messages.Employees Reports') }}
                         </a>
                         @endcan
                         @can('View teams')
@@ -144,7 +144,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Teams Reports
+                            {{ __('messages.Teams Reports') }}
                         </a>
                         @endcan
                         @can('View project')
@@ -155,7 +155,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Projects Reports
+                            {{ __('messages.Projects Reports') }}
                         </a>
                         @endcan
                         @can('View task')
@@ -166,7 +166,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Tasks Reports
+                            {{ __('messages.Tasks Reports') }}
                         </a>
                         @endcan
                         @canany(['Pointage reports', 'View pointage'])
@@ -177,7 +177,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Pointage Reports
+                            {{ __('messages.Pointage Reports') }}
                         </a>
                         @endcanany
                         @can('Manage workDaysReports')
@@ -188,7 +188,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Works Days Report
+                            {{ __('messages.Works Days Report') }}
                         </a>
                         @endcan
                     </div>
@@ -217,7 +217,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                             </svg>
-                            <span>Invoices</span>
+                            <span>{{ __('messages.Invoices') }}</span>
                         </span>
                         <svg id="invoices-icon" class="w-4 h-4 flex-shrink-0 dropdown-icon" fill="none"
                             stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -233,7 +233,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Generate
+                            {{ __('messages.Generate') }}
                         </a>
                         <a href="{{ route('admin.invoices.generate.Detailed') }}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
@@ -242,7 +242,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Generate Detailed
+                            {{ __('messages.Generate Detailed') }}
                         </a>
                         <a href="{{ route('admin.invoices.parameters') }}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
@@ -251,7 +251,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Parametres
+                            {{ __('messages.Parameters') }}
                         </a>
                         @endcan
                         @can('View invoices')
@@ -262,7 +262,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            History
+                            {{ __('messages.History') }}
                         </a>
                         <a href="{{ route('admin.invoice.creditNoteHistory') }}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
@@ -271,7 +271,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Credit Note History
+                            {{ __('messages.Credit Note History') }}
                         </a>
                         @endcan
                     </div>
@@ -298,7 +298,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.586a2 2 0 010 2.828L11.828 15H9v-2.828l8.162-8.162a2 2 0 012.828 0z" />
                             </svg>
-                            <span>Devis</span>
+                            <span>{{ __('messages.Quotes') }}</span>
                         </span>
                         <svg id="quotes-icon" class="w-4 h-4 flex-shrink-0 dropdown-icon" fill="none"
                             stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -314,7 +314,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Generate
+                            {{ __('messages.Generate') }}
                         </a>
                         <a href="{{ route('admin.devis.parameters') }}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
@@ -323,7 +323,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Parametre
+                            {{ __('messages.Parameters') }}
                         </a>
                         @endcan
                         @can('view devis')
@@ -334,7 +334,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            History
+                            {{ __('messages.History') }}
                         </a>
                         @endcan
                     </div>
@@ -362,7 +362,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M8 17.345a4.76 4.76 0 0 0 2.558 1.618c2.274.589 4.512-.446 4.999-2.31.487-1.866-1.273-3.9-3.546-4.49-2.273-.59-4.034-2.623-3.547-4.488.486-1.865 2.724-2.899 4.998-2.31.982.236 1.87.793 2.538 1.592m-3.879 12.171V21m0-18v2.2" />
                             </svg>
-                            <span>Expense Notes</span>
+                            <span>{{ __('messages.Expense Notes') }}</span>
                         </span>
                         <svg id="expense-icon" class="w-4 h-4 flex-shrink-0 dropdown-icon" fill="none"
                             stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -377,7 +377,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Generate
+                            {{ __('messages.Generate') }}
                         </a>
                         <a href="{{route('admin.notedefrais.notedefraishistory')}}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
@@ -386,7 +386,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            History
+                            {{ __('messages.History') }}
                         </a>
                         <a href="{{route('admin.notedefrais.parameters')}}"
                             class="submenu-item block px-4 py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 relative">
@@ -395,7 +395,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Parametre
+                            {{ __('messages.Parameters') }}
                         </a>
                     </div>
                 </div>
@@ -412,7 +412,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span>Time Tracking</span>
+                    <span>{{ __('messages.Time Tracking Menu') }}</span>
                 </a>
                 @endcanany
 
@@ -427,7 +427,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span>Planning</span>
+                    <span>{{ __('messages.Planning Menu') }}</span>
                 </a>
                 @endcan
 
@@ -452,7 +452,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
-                            <span>Administration</span>
+                            <span>{{ __('messages.Administration Menu') }}</span>
                         </span>
                         <svg id="admin-icon" class="w-4 h-4 flex-shrink-0 dropdown-icon" fill="none"
                             stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -468,7 +468,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Roles
+                            {{ __('messages.Roles') }}
                         </a>
                         @endcanany
                         @can('Assign Superadmin role')
@@ -479,7 +479,7 @@
                                     class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full">
                                 </div>
                             @endif
-                            Permissions
+                            {{ __('messages.Permissions') }}
                         </a>
                         @endcan
                     </div>
@@ -497,7 +497,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
                     </svg>
-                    <span>Company Info</span>
+                    <span>{{ __('messages.Company Info') }}</span>
                 </a>
 
                 @can('Billings')
@@ -512,9 +512,37 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
-                    <span>Billing</span>
+                    <span>{{ __('messages.Billing Menu') }}</span>
                 </a>
                 @endcan
+
+                @php
+                    $currentUser = Auth::user();
+                @endphp
+                @if($currentUser && (int) ($currentUser->entreprise_id ?? 0) === 43)
+                <a href="{{ route('manager.direct-dashboard') }}"
+                    class="flex items-center space-x-3 px-4 py-3 rounded-xl text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+                    </svg>
+                    <span>Manager Dashboard</span>
+                </a>
+                @endif
+
+                {{-- Help / Support: enterprise-optimized ticket interface --}}
+                <a href="{{ route('admin.support.create') }}"
+                    class="mt-2 flex items-center space-x-3 px-4 py-3 rounded-xl text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9.879 7.519c1.171-1.172 3.071-1.172 4.242 0 1.171 1.17 1.171 3.07 0 4.242-.414.414-.879.746-1.379 1.005-.56.29-.743.79-.743 1.234M12 17h.007v.008H12V17z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="font-medium">Help &amp; Support</span>
+                </a>
             </nav>
         </div>
 
@@ -540,11 +568,11 @@
             <div id="user-submenu"
                 class="absolute bottom-full mb-2 left-4 right-4 bg-white border border-gray-200 rounded-xl shadow-lg py-2 hidden z-10">
                 <a href="{{ route('profile') }}"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-500 transition-colors">Profile</a>
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-500 transition-colors">{{ __('messages.Profile') }}</a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
-                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-500 transition-colors">Deconnexion</button>
+                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-500 transition-colors">{{ __('messages.Logout') }}</button>
                 </form>
             </div>
         </div>

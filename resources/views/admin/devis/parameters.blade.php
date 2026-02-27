@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Devis Parameters - DalyTrac</title> {{-- Updated title --}}
+    <title>{{ __('messages.Devis Parameters - DalyTrac') }}</title> {{-- Updated title --}}
     @vite('resources/css/app.css') 
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -43,8 +43,8 @@
             {{-- 1. Header Section --}}
             <div class="flex flex-wrap justify-between items-center gap-4">
                 <div>
-                    <h1 class="text-2xl font-semibold text-gray-900">Devis Parameters</h1> {{-- Updated heading --}}
-                    <p class="text-sm text-gray-600">Configure devis settings and templates</p>
+                    <h1 class="text-2xl font-semibold text-gray-900">{{ __('messages.Devis Parameters') }}</h1> {{-- Updated heading --}}
+                    <p class="text-sm text-gray-600">{{ __('messages.Configure devis settings and templates') }}</p>
                 </div>
             </div>
             
@@ -68,13 +68,13 @@
                 {{-- 2. Devis Information Card --}}
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-5">
                     <div>
-                        <h5 class="text-lg font-semibold text-gray-900">Devis Information</h5>
-                        <p class="text-sm text-gray-500 mt-1">Mandatory information</p>
+                        <h5 class="text-lg font-semibold text-gray-900">{{ __('messages.Devis Information') }}</h5>
+                        <p class="text-sm text-gray-500 mt-1">{{ __('messages.Mandatory information devis') }}</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="devis_prefix" class="block text-sm font-medium text-gray-700 mb-1">Prefix</label>
+                            <label for="devis_prefix" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Prefix') }}</label>
                             <input id="devis_prefix" 
                                    {{-- Removed "editable" class --}}
                                    class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" 
@@ -83,7 +83,7 @@
                                    value="{{ $entreprise->devis_prefix ?? '' }}" />
                         </div>
                         <div>
-                            <label for="devis_start_number" class="block text-sm font-medium text-gray-700 mb-1">Start Number</label>
+                            <label for="devis_start_number" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Start Number') }}</label>
                             <input id="devis_start_number" 
                                    {{-- Removed "editable" class --}}
                                    class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
@@ -93,7 +93,7 @@
                         </div>
                     </div>
                     <div>
-                        <label for="general_conditions_Devis" class="block text-sm font-medium text-gray-700 mb-1">General Condition</label>
+                        <label for="general_conditions_Devis" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.General Condition') }}</label>
                         <textarea id="general_conditions_Devis" rows="6"
                             {{-- Removed "editable" class --}}
                             class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
@@ -104,8 +104,8 @@
                 {{-- 3. Devis Body Message Card --}}
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-5">
                     <div>
-                        <h5 class="text-lg font-semibold text-gray-900">Devis Body Message</h5>
-                        <p class="text-sm text-gray-500 mt-1">Message</p>
+                        <h5 class="text-lg font-semibold text-gray-900">{{ __('messages.Devis Body Message') }}</h5>
+                        <p class="text-sm text-gray-500 mt-1">{{ __('messages.Message devis') }}</p>
                     </div>
                     <div>
                         <textarea id="devis_body" rows="6" {{-- Added ID for clarity --}}
@@ -129,7 +129,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
-                        Back
+                        {{ __('messages.Back') }}
                     </a>
                     
                     {{-- Updated ID to match the JS selector --}}
@@ -141,7 +141,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                         </svg>
-                        Save All Changes
+                        {{ __('messages.Save All Changes devis') }}
                     </button>
                 </div>
             </form>
@@ -172,7 +172,7 @@
                 const $button = $('#saveButton'); 
                 const originalText = $button.html();
                 
-                $button.prop('disabled', true).html('<svg class="animate-spin h-4 w-4 mr-2 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...');
+                $button.prop('disabled', true).html('<svg class="animate-spin h-4 w-4 mr-2 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>{{ __('messages.Saving...') }}');
 
                 const entrepriseId = "{{ Auth::user()->entreprise_id }}";
                 const updateUrl = "{{ $updateUrl }}";
@@ -240,7 +240,7 @@
                         
                         // If nothing needed to be saved
                         if (!hasChanges) {
-                             $button.html(originalText); // Restore default appearance
+                            $button.html(originalText); // Restore default appearance
                              // No alert; user simply clicked save without changes
                              return;
                         }
@@ -248,13 +248,13 @@
                         if (errors === 0) {
                             // --- Success animation ---
                             $button.removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-green-600');
-                            $button.html('<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>Saved!');
+                            $button.html('<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>{{ __('messages.Saved!') }}');
                         
                         } else {
                             // --- Error animation ---
                             $button.removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-red-600');
-                            $button.html('<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>Error!');
-                            alert('Some fields failed to save. Check fields marked in red.');
+                            $button.html('<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>{{ __('messages.Error!') }}');
+                            alert('{{ __('messages.Failed to save changes. Please try again.') }}');
                         }
 
                         // --- Reset button state ---

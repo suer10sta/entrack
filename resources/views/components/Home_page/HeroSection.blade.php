@@ -96,19 +96,19 @@
                 <svg class="h-4 w-4 lightning-glow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                 </svg>
-                All-in-One Business Management Platform
+                {{ __('messages.All-in-One Business Management Platform') }}
             </div>
 
             {{-- Main Heading --}}
             <h1 class="scroll-fade-in mb-6 text-balance text-5xl font-bold leading-tight text-foreground lg:text-6xl xl:text-7xl" data-scroll-delay="100">
-                Streamline Your Business Operations with
+                {{ __('messages.Streamline Your Business Operations with') }}
                 <span class="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">DalyTrac</span>
             </h1>
 
             {{-- Subheading --}}
             <p class="scroll-fade-in mx-auto mb-8 max-w-2xl text-pretty text-xl leading-relaxed text-gray-700 dark:text-gray-500 lg:text-2xl" data-scroll-delay="200">
-                The complete solution for E-invoicing, Project Management, intelligent Time Tracking, and Team Collaboration. 
-                <span class="font-semibold text-foreground">Your teams simply start and stop a timer on their projects and tasks, while DalyTrac quietly captures clean, billable hours in the background.</span>
+                {{ __('messages.The complete solution for E-invoicing, Project Management, intelligent Time Tracking, and Team Collaboration.') }} 
+                <span class="font-semibold text-foreground">{{ __('messages.Your teams simply start and stop a timer on their projects and tasks, while DalyTrac quietly captures clean, billable hours in the background.') }}</span>
             </p>
 
             {{-- Value Propositions --}}
@@ -117,26 +117,26 @@
                     <svg class="h-6 w-6 text-green-600 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span class="text-shadow-sm">No Credit Card Required</span>
+                    <span class="text-shadow-sm">{{ __('messages.No Credit Card Required') }}</span>
                 </div>
                 <div class="value-prop-badge group flex items-center gap-2.5 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/20 px-5 py-3 text-base font-bold text-black backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:from-blue-500/30 hover:to-cyan-500/30">
                     <svg class="h-6 w-6 text-blue-600 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span class="text-shadow-sm">Free Trial Available</span>
+                    <span class="text-shadow-sm">{{ __('messages.Free Trial Available') }}</span>
                 </div>
                 <div class="value-prop-badge group flex items-center gap-2.5 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-5 py-3 text-base font-bold text-black backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:from-purple-500/30 hover:to-pink-500/30">
                     <svg class="h-6 w-6 text-purple-600 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span class="text-shadow-sm">Setup in Minutes</span>
+                    <span class="text-shadow-sm">{{ __('messages.Setup in Minutes') }}</span>
                 </div>
             </div>
 
             {{-- CTA Buttons --}}
             <div class="scroll-fade-in flex flex-col items-center justify-center gap-4 sm:flex-row" data-scroll-delay="400">
                 <a href="{{ route('register') }}" class="cta-button-float group inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
-                    Start Free Trial
+                    {{ __('messages.Start Free Trial') }}
                     <svg class="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
@@ -147,7 +147,7 @@
                         <circle cx="12" cy="12" r="11" fill="#FF0000" stroke="#CC0000" stroke-width="1"/>
                         <path d="M9.5 7.5L16.5 12L9.5 16.5V7.5Z" fill="white"/>
                     </svg>
-                    Watch Demo
+                    {{ __('messages.Watch Demo') }}
                 </a>
             </div>
 
@@ -155,17 +155,17 @@
             <div class="scroll-fade-in mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-gray-700 dark:text-gray-500" data-scroll-delay="500">
                 <div class="text-center">
                     <div class="text-2xl font-bold text-foreground">10,000+</div>
-                    <div>Active Users</div>
+                    <div>{{ __('messages.Active Users') }}</div>
                 </div>
                 <div class="h-12 w-px bg-border"></div>
                 <div class="text-center">
                     <div class="text-2xl font-bold text-foreground">50,000+</div>
-                    <div>Invoices Generated</div>
+                    <div>{{ __('messages.Invoices Generated') }}</div>
                 </div>
                 <div class="h-12 w-px bg-border"></div>
                 <div class="text-center">
                     <div class="text-2xl font-bold text-foreground">99.9%</div>
-                    <div>Uptime</div>
+                    <div>{{ __('messages.Uptime') }}</div>
                 </div>
             </div>
         </div>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoices Report</title>
+    <title>{{ __('messages.Invoices Report') }}</title>
     <style>
         /* [MODIFIED] Styles adapted for a flowing report */
         body {
@@ -183,8 +183,8 @@
             </div>
             <div class="details-right">
                 <div class="header-info">
-                    <h2>Invoices Report</h2>
-                    <h4>Number of Invoices: {{ $invoices->count() }}</h4>
+                    <h2>{{ __('messages.Invoices Report') }}</h2>
+                    <h4>{{ __('messages.Number of Invoices') }}: {{ $invoices->count() }}</h4>
                 </div>
             </div>
         </div>
@@ -193,19 +193,19 @@
         <div class="totals-summary">
             <div class="summary-row">
                 <div class="summary-item">
-                    <strong>Total Paid:</strong> <span class="paid">{{ number_format($totalPaid, 2, ',', ' ') }}€</span>
+                    <strong>{{ __('messages.Invoices Total Paid') }}</strong> <span class="paid">{{ number_format($totalPaid, 2, ',', ' ') }}€</span>
                 </div>
                 <div class="summary-item">
-                    <strong>Total Unpaid:</strong> <span class="unpaid">{{ number_format($totalUnpaid, 2, ',', ' ') }}€</span>
+                    <strong>{{ __('messages.Invoices Total Unpaid') }}</strong> <span class="unpaid">{{ number_format($totalUnpaid, 2, ',', ' ') }}€</span>
                 </div>
                 <div class="summary-item">
-                    <strong>Total TVA:</strong> <span>{{ number_format($totaltva, 2, ',', ' ') }}€</span>
+                    <strong>{{ __('messages.Invoices Total TVA') }}</strong> <span>{{ number_format($totaltva, 2, ',', ' ') }}€</span>
                 </div>
                 <div class="summary-item">
-                    <strong>Total Credit Note:</strong> <span class="credit">{{ number_format($totalCreditNote, 2, ',', ' ') }}€</span>
+                    <strong>{{ __('messages.Invoices Total Credit Note') }}</strong> <span class="credit">{{ number_format($totalCreditNote, 2, ',', ' ') }}€</span>
                 </div>
                 <div class="summary-item">
-                    <strong>Total:</strong> <span class="total">{{ number_format($total, 2, ',', ' ') }}€</span>
+                    <strong>{{ __('messages.Invoices Total') }}</strong> <span class="total">{{ number_format($total, 2, ',', ' ') }}€</span>
                 </div>
             </div>
         </div>
@@ -215,16 +215,16 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 12%;">Invoice N</th>
-                    <th>Project Name</th>
-                    <th>TVA</th>
-                    <th>Client Name</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Invoice Type</th>
-                    <th style="width: 10%;">Created At</th>
-                    <th style="width: 8%;">Payment</th>
-                    <th>Cost</th>
+                    <th style="width: 12%;">{{ __('messages.Invoice N') }}</th>
+                    <th>{{ __('messages.Project Name') }}</th>
+                    <th>{{ __('messages.VAT') }}</th>
+                    <th>{{ __('messages.Client Name') }}</th>
+                    <th>{{ __('messages.Start Date') }}</th>
+                    <th>{{ __('messages.End Date') }}</th>
+                    <th>{{ __('messages.Invoice Type') }}</th>
+                    <th style="width: 10%;">{{ __('messages.Created At') }}</th>
+                    <th style="width: 8%;">{{ __('messages.Payment column') }}</th>
+                    <th>{{ __('messages.Cost') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -248,7 +248,7 @@
                         @php 
                         $project = App\Models\Project::find($invoice->project_id);
                         @endphp
-                        {{$project->name ?? 'N/A'}}
+                        {{$project->name ?? __('messages.N/A')}}
                     </td>
                     <td>
                         {{$project->tva ?? 0}}%
@@ -257,7 +257,7 @@
                         @php 
                         $client = App\Models\Client::find($invoice->client_id);
                         @endphp
-                        {{$client->name ?? 'N/A'}}
+                        {{$client->name ?? __('messages.N/A')}}
                     </td>
                     <td>{{$invoice->start_date}}</td>
                     <td>{{$invoice->end_date}}</td>
@@ -265,11 +265,11 @@
                     <td>{{ \Carbon\Carbon::parse($invoice->created_at)->format('d-m-Y') }}</td>
                     <td>
                         @if($invoice->Payment_status == 1)
-                            <span style="color: #28a745; font-weight: bold;">Paid</span>
+                            <span style="color: #28a745; font-weight: bold;">{{ __('messages.Paid') }}</span>
                         @elseif($invoice->Payment_status == -1)
-                            <span style="color: #007bff; font-weight: bold;">Credit Note</span>
+                            <span style="color: #007bff; font-weight: bold;">{{ __('messages.Credit Note') }}</span>
                         @else
-                            <span style="color: #dc3545; font-weight: bold;">Unpaid</span>                     
+                            <span style="color: #dc3545; font-weight: bold;">{{ __('messages.Unpaid') }}</span>                     
                         @endif
                     </td>
                     <td>

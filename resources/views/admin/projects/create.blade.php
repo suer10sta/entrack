@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Project</title>
+    <title>{{ __('messages.Create New Project') }}</title>
     @vite('resources/css/app.css')
 </head>
 
@@ -25,8 +25,8 @@
             <div class="max-w-4xl mx-auto">
                 
                 <div class="bg-white rounded-2xl shadow-lg p-6">
-                    <h2 class="text-2xl font-bold text-slate-900 mb-1">New project</h2>
-                    <p class="text-sm text-slate-500">Create new project for your client</p>
+                    <h2 class="text-2xl font-bold text-slate-900 mb-1">{{ __('messages.New project') }}</h2>
+                    <p class="text-sm text-slate-500">{{ __('messages.Create new project for your client') }}</p>
 
                     @if(session('message'))
                     <div class="my-4 bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-lg relative" role="alert">
@@ -53,23 +53,23 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
                             <div class="md:col-span-4">
-                                <label for="projectName" class="block text-sm font-medium text-slate-700 mb-1">Project Name <span class="text-red-500">*</span></label>
+                                <label for="projectName" class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Project Name') }} <span class="text-red-500">*</span></label>
                                 <input type="text" id="projectName" name='name' class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
                             </div>
                             <div class="md:col-span-2">
-                                <label for="projectBudget" class="block text-sm font-medium text-slate-700 mb-1">Budget</label>
+                                <label for="projectBudget" class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Budget label') }}</label>
                                 <input type="number" step="0.0001" id="projectBudget" name='budget' class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
                             </div>
                             <div class="md:col-span-2">
-                                <label for="costPerHour" class="block text-sm font-medium text-slate-700 mb-1">CPH <span class="text-red-500">*</span></label>
+                                <label for="costPerHour" class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.CPH') }} <span class="text-red-500">*</span></label>
                                 <input type="number" step="0.0001" id="costPerHour" name='cost_per_hour' class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
                             </div>
                             <div class="md:col-span-2">
-                                <label for="estimatedHours" class="block text-sm font-medium text-slate-700 mb-1">Est. Hours</label>
+                                <label for="estimatedHours" class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Est. Hours') }}</label>
                                 <input type="number" step="0.0001" id="estimatedHours" name='estimated_hours' class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
                             </div>
                             <div class="md:col-span-2">
-                                <label for="tva" class="block text-sm font-medium text-slate-700 mb-1">TVA % <span class="text-red-500">*</span></label>
+                                <label for="tva" class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.TVA %') }} <span class="text-red-500">*</span></label>
                                 <input type="number" step="0.0001" id="tva" name='tva' class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
                             </div>
                         </div>
@@ -77,18 +77,18 @@
                         <div class="flex items-center">
                             <input id="regie" name="regie" type="checkbox" value="1" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                             <label for="regie" class="ml-2 block text-sm text-gray-900">
-                                Regie
+                                {{ __('messages.Regie') }}
                             </label>
                         </div>
 
                         <div>
-                            <label for="projectDescription" class="block text-sm font-medium text-slate-700 mb-1">Informations</label>
+                            <label for="projectDescription" class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Informations') }}</label>
                             <textarea id="projectDescription" name="description" rows="4" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                             <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-2">Teams</label>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">{{ __('messages.Teams label') }}</label>
                                 <div class="h-48 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-4">
                                     @foreach($teams as $team)
                                     <div class="flex items-center">
@@ -102,7 +102,7 @@
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-2">Contacts <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">{{ __('messages.Contacts label') }} <span class="text-red-500">*</span></label>
                                 @php 
                                 $client_contacts = App\Models\client_contacts::where('client_id', $client_id)
                                     ->whereNotNull('name')
@@ -124,10 +124,10 @@
                         <div class="flex justify-end gap-4 pt-4">
                             
                             <a href="javascript:history.back()" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">
-                                Cancel
+                                {{ __('messages.Cancel') }}
                             </a>
                             <button type="submit" name="button" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow">
-                                Create project
+                                {{ __('messages.Create project') }}
                             </button>
                         </div>
                     </form>

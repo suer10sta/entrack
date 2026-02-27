@@ -6,9 +6,9 @@ $clients = [
 ];
 
 $testimonials = [
-    ['id'=>1, 'text'=>"DalyTrac has transformed the way we manage our projects and invoices. The interface is intuitive and the features are exactly what we needed.", 'author'=>'Marie Dubois', 'company'=>'Smart Ladies', 'role'=>'CEO'],
-    ['id'=>2, 'text'=>"Thanks to this platform, we reduced our billing time by 60%. Real-time project tracking is a real asset for our team.", 'author'=>'Pierre Martin', 'company'=>'Shoes Factory', 'role'=>'Chief Financial Officer'],
-    ['id'=>3, 'text'=>"A complete solution that meets all our business management needs. Customer support is outstanding and frequent updates always bring useful new features.", 'author'=>'Sophie Laurent', 'company'=>'Tech Solutions', 'role'=>'Project Manager'],
+    ['id'=>1, 'text_key'=>'Testimonial 1 Text', 'author'=>'Marie Dubois', 'company'=>'Smart Ladies', 'role'=>'CEO'],
+    ['id'=>2, 'text_key'=>'Testimonial 2 Text', 'author'=>'Pierre Martin', 'company'=>'Shoes Factory', 'role'=>'Chief Financial Officer'],
+    ['id'=>3, 'text_key'=>'Testimonial 3 Text', 'author'=>'Sophie Laurent', 'company'=>'Tech Solutions', 'role'=>'Project Manager'],
 ];
 @endphp
 
@@ -19,11 +19,11 @@ $testimonials = [
                 <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                 </svg>
-                Customer Testimonials
+                {{ __('messages.Customer Testimonials') }}
             </div>
-            <h2 class="text-balance text-4xl font-bold text-foreground lg:text-5xl">Trusted by Growing Teams</h2>
+            <h2 class="text-balance text-4xl font-bold text-foreground lg:text-5xl">{{ __('messages.Trusted by Growing Teams') }}</h2>
             <p class="mt-4 text-pretty text-lg text-muted-foreground">
-                See what our customers say about the platform
+                {{ __('messages.See what our customers say about the platform') }}
             </p>
         </div>
 
@@ -38,7 +38,7 @@ $testimonials = [
                         @endfor
                     </div>
                     <blockquote class="mb-6 text-pretty leading-relaxed text-foreground">
-                        "{{ $testimonial['text'] }}"
+                        "{{ __('messages.' . $testimonial['text_key']) }}"
                     </blockquote>
                     <div class="flex items-center gap-4 border-t border-border pt-6">
                         <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-lg font-bold text-white shadow-lg">

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasks - DalyTrac</title> {{-- Updated title --}}
+    <title>{{ __('messages.Tasks - DalyTrac') }}</title> {{-- Updated title --}}
     @vite('resources/css/app.css')
     @livewireStyles
     {{-- Include dashboard_layouts.head if needed --}}
@@ -33,7 +33,7 @@
                 {{-- Header Section --}}
                 <div class="p-6 border-b border-gray-200">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                        <h6 class="text-lg font-semibold text-gray-900">Tasks Table</h6>
+                        <h6 class="text-lg font-semibold text-gray-900">{{ __('messages.Tasks Table') }}</h6>
 
                         {{-- Buttons --}}
                         <div class="flex flex-wrap gap-2">
@@ -46,7 +46,7 @@
                             @endphp
                             <a href="{{ $reportRoute }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                                Tasks Reports PDF
+                                {{ __('messages.Tasks Reports PDF') }}
                             </a>
                         </div>
                     </div>
@@ -54,9 +54,9 @@
                     {{-- Filters --}}
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div class="w-full sm:w-auto">
-                            <label for="taskFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Task Name</label>
+                            <label for="taskFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Task Name') }}</label>
                             <select id="taskFilter" class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                                <option value="">All Tasks</option>
+                                <option value="">{{ __('messages.All Tasks') }}</option>
                                 {{-- Use distinct task titles --}}
                                 @foreach($tasks->unique('title') as $task)
                                     <option value="{{ $task->title }}">{{ $task->title }}</option>
@@ -64,8 +64,8 @@
                             </select>
                         </div>
                         <div class="w-full sm:w-auto">
-                            <label for="taskSearch" class="block text-sm font-medium text-gray-700 mb-1">Search Task</label>
-                            <input type="text" id="taskSearch" class="block w-full sm:w-64 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Type to search...">
+                            <label for="taskSearch" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Search Task') }}</label>
+                            <input type="text" id="taskSearch" class="block w-full sm:w-64 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="{{ __('messages.Type to search...') }}">
                         </div>
                     </div>
                 </div>
@@ -95,14 +95,14 @@
                         <table class="w-full text-left border-collapse" id="tasksTable">
                             <thead class="border-b border-gray-200 bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left w-1/4">Project / Task</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Teams</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left" >Employees</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Duration</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Est. Hours</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Difference</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Progress</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Actions</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left w-1/4">{{ __('messages.Project / Task') }}</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Teams column') }}</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left" >{{ __('messages.Employees column') }}</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Duration') }}</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Est. Hours') }}</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Difference') }}</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Progress') }}</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
@@ -161,7 +161,7 @@
                                                         </span>
                                                         @endif
                                                      @empty
-                                                        <span class="text-xs text-gray-400">No team</span>
+                                                        <span class="text-xs text-gray-400">{{ __('messages.No team') }}</span>
                                                      @endforelse
                                                  </div>
                                             </td>
@@ -197,7 +197,7 @@
                                                         </span>
                                                         @endif
                                                      @empty
-                                                        <span class="text-xs text-gray-400">No employees</span>
+                                                        <span class="text-xs text-gray-400">{{ __('messages.No employees') }}</span>
                                                      @endforelse
                                                  </div>
                                             </td>
@@ -208,7 +208,7 @@
                                                 $taskhours = floor(abs($tasktotalduration) / 60);
                                                 $taskminutes = abs($tasktotalduration) % 60;
 
-                                                $taskestimatedMinutes = ($task->estimated_hours ?? 0) * 60;
+                                                $taskestimatedMinutes = max(0, (($task->estimated_hours ?? 0) - ($task->consumed_hours ?? 0)) * 60);
                                                 $taskdifference = $taskestimatedMinutes - $tasktotalduration;
                                                 $diffhours = floor(abs($taskdifference) / 60);
                                                 $diffminutes = abs($taskdifference) % 60;
@@ -266,7 +266,7 @@
                                                 @endphp
 
                                                 @if($canEditTask)
-                                                    <a href="{{ $editRoute }}" title="Update task"
+                                                    <a href="{{ $editRoute }}" title="{{ __('messages.Update task') }}"
                                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-blue-600 hover:bg-blue-700">
                                                         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -276,7 +276,7 @@
                                                 @endif
 
                                                 @if($canDeleteTask && Auth::user()->hasRole('Admin')) {{-- Only show delete for Admin based on original --}}
-                                                    <form method="post" action="{{ $deleteRoute }}" onsubmit="return confirm('Are you sure?');" class="inline">
+                                                    <form method="post" action="{{ $deleteRoute }}" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit"
@@ -294,7 +294,7 @@
                                 @empty
                                     <tr>
                                          <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
-                                             No tasks found.
+                                             {{ __('messages.No tasks found index') }}
                                          </td>
                                     </tr>
                                 @endforelse

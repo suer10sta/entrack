@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -200,15 +200,15 @@
 
             <div class="details">
                 <div class="details-left">
-                    <p>Date du rappel: {{$last_reminder_date}}<br>
-                        Échéance:
+                    <p>{{ __('messages.Reminder Date') }}: {{$last_reminder_date}}<br>
+                        {{ __('messages.Due Date') }}:
                         {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}<br>
-                        Numéro client : {{ $client->client_number }} <br>
-                        Numéro de facture : {{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif<br>
-                        Rappel numéro : {{$reminder_number}}
+                        {{ __('messages.Client Number') }} : {{ $client->client_number }} <br>
+                        {{ __('messages.Invoice Number') }} : {{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif<br>
+                        {{ __('messages.Reminder Number') }} : {{$reminder_number}}
                         @if($isOverdue)
                             <br>
-                            <span style="color: red;">Jours en retard : {{ $days_overdue }}</span>
+                            <span style="color: red;">{{ __('messages.Days overdue') }} : {{ $days_overdue }}</span>
                         @endif
                     </p>
                 </div>
@@ -217,12 +217,12 @@
                     {{ $client->billing_street }}<br>
                     {{ $client->billing_zip }}-{{ $client->billing_city }}<br>
                     {{ $client->billing_country }}<br>
-                    TVA Client: {{ $client->TVA }}
+                    {{ __('messages.Client TVA') }}: {{ $client->TVA }}
                 </div>
             </div>
             <br><br><br><br><br> 
             <div class="invoice-number">
-                Rappel Facture :
+                {{ __('messages.Invoice Reminder') }} :
                 {{$entreprise->invoice_prefix}}-{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif
             </div>
 
@@ -239,15 +239,15 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Désignation</th>
+                        <th>{{ __('messages.Designation') }}</th>
                         @if(isset($invoice) && $invoice->hours !== null)
-                            <th>Heures</th>
-                            <th>Coût par heure</th>
+                            <th>{{ __('messages.Hours') }}</th>
+                            <th>{{ __('messages.Cost per Hour') }}</th>
                         @else
-                            <th>Quantite</th>
-                            <th>Prix Unitaire</th>
+                            <th>{{ __('messages.Quantity') }}</th>
+                            <th>{{ __('messages.Unit Price') }}</th>
                         @endif
-                        <th>Montant</th>
+                        <th>{{ __('messages.Amount') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -267,16 +267,16 @@
 
             <table class="totals">
                 <tr>
-                    <td style="text-align: right; width: 80%;">Total HTVA</td>
+                    <td style="text-align: right; width: 80%;">{{ __('messages.Total Excl VAT') }}</td>
                     <td style="text-align: right;">{{$budget}}€</td>
                 </tr>
                 <tr>
-                    <td style="text-align: right;">TVA {{ $projectinfos->tva }}%</td>
+                    <td style="text-align: right;">{{ __('messages.VAT') }} {{ $projectinfos->tva }}%</td>
                     <td style="text-align: right;">
                         {{number_format($budget* ($projectinfos->tva / 100), 2, ',', '')}}€</td>
                 </tr>
                 <tr>
-                    <td style="text-align: right;">Total TTC</td>
+                    <td style="text-align: right;">{{ __('messages.Total Incl VAT') }}</td>
                     <td style="text-align: right;">
                         <b>{{number_format($budget + ($budget*($projectinfos->tva/100)), 2, ',', '')}}€</b>
                     </td>
@@ -284,22 +284,22 @@
             </table>
 
             <div class="description">
-                <strong>- Informations :</strong><br>
+                <strong>- {{ __('messages.Information') }} :</strong><br>
                 {!! nl2br(e($projectinfos->description)) !!} <br>
-                <strong>- Commentaire :</strong><br>
+                <strong>- {{ __('messages.Comment') }} :</strong><br>
                <p style="white-space: pre-wrap;">{!! nl2br(e($comment)) !!}</p> 
             </div>
 
             <div class="payment">
-                - Veuillez payer le montant de
+                - {{ __('messages.Please pay the amount of') }}
                 <strong>{{number_format($budget + ($budget*($projectinfos->tva/100)), 2, ',', '')}}€</strong>
-                sur le compte mentionné ci-dessous avant le
+                {{ __('messages.on the account mentioned below before') }}
                 {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}
-                en mentionnant le numéro Facture <strong>{{ $invoice->created_at->format('ym') }}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif</strong><br>
-                - Dans le cas de livraison intracommunautaire pour les services :  "Autoliquidation Art 21 § 2 du code TVA belge"
+                {{ __('messages.mentioning the invoice number') }} <strong>{{ $invoice->created_at->format('ym') }}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif</strong><br>
+                - {{ __('messages.In case of intra-community delivery for services') }}:  "Autoliquidation Art 21 § 2 du code TVA belge"
                 <br>
-                - Voir conditions générales en annexe<br>
-                - Merci de votre confiance
+                - {{ __('messages.See general conditions in annex') }}<br>
+                - {{ __('messages.Thank you for your trust') }}
             </div>
         </div>
 
@@ -307,16 +307,16 @@
             <div class="footer-content">
                 <div class="footer-left footer-text">
                     <b>{{ $entreprise->name }}</b><br>
-                    <b>Numéro TVA:</b> {{ $entreprise->tva}}
+                    <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
                 </div>
                 <div class="footer-center footer-text">
                     {{ $entreprise->Address }}<br>
-                    Tél: 0{{ $entreprise->phone }}
+                    {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
                 </div>
                 <div class="footer-right footer-text">
-                    <b>BANK</b> : {{ $entreprise->bank_name }}<br>
-                    <b>IBAN</b> : {{ $entreprise->iban }}<br>
-                    <b>SWIFT/BIC</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
+                    <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }}<br>
+                    <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }}<br>
+                    <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
                 </div>
             </div>
         </div>
@@ -325,7 +325,7 @@
     <!-- Second page - General Conditions -->
     <div class="page">
         <div class="content-wrapper">
-            <h2>Conditions Générales :</h2>
+            <h2>{{ __('messages.General Conditions') }} :</h2>
             <div class="general-conditions">
                 <p>{!! nl2br(e($entreprise->general_conditions)) !!}</p>
             </div>

@@ -109,7 +109,7 @@ thead {
         </div>
         <div class="details-right">
             <div class="header-info">
-                <h2>Work Days Reports Table for : <strong>{{ $month }}-{{ $year }} </strong></h2>
+                <h2>{{ __('messages.Work Days Reports') }} {{ __('messages.For period label') }} <strong>{{ $month }}-{{ $year }} </strong></h2>
             </div>
         </div>
     </div>
@@ -117,23 +117,23 @@ thead {
     <table>
         <thead>
             <tr>
-                <th>Nom d'employé</th> 
-                @if (!in_array('work_days_gross', $excludedColumns)) <th>Nombre jours de travail brut</th> @endif
-                @if (!in_array('days_worked', $excludedColumns)) <th>Nombre jours travaillés interne</th> @endif
-                @if (!in_array('days_worked_gross', $excludedColumns)) <th>Nombre de jours de travail sans les jours fériés et sans les congés payés</th> @endif
-                @if (!in_array('days_of_unpaid_absence', $excludedColumns)) <th>Jours d'absence</th> @endif
-                @if (!in_array('sick_days', $excludedColumns)) <th>Nombre jours maladie</th> @endif
-                @if (!in_array('holidays', $excludedColumns)) <th>Nombre jours fériés</th> @endif
-                @if (!in_array('remaining_days_of_paid_leave', $excludedColumns)) <th>Reliquat jours congé payé</th> @endif
-                @if (!in_array('number_of_days_of_paid_leave_acquired', $excludedColumns)) <th>Nombre jours congé payé acquis</th> @endif
-                @if (!in_array('number_of_days_of_paid_leave_taken', $excludedColumns)) <th>Nombre jours congé payé pris</th> @endif
-                @if (!in_array('holiday_balance', $excludedColumns)) <th>Solde congés</th> @endif
-                @if (!in_array('dates_of_holidays', $excludedColumns)) <th>Dates des jours congé payé</th> @endif
-                @if (!in_array('days_to_recover', $excludedColumns)) <th>Jours a récupérer</th> @endif
-                @if (!in_array('interne_remarque', $excludedColumns)) <th>Interne remarque</th> @endif
-                @if (!in_array('remarque', $excludedColumns)) <th>Remarque</th> @endif
-                @if (!in_array('month', $excludedColumns)) <th>Mois</th> @endif
-                @if (!in_array('year', $excludedColumns)) <th>Année</th> @endif
+                <th>{{ __('messages.Employee Name header') }}</th> 
+                @if (!in_array('work_days_gross', $excludedColumns)) <th>{{ __('messages.Gross Days') }}</th> @endif
+                @if (!in_array('days_worked', $excludedColumns)) <th>{{ __('messages.Internal Work Days') }}</th> @endif
+                @if (!in_array('days_worked_gross', $excludedColumns)) <th>{{ __('messages.Work Days Without Holidays') }}</th> @endif
+                @if (!in_array('days_of_unpaid_absence', $excludedColumns)) <th>{{ __('messages.Unpaid Absence Days') }}</th> @endif
+                @if (!in_array('sick_days', $excludedColumns)) <th>{{ __('messages.Sick Days') }}</th> @endif
+                @if (!in_array('holidays', $excludedColumns)) <th>{{ __('messages.Holidays') }}</th> @endif
+                @if (!in_array('remaining_days_of_paid_leave', $excludedColumns)) <th>{{ __('messages.Remaining Paid Leave') }}</th> @endif
+                @if (!in_array('number_of_days_of_paid_leave_acquired', $excludedColumns)) <th>{{ __('messages.Paid Leave Acquired') }}</th> @endif
+                @if (!in_array('number_of_days_of_paid_leave_taken', $excludedColumns)) <th>{{ __('messages.Paid Leave Taken') }}</th> @endif
+                @if (!in_array('holiday_balance', $excludedColumns)) <th>{{ __('messages.Leave Balance') }}</th> @endif
+                @if (!in_array('dates_of_holidays', $excludedColumns)) <th>{{ __('messages.Paid Leave Dates') }}</th> @endif
+                @if (!in_array('days_to_recover', $excludedColumns)) <th>{{ __('messages.Days To Recover') }}</th> @endif
+                @if (!in_array('interne_remarque', $excludedColumns)) <th>{{ __('messages.Internal Remark') }}</th> @endif
+                @if (!in_array('remarque', $excludedColumns)) <th>{{ __('messages.Remark') }}</th> @endif
+                @if (!in_array('month', $excludedColumns)) <th>{{ __('messages.Month') }}</th> @endif
+                @if (!in_array('year', $excludedColumns)) <th>{{ __('messages.Year') }}</th> @endif
             </tr>
         </thead>
         <tbody>
@@ -209,8 +209,8 @@ thead {
     </table>
     <br>
     <div class="footer">
-        <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
-        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
+        <div class='footer-left'>{{ __('messages.Download Date') }}: {{ date('d-m-Y') }}</div>
+        <div class='footer-right'>{{ __('messages.Page Number') }}: <span class="page-number"></span></div>
     </div>
 </div>
 <script>

@@ -15,11 +15,28 @@ class ManagerSubscriptionController extends Controller
         $allowedPlans = ['solo', 'premium', 'pro'];
         $activePlan = $request->query('plan');
         $activePlan = in_array($activePlan, $allowedPlans, true) ? $activePlan : null;
+        $status = $request->query('status');
+        $activeStatus = $status === 'active' ? 'active' : null;
 
         // Eager-load subscriptions to avoid N+1 queries when showing plan end dates in the table.
         $entreprisesQuery = Entreprise::with(['user', 'subscriptions']);
         if ($activePlan) {
             $entreprisesQuery->where('type_compt', $activePlan);
+        }
+
+        if ($activeStatus === 'active') {
+            // Restrict to entreprises that have an active subscription (database-level approximation)
+            $activeStatuses = ['active', 'trialing', 'past_due', 'unpaid'];
+
+            $entreprisesQuery
+                ->whereNotNull('type_compt')
+                ->where(function ($query) {
+                    $query->whereNull('account_status')
+                        ->orWhere('account_status', '!=', 'inactive');
+                })
+                ->whereHas('subscriptions', function ($subQuery) use ($activeStatuses) {
+                    $subQuery->whereIn('stripe_status', $activeStatuses);
+                });
         }
 
         $entreprises = $entreprisesQuery
@@ -102,6 +119,7 @@ class ManagerSubscriptionController extends Controller
             'planCounts' => $planCounts,
             'estimatedMonthlyRevenue' => $estimatedMonthlyRevenue,
             'activePlan' => $activePlan,
+            'activeStatus' => $activeStatus,
             'subscriptionStatusByEntrepriseId' => $subscriptionStatusByEntrepriseId,
             'planEndsAtByEntrepriseId' => $planEndsAtByEntrepriseId,
         ]);

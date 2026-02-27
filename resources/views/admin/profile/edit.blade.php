@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DalyTrac Dashboard</title>
+    <title>{{ __('messages.Edit Profile Page Title') }}</title>
     @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
@@ -21,8 +21,8 @@
         <div class="container mx-auto max-w-4xl p-4 md:p-8">
 
             <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">Edit Profile</h1>
-                <p class="text-gray-600 mt-1">Update your personal and business information</p>
+                <h1 class="text-3xl font-bold text-gray-900">{{ __('messages.Edit Profile') }}</h1>
+                <p class="text-gray-600 mt-1">{{ __('messages.Edit Profile subtitle') }}</p>
             </div>
 
             {{-- === PROFILE INITIALS BLOCK === --}}
@@ -41,8 +41,8 @@
                         <span class="text-white text-3xl font-bold">{{ $initials }}</span>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold text-gray-900">Profile Initials</h2>
-                        <p class="text-sm text-gray-500 mt-1">This is generated from your name.</p>
+                        <h2 class="text-lg font-bold text-gray-900">{{ __('messages.Profile Initials') }}</h2>
+                        <p class="text-sm text-gray-500 mt-1">{{ __('messages.Profile Initials description') }}</p>
                     </div>
                 </div>
             </div>
@@ -56,41 +56,41 @@
                     
                     {{-- 1. Name --}}
                     <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <label for="name" class="block text-sm font-medium text-gray-700">{{ __('messages.Full Name') }}</label>
                         <input type="text" name="name" id="name" value="{{ $user->name }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                     </div>
 
                     {{-- 2. Email --}}
                     <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                        <label for="email" class="block text-sm font-medium text-gray-700">{{ __('messages.Email Address') }}</label>
                         <input type="email" name="email" id="email" value="{{ $user->email }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                     </div>
 
                     {{-- 3. Phone Number --}}
                     <div>
-                        <label for="phoneNumber" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                        <label for="phoneNumber" class="block text-sm font-medium text-gray-700">{{ __('messages.Phone Number') }}</label>
                         {{-- The '?' (null-safe operator) prevents errors if the employee record doesn't exist --}}
                         <input type="text" name="phoneNumber" id="phoneNumber" value="{{ $user->employee?->phoneNumber }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                     </div>
 
                     {{-- 4. Status --}}
                     <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                        <label for="status" class="block text-sm font-medium text-gray-700">{{ __('messages.Status') }}</label>
                         <select id="status" name="is_activate" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            <option value="1" {{ $user->is_activate ? 'selected' : '' }}>Active</option>
-                            <option value="0" {{ !$user->is_activate ? 'selected' : '' }}>Inactive</option>
+                            <option value="1" {{ $user->is_activate ? 'selected' : '' }}>{{ __('messages.Active') }}</option>
+                            <option value="0" {{ !$user->is_activate ? 'selected' : '' }}>{{ __('messages.Inactive') }}</option>
                         </select>
                     </div>
 
                     {{-- 5. CNSS --}}
                     <div class="md:col-span-2">
-                        <label for="cnss" class="block text-sm font-medium text-gray-700">CNSS Number</label>
+                        <label for="cnss" class="block text-sm font-medium text-gray-700">{{ __('messages.CNSS Number') }}</label>
                         <input type="text" name="cnss" id="cnss" value="{{ $user->employee?->cnss }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                     </div>
                     
                     {{-- 6. Bank Account --}}
                     <div class="md:col-span-2">
-                        <label for="bankAccountNumber" class="block text-sm font-medium text-gray-700">Bank Account Number</label>
+                        <label for="bankAccountNumber" class="block text-sm font-medium text-gray-700">{{ __('messages.Bank Account Number') }}</label>
                         <input type="text" name="bankAccountNumber" id="bankAccountNumber" value="{{ $user->employee?->bankAccountNumber }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                     </div>
 
@@ -100,10 +100,10 @@
                 <div class="mt-8 flex justify-end space-x-4">
                     {{-- This links back to your main profile page --}}
                     <a href="{{ route('profile') }}" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        Cancel
+                        {{ __('messages.Cancel') }}
                     </a>
                     <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        Save Changes
+                        {{ __('messages.Save Changes') }}
                     </button>
                 </div>
             </form>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="UTF-8">
@@ -189,7 +189,7 @@
 
 <body>
     <div class="page">
-        <div class="content-wrappe">
+        <div class="content-wrapper">
             <div class="header">
                 <div class="header logo-right">
                 @if($entreprise->image)
@@ -203,7 +203,7 @@
 
             <div class="details">
                 <div class="details-left">
-                    <p>Date de La Note de Credit: <?php echo date('d-m-Y'); ?><br />
+                    <p>{{ __('messages.Credit Note Date') }}: <?php echo date('d-m-Y'); ?><br />
 
                     </p>
                 </div>
@@ -212,14 +212,14 @@
                     {{ $client->billing_street }} <br />
                     {{ $client->billing_zip }}-{{ $client->billing_city }} <br />
                     {{ $client->billing_country }}<br />
-                    TVA Client: {{ $client->TVA }}
+                    {{ __('messages.Client VAT') }}: {{ $client->TVA }}
                 </div>
             </div>
 
             <br><br><br><br><br>
             <div class="invoice-number">
-                Note De Credit : NC-{{date('ym')}}{{$credit_note->credit_note_number}}
-                <br> Ref:
+                {{ __('messages.Credit Note') }} : NC-{{date('ym')}}{{$credit_note->credit_note_number}}
+                <br> {{ __('messages.Ref') }}:
                 {{$entreprise->invoice_prefix}}-{{date('ym')}}@if(request()->has('number')){{request()->input('number')}}@else{{$invoice_id }}
                 @endif
             </div>
@@ -227,12 +227,12 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Désignation</th>
-                        <th>Durée</th>
-                        <th>Prix Unitaire</th>
-                        <th>Montant</th>
+                        <th>{{ __('messages.Designation') }}</th>
+                        <th>{{ __('messages.Duration') }}</th>
+                        <th>{{ __('messages.Unit Price') }}</th>
+                        <th>{{ __('messages.Amount') }}</th>
                         @if($partial == 1)
-                        <th>Montant Original</th>
+                        <th>{{ __('messages.Original Amount') }}</th>
                         @endif
                     </tr>
                 </thead>
@@ -275,13 +275,13 @@ echo $hours . 'h:' . sprintf('%02d', $minutes) . 'm';
                 <tbody>
                     <tr>
                         <td colspan="3" class="totals">
-                            <div class="label">Total HTVA</div>
+                            <div class="label">{{ __('messages.Total Excl VAT') }}</div>
                             <div class="value">-{{ number_format(abs($prixtotal), 2, ',', '') }}€</div>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="3" class="totals">
-                            <div class="label">TVA {{$projectinfos->tva}}%
+                            <div class="label">{{ __('messages.VAT') }} {{$projectinfos->tva}}%
                             </div>
                             <div class="value">
                                 -{{number_format((abs($prixtotal * ($projectinfos->tva / 100))), 2, ',', '')}}€
@@ -290,7 +290,7 @@ echo $hours . 'h:' . sprintf('%02d', $minutes) . 'm';
                     </tr>
                     <tr>
                         <td colspan="3" class="totals">
-                            <div class="label">Total TTC</div>
+                            <div class="label">{{ __('messages.Total Incl VAT') }}</div>
                             <div class="value">
                                 <b>-{{number_format((abs($prixtotal + (abs($prixtotal) * ($projectinfos->tva / 100)))), 2, ',', '')}}€</b>
                             </div>
@@ -303,22 +303,22 @@ echo $hours . 'h:' . sprintf('%02d', $minutes) . 'm';
             @if($projectinfos->description || $comment)
             <div class="description">
                 @if($projectinfos->description)
-                <strong> - Informations :</strong> <br>
+                <strong> - {{ __('messages.Information') }} :</strong> <br>
                 {!! nl2br(e($projectinfos->description)) !!} <br>
                 @endif
                 @if($comment)
-                <strong>Commentaire:</strong><br>
+                <strong>{{ __('messages.Comment') }}:</strong><br>
                 {!! nl2br(e($comment)) !!}
                 @endif
             </div>
             @endif
 
             <div class="payment">
-                - Cette note de crédit annule @if($partial)partiellement @else totalement @endif la facture {{$entreprise->invoice_prefix}}-{{date('ym')}}{{$invoice->number}}
+                - {{ __('messages.This credit note cancels') }} @if($partial){{ __('messages.partially') }} @else {{ __('messages.totally') }} @endif {{ __('messages.the invoice') }} {{$entreprise->invoice_prefix}}-{{date('ym')}}{{$invoice->number}}
                 <br>
-                - Dans le cas de livraison intracommunautaire pour les services :  "Autoliquidation Art 21 § 2 du code TVA belge"
+                - {{ __('messages.Intracommunity delivery services note') }}
                 <br>
-                - Voir conditions générales en annexe
+                - {{ __('messages.See general conditions in annex') }}
             </div>
 
 
@@ -328,16 +328,16 @@ echo $hours . 'h:' . sprintf('%02d', $minutes) . 'm';
             <div class="footer-content">
                 <div class="footer-left footer-text">
                     <b>{{ $entreprise->name }}</b><br>
-                    <b>Numéro TVA:</b> {{ $entreprise->tva}}
+                    <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
                 </div>
                 <div class="footer-center footer-text">
                     {{ $entreprise->Address }}<br>
-                    Tél: 0{{ $entreprise->phone }}
+                    {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
                 </div>
                 <div class="footer-right footer-text">
-                    <b>BANK</b> : {{ $entreprise->bank_name }}<br>
-                    <b>IBAN</b> : {{ $entreprise->iban }}<br>
-                    <b>SWIFT/BIC</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
+                    <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }}<br>
+                    <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }}<br>
+                    <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
                 </div>
             </div>
         </div>
@@ -347,12 +347,12 @@ echo $hours . 'h:' . sprintf('%02d', $minutes) . 'm';
         <div class="content-wrapper">
             <table>
                 <thead>
-                    <td bordercolor=' #ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Nom de Tache</strong></td>
-                    <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Projet / Sous-projet</strong></td>
-                    <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Date de debut </strong>
+                    <td bordercolor=' #ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Task Name') }}</strong></td>
+                    <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Project / Subproject') }}</strong></td>
+                    <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Start Date') }} </strong>
                     </td>
-                    <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Date de Fin</strong></td>
-                    <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>Duree</strong></td>
+                    <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.End Date') }}</strong></td>
+                    <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Duration') }}</strong></td>
 
                 </thead>
                 <tbody>
@@ -378,7 +378,7 @@ echo $hours . 'h:' . sprintf('%02d', $minutes) . 'm';
                     </tr>
                     @endforeach
                     <tr>
-                        <td colspan="4" style='font-size:12px; text-align: right;'><strong>Duree Total:</strong></td>
+                        <td colspan="4" style='font-size:12px; text-align: right;'><strong>{{ __('messages.Total Duration') }}:</strong></td>
                         <td valign='top' style='font-size:12px;'>
                             {{ floor($totalMinutes / 60) }}h:{{ sprintf('%02d', $totalMinutes % 60) }}m
                         </td>
@@ -390,16 +390,16 @@ echo $hours . 'h:' . sprintf('%02d', $minutes) . 'm';
             <div class="footer-content">
                 <div class="footer-left footer-text">
                     <b>{{ $entreprise->name }}</b><br>
-                    <b>Numéro TVA:</b> {{ $entreprise->tva}}
+                    <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
                 </div>
                 <div class="footer-center footer-text">
                     {{ $entreprise->Address }}<br>
-                    Tél: 0{{ $entreprise->phone }}
+                    {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
                 </div>
                 <div class="footer-right footer-text">
-                    <b>BANK</b> : {{ $entreprise->bank_name }}<br>
-                    <b>IBAN</b> : {{ $entreprise->iban }}<br>
-                    <b>SWIFT/BIC</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
+                    <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }}<br>
+                    <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }}<br>
+                    <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
                 </div>
             </div>
         </div>
@@ -409,7 +409,7 @@ echo $hours . 'h:' . sprintf('%02d', $minutes) . 'm';
 
     <div class="page">
         <div class="content-wrapper">
-            <h2>Conditions Générales :</h2>
+            <h2>{{ __('messages.General Conditions') }} :</h2>
             <div class="general-conditions">
                 <p>{!! nl2br(e($entreprise->general_conditions)) !!}</p>
             </div>
@@ -419,16 +419,16 @@ echo $hours . 'h:' . sprintf('%02d', $minutes) . 'm';
             <div class="footer-content">
                 <div class="footer-left footer-text">
                     <b>{{ $entreprise->name }}</b><br>
-                    <b>Numéro TVA:</b> {{ $entreprise->tva}}
+                    <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
                 </div>
                 <div class="footer-center footer-text">
                     {{ $entreprise->Address }}<br>
-                    Tél: 0{{ $entreprise->phone }}
+                    {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
                 </div>
                 <div class="footer-right footer-text">
-                    <b>BANK</b> : {{ $entreprise->bank_name }}<br>
-                    <b>IBAN</b> : {{ $entreprise->iban }}<br>
-                    <b>SWIFT/BIC</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
+                    <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }}<br>
+                    <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }}<br>
+                    <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
                 </div>
             </div>
         </div>

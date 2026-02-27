@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -70,8 +70,8 @@
                 {{-- Converted .card to Tailwind --}}
                 <div class="bg-white shadow-lg rounded-xl p-6 md:p-8">
                     
-                    <h2 class="text-xl font-semibold text-gray-900">Edit Devis</h2>
-                    <p class="text-sm text-gray-600">Edit Offre</p>
+                    <h2 class="text-xl font-semibold text-gray-900">{{ __('messages.Edit Devis') }}</h2>
+                    <p class="text-sm text-gray-600">{{ __('messages.Edit Offre') }}</p>
 
                     {{-- Converted .alert-success to Tailwind --}}
                     @if(session('message'))
@@ -119,16 +119,16 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                                <label for="projectType" class="block text-sm font-medium text-gray-700">Select Project Type <span class="text-red-600">*</span></label>
+                                <label for="projectType" class="block text-sm font-medium text-gray-700">{{ __('messages.Select project type') }} <span class="text-red-600">*</span></label>
                                 <select id="projectType" name="project_type" class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                                    <option value="">Select</option>
-                                    <option value="new" {{ $devis->Existing_project_name === null ? 'selected' : '' }}>New Project</option>
-                                    <option value="existing" {{ $devis->Existing_project_name !== null ? 'selected' : '' }}>Existing Project</option>
+                                    <option value="">{{ __('messages.Select') }}</option>
+                                    <option value="new" {{ $devis->Existing_project_name === null ? 'selected' : '' }}>{{ __('messages.New Project') }}</option>
+                                    <option value="existing" {{ $devis->Existing_project_name !== null ? 'selected' : '' }}>{{ __('messages.Existing Project') }}</option>
                                 </select>
                             </div>
 
                             <div>
-                                <label for="projectName" class="block text-sm font-medium text-gray-700">New Project Name <span class="text-red-600">*</span></label>
+                                <label for="projectName" class="block text-sm font-medium text-gray-700">{{ __('messages.New project name') }} <span class="text-red-600">*</span></label>
                                 <input type="text" id="projectName" name="Project_name"
                                        value="{{ $devis->Existing_project_name === null ? $devis->Project_name : '' }}"
                                        {{ $devis->Existing_project_name !== null ? 'disabled' : '' }}
@@ -136,11 +136,11 @@
                             </div>
 
                             <div>
-                                <label for="existingProjectId" class="block text-sm font-medium text-gray-700">Existing Project Name <span class="text-red-600">*</span></label>
+                                <label for="existingProjectId" class="block text-sm font-medium text-gray-700">{{ __('messages.Existing project name') }} <span class="text-red-600">*</span></label>
                                 <select id="existingProjectId" name="Existing_project_id"
                                         {{ $devis->Existing_project_name === null ? 'disabled' : '' }}
                                         class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                                    <option value="">Select Project</option>
+                                    <option value="">{{ __('messages.Select a project') }}</option>
                                     @foreach($projects as $project)
                                         <option value="{{ $project->id }}" 
                                                 {{ ($devis->Existing_project_name !== null && $project->id == $devis->project_id) ? 'selected' : '' }}>
@@ -154,11 +154,11 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                             <div>
-                                <label for="projectBudget" class="block text-sm font-medium text-gray-700 mb-1">Budget Total</label>
+                                <label for="projectBudget" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Total Budget') }}</label>
                                 <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 bg-gray-100" id="projectBudget" name='budget' value="{{ old('budget', $devis->budget) }}" readonly/>
                             </div>
                             <div>
-                                <label for="projectTva" class="block text-sm font-medium text-gray-700 mb-1">TVA Projet</label>
+                                <label for="projectTva" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Project VAT') }}</label>
                                 <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" id="projectTva" name='project_tva' value="{{$devis->tva}}" />
                             </div>
                         </div>
@@ -166,7 +166,7 @@
                         {{-- Devis Type (Forfait / Hourly / Detailed Hourly) --}}
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                             <div>
-                                <span class="block text-sm font-medium text-gray-700 mb-1">Devis Type <span class="text-red-600">*</span></span>
+                                <span class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Quote type') }} <span class="text-red-600">*</span></span>
                                 <div class="mt-2 flex items-center space-x-6">
                                     <label class="inline-flex items-center">
                                         <input type="radio"
@@ -175,7 +175,7 @@
                                                value="forfait"
                                                class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                                                {{ $billingType === 'forfait' ? 'checked' : '' }}>
-                                        <span class="ml-2 text-sm text-gray-700">Fixed Price</span>
+                                        <span class="ml-2 text-sm text-gray-700">{{ __('messages.Fixed price') }}</span>
                                     </label>
                                     <label class="inline-flex items-center">
                                         <input type="radio"
@@ -184,7 +184,7 @@
                                                value="horaire"
                                                class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                                                {{ $isHourly ? 'checked' : '' }}>
-                                        <span class="ml-2 text-sm text-gray-700">Hourly</span>
+                                        <span class="ml-2 text-sm text-gray-700">{{ __('messages.Hourly') }}</span>
                                     </label>
                                     <label class="inline-flex items-center">
                                         <input type="radio"
@@ -193,7 +193,7 @@
                                                value="detailed_hourly"
                                                class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                                                {{ $isDetailedHourly ? 'checked' : '' }}>
-                                        <span class="ml-2 text-sm text-gray-700">Detailed Hourly</span>
+                                        <span class="ml-2 text-sm text-gray-700">{{ __('messages.Detailed Hourly') }}</span>
                                     </label>
                                 </div>
                             </div>
@@ -202,7 +202,7 @@
                         {{-- Hourly Inputs (shown when Hourly is selected) --}}
                         <div id="hourlyInputs" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6" style="display: {{ $isHourly ? 'grid' : 'none' }};">
                             <div>
-                                <label for="hourlyHours" class="block text-sm font-medium text-gray-700">Number of hours</label>
+                                <label for="hourlyHours" class="block text-sm font-medium text-gray-700">{{ __('messages.Number of hours') }}</label>
                                 <input type="number"
                                        step="0.01"
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -211,7 +211,7 @@
                                        value="{{ $hoursValue }}">
                             </div>
                             <div>
-                                <label for="hourlyAmount" class="block text-sm font-medium text-gray-700">Amount per hour (€)</label>
+                                <label for="hourlyAmount" class="block text-sm font-medium text-gray-700">{{ __('messages.Amount per hour (€)') }}</label>
                                 <input type="number"
                                        step="0.01"
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -222,34 +222,34 @@
                         </div>
 
                         <div class="mt-6">
-                            <label for="projectDescription" class="block text-sm font-medium text-gray-700">Devis Description <span class="text-red-600">*</span></label>
+                            <label for="projectDescription" class="block text-sm font-medium text-gray-700">{{ __('messages.Quote description') }} <span class="text-red-600">*</span></label>
                             <textarea id="projectDescription" name="description" rows="4"
                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">{{$devis->description}}</textarea>
                         </div>
 
                         <div id="devisDetailsSection" class="mt-6" style="display: {{ $isHourly ? 'none' : 'block' }};">
-                            <h3 class="text-lg font-medium text-gray-900">Devis Details</h3>
+                            <h3 class="text-lg font-medium text-gray-900">{{ __('messages.Quote details') }}</h3>
                             <div id="dynamicInput" class="space-y-4">
                             @forelse($devis_details as $detail)
                                 <div class="grid grid-cols-12 gap-4 detail-row">
                                     <div class="col-span-12 md:col-span-4">
-                                        <label class="block text-sm font-medium text-gray-700">Details <span class="text-red-600">*</span></label>
+                                        <label class="block text-sm font-medium text-gray-700">{{ __('messages.Details') }} <span class="text-red-600">*</span></label>
                                         <textarea class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="task[]" rows="3">{{ $detail->task_details }}</textarea>
                                     </div>
                                     <div class="col-span-12 md:col-span-2 task-hours-column" style="display: {{ $isDetailedHourly ? 'block' : 'none' }};">
-                                        <label class="block text-sm font-medium text-gray-700">Number of Hours <span class="text-red-600">*</span></label>
+                                        <label class="block text-sm font-medium text-gray-700">{{ __('messages.Number of hours') }} <span class="text-red-600">*</span></label>
                                         <input type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskHours" name="taskHours[]" value="{{ $detail->hours ?? '' }}" />
                                     </div>
                                     <div class="col-span-12 md:col-span-2 task-budget-column">
-                                        <label class="block text-sm font-medium text-gray-700">Budget <span class="text-red-600">*</span></label>
+                                        <label class="block text-sm font-medium text-gray-700">{{ __('messages.Budget') }} <span class="text-red-600">*</span></label>
                                         <input type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskBudget" name="taskBudget[]" value="{{ $detail->task_budget }}" />
                                     </div>
                                     <div class="col-span-12 md:col-span-2 task-cost-per-hour-column" style="display: {{ $isDetailedHourly ? 'block' : 'none' }};">
-                                        <label class="block text-sm font-medium text-gray-700">Cost per Hour <span class="text-red-600">*</span></label>
+                                        <label class="block text-sm font-medium text-gray-700">{{ __('messages.Cost per hour') }} <span class="text-red-600">*</span></label>
                                         <input type="number" step="0.0001" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskCostPerHour" name="taskCostPerHour[]" value="{{ $detail->cost_per_hour ?? '' }}" />
                                     </div>
                                     <div class="col-span-12 md:col-span-2 task-total-column">
-                                        <label class="block text-sm font-medium text-gray-700">Total</label>
+                                        <label class="block text-sm font-medium text-gray-700">{{ __('messages.Total') }}</label>
                                         <input type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 taskTotal" readonly value="{{ $isDetailedHourly && isset($detail->hours) && isset($detail->cost_per_hour) ? number_format(($detail->hours ?? 0) * ($detail->cost_per_hour ?? 0), 2) : ($detail->task_budget ?? '0.00') }}" />
                                     </div>
                                     <div class="col-span-12 md:col-span-1 flex items-end">
@@ -292,17 +292,17 @@
                             <div class="flex space-x-2 mt-4">
                                 <button type="button" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm" onclick="addInput('dynamicInput');">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>
-                                    Add
+                                    {{ __('messages.Add') }}
                                 </button>
                                 <button type="button" class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg text-sm" onclick="removeInput('dynamicInput');">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-                                    Delete
+                                    {{ __('messages.Delete') }}
                                 </button>
                             </div>
                         </div>
 
                         <div class="mt-8 border-t border-gray-200 pt-6">
-                            <h3 class="text-lg font-medium text-gray-900">Client Information</h3>
+                            <h3 class="text-lg font-medium text-gray-900">{{ __('messages.Client Information') }}</h3>
                             <div class="relative flex items-start mt-4">
                                 <div class="flex h-5 items-center">
                                     <input id="newClientCheckbox" name="newClientCheckbox" type="checkbox" 
@@ -310,66 +310,66 @@
                                            {{ $devis->emails !== null ? 'checked' : '' }}>
                                 </div>
                                 <div class="ml-3 text-sm">
-                                    <label for="newClientCheckbox" class="font-medium text-gray-700">Create New Client</label>
+                                    <label for="newClientCheckbox" class="font-medium text-gray-700">{{ __('messages.Create New Client') }}</label>
                                 </div>
                             </div>
 
                             <div id="clientInputs" class="mt-4" style="display: {{ $devis->emails !== null ? 'block' : 'none' }};">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700">Name <span class="text-red-600">*</span></label>
-                                        <input type="text" placeholder="Full Name" name="newclient_name" value="{{ $devis->emails !== null ? $devis->client_name : '' }}"
+                                        <label class="block text-sm font-medium text-gray-700">{{ __('messages.Name') }} <span class="text-red-600">*</span></label>
+                                        <input type="text" placeholder="{{ __('messages.Full name') }}" name="newclient_name" value="{{ $devis->emails !== null ? $devis->client_name : '' }}"
                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700">Client Number</label>
+                                        <label class="block text-sm font-medium text-gray-700">{{ __('messages.Client Number') }}</label>
                                         @error('client_number')
                                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                                         @enderror
-                                        <input type="number" placeholder="Client Number" name="newclient_number" value="{{ ($devis->emails !== null && $client) ? $client->client_number : '' }}"
+                                        <input type="number" placeholder="{{ __('messages.Client Number') }}" name="newclient_number" value="{{ ($devis->emails !== null && $client) ? $client->client_number : '' }}"
                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700">Phone Number</label>
-                                        <input type="number" placeholder="Phone Number" name="newclient_phone" value="{{ ($devis->emails !== null && $client) ? $client->phone : '' }}"
+                                        <label class="block text-sm font-medium text-gray-700">{{ __('messages.Phone number') }}</label>
+                                        <input type="number" placeholder="{{ __('messages.Phone number') }}" name="newclient_phone" value="{{ ($devis->emails !== null && $client) ? $client->phone : '' }}"
                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700">Street <span class="text-red-600">*</span></label>
-                                        <input type="text" placeholder="Your Full Address Here" name="newclient_street" value="{{ ($devis->emails !== null && $client) ? $client->address : '' }}"
+                                        <label class="block text-sm font-medium text-gray-700">{{ __('messages.Street') }} <span class="text-red-600">*</span></label>
+                                        <input type="text" placeholder="{{ __('messages.Your complete address here') }}" name="newclient_street" value="{{ ($devis->emails !== null && $client) ? $client->address : '' }}"
                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700">City <span class="text-red-600">*</span></label>
-                                        <input type="text" placeholder="City" name="newclient_city" value="{{ ($devis->emails !== null && $client) ? $client->city : '' }}"
+                                        <label class="block text-sm font-medium text-gray-700">{{ __('messages.City') }} <span class="text-red-600">*</span></label>
+                                        <input type="text" placeholder="{{ __('messages.City') }}" name="newclient_city" value="{{ ($devis->emails !== null && $client) ? $client->city : '' }}"
                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700">Zip Code <span class="text-red-600">*</span></label>
-                                        <input type="number" placeholder="Zip Code" name="newclient_zip" value="{{ ($devis->emails !== null && $client) ? $client->zip : '' }}"
+                                        <label class="block text-sm font-medium text-gray-700">{{ __('messages.Zip Code') }} <span class="text-red-600">*</span></label>
+                                        <input type="number" placeholder="{{ __('messages.Zip Code') }}" name="newclient_zip" value="{{ ($devis->emails !== null && $client) ? $client->zip : '' }}"
                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700">Country <span class="text-red-600">*</span></label>
-                                        <input type="text" placeholder="Country" name="newclient_country" value="{{ ($devis->emails !== null && $client) ? $client->country : '' }}"
+                                        <label class="block text-sm font-medium text-gray-700">{{ __('messages.Country') }} <span class="text-red-600">*</span></label>
+                                        <input type="text" placeholder="{{ __('messages.Country') }}" name="newclient_country" value="{{ ($devis->emails !== null && $client) ? $client->country : '' }}"
                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                     </div>
                                 </div>
                                 <div class="mt-6">
-                                    <label for="emails" class="block text-sm font-medium text-gray-700">Emails</label>
+                                    <label for="emails" class="block text-sm font-medium text-gray-700">{{ __('messages.Emails') }}</label>
                                     <textarea id="emails" name="emails" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">{{ $devis->emails }}</textarea>
-                                    <p class="mt-2 text-sm text-gray-500">Entrez les adresses Email de vos différents destinataires séparés par virgule.</p>
+                                    <p class="mt-2 text-sm text-gray-500">{{ __('messages.Enter email addresses of your different recipients separated by comma') }}</p>
                                 </div>
                             </div>
 
                             <div id="existingClientSection" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4" style="display: {{ $devis->emails === null ? 'grid' : 'none' }};">
                                 <div>
-                                    <label for="clientSelect" class="block text-sm font-medium text-gray-700">Client for Project:</label>
+                                    <label for="clientSelect" class="block text-sm font-medium text-gray-700">{{ __('messages.Client for the Project') }}:</label>
                                     {{-- This <select> now has the same class as the <input> fields --}}
                                     <select id="clientSelect" name="client" 
                                             class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                                             data-contacts-url="{{ $contactsBaseUrl }}">
-                                        <option value="">Choose Client</option>
+                                        <option value="">{{ __('messages.Choose Client') }}</option>
                                         @foreach($clients as $clientItem)
                                             <option value="{{ $clientItem->id }}" {{ $clientItem->id == $devis->client_id ? 'selected' : '' }}>
                                                 {{ $clientItem->client_number }} - {{ $clientItem->name }}
@@ -378,7 +378,7 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Contacts :</label>
+                                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Contacts') }} :</label>
                                     <div id="contactsDiv" class="mt-2 space-y-2">
                                         </div>
                                 </div>
@@ -388,12 +388,12 @@
                         {{-- Preserving your original @if logic for user roles --}}
                         <div class="flex justify-end items-center gap-x-4 mt-8 pt-6 border-t border-gray-200">
                            <a href="javascript:history.back()" class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm'>
-                           Cancel
+                           {{ __('messages.Cancel') }}
                         </a>
                             
                             <button type="submit" name="button" 
                                     class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                                Update Devis
+                                {{ __('messages.Update Devis') }}
                             </button>
                         </div>
                     </form>
@@ -491,7 +491,7 @@
                     },
                     error: function(xhr, status, error) {
                         console.error('Error loading contacts:', error);
-                        $('#contactsDiv').html('<p class="text-sm text-red-600">Error loading contacts</p>');
+                        $('#contactsDiv').html('<p class="text-sm text-red-600">{{ __('messages.Error loading contacts') }}</p>');
                     }
                 });
             }
@@ -658,13 +658,13 @@
             if (isDetailedHourly) {
                 hoursColumnHtml = `
                 <div class="col-span-12 md:col-span-2 task-hours-column" style="display: ${hoursColumnDisplay};">
-                    <label class="block text-sm font-medium text-gray-700">Number of Hours <span class="text-red-600">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Number of hours') }} <span class="text-red-600">*</span></label>
                     <input type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskHours" name="taskHours[]" />
                 </div>`;
             } else {
                 hoursColumnHtml = `
                 <div class="col-span-12 md:col-span-2 task-hours-column" style="display: ${hoursColumnDisplay};">
-                    <label class="block text-sm font-medium text-gray-700">Number of Hours <span class="text-red-600">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Number of hours') }} <span class="text-red-600">*</span></label>
                     <input type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskHours" name="taskHours[]" />
                 </div>`;
             }
@@ -675,20 +675,20 @@
             
             newdiv.innerHTML = `
                 <div class="col-span-12 md:col-span-4">
-                    <label class="block text-sm font-medium text-gray-700">Details <span class="text-red-600">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Details') }} <span class="text-red-600">*</span></label>
                     <textarea class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="task[]" rows="3"></textarea>
                 </div>
                 ${hoursColumnHtml}
                 <div class="col-span-12 md:col-span-2 task-budget-column" style="display: ${budgetColumnDisplay};">
-                    <label class="block text-sm font-medium text-gray-700">Budget <span class="text-red-600">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Budget') }} <span class="text-red-600">*</span></label>
                     <input type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskBudget" name="taskBudget[]" />
                 </div>
                 <div class="col-span-12 md:col-span-2 task-cost-per-hour-column" style="display: ${costPerHourColumnDisplay};">
-                    <label class="block text-sm font-medium text-gray-700">Cost per Hour <span class="text-red-600">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Cost per hour') }} <span class="text-red-600">*</span></label>
                     <input type="number" step="0.0001" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskCostPerHour" name="taskCostPerHour[]" />
                 </div>
                 <div class="col-span-12 md:col-span-2 task-total-column" style="display: ${totalColumnDisplay};">
-                    <label class="block text-sm font-medium text-gray-700">Total</label>
+                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Total') }}</label>
                     <input type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 taskTotal" readonly />
                 </div>
                 <div class="col-span-12 md:col-span-1 flex items-end">
@@ -719,7 +719,7 @@
                 button.closest('.detail-row').remove();
                 updateProjectBudget();
             } else {
-                alert('At least one detail row must remain.');
+                alert('{{ __('messages.At least one detail row must remain') }}.');
             }
         }
 
@@ -730,7 +730,7 @@
                 div.removeChild(div.lastChild);
                 updateProjectBudget();
             } else {
-                alert('At least one detail row must remain.');
+                alert('{{ __('messages.At least one detail row must remain') }}.');
             }
         }
 

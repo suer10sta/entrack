@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects - DalyTrac</title> {{-- Updated title --}}
+    <title>{{ __('messages.Projects - DalyTrac') }}</title> {{-- Updated title --}}
     @vite('resources/css/app.css')
     @livewireStyles
     {{-- Include dashboard_layouts.head if needed --}}
@@ -34,7 +34,7 @@
                 {{-- Header Section --}}
                 <div class="p-6 border-b border-gray-200">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                        <h6 class="text-lg font-semibold text-gray-900">Projects Table</h6>
+                        <h6 class="text-lg font-semibold text-gray-900">{{ __('messages.Projects Table') }}</h6>
 
                         {{-- Buttons --}}
                         <div class="flex flex-wrap gap-2">
@@ -57,11 +57,11 @@
                             @endphp
                             <a href="{{ $reportRoute }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                                Projects Reports PDF
+                                {{ __('messages.Projects Reports PDF') }}
                             </a>
                              <a href="{{ $archiveRoute }}" class="bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
                                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
-                                View Archive
+                                {{ __('messages.View Archive') }}
                             </a>
                         </div>
                     </div>
@@ -69,9 +69,9 @@
                      {{-- Filters --}}
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div class="w-full sm:w-auto">
-                            <label for="projectFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Project</label>
+                            <label for="projectFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Project') }}</label>
                             <select id="projectFilter" class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                                <option value="">All Projects</option>
+                                <option value="">{{ __('messages.All Projects') }}</option>
                                 {{-- Use distinct project names for filter options --}}
                                 @foreach($projects->unique('name') as $project)
                                     <option value="{{ $project->name }}">{{ $project->name }}</option>
@@ -79,8 +79,8 @@
                             </select>
                         </div>
                         <div class="w-full sm:w-auto">
-                            <label for="nameFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Name</label>
-                            <input type="text" id="nameFilter" class="block w-full sm:w-64 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Filter by Name">
+                            <label for="nameFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Name') }}</label>
+                            <input type="text" id="nameFilter" class="block w-full sm:w-64 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="{{ __('messages.Filter by Name') }}">
                         </div>
                     </div>
                 </div>
@@ -101,17 +101,17 @@
                         <table class="w-full text-left border-collapse min-w-full" id="projectsTable">
                             <thead class="border-b border-gray-200 bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Project</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Project column') }}</th>
                                     @if(Auth::user()->hasRole('Admin'))
-                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Budget</th>
-                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Duration</th>
-                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Est. Hours</th>
-                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Difference</th>
-                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Progress</th>
+                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Budget column') }}</th>
+                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Duration column') }}</th>
+                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Est. Hours column') }}</th>
+                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Difference column') }}</th>
+                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Progress column') }}</th>
                                     @endif
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Teams</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Teams column header') }}</th>
                                     @can('Delete project')
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">Actions</th>
+                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Actions') }}</th>
                                     @endcan
                                 </tr>
                             </thead>
@@ -142,7 +142,7 @@
                                                     {{$client->name}}
                                                 @endif
                                             @else
-                                                Unknown Client
+                                                {{ __('messages.Unknown Client') }}
                                             @endif
                                         </td>
                                     </tr>
@@ -251,7 +251,7 @@
                                                             @endif
                                                         </span>
                                                     @empty
-                                                        <span class="text-xs text-gray-400">No teams</span>
+                                                        <span class="text-xs text-gray-400">{{ __('messages.No teams') }}</span>
                                                     @endforelse
                                                  </div>
                                             </td>
@@ -278,16 +278,16 @@
                                                         $archiveRoute = route('Responsable_gestionnaire.projects.archive', $project->id);
                                                     }
                                                 @endphp
-                                                <a href="{{ $editRoute }}" title="Update project"
+                                                <a href="{{ $editRoute }}" title="{{ __('messages.Update project') }}"
                                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-blue-600 hover:bg-blue-700">
                                                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                               d="M15.232 5.232l3.536 3.536M4 20h4l9.5-9.5-4-4L4 16v4z" />
                                                     </svg>
                                                 </a>
-                                                <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm('Archive this project?');" class="inline">
+                                                <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Archive this project?') }}');" class="inline">
                                                     @csrf
-                                                    <button type="submit" title="Archive project"
+                                                    <button type="submit" title="{{ __('messages.Archive project') }}"
                                                             class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-gray-500 hover:bg-gray-600">
                                                         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -295,10 +295,10 @@
                                                         </svg>
                                                     </button>
                                                 </form>
-                                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Are you sure you want to delete this project?');" class="inline">
+                                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure you want to delete this project?') }}');" class="inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" title="Delete project"
+                                                    <button type="submit" title="{{ __('messages.Delete project') }}"
                                                             class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-red-600 hover:bg-red-700">
                                                         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -313,7 +313,7 @@
                                 @empty
                                     <tr>
                                          <td colspan="{{ Auth::user()->hasRole('Admin') ? 10 : 3 }}" class="px-6 py-4 text-center text-sm text-gray-500">
-                                             No projects found.
+                                             {{ __('messages.No projects found.') }}
                                          </td>
                                     </tr>
                                 @endforelse

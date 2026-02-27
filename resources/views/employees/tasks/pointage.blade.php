@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Entrac Dashboard</title>
+    <title>{{ __('messages.Pointage Dashboard') }}</title>
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
@@ -82,7 +82,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 flex justify-between items-start">
                     <div>
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Active Projects</p>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ __('messages.Active Projects') }}</p>
                         <h2 class="text-3xl font-bold text-slate-800">{{ $projects->count() }}</h2>
                     </div>
                     <div class="bg-red-500 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-md shadow-red-200">
@@ -92,7 +92,7 @@
 
                 <div class="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 flex justify-between items-start">
                     <div>
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Tasks</p>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ __('messages.Tasks') }}</p>
                         <h2 class="text-3xl font-bold text-slate-800">{{ $employees_tasks->count() }}</h2>
                     </div>
                     <div class="bg-teal-500 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-md shadow-teal-200">
@@ -102,7 +102,7 @@
 
                 <div class="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 flex justify-between items-start">
                     <div>
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Teams</p>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ __('messages.Teams') }}</p>
                         <h2 class="text-3xl font-bold text-slate-800">0</h2>
                     </div>
                     <div class="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-md shadow-orange-200">
@@ -129,15 +129,15 @@
                     @endphp
 
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-base font-bold text-slate-800">Employee Tasks Table</h3>
+                        <h3 class="text-base font-bold text-slate-800">{{ __('messages.Employee Tasks Table') }}</h3>
                         <div class="text-xs font-bold text-slate-500">
-                            Today's Duration: <span class="text-slate-800">{{ (isset($totalHours) && $totalHours > 0) || (isset($totalMinutes) && $totalMinutes > 0) ? $totalHours . 'h' . sprintf('%02d', $totalMinutes) . 'm' : '00h00m' }}</span>
+                            {{ __('messages.Today\'s Duration') }}: <span class="text-slate-800">{{ (isset($totalHours) && $totalHours > 0) || (isset($totalMinutes) && $totalMinutes > 0) ? $totalHours . 'h' . sprintf('%02d', $totalMinutes) . 'm' : '00h00m' }}</span>
                         </div>
                     </div>
 
                     <div class="mb-4">
                         <select id="projectFilter" class="block w-48 rounded-lg border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-slate-600 shadow-sm py-2 px-3">
-                            <option value="">All Projects</option>
+                            <option value="">{{ __('messages.All Projects') }}</option>
                             @foreach($projects as $project)
                             <option value="{{ $project->name }}">{{ $project->name }}</option>
                              @endforeach
@@ -149,14 +149,14 @@
                     <table id="tasksTable" class="w-full text-left border-collapse">
                         <thead class="bg-slate-50">
                             <tr>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Task Name</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Total Duration</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Estimated Hours</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Difference</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-32">Progress</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Comments</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Today's Duration</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Action</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Task Name') }}</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Total Duration') }}</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Estimated Hours') }}</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Difference') }}</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-32">{{ __('messages.Progress') }}</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Comments') }}</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Today\'s Duration') }}</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">{{ __('messages.Action') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -195,10 +195,12 @@
                                         <td class="px-6 py-4 text-sm text-slate-600">{{$task_name->estimated_hours ?? '-'}} h</td>
                                         <td class="px-6 py-4 text-sm text-slate-500">
                                             @php
-                                                $taskdifference = $task_name->estimated_hours * 60 - $tasktotalduration;
+                                                $taskEstimatedMinutes = ($task_name->estimated_hours ?? 0) * 60;
+                                                $taskConsumedMinutes = ($task_name->consumed_hours ?? 0) * 60;
+                                                $taskdifference = $taskEstimatedMinutes - $taskConsumedMinutes - $tasktotalduration;
                                                 $hours = floor(abs($taskdifference) / 60);
                                                 $minutes = abs($taskdifference) % 60;
-                                                $taskestimatedMinutes = $task_name->estimated_hours * 60;
+                                                $taskestimatedMinutes = max(0, (($task_name->estimated_hours ?? 0) - ($task_name->consumed_hours ?? 0)) * 60);
                                                 $taskprogressPercentage = $taskestimatedMinutes > 0 ? ($tasktotalduration / $taskestimatedMinutes) * 100 : 0;
                                                 $taskformattedProgressPercentage = number_format($taskprogressPercentage, 2);
                                             @endphp
@@ -211,7 +213,7 @@
                                                     <span class="text-blue-600 font-medium text-xs">{{$hours}}h{{$minutes}}m</span>
                                                 @endif
                                             @else
-                                                <span class="text-xs text-slate-400">No estimated hours inserted</span>
+                                                <span class="text-xs text-slate-400">{{ __('messages.No estimated hours inserted') }}</span>
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 align-middle">
@@ -220,7 +222,7 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 text-sm text-slate-600">
-                                            {{ $task->comment ?? 'No Comment' }}
+                                            {{ $task->comment ?? __('messages.No Comment') }}
                                         </td>
                                         <td class="px-6 py-4 text-sm font-bold text-slate-800">
                                             @php
@@ -240,10 +242,10 @@
                                                     @csrf
                                                     <input type="text"
                                                            name="comment"
-                                                           placeholder="Enter comment"
+                                                           placeholder="{{ __('messages.Enter comment') }}"
                                                            class="border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring focus:ring-emerald-200">
                                                     <button type="submit" class="start-button bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm" id="start-btn" data-task-id="{{$task->id}}">
-                                                        Start
+                                                        {{ __('messages.Start') }}
                                                     </button>
                                                 </form>
                                             @endunless
@@ -252,7 +254,7 @@
                                                 <form class="inline-block stop-form" action="{{ route($routePrefix.'.tasks.stop', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST">
                                                     @csrf
                                                     <button type="submit" class="stop-button bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm" data-task-id="{{$task->id}}">
-                                                        Stop
+                                                        {{ __('messages.Stop') }}
                                                     </button>
                                                 </form>
                                             @endif
@@ -269,10 +271,10 @@
             <div class="bg-white rounded-2xl shadow-lg border border-slate-200 mb-8">
                 <div class="p-6">
                     <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
-                        <h3 class="text-base font-bold text-slate-800">Tasks Timer Table</h3>
+                        <h3 class="text-base font-bold text-slate-800">{{ __('messages.Tasks Timer Table') }}</h3>
                         <div class="flex space-x-2 mt-4 md:mt-0">
-                            <button id="exportBtn" class="bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors">Export to Excel</button>
-                            <button id="exportPDFBtn" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors">Export to PDF</button>
+                            <button id="exportBtn" class="bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors">{{ __('messages.Export to Excel') }}</button>
+                            <button id="exportPDFBtn" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors">{{ __('messages.Export to PDF') }}</button>
                         </div>
                     </div>
 
@@ -280,7 +282,7 @@
                         <input type="date" id="startDateInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                         <input type="date" id="endDateInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                         <select id="projectFilterExport" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                            <option value="">All Projects</option>
+                            <option value="">{{ __('messages.All Projects') }}</option>
                             @foreach($projects as $project)
                                 <option value="{{ $project->id }}">{{ $project->name }}</option>
                             @endforeach
@@ -292,12 +294,12 @@
                     <table id="taskTable" class="w-full text-left border-collapse">
                         <thead class="bg-slate-50">
                             <tr>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Project Name</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Task Name</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Start Date</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">End Date</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Comment</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Duration</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Project Name') }}</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Task Name') }}</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Start Date') }}</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.End Date') }}</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Comment') }}</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Duration') }}</th>
                             </tr>
                         </thead>
                         <tbody id="taskTableBody" class="divide-y divide-slate-100">
@@ -308,23 +310,23 @@
 
             <div class="bg-white rounded-2xl shadow-lg border border-slate-200" style="margin-bottom: 25px;">
                 <div class="p-6 border-b border-slate-100">
-                    <h3 class="text-base font-bold text-slate-800">Work Days Reports</h3>
+                    <h3 class="text-base font-bold text-slate-800">{{ __('messages.Work Days Reports') }}</h3>
                 </div>
                 <div class="overflow-x-auto custom-scrollbar">
                     <table id="editableTable" class="w-full text-left border-collapse">
                         <thead class="bg-slate-50">
                             <tr>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Number of<br>Working Days</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Number of<br>Sick Days</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Number of<br>Public Holidays</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Remaining<br>Paid Leave Days</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Paid Leave<br>Days Accrued</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Paid Leave<br>Days Taken</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Leave<br>Balance</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Days of<br>Absence</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Paid Leave<br>Dates</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Month</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">Year</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Number of') }}<br>{{ __('messages.Working Days') }}</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Number of') }}<br>{{ __('messages.Sick Days') }}</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Number of') }}<br>{{ __('messages.Public Holidays') }}</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Remaining') }}<br>{{ __('messages.Paid Leave Days') }}</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Paid Leave') }}<br>{{ __('messages.Days Accrued') }}</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Paid Leave') }}<br>{{ __('messages.Days Taken') }}</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Leave') }}<br>{{ __('messages.Balance') }}</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Days of') }}<br>{{ __('messages.Absence') }}</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Paid Leave') }}<br>{{ __('messages.Dates') }}</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Month') }}</th>
+                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Year') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-slate-600">
@@ -363,8 +365,8 @@
                     <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
                         <i class="fas fa-bell text-red-500 text-xl"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-900 mb-2">Timer Alert</h3>
-                    <p class="text-sm text-slate-600">Did you forget to launch your timer?</p>
+                    <h3 class="text-lg font-bold text-slate-900 mb-2">{{ __('messages.Timer Alert') }}</h3>
+                    <p class="text-sm text-slate-600">{{ __('messages.Did you forget to launch your timer?') }}</p>
                 </div>
             </div>
 
@@ -376,6 +378,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
     <script src="https://unpkg.com/jspdf-autotable@3.5.17/dist/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+    
+    {{-- Alpine.js for Language Switcher --}}
+    <script>
+        if (!window.Alpine) {
+            const alpineScript = document.createElement('script');
+            alpineScript.src = 'https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js';
+            alpineScript.defer = true;
+            document.head.appendChild(alpineScript);
+        }
+    </script>
 
     
     <script>
@@ -614,7 +626,7 @@
                                 var minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
                                 var seconds = Math.floor((duration % (1000 * 60)) / 1000);
                                 var formattedDuration = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                                var endDateText = task.end_date ? task.end_date : 'Still working';
+                                var endDateText = task.end_date ? task.end_date : {!! json_encode(__('messages.Still working')) !!};
 
                                 var fetchurl = '';
                                 @if(Auth::user()->hasRole('Employee')) fetchurl = '/employee/tasks/get-project-name/';
@@ -646,7 +658,7 @@
                                                       <td class="px-4 py-3 text-sm text-gray-700">${task.start_date}</td>
                                                       <td class="px-4 py-3 text-sm text-gray-700">${endDateText}</td>
                                                       <td class="px-4 py-3 text-sm text-gray-700">
-                                                          <span class="comment-display cursor-pointer hover:text-blue-600" style="display: block;">${task.comment ? task.comment : "No Comment"}</span>
+                                                          <span class="comment-display cursor-pointer hover:text-blue-600" style="display: block;">${task.comment ? task.comment : {!! json_encode(__('messages.No Comment')) !!}}</span>
                                                           <input type="text" 
                                                                  class="comment-input border border-gray-300 rounded px-2 py-1 text-sm text-gray-700 focus:outline-none focus:ring focus:ring-blue-200 w-full" 
                                                                  value="${task.comment ? task.comment.replace(/"/g, '&quot;') : ''}" 
@@ -815,7 +827,7 @@
                 const data = await res.json();
                 const cell = inputEl.closest('td');
                 const display = cell.querySelector('.comment-display');
-                display.textContent = data.comment && data.comment.length ? data.comment : 'No Comment';
+                display.textContent = data.comment && data.comment.length ? data.comment : {!! json_encode(__('messages.No Comment')) !!};
                 inputEl.style.display = 'none';
                 display.style.display = '';
                 window.location.reload();

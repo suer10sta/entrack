@@ -235,7 +235,105 @@
         </nav>
     </div>
 
-    <div class="p-4 border-t border-gray-200 bg-white relative">
+    <div class="p-4 border-t border-gray-200 bg-white relative space-y-3">
+        {{-- Language Switcher --}}
+        <div class="relative" x-data="{ open: false }">
+            <button 
+                @click="open = !open"
+                @click.away="open = false"
+                type="button"
+                class="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-colors text-sm"
+                title="{{ __('messages.Language') }}"
+            >
+                <div class="flex items-center gap-2">
+                    
+                    <span class="text-xs font-medium text-gray-700">{{ __('messages.Language') }}</span>
+                </div>
+                <span class="text-xs font-semibold text-gray-600 uppercase flex items-center gap-1">
+                    @switch(app()->getLocale())
+                        @case('fr')
+                            <img src="https://flagcdn.com/fr.svg" alt="Français" class="w-4 h-3 rounded-sm object-cover">
+                            <span>FR</span>
+                            @break
+                    @case('es')
+                        <img src="https://flagcdn.com/es.svg" alt="Español" class="w-4 h-3 rounded-sm object-cover">
+                        <span>ES</span>
+                        @break
+                    @case('nl')
+                        <img src="https://flagcdn.com/be.svg" alt="Nederlands" class="w-4 h-3 rounded-sm object-cover">
+                        <span>NL</span>
+                        @break
+                    @default
+                        <img src="https://flagcdn.com/gb.svg" alt="English" class="w-4 h-3 rounded-sm object-cover">
+                        <span>EN</span>
+                @endswitch
+                </span>
+            </button>
+            
+            <div 
+                x-show="open"
+                x-cloak
+                x-transition:enter="transition ease-out duration-100"
+                x-transition:enter-start="transform opacity-0 scale-95"
+                x-transition:enter-end="transform opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-75"
+                x-transition:leave-start="transform opacity-100 scale-100"
+                x-transition:leave-end="transform opacity-0 scale-95"
+                class="absolute bottom-full left-4 right-4 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50"
+            >
+                <div class="py-2">
+                <a 
+                    href="{{ route('changeLang', ['lang' => 'en']) }}"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'en' ? 'bg-blue-50 text-blue-700' : '' }}"
+                >
+                    <img src="https://flagcdn.com/gb.svg" alt="English" class="w-4 h-3 rounded-sm object-cover">
+                    <span>{{ __('messages.English') }}</span>
+                        @if(app()->getLocale() === 'en')
+                            <svg class="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        @endif
+                    </a>
+                <a 
+                    href="{{ route('changeLang', ['lang' => 'fr']) }}"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'fr' ? 'bg-blue-50 text-blue-700' : '' }}"
+                >
+                    <img src="https://flagcdn.com/fr.svg" alt="Français" class="w-4 h-3 rounded-sm object-cover">
+                    <span>{{ __('messages.Français') }}</span>
+                        @if(app()->getLocale() === 'fr')
+                            <svg class="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        @endif
+                    </a>
+                <a 
+                    href="{{ route('changeLang', ['lang' => 'es']) }}"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'es' ? 'bg-blue-50 text-blue-700' : '' }}"
+                >
+                    <img src="https://flagcdn.com/es.svg" alt="Español" class="w-4 h-3 rounded-sm object-cover">
+                    <span>{{ __('messages.Español') }}</span>
+                        @if(app()->getLocale() === 'es')
+                            <svg class="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        @endif
+                    </a>
+                <a 
+                    href="{{ route('changeLang', ['lang' => 'nl']) }}"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'nl' ? 'bg-blue-50 text-blue-700' : '' }}"
+                >
+                    <img src="https://flagcdn.com/be.svg" alt="Nederlands" class="w-4 h-3 rounded-sm object-cover">
+                    <span>{{ __('messages.Nederlands') }}</span>
+                    @if(app()->getLocale() === 'nl')
+                        <svg class="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                    @endif
+                </a>
+                </div>
+            </div>
+        </div>
+
         <div class="flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-xl p-2 -m-2 transition-colors" onclick="toggleDropdown('user')">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
@@ -292,3 +390,16 @@
         }
     });
 </script>
+
+{{-- Alpine.js for Language Switcher --}}
+<script>
+    if (!window.Alpine) {
+        const alpineScript = document.createElement('script');
+        alpineScript.src = 'https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js';
+        alpineScript.defer = true;
+        document.head.appendChild(alpineScript);
+    }
+</script>
+<style>
+    [x-cloak] { display: none !important; }
+</style>

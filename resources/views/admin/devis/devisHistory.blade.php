@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Devis History - DalyTrac</title>
+    <title>{{ __('messages.Devis History - DalyTrac') }}</title>
     @vite('resources/css/app.css') 
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -68,14 +68,14 @@
         {{-- 1. Header Section --}}
             <div class="flex flex-wrap justify-between items-center gap-4">
                 <div>
-                    <h1 class="text-2xl font-semibold text-gray-900">Devis History</h1>
+                    <h1 class="text-2xl font-semibold text-gray-900">{{ __('messages.Devis History') }}</h1>
                 </div>
                 <div class="flex items-center gap-3">
-                <button type="button" id="openDevisReportModal" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
+                    <button type="button" id="openDevisReportModal" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        Devis Reports PDF
+                        {{ __('messages.Devis Reports PDF') }}
                     </button>
 
                     @php $archiveRoute = ''; @endphp
@@ -89,7 +89,7 @@
                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                          </svg>
-                        View Archive
+                        {{ __('messages.View Archive') }}
                     </a>
                     @endif
                 </div>
@@ -98,11 +98,11 @@
             {{-- 2. Date Pickers Section --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <div>
-                    <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                    <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Start Date') }}</label>
                     <input type="date" id="startDate" placeholder="jj/mm/aaaa" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                  </div>
                  <div>
-                    <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                    <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.End Date') }}</label>
                     <input type="date" id="endDate" placeholder="jj/mm/aaaa" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                  </div>
             </div>
@@ -116,7 +116,7 @@
              {{-- Session Message --}}
              @if(session('message'))
              <div id="sessionMessageContainer" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                 <strong class="font-bold">Success!</strong>
+                 <strong class="font-bold">{{ __('messages.Success!') }}</strong>
                  <span class="block sm:inline">{{ session('message') }}</span>
                  <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
              </div>
@@ -151,7 +151,7 @@
                         </svg>
                     </div>
                     <div class="flex-1">
-                        <p class="text-xs text-gray-500 uppercase font-medium">TOTAL ACCEPTED</p>
+                        <p class="text-xs text-gray-500 uppercase font-medium">{{ __('messages.TOTAL ACCEPTED') }}</p>
                         <p class="text-xl font-semibold text-green-600">€{{ number_format($Total_Accpeted, 2, ',', ' ') }}</p>
                         <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($Total_AccpetedCurrentYear, 2, ',', ' ') }}</p>
                     </div>
@@ -165,7 +165,7 @@
                         </svg>
                     </div>
                     <div class="flex-1">
-                        <p class="text-xs text-gray-500 uppercase font-medium">TOTAL DECLINED</p>
+                        <p class="text-xs text-gray-500 uppercase font-medium">{{ __('messages.TOTAL DECLINED') }}</p>
                         <p class="text-xl font-semibold text-red-600">€{{ number_format($Total_Declined, 2, ',', ' ') }}</p>
                         <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($Total_DeclinedCurrentYear, 2, ',', ' ') }}</p>
                     </div>
@@ -179,7 +179,7 @@
                          </svg>
                     </div>
                     <div class="flex-1">
-                        <p class="text-xs text-gray-500 uppercase font-medium">TOTAL PENDING</p>
+                        <p class="text-xs text-gray-500 uppercase font-medium">{{ __('messages.TOTAL PENDING') }}</p>
                         <p class="text-xl font-semibold text-yellow-600">€{{ number_format($Total_Pending, 2, ',', ' ') }}</p>
                         <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($Total_PendingCurrentYear, 2, ',', ' ') }}</p>
                     </div>
@@ -188,24 +188,24 @@
 
             {{-- 4. Filters Section --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                 <h6 class="text-base font-semibold text-gray-800 mb-4">Filters</h6>
+                 <h6 class="text-base font-semibold text-gray-800 mb-4">{{ __('messages.Filters') }}</h6>
                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                      <div>
-                        <label for="clientFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Client</label>
+                        <label for="clientFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Client') }}</label>
                         <select id="clientFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
-                            <option value="">All Clients</option>
+                            <option value="">{{ __('messages.All Clients') }}</option>
                             @foreach($clients as $client)
                             <option value="{{$client->name}}">{{$client->name}}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label for="acceptanceFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Acceptance</label>
+                        <label for="acceptanceFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Acceptance') }}</label>
                         <select id="acceptanceFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
-                            <option value="">All Devis</option>
-                            <option value="Accepted">Accepted</option>
-                            <option value="Declined">Declined</option>
-                            <option value="Pending">Pending</option>
+                            <option value="">{{ __('messages.All Devis') }}</option>
+                            <option value="{{ __('messages.Accepted') }}">{{ __('messages.Accepted') }}</option>
+                            <option value="{{ __('messages.Declined') }}">{{ __('messages.Declined') }}</option>
+                            <option value="{{ __('messages.Pending') }}">{{ __('messages.Pending') }}</option>
                         </select>
                     </div>
                  </div>
@@ -217,15 +217,15 @@
                     <table class="w-full divide-y divide-gray-200 table" id="devisTable">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Devis N</th>
-                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Project Name</th>
-                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Client Name / Emails</th>
-                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">Budget</th>
-                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">Unbilled Budget</th>
-                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">Created at</th>
-                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">Status</th>
-                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">Acceptance</th>
-                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">Actions</th>
+                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Devis N') }}</th>
+                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Project Name') }}</th>
+                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Client Name / Emails') }}</th>
+                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Budget') }}</th>
+                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Unbilled Budget') }}</th>
+                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Created at') }}</th>
+                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Status') }}</th>
+                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Acceptance') }}</th>
+                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -254,7 +254,7 @@
                                             @if(Auth::user()->hasRole('Employee')) <a href="{{route('employee.projects.show', $project->id)}}" class="text-blue-600 hover:text-blue-700">{{$project->name}}</a> @endif
                                             @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.projects.show', $project->id)}}" class="text-blue-600 hover:text-blue-700">{{$project->name}}</a> @endif
                                         @else {{$project->name}} @endif
-                                    @else N/A @endif
+                                    @else {{ __('messages.N/A') }} @endif
                                 </td>
                                 <td class="px-4 py-3 text-sm text-gray-800 font-medium" style="max-width: 200px; word-wrap: break-word; white-space: normal;">
                                     @php $client = \App\Models\Client::where('id', $d->client_id)->first(); @endphp
@@ -266,7 +266,7 @@
                                         @if(Auth::user()->hasRole('Responsable de projet')) <a href="{{route('Responsable_de_projet.clients.show', $client->id)}}" class="text-blue-600 hover:text-blue-700">{{$client->name}}</a> @endif
                                         @if(Auth::user()->hasRole('Employee')) <a href="{{route('employee.clients.show', $client->id)}}" class="text-blue-600 hover:text-blue-700">{{$client->name}}</a> @endif
                                         @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.clients.show', $client->id)}}" class="text-blue-600 hover:text-blue-700">{{$client->name}}</a> @endif
-                                    @else N/A @endif
+                                    @else {{ __('messages.N/A') }} @endif
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 text-right">
                                     €{{ number_format($d->budget, 2, ',', ' ') }}
@@ -283,30 +283,30 @@
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
                                     @if($d->acceptanceStatus == 1)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800"> Accepted </span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800"> {{ __('messages.Accepted') }} </span>
                                     @elseif($d->acceptanceStatus == 2 )
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800"> Declined </span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800"> {{ __('messages.Declined') }} </span>
                                     @else
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800"> Pending </span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800"> {{ __('messages.Pending') }} </span>
                                     @endif
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
                                     <div class="flex flex-col items-center space-y-1">
                                         @if(Auth::user()->hasRole('Responsable de projet'))
-                                        <form action="{{route('Responsable_de_projet.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('Mark as Accepted?');"> @csrf <button type="submit" class="w-full text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-2 py-1 text-center">Accept</button> </form>
-                                        <form action="{{route('Responsable_de_projet.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('Mark as Declined?');"> @csrf <button type="submit" class="w-full text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-2 py-1 text-center">Decline</button> </form>
+                                        <form action="{{route('Responsable_de_projet.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Accepted?') }}');"> @csrf <button type="submit" class="w-full text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Accept') }}</button> </form>
+                                        <form action="{{route('Responsable_de_projet.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Declined?') }}');"> @csrf <button type="submit" class="w-full text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Decline') }}</button> </form>
                                         @endif
                                         @if(Auth::user()->hasRole('Admin'))
-                                        <form action="{{route('admin.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('Mark as Accepted?');"> @csrf <button type="submit" class="w-full text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-2 py-1 text-center">Accept</button> </form>
-                                        <form action="{{route('admin.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('Mark as Declined?');"> @csrf <button type="submit" class="w-full text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-2 py-1 text-center">Decline</button> </form>
+                                        <form action="{{route('admin.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Accepted?') }}');"> @csrf <button type="submit" class="w-full text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Accept') }}</button> </form>
+                                        <form action="{{route('admin.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Declined?') }}');"> @csrf <button type="submit" class="w-full text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Decline') }}</button> </form>
                                         @endif
                                         @if(Auth::user()->hasRole('Employee'))
-                                        <form action="{{route('employee.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('Mark as Accepted?');"> @csrf <button type="submit" class="w-full text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-2 py-1 text-center">Accept</button> </form>
-                                        <form action="{{route('employee.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('Mark as Declined?');"> @csrf <button type="submit" class="w-full text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-2 py-1 text-center">Decline</button> </form>
+                                        <form action="{{route('employee.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Accepted?') }}');"> @csrf <button type="submit" class="w-full text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Accept') }}</button> </form>
+                                        <form action="{{route('employee.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Declined?') }}');"> @csrf <button type="submit" class="w-full text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Decline') }}</button> </form>
                                         @endif
                                         @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                        <form action="{{route('Responsable_gestionnaire.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('Mark as Accepted?');"> @csrf <button type="submit" class="w-full text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-2 py-1 text-center">Accept</button> </form>
-                                        <form action="{{route('Responsable_gestionnaire.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('Mark as Declined?');"> @csrf <button type="submit" class="w-full text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-2 py-1 text-center">Decline</button> </form>
+                                        <form action="{{route('Responsable_gestionnaire.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Accepted?') }}');"> @csrf <button type="submit" class="w-full text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Accept') }}</button> </form>
+                                        <form action="{{route('Responsable_gestionnaire.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Declined?') }}');"> @csrf <button type="submit" class="w-full text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Decline') }}</button> </form>
                                         @endif
                                     </div>
                                 </td>
@@ -323,7 +323,7 @@
                                             @if(Auth::user()->hasRole('Responsable de projet')) @php $dlRoute = route('Responsable_de_projet.devis.downloadDevis', $d->devis_number); @endphp @endif
                                             @if(Auth::user()->hasRole('Employee')) @php $dlRoute = route('employee.devis.downloadDevis', $d->devis_number); @endphp @endif
                                             @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $dlRoute = route('Responsable_gestionnaire.devis.downloadDevis', $d->devis_number); @endphp @endif
-                                            <a class="w-full text-center text-white bg-blue-600 hover:bg-blue-700 font-medium rounded text-xs px-2 py-1" href="{{ $dlRoute }}">Download</a>
+                                            <a class="w-full text-center text-white bg-blue-600 hover:bg-blue-700 font-medium rounded text-xs px-2 py-1" href="{{ $dlRoute }}">{{ __('messages.Download') }}</a>
 
                                             {{-- 2. Send Button --}}
                                             @can('Send devis')
@@ -332,7 +332,7 @@
                                                 @if(Auth::user()->hasRole('Responsable de projet')) @php $sendRoute = route('Responsable_de_projet.devis.sendDevis'); @endphp @endif
                                                 @if(Auth::user()->hasRole('Employee')) @php $sendRoute = route('employee.devis.sendDevis'); @endphp @endif
                                                 @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $sendRoute = route('Responsable_gestionnaire.devis.sendDevis'); @endphp @endif
-                                                <form action="{{ $sendRoute }}" method="post" class="inline-block w-full"> @csrf <input type="hidden" name="devis_id" value="{{ $d->id }}"> <button type="submit" class="w-full text-white bg-gray-700 hover:bg-gray-800 font-medium rounded text-xs px-2 py-1 text-center">Send</button> </form>
+                                                <form action="{{ $sendRoute }}" method="post" class="inline-block w-full"> @csrf <input type="hidden" name="devis_id" value="{{ $d->id }}"> <button type="submit" class="w-full text-white bg-gray-700 hover:bg-gray-800 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Send') }}</button> </form>
                                             @else
                                                 <div class="w-full"></div> @endcan
                                 
@@ -343,7 +343,7 @@
                                                 @if(Auth::user()->hasRole('Responsable de projet')) @php $deleteRoute = route('Responsable_de_projet.devis.destroy', $d->id); @endphp @endif
                                                 @if(Auth::user()->hasRole('Employee')) @php $deleteRoute = route('employee.devis.destroy', $d->id); @endphp @endif
                                                 @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $deleteRoute = route('Responsable_gestionnaire.devis.destroy', $d->id); @endphp @endif
-                                                <form action="{{$deleteRoute}}" method="post" onsubmit="return confirm('Are you sure?');" class="inline-block w-full"> @csrf @method('DELETE') <button type="submit" class="w-full text-white bg-red-600 hover:bg-red-700 font-medium rounded text-xs px-2 py-1 text-center">Delete</button> </form>
+                                                <form action="{{$deleteRoute}}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block w-full"> @csrf @method('DELETE') <button type="submit" class="w-full text-white bg-red-600 hover:bg-red-700 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Delete') }}</button> </form>
                                             @else
                                                  <div class="w-full"></div> @endcan
                                 
@@ -353,7 +353,7 @@
                                             @if(Auth::user()->hasRole('Responsable de projet')) @php $archiveFormRoute = route('Responsable_de_projet.devis.archive', $d->id); @endphp @endif
                                             @if(Auth::user()->hasRole('Employee')) @php $archiveFormRoute = route('employee.devis.archive', $d->id); @endphp @endif
                                             @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $archiveFormRoute = route('Responsable_gestionnaire.devis.archive', $d->id); @endphp @endif
-                                            <form action="{{$archiveFormRoute}}" method="post" onsubmit="return confirm('Are you sure?');" class="inline-block w-full"> @csrf <button type="submit" title="Archive" class="w-full p-1 rounded bg-gray-500 text-white hover:bg-gray-600 font-medium text-xs flex items-center justify-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg> Archive</button> </form>
+                                            <form action="{{$archiveFormRoute}}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block w-full"> @csrf <button type="submit" title="{{ __('messages.Archive') }}" class="w-full p-1 rounded bg-gray-500 text-white hover:bg-gray-600 font-medium text-xs flex items-center justify-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg> {{ __('messages.Archive') }}</button> </form>
                                         </div>
                                 
                                         {{-- Icon buttons below the grid --}}
@@ -365,7 +365,7 @@
                                             @if(Auth::user()->hasRole('Responsable de projet')) @php $duplicateRoute = route('Responsable_de_projet.devis.duplicateDevis', $d->id); @endphp @endif
                                             @if(Auth::user()->hasRole('Employee')) @php $duplicateRoute = route('employee.devis.duplicateDevis', $d->id); @endphp @endif
                                             @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $duplicateRoute = route('Responsable_gestionnaire.devis.duplicateDevis', $d->id); @endphp @endif
-                                            <a href="{{$duplicateRoute}}" title="Duplicate" class="p-1.5 rounded-md bg-cyan-500 text-white hover:bg-cyan-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg></a>
+                                            <a href="{{$duplicateRoute}}" title="{{ __('messages.Duplicate') }}" class="p-1.5 rounded-md bg-cyan-500 text-white hover:bg-cyan-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg></a>
                                 
                                             {{-- Edit Button --}}
                                             @php $editRoute = '#'; @endphp
@@ -373,7 +373,7 @@
                                             @if(Auth::user()->hasRole('Responsable de projet')) @php $editRoute = route('Responsable_de_projet.devis.editDevis', $d->id); @endphp @endif
                                             @if(Auth::user()->hasRole('Employee')) @php $editRoute = route('employee.devis.editDevis', $d->id); @endphp @endif
                                             @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $editRoute = route('Responsable_gestionnaire.devis.editDevis', $d->id); @endphp @endif
-                                            <a href="{{$editRoute}}" title="Edit" class="p-1.5 rounded-md bg-cyan-500 text-white hover:bg-cyan-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /> </svg></a>
+                                            <a href="{{$editRoute}}" title="{{ __('messages.Edit') }}" class="p-1.5 rounded-md bg-cyan-500 text-white hover:bg-cyan-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /> </svg></a>
                                         </div>
                                 
                                     </div>
@@ -382,7 +382,7 @@
                             @empty
                                 <tr>
                                     <td colspan="9" class="text-center px-4 py-6 text-gray-500">
-                                        No devis found matching your criteria.
+                                        {{ __('messages.No devis found matching your criteria.') }}
                                     </td>
                                 </tr>
                             @endforelse
@@ -397,44 +397,44 @@
 <div id="devisReportModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
         <div class="flex justify-between items-center p-4 border-b">
-            <h5 class="text-lg font-semibold text-gray-800" id="devisReportModalLabel">Download Devis Reports</h5>
+            <h5 class="text-lg font-semibold text-gray-800" id="devisReportModalLabel">{{ __('messages.Download Devis Reports') }}</h5>
             <button type="button" id="closeDevisReportModal" class="text-gray-400 hover:text-gray-600">&times;</button>
         </div>
         <div class="p-6">
             <div class="mb-3">
-                <label class="block text-sm font-medium text-gray-700">Choose statuses (optional):</label>
+                <label class="block text-sm font-medium text-gray-700">{{ __('messages.Choose statuses (optional):') }}</label>
                 <div class="mt-2 space-y-2">
                     <div class="flex items-center">
                         <input id="status_accepted" name="devisReportStatus[]" type="checkbox" value="accepted" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                        <label for="status_accepted" class="ml-2 block text-sm text-gray-900">Accepted</label>
+                        <label for="status_accepted" class="ml-2 block text-sm text-gray-900">{{ __('messages.Accepted') }}</label>
                     </div>
                     <div class="flex items-center">
                         <input id="status_declined" name="devisReportStatus[]" type="checkbox" value="declined" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                        <label for="status_declined" class="ml-2 block text-sm text-gray-900">Declined</label>
+                        <label for="status_declined" class="ml-2 block text-sm text-gray-900">{{ __('messages.Declined') }}</label>
                     </div>
                     <div class="flex items-center">
                         <input id="status_pending" name="devisReportStatus[]" type="checkbox" value="pending" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                        <label for="status_pending" class="ml-2 block text-sm text-gray-900">Pending</label>
+                        <label for="status_pending" class="ml-2 block text-sm text-gray-900">{{ __('messages.Pending') }}</label>
                     </div>
                     <hr class="my-3">
                     <div class="flex items-center">
                         <input id="include_archived" type="checkbox" value="1" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                        <label for="include_archived" class="ml-2 block text-sm text-gray-900">Include archived</label>
+                        <label for="include_archived" class="ml-2 block text-sm text-gray-900">{{ __('messages.Include archived') }}</label>
                     </div>
                 </div>
             </div>
-            <small class="text-gray-500">Date range (optional) will be applied from the fields at the top.</small>
+            <small class="text-gray-500">{{ __('messages.Date range (optional) will be applied from the fields at the top.') }}</small>
         </div>
         <div class="flex justify-end items-center p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-            <button type="button" id="cancelDevisReportBtn" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
-            <button type="button" id="confirmDevisReport" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700">Download PDF</button>
+            <button type="button" id="cancelDevisReportBtn" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('messages.Cancel') }}</button>
+            <button type="button" id="confirmDevisReport" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700">{{ __('messages.Download PDF') }}</button>
         </div>
     </div>
 </div>
 <div id="sendDevisModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-lg mx-4">
         <div class="flex justify-between items-center p-4 border-b">
-            <h5 class="text-lg font-semibold text-gray-800" id="sendDevisModalLabel">Send Devis</h5>
+            <h5 class="text-lg font-semibold text-gray-800" id="sendDevisModalLabel">{{ __('messages.Send Devis') }}</h5>
             <button type="button" id="closeSendDevisModal" class="text-gray-400 hover:text-gray-600">&times;</button>
         </div>
         <div class="p-6">
@@ -443,21 +443,21 @@
                 <input type="hidden" name="devis_id" id="devis_id">
                 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Select Recipients:</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Select Recipients Devis') }}</label>
                     <div id="recipientsList" class="border p-3 rounded-md h-32 overflow-y-auto bg-gray-50 space-y-2">
                          </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="attachments" class="block text-sm font-medium text-gray-700 mb-1">Additional Attachments (PDF only):</label>
+                    <label for="attachments" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Additional Attachments (PDF only):') }}</label>
                     <input type="file" class="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:bg-gray-100 file:border-0 file:px-3 file:py-2" id="attachments" name="attachments[]" multiple accept=".pdf">
-                    <small class="text-gray-500">Select PDF files to be merged with the devis</small>
+                    <small class="text-gray-500">{{ __('messages.Select PDF files to be merged with the devis') }}</small>
                 </div>
             </form>
         </div>
         <div class="flex justify-end items-center p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-            <button type="button" id="cancelSendDevisModal" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Close</button>
-            <button type="button" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700" id="confirmSend">Send Devis</button>
+            <button type="button" id="cancelSendDevisModal" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('messages.Close') }}</button>
+            <button type="button" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700" id="confirmSend">{{ __('messages.Send Devis') }}</button>
         </div>
     </div>
 </div>
@@ -472,28 +472,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const allRows = tableBody.querySelectorAll('tr');
     
     // [NEW] Get the new clickable cards
-    const cardAccepted = document.getElementById('cardAccepted');
+        const cardAccepted = document.getElementById('cardAccepted');
     const cardDeclined = document.getElementById('cardDeclined');
     const cardPending = document.getElementById('cardPending');
     
     // [NEW] Add click listeners for the stat cards
     if (cardAccepted) {
         cardAccepted.addEventListener('click', function() {
-            acceptanceFilter.value = 'Accepted'; // Set dropdown value
+            acceptanceFilter.value = @json(__('messages.Accepted')); // Set dropdown value
             filterTable(); // Call existing filter function
         });
     }
 
     if (cardDeclined) {
         cardDeclined.addEventListener('click', function() {
-            acceptanceFilter.value = 'Declined';
+            acceptanceFilter.value = @json(__('messages.Declined'));
             filterTable();
         });
     }
 
     if (cardPending) {
         cardPending.addEventListener('click', function() {
-            acceptanceFilter.value = 'Pending';
+            acceptanceFilter.value = @json(__('messages.Pending'));
             filterTable();
         });
     }
@@ -630,7 +630,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.getElementById('devis_id').value = devisId;
         const recipientsList = document.getElementById('recipientsList');
-        recipientsList.innerHTML = '<div class="text-center">Loading...</div>';
+                recipientsList.innerHTML = '<div class="text-center">' + @json(__('messages.Loading...')) + '</div>';
         
         // This URL should be dynamic based on user role
         let contactsUrl = '';
@@ -656,12 +656,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         recipientsList.appendChild(div);
                     });
                 } else {
-                    recipientsList.innerHTML = '<p class="text-gray-500">No contacts found for this client</p>';
+                    recipientsList.innerHTML = '<p class="text-gray-500">' + @json(__('messages.No contacts found for this client')) + '</p>';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                recipientsList.innerHTML = '<p class="text-red-600">Error loading contacts</p>';
+                recipientsList.innerHTML = '<p class="text-red-600">' + @json(__('messages.Error loading contacts devis history')) + '</p>';
             });
         
         document.getElementById('sendDevisForm').action = formAction;
@@ -682,7 +682,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .map(checkbox => checkbox.value);
         
         if (selectedRecipients.length === 0) {
-            alert('Please select at least one recipient');
+            alert(@json(__('messages.Please select at least one recipient')));
             return;
         }
 
@@ -708,16 +708,16 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             if (data.success) {
-                alert('Devis sent successfully!');
+                alert(@json(__('messages.Devis sent successfully!')));
                 if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
                 location.reload();
             } else {
-                alert('Error sending devis: ' + data.message);
+                alert(@json(__('messages.Error sending devis: ')) + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while sending the devis');
+            alert(@json(__('messages.An error occurred while sending the devis')));
         });
     });
 });

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasks Timer - DalyTrac</title>
+    <title>{{ __('messages.Tasks Timer - DalyTrac') }}</title>
     
     @vite('resources/css/app.css')
     @livewireStyles
@@ -54,11 +54,11 @@
                             if (response.status === 'success') {
                                 location.reload();
                             } else {
-                                alert(response.message || 'Failed to update.');
+                                alert(response.message || @json(__('messages.Failed to update.')));
                             }
                         },
                         error: (xhr) => {
-                            let msg = 'Failed to update.';
+                            let msg = @json(__('messages.Failed to update.'));
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 msg = xhr.responseJSON.message;
                             }
@@ -148,11 +148,11 @@
                 },
                 saveMove() {
                     if (!this.duration.match(/^(\d+)h:(\d{2})m$/)) {
-                        alert('Please enter duration in format (e.g., 01h:30m or 10h:00m)');
+                        alert(@json(__('messages.Please enter duration in format (e.g., 01h:30m or 10h:00m)')));
                         return;
                     }
                     if (this.durationMinutes <= 0) {
-                        alert('Duration must be greater than 0 minutes.');
+                        alert(@json(__('messages.Duration must be greater than 0 minutes.')));
                         return;
                     }
                     
@@ -177,9 +177,9 @@
                         data: formData,
                         success: (response) => {
                             if (response.status === 'success') location.reload();
-                            else alert('Failed: ' + (response.message || 'Unknown error'));
+                            else alert(@json(__('messages.Failed: ')) + (response.message || @json(__('messages.Unknown error'))));
                         },
-                        error: (xhr) => alert('Error: ' + xhr.responseText)
+                        error: (xhr) => alert(@json(__('messages.Error: ')) + xhr.responseText)
                     });
                     this.show = false;
                 },
@@ -277,7 +277,7 @@
             border-bottom: 1px dashed #9ca3af; /* dashed underline to indicate editability */
         }
         td.editable-comment .comment-text:empty::before {
-            content: 'Double-click to add comment';
+            content: '{{ __('messages.Double-click to add comment') }}';
             font-size: 0.75rem; /* text-xs */
             color: #9ca3af;     /* gray-400 */
             font-style: italic;
@@ -323,17 +323,17 @@
             {{-- 1. Header Section --}}
             <div class="flex flex-wrap justify-between items-center gap-4">
                 <div>
-                    <h1 class="text-2xl font-semibold text-gray-900">Tasks Timer</h1>
+                    <h1 class="text-2xl font-semibold text-gray-900">{{ __('messages.Tasks Timer') }}</h1>
                 </div>
                 <div class="flex items-center gap-3">
                     <button type="button" id="exportBtn" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
-                        Export to Excel
+                        {{ __('messages.Export to Excel') }}
                     </button>
                     <button type="button" id="exportPDFBtn" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
-                        Export to PDF
+                        {{ __('messages.Export to PDF') }}
                     </button>
                     <button type="button" id="exportPDFBtnCustomer" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
-                        Export to PDF for Customer
+                        {{ __('messages.Export to PDF for Customer') }}
                     </button>
                 </div>
             </div>
@@ -341,7 +341,7 @@
             {{-- Session Message --}}
             @if(session('alertmessage'))
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                <strong class="font-bold">Error!</strong>
+                <strong class="font-bold">{{ __('messages.Error!') }}</strong>
                 <span class="block sm:inline">{{ session('alertmessage') }}</span>
                 <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
             </div>
@@ -351,15 +351,15 @@
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <div class="flex flex-wrap items-center justify-center sm:justify-end gap-x-6 gap-y-2">
                     <div class="text-sm">
-                        <span class="font-medium text-gray-700">Total Duration:</span>
+                        <span class="font-medium text-gray-700">{{ __('messages.Total Duration:') }}</span>
                         <strong class="text-gray-900" id="totalDurationLabel">0h:00m</strong>
                     </div>
                     <div class="text-sm">
-                        <span class="font-medium text-gray-700">Total Operating Cost:</span>
+                        <span class="font-medium text-gray-700">{{ __('messages.Total Operating Cost:') }}</span>
                         <strong class="text-green-600" id="totalOperatingCostLabel">0.00€</strong>
                     </div>
                     <div class="text-sm">
-                        <span class="font-medium text-gray-700">Total Sales:</span>
+                        <span class="font-medium text-gray-700">{{ __('messages.Total Sales:') }}</span>
                         <strong class="text-gray-900" id="totalSalesLabel">0.00€</strong>
                     </div>
                 </div>
@@ -367,7 +367,7 @@
 
             {{-- 3. Date Fetch Form --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h6 class="text-base font-semibold text-gray-800 mb-4">Fetch Data</h6>
+                <h6 class="text-base font-semibold text-gray-800 mb-4">{{ __('messages.Fetch Data') }}</h6>
                 @php $dateFormAction = ''; @endphp
                 @if(Auth::user()->hasRole('Admin')) @php $dateFormAction = route('admin.pointage.filterPointageByDate'); @endphp @endif
                 @if(Auth::user()->hasRole('Responsable de projet')) @php $dateFormAction = route('Responsable_de_projet.pointage.filterPointageByDate'); @endphp @endif
@@ -377,26 +377,26 @@
                 <form method="GET" action="{{ $dateFormAction }}" id="dateForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
                     @csrf
                     <div>
-                        <label for="monthFilter" class="block text-sm font-medium text-gray-700 mb-1">Month</label>
+                        <label for="monthFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Month') }}</label>
                         <select id="monthFilter" name="month" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
-                            <option value="">Select Month</option>
+                            <option value="">{{ __('messages.Select Month') }}</option>
                             @for($i = 1; $i <= 12; $i++)
                                 <option value="{{ $i }}">{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
                             @endfor
                         </select>
                     </div>
                     <div>
-                        <label for="startDateInput" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                        <label for="startDateInput" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Start Date') }}</label>
                         <input type="date" id="startDateInput" name="start_date" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                     </div>
                     <div>
-                        <label for="endDateInput" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                        <label for="endDateInput" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.End Date') }}</label>
                         <input type="date" id="endDateInput" name="end_date" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                     </div>
                     <div class="flex items-center gap-3">
-                        <button type="submit" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm w-full">Get</button>
+                        <button type="submit" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm w-full">{{ __('messages.Get') }}</button>
                         @if(Auth::user()->hasRole('Admin'))
-                        <a id="employeesDailyTotalsBtn" class="inline-flex justify-center bg-white hover:bg-gray-50 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm w-full" target="_blank">Employees PDF</a>
+                        <a id="employeesDailyTotalsBtn" class="inline-flex justify-center bg-white hover:bg-gray-50 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm w-full" target="_blank">{{ __('messages.Employees PDF') }}</a>
                         @endif
                     </div>
                 </form>
@@ -404,7 +404,7 @@
 
             {{-- 4. Filter Form --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h6 class="text-base font-semibold text-gray-800 mb-4">Filters</h6>
+                <h6 class="text-base font-semibold text-gray-800 mb-4">{{ __('messages.Filters') }}</h6>
                 @php $filterFormAction = ''; @endphp
                 @if(Auth::user()->hasRole('Admin')) @php $filterFormAction = route('admin.pointage.filterPointageTable'); @endphp @endif
                 @if(Auth::user()->hasRole('Responsable de projet')) @php $filterFormAction = route('Responsable_de_projet.pointage.filterPointageTable'); @endphp @endif
@@ -418,9 +418,9 @@
 
                        {{-- Filters --}}
                         <div class="lg:col-span-1">
-                            <label for="clientFilter" class="block text-sm font-medium text-gray-700 mb-1">Client</label>
+                            <label for="clientFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Client') }}</label>
                             <select id="clientFilter" name="client" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
-                            <option value="">All Clients</option>
+                            <option value="">{{ __('messages.All Clients') }}</option>
                                 @foreach($clients as $client)
                             <option value="{{ $client->id }}" {{ request('client') == $client->id ? 'selected' : '' }}>{{ $client->name }}</option>
                                 @endforeach
@@ -428,9 +428,9 @@
                         </div>
     
                         <div class="lg:col-span-1">
-                            <label for="employeeFilter" class="block text-sm font-medium text-gray-700 mb-1">Employee</label>
+                            <label for="employeeFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Employee') }}</label>
                                 <select id="employeeFilter" name="employee" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
-                                <option value="">All Employees</option>
+                                <option value="">{{ __('messages.All Employees') }}</option>
                                     @foreach($employees as $employee)
                                 <option value="{{ $employee->id }}" {{ request('employee') == $employee->id ? 'selected' : '' }}>{{ $employee->name }}</option>
                                     @endforeach
@@ -438,9 +438,9 @@
                         </div>
     
                         <div class="lg:col-span-1">
-                            <label for="projectFilter" class="block text-sm font-medium text-gray-700 mb-1">Project</label>
+                            <label for="projectFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Project') }}</label>
                                 <select id="projectFilter" name="project" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
-                                    <option value="">All Projects</option>
+                                    <option value="">{{ __('messages.All Projects') }}</option>
                                         @foreach($projects as $project)
                                         @php
                                             $hasTasksInRange = isset($projectsWithTasks) && in_array($project->id, $projectsWithTasks);
@@ -464,40 +464,40 @@
                             </div>
     
                             <div class="lg:col-span-2">
-                                <label for="taskFilter" class="block text-sm font-medium text-gray-700 mb-1">Task</label>
+                                <label for="taskFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Task Filter Task') }}</label>
                                 <select id="taskFilter" name="task[]" multiple class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom" style="min-height: 100px; min-width: 100%;">
-                                    <option value="all" {{ in_array('all', (array)request('task', [])) || empty(request('task')) ? 'selected' : '' }}>All Tasks</option>
+                                    <option value="all" {{ in_array('all', (array)request('task', [])) || empty(request('task')) ? 'selected' : '' }}>{{ __('messages.All Tasks option') }}</option>
                                     @foreach($allTasks as $task)
                                     <option value="{{ $task->id }}" {{ in_array($task->id, (array)request('task', [])) ? 'selected' : '' }}>
                                         {{ $task->title }}
                                     </option>
                                     @endforeach
                                 </select>
-                                <p class="mt-1 text-xs text-gray-500">Hold Ctrl/Cmd to select multiple tasks</p>
+                                <p class="mt-1 text-xs text-gray-500">{{ __('messages.Hold Ctrl/Cmd to select multiple tasks') }}</p>
                             </div>
     
                             <div class="lg:col-span-1">
-                                <label for="projectTypeFilter" class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                                <label for="projectTypeFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Type Filter') }}</label>
                                     <select id="projectTypeFilter" name="project_type" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
-                                    <option value="">All Types</option>
-                                    <option value="regie" {{ request('project_type') == 'regie' ? 'selected' : '' }}>Regie</option>
-                                    <option value="devis" {{ request('project_type') == 'devis' ? 'selected' : '' }}>Devis</option>
+                                    <option value="">{{ __('messages.All Types') }}</option>
+                                    <option value="regie" {{ request('project_type') == 'regie' ? 'selected' : '' }}>{{ __('messages.Regie') }}</option>
+                                    <option value="devis" {{ request('project_type') == 'devis' ? 'selected' : '' }}>{{ __('messages.Devis type') }}</option>
                                 </select>
                             </div>
                             
                             {{-- Filter Button --}}
                             <div class="lg:col-span-1 flex items-end">
-                                <button type="submit" id="applyFiltersBtn" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm w-full">Apply Filters</button>
+                                <button type="submit" id="applyFiltersBtn" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm w-full">{{ __('messages.Apply Filters') }}</button>
                             </div>
     
                             {{-- Comment and Button Row --}}
                             <div class="lg:col-span-2 mt-5">
-                                <label for="periodInvoiceComment" class="block text-sm font-medium text-gray-700 mb-1">Invoice Comment</label>
-                                <textarea rows="3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" id="periodInvoiceComment" placeholder="Optional comment for the period invoice..."></textarea>
+                                <label for="periodInvoiceComment" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Invoice Comment') }}</label>
+                                <textarea rows="3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" id="periodInvoiceComment" placeholder="{{ __('messages.Optional comment for the period invoice...') }}"></textarea>
                             </div>
                             
                             <div class="lg:col-span-1 mt-4 flex items-end">
-                                <button type="button" id="generatePeriodInvoiceBtn" class="inline-flex justify-center bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm w-full">Generate Period Invoice</button>
+                                <button type="button" id="generatePeriodInvoiceBtn" class="inline-flex justify-center bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm w-full">{{ __('messages.Generate Period Invoice') }}</button>
                         </div>
                 </form>
             </div>
@@ -508,19 +508,19 @@
                     <table id="taskTable" class="w-full divide-y divide-gray-200 table table-fixed">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Project</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Task</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Employee</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Start Date</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">End Date</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Duration</th>
-                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">Op. Cost</th>
-                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">Sales</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Project') }}</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Task Filter Task') }}</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Employee') }}</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Start Date') }}</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.End Date') }}</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Duration') }}</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Op. Cost') }}</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Sales column') }}</th>
                                 <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">
-                                    Comment
-                                    <span class="block text-[10px] font-normal text-gray-400 normal-case">Double-click to edit</span>
+                                    {{ __('messages.Comment column') }}
+                                    <span class="block text-[10px] font-normal text-gray-400 normal-case">{{ __('messages.Double-click to add comment') }}</span>
                                 </th>
-                                <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">Actions</th>
+                                <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Actions') }}</th>
                             </tr>
                         </thead>
 
@@ -686,7 +686,7 @@
                                                         endDate: '{{\Carbon\Carbon::parse($task->end_date)->format('Y-m-d\TH:i')}}', 
                                                         duration: {{$task->duration}}
                                                     })">
-                                                    Move Duration
+                                                    {{ __('messages.Move Duration') }}
                                                 </button>
                                                 @endif
                                             </div>
@@ -733,22 +733,22 @@
          class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
         <div @click.outside="show = false" class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
             <div class="flex items-center justify-between p-4 border-b">
-                <h5 class="text-lg font-semibold">Edit Date and Time</h5>
+                <h5 class="text-lg font-semibold">{{ __('messages.Edit Date and Time') }}</h5>
                 <button @click="show = false" type="button" class="text-gray-400 hover:text-gray-600">&times;</button>
             </div>
             <div class="p-6 space-y-4">
                 <div>
-                    <label for="dateInput" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <label for="dateInput" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Date label') }}</label>
                     <input type="date" x-model="date" id="dateInput" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                 </div>
                 <div>
-                    <label for="timeInput" class="block text-sm font-medium text-gray-700 mb-1">Time (HH:MM)</label>
+                    <label for="timeInput" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Time (HH:MM)') }}</label>
                     <input type="time" x-model="time" id="timeInput" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                 </div>
             </div>
             <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-                <button @click="show = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Close</button>
-                <button @click="save()" type="button" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Save changes</button>
+                <button @click="show = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">{{ __('messages.Close button') }}</button>
+                <button @click="save()" type="button" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">{{ __('messages.Save changes button') }}</button>
             </div>
         </div>
     </div>
@@ -759,12 +759,12 @@
          class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
         <div @click.outside="show = false" class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
             <div class="flex items-center justify-between p-4 border-b">
-                <h5 class="text-lg font-semibold">Move Duration</h5>
+                <h5 class="text-lg font-semibold">{{ __('messages.Move Duration') }}</h5>
                 <button @click="show = false" type="button" class="text-gray-400 hover:text-gray-600">&times;</button>
             </div>
             <div class="p-6 space-y-4">
                 <div>
-                    <label for="projectSelect" class="block text-sm font-medium text-gray-700 mb-1">Project</label>
+                    <label for="projectSelect" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Project') }}</label>
                     <select x-model="projectId" @change="loadTasks()" id="projectSelect" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
                         @foreach($projects as $project)
                             <option value="{{ $project->id }}">{{ $project->name }}</option>
@@ -772,12 +772,12 @@
                     </select>
                 </div>
                 <div>
-                    <label for="taskSelect" class="block text-sm font-medium text-gray-700 mb-1">Task</label>
+                    <label for="taskSelect" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Task Filter Task') }}</label>
                     <select x-model="taskId" id="taskSelect" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
                         </select>
                 </div>
                 <div>
-                    <label for="employeeSelect" class="block text-sm font-medium text-gray-700 mb-1">Employee</label>
+                    <label for="employeeSelect" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Employee') }}</label>
                     <select x-model="employeeId" id="employeeSelect" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
                         @foreach($employees as $employee)
                             <option value="{{ $employee->id }}">{{ $employee->name }}</option>
@@ -785,15 +785,15 @@
                     </select>
                 </div>
                 <div>
-                    <label for="moveStartDate" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                    <label for="moveStartDate" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Start Date') }}</label>
                     <input type="datetime-local" x-model="startDate" @input="calculateDuration()" id="moveStartDate" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                 </div>
                 <div>
-                    <label for="moveEndDate" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                    <label for="moveEndDate" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.End Date') }}</label>
                     <input type="datetime-local" x-model="endDate" @input="calculateDuration()" id="moveEndDate" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                 </div>
                 <div>
-                    <label for="moveDuration" class="block text-sm font-medium text-gray-700 mb-1">Duration (HH:MM)</label>
+                    <label for="moveDuration" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Duration (HH:MM)') }}</label>
                     <input type="text" x-model="duration" id="moveDuration" @input="validateDurationFormat()"
                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
                            placeholder="00h:00m" pattern="^(\d+)h:(\d{2})m$">
@@ -1384,20 +1384,61 @@
                             'X-CSRF-TOKEN': csrfToken
                         }
                     })
-                    .then(response => {
+                    .then(async response => {
                         const skippedHeader = response.headers.get('X-Skipped-Tasks');
+                        var skippedTasks = null;
+
+                        // Parse skipped tasks if available
+                        if (skippedHeader) {
+                            try {
+                                skippedTasks = JSON.parse(atob(skippedHeader));
+                            } catch (e) {
+                                console.error('Failed to parse skipped tasks header', e);
+                            }
+                        }
 
                         if (!response.ok) {
-                            throw new Error('Network response was not ok');
+                            // Even if response is not OK, we might have skipped tasks to show
+                            var errorMessage = 'An error occurred while generating the PDF. Please try again.';
+                            try {
+                                const errorText = await response.text();
+                                if (errorText) {
+                                    try {
+                                        const errorData = JSON.parse(errorText);
+                                        errorMessage = errorData.message || errorData.error || errorMessage;
+                                        // Check if skipped tasks are in the response body (for 400 errors when all tasks are skipped)
+                                        if (errorData.skippedTasks && Array.isArray(errorData.skippedTasks)) {
+                                            skippedTasks = errorData.skippedTasks;
+                                        }
+                                    } catch (e) {
+                                        // Not JSON, use as is
+                                        if (errorText.length < 200) {
+                                            errorMessage = errorText;
+                                        }
+                                    }
+                                }
+                            } catch (e) {
+                                // Ignore error reading response
+                            }
+                            
+                            // Show modal with skipped tasks if available
+                            if (window.showPdfErrorModal) {
+                                window.showPdfErrorModal(skippedTasks, errorMessage);
+                            } else {
+                                alert(errorMessage);
+                            }
+                            return;
                         }
 
                         return response.blob().then(blob => ({
                             blob: blob,
-                            skippedHeader: skippedHeader
+                            skippedTasks: skippedTasks
                         }));
                     })
-                    .then(({ blob, skippedHeader }) => {
-                        var url = window.URL.createObjectURL(blob);
+                    .then((result) => {
+                        if (!result) return; // Error was already handled
+                        
+                        var url = window.URL.createObjectURL(result.blob);
                         var a = document.createElement('a');
                         a.href = url;
                         a.download = fileName;
@@ -1406,20 +1447,18 @@
                         a.remove();
                         window.URL.revokeObjectURL(url);
 
-                        if (skippedHeader) {
-                            try {
-                                var skippedTasks = JSON.parse(atob(skippedHeader));
-                                if (Array.isArray(skippedTasks) && skippedTasks.length > 0) {
-                                    showSkippedTasksModal(skippedTasks);
-                                }
-                            } catch (e) {
-                                console.error('Failed to parse skipped tasks header', e);
-                            }
+                        if (result.skippedTasks && Array.isArray(result.skippedTasks) && result.skippedTasks.length > 0) {
+                            showSkippedTasksModal(result.skippedTasks);
                         }
                     })
                     .catch((error) => {
                         console.error('Error:', error);
-                        alert('An error occurred while generating the PDF. Please try again.');
+                        // Show modal with error message
+                        if (window.showPdfErrorModal) {
+                            window.showPdfErrorModal(null, 'An error occurred while generating the PDF. Please try again. If the problem persists, check your filters and network connection, or contact an administrator.');
+                        } else {
+                            alert('An error occurred while generating the PDF. Please try again.');
+                        }
                     });
                 } else {
                     alert('Please select a start date first.');
@@ -1534,8 +1573,152 @@
                 }
             };
 
+            // --- Generic PDF error modal helpers (with skipped tasks table) ---
+            window.showPdfErrorModal = function(skippedTasks, errorMessage) {
+                var modal = document.getElementById('pdfErrorModal');
+                var tbody = document.getElementById('pdfErrorTableBody');
+                var descriptionEl = document.getElementById('pdfErrorDescription');
+
+                if (!modal) {
+                    // Fallback if modal markup is missing
+                    alert(errorMessage || 'An error occurred while generating the PDF. Please try again.');
+                    return;
+                }
+
+                // Update description message
+                if (descriptionEl) {
+                    if (errorMessage) {
+                        descriptionEl.textContent = errorMessage;
+                    } else if (skippedTasks && Array.isArray(skippedTasks) && skippedTasks.length > 0) {
+                        descriptionEl.textContent = 'These tasks were skipped because their data is incomplete or inconsistent (for example: missing project, missing hourly rate, or missing links). You can fix them later; the rest of the worksheet is correct.';
+                    } else {
+                        descriptionEl.textContent = 'An error occurred while generating the PDF. Please try again. If the problem persists, check your filters and network connection, or contact an administrator.';
+                    }
+                }
+
+                // Clear previous rows
+                if (tbody) {
+                    tbody.innerHTML = '';
+                } else {
+                    console.error('Table body element not found!');
+                }
+
+                // Populate table with skipped tasks if available
+                console.log('showPdfErrorModal called with:', { skippedTasks, errorMessage, skippedTasksLength: skippedTasks ? skippedTasks.length : 0, tbodyExists: !!tbody });
+                if (skippedTasks && Array.isArray(skippedTasks) && skippedTasks.length > 0 && tbody) {
+                    console.log('Populating table with', skippedTasks.length, 'skipped tasks');
+                    skippedTasks.forEach(function(task) {
+                        console.log('Processing task:', task);
+                        var tr = document.createElement('tr');
+
+                        function createCell(text) {
+                            var td = document.createElement('td');
+                            td.className = 'px-3 py-2 text-sm text-gray-700 border-b border-gray-200';
+                            td.textContent = text || '';
+                            return td;
+                        }
+
+                        // Format duration (minutes -> HH:MM)
+                        var durationText = '';
+                        var durationMinutes = null;
+
+                        if (typeof task.duration === 'number') {
+                            durationMinutes = task.duration;
+                        } else if (typeof task.duration === 'string' && task.duration.trim() !== '') {
+                            var parsed = parseInt(task.duration, 10);
+                            if (!isNaN(parsed)) {
+                                durationMinutes = parsed;
+                            }
+                        }
+
+                        if (durationMinutes !== null) {
+                            var hours = Math.floor(durationMinutes / 60);
+                            var minutes = durationMinutes % 60;
+                            durationText = (hours < 10 ? '0' + hours : hours) + 'h:' +
+                                           (minutes < 10 ? '0' + minutes : minutes) + 'm';
+                        }
+
+                        tr.appendChild(createCell(task.task_name || ''));
+                        tr.appendChild(createCell(task.project_name || ''));
+                        tr.appendChild(createCell(task.employee_name || ''));
+                        tr.appendChild(createCell(task.start_date || ''));
+                        tr.appendChild(createCell(task.end_date || ''));
+                        tr.appendChild(createCell(durationText));
+
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                modal.classList.remove('hidden');
+            };
+
+            window.closePdfErrorModal = function() {
+                var modal = document.getElementById('pdfErrorModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                }
+            };
+
         });
     </script>
+
+    <!-- PDF error modal with skipped tasks table (matches customer-preview.blade.php structure) -->
+    <div id="pdfErrorModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    Tasks not included in the PDF
+                </h3>
+                <button type="button"
+                        onclick="closePdfErrorModal()"
+                        class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                    <span class="sr-only">Close</span>
+                    &times;
+                </button>
+            </div>
+            <div class="px-4 py-3 text-sm text-gray-700 border-b border-gray-100">
+                <p id="pdfErrorDescription">
+                    These tasks were skipped because their data is incomplete or inconsistent (for example: missing project, missing hourly rate, or missing links). You can fix them later; the rest of the worksheet is correct.
+                </p>
+            </div>
+            <div class="px-4 py-3 max-h-96 overflow-y-auto">
+                <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
+                                Task
+                            </th>
+                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
+                                Project
+                            </th>
+                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
+                                Employee
+                            </th>
+                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
+                                Start date
+                            </th>
+                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
+                                End date
+                            </th>
+                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
+                                Duration
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="pdfErrorTableBody" class="bg-white">
+                        <!-- Rows injected dynamically -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-4 py-3 flex justify-end border-t border-gray-200">
+                <button type="button"
+                        onclick="closePdfErrorModal()"
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Skipped tasks modal -->
     <div id="skippedTasksModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">

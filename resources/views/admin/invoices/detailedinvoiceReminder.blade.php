@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -109,14 +109,14 @@
         <div class="details">
             <div class="details-left">
                 <p>
-                    Date du rappel: {{$last_reminder_date}}<br  >
-                    Échéance: {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}<br>
-                    Numéro client : {{ $client->client_number }}<br>
-                    Numéro de facture : {{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif<br>
-                    Rappel numéro : {{$reminder_number}}
+                    {{ __('messages.Reminder Date') }}: {{$last_reminder_date}}<br  >
+                    {{ __('messages.Due Date') }}: {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}<br>
+                    {{ __('messages.Client Number') }} : {{ $client->client_number }}<br>
+                    {{ __('messages.Invoice Number') }} : {{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif<br>
+                    {{ __('messages.Reminder Number') }} : {{$reminder_number}}
                     @if($isOverdue)
                             <br>
-                            <span style="color: red;">Jours en retard : {{ $days_overdue }}</span>
+                            <span style="color: red;">{{ __('messages.Days overdue') }} : {{ $days_overdue }}</span>
                         @endif
                 </p>
             </div>
@@ -125,7 +125,7 @@
                 {{ $client->billing_street }} <br />
                 {{ $client->billing_zip }}-{{ $client->billing_city }} <br />
                 {{ $client->billing_country }}<br />
-                TVA Client: {{ $client->TVA }}
+                {{ __('messages.Client TVA') }}: {{ $client->TVA }}
             </div>
         </div>
         @php
@@ -135,22 +135,22 @@
         }
         @endphp
         <div style="text-align: center; margin: 20px 0;">
-            <h2>Rappel Facture : {{$entreprise->invoice_prefix}}-{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif</h2>
+            <h2>{{ __('messages.Invoice Reminder') }} : {{$entreprise->invoice_prefix}}-{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif</h2>
         </div>
 
         <table>
             <thead>
                 <tr>
-                    <th>Description</th>
-                    <th>Quantité</th>
-                    <th>Prix unitaire</th>
-                    <th>Total</th>
+                    <th>{{ __('messages.Designation') }}</th>
+                    <th>{{ __('messages.Quantity') }}</th>
+                    <th>{{ __('messages.Unit Price') }}</th>
+                    <th>{{ __('messages.Amount') }}</th>
                 </tr>
             </thead>
             <tbody>
             <tr>
                 <td colspan="4" style="background-color: #f9f9f9;">
-                    <strong>Projet: {{ $projectinfos->name }}</strong>
+                    <strong>{{ __('messages.Project') }}: {{ $projectinfos->name }}</strong>
                 </td>
             </tr>
                 @foreach($details as $detail)
@@ -164,15 +164,15 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="3" style="text-align: right;"><strong>Total HTVA</strong></td>
+                    <td colspan="3" style="text-align: right;"><strong>{{ __('messages.Total Excl VAT') }}</strong></td>
                     <td>{{number_format($invoice->total_htva, 2, ',', '')}}€</td>
                 </tr>
                 <tr>
-                    <td colspan="3" style="text-align: right;"><strong>TVA ({{$projectinfos->tva}}%)</strong></td>
+                    <td colspan="3" style="text-align: right;"><strong>{{ __('messages.VAT') }} ({{$projectinfos->tva}}%)</strong></td>
                     <td>{{number_format($invoice->total_tva, 2, ',', '')}}€</td>
                 </tr>
                 <tr>
-                    <td colspan="3" style="text-align: right;"><strong>Total TTC</strong></td>
+                    <td colspan="3" style="text-align: right;"><strong>{{ __('messages.Total Incl VAT') }}</strong></td>
                     <td>{{number_format($invoice->total_ttc, 2, ',', '')}}€</td>
                 </tr>
             </tfoot>
@@ -181,32 +181,32 @@
         @if($comment || $projectinfos->description)
         <div style="margin: 20px 0; padding: 10px; border-top: 1px solid #CCCCCC; border-bottom: 1px solid #CCCCCC;">
             @if($projectinfos->description)
-            <strong> - Informations :</strong> <br>
+            <strong> - {{ __('messages.Information') }} :</strong> <br>
             {!! nl2br(e($projectinfos->description)) !!} <br>
             @endif
             @if($comment)
-            <strong>Commentaire:</strong><br>
+            <strong>{{ __('messages.Comment') }}:</strong><br>
             {!! nl2br(e($comment)) !!}
             @endif
         </div>
         @endif
 
         <div class="payment">
-            - Veuillez payer le montant de <strong>{{number_format($invoice->total_ttc, 2, ',', '')}}€</strong> 
-            sur le compte mentionné ci-dessous avant le {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}
-            en mentionnant le numéro Facture <strong>{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif</strong>
+            - {{ __('messages.Please pay the amount of') }} <strong>{{number_format($invoice->total_ttc, 2, ',', '')}}€</strong> 
+            {{ __('messages.on the account mentioned below before') }} {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}
+            {{ __('messages.mentioning the invoice number') }} <strong>{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif</strong>
             <br>
-            - Dans le cas de livraison intracommunautaire pour les services :  "Autoliquidation Art 21 § 2 du code TVA belge"
+            - {{ __('messages.In case of intra-community delivery for services') }}:  "Autoliquidation Art 21 § 2 du code TVA belge"
                 <br>
-            - Voir conditions générales en annexe
+            - {{ __('messages.See general conditions in annex') }}
             <br>
-            - Merci de votre confiance
+            - {{ __('messages.Thank you for your trust') }}
         </div>
 
         <!-- Message container -->
         <div id="messageContainer" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1050;" class="alert alert-dismissible fade show">
             <span id="messageText"></span>
-            <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'" aria-label="Close"></button>
+            <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'" aria-label="{{ __('messages.Close') }}"></button>
         </div>
 
         <!-- Send Reminder Modal -->
@@ -214,8 +214,8 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="sendReminderModalLabel">Send Reminder</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <h5 class="modal-title" id="sendReminderModalLabel">{{ __('messages.Send Reminder') }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('messages.Close') }}"></button>
                     </div>
                     @if(Auth::user()->hasRole('Admin'))
                         <form id="sendReminderForm" action="{{route('admin.invoice.SendInvReminder', ['invoice_id' => $invoice->id, 'reminder_number' => $reminder_number])}}" method="post">
@@ -232,19 +232,19 @@
                         @csrf
                         <div class="modal-body">
                             <div class="mb-3">
-                                <h6>Select Recipients:</h6>
+                                <h6>{{ __('messages.Select Recipients') }}:</h6>
                                 <div id="recipientsList" class="mb-3 p-2 border rounded">
                                     <!-- Recipients will be populated here -->
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label for="fileUpload" class="form-label">Upload Additional Files (Optional):</label>
+                                <label for="fileUpload" class="form-label">{{ __('messages.Upload Additional Files (Optional)') }}:</label>
                                 <input type="file" class="form-control" id="fileUpload" name="file[]" multiple>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Send Reminder</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('messages.Close') }}</button>
+                            <button type="submit" class="btn btn-primary">{{ __('messages.Send Reminder') }}</button>
                         </div>
                     </form>
                 </div>
@@ -260,7 +260,7 @@
                            -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; 
                            user-select: none; background-image: none; border: 1px solid transparent; 
                            border-radius: 4px; color: #fff; background-color: #337ab7; border-color: #2e6da4;">
-                Send Rappel
+                {{ __('messages.Send Reminder') }}
             </button>
         </div>
     </div>
@@ -269,17 +269,17 @@
         <div style="float: left; width: 30%; height: 80%;text-align: center;">
             <b>{{ $entreprise->name }}</b>
             <br>
-            <b>Numéro TVA:</b> {{ $entreprise->tva}}
+            <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
         </div>
         <div style="float: left; margin-left: 5%; width: 30%; height: 80%; text-align: center;">
             {{ $entreprise->Address }}
             <br>
-            Tél: 0{{ $entreprise->phone }}
+            {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
         </div>
         <div style="float: left; margin-left: 5%; width: 30%; height: 80%; text-align: center;">
-            <b>BANK</b> : {{ $entreprise->bank_name }} <br>
-            <b>IBAN</b> : {{ $entreprise->iban }} <br>
-            <b>SWIFT/BIC</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
+            <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }} <br>
+            <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }} <br>
+            <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
         </div>
     </div>
 
@@ -345,12 +345,12 @@
                             recipientsList.appendChild(recipientDiv);
                         });
                     } else {
-                        recipientsList.innerHTML = '<p class="text-muted">No recipients found</p>';
+                        recipientsList.innerHTML = '<p class="text-muted">{{ __('messages.No recipients found') }}</p>';
                     }
                 })
                 .catch(error => {
                     console.error('Error fetching recipients:', error);
-                    document.getElementById('recipientsList').innerHTML = '<p class="text-danger">Error loading recipients</p>';
+                    document.getElementById('recipientsList').innerHTML = '<p class="text-danger">{{ __('messages.Error loading recipients') }}</p>';
                 });
         });
 
@@ -363,7 +363,7 @@
                 .map(checkbox => checkbox.value);
             
             if (selectedRecipients.length === 0) {
-                showMessage('Please select at least one recipient', 'danger');
+                showMessage('{{ __('messages.Please select at least one recipient') }}', 'danger');
                 return;
             }
 
@@ -407,12 +407,12 @@
                         window.location.href = '{{ route("admin.invoices.invoicehistory") }}';
                     }, 1000);
                 } else {
-                    showMessage('Error sending reminder: ' + (data.message || 'Unknown error'), 'danger');
+                    showMessage('{{ __('messages.Error sending reminder') }}: ' + (data.message || '{{ __('messages.Unknown error') }}'), 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showMessage('An error occurred while sending the reminder. Please try again.', 'danger');
+                showMessage('{{ __('messages.An error occurred while sending the reminder') }}', 'danger');
             });
         });
 

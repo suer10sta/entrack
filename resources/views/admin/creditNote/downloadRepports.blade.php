@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credit Note Report</title>
+    <title>{{ __('messages.Credit Note Report') }}</title>
     <style>
         /* [MODIFIED] Consistent Font and Size */
         body {
@@ -167,8 +167,8 @@
             </div>
             <div class="details-right">
                 <div class="header-info">
-                    <h2>Credit Note Table Reports</h2>
-                    <h4>Number of Credit Notes: {{ $creditNote->count() }}</h4>
+                    <h2>{{ __('messages.Credit Note Table Reports') }}</h2>
+                    <h4>{{ __('messages.Number of Credit Notes') }}: {{ $creditNote->count() }}</h4>
                 </div>
             </div>
         </div>
@@ -181,15 +181,15 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 12%;">Credit Note N</th>
-                    <th style="width: 12%;">Invoice N</th>
-                    <th style="width: 15%;">Project Name</th>
-                    <th style="width: 6%;">TVA</th>
-                    <th style="width: 15%;">Client Name</th>
-                    <th style="width: 10%;">Start Date</th>
-                    <th style="width: 10%;">End Date</th>
-                    <th style="width: 8%;">Type</th>
-                    <th style="width: 12%;">Total Cost</th>
+                    <th style="width: 12%;">{{ __('messages.Credit Note N') }}</th>
+                    <th style="width: 12%;">{{ __('messages.Invoice N') }}</th>
+                    <th style="width: 15%;">{{ __('messages.Project Name') }}</th>
+                    <th style="width: 6%;">{{ __('messages.VAT') }}</th>
+                    <th style="width: 15%;">{{ __('messages.Client Name') }}</th>
+                    <th style="width: 10%;">{{ __('messages.Start Date') }}</th>
+                    <th style="width: 10%;">{{ __('messages.End Date') }}</th>
+                    <th style="width: 8%;">{{ __('messages.Type') }}</th>
+                    <th style="width: 12%;">{{ __('messages.Total Cost') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -238,10 +238,10 @@
         <div class="totals-summary">
             <div class="summary-row">
                 <div class="summary-item">
-                    <strong>Total TVA:</strong> <span>-{{ number_format($totaltva, 3, ',', '') }}€</span>
+                    <strong>{{ __('messages.Total TVA') }}:</strong> <span>-{{ number_format($totaltva, 3, ',', '') }}€</span>
                 </div>
                 <div class="summary-item">
-                    <strong>Total Cost:</strong> <span>-{{ number_format($totalCost, 3, ',', '') }}€</span>
+                    <strong>{{ __('messages.Total Cost') }}:</strong> <span>-{{ number_format($totalCost, 3, ',', '') }}€</span>
                 </div>
             </div>
         </div>
@@ -253,23 +253,23 @@
             <div class="footer-left footer-text">
                 @if(Auth::user()->entreprise)
                     <b>{{ Auth::user()->entreprise->name }}</b><br>
-                    <b>Numéro TVA:</b> {{ Auth::user()->entreprise->tva}}
+                    <b>{{ __('messages.VAT Number') }}:</b> {{ Auth::user()->entreprise->tva}}
                 @endif
             </div>
             <div class="footer-center footer-text">
                 @if(Auth::user()->entreprise)
                     {{ Auth::user()->entreprise->Address }}<br>
-                    Tél: 0{{ Auth::user()->entreprise->phone }}
+                    {{ __('messages.Phone') }}: 0{{ Auth::user()->entreprise->phone }}
                 @endif
             </div>
             <div class="footer-right footer-text">
                 @if(Auth::user()->entreprise)
-                    <b>BANK</b> : {{ Auth::user()->entreprise->bank_name }}<br>
-                    <b>IBAN</b> : {{ Auth::user()->entreprise->iban }}<br>
-                    <b>SWIFT/BIC</b> : {{ Auth::user()->entreprise->swift }} / {{ Auth::user()->entreprise->bic }}
+                    <b>{{ __('messages.BANK') }}</b> : {{ Auth::user()->entreprise->bank_name }}<br>
+                    <b>{{ __('messages.IBAN') }}</b> : {{ Auth::user()->entreprise->iban }}<br>
+                    <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ Auth::user()->entreprise->swift }} / {{ Auth::user()->entreprise->bic }}
                 @endif
                 <br>
-                <span style="font-size: 9px; color: #666;">Printed: {{ date('d-m-Y') }}</span>
+                <span style="font-size: 9px; color: #666;">{{ __('messages.Printed') }}: {{ date('d-m-Y') }}</span>
             </div>
         </div>
     </div>

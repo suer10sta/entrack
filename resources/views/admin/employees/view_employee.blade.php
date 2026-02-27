@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DalyTrac Dashboard</title>
+    <title>{{ __('messages.Employee Profile') }} - DalyTrac</title>
     @vite('resources/css/app.css')
     
     {{-- This CSS block styles the "editable" fields to look like text until double-clicked --}}
@@ -53,8 +53,8 @@
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8">
             
             <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-900 mb-1">Employee Profile</h1>
-                <p class="text-sm text-gray-600">View and manage employee information</p>
+                <h1 class="text-2xl font-bold text-gray-900 mb-1">{{ __('messages.Employee Profile') }}</h1>
+                <p class="text-sm text-gray-600">{{ __('messages.View and manage employee information') }}</p>
             </div>
 
             <!-- This div stacks all the new cards vertically -->
@@ -87,9 +87,9 @@
                                 <div>
                                     <div class="flex items-center">
                                         <span class="text-xl mr-2">👤</span>
-                                        <h5 class="text-lg font-semibold text-gray-900 mb-0">Employee Infos</h5>
+                                        <h5 class="text-lg font-semibold text-gray-900 mb-0">{{ __('messages.Employee Infos') }}</h5>
                                     </div>
-                                    <p class="text-sm text-gray-500 ml-8">Mandatory information</p>
+                                    <p class="text-sm text-gray-500 ml-8">{{ __('messages.Mandatory informations') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -98,13 +98,13 @@
                             <div class="space-y-4">
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Name</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Name') }}</label>
                                         <input class="editable w-full border-gray-300 rounded-lg shadow-sm" 
                                             data-id="{{$employee->id}}" data-column="name"  type="text"
                                             name="name" value="{{ $employee->name }}" readonly/>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Login Email</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Login Email') }}</label>
                                         <input class="editable w-full border-gray-300 rounded-lg shadow-sm" 
                                             data-id="{{$employee->id}}" data-column="email"  type="text"
                                             name="email" value="{{ $employee->email }}" readonly/>
@@ -112,13 +112,13 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Phone Number') }}</label>
                                         <input class="editable w-full border-gray-300 rounded-lg shadow-sm" 
                                             data-id="{{$employee->id}}" data-column="phoneNumber"  type="text"
                                             name="phoneNumber" value="{{ $employee->phoneNumber }}" readonly/>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Contact Email</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Contact Email') }}</label>
                                         <input class="editable w-full border-gray-300 rounded-lg shadow-sm" 
                                             data-id="{{$employee->id}}" data-column="contact_email"  type="text"
                                             name="contact_email" value="{{ $employee->contact_email }}" readonly/>
@@ -126,13 +126,13 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Age</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Age') }}</label>
                                         <input class="editable w-full border-gray-300 rounded-lg shadow-sm" 
                                             data-id="{{$employee->id}}" data-column="age"  type="text"
                                             name="age" value="{{ $employee->age }}" readonly/>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Password') }}</label>
                                         <input class="editable w-full border-gray-300 rounded-lg shadow-sm" 
                                             data-id="{{$employee->id}}" data-column="password"  type="text"
                                             name="password" value="{{ $employee->password }}" readonly/>
@@ -140,13 +140,13 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-700 mb-1">Work Hours Limit</label>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">{{ __('messages.Work Hours Limit') }}</label>
                                         <input class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent editable"    
                                             data-id="{{$employee->id}}" data-column="workhours_limit"  type="text"
                                             name="workHours_limit" value="{{ $employee->workHours_limit }}" readonly/>
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-700 mb-1">Timezone</label>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">{{ __('messages.Timezone') }}</label>
                                         <select class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent editable-select" 
                                             data-id="{{$employee->id}}" data-column="timezone" type="text"
                                             name="timezone">
@@ -160,7 +160,7 @@
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">&nbsp;</label>
                                         <button type="button" id="openEmailModalBtn" class="w-full px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                                            Send Email
+                                            {{ __('messages.Send Email') }}
                                         </button>
                                     </div>
                                 </div>
@@ -176,8 +176,8 @@
                             <div class="flex items-center">
                                 <span class="text-xl mr-2">💼</span>
                                 <div>
-                                    <h5 class="text-lg font-semibold text-gray-900 mb-0">Professional Infos</h5>
-                                    <p class="text-sm text-gray-500">Mandatory information</p>
+                                    <h5 class="text-lg font-semibold text-gray-900 mb-0">{{ __('messages.Professional Infos') }}</h5>
+                                    <p class="text-sm text-gray-500">{{ __('messages.Mandatory informations') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -186,13 +186,13 @@
                             <div class="space-y-4">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">CNSS Number</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.CNSS Number') }}</label>
                                         <input class="editable w-full border-gray-300 rounded-lg shadow-sm" 
                                             data-id="{{$employee->id}}" data-column="cnss" type="text"
                                             name="cnss" value="{{ $employee->cnss }}" readonly/>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Bank Account</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Bank Account') }}</label>
                                         <input class="editable w-full border-gray-300 rounded-lg shadow-sm" 
                                             data-id="{{$employee->id}}" data-column="bankAccountNumber" type="text"
                                             name="bankAccountNumber" value="{{ $employee->bankAccountNumber }}" readonly/>
@@ -200,13 +200,13 @@
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Release Date</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Release Date') }}</label>
                                         <input class="editable w-full border-gray-300 rounded-lg shadow-sm" 
                                             data-id="{{$employee->id}}" data-column="Date_Release" type="text"
                                             name="Date_Release" value="{{ $employee->Date_Release }}" readonly/>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Salary</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Salary') }}</label>
                                         <input class="editable w-full border-gray-300 rounded-lg shadow-sm" 
                                             data-id="{{$employee->id}}" data-column="salary" type="text"
                                             name="salary" value="{{ $employee->salary }}€" readonly/>
@@ -214,13 +214,13 @@
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Cost Per Hour</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Cost Per Hour') }}</label>
                                         <input class="editable w-full border-gray-300 rounded-lg shadow-sm" 
                                             data-id="{{$employee->id}}" data-column="cost_per_hour" type="text"
                                             name="cost_per_hour" value="{{ $employee->cost_per_hour }}€" readonly/>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Cotisation CNSS</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Cotisation CNSS') }}</label>
                                         <input class="editable w-full border-gray-300 rounded-lg shadow-sm" 
                                             data-id="{{$employee->id}}" data-column="Cotisation_CNSS" 
                                             type="text" name="Cotisation_CNSS"
@@ -229,7 +229,7 @@
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Cotisation AMO</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Cotisation AMO') }}</label>
                                         <input class="editable w-full border-gray-300 rounded-lg shadow-sm" 
                                             data-id="{{$employee->id}}" data-column="Cotisation_AMO"  
                                             type="text" name="Cotisation_AMO"
@@ -248,8 +248,8 @@
                             <div class="flex items-center">
                                 <span class="text-xl mr-2">🔐</span>
                                 <div>
-                                    <h5 class="text-lg font-semibold text-gray-900 mb-0">Roles</h5>
-                                    <p class="text-sm text-gray-500">Roles information</p>
+                                    <h5 class="text-lg font-semibold text-gray-900 mb-0">{{ __('messages.Roles') }}</h5>
+                                    <p class="text-sm text-gray-500">{{ __('messages.Roles information') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -278,7 +278,7 @@
                                 @endphp
                                 
                                 @can('Edit employee roles')
-                                <a href="{{ $editRolesRoute }}" class="inline-block px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">Edit Roles</a>
+                                <a href="{{ $editRolesRoute }}" class="inline-block px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">{{ __('messages.Edit roles') }}</a>
                                 @endcan
                             </div>
                         </div>
@@ -289,7 +289,7 @@
                 <!-- CHANGED: Applied new card style and added mb-8 -->
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                     <div class="p-6 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold text-gray-900">Work Days Reports</h2>
+                        <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Work Days Reports') }}</h2>
                     </div>
                     <!-- CHANGED: Added p-6 wrapper for table -->
                     <div class="p-6">
@@ -297,18 +297,18 @@
                             <table id="editableTable" class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jours Travaillés Interne</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jours Maladie</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jours Fériés</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reilquat Congé Payé</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Congé Payé Acquis</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Congé Payé Pris</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solde Congés</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jours d'Absence</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dates Congé Payé</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remarque</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mois</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Année</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Internal Work Days') }}</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Sick Days') }}</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Holidays') }}</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Remaining Paid Leave') }}</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Paid Leave Acquired') }}</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Paid Leave Taken') }}</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Leave Balance') }}</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Unpaid Absence Days') }}</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Paid Leave Dates') }}</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Remark') }}</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Month') }}</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Year') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -370,7 +370,7 @@
                     <div class="p-6 border-b border-gray-200">
                         <div class="flex items-center">
                             <span class="text-xl mr-2">👥</span>
-                            <h5 class="text-lg font-semibold text-gray-900 mb-0">Teams</h5>
+                            <h5 class="text-lg font-semibold text-gray-900 mb-0">{{ __('messages.Teams') }}</h5>
                         </div>
                     </div>
                     <!-- Card Body -->
@@ -384,7 +384,7 @@
                             <div class="bg-white rounded-lg shadow-md p-4 border border-gray-200">
                                 <div class="mb-3">
                                     <h5 class="text-lg font-semibold text-gray-900 capitalize">{{$team->name}}</h5>
-                                    <span class="text-sm font-medium text-gray-600">Team Members:</span>
+                                    <span class="text-sm font-medium text-gray-600">{{ __('messages.Team Members:') }}</span>
                                 </div>
                                 <ul class="space-y-3">
                                     @foreach(App\Models\team_members::where('team_id', $team->id)->get() as $team_member)
@@ -434,7 +434,7 @@
                                         </div>
                                         @if($memberRoute != '#')
                                         <a href="{{ $memberRoute }}" class="flex-shrink-0 px-3 py-1 text-xs font-medium text-blue-600 border border-blue-600 rounded-full hover:bg-blue-50">
-                                            View
+                                            {{ __('messages.View') }}
                                         </a>
                                         @endif
                                     </li>
@@ -451,7 +451,7 @@
                 <!-- CHANGED: Applied new card style and added mb-8 -->
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                     <div class="p-6 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold text-gray-900">Projects</h2>
+                        <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Projects Section') }}</h2>
                     </div>
                     <!-- CHANGED: Added p-6 wrapper for table -->
                     <div class="p-6">
@@ -468,10 +468,10 @@
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client / Project</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Budget</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Client / Project') }}</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Budget') }}</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Duration') }}</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Progress') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -553,7 +553,7 @@
                 <!-- CHANGED: Applied new card style. No mb-8 as it's the last item. -->
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                     <div class="p-6 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold text-gray-900">Tasks</h2>
+                        <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Tasks Section') }}</h2>
                     </div>
                     <!-- CHANGED: Added p-6 wrapper for table -->
                     <div class="p-6">
@@ -578,12 +578,12 @@
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project / Task</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Est. Hours</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Difference</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Chrono</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Project / Task') }}</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Duration') }}</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Est. Hours') }}</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Difference') }}</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Progress') }}</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">{{ __('messages.Chrono') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -643,10 +643,12 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{$task->estimated_hours}}h</td>
                                             @php
-                                                $taskdifference = $task->estimated_hours * 60 - $tasktotalduration;
+                                                $taskestimated = ($task->estimated_hours ?? 0) * 60;
+                                                $taskconsumed = ($task->consumed_hours ?? 0) * 60;
+                                                $taskdifference = $taskestimated - $taskconsumed - $tasktotalduration;
                                                 $hours = floor(abs($taskdifference) / 60);
                                                 $minutes = abs($taskdifference) % 60;
-                                                $taskestimatedMinutes = $task->estimated_hours * 60;
+                                                $taskestimatedMinutes = max(0, (($task->estimated_hours ?? 0) - ($task->consumed_hours ?? 0)) * 60);
                                                 $taskprogressPercentage = $taskestimatedMinutes > 0 ? ($tasktotalduration / $taskestimatedMinutes) * 100 : 0;
                                                 $taskformattedProgressPercentage = number_format($taskprogressPercentage, 2);
                                             @endphp
@@ -706,14 +708,14 @@
                                                             <textarea
                                                                 name="comment"
                                                                 class="block w-full rounded-lg border-gray-300 shadow-sm sm:text-xs py-1 px-2"
-                                                                placeholder="Comment"
+                                                                placeholder="{{ __('messages.Description') }}"
                                                                 rows="1"
                                                             ></textarea>
                                                             <button
                                                                 type="submit"
                                                                 class="mt-1 inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
                                                             >
-                                                                Start
+                                                                {{ __('messages.Start') }}
                                                             </button>
                                                         </form>
                                                     @else
@@ -727,7 +729,7 @@
                                                                 type="submit"
                                                                 class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
                                                             >
-                                                                Stop
+                                                                {{ __('messages.Stop') }}
                                                             </button>
                                                         </form>
                                                     @endif
@@ -754,7 +756,7 @@
         <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 p-6 transform transition-all duration-300">
             
             <div class="flex justify-between items-center pb-3 border-b border-gray-200">
-                <h3 class="text-xl font-semibold text-gray-900">Send Email to {{ $employee->name }}</h3>
+                <h3 class="text-xl font-semibold text-gray-900">{{ __('messages.Send Email to') }} {{ $employee->name }}</h3>
                 <button type="button" id="closeEmailModalBtn" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
@@ -766,11 +768,11 @@
                     <input type="hidden" name="employee_id" value="{{ $employee->id }}">
                     <div class="space-y-4">
                         <div>
-                            <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                    <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Subject') }}</label>
                             <input type="text" class="w-full border-gray-300 rounded-lg shadow-sm" id="subject" name="subject" required>
                         </div>
                         <div>
-                            <label for="body" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                    <label for="body" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Message') }}</label>
                             <textarea class="w-full border-gray-300 rounded-lg shadow-sm" id="body" name="body" rows="6" required>Bonjour, 
 Veuillez trouver ci-joint le document, pour votre information.
 
@@ -781,7 +783,7 @@ Bien cordialement,
 Pour Stabel</textarea>
                         </div>
                         <div>
-                            <label for="attachments" class="block text-sm font-medium text-gray-700 mb-1">Attachments</label>
+                            <label for="attachments" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Attachments') }}</label>
                             <input type="file" class="w-full text-sm text-gray-500
                                 file:mr-4 file:py-2 file:px-4
                                 file:rounded-lg file:border-0
@@ -796,10 +798,10 @@ Pour Stabel</textarea>
 
             <div class="mt-6 pt-4 border-t border-gray-200 flex justify-end gap-3">
                 <button type="button" id="cancelEmailModalBtn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium text-sm">
-                    Close
+                    {{ __('messages.Close') }}
                 </button>
                 <button type="button" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm" id="sendEmailBtn">
-                    Send Email
+                    {{ __('messages.Send Email') }}
                 </button>
             </div>
         </div>
@@ -983,11 +985,11 @@ Pour Stabel</textarea>
                     success: function(response) {
                         $('#contactModal').addClass('hidden');
                         // Use a custom modal for success instead of alert
-                        alert('Email sent successfully!');
+                        alert('{{ __('messages.Email sent successfully!') }}');
                     },
                     error: function(xhr) {
                         // Use a custom modal for error instead of alert
-                        alert('Error sending email. Please try again.');
+                        alert('{{ __('messages.Error sending email. Please try again.') }}');
                     }
                 });
             });

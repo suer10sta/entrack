@@ -110,8 +110,8 @@ thead {
         </div>
         <div class="details-right">
             <div class="header-info">
-                <h2>Pointage Table Reports</h2>
-                <h5>For {{ $startDate }}</h5>
+                <h2>{{ __('messages.Pointage Table Reports') }}</h2>
+                <h5>{{ __('messages.For label') }} {{ $startDate }}</h5>
             </div>
         </div>
     </div>
@@ -127,14 +127,14 @@ thead {
         @endphp
 
         @foreach($tasksByName as $taskId => $taskRows)
-            <h5>Task: {{ $taskRows->first()->task_name ?? ('Task #' . $taskId) }}</h5>
+            <h5>{{ __('messages.Task label') }} {{ $taskRows->first()->task_name ?? ('#' . $taskId) }}</h5>
             <table>
                 <thead>
                     <tr>
-                        <th>Project Name</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Duration</th>
+                        <th>{{ __('messages.Project Name column') }}</th>
+                        <th>{{ __('messages.Start Date column pointage') }}</th>
+                        <th>{{ __('messages.End Date column pointage') }}</th>
+                        <th>{{ __('messages.Duration column pointage') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -148,7 +148,7 @@ thead {
                                     $projectid = App\Models\Tasks::where('id', $task->task_id)->pluck('project_id');
                                     $project = App\Models\Project::where('id', $projectid)->first();
                                 @endphp
-                                {{$project->name}}
+                                {{ $project->name ?? __('messages.N/A') }}
                             </td>
                             <td>{{$task->start_date}}</td>
                             <td>{{$task->end_date}}</td>
@@ -165,7 +165,7 @@ thead {
                         </tr>
                     @endforeach
                     <tr style="background-color: #f8f9fa;">
-                        <td colspan="3" style="text-align: right; border: none;"><strong>Task Total:</strong></td>
+                        <td colspan="3" style="text-align: right; border: none;"><strong>{{ __('messages.Task Total label') }}</strong></td>
                         <td style="border: none;">
                             @php
                                 $taskHours = floor($taskTotalDuration / 60);
@@ -180,7 +180,7 @@ thead {
 
         <table>
             <tr style="background-color: #e9ecef;">
-                <td colspan="3" style="text-align: right; border: none;"><strong>Daily Total:</strong></td>
+                <td colspan="3" style="text-align: right; border: none;"><strong>{{ __('messages.Daily Total label') }}</strong></td>
                 <td style="border: 1px solid black;">
                     @php
                         $dailyHours = floor($dailyTotalDuration / 60);
@@ -193,8 +193,8 @@ thead {
     @endforeach
 
     <div class="footer">
-        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
-        <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
+        <div class='footer-right'>{{ __('messages.Page Number') }}: <span class="page-number"></span></div>
+        <div class='footer-left'>{{ __('messages.Download Date') }}: {{ date('d-m-Y') }}</div>
     </div>
 
 </div>

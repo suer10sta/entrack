@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,9 +44,9 @@
                 {{-- Message de session (style Tailwind) --}}
                 @if(session('message'))
                 <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                    <strong class="font-bold">Succès !</strong>
+                    <strong class="font-bold">{{ __('messages.Success') }}!</strong>
                     <span class="block sm:inline">{{ session('message') }}</span>
-                    <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+                    <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="{{ __('messages.Close') }}">&times;</button>
                 </div>
                 @endif
 
@@ -78,9 +78,9 @@
                         {{-- En-tête de la carte --}}
                         <div class="p-6 border-b border-gray-200">
                             <h2 class="text-lg font-semibold text-gray-900">
-                                Modifier la facture de période {{ $entreprise->invoice_prefix }}-{{ $invoice->number }}
+                                {{ __('messages.Edit Period Invoice') }} {{ $entreprise->invoice_prefix }}-{{ $invoice->number }}
                             </h2>
-                            <p class="text-sm text-gray-600 mt-1">Mettez à jour les détails de la facture de période</p>
+                            <p class="text-sm text-gray-600 mt-1">{{ __('messages.Update the period invoice details') }}</p>
                         </div>
 
                         {{-- Corps de la carte (Champs de formulaire) --}}
@@ -88,14 +88,14 @@
                             
                             {{-- Projet --}}
                             <div>
-                                <label for="project_id" class="block text-sm font-medium text-gray-700 mb-1">Projet</label>
+                                <label for="project_id" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Project') }}</label>
                                 <select name="project_id" id="project_id" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom @error('project_id') border-red-500 @enderror" required>
                                     @foreach($projects as $project)
                                         <option value="{{ $project->id }}" 
                                             {{ $project->id == $invoice->project_id ? 'selected' : '' }}
                                             data-tva="{{ $project->tva }}"
                                             data-remaining="{{ $project->budget ? $project->budget : 0 }}">
-                                            {{ $project->name }} (Budget: {{ $project->budget ? $project->budget : 0 }})
+                                            {{ $project->name }} ({{ __('messages.Budget') }}: {{ $project->budget ? $project->budget : 0 }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -106,7 +106,7 @@
 
                             {{-- Date de début --}}
                             <div>
-                                <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
+                                <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Start Date') }}</label>
                                 <input type="date" name="start_date" id="start_date" 
                                        class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm @error('start_date') border-red-500 @enderror" 
                                        value="{{ old('start_date', \Carbon\Carbon::parse($invoice->start_date)->format('Y-m-d')) }}" required>
@@ -117,7 +117,7 @@
 
                             {{-- Date de fin --}}
                             <div>
-                                <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">Date de fin</label>
+                                <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.End Date') }}</label>
                                 <input type="date" name="end_date" id="end_date" 
                                        class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm @error('end_date') border-red-500 @enderror" 
                                        value="{{ old('end_date', \Carbon\Carbon::parse($invoice->end_date)->format('Y-m-d')) }}" required>
@@ -128,7 +128,7 @@
 
                             {{-- Commentaire --}}
                             <div>
-                                <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">Commentaire</label>
+                                <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Comment') }}</label>
                                 <textarea name="comment" id="comment" rows="4" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm @error('comment') border-red-500 @enderror">{{ old('comment', $invoice->comment) }}</textarea>
                                 @error('comment')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -140,10 +140,10 @@
                         {{-- Pied de page de la carte (Boutons) --}}
                         <div class="p-6 bg-gray-50 border-t border-gray-200 flex items-center gap-3">
                             <button type="submit" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">
-                                Mettre à jour la facture
+                                {{ __('messages.Update Invoice') }}
                             </button>
                             <a href="{{ $cancelRoute }}" class="inline-flex justify-center bg-white hover:bg-gray-50 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm">
-                                Annuler
+                                {{ __('messages.Cancel') }}
                             </a>
                         </div>
                         

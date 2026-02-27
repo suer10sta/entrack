@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Planning - DalyTrac</title>
+    <title>{{ __('messages.Planning - DalyTrac') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Calendar Specific Styles -->
@@ -68,6 +68,7 @@
             border: none;
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             transition: transform 0.1s;
+            margin-bottom: 6px;
         }
 
         .fc-event .fc-title {
@@ -81,6 +82,19 @@
         .fc-time-grid-event,
         .fc-day-grid-event {
             padding: 2px 4px;
+            margin-bottom: 6px;
+        }
+
+        /* Make calendar separation lines bold */
+        .fc-widget-header,
+        .fc-widget-content {
+            border-width: 2px !important;
+            border-color: #d1d5db !important; /* Tailwind gray-300 */
+        }
+
+        /* Add bottom spacing between the last event bar and the day below in month view */
+        .fc-day-grid .fc-row .fc-content-skeleton tbody tr:last-child td {
+            padding-bottom: 25px;
         }
 
         .event-description {
@@ -135,8 +149,8 @@
                 <div class="px-6 py-5 border-b border-gray-200 flex flex-col gap-4">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div>
-                            <h1 class="text-xl font-bold text-gray-900">Planning Calendar</h1>
-                            <p class="text-sm text-gray-500 mt-1">Manage your team's schedule and events efficiently.</p>
+                            <h1 class="text-xl font-bold text-gray-900">{{ __('messages.Planning Calendar') }}</h1>
+                            <p class="text-sm text-gray-500 mt-1">{{ __('messages.Planning Calendar subtitle') }}</p>
                         </div>
                         <div class="flex gap-3">
                             @can('Create planning')
@@ -145,7 +159,7 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                 </svg>
-                                <span>Add Event</span>
+                                <span>{{ __('messages.Add Event') }}</span>
                             </button>
                             @endcan
                             <button id="openSendEventsModal" type="button"
@@ -153,7 +167,7 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
-                                <span>Send Events</span>
+                                <span>{{ __('messages.Send Events') }}</span>
                             </button>
                         </div>
                     </div>
@@ -162,11 +176,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label for="filterClient" class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-                                Filter by Client
+                                {{ __('messages.Filter by Client') }}
                             </label>
                             <select id="filterClient"
                                 class="block w-full rounded-md border border-gray-300 bg-white py-2 px-3 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="">All clients</option>
+                                <option value="">{{ __('messages.All clients') }}</option>
                                 @foreach($clients as $client)
                                     <option value="{{ $client->id }}">{{ $client->name }}</option>
                                 @endforeach
@@ -174,11 +188,11 @@
                         </div>
                         <div>
                             <label for="filterEmployee" class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-                                Filter by Employee
+                                {{ __('messages.Filter by Employee') }}
                             </label>
                             <select id="filterEmployee"
                                 class="block w-full rounded-md border border-gray-300 bg-white py-2 px-3 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="">All employees</option>
+                                <option value="">{{ __('messages.All employees') }}</option>
                                 @foreach($employees as $employee)
                                     <option value="{{ $employee->id }}">{{ $employee->name }}</option>
                                 @endforeach
@@ -223,13 +237,13 @@
                                 </svg>
                             </div>
                             <h3 class="text-lg leading-6 font-semibold text-gray-900 modal-title" id="modal-title">
-                                Add Event
+                                {{ __('messages.Add Event') }}
                             </h3>
                         </div>
                         <button type="button"
                             class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                             id="closeEventModal">
-                            <span class="sr-only">Close</span>
+                            <span class="sr-only">{{ __('messages.Close') }}</span>
                             <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -244,28 +258,28 @@
                     <form id="eventForm" class="space-y-4">
                         <!-- Title -->
                         <div>
-                            <label for="title" class="block text-sm font-medium text-gray-700">Event Title <span
+                            <label for="title" class="block text-sm font-medium text-gray-700">{{ __('messages.Event Title') }} <span
                                     class="text-red-500">*</span></label>
                             <div class="mt-1">
                                 <input type="text" name="title" id="title"
                                     class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md placeholder-gray-400"
-                                    placeholder="e.g., Project Meeting" required>
+                                    placeholder="{{ __('messages.Event Title placeholder') }}" required>
                             </div>
                         </div>
 
                         <!-- Description -->
                         <div>
-                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                            <label for="description" class="block text-sm font-medium text-gray-700">{{ __('messages.Description') }}</label>
                             <div class="mt-1">
                                 <textarea id="description" name="description" rows="3"
                                     class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md placeholder-gray-400"
-                                    placeholder="Add details about the event..."></textarea>
+                                    placeholder="{{ __('messages.Event Description placeholder') }}"></textarea>
                             </div>
                         </div>
 
                         <!-- Color Picker -->
                         <div>
-                            <label for="color" class="block text-sm font-medium text-gray-700">Tag Color</label>
+                            <label for="color" class="block text-sm font-medium text-gray-700">{{ __('messages.Tag Color') }}</label>
                             <div class="mt-1">
                                 <input type="text" id="color" name="color"
                                     class="block w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
@@ -274,7 +288,7 @@
 
                         <!-- Assign to Employees -->
                         <div>
-                            <span class="block text-sm font-medium text-gray-700">Assign to Employees</span>
+                            <span class="block text-sm font-medium text-gray-700">{{ __('messages.Assign to Employees label') }}</span>
                             <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto border border-gray-200 rounded-md p-2 bg-white">
                                 @foreach($employees as $employee)
                                     <label class="inline-flex items-center space-x-2 text-sm text-gray-700">
@@ -286,49 +300,49 @@
                                     </label>
                                 @endforeach
                             </div>
-                            <p class="mt-1 text-xs text-gray-500">Select one or more employees to assign this event.</p>
+                            <p class="mt-1 text-xs text-gray-500">{{ __('messages.Assign to Employees helper') }}</p>
                         </div>
 
                         <!-- Client Selection -->
                         <div>
-                            <label for="client_id" class="block text-sm font-medium text-gray-700">Client</label>
+                            <label for="client_id" class="block text-sm font-medium text-gray-700">{{ __('messages.Client') }}</label>
                             <div class="mt-1">
                                 <select id="client_id" name="client_id"
                                         class="block w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                                    <option value="">No client</option>
+                                    <option value="">{{ __('messages.No client') }}</option>
                                     @foreach($clients as $client)
                                         <option value="{{ $client->id }}">{{ $client->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
-                            <p class="mt-1 text-xs text-gray-500">Optionally link this event to a specific client.</p>
+                            <p class="mt-1 text-xs text-gray-500">{{ __('messages.Client helper') }}</p>
                         </div>
 
                         <!-- Project Selection -->
                         <div>
-                            <label for="project_id" class="block text-sm font-medium text-gray-700">Project</label>
+                            <label for="project_id" class="block text-sm font-medium text-gray-700">{{ __('messages.Project') }}</label>
                             <div class="mt-1">
                                 <select id="project_id" name="project_id"
                                         class="block w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                                    <option value="">No project</option>
+                                    <option value="">{{ __('messages.No project') }}</option>
                                     @foreach($projects as $project)
                                         <option value="{{ $project->id }}">{{ $project->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
-                            <p class="mt-1 text-xs text-gray-500">Link this event to a project to track budget and time.</p>
+                            <p class="mt-1 text-xs text-gray-500">{{ __('messages.Project helper') }}</p>
                         </div>
 
                         <!-- Task Selection -->
                         <div>
-                            <label for="task_id" class="block text-sm font-medium text-gray-700">Task</label>
+                            <label for="task_id" class="block text-sm font-medium text-gray-700">{{ __('messages.Task') }}</label>
                             <div class="mt-1">
                                 <select id="task_id" name="task_id"
                                         class="block w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                                    <option value="">No task</option>
+                                    <option value="">{{ __('messages.No task') }}</option>
                                 </select>
                             </div>
-                            <p class="mt-1 text-xs text-gray-500">Tasks are filtered by the selected project.</p>
+                            <p class="mt-1 text-xs text-gray-500">{{ __('messages.Task helper') }}</p>
                         </div>
 
                         <!-- Finished Event Checkbox -->
@@ -336,29 +350,27 @@
                             <input type="checkbox" id="is_finished" name="is_finished" value="1"
                                 class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                             <label for="is_finished" class="ml-2 block text-sm font-medium text-gray-700">
-                                Mark as Finished
+                                {{ __('messages.Mark as Finished') }}
                             </label>
                         </div>
 
                         <!-- Time Range -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label for="start" class="block text-sm font-medium text-gray-700">Start Time <span
+                                <label for="start" class="block text-sm font-medium text-gray-700">{{ __('messages.Start Time') }} <span
                                         class="text-red-500">*</span></label>
                                 <div class="mt-1 relative rounded-md shadow-sm">
                                     <input type="datetime-local" name="start" id="start"
-                                        class="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                        required>
+                                        class="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
                                 </div>
                             </div>
 
                             <div>
-                                <label for="end" class="block text-sm font-medium text-gray-700">End Time <span
+                                <label for="end" class="block text-sm font-medium text-gray-700">{{ __('messages.End Time') }} <span
                                         class="text-red-500">*</span></label>
                                 <div class="mt-1 relative rounded-md shadow-sm">
                                     <input type="datetime-local" name="end" id="end"
-                                        class="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                        required>
+                                        class="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
                                 </div>
                             </div>
                         </div>
@@ -369,15 +381,20 @@
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
                     <button type="button" id="saveEvent"
                         class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200">
-                        Save Event
+                        {{ __('messages.Save Event') }}
                     </button>
                     <button type="button" id="deleteEvent" style="display: none;"
                         class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200">
-                        Delete Event
+                        {{ __('messages.Delete Event') }}
+                    </button>
+                    <!-- View Task button (shown only when event has a related project & task) -->
+                    <button type="button" id="viewTask"
+                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200 hidden">
+                        {{ __('messages.View Task') }}
                     </button>
                     <button type="button" id="cancelEvent" onclick="$('#closeEventModal').click()"
                         class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200">
-                        Cancel
+                        {{ __('messages.Cancel') }}
                     </button>
                 </div>
             </div>
@@ -410,13 +427,13 @@
                                 </svg>
                             </div>
                             <h3 class="text-lg leading-6 font-semibold text-gray-900" id="send-events-modal-title">
-                                Select Events to Send
+                                {{ __('messages.Select Events to Send') }}
                             </h3>
                         </div>
                         <button type="button"
                             class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                             id="closeSendEventsModal">
-                            <span class="sr-only">Close</span>
+                            <span class="sr-only">{{ __('messages.Close') }}</span>
                             <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -429,7 +446,7 @@
                 <!-- Body -->
                 <div class="bg-gray-50 px-4 py-5 sm:p-6">
                     <div class="mb-4">
-                        <p class="text-sm text-gray-600 mb-3">Select the events you want to include in the email:</p>
+                        <p class="text-sm text-gray-600 mb-3">{{ __('messages.Select events helper') }}</p>
                         <div id="eventsList" class="space-y-2 max-h-96 overflow-y-auto">
                             <!-- Events will be loaded here -->
                         </div>
@@ -440,11 +457,11 @@
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
                     <button type="button" id="proceedToPreview"
                         class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200">
-                        Continue to Preview
+                        {{ __('messages.Continue to Preview') }}
                     </button>
                     <button type="button" id="cancelSendEvents" onclick="$('#closeSendEventsModal').click()"
                         class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200">
-                        Cancel
+                        {{ __('messages.Cancel') }}
                     </button>
                 </div>
             </div>
@@ -454,6 +471,11 @@
     <!-- Calendar Specific Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    @if(app()->getLocale() === 'fr')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/fr.min.js"></script>
+    @elseif(app()->getLocale() === 'es')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/es.min.js"></script>
+    @endif
     <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.1/spectrum.min.js"></script>
     {{-- Removed Bootstrap Bundle as we are using Tailwind modal --}}
@@ -477,15 +499,43 @@
                 
                 // Check if user has permission to create planning
                 $canCreatePlanning = Auth::user()->can('Create planning');
+
+                // Task show route template for the current user role
+                $taskShowRouteTemplate = null;
+                if (Auth::user()->hasRole('Admin')) {
+                    $taskShowRouteTemplate = route('admin.tasks.show', ['task_id' => '__TASK_ID__']);
+                } elseif (Auth::user()->hasRole('Responsable de projet')) {
+                    $taskShowRouteTemplate = route('Responsable_de_projet.tasks.show', ['task' => '__TASK_ID__']);
+                } elseif (Auth::user()->hasRole('Employee')) {
+                    $taskShowRouteTemplate = route('employee.tasks.show', ['task' => '__TASK_ID__']);
+                } elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                    $taskShowRouteTemplate = route('Responsable_gestionnaire.tasks.show', ['task' => '__TASK_ID__']);
+                }
             @endphp
             var calendarRoutePrefix = '{{ $calendarRoutePrefix }}';
             var canCreatePlanning = {{ $canCreatePlanning ? 'true' : 'false' }};
+            var taskShowRouteTemplate = @json($taskShowRouteTemplate);
 
             // Currently selected filters
             var selectedClientId = '';
             var selectedEmployeeId = '';
             var allProjects = @json($projects);
+            // Set moment.js locale for month/day names translation
+            var currentLocale = '{{ app()->getLocale() }}';
+            if (currentLocale === 'fr') {
+                moment.locale('fr');
+            } else if (currentLocale === 'es') {
+                moment.locale('es');
+            } else {
+                moment.locale('en');
+            }
+            
+            // Ensure moment locale is set before FullCalendar initialization
+            // This will translate month names and day names automatically
+
             var allTasks = @json($tasks);
+            // Default pastel color for new events
+            var defaultEventColor = '#FDE68A';
 
             // In month view we render events as all-day, where FullCalendar uses an exclusive end date.
             // Convert back to an inclusive end date whenever we rebuild exact datetime values.
@@ -497,20 +547,20 @@
                 return moment(event.start).format('YYYY-MM-DD');
             }
 
-            // Initialize color picker with improved config
+            // Initialize color picker with improved config (pastel-only palette)
             $("#color").spectrum({
-                color: "#2563eb", /* Default blue-600 */
+                color: defaultEventColor, /* Default pastel color */
                 preferredFormat: "hex",
-                showInput: true,
+                showInput: false,
                 showPalette: true,
+                showPaletteOnly: true,
                 palette: [
-                    ["#2563eb", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"], /* Tailwind colors */
-                    ["#3b82f6", "#059669", "#d97706", "#dc2626", "#7c3aed"]
+                    ["#FDE68A", "#BFDBFE", "#A5B4FC", "#FBCFE8", "#BBF7D0"], /* Pastel row 1 */
+                    ["#FEF3C7", "#E0F2FE", "#E9D5FF", "#FCE7F3", "#DCFCE7"]  /* Pastel row 2 */
                 ],
                 className: "full-spectrum",
                 showInitial: true,
-                showSelectionPalette: true,
-                maxSelectionSize: 10,
+                showSelectionPalette: false,
             });
 
             // Store original color when editing an event
@@ -610,7 +660,7 @@
                     // Store current color before changing to gray (only if not already stored)
                     var currentColor = $("#color").spectrum("get").toHexString();
                     if (!originalColor || originalColor === '#6b7280') {
-                        originalColor = currentColor !== '#6b7280' ? currentColor : '#2563eb';
+                        originalColor = currentColor !== '#6b7280' ? currentColor : defaultEventColor;
                     }
                     // Set color to gray when finished is checked
                     $("#color").spectrum("set", "#6b7280");
@@ -620,13 +670,14 @@
                         $("#color").spectrum("set", originalColor);
                     } else {
                         // Default to blue when unchecked
-                        $("#color").spectrum("set", "#2563eb");
+                        $("#color").spectrum("set", defaultEventColor);
                         originalColor = null; // Reset so it defaults to blue next time
                     }
                 }
             });
 
             const $modal = $('#eventModal');
+            const $viewTaskBtn = $('#viewTask');
 
             // Function to show modal using Tailwind classes
             const showModal = () => {
@@ -643,6 +694,8 @@
                 $('#saveEvent').removeData('eventId');
                 $('#deleteEvent').removeData('eventId');
                 $('#deleteEvent').hide();
+                // Reset "View Task" button state
+                $viewTaskBtn.data('taskUrl', null).addClass('hidden');
                 originalColor = null; // Reset original color
             };
 
@@ -652,6 +705,21 @@
                     center: 'title',
                     right: 'month,agendaWeek,agendaDay'
                 },
+                buttonText: {
+                    today: {!! json_encode(__('messages.Today')) !!},
+                    month: {!! json_encode(__('messages.Month')) !!},
+                    week: {!! json_encode(__('messages.Week')) !!},
+                    day: {!! json_encode(__('messages.Day')) !!},
+                    prev: {!! json_encode(__('messages.Prev')) !!},
+                    next: {!! json_encode(__('messages.Next')) !!}
+                },
+                lang: '{{ app()->getLocale() }}',
+                // FullCalendar will use moment.js locale for month/day names
+                // Ensure moment.locale() is set before this initialization
+                monthNames: moment.localeData().months(),
+                monthNamesShort: moment.localeData().monthsShort(),
+                dayNames: moment.localeData().weekdays(),
+                dayNamesShort: moment.localeData().weekdaysShort(),
                 defaultView: 'month',
                 weekends: false, // Hide Saturday and Sunday columns (no tasks displayed on weekends)
                 timeFormat: 'HH:mm', // Use 24-hour time (e.g., 14:00 instead of 2:00 PM)
@@ -680,7 +748,7 @@
                     
                     $('#eventForm')[0].reset();
                     $('input[name="employee_ids[]"]').prop('checked', false);
-                    $("#color").spectrum("set", "#2563eb");
+                    $("#color").spectrum("set", defaultEventColor);
                     $('#is_finished').prop('checked', false);
                     populateProjectOptions('', null);
                     populateTaskOptions('', null);
@@ -688,6 +756,7 @@
                     $('#saveEvent').removeData('eventId');
                     $('#deleteEvent').removeData('eventId');
                     $('#deleteEvent').hide();
+                    $viewTaskBtn.data('taskUrl', null).addClass('hidden');
                     $('.modal-title').text('Add Event');
                     
                     // Set start to clicked day at 09:00 and end at 10:00
@@ -720,7 +789,7 @@
                         if (diffDays < 1.5) {
                             $('#eventForm')[0].reset();
                             $('input[name="employee_ids[]"]').prop('checked', false);
-                            $("#color").spectrum("set", "#2563eb");
+                            $("#color").spectrum("set", defaultEventColor);
                             $('#is_finished').prop('checked', false);
                             populateProjectOptions('', null);
                             populateTaskOptions('', null);
@@ -728,6 +797,7 @@
                             $('#saveEvent').removeData('eventId');
                             $('#deleteEvent').removeData('eventId');
                             $('#deleteEvent').hide();
+                            $viewTaskBtn.data('taskUrl', null).addClass('hidden');
                             $('.modal-title').text('Add Event');
                             
                             var clickedDay = startMoment.startOf('day').hour(9).minute(0);
@@ -743,7 +813,7 @@
                     // Handle range selection (drag to select) for week/day views or multi-day selections
                     $('#eventForm')[0].reset();
                     $('input[name="employee_ids[]"]').prop('checked', false);
-                    $("#color").spectrum("set", "#2563eb");
+                    $("#color").spectrum("set", defaultEventColor);
                     $('#is_finished').prop('checked', false);
                     populateProjectOptions('', null);
                     populateTaskOptions('', null);
@@ -751,6 +821,7 @@
                     $('#saveEvent').removeData('eventId');
                     $('#deleteEvent').removeData('eventId');
                     $('#deleteEvent').hide();
+                    $viewTaskBtn.data('taskUrl', null).addClass('hidden');
                     $('.modal-title').text('Add Event');
                     
                     // Use the selected times for range selection
@@ -917,6 +988,7 @@
                 },
 
                 eventRender: function (event, element, view) {
+                    // Limit exceeded is determined on the backend: time consumed (ended timers) vs task estimate (or 0h)
                     var isLimitExceeded = !!event.is_limit_exceeded;
                     if (isLimitExceeded) {
                         element.css({
@@ -974,46 +1046,34 @@
                     element.find('.fc-time').remove();
 
                     if (event.project_name) {
-                        element.find('.fc-title').after('<div class="event-project text-xs opacity-90 mt-0.5">Project: ' + event.project_name + '</div>');
+                        element.find('.fc-title').after('<div class="event-project text-xs opacity-90 mt-0.5">{{ __('messages.Project label') }} ' + event.project_name + '</div>');
                     }
 
                     if (event.task_name) {
-                        element.find('.fc-title').after('<div class="event-task text-xs opacity-90 mt-0.5">Task: ' + event.task_name + '</div>');
+                        element.find('.fc-title').after('<div class="event-task text-xs opacity-90 mt-0.5">{{ __('messages.Task label calendar') }} ' + event.task_name + '</div>');
                     }
 
                     var budgetAndTimeParts = [];
                     var projectBudget = formatCurrency(event.project_budget);
                     var projectSpent = formatCurrency(event.project_budget_spent);
-                    var projectEstimated = formatHours(event.project_estimated_hours);
-                    var projectTotal = formatHours(event.project_total_hours);
-                    var taskEstimated = formatHours(event.task_estimated_hours);
                     var taskTotal = formatHours(event.task_total_hours);
-                    var budgetConsumedHours = formatHours(event.budget_consumed_hours);
-                    var eventPlannedHours = formatHours(event.duration_hours);
+                    var timeConsumedHours = formatHours(event.budget_consumed_hours);
                     var timerDifferenceHours = formatHours(event.timer_difference_hours);
+                    var hasTaskEstimate = event.task_estimated_hours !== null && event.task_estimated_hours !== undefined;
+                    var taskEstimatedDisplay = hasTaskEstimate ? formatHours(event.task_estimated_hours) : '0';
 
-                    if (budgetConsumedHours !== null && eventPlannedHours !== null) {
-                        budgetAndTimeParts.push('Budget consumed: ' + budgetConsumedHours + 'h / ' + eventPlannedHours + 'h');
-                    } else if (budgetConsumedHours !== null) {
-                        budgetAndTimeParts.push('Budget consumed: ' + budgetConsumedHours + 'h');
+                    // Time consumed vs selected task estimated hours
+                    if (timeConsumedHours !== null) {
+                        budgetAndTimeParts.push('{{ __('messages.Time consumed label') }} ' + timeConsumedHours + 'h / ' + taskEstimatedDisplay + 'h');
                     }
 
                     if (projectBudget !== null && projectSpent !== null) {
-                        budgetAndTimeParts.push('Project budget: ' + projectSpent + ' / ' + projectBudget);
-                    }
-
-                    if (projectEstimated !== null && projectTotal !== null) {
-                        budgetAndTimeParts.push('Project time: ' + projectTotal + 'h / ' + projectEstimated + 'h');
+                        budgetAndTimeParts.push('{{ __('messages.Project budget label') }} ' + projectSpent + ' / ' + projectBudget);
                     }
 
                     if (budgetAndTimeParts.length > 0) {
                         var infoClass = isLimitExceeded ? 'font-semibold' : 'opacity-90';
                         element.find('.fc-title').after('<div class="event-budget text-xs mt-0.5 ' + infoClass + '">' + budgetAndTimeParts.join(' | ') + '</div>');
-                    }
-
-                    if (event.is_timer_time_exceeded && timerDifferenceHours !== null) {
-                        var exceededClass = isLimitExceeded ? 'font-semibold' : 'opacity-90';
-                        element.find('.fc-title').after('<div class="event-exceeded text-xs mt-0.5 ' + exceededClass + '">Exceeded by: ' + timerDifferenceHours + 'h</div>');
                     }
 
                     if (event.description) {
@@ -1027,7 +1087,7 @@
                     // Add assigned employees below the event (if any)
                     if (event.employee_names && event.employee_names.length > 0) {
                         var employeesLabel = event.employee_names.join(', ');
-                        element.find('.fc-title').after(`<div class="event-employees text-xs opacity-80 mt-0.5">Employees: ${employeesLabel}</div>`);
+                        element.find('.fc-title').after(`<div class="event-employees text-xs opacity-80 mt-0.5">{{ __('messages.Employees label') }} ${employeesLabel}</div>`);
                     }
                 },
 
@@ -1104,11 +1164,31 @@
                         populateTaskOptions('', null);
                     }
 
+                    // Configure "View Task" button: only if the event has both project & task and we know the route template
+                    if (event.project_id && event.task_id && taskShowRouteTemplate) {
+                        var taskUrl = taskShowRouteTemplate.replace('__TASK_ID__', event.task_id);
+                        $viewTaskBtn
+                            .data('taskUrl', taskUrl)
+                            .removeClass('hidden');
+                    } else {
+                        $viewTaskBtn
+                            .data('taskUrl', null)
+                            .addClass('hidden');
+                    }
+
                     $('.modal-title').text('Edit Event');
                     $('#saveEvent').data('eventId', event.id);
                     $('#deleteEvent').data('eventId', event.id);
                     $('#deleteEvent').show();
                     showModal();
+                }
+            });
+
+            // Navigate to the related task when "View Task" is clicked
+            $viewTaskBtn.on('click', function () {
+                var taskUrl = $(this).data('taskUrl');
+                if (taskUrl) {
+                    window.location.href = taskUrl;
                 }
             });
 
@@ -1134,7 +1214,7 @@
                 $('.modal-title').text('Add Event');
                 $('#eventForm')[0].reset();
                 $('input[name="employee_ids[]"]').prop('checked', false);
-                $("#color").spectrum("set", "#2563eb");
+                $("#color").spectrum("set", defaultEventColor);
                 $('#is_finished').prop('checked', false);
                 populateProjectOptions('', null);
                 populateTaskOptions('', null);
@@ -1142,13 +1222,14 @@
                 $('#saveEvent').removeData('eventId');
                 $('#deleteEvent').removeData('eventId');
                 $('#deleteEvent').hide();
+                $viewTaskBtn.data('taskUrl', null).addClass('hidden');
                 showModal();
             });
 
             $('#saveEvent').click(function () {
-                // simple validation
-                if (!$('#title').val() || !$('#start').val() || !$('#end').val()) {
-                    alert('Please fill in all required fields.');
+                // simple validation (only title required on frontend; dates handled in controller)
+                if (!$('#title').val()) {
+                    alert('Please enter a title.');
                     return;
                 }
 
@@ -1157,7 +1238,7 @@
                 var isFinished = $('#is_finished').is(':checked');
                 // If finished, always save gray; if not finished, save the selected color
                 // But if selected color is gray and not finished, default to blue
-                var colorToSave = isFinished ? '#6b7280' : (selectedColor !== '#6b7280' ? selectedColor : '#2563eb');
+                var colorToSave = isFinished ? '#6b7280' : (selectedColor !== '#6b7280' ? selectedColor : defaultEventColor);
 
                 var employeeIds = $('input[name="employee_ids[]"]:checked').map(function () {
                     return $(this).val();
@@ -1197,7 +1278,7 @@
                         populateProjectOptions('', null);
                         populateTaskOptions('', null);
                         $('.modal-title').text('Add Event');
-                        $("#color").spectrum("set", "#2563eb"); // Reset color picker
+                        $("#color").spectrum("set", defaultEventColor); // Reset color picker
                         $('#is_finished').prop('checked', false);
                     },
                     error: function (error) {
@@ -1233,7 +1314,7 @@
                         populateProjectOptions('', null);
                         populateTaskOptions('', null);
                         $('.modal-title').text('Add Event');
-                        $("#color").spectrum("set", "#2563eb");
+                        $("#color").spectrum("set", defaultEventColor);
                         $('#is_finished').prop('checked', false);
                     },
                     error: function (error) {
@@ -1337,7 +1418,7 @@
                 currentMonthEvents.forEach(function (event) {
                     const eventDate = moment(event.start).format('MMM DD, YYYY');
                     const eventTime = moment(event.start).format('HH:mm') + ' - ' + moment(event.end).format('HH:mm');
-                    const colorStyle = `background-color: ${event.color || '#2563eb'};`;
+                    const colorStyle = `background-color: ${event.color || defaultEventColor};`;
                     
                     const eventHtml = `
                         <div class="flex items-start p-3 bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">

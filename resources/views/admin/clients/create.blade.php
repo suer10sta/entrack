@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add New Client</title>
+    <title>{{ __('messages.Add New Client') }}</title>
     {{-- This assumes you have Vite and Tailwind CSS set up --}}
     @vite('resources/css/app.css')
 </head>
@@ -27,13 +27,13 @@
                 
                 {{-- Header --}}
                 <div class="mb-8 text-center">
-                    <h1 class="text-4xl font-bold text-slate-900 mb-2">Add New Client</h1>
+                    <h1 class="text-4xl font-bold text-slate-900 mb-2">{{ __('messages.Add New Client') }}</h1>
                 </div>
 
                 {{-- Error Messages --}}
                 @if ($errors->any())
-                    <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                        <div class="font-semibold mb-2">Please fix the following errors:</div>
+                        <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                        <div class="font-semibold mb-2">{{ __('messages.Mandatory informations') }}</div>
                         <ul class="list-disc list-inside space-y-1">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -61,33 +61,33 @@
                     <div class="space-y-6"> 
 
                         <div class="bg-white rounded-2xl shadow-sm p-6">
-                            <h2 class="text-xl font-bold text-slate-900 mb-1">Personal Infos</h2>
-                            <p class="text-sm text-slate-500 mb-6">Mandatory informations</p>
+                            <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Personal Infos') }}</h2>
+                            <p class="text-sm text-slate-500 mb-6">{{ __('messages.Mandatory informations') }}</p>
                             
                             <div class="space-y-4">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Name <span
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Name') }} <span
                                                 class="text-red-500">*</span></label>
                                         @error('name')
                                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                                         @enderror
-                                        <input type="text" name="name" value="{{ old('name') }}" placeholder="Full Name"
+                                        <input type="text" name="name" value="{{ old('name') }}" placeholder="{{ __('messages.Full Name') }}"
                                             class="w-full border @error('name') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Client Number <span
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Client Number') }} <span
                                                 class="text-red-500">*</span></label>
                                         @error('client_number')
                                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                                         @enderror
-                                        <input type="text" name="client_number" value="{{ old('client_number') }}" placeholder="Client Number"
+                                        <input type="text" name="client_number" value="{{ old('client_number') }}" placeholder="{{ __('messages.Client Number') }}"
                                             class="w-full border @error('client_number') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Email') }}</label>
                                         @error('email')
                                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                                         @enderror
@@ -95,11 +95,11 @@
                                             class="w-full border @error('email') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Phone') }}</label>
                                         @error('phone')
                                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                                         @enderror
-                                        <input type="number" name="phone" value="{{ old('phone') }}" placeholder="Phone Number"
+                                        <input type="number" name="phone" value="{{ old('phone') }}" placeholder="{{ __('messages.Phone Number') }}"
                                             class="w-full border @error('phone') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                 </div>
@@ -107,47 +107,47 @@
                         </div>
 
                         <div class="bg-white rounded-2xl shadow-sm p-6">
-                            <h2 class="text-xl font-bold text-slate-900 mb-1">Address Infos</h2>
-                            <p class="text-sm text-slate-500 mb-6">Mandatory informations</p>
+                            <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Address Infos') }}</h2>
+                            <p class="text-sm text-slate-500 mb-6">{{ __('messages.Mandatory informations') }}</p>
 
                             <div class="space-y-4">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Street <span
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Street') }} <span
                                                 class="text-red-500">*</span></label>
                                         @error('address')
                                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                                         @enderror
-                                        <input type="text" name="address" value="{{ old('address') }}" placeholder="Your Full Address Here"
+                                        <input type="text" name="address" value="{{ old('address') }}" placeholder="{{ __('messages.Address') }}"
                                             class="w-full border @error('address') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">City <span
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.City') }} <span
                                                 class="text-red-500">*</span></label>
                                         @error('city')
                                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                                         @enderror
-                                        <input type="text" name="city" value="{{ old('city') }}" placeholder="City"
+                                        <input type="text" name="city" value="{{ old('city') }}" placeholder="{{ __('messages.City') }}"
                                             class="w-full border @error('city') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Zip Code <span
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Zip Code') }} <span
                                                 class="text-red-500">*</span></label>
                                         @error('zip')
                                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                                         @enderror
-                                        <input type="number" name="zip" value="{{ old('zip') }}" placeholder="Zip Code"
+                                        <input type="number" name="zip" value="{{ old('zip') }}" placeholder="{{ __('messages.Zip Code') }}"
                                             class="w-full border @error('zip') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Country <span
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Country') }} <span
                                                 class="text-red-500">*</span></label>
                                         @error('country')
                                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                                         @enderror
-                                        <input type="text" name="country" value="{{ old('country') }}" placeholder="Country"
+                                        <input type="text" name="country" value="{{ old('country') }}" placeholder="{{ __('messages.Country') }}"
                                             class="w-full border @error('country') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                 </div>
@@ -155,23 +155,23 @@
                         </div>
                         
                         <div class="bg-white rounded-2xl shadow-sm p-6">
-                            <h2 class="text-xl font-bold text-slate-900 mb-1">Billing Infos</h2>
-                            <p class="text-sm text-slate-500 mb-6">Mandatory informations</p>
+                            <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Billing Infos') }}</h2>
+                            <p class="text-sm text-slate-500 mb-6">{{ __('messages.Mandatory informations') }}</p>
 
                             <div class="space-y-4">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">TVA number</label>
-                                        <input type="text" name="TVA" placeholder="TVA number"
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.TVA number') }}</label>
+                                        <input type="text" name="TVA" placeholder="{{ __('messages.TVA number') }}"
                                             class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Due Date (days)
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Due Date (days)') }}
                                             <span class="text-red-500">*</span></label>
                                         @error('due_date')
                                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                                         @enderror
-                                        <input type="text" name="due_date" value="{{ old('due_date') }}" placeholder="Due Date by Days"
+                                        <input type="text" name="due_date" value="{{ old('due_date') }}" placeholder="{{ __('messages.Due Date by Days') }}"
                                             class="w-full border @error('due_date') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                 </div>
@@ -180,32 +180,31 @@
                                     <input id="billingSameAsClient" type="checkbox"
                                         class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500">
                                     <label for="billingSameAsClient"
-                                        class="ml-2 text-sm font-medium text-slate-700">Billing address is the same as
-                                        client address</label>
+                                        class="ml-2 text-sm font-medium text-slate-700">{{ __('messages.Billing address is the same as client address') }}</label>
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label
-                                            class="block text-sm font-medium text-slate-700 mb-1">Street</label>
-                                        <input type="text" name="billing_street" placeholder="Billing Street"
+                                            class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Street') }}</label>
+                                        <input type="text" name="billing_street" placeholder="{{ __('messages.Billing Street') }}"
                                             class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">City</label>
-                                        <input type="text" name="billing_city" placeholder="Billing City"
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.City') }}</label>
+                                        <input type="text" name="billing_city" placeholder="{{ __('messages.Billing City') }}"
                                             class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Zip Code</label>
-                                        <input type="text" name="billing_zip" placeholder="Billing Zip Code"
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Zip Code') }}</label>
+                                        <input type="text" name="billing_zip" placeholder="{{ __('messages.Billing Zip Code') }}"
                                             class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Country</label>
-                                        <input type="text" name="billing_country" placeholder="Billing Country"
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Country') }}</label>
+                                        <input type="text" name="billing_country" placeholder="{{ __('messages.Billing Country') }}"
                                             class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                 </div>
@@ -213,18 +212,18 @@
                         </div>
 
                         <div class="bg-white rounded-2xl shadow-sm p-6">
-                            <h2 class="text-xl font-bold text-slate-900 mb-1">Accounting Info</h2>
-                            <p class="text-sm text-slate-500 mb-6">Mandatory informations</p>
+                            <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Accounting Info') }}</h2>
+                            <p class="text-sm text-slate-500 mb-6">{{ __('messages.Mandatory informations') }}</p>
                             
                             <div class="space-y-4">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Account Manager Name <span class="text-red-500">**</span></label>
-                                        <input type="text" name="comp_name" placeholder="Account Manager Name"
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Account Manager Name') }} <span class="text-red-500">**</span></label>
+                                        <input type="text" name="comp_name" placeholder="{{ __('messages.Account Manager Name') }}"
                                             class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Email <span
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Email') }} <span
                                                 class="text-red-500">**</span></label>
                                         <input type="text" name="comp_email" placeholder="*****@gmail.com"
                                             class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
@@ -232,14 +231,13 @@
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Phone
-                                            Number</label>
-                                        <input type="number" name="comp_phone" placeholder="Phone Number"
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Phone Number') }}</label>
+                                        <input type="number" name="comp_phone" placeholder="{{ __('messages.Phone Number') }}"
                                             class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Address</label>
-                                        <input type="text" name="comp_address" placeholder="Address"
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Address') }}</label>
+                                        <input type="text" name="comp_address" placeholder="{{ __('messages.Address') }}"
                                             class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                 </div>
@@ -247,36 +245,35 @@
                         </div>
 
                         <div class="bg-white rounded-2xl shadow-sm p-6">
-                            <h2 class="text-xl font-bold text-slate-900 mb-1">Contacts Infos</h2>
-                            <p class="text-sm text-slate-500 mb-6">Mandatory informations</p>
+                            <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Contacts Infos') }}</h2>
+                            <p class="text-sm text-slate-500 mb-6">{{ __('messages.Mandatory informations') }}</p>
 
                             <div id="contact_infos" class="space-y-6">
                                 <div class="contact-entry space-y-4">
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-1">Full Name
+                                            <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Full Name') }}
                                                 <span class="text-red-500">**</span></label>
-                                            <input type="text" name="contact_name[]" placeholder="Full Name"
+                                            <input type="text" name="contact_name[]" placeholder="{{ __('messages.Full Name') }}"
                                                 class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                         </div>
                                         <div>
                                             <label
-                                                class="block text-sm font-medium text-slate-700 mb-1">Function</label>
+                                                class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Function') }}</label>
                                             <input type="text" name="contact_function[]"
-                                                placeholder="Functionality"
+                                                placeholder="{{ __('messages.Functionality') }}"
                                                 class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                         </div>
                                     </div>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-1">Phone
-                                                Number</label>
+                                            <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Phone Number') }}</label>
                                             <input type="number" name="contact_mobile_fix[]"
-                                                placeholder="Phone Number"
+                                                placeholder="{{ __('messages.Phone Number') }}"
                                                 class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-1">Email
+                                            <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Email') }}
                                                 <span class="text-red-500">**</span></label>
                                             <input type="text" name="contact_email[]"
                                                 placeholder="*****@gmail.com"
@@ -285,8 +282,8 @@
                                     </div>
                                     <div>
                                         <label
-                                            class="block text-sm font-medium text-slate-700 mb-1">Address</label>
-                                        <input type="text" name="contact_address[]" placeholder="Address"
+                                            class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Address') }}</label>
+                                        <input type="text" name="contact_address[]" placeholder="{{ __('messages.Address') }}"
                                             class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                                     </div>
                                 </div>
@@ -298,10 +295,10 @@
                     <div class="flex justify-end mt-8 gap-4">
                         {{-- Cancel Button Logic --}}
                             <a href="javascript:history.back()"
-                                class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">Cancel</a>
+                                class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">{{ __('messages.Cancel') }}</a>
                         <button type="submit"
                             class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow">
-                            Create
+                            {{ __('messages.Create') }}
                         </button>
                     </div>
                 </form>
@@ -351,7 +348,7 @@
                 newEntry.find('input').val('');
 
                 // Create and add a delete button
-                var deleteButton = $('<button type="button" class="w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium mt-4 remove-contact">Delete Contact</button>');
+                var deleteButton = $('<button type="button" class="w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium mt-4 remove-contact">{{ __('messages.Delete Contact') }}</button>');
                 
                 deleteButton.click(function() {
                     $(this).closest('.contact-entry').remove();

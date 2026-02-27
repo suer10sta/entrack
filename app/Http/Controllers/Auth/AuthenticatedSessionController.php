@@ -8,6 +8,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 use App\Http\Controllers\admin\projectController; // Import the projectController
 
@@ -32,6 +33,30 @@ class AuthenticatedSessionController extends Controller
         // Check if the user is authenticated
         if (Auth::check()) {
             $user = Auth::user();
+            // Track last login IP and geolocated country/city
+            try {
+                $ip = $request->ip();
+                $country = null;
+                $city = null;
+
+                if ($ip && !in_array($ip, ['127.0.0.1', '::1'], true)) {
+                    try {
+                        $response = Http::get('http://ip-api.com/json/' . $ip . '?fields=status,country,city');
+                        if ($response->ok() && ($response['status'] ?? null) === 'success') {
+                            $country = $response['country'] ?? null;
+                            $city = $response['city'] ?? null;
+                        }
+                    } catch (\Throwable $e) {
+                        // Ignore geo lookup failures and still allow login.
+                    }
+                }
+
+                $user->last_login_ip = $ip;
+                $user->last_login_country = $country;
+                $user->last_login_city = $city;
+            } catch (\Throwable $e) {
+                // Never block login if location tracking fails.
+            }
 
             // Determine if the user's entreprise is blocked (trial expired or explicitly inactive)
             $entreprise = $user->entreprise ?? null;

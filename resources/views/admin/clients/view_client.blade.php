@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Details: {{ $client->name }}</title>
+    <title>{{ __('messages.Client') }} {{ __('messages.Details') ?? 'Details' }}: {{ $client->name }}</title>
     @vite('resources/css/app.css')
     
     {{-- This CSS block styles the "editable" fields to look like text until double-clicked --}}
@@ -57,18 +57,18 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
                     <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h2 class="text-xl font-bold text-slate-900 mb-1">Personal Infos</h2>
-                        <p class="text-sm text-slate-500 mb-4">Mandatory informations</p>
+                        <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Personal Infos') }}</h2>
+                        <p class="text-sm text-slate-500 mb-4">{{ __('messages.Mandatory informations') }}</p>
                         <div class="space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Name</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Name') }}</label>
                                     <input type="text" name="name" value="{{$client->name}}"
                                            class="editable w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                            data-id="{{$client->id}}" data-column="name" readonly />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Client Number</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Client Number') }}</label>
                                     <input type="text" name="client_number" value="{{$client->client_number}}"
                                            class="editable w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                            data-id="{{$client->id}}" data-column="client_number" readonly />
@@ -76,13 +76,13 @@
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Email') }}</label>
                                     <input type="text" name="email" value="{{$client->email}}"
                                            class="editable w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                            data-id="{{$client->id}}" data-column="email" readonly />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Phone') }}</label>
                                     <input type="number" name="phone" value="{{$client->phone}}"
                                            class="editable w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                            data-id="{{$client->id}}" data-column="phone" readonly />
@@ -92,18 +92,18 @@
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h2 class="text-xl font-bold text-slate-900 mb-1">Address Infos</h2>
-                        <p class="text-sm text-slate-500 mb-4">Mandatory informations</p>
+                        <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Address Infos') }}</h2>
+                        <p class="text-sm text-slate-500 mb-4">{{ __('messages.Mandatory informations') }}</p>
                         <div class="space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Street</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Street') }}</label>
                                     <input type="text" name="address" value="{{$client->address}}"
                                            class="editable w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                            data-id="{{$client->id}}" data-column="address" readonly />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">City</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.City') }}</label>
                                     <input type="text" name="city" value="{{$client->city}}"
                                            class="editable w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                            data-id="{{$client->id}}" data-column="city" readonly />
@@ -111,13 +111,13 @@
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Zip Code</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Zip Code') }}</label>
                                     <input type="number" name="zip" value="{{$client->zip}}"
                                            class="editable w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                            data-id="{{$client->id}}" data-column="zip" readonly />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Country</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Country') }}</label>
                                     <input type="text" name="country" value="{{$client->country}}"
                                            class="editable w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                            data-id="{{$client->id}}" data-column="country" readonly />
@@ -127,18 +127,18 @@
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h2 class="text-xl font-bold text-slate-900 mb-1">Billing Infos</h2>
-                        <p class="text-sm text-slate-500 mb-4">Mandatory informations</p>
+                        <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Billing Infos') }}</h2>
+                        <p class="text-sm text-slate-500 mb-4">{{ __('messages.Mandatory informations') }}</p>
                         <div class="space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">TVA Number</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.TVA Number') }}</label>
                                     <input type="text" name="TVA" value="{{$client->TVA}}"
                                            class="editable w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                            data-id="{{$client->id}}" data-column="TVA" readonly />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Due Date (Days)</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Due Date (Days)') }}</label>
                                     <input type="text" name="due_date" value="{{$client->due_date}}"
                                            class="editable w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                            data-id="{{$client->id}}" data-column="due_date" readonly />
@@ -147,18 +147,18 @@
 
                             <div class="flex items-center pt-2">
                                 <input id="billingSameAsClient" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                <label for="billingSameAsClient" class="ml-2 block text-sm font-medium text-gray-800">Billing address is same as client</label>
+                                <label for="billingSameAsClient" class="ml-2 block text-sm font-medium text-gray-800">{{ __('messages.Billing address is same as client') }}</label>
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Billing Street</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Billing Street') }}</label>
                                     <input type="text" name="billing_street" value="{{$client->billing_street}}"
                                            class="editable w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                            data-id="{{$client->id}}" data-column="billing_street" readonly />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Billing City</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Billing City') }}</label>
                                     <input type="text" name="billing_city" value="{{$client->billing_city}}"
                                            class="editable w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                            data-id="{{$client->id}}" data-column="billing_city" readonly />
@@ -166,13 +166,13 @@
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Billing Zip Code</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Billing Zip Code') }}</label>
                                     <input type="text" name="billing_zip" value="{{$client->billing_zip}}"
                                            class="editable w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                            data-id="{{$client->id}}" data-column="billing_zip" readonly />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Billing Country</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Billing Country') }}</label>
                                     <input type="text" name="billing_country" value="{{$client->billing_country}}"
                                            class="editable w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                            data-id="{{$client->id}}" data-column="billing_country" readonly />
@@ -185,8 +185,8 @@
                     <div class="p-6 border-b border-gray-200">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                             <div>
-                                <h2 class="text-xl font-bold text-slate-900 mb-1">Projects Infos</h2>
-                                <p class="text-sm text-slate-500">Mandatory informations</p>
+                                <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Projects Infos') }}</h2>
+                                <p class="text-sm text-slate-500">{{ __('messages.Mandatory informations') }}</p>
                             </div>
                             @can('Add project')
                                 @php
@@ -197,7 +197,7 @@
                                     elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $createProjectRoute = route('Responsable_gestionnaire.projects.create', $client->id);
                                 @endphp
                                 <a href="{{ $createProjectRoute }}" class="mt-3 sm:mt-0 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm">
-                                    Add Project
+                                    {{ __('messages.Add Project') }}
                                 </a>
                             @endcan
                         </div>
@@ -207,17 +207,17 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Budget</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Project') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Budget') }}</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CPH</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estimated Hours</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Difference</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TVA</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teams</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Duration') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Estimated Hours') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Difference') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Progress') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.VAT') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Client column') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Teams column') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -329,15 +329,15 @@
                                         @if($editRoute != '#')
                                         <a href="{{ $editRoute }}" class="inline-block px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-xs font-medium">Edit</a>
                                         
-                                        <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm('Are you sure?');" class="inline-block">
+                                <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
                                             @csrf
-                                            <button type="submit" class="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded-md text-xs font-medium">Archive</button>
+                                            <button type="submit" class="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded-md text-xs font-medium">{{ __('messages.Archive') }}</button>
                                         </form>
 
-                                        <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Are you sure?');" class="inline-block">
+                                        <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs font-medium">X</button>
+                                            <button type="submit" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs font-medium">{{ __('messages.Delete') }}</button>
                                         </form>
                                         @endif
                                     </td>
@@ -351,7 +351,7 @@
                 <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
                     <div class="p-6 border-b border-gray-200">
                         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                                 @php
                                     $filterRoute = Auth::user()->hasRole('Admin') ? route('admin.clients.filterInvoices', $client->id) : 
                                                 (Auth::user()->hasRole('Employee') ? route('employee.clients.filterInvoices', $client->id) : 
@@ -363,26 +363,26 @@
                                     <input type="hidden" name="client_id" value="{{ $client->id }}">
                                     <input type="date" name="start_date" id="start_date" class="rounded-lg border-gray-300 shadow-sm text-sm" value="{{ request()->session()->get('start_date') }}">
                                     <input type="date" name="end_date" id="end_date" class="rounded-lg border-gray-300 shadow-sm text-sm" value="{{ request()->session()->get('end_date') }}">
-                                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm">Filter</button>
+                                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm">{{ __('messages.Filter') }}</button>
                                 </form>
-                                <a href="#" onclick="downloadReport(event)" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-sm">Download Report</a>
+                                <a href="#" onclick="downloadReport(event)" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-sm">{{ __('messages.Download Report') }}</a>
                             </div>
                             
                             <div class="grid grid-cols-2 lg:flex lg:flex-wrap gap-x-6 gap-y-2 lg:justify-end text-left lg:text-right">
                                 <div>
-                                    <div class="text-sm text-gray-600">Total Paid</div>
+                                    <div class="text-sm text-gray-600">{{ __('messages.Total Paid') }}</div>
                                     <div class="text-lg font-bold text-green-600">€{{ number_format($totalPaid, 2, ',', ' ') }}</div>
                                 </div>
                                 <div>
-                                    <div class="text-sm text-gray-600">Total Unpaid</div>
+                                    <div class="text-sm text-gray-600">{{ __('messages.Total Unpaid') }}</div>
                                     <div class="text-lg font-bold text-red-600">€{{ number_format($totalUnpaid, 2, ',', ' ') }}</div>
                                 </div>
                                 <div>
-                                    <div class="text-sm text-gray-600">Total TVA</div>
+                                    <div class="text-sm text-gray-600">{{ __('messages.Total TVA') }}</div>
                                     <div class="text-lg font-bold text-gray-800">€{{ number_format($totalTVA, 2, ',', ' ') }}</div>
                                 </div>
                                 <div>
-                                    <div class="text-sm text-gray-600">Total Budget</div>
+                                    <div class="text-sm text-gray-600">{{ __('messages.Total Budget') }}</div>
                                     <div class="text-lg font-bold text-gray-800">€{{ number_format($totalBudget, 2, ',', ' ') }}</div>
                                 </div>
                             </div>
@@ -393,9 +393,9 @@
                         <table class="min-w-full divide-y divide-gray-200" id="invoicesTable">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice N</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project Name</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cost Total</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Invoice N') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Project Name') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Cost Total') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -417,7 +417,7 @@
                                         <a href="{{ $invoiceRoute }}" target="_blank" class="{{ $isOverdue ? 'text-red-600 font-bold' : 'text-blue-600 hover:text-blue-800' }}">
                                             {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
                                             @if($isOverdue)
-                                                <span class="ml-2">({{ $daysOverdue }} days overdue)</span>
+                                                <span class="ml-2">({{ $daysOverdue }} {{ __('messages.days overdue') }})</span>
                                             @endif
                                         </a>
                                     </td>
@@ -438,26 +438,26 @@
                 
                 @if($comptable)
                 <div class="bg-white rounded-2xl shadow-lg p-6">
-                    <h2 class="text-xl font-bold text-slate-900 mb-1">Comptable Infos</h2>
-                    <p class="text-sm text-slate-500 mb-4">Mandatory informations</p>
+                    <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Comptable Infos') }}</h2>
+                    <p class="text-sm text-slate-500 mb-4">{{ __('messages.Mandatory informations') }}</p>
                     <div class="space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Full Name') }}</label>
                                 <input class="editable-contact w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" data-id="{{$comptable->id}}" data-column="name" type="text" value="{{$comptable->name}}" name="name" readonly />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Email') }}</label>
                                 <input class="editable-contact w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" data-id="{{$comptable->id}}" data-column="email" type="text" value="{{$comptable->email}}" name="email" readonly />
                             </div>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Mobile Fix</label>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Mobile Fix') }}</label>
                                 <input class="editable-contact w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" data-id="{{$comptable->id}}" data-column="mobile_fix" type="number" value="{{$comptable->mobile_fix}}" name="mobile_fix" readonly />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Address</label>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Address') }}</label>
                                 <input class="editable-contact w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" data-id="{{$comptable->id}}" data-column="address" type="text" value="{{$comptable->address}}" name="address" readonly />
                             </div>
                         </div>
@@ -471,8 +471,8 @@
                 @endphp
                 
                 <div class="bg-white rounded-2xl shadow-lg p-6">
-                    <h2 class="text-xl font-bold text-slate-900 mb-1">Contacts Infos</h2>
-                    <p class="text-sm text-slate-500 mb-4">Mandatory informations</p>
+                    <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Contacts Infos') }}</h2>
+                    <p class="text-sm text-slate-500 mb-4">{{ __('messages.Mandatory informations') }}</p>
                     
                     <div id="accordion" class="space-y-3">
                         @foreach ($contacts as $contact)
@@ -496,26 +496,26 @@
                                 <div class="space-y-4">
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                                            <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Full Name') }}</label>
                                             <input class="editable-contact w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" data-id="{{$contact->id}}" data-column="name" type="text" value="{{$contact->name}}" name="name" readonly />
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-1">Functionality</label>
+                                            <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Functionality') }}</label>
                                             <input class="editable-contact w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" data-id="{{$contact->id}}" data-column="functionality" type="text" value="{{$contact->functionality}}" name="functionality" readonly />
                                         </div>
                                     </div>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-1">Mobile Fix</label>
+                                            <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Mobile Fix') }}</label>
                                             <input class="editable-contact w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" data-id="{{$contact->id}}" data-column="mobile_fix" type="number" value="{{$contact->mobile_fix}}" name="mobile_fix" readonly />
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                                            <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Email') }}</label>
                                             <input class="editable-contact w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" data-id="{{$contact->id}}" data-column="email" type="text" value="{{$contact->email}}" name="email" readonly />
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Address</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Address') }}</label>
                                         <input class="editable-contact w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" data-id="{{$contact->id}}" data-column="address" type="text" value="{{$contact->address}}" name="address" readonly />
                                     </div>
                                 </div>
@@ -529,42 +529,42 @@
                     <form class="mt-6 pt-6 border-t border-gray-200" method="POST" action="{{ route('admin.clients.addContact', $client->id) }}">
                         @csrf
                         @method('PUT')
-                        <h3 class="text-lg font-semibold text-slate-800 mb-4">Add New Contact</h3>
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4">{{ __('messages.Add New Contact') }}</h3>
                         
                         {{-- This div is the one that gets cloned --}}
                         <div id="contact_infos" class="space-y-4">
                             <div class="contact-entry space-y-4 p-4 border border-gray-200 rounded-lg">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
-                                        <input class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" type="text" placeholder="Full Name" name="contact_name[]" />
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Full Name') }}</label>
+                                        <input class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" type="text" placeholder="{{ __('messages.Full Name') }}" name="contact_name[]" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Functionality</label>
-                                        <input class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" type="text" placeholder="Functionality" name="contact_function[]" />
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Functionality') }}</label>
+                                        <input class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" type="text" placeholder="{{ __('messages.Functionality') }}" name="contact_function[]" />
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Mobile Fix</label>
-                                        <input class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" type="number" placeholder="Mobile Fix" name="contact_mobile_fix[]" />
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Mobile Fix') }}</label>
+                                        <input class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" type="number" placeholder="{{ __('messages.Mobile Fix') }}" name="contact_mobile_fix[]" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Email') }}</label>
                                         <input class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" type="text" placeholder="*****@gmail.com" name="contact_email[]" />
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Address</label>
-                                    <input class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" type="text" placeholder="Address" name="contact_address[]" />
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Address') }}</label>
+                                    <input class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" type="text" placeholder="{{ __('messages.Address') }}" name="contact_address[]" />
                                 </div>
                             </div>
                             {{-- Cloned entries will be appended here --}}
                         </div>
                         
                         <div class="flex justify-between items-center mt-4">
-                            <button id="addContact" type="button" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium text-sm">Add Another</button>
-                            <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow">Save New Contacts</button>
+                            <button id="addContact" type="button" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium text-sm">{{ __('messages.Add Another') }}</button>
+                        <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow">{{ __('messages.Save New Contacts') }}</button>
                         </div>
                     </form>
                 </div>

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Tasks - DalyTrac</title>
+    <title>{{ __('messages.Employee Tasks - DalyTrac') }}</title>
     @vite('resources/css/app.css')
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -62,7 +62,7 @@
             --}}
             <div class="flex flex-wrap justify-between items-start gap-4">
                 <div>
-                    <h1 class="text-2xl font-semibold text-gray-900">Employee Tasks</h1>
+                    <h1 class="text-2xl font-semibold text-gray-900">{{ __('messages.Employee Tasks') }}</h1>
                 </div>
                 
                 {{-- 
@@ -80,7 +80,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-500 uppercase font-medium">Todays Duration</p>
+                        <p class="text-xs text-gray-500 uppercase font-medium">{{ __('messages.Todays Duration') }}</p>
                         @php
                             $today = \Carbon\Carbon::today()->toDateString();
                             $totalDurationAllTasks = App\Models\tasks_timer::where('employee_id', $employee_id)
@@ -120,12 +120,12 @@
 
             {{-- 2. Filters Section Card --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h6 class="text-base font-semibold text-gray-800 mb-4">Filters</h6>
+                <h6 class="text-base font-semibold text-gray-800 mb-4">{{ __('messages.Filters') }}</h6>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="clientFilter" class="block text-sm font-medium text-gray-700 mb-1">Select Client:</label>
+                        <label for="clientFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Select Client') }}</label>
                         <select id="clientFilter" class="form-select-custom block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
-                            <option value="">All Clients</option>
+                            <option value="">{{ __('messages.All Clients') }}</option>
                             @php
                                 $sortedClients = $clients->sortBy('name');
                             @endphp
@@ -135,8 +135,8 @@
                         </select>
                     </div>
                     <div>
-                        <label for="taskSearchInput" class="block text-sm font-medium text-gray-700 mb-1">Search for projects:</label>
-                        <input type="text" id="taskSearchInput" placeholder="Search for projects..." class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                        <label for="taskSearchInput" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Search for projects') }}</label>
+                        <input type="text" id="taskSearchInput" placeholder="{{ __('messages.Search for projects placeholder') }}" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                     </div>
                 </div>
             </div>
@@ -147,9 +147,9 @@
                     <table id="pointageTable" class="w-full min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50"> 
                             <tr class="text-left">
-                                <th scope="col" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Client Name</th>
-                                <th scope="col" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Project Name</th>
-                                <th scope="col" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Duration</th>
+                                <th scope="col" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ __('messages.Client Name header') }}</th>
+                                <th scope="col" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ __('messages.Project Name header') }}</th>
+                                <th scope="col" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ __('messages.Total Duration header') }}</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -223,7 +223,7 @@
                                 {{-- Empty state row (Inspired by Devis History) --}}
                                 <tr>
                                     <td colspan="3" class="text-center px-4 py-6 text-gray-500">
-                                        No clients or projects found.
+                                        {{ __('messages.No clients or projects found') }}
                                     </td>
                                 </tr>
                             @endforelse

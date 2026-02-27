@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credit Note History - DalyTrac</title> 
+    <title>{{ __('messages.Credit Note History - DalyTrac') }}</title> 
     
     @vite('resources/css/app.css')
     @livewireStyles
@@ -108,25 +108,25 @@
                 <div class="mb-6">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <h1 class="text-2xl font-bold text-gray-900 mb-1">Credit Note History</h1>
-                            <p class="text-sm text-gray-500">Manage and track all credit notes</p>
+                            <h1 class="text-2xl font-bold text-gray-900 mb-1">{{ __('messages.Credit Note History') }}</h1>
+                            <p class="text-sm text-gray-500">{{ __('messages.Manage and track all credit notes') }}</p>
                         </div>
                         
                         <div class="flex items-end gap-3">
                             <div x-data="datePicker()" class="flex items-end gap-3">
                                 <div>
-                                    <label for="startDate" class="block text-xs font-medium text-gray-700 mb-1">Start Date:</label>
+                                    <label for="startDate" class="block text-xs font-medium text-gray-700 mb-1">{{ __('messages.Start Date') }}:</label>
                                     <input type="date" id="startDate" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" x-model="startDate">
                                 </div>
                                 <div>
-                                    <label for="endDate" class="block text-xs font-medium text-gray-700 mb-1">End Date:</label>
+                                    <label for="endDate" class="block text-xs font-medium text-gray-700 mb-1">{{ __('messages.End Date') }}:</label>
                                     <input type="date" id="endDate" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" x-model="endDate">
                                 </div>
                                 <button @click.prevent="updateHref" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center gap-2 h-[42px]">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
                                     </svg>
-                                    Credit Note Reports PDF
+                                    {{ __('messages.Credit Note Reports PDF') }}
                                 </button>
                             </div>
                         </div>
@@ -137,7 +137,7 @@
                     @endphp
                     <div class="bg-white border border-gray-200 rounded-lg p-4 flex justify-end mb-6">
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-medium text-gray-600 uppercase">Total Credit Notes:</span>
+                            <span class="text-xs font-medium text-gray-600 uppercase">{{ __('messages.Total Credit Notes:') }}</span>
                             <span class="text-xl font-bold text-red-600">-€{{number_format($total, 2, '.', '')}}</span>
                         </div>
                     </div>
@@ -150,36 +150,36 @@
                     @endif
 
                     <div class="bg-white border border-gray-200 rounded-lg p-5 mb-6">
-                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Filters</h3>
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">{{ __('messages.Credit Note Filters') }}</h3>
                         <div class="grid grid-cols-3 gap-6">
                             <div>
-                                <label for="clientFilter" class="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-2">Client</label>
+                                <label for="clientFilter" class="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-2">{{ __('messages.Credit Note Client') }}</label>
                                 <select id="clientFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 form-select-custom">
-                                    <option value="">All Clients</option>
+                                    <option value="">{{ __('messages.All Clients') }}</option>
                                     @foreach($clients as $client)
                                     <option value="{{$client->name}}">{{$client->name}}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div>
-                                <label for="projectFilter" class="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-2">Project</label>
+                                <label for="projectFilter" class="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-2">{{ __('messages.Credit Note Project') }}</label>
                                 <select id="projectFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 form-select-custom">
-                                    <option value="">All Projects</option>
+                                    <option value="">{{ __('messages.All Projects') }}</option>
                                     @foreach($projects as $project)
                                     <option value="{{$project->name}}">{{strtoupper($project->name)}}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div>
-                                <label for="typeFilter" class="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-2">Type</label>
+                                <label for="typeFilter" class="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-2">{{ __('messages.Credit Note Type') }}</label>
                                 <select id="typeFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 form-select-custom">
-                                    <option value="">All Type</option>
-                                    <option value="Detailed">Detailed</option>
-                                    <option value="Partial">Partial</option>
-                                    <option value="Full Period">Full Period</option>
-                                    <option value="Partial Period">Partial Period</option>
-                                    <option value="Partial Full">Partial Full</option>
-                                    <option value="Full">Full</option>
+                                    <option value="">{{ __('messages.All Type') }}</option>
+                                    <option value="Detailed">{{ __('messages.Detailed Invoice Generator') }}</option>
+                                    <option value="Partial">{{ __('messages.Partial') }}</option>
+                                    <option value="Full Period">{{ __('messages.Period Invoice') }}</option>
+                                    <option value="Partial Period">{{ __('messages.Partial') }} {{ __('messages.Period Invoice') }}</option>
+                                    <option value="Partial Full">{{ __('messages.Partial') }} {{ __('messages.Full Invoice') }}</option>
+                                    <option value="Full">{{ __('messages.Full') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -191,16 +191,16 @@
                         <table class="w-full credit-note-table">
                             <thead>
                                 <tr>
-                                    <th>Credit Note N</th>
-                                    <th>Project</th>
-                                    <th class="text-center">TVA</th>
-                                    <th>Client</th>
-                                    <th class="text-center">Start Date</th>
-                                    <th class="text-center">End Date</th>
-                                    <th class="text-center">Type</th>
-                                    <th class="text-center">Created At</th>
-                                    <th class="text-right">Amount</th>
-                                    <th class="text-center">Actions</th>
+                                    <th>{{ __('messages.Credit Note N') }}</th>
+                                    <th>{{ __('messages.Project') }}</th>
+                                    <th class="text-center">{{ __('messages.VAT') }}</th>
+                                    <th>{{ __('messages.Client') }}</th>
+                                    <th class="text-center">{{ __('messages.Start Date column') }}</th>
+                                    <th class="text-center">{{ __('messages.End Date column') }}</th>
+                                    <th class="text-center">{{ __('messages.Type') }}</th>
+                                    <th class="text-center">{{ __('messages.Created At') }}</th>
+                                    <th class="text-right">{{ __('messages.Amount') }}</th>
+                                    <th class="text-center">{{ __('messages.Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -242,7 +242,7 @@
                                     </td>
                                     <td class="font-medium">{{strtoupper($credit_note->project_name)}}</td>
                                     <td class="text-center">
-                                        @php 
+                                            @php 
                                             $project = App\Models\Project::find($credit_note->project_id);
                                         @endphp
                                         {{$project->tva}}%
@@ -263,10 +263,10 @@
                                             @if(Auth::user()->hasRole('Responsable de projet'))
                                                 <a href="{{ route('Responsable_de_projet.invoices.serveCreditNotePdf', $credit_note->id) }}" class="btn-view">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                                    View
+                                                    {{ __('messages.View') }}
                                                 </a>
                                                 <form action="{{route('Responsable_de_projet.credit_note.destroy',$credit_note->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');" class="inline-block">
+                                                    method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn-delete">🗑</button>
@@ -275,16 +275,16 @@
                                             @if(Auth::user()->hasRole('Admin'))
                                                 <a href="{{ route('admin.invoices.serveCreditNotePdf', $credit_note->id) }}" class="btn-view">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                                    View & Download 
+                                                    {{ __('messages.View & Download') }} 
                                                 </a>
                                                 {{-- [CORRIGÉ] Bouton "Resend" utilise Alpine.js --}}
                                                 <button type="button" class="btn-resend"
                                                     @click="$dispatch('open-modal', { id: 'sendCreditNoteModal', creditNoteId: {{ $credit_note->id }}, invoiceId: {{ $credit_note->invoice_id }} })">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                                                    Resend
+                                                    {{ __('messages.Resend') }}
                                                 </button>
                 <form action="{{route('admin.credit_note.destroy',$credit_note->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');" class="inline-block">
+                                                    method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
@@ -299,10 +299,10 @@
                                             @if(Auth::user()->hasRole('Employee'))
                                                 <a href="{{ route('employee.invoices.serveCreditNotePdf', $credit_note->id) }}" class="btn-view">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                                    View
+                                                    {{ __('messages.View') }}
                                                 </a>
                                                 <form action="{{route('employee.credit_note.destroy',$credit_note->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');" class="inline-block">
+                                                    method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn-delete">🗑</button>
@@ -311,10 +311,10 @@
                                             @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
                                                 <a href="{{ route('Responsable_gestionnaire.invoices.serveCreditNotePdf', $credit_note->id) }}" class="btn-view">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                                    View
+                                                    {{ __('messages.View') }}
                                                 </a>
                                                 <form action="{{route('Responsable_gestionnaire.credit_note.destroy',$credit_note->id) }}"
-                                                    method="post" onsubmit="return confirm('Are you sure?');" class="inline-block">
+                                                    method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn-delete">🗑</button>
@@ -343,7 +343,7 @@
         <div x-show="show" x-transition @click.outside="show = false" class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
             
             <div class="flex items-center justify-between p-4 border-b">
-                <h5 class="text-lg font-semibold">Send Credit Note</h5>
+                <h5 class="text-lg font-semibold">{{ __('messages.Send Credit Note') }}</h5>
                 <button @click="show = false" type="button" class="text-gray-400 hover:text-gray-600">&times;</button>
             </div>
             
@@ -351,7 +351,7 @@
                 @csrf
                 <div class="p-6 space-y-4">
                     <div class="mb-3">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Select Recipients:</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Select Recipients:') }}</label>
                         <div id="recipientsContainer" class="border rounded p-3 h-40 overflow-y-auto bg-gray-50">
                             <div class="text-center">
                                 {{-- Spinner Tailwind --}}
@@ -416,12 +416,12 @@
                                     </div>
                                 `).join('');
                             } else {
-                                this.recipientsContainer.innerHTML = '<p class="text-sm text-gray-500">No recipients found</p>';
+                                this.recipientsContainer.innerHTML = '<p class="text-sm text-gray-500">' + @json(__('messages.No recipients found')) + '</p>';
                             }
                         })
                         .catch(error => {
                             console.error('Error fetching recipients:', error);
-                            this.recipientsContainer.innerHTML = '<p class="text-sm text-red-600">Error loading recipients</p>';
+                            this.recipientsContainer.innerHTML = '<p class="text-sm text-red-600">' + @json(__('messages.Error loading recipients')) + '</p>';
                         });
                     
                     this.show = true;
@@ -443,7 +443,7 @@
                         this.show = false;
                         if (data.success) {
                             // Vous n'avez pas de fonction showMessage ici, donc nous utilisons une alerte
-                            alert(data.message || 'Credit note sent successfully!');
+                            alert(data.message || @json(__('messages.Credit note sent successfully!')));
                             window.location.reload();
                         } else {
                             alert('Error: ' + (data.message || 'Unknown error'));
@@ -451,7 +451,7 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('An error occurred while sending the credit note.');
+                        alert(@json(__('messages.An error occurred while sending the credit note.')));
                     });
                 }
             }

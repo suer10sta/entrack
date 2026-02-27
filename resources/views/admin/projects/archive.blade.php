@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Archived Projects</title>
+    <title>{{ __('messages.Archived Projects') }}</title>
     @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
@@ -22,7 +22,7 @@
         <main class="flex-1 p-6 bg-[#eaebef]">
             {{-- Header --}}
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-6 rounded-lg shadow border border-gray-200 mb-4">
-                <h1 class="text-lg font-semibold text-gray-900">Archived Projects</h1>
+                <h1 class="text-lg font-semibold text-gray-900">{{ __('messages.Archived Projects') }}</h1>
                 <div class="flex flex-wrap gap-2 mt-4 sm:mt-0">
                     @php
                         $returnRoute = '#';
@@ -32,7 +32,7 @@
                         elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $returnRoute = route('Responsable_gestionnaire.projects.index');
                     @endphp
                     <a href="{{ $returnRoute }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">
-                        Return Back
+                        {{ __('messages.Return Back') }}
                     </a>
                 </div>
             </div>
@@ -50,20 +50,20 @@
                 <table class="w-full text-left border-collapse table-fixed">
                     <thead class="border-b bg-gray-50">
                         <tr class="text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left " style="width: 10%;">Project</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left " style="width: 10%;">{{ __('messages.Project column') }}</th>
                             @if(Auth::user()->hasRole('Admin'))
-                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">Budget</th>
-                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">CPH</th>
-                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">Duration</th>
-                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">Est. Hours</th>
-                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">Difference</th>
-                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">Progress</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">{{ __('messages.Budget column') }}</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">{{ __('messages.CPH') }}</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">{{ __('messages.Duration column') }}</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">{{ __('messages.Est. Hours column') }}</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">{{ __('messages.Difference column') }}</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center" style="width: 5%;">{{ __('messages.Progress column') }}</th>
                             @endif
-                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">TVA</th>
-                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">Client</th>
-                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 4%;">Teams</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">{{ __('messages.VAT') }}</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 5%;">{{ __('messages.Client') }}</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 4%;">{{ __('messages.Teams column header') }}</th>
                             @can('Delete project')
-                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 8%;">Actions</th>
+                            <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left" style="width: 8%;">{{ __('messages.Actions') }}</th>
                             @endcan
                         </tr>
                     </thead>
@@ -201,14 +201,14 @@
                                     }
                                 @endphp
                                 
-                                <form action="{{ $unarchiveRoute }}" method="post" onsubmit="return confirm('Are you sure?');" class="inline">
+                                <form action="{{ $unarchiveRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline">
                                     @csrf
-                                    <button type="submit" class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded text-xs">Unarchive</button>
+                                    <button type="submit" class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded text-xs">{{ __('messages.Unarchive') }}</button>
                                 </form>
-                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Are you sure?');" class="inline">
+                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs">Delete</button>
+                                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs">{{ __('messages.Delete') }}</button>
                                 </form>
                             </td>
                             @endcan

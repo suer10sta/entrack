@@ -198,6 +198,8 @@ class tasksController extends Controller
             "title" => "required",
             "end" => "nullable",
             "description" => "nullable",
+            "estimated_hours" => "nullable|numeric|min:0",
+            "consumed_hours" => "nullable|numeric|min:0",
         ]);
 
         $user_id = Auth::user()->id;
@@ -212,6 +214,7 @@ class tasksController extends Controller
             'entreprise_id' => $enterpriseId, // Associate with the admin's enterprise_id
             'user_id' => $user_id,
             'estimated_hours' => $request->input('estimated_hours'),
+            'consumed_hours' => $request->input('consumed_hours', 0),
             'start' => $request->input('start'),
             'end' => $request->input('end'),
         ]);
@@ -293,11 +296,24 @@ class tasksController extends Controller
         }
 
         // Create a calendar planning event linked to this task
-        // Use task/project/client data and task dates
-        $startDate = $task->start ? Carbon::parse($task->start)->startOfDay() : Carbon::now()->startOfDay();
-        $endDate = $task->end
-            ? Carbon::parse($task->end)->endOfDay()
-            : $startDate->copy()->endOfDay();
+        // Use task/project/client data and task dates.
+        // If only one of start/end is set on the task, copy it into the other.
+        $rawStart = $task->start ? Carbon::parse($task->start) : null;
+        $rawEnd = $task->end ? Carbon::parse($task->end) : null;
+
+        if ($rawStart && !$rawEnd) {
+            $rawEnd = $rawStart->copy();
+        } elseif ($rawEnd && !$rawStart) {
+            $rawStart = $rawEnd->copy();
+        }
+
+        if (!$rawStart && !$rawEnd) {
+            $rawStart = Carbon::now();
+            $rawEnd = Carbon::now();
+        }
+
+        $startDate = $rawStart->copy()->startOfDay();
+        $endDate = $rawEnd->copy()->endOfDay();
 
         $event = calendars::create([
             'title'        => $task->title,
@@ -428,6 +444,8 @@ class tasksController extends Controller
             "title" => "required",
             "end" => "nullable",
             "description" => "nullable",
+            "estimated_hours" => "nullable|numeric|min:0",
+            "consumed_hours" => "nullable|numeric|min:0",
         ]);
 
         //$project = Project::where('name', $validated['project_name'])->first();
@@ -437,6 +455,7 @@ class tasksController extends Controller
             'title' => $validated['title'],
             'description' => $validated['description'],
             'estimated_hours' => $request->input('estimated_hours'),
+            'consumed_hours' => $request->input('consumed_hours', 0),
             'start' => $request->input('start'),
             'end' => $request->input('end'),
         ]);
@@ -1683,7 +1702,7 @@ class tasksController extends Controller
             $projectForTask = Project::find($projectId);
             $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
 
-            if (!$projectForTask || !isset($projectForTask->cost_per_hour)) {
+            if (!$projectForTask || is_null($projectForTask->cost_per_hour) || $projectForTask->cost_per_hour === '') {
                 $skippedTasks[] = $taskInfo;
                 return false;
             }
@@ -1692,6 +1711,14 @@ class tasksController extends Controller
         })->values();
 
         $tasks_timer = $filteredTasks;
+
+        // Check if all tasks were filtered out
+        if ($tasks_timer->isEmpty() && !empty($skippedTasks)) {
+            return response()->json([
+                'error' => 'No valid tasks to export. All tasks were skipped because they have missing project cost per hour (CPH).',
+                'skippedTasks' => $skippedTasks
+            ], 400);
+        }
 
         $pdf = PDF::loadView('admin.tasks.downloadPointageRepports', compact('tasks_timer', 'entreprise', 'startDate', 'endDate', 'project'));
 
@@ -1771,7 +1798,7 @@ class tasksController extends Controller
                 $projectForTask = Project::find($projectIdForTask);
                 $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
 
-                if (!$projectForTask || !isset($projectForTask->cost_per_hour)) {
+                if (!$projectForTask || is_null($projectForTask->cost_per_hour) || $projectForTask->cost_per_hour === '') {
                     $skippedTasks[] = $taskInfo;
                     return false;
                 }
@@ -1898,7 +1925,7 @@ class tasksController extends Controller
             $projectForTask = Project::find($projectId);
             $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
 
-            if (!$projectForTask || !isset($projectForTask->cost_per_hour)) {
+            if (!$projectForTask || is_null($projectForTask->cost_per_hour) || $projectForTask->cost_per_hour === '') {
                 $skippedTasks[] = $taskInfo;
                 return false;
             }
@@ -1907,6 +1934,14 @@ class tasksController extends Controller
         })->values();
 
         $tasks_timer = $filteredTasks;
+
+        // Check if all tasks were filtered out
+        if ($tasks_timer->isEmpty() && !empty($skippedTasks)) {
+            return response()->json([
+                'error' => 'No valid tasks to export. All tasks were skipped because they have missing project cost per hour (CPH).',
+                'skippedTasks' => $skippedTasks
+            ], 400);
+        }
 
         $pdf = PDF::loadView('admin.tasks.downloadOneDayPointageRepports', compact('tasks_timer', 'entreprise', 'startDate', 'project'));
 
@@ -1984,7 +2019,7 @@ class tasksController extends Controller
             $projectForTask = Project::find($projectIdForTask);
             $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
 
-            if (!$projectForTask || !isset($projectForTask->cost_per_hour)) {
+            if (!$projectForTask || is_null($projectForTask->cost_per_hour) || $projectForTask->cost_per_hour === '') {
                 $skippedTasks[] = $taskInfo;
                 return false;
             }
@@ -2421,10 +2456,22 @@ class tasksController extends Controller
                 $projectForTask = Project::find($projectIdForTask);
                 $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
 
-                if (!$projectForTask || !isset($projectForTask->cost_per_hour)) {
+                if (!$projectForTask || is_null($projectForTask->cost_per_hour) || $projectForTask->cost_per_hour === '') {
                     $skippedTasks[] = $taskInfo;
                 }
             });
+
+            // Build a human-readable message about skipped tasks (used in customer-preview modal)
+            $skippedMessage = null;
+            if (!empty($skippedTasks)) {
+                // If every retrieved task was skipped, use the same detailed message as in pointage PDFs
+                if ($tasks_timer->count() === count($skippedTasks)) {
+                    $skippedMessage = 'No valid tasks to export. All tasks were skipped because they have missing project cost per hour (CPH).';
+                } else {
+                    // Otherwise fall back to the generic translated description
+                    $skippedMessage = __('messages.Skipped tasks modal description');
+                }
+            }
 
             // Get project contacts if project is selected
             $projectContacts = [];
@@ -2451,6 +2498,7 @@ class tasksController extends Controller
                 'projectContacts' => $projectContacts,
                 'projectName' => $project ? $project->name : '',
                 'skippedTasks' => $skippedTasks,
+                'skippedMessage' => $skippedMessage,
             ]);
         } catch (\Exception $e) {
             \Log::error('Error in previewCustomerReport: ' . $e->getMessage());
@@ -2535,10 +2583,20 @@ class tasksController extends Controller
                 $projectForTask = Project::find($projectIdForTask);
                 $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
 
-                if (!$projectForTask || !isset($projectForTask->cost_per_hour)) {
+                if (!$projectForTask || is_null($projectForTask->cost_per_hour) || $projectForTask->cost_per_hour === '') {
                     $skippedTasks[] = $taskInfo;
                 }
             });
+
+            // Build a human-readable message about skipped tasks (used in customer-preview modal)
+            $skippedMessage = null;
+            if (!empty($skippedTasks)) {
+                if ($tasks_timer->count() === count($skippedTasks)) {
+                    $skippedMessage = 'No valid tasks to export. All tasks were skipped because they have missing project cost per hour (CPH).';
+                } else {
+                    $skippedMessage = __('messages.Skipped tasks modal description');
+                }
+            }
 
             // Get project contacts if project is selected
             $projectContacts = [];
@@ -2565,6 +2623,7 @@ class tasksController extends Controller
                 'projectContacts' => $projectContacts,
                 'projectName' => $project ? $project->name : '',
                 'skippedTasks' => $skippedTasks,
+                'skippedMessage' => $skippedMessage,
             ]);
         } catch (\Exception $e) {
             \Log::error('Error in previewOneDayCustomerReport: ' . $e->getMessage());
@@ -2697,7 +2756,7 @@ class tasksController extends Controller
 
                 $projectForTask = Project::find($projectIdForTask);
 
-                if (!$projectForTask || !isset($projectForTask->cost_per_hour)) {
+                if (!$projectForTask || is_null($projectForTask->cost_per_hour) || $projectForTask->cost_per_hour === '') {
                     return false;
                 }
 

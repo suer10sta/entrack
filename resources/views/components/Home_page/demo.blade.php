@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Watch Demo | DalyTrac</title>
+    <title>{{ __('messages.Watch Demo') }} | DalyTrac</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net" />
     <link
@@ -28,13 +28,13 @@
         
         <div class="relative z-10 container mx-auto px-6 text-center">
           <div class="inline-block mb-4 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold tracking-wide">
-            Feature Demos
+            {{ __('messages.Feature Demos') }}
           </div>
           <h1 class="text-3xl lg:text-5xl font-bold text-foreground mb-4 tracking-tight">
-            See DalyTrac in <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-cyan-500">Action</span>
+            {{ __('messages.See DalyTrac in') }} <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-cyan-500">{{ __('messages.Action') }}</span>
           </h1>
           <p class="text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Click on any feature to watch a detailed demo video and discover how DalyTrac can transform your business operations.
+            {{ __('messages.Click on any feature to watch a detailed demo video and discover how DalyTrac can transform your business operations.') }}
           </p>
         </div>
       </section>
@@ -56,11 +56,11 @@
                     class="w-full h-full"
                   >
                     <source src="{{ asset('videos/DashboardDemo.mp4') }}" type="video/mp4">
-                    Your browser does not support the video tag.
+                    {{ __('messages.Your browser does not support the video tag.') }}
                   </video>
                 </div>
                 <div class="p-4 bg-background">
-                  <h2 id="current-video-title" class="text-xl font-bold text-foreground mb-2">Dashboard Overview</h2>
+                  <h2 id="current-video-title" class="text-xl font-bold text-foreground mb-2">{{ __('messages.Dashboard Overview') }}</h2>
                   <div class="flex items-center justify-between flex-wrap gap-3">
                     <div class="flex gap-2">
                       <button 
@@ -72,14 +72,14 @@
                         <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
-                        Previous
+                        {{ __('messages.Previous') }}
                       </button>
                       <button 
                         onclick="playNextVideo()" 
                         id="next-btn"
                         class="px-4 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-semibold"
                       >
-                        Next
+                        {{ __('messages.Next') }}
                         <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                         </svg>
@@ -97,8 +97,8 @@
             <div class="lg:col-span-1" style="height: 562px;">
               <div class="bg-card rounded-xl border border-border shadow-lg overflow-hidden flex flex-col h-full max-h-[600px]">
                 <div class="p-4 bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border">
-                  <h3 class="text-lg font-bold text-foreground">Feature Demos</h3>
-                  <p class="text-xs text-muted-foreground mt-1">Select a feature to watch</p>
+                  <h3 class="text-lg font-bold text-foreground">{{ __('messages.Feature Demos') }}</h3>
+                  <p class="text-xs text-muted-foreground mt-1">{{ __('messages.Select a feature to watch') }}</p>
                 </div>
                 
                 <div class="flex-1 overflow-y-auto">
@@ -126,8 +126,8 @@
                       </div>
                     </div>
                     <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">Dashboard Overview</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">See your business at a glance with real-time metrics and quick access to all modules.</p>
+                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Dashboard Overview') }}</h4>
+                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.See your business at a glance with real-time metrics and quick access to all modules.') }}</p>
                     </div>
                   </div>
 
@@ -154,8 +154,8 @@
                       </div>
                     </div>
                     <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">Invoice Management</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">Create, send, and track professional invoices with automated reminders.</p>
+                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Invoice Management') }}</h4>
+                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Create, send, and track professional invoices with automated reminders.') }}</p>
                     </div>
                   </div>
 
@@ -181,8 +181,8 @@
                       </div>
                     </div>
                     <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">Quotes & Devis to Invoice</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">Create quotes, get approvals, and convert them into real projects and tasks in one click.</p>
+                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Quotes & Devis to Invoice') }}</h4>
+                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Create quotes, get approvals, and convert them into real projects and tasks in one click.') }}</p>
                     </div>
                   </div>
 
@@ -208,8 +208,8 @@
                       </div>
                     </div>
                     <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">Project & Task Management</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">Organize projects, subprojects, and tasks with assignments and deadlines.</p>
+                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Project & Task Management') }}</h4>
+                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Organize projects, subprojects, and tasks with assignments and deadlines.') }}</p>
                     </div>
                   </div>
 
@@ -235,8 +235,8 @@
                       </div>
                     </div>
                     <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">Time Tracking</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">Track time per task and project with real-time timers and logs.</p>
+                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Time Tracking') }}</h4>
+                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Track time per task and project with real-time timers and logs.') }}</p>
                     </div>
                   </div>
 
@@ -262,8 +262,8 @@
                       </div>
                     </div>
                     <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">Expense Management</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">Record expenses, attach receipts, and categorize note de frais.</p>
+                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Expense Management') }}</h4>
+                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Record expenses, attach receipts, and categorize note de frais.') }}</p>
                     </div>
                   </div>
 
@@ -290,8 +290,8 @@
                       </div>
                     </div>
                     <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">Client Management</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">Manage client profiles, history, and documents in one place.</p>
+                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Client Management') }}</h4>
+                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Manage client profiles, history, and documents in one place.') }}</p>
                     </div>
                   </div>
 
@@ -317,8 +317,8 @@
                       </div>
                     </div>
                     <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">Team & Employee Management</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">Create teams, manage employees, and control roles & permissions.</p>
+                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Team & Employee Management') }}</h4>
+                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Create teams, manage employees, and control roles & permissions.') }}</p>
                     </div>
                   </div>
 
@@ -344,8 +344,8 @@
                       </div>
                     </div>
                     <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">Calendar & Events</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">Schedule events, deadlines, and meetings with reminders.</p>
+                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Calendar & Events') }}</h4>
+                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Schedule events, deadlines, and meetings with reminders.') }}</p>
                     </div>
                   </div>
 
@@ -371,8 +371,8 @@
                       </div>
                     </div>
                     <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">Day in the Life</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">Follow a real workflow from client to project to invoice and reporting.</p>
+                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Day in the Life') }}</h4>
+                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Follow a real workflow from client to project to invoice and reporting.') }}</p>
                     </div>
                   </div>
                 </div>
@@ -426,16 +426,16 @@
       // Video Playlist Functions
       let currentPlaylistIndex = 0;
       const playlistVideos = [
-        { src: '{{ asset("videos/DashboardDemo.mp4") }}', name: 'Dashboard Overview' },
-        { src: '{{ asset("videos/InvoiceDemo.mp4") }}', name: 'Invoice Management' },
-        { src: '{{ asset("videos/DevisDemo.mp4") }}', name: 'Quotes & Devis to Invoice' },
-        { src: '{{ asset("videos/Projects_TasksDemo.mp4") }}', name: 'Project & Task Management' },
-        { src: '{{ asset("videos/TimeTrackerDemo.mp4") }}', name: 'Time Tracking' },
-        { src: '{{ asset("videos/ExpenseDemo.mp4") }}', name: 'Expense Management' },
-        { src: '{{ asset("videos/ClientDemo.mp4") }}', name: 'Client Management' },
-        { src: '{{ asset("videos/EmployeesDemo.mp4") }}', name: 'Team & Employee Management' },
-        { src: '{{ asset("videos/PlanningDemo.mp4") }}', name: 'Calendar & Events' },
-        { src: '{{ asset("videos/DayDemo.mp4") }}', name: 'Day in the Life' }
+        { src: '{{ asset("videos/DashboardDemo.mp4") }}', name: {!! json_encode(__('messages.Dashboard Overview')) !!} },
+        { src: '{{ asset("videos/InvoiceDemo.mp4") }}', name: {!! json_encode(__('messages.Invoice Management')) !!} },
+        { src: '{{ asset("videos/DevisDemo.mp4") }}', name: {!! json_encode(__('messages.Quotes & Devis to Invoice')) !!} },
+        { src: '{{ asset("videos/Projects_TasksDemo.mp4") }}', name: {!! json_encode(__('messages.Project & Task Management')) !!} },
+        { src: '{{ asset("videos/TimeTrackerDemo.mp4") }}', name: {!! json_encode(__('messages.Time Tracking')) !!} },
+        { src: '{{ asset("videos/ExpenseDemo.mp4") }}', name: {!! json_encode(__('messages.Expense Management')) !!} },
+        { src: '{{ asset("videos/ClientDemo.mp4") }}', name: {!! json_encode(__('messages.Client Management')) !!} },
+        { src: '{{ asset("videos/EmployeesDemo.mp4") }}', name: {!! json_encode(__('messages.Team & Employee Management')) !!} },
+        { src: '{{ asset("videos/PlanningDemo.mp4") }}', name: {!! json_encode(__('messages.Calendar & Events')) !!} },
+        { src: '{{ asset("videos/DayDemo.mp4") }}', name: {!! json_encode(__('messages.Day in the Life')) !!} }
       ];
       
       // Initialize: Play first video on load

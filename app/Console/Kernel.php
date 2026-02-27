@@ -12,7 +12,7 @@ class Kernel extends ConsoleKernel
     /**
      * The recipient email for failure notifications.
      */
-    //private const RECIPIENT_EMAIL = 'belfequihfahd@gmail.com';
+    //private const RECIPIENT_EMAIL = 'dessin@bureaumercier.com';
 
     /**
      * The Artisan commands provided by your application.

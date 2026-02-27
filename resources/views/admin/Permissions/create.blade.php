@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nouvelle Permission - DalyTrac</title>
+    <title>{{ __('messages.New Permission - DalyTrac') }}</title>
     @vite('resources/css/app.css')
     @livewireStyles {{-- Ajouté pour la cohérence --}}
 </head>
@@ -54,27 +54,27 @@
                         
                         {{-- En-tête de la carte --}}
                         <div class="p-6 border-b border-gray-200">
-                            <h2 class="text-lg font-semibold text-gray-900">Nouvelle Permission</h2>
-                            <p class="text-sm text-gray-600 mt-1">Informations obligatoires</p>
+                            <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.New Permission') }}</h2>
+                            <p class="text-sm text-gray-600 mt-1">{{ __('messages.Mandatory informations') }}</p>
                         </div>
 
                         {{-- Corps de la carte --}}
                         <div class="p-6 space-y-6">
                             <div>
-                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nom de la Permission :</label>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Permission Name label') }}</label>
                                 <input type="text" name="name" id="name"
                                        class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" 
-                                       placeholder="ex: create projects" required />
+                                       placeholder="{{ __('messages.Permission Name placeholder') }}" required />
                             </div>
                         </div>
 
                         {{-- Pied de page de la carte (Actions) --}}
                         <div class="p-6 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-3">
                             <a href="javascript:history.back()" class="inline-flex justify-center bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm">
-                                Annuler
+                                {{ __('messages.Cancel') }}
                             </a>
                             <button type="submit" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">
-                                Créer
+                                {{ __('messages.Create') }}
                             </button>
                         </div>
 

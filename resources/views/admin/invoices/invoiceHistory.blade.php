@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoices History - DalyTrac</title>
+    <title>{{ __('messages.Invoices History - DalyTrac') }}</title>
     
     @vite('resources/css/app.css') 
     @livewireStyles
@@ -65,14 +65,14 @@
             {{-- 1. Header Section --}}
             <div class="flex flex-wrap justify-between items-center gap-4">
                 <div>
-                    <h1 class="text-2xl font-semibold text-gray-900">Invoices History</h1>
-                    <p class="text-sm text-gray-600">Manage and track all your invoices in one place</p>
+                    <h1 class="text-2xl font-semibold text-gray-900">{{ __('messages.Invoices History') }}</h1>
+                    <p class="text-sm text-gray-600">{{ __('messages.Manage and track all your invoices in one place') }}</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <button type="button" 
                             id="openInvoiceReportModal"
                             class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
-                        Invoices Reports PDF
+                        {{ __('messages.Invoices Reports PDF') }}
                     </button>
 
                     @php $archiveRoute = ''; @endphp
@@ -83,7 +83,7 @@
                     
                     @if($archiveRoute)
                     <a href="{{ $archiveRoute }}" class="inline-flex items-center bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 shadow-sm">
-                        View Archive
+                        {{ __('messages.View Archive') }}
                     </a>
                     @endif
                 </div>
@@ -92,12 +92,12 @@
              {{-- 2. Date Pickers Section --}}
              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <div>
-                     <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                     <input type="date" id="startDate" placeholder="jj/mm/aaaa" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                     <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Start Date') }}</label>
+                     <input type="date" id="startDate" placeholder="{{ __('messages.Start Date placeholder') }}" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                  </div>
                  <div>
-                     <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                     <input type="date" id="endDate" placeholder="jj/mm/aaaa" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                     <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.End Date') }}</label>
+                     <input type="date" id="endDate" placeholder="{{ __('messages.End Date placeholder') }}" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                  </div>
              </div>
 
@@ -110,7 +110,7 @@
              {{-- Session Message --}}
              @if(session('message'))
              <div id="sessionMessageContainer" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                 <strong class="font-bold">Success!</strong>
+                 <strong class="font-bold">{{ __('messages.Success!') }}</strong>
                  <span class="block sm:inline">{{ session('message') }}</span>
                  <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
              </div>
@@ -118,7 +118,7 @@
              {{-- Session ERROR Message (NEW BLOCK) --}}
              @if(session('error'))
              <div id="sessionErrorMessageContainer" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                 <strong class="font-bold">Error!</strong>
+                 <strong class="font-bold">{{ __('messages.Error!') }}</strong>
                  <span class="block sm:inline">{{ session('error') }}</span>
                  <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
              </div>
@@ -160,7 +160,7 @@
                         </svg>
                     </div>
                     <div class="flex-1">
-                        <p class="text-xs text-gray-500 uppercase font-medium">TOTAL PAID</p>
+                        <p class="text-xs text-gray-500 uppercase font-medium">{{ __('messages.TOTAL PAID') }}</p>
                         <p class="text-xl font-semibold text-green-600">€{{ number_format($totalPaid, 2, ',', '.') }}</p>
                         <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($totalPaidCurrentYear, 2, ',', '.') }}</p>
                     </div>
@@ -173,7 +173,7 @@
                         </svg>
                     </div>
                     <div class="flex-1">
-                        <p class="text-xs text-gray-500 uppercase font-medium">TOTAL UNPAID</p>
+                        <p class="text-xs text-gray-500 uppercase font-medium">{{ __('messages.TOTAL UNPAID') }}</p>
                         <p class="text-xl font-semibold text-red-600">€{{ number_format($totalUnpaid, 2, ',', '.') }}</p>
                         <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($totalUnpaidCurrentYear, 2, ',', '.') }}</p>
                     </div>
@@ -186,7 +186,7 @@
                         </svg>
                     </div>
                     <div class="flex-1">
-                        <p class="text-xs text-gray-500 uppercase font-medium">TOTAL AMOUNT</p>
+                        <p class="text-xs text-gray-500 uppercase font-medium">{{ __('messages.TOTAL AMOUNT') }}</p>
                         <p class="text-xl font-semibold text-blue-600">€{{ number_format($totalAmount, 2, ',', '.') }}</p>
                         <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($totalAmountCurrentYear, 2, ',', '.') }}</p>
                     </div>
@@ -199,7 +199,7 @@
                         </svg>
                     </div>
                     <div class="flex-1">
-                        <p class="text-xs text-gray-500 uppercase font-medium">TOTAL TVA</p>
+                        <p class="text-xs text-gray-500 uppercase font-medium">{{ __('messages.TOTAL TVA') }}</p>
                         <p class="text-xl font-semibold text-gray-800">€{{ number_format($totalTva, 2, ',', '.') }}</p>
                         <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($totalTvaCurrentYear, 2, ',', '.') }}</p>
                     </div>
@@ -208,44 +208,44 @@
 
             {{-- 4. Filters Section --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h6 class="text-base font-semibold text-gray-800 mb-4">Filters</h6>
+                <h6 class="text-base font-semibold text-gray-800 mb-4">{{ __('messages.Filters') }}</h6>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
-                        <label for="clientFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Client</label>
+                        <label for="clientFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Client') }}</label>
                         <select id="clientFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
-                            <option value="">All Clients</option>
+                            <option value="">{{ __('messages.All Clients') }}</option>
                             @foreach($clients as $client)
                             <option value="{{$client->name}}">{{$client->name}}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label for="projectFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Project</label>
+                        <label for="projectFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Project') }}</label>
                         <select id="projectFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
-                            <option value="">All Projects</option>
+                            <option value="">{{ __('messages.All Projects') }}</option>
                             @foreach($projects as $project)
                             <option value="{{$project->name}}">{{strtoupper($project->name)}}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label for="paymentFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Payment</label>
+                        <label for="paymentFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Payment') }}</label>
                         <select id="paymentFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
-                            <option value="">All Invoices</option>
-                            <option value="Paid">Paid</option>
-                            <option value="Unpaid">Unpaid</option>
-                            <option value="Overdue">Overdue</option> {{-- [ADDED] Overdue Option --}}
+                            <option value="">{{ __('messages.All Invoices') }}</option>
+                            <option value="Paid">{{ __('messages.Paid') }}</option>
+                            <option value="Unpaid">{{ __('messages.Unpaid') }}</option>
+                            <option value="Overdue">{{ __('messages.Overdue') }}</option> {{-- [ADDED] Overdue Option --}}
                         </select>
                     </div>
                     <div>
-                        <label for="typeFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Type</label>
+                        <label for="typeFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Type') }}</label>
                         <select id="typeFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
-                            <option value="">All Invoices</option>
-                            <option value="partial">Partial</option>
-                            <option value="percentage">Percentage</option>
-                            <option value="period">Period</option>
-                            <option value="detailed">Detailed</option>
-                            <option value="full">Full</option>
+                            <option value="">{{ __('messages.All Invoices') }}</option>
+                            <option value="partial">{{ __('messages.Partial') }}</option>
+                            <option value="percentage">{{ __('messages.Percentage') }}</option>
+                            <option value="period">{{ __('messages.Period Invoice') }}</option>
+                            <option value="detailed">{{ __('messages.Detailed Invoice Generator') }}</option>
+                            <option value="full">{{ __('messages.Full Invoice') }}</option>
                         </select>
                     </div>
                 </div>
@@ -257,14 +257,14 @@
         <table class="w-full divide-y divide-gray-200 table" id="invoicesTable">
             <thead class="bg-gray-50">
                 <tr>
-                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Invoice N°</th>
-                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Project</th>
-                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">TVA</th>
-                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Client</th>
-                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Type</th>
-                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Created At</th>
-                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Amount</th>
-                    <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">Actions</th>
+                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Invoice N°') }}</th>
+                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Project') }}</th>
+                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.VAT') }}</th>
+                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Client') }}</th>
+                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Type') }}</th>
+                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Created At') }}</th>
+                    <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Amount') }}</th>
+                    <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Actions') }}</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -285,18 +285,18 @@
         <a href="{{ $pdfRoute }}" target="_blank" class="{{ $isOverdue ? 'invoice-link-overdue' : 'invoice-link-normal' }}">
             {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
             @if($isOverdue)
-                <span class="block text-xs">({{ $daysOverdue }} days overdue)</span>
+                <span class="block text-xs">({{ $daysOverdue }} {{ __('messages.Invoice days overdue') }})</span>
             @endif
         </a>
     </td>
     <td class="px-4 py-3 text-sm text-gray-800" style="max-width: 200px; word-wrap: break-word; white-space: normal;">{{strtoupper($invoice->project_name)}}</td>
     <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
         @php $project = App\Models\Project::find($invoice->project_id); @endphp
-        {{$project->tva ?? 'N/A'}}%
+        {{$project->tva ?? __('messages.N/A')}}%
     </td>
     <td class="px-4 py-3 text-sm text-gray-800" style="max-width: 200px; word-wrap: break-word; white-space: normal;">
         @php $client = \App\Models\Client::where('id', $invoice->client_id)->first(); @endphp
-        {{$client->name ?? 'N/A'}}
+        {{$client->name ?? __('messages.N/A')}}
     </td>
     <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 capitalize">
         @if($invoice->type == 'Partial') {{$invoice->type}}-{{$invoice->partial}}
@@ -328,12 +328,12 @@
             <div class="flex flex-wrap items-center justify-center gap-2">
                 {{-- Paid --}}
                 @if($toggleRoute)
-                    <form action="{{ $toggleRoute }}" method="post" onsubmit="return confirm('Change payment status?');">
+                    <form action="{{ $toggleRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Change payment status?') }}');">
                         @csrf
                         <button type="submit"
-                                title="Mark as Unpaid"
+                                title="{{ __('messages.Mark as Unpaid') }}"
                                 class="payment-button px-3 py-1 rounded-md text-xs font-medium bg-green-600 hover:bg-green-700 text-white">
-                            Paid
+                            {{ __('messages.Paid') }}
                         </button>
                     </form>
                 @endif
@@ -358,9 +358,9 @@
                 @endphp
                 <div x-data="{ open: false }" class="relative">
                     <button @click="open = !open" type="button"
-                            title="Create Credit Note"
+                            title="{{ __('messages.Credit Note') }}"
                             class="px-3 py-1 rounded-md bg-purple-600 text-white hover:bg-purple-700 text-xs font-medium">
-                        Credit Note
+                        {{ __('messages.Credit Note') }}
                     </button>
                     <ul x-show="open"
                         @click.outside="open = false"
@@ -369,14 +369,14 @@
                         class="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                         @if($invoice->type == 'Detailed' && $detailedCreditNoteRoute)
                                 <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                   onclick="event.preventDefault(); showPartialDetailedPopup({{ $invoice->id }}, {{ $invoice->total_ttc }});">Partial</a></li>
+                                   onclick="event.preventDefault(); showPartialDetailedPopup({{ $invoice->id }}, {{ $invoice->total_ttc }});">{{ __('messages.Partial') }}</a></li>
                             <li><a href="{{ route($detailedCreditNoteRoute, $invoice->id) }}?type=full"
-                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Full</a></li>
+                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('messages.Full') }}</a></li>
                         @elseif($creditNoteRoute)
                             <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                   onclick="event.preventDefault(); showPartialPopup({{ $invoice->id }}, {{ $invoice->total_ttc }});">Partial</a></li>
+                                   onclick="event.preventDefault(); showPartialPopup({{ $invoice->id }}, {{ $invoice->total_ttc }});">{{ __('messages.Partial') }}</a></li>
                             <li><a href="{{ route($creditNoteRoute, $invoice->id) }}?type=full"
-                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Full</a></li>
+                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('messages.Full') }}</a></li>
                         @endif
                     </ul>
                 </div>
@@ -384,10 +384,10 @@
                 {{-- Send (Email + Peppol Combined) --}}
                 @can('Send invoice')
                     <button type="button"
-                            title="Send Invoice"
+                            title="{{ __('messages.Send Invoice') }}"
                             class="px-3 py-1 rounded-md bg-gray-600 text-white hover:bg-gray-700 text-xs font-medium flex items-center gap-1"
                             onclick="event.preventDefault(); if(window.openCombinedSendModal) window.openCombinedSendModal({{ $invoice->id }}, '{{ strtolower($invoice->type ?? 'full') }}'); else setTimeout(function(){ if(window.openCombinedSendModal) window.openCombinedSendModal({{ $invoice->id }}, '{{ strtolower($invoice->type ?? 'full') }}'); }, 100);">
-                        Send
+                        {{ __('messages.Send') }}
                     </button>
                 @endcan
             </div>
@@ -397,12 +397,12 @@
                 <div class="grid grid-cols-2 gap-1.5 w-full">
                     {{-- Status --}}
                     @if($toggleRoute)
-                        <form action="{{ $toggleRoute }}" method="post" onsubmit="return confirm('Change payment status?');" class="w-full">
+                        <form action="{{ $toggleRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Change payment status?') }}');" class="w-full">
                             @csrf
                             <button type="submit"
-                                    title="Mark as Paid"
+                                    title="{{ __('messages.Mark as Paid') }}"
                                     class="payment-button w-full px-2 py-1 rounded-md text-xs font-medium bg-red-600 hover:bg-red-700 text-white">
-                                Unpaid
+                                {{ __('messages.Unpaid') }}
                             </button>
                         </form>
                     @endif
@@ -410,18 +410,18 @@
                     {{-- Reminder --}}
                     @can('Send invoice')
                         @php
-                            $reminderLabel = 'Reminder';
+                            $reminderLabel = __('messages.Reminder');
                             if (!$invoice->first_reminder_date) {
-                                $reminderLabel = 'Reminder 1';
+                                $reminderLabel = __('messages.Reminder 1');
                             } elseif (!$invoice->second_reminder_date) {
-                                $reminderLabel = 'Reminder 2';
+                                $reminderLabel = __('messages.Reminder 2');
                             } elseif (!$invoice->third_reminder_date) {
-                                $reminderLabel = 'Reminder 3';
+                                $reminderLabel = __('messages.Reminder 3');
                             }
                         @endphp
                         <div x-data="{ open: false }" class="relative w-full">
                             <button @click="open = !open" type="button"
-                                    title="Send Reminder"
+                                    title="{{ __('messages.Send Reminder') }}"
                                     class="w-full px-2 py-1 rounded-md bg-yellow-500 text-white hover:bg-yellow-600 text-xs font-medium flex justify-center items-center gap-1">
                                 {{ $reminderLabel }}
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
@@ -432,13 +432,13 @@
                                 style="display: none;"
                                 class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                                 @if(!$invoice->first_reminder_date)
-                                    <li><a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route((Auth::user()->hasRole('Admin') ? 'admin.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet et gestionnaire') ? 'Responsable_gestionnaire.invoice.sendManualremind' : 'employee.invoice.sendManualremind'))), ['id' => $invoice->id, 'reminder' => 1]) }}">Send Reminder 1</a></li>
+                                    <li><a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route((Auth::user()->hasRole('Admin') ? 'admin.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet et gestionnaire') ? 'Responsable_gestionnaire.invoice.sendManualremind' : 'employee.invoice.sendManualremind'))), ['id' => $invoice->id, 'reminder' => 1]) }}">{{ __('messages.Send Reminder 1') }}</a></li>
                                 @endif
                                 @if($invoice->first_reminder_date && !$invoice->second_reminder_date)
-                                    <li><a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route((Auth::user()->hasRole('Admin') ? 'admin.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet et gestionnaire') ? 'Responsable_gestionnaire.invoice.sendManualremind' : 'employee.invoice.sendManualremind'))), ['id' => $invoice->id, 'reminder' => 2]) }}">Send Reminder 2</a></li>
+                                    <li><a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route((Auth::user()->hasRole('Admin') ? 'admin.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet et gestionnaire') ? 'Responsable_gestionnaire.invoice.sendManualremind' : 'employee.invoice.sendManualremind'))), ['id' => $invoice->id, 'reminder' => 2]) }}">{{ __('messages.Send Reminder 2') }}</a></li>
                                 @endif
                                 @if($invoice->second_reminder_date && !$invoice->third_reminder_date)
-                                    <li><a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route((Auth::user()->hasRole('Admin') ? 'admin.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet et gestionnaire') ? 'Responsable_gestionnaire.invoice.sendManualremind' : 'employee.invoice.sendManualremind'))), ['id' => $invoice->id, 'reminder' => 3]) }}">Send Reminder 3</a></li>
+                                    <li><a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ route((Auth::user()->hasRole('Admin') ? 'admin.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet.invoice.sendManualremind' : (Auth::user()->hasRole('Responsable de projet et gestionnaire') ? 'Responsable_gestionnaire.invoice.sendManualremind' : 'employee.invoice.sendManualremind'))), ['id' => $invoice->id, 'reminder' => 3]) }}">{{ __('messages.Send Reminder 3') }}</a></li>
                                 @endif
                             </ul>
                         </div>
@@ -486,10 +486,10 @@
                     {{-- Send (Email + Peppol Combined) --}}
                     @can('Send invoice')
                         <button type="button"
-                                title="Send Invoice"
+                                title="{{ __('messages.Send Invoice') }}"
                                 class="w-full px-2 py-1 rounded-md bg-gray-600 text-white hover:bg-gray-700 text-xs font-medium flex justify-center items-center gap-1"
                                 onclick="event.preventDefault(); if(window.openCombinedSendModal) window.openCombinedSendModal({{ $invoice->id }}, '{{ strtolower($invoice->type ?? 'full') }}'); else setTimeout(function(){ if(window.openCombinedSendModal) window.openCombinedSendModal({{ $invoice->id }}, '{{ strtolower($invoice->type ?? 'full') }}'); }, 100);">
-                            Send
+                            {{ __('messages.Send') }}
                         </button>
                     @endcan
                 </div>
@@ -529,7 +529,7 @@
                         }
                     @endphp
                     @if($editRoute)
-                    <a href="{{ $editRoute }}" title="Edit Invoice" class="p-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700">
+                    <a href="{{ $editRoute }}" title="{{ __('messages.Edit Invoice') }}" class="p-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                     </a>
                     @endif
@@ -546,10 +546,10 @@
                             elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $deleteRoute = route('Responsable_gestionnaire.invoice.destroy', $invoice->id);
                         @endphp
                         @if($deleteRoute)
-                        <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('Delete this invoice? This cannot be undone.');">
+                        <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Delete this invoice? This cannot be undone.') }}');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" title="Delete Invoice" class="p-1.5 rounded-md bg-red-600 text-white hover:bg-red-700">
+                            <button type="submit" title="{{ __('messages.Delete Invoice') }}" class="p-1.5 rounded-md bg-red-600 text-white hover:bg-red-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             </button>
                         </form>
@@ -563,7 +563,7 @@
 @empty
 <tr>
     <td colspan="8" class="text-center px-4 py-6 text-gray-500">
-        No invoices found matching your criteria.
+        {{ __('messages.No invoices found matching your criteria.') }}
     </td>
 </tr>
 @endforelse
@@ -576,7 +576,7 @@
             <div id="sendInvoiceModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
                 <div class="bg-white rounded-lg shadow-lg w-full max-w-lg mx-4">
                     <div class="flex justify-between items-center p-4 border-b">
-                        <h5 class="text-lg font-semibold text-gray-800">Send Invoice</h5>
+                        <h5 class="text-lg font-semibold text-gray-800">{{ __('messages.Send Invoice') }}</h5>
                         <button type="button" id="closeSendInvoiceModal" class="text-gray-400 hover:text-gray-600">&times;</button>
                     </div>
                     <form id="sendInvoiceForm" method="POST" enctype="multipart/form-data">
@@ -584,17 +584,17 @@
                         <input type="hidden" name="invoice_id" id="invoice_id">
                         <div class="p-6 space-y-4">
                             <div>
-                                <h6 class="text-sm font-medium text-gray-700 mb-2">Select Recipients:</h6>
+                                <h6 class="text-sm font-medium text-gray-700 mb-2">{{ __('messages.Select Recipients:') }}</h6>
                                 <div id="recipientsList" class="space-y-2 p-3 border border-gray-200 rounded-lg bg-gray-50 h-40 overflow-y-auto"></div>
                             </div>
                             <div>
-                                <label for="fileUpload" class="block text-sm font-medium text-gray-700 mb-2">Upload Additional Files (Optional):</label>
+                                <label for="fileUpload" class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Upload Additional Files (Optional):') }}</label>
                                 <input type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" id="fileUpload" name="file[]" multiple>
                             </div>
                         </div>
                         <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-                            <button type="button" id="cancelSendInvoiceModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Close</button>
-                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Send Invoice</button>
+                            <button type="button" id="cancelSendInvoiceModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">{{ __('messages.Close') }}</button>
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">{{ __('messages.Send Invoice') }}</button>
                         </div>
                     </form>
                 </div>
@@ -604,7 +604,7 @@
             <div id="sendPeppolModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
                 <div class="bg-white rounded-lg shadow-lg w-full max-w-lg mx-4">
                     <div class="flex justify-between items-center p-4 border-b">
-                        <h5 class="text-lg font-semibold text-gray-800">Send Invoice via Peppol</h5>
+                        <h5 class="text-lg font-semibold text-gray-800">{{ __('messages.Send Invoice via Peppol') }}</h5>
                         <button type="button" id="closeSendPeppolModal" class="text-gray-400 hover:text-gray-600">&times;</button>
                     </div>
                     <form id="sendPeppolForm" method="POST" enctype="multipart/form-data">
@@ -614,17 +614,17 @@
                         <div class="p-6 space-y-4">
                             <div class="text-sm text-gray-700">
                                 <p class="mb-2">
-                                    You are about to send this invoice via <span class="font-semibold">Peppol</span>.
+                                    {{ __('messages.You are about to send this invoice via Peppol.') }}
                                 </p>
                                 <p class="mb-4">
-                                    Please confirm that you want to proceed. This action will send the invoice through the Peppol network.
+                                    {{ __('messages.Please confirm that you want to proceed. This action will send the invoice through the Peppol network.') }}
                                 </p>
                             </div>
                             
                             {{-- File Attachments Section --}}
                             <div class="border-t pt-4">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Attach Files (Optional)
+                                    {{ __('messages.Attach Files (Optional)') }}
                                     <span class="text-xs text-gray-500 font-normal">(PDF, Excel, CSV, JPEG, PNG)</span>
                                 </label>
                                 <div class="mt-2">
@@ -639,14 +639,14 @@
                                 
                                 {{-- Selected Files Display --}}
                                 <div id="peppol_selected_files" class="mt-3 space-y-2 hidden">
-                                    <p class="text-xs font-medium text-gray-700">Selected files:</p>
+                                    <p class="text-xs font-medium text-gray-700">{{ __('messages.Selected files:') }}</p>
                                     <ul id="peppol_files_list" class="text-xs text-gray-600 space-y-1"></ul>
                                 </div>
                             </div>
                         </div>
                         <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-                            <button type="button" id="cancelSendPeppolModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Annuler</button>
-                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Confirmer l'envoi via Peppol</button>
+                            <button type="button" id="cancelSendPeppolModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">{{ __('messages.Annuler') }}</button>
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">{{ __('messages.Confirmer l\'envoi via Peppol') }}</button>
                         </div>
                     </form>
                 </div>
@@ -656,7 +656,7 @@
             <div id="combinedSendModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
                 <div class="bg-white rounded-lg shadow-lg w-full max-w-xl mx-4">
                     <div class="flex justify-between items-center p-4 border-b">
-                        <h5 class="text-lg font-semibold text-gray-800">Send Invoice</h5>
+                        <h5 class="text-lg font-semibold text-gray-800">{{ __('messages.Send Invoice') }}</h5>
                         <button type="button" id="closeCombinedSendModal" class="text-gray-400 hover:text-gray-600">&times;</button>
                     </div>
                     <form id="combinedSendForm" method="POST" enctype="multipart/form-data">
@@ -665,31 +665,31 @@
                         <input type="hidden" name="invoice_type" id="combined_invoice_type">
                         <div class="p-6 space-y-5">
                             <div>
-                                <h6 class="text-sm font-medium text-gray-700 mb-2">Choose how to send:</h6>
+                                <h6 class="text-sm font-medium text-gray-700 mb-2">{{ __('messages.Choose how to send:') }}</h6>
                                 <div class="space-y-2">
                                     <label class="flex items-center space-x-2">
                                         <input type="checkbox" id="combined_send_email" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                        <span class="text-sm text-gray-700">Send via Email</span>
+                                        <span class="text-sm text-gray-700">{{ __('messages.Send via Email') }}</span>
                                     </label>
                                     <label class="flex items-center space-x-2">
                                         <input type="checkbox" id="combined_send_peppol" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                        <span class="text-sm text-gray-700">Send via Peppol</span>
+                                        <span class="text-sm text-gray-700">{{ __('messages.Send via Peppol') }}</span>
                                     </label>
                                 </div>
                             </div>
 
                             {{-- Email recipients (visible only when email is checked) --}}
                             <div id="combined_email_section" class="space-y-2 hidden">
-                                <h6 class="text-sm font-medium text-gray-700">Select Recipients (Email):</h6>
+                                <h6 class="text-sm font-medium text-gray-700">{{ __('messages.Select Recipients (Email):') }}</h6>
                                 <div id="combinedRecipientsList" class="space-y-2 p-3 border border-gray-200 rounded-lg bg-gray-50 h-40 overflow-y-auto text-sm text-gray-700">
-                                    <div class="text-center text-gray-500">Loading...</div>
+                                    <div class="text-center text-gray-500">{{ __('messages.Loading...') }}</div>
                                 </div>
                             </div>
 
                             {{-- Attachments for both channels --}}
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Attach Files (Optional)
+                                    {{ __('messages.Attach Files (Optional)') }}
                                     <span class="text-xs text-gray-500 font-normal">(PDF, Excel, CSV, JPEG, PNG – max 10MB each)</span>
                                 </label>
                                 <input type="file"
@@ -699,14 +699,14 @@
                                        accept=".pdf,.xlsx,.xls,.csv,.jpg,.jpeg,.png"
                                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer border border-gray-300 rounded-lg">
                                 <div id="combined_selected_files" class="mt-3 space-y-2 hidden">
-                                    <p class="text-xs font-medium text-gray-700">Selected files:</p>
+                                    <p class="text-xs font-medium text-gray-700">{{ __('messages.Selected files:') }}</p>
                                     <ul id="combined_files_list" class="text-xs text-gray-600 space-y-1"></ul>
                                 </div>
                             </div>
                         </div>
                         <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-                            <button type="button" id="cancelCombinedSendModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Close</button>
-                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Send</button>
+                            <button type="button" id="cancelCombinedSendModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">{{ __('messages.Close') }}</button>
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">{{ __('messages.Send') }}</button>
                         </div>
                     </form>
                 </div>
@@ -716,18 +716,18 @@
             <div id="partialCreditNoteModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
                 <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
                     <div class="flex justify-between items-center p-4 border-b">
-                        <h5 class="text-lg font-semibold text-gray-800">Partial Credit Note</h5>
+                        <h5 class="text-lg font-semibold text-gray-800">{{ __('messages.Partial Credit Note') }}</h5>
                         <button type="button" id="closePartialCreditNoteModal" class="text-gray-400 hover:text-gray-600">&times;</button>
                     </div>
                     <form id="partialCreditNoteForm">
                         <div class="p-6">
-                            <label for="partialAmount" class="block text-sm font-medium text-gray-700 mb-2">Enter Amount:</label>
+                            <label for="partialAmount" class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Enter Amount:') }}</label>
                             <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" id="partialAmount" step="0.0001" required>
                             <span id="partialAmountError" class="text-red-600 text-sm mt-1 hidden"></span>
                         </div>
                         <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-                            <button type="button" id="cancelPartialCreditNoteModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Close</button>
-                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Submit</button>
+                            <button type="button" id="cancelPartialCreditNoteModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">{{ __('messages.Close') }}</button>
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">{{ __('messages.Submit') }}</button>
                         </div>
                     </form>
                 </div>
@@ -737,18 +737,18 @@
             <div id="partialDetailedCreditNoteModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
                 <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
                     <div class="flex justify-between items-center p-4 border-b">
-                        <h5 class="text-lg font-semibold text-gray-800">Partial Credit Note (Detailed)</h5>
+                        <h5 class="text-lg font-semibold text-gray-800">{{ __('messages.Partial Credit Note (Detailed)') }}</h5>
                         <button type="button" id="closePartialDetailedCreditNoteModal" class="text-gray-400 hover:text-gray-600">&times;</button>
                     </div>
                     <form id="partialDetailedCreditNoteForm">
                         <div class="p-6">
-                            <label for="partialDetailedAmount" class="block text-sm font-medium text-gray-700 mb-2">Enter Amount:</label>
+                            <label for="partialDetailedAmount" class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Enter Amount:') }}</label>
                             <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" id="partialDetailedAmount" step="0.0001" required>
                             <span id="partialDetailedAmountError" class="text-red-600 text-sm mt-1 hidden"></span>
                         </div>
                         <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-                            <button type="button" id="cancelPartialDetailedCreditNoteModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Close</button>
-                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Submit</button>
+                            <button type="button" id="cancelPartialDetailedCreditNoteModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">{{ __('messages.Close') }}</button>
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">{{ __('messages.Submit') }}</button>
                         </div>
                     </form>
                 </div>
@@ -758,20 +758,20 @@
             <div id="invoiceReportModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
                 <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
                     <div class="flex justify-between items-center p-4 border-b">
-                        <h5 class="text-lg font-semibold text-gray-800">Download Invoices Reports</h5>
+                        <h5 class="text-lg font-semibold text-gray-800">{{ __('messages.Download Invoices Reports') }}</h5>
                         <button type="button" id="closeInvoiceReportModal" class="text-gray-400 hover:text-gray-600">&times;</button>
                     </div>
                     <div class="p-6 space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Choose payment statuses (optional):</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Choose payment statuses (optional):') }}</label>
                             <div class="space-y-2">
                                 <div class="flex items-center">
                                     <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="status_paid" value="paid">
-                                    <label class="ml-2 text-sm text-gray-700" for="status_paid">Paid</label>
+                                    <label class="ml-2 text-sm text-gray-700" for="status_paid">{{ __('messages.Paid status label') }}</label>
                                 </div>
                                 <div class="flex items-center">
                                     <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="status_unpaid" value="unpaid">
-                                    <label class="ml-2 text-sm text-gray-700" for="status_unpaid">Unpaid</label>
+                                    <label class="ml-2 text-sm text-gray-700" for="status_unpaid">{{ __('messages.Unpaid status label') }}</label>
                                 </div>
                                 <div class="flex items-center">
                                     <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="status_overdue" value="overdue">

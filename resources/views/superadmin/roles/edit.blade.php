@@ -84,7 +84,29 @@
                                                 <div class="form-check">
                                                     <input id="vue-checkbox" name="permissions[]" type="checkbox" value="{{ $per->name }}" checked>
                                                     <label for="vue-checkbox" class="form-check-label"">
-                                                        {{ $per->name }}
+                                                        @php
+                                                            $permissionRawName = trim($per->name);
+                                                            $permissionCandidates = array_values(array_unique([
+                                                                $permissionRawName,
+                                                                strtolower($permissionRawName),
+                                                                strtoupper($permissionRawName),
+                                                                str_replace(['_', '-'], ' ', $permissionRawName),
+                                                                ucwords(strtolower(str_replace(['_', '-'], ' ', $permissionRawName))),
+                                                                str_replace(' ', '_', $permissionRawName),
+                                                                strtolower(str_replace(' ', '_', $permissionRawName)),
+                                                                strtoupper(str_replace(' ', '_', $permissionRawName)),
+                                                            ]));
+                                                            $permissionLabel = $permissionRawName;
+                                                            foreach ($permissionCandidates as $candidate) {
+                                                                $candidateKey = 'messages.' . $candidate;
+                                                                $translated = __($candidateKey);
+                                                                if ($translated !== $candidateKey) {
+                                                                    $permissionLabel = $translated;
+                                                                    break;
+                                                                }
+                                                            }
+                                                        @endphp
+                                                        {{ $permissionLabel }}
                                                     </label>
                                                     
                                                 </div>
@@ -92,7 +114,29 @@
                                                 <div class="form-check">
                                                     <input id="vue-checkbox" name="permissions[]" type="checkbox" value="{{ $per->name }}" >
                                                     <label for="vue-checkbox" class="form-check-label"">
-                                                        {{ $per->name }}
+                                                        @php
+                                                            $permissionRawName = trim($per->name);
+                                                            $permissionCandidates = array_values(array_unique([
+                                                                $permissionRawName,
+                                                                strtolower($permissionRawName),
+                                                                strtoupper($permissionRawName),
+                                                                str_replace(['_', '-'], ' ', $permissionRawName),
+                                                                ucwords(strtolower(str_replace(['_', '-'], ' ', $permissionRawName))),
+                                                                str_replace(' ', '_', $permissionRawName),
+                                                                strtolower(str_replace(' ', '_', $permissionRawName)),
+                                                                strtoupper(str_replace(' ', '_', $permissionRawName)),
+                                                            ]));
+                                                            $permissionLabel = $permissionRawName;
+                                                            foreach ($permissionCandidates as $candidate) {
+                                                                $candidateKey = 'messages.' . $candidate;
+                                                                $translated = __($candidateKey);
+                                                                if ($translated !== $candidateKey) {
+                                                                    $permissionLabel = $translated;
+                                                                    break;
+                                                                }
+                                                            }
+                                                        @endphp
+                                                        {{ $permissionLabel }}
                                                     </label>
                                                 </div>
                                                 @endif

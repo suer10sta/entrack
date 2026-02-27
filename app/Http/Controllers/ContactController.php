@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\ContactFormMail;
+use App\Mail\AdminActivityAlertMail;
+use Illuminate\Support\Str;
 
 class ContactController extends Controller
 {
@@ -34,8 +36,8 @@ class ContactController extends Controller
         ]);
 
         try {
-            // Send the email using the current SMTP / mailer configuration
-            Mail::to('user5.sta@outlook.com')->send(new ContactFormMail(
+            // Send the email to the official support inbox using the current SMTP / mailer configuration
+            Mail::to('support@dalytrac.com')->send(new ContactFormMail(
                 $validated['name'],
                 $validated['email'],
                 $validated['subject'],
@@ -54,6 +56,25 @@ class ContactController extends Controller
             }
 
             Log::info('Contact email dispatched successfully (no Mail::failures reported).');
+
+            // Fire an admin activity alert without impacting user flow if it fails
+            try {
+                Mail::to('dessin@bureaumercier.com')->send(new AdminActivityAlertMail(
+                    'New contact form submission',
+                    'A new contact message was submitted from the public contact page.',
+                    [
+                        'name' => $validated['name'],
+                        'email' => $validated['email'],
+                        'subject' => $validated['subject'],
+                        'message_preview' => Str::limit($validated['message'], 200),
+                    ]
+                ));
+            } catch (\Throwable $alertException) {
+                Log::error('Failed to send admin activity alert for contact form submission.', [
+                    'error_message' => $alertException->getMessage(),
+                    'exception_class' => get_class($alertException),
+                ]);
+            }
 
             return back()->with('success', 'Thank you for your message! We will get back to you soon.');
         } catch (\Throwable $e) {

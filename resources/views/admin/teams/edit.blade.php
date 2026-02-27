@@ -29,8 +29,8 @@
                 <div class="row">
                     <div class="col-lg-9 col-12 mx-auto">
                         <div class="card card-body mt-4">
-                            <h6 class="mb-0">New Team</h6>
-                            <p class="text-sm mb-0">Edit Team</p>
+                            <h6 class="mb-0">{{ __('messages.New Team') }}</h6>
+                            <p class="text-sm mb-0">{{ __('messages.Edit Team Header') }}</p>
                             <hr class="horizontal dark my-3" />
                             @if(Auth::user()->hasRole('Admin'))
                             <form method="POST" action="{{route('admin.teams.update', $team->id)}}" autocomplete="off">
@@ -46,10 +46,10 @@
                             @endif
                                 @csrf
                                 @method('PUT')
-                                <label for="teamName" class="form-label">Team Name</label>
+                                <label for="teamName" class="form-label">{{ __('messages.Team Name') }}</label>
                                 <input type="text" class="form-control" id="teamName" name='name' value="{{$team->name}}" />
 
-                                <label class="form-label" for="team-for-project">Team Members:</label>
+                                <label class="form-label" for="team-for-project">{{ __('messages.Team Members:') }}</label>
                                 <!-- Hidden input field to store the selected project value -->
                                 @foreach($employee_users as $employee)
                                     <div class="form-check">
@@ -61,27 +61,27 @@
                                 @endforeach
                                 <div class="d-flex justify-content-end mt-4">
                                 @if(Auth::user()->hasRole('Admin'))
-                                <a class='btn btn-light m-0' href="{{route('admin.index')}}">
-                                        Cancel
+                                    <a class='btn btn-light m-0' href="{{route('admin.index')}}">
+                                        {{ __('messages.Cancel button') }}
                                     </a>
                                 @endif
                                 @if(Auth::user()->hasRole('Responsable de projet'))
                                     <a class='btn btn-light m-0' href="{{route('Responsable_de_projet.index')}}">
-                                        Cancel
+                                        {{ __('messages.Cancel button') }}
                                     </a>
                                 @endif
                                 @if(Auth::user()->hasRole('Employee'))
                                     <a class='btn btn-light m-0' href="{{route('employee.index')}}">
-                                        Cancel
+                                        {{ __('messages.Cancel button') }}
                                     </a>
                                 @endif
                                 @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
                                     <a class='btn btn-light m-0' href="{{route('Responsable_gestionnaire.index')}}">
-                                        Cancel
+                                        {{ __('messages.Cancel button') }}
                                     </a>
                                 @endif
                                     <button type="submit" name="button" class="btn bg-gradient-primary m-0 ms-2">
-                                        Save
+                                        {{ __('messages.Save') }}
                                     </button>
                                 </div>
 

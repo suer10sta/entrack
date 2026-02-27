@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -106,10 +106,10 @@
         <div class="details">
             <div class="details-left">
                 <p>
-                    Date de facturation: {{ $invoice_date }}<br />
-                    Échéance: {{ $due_date }}<br>
-                    Numéro client : {{ $client->client_number }} <br>
-                    Numéro de facture : {{date('ym')}}{{$number}}
+                    {{ __('messages.Invoice Date') }}: {{ $invoice_date }}<br />
+                    {{ __('messages.Due Date') }}: {{ $due_date }}<br>
+                    {{ __('messages.Client Number') }} : {{ $client->client_number }} <br>
+                    {{ __('messages.Invoice Number') }} : {{date('ym')}}{{$number}}
                 </p>
             </div>
             <div class="details-right">
@@ -117,27 +117,27 @@
                 {{ $client->billing_street }} <br />
                 {{ $client->billing_zip }}-{{ $client->billing_city }} <br />
                 {{ $client->billing_country }}<br />
-                TVA Client: {{ $client->TVA }}
+                {{ __('messages.Client TVA') }}: {{ $client->TVA }}
             </div>
         </div>
 
         <div style="text-align: center; margin: 20px 0;">
-            <h2>Facture : {{$entreprise->invoice_prefix}}-{{date('ym')}}{{$number}}</h2>
+            <h2>{{ __('messages.Invoice') }} : {{$entreprise->invoice_prefix}}-{{date('ym')}}{{$number}}</h2>
         </div>
 
         <table>
             <thead>
                 <tr>
-                    <th>Description</th>
-                    <th>Quantité</th>
-                    <th>Prix unitaire</th>
-                    <th>Total</th>
+                    <th>{{ __('messages.Designation') }}</th>
+                    <th>{{ __('messages.Quantity') }}</th>
+                    <th>{{ __('messages.Unit Price') }}</th>
+                    <th>{{ __('messages.Amount') }}</th>
                 </tr>
             </thead>
             <tbody>
             <tr>
                 <td colspan="4" style="background-color: #f9f9f9;">
-                    <strong>Projet: {{ $projectinfos->name }}</strong>
+                    <strong>{{ __('messages.Project') }}: {{ $projectinfos->name }}</strong>
                 </td>
             </tr>
                 @foreach($details as $detail)
@@ -151,15 +151,15 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="3" style="text-align: right;"><strong>Total HTVA</strong></td>
+                    <td colspan="3" style="text-align: right;"><strong>{{ __('messages.Total Excl VAT') }}</strong></td>
                     <td>{{number_format($total_htva, 2, ',', '')}}€</td>
                 </tr>
                 <tr>
-                    <td colspan="3" style="text-align: right;"><strong>TVA ({{$projectinfos->tva}}%)</strong></td>
+                    <td colspan="3" style="text-align: right;"><strong>{{ __('messages.VAT') }} ({{$projectinfos->tva}}%)</strong></td>
                     <td>{{number_format($tva_amount, 2, ',', '')}}€</td>
                 </tr>
                 <tr>
-                    <td colspan="3" style="text-align: right;"><strong>Total TTC</strong></td>
+                    <td colspan="3" style="text-align: right;"><strong>{{ __('messages.Total Incl VAT') }}</strong></td>
                     <td>{{number_format($total_ttc, 2, ',', '')}}€</td>
                 </tr>
             </tfoot>
@@ -168,26 +168,26 @@
         @if($comment || $projectinfos->description)
         <div style="margin: 20px 0; padding: 10px; border-top: 1px solid #CCCCCC; border-bottom: 1px solid #CCCCCC;">
             @if($projectinfos->description)
-            <strong> - Informations :</strong> <br>
+            <strong> - {{ __('messages.Information') }} :</strong> <br>
             {!! nl2br(e($projectinfos->description)) !!} <br>
             @endif
             @if($comment)
-            <strong>Commentaire:</strong><br>
+            <strong>{{ __('messages.Comment') }}:</strong><br>
             {!! nl2br(e($comment)) !!}
             @endif
         </div>
         @endif
 
         <div class="payment">
-            - Veuillez payer le montant de <strong>{{number_format($total_ttc, 2, ',', '')}}€</strong> 
-            sur le compte mentionné ci-dessous avant le {{ $due_date }}
-            en mentionnant le numéro Facture <strong>{{date('ym')}}{{$number}}</strong>
+            - {{ __('messages.Please pay the amount of') }} <strong>{{number_format($total_ttc, 2, ',', '')}}€</strong> 
+            {{ __('messages.on the account mentioned below before') }} {{ $due_date }}
+            {{ __('messages.mentioning the invoice number') }} <strong>{{date('ym')}}{{$number}}</strong>
             <br>
-            - Dans le cas de livraison intracommunautaire pour les services :  "Autoliquidation Art 21 § 2 du code TVA belge"
+            - {{ __('messages.In case of intra-community delivery for services') }}:  "Autoliquidation Art 21 § 2 du code TVA belge"
                 <br>
-            - Voir conditions générales en annexe
+            - {{ __('messages.See general conditions in annex') }}
             <br>
-            - Merci de votre confiance
+            - {{ __('messages.Thank you for your trust') }}
         </div>
 
         <div style="text-align: center; margin: 20px 0;">
@@ -207,11 +207,11 @@
                 <input type="hidden" name="details" value='{{ json_encode($details) }}'>
                 <input type="hidden" name="comment" value="{{ $comment ?? '' }}">
                 <button type="submit" style="padding: 6px 12px; margin-right: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                    Confirm
+                    {{ __('messages.Confirm') }}
                 </button>
             </form>
             <button onclick="window.history.back()" style="padding: 6px 12px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                Back
+                {{ __('messages.Back') }}
             </button>
         </div>
     </div>
@@ -220,17 +220,17 @@
         <div style="float: left; width: 30%; height: 80%;text-align: center;">
             <b>{{ $entreprise->name }}</b>
             <br>
-            <b>Numéro TVA:</b> {{ $entreprise->tva}}
+            <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
         </div>
         <div style="float: left; margin-left: 5%; width: 30%; height: 80%; text-align: center;">
             {{ $entreprise->Address }}
             <br>
-            Tél: 0{{ $entreprise->phone }}
+            {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
         </div>
         <div style="float: left; margin-left: 5%; width: 30%; height: 80%; text-align: center;">
-            <b>BANK</b> : {{ $entreprise->bank_name }} <br>
-            <b>IBAN</b> : {{ $entreprise->iban }} <br>
-            <b>SWIFT/BIC</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
+            <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }} <br>
+            <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }} <br>
+            <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
         </div>
     </div>
 </body>

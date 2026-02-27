@@ -26,7 +26,7 @@
                 </div>
 
                 <p class="text-sm text-[#6B7280] max-w-sm">
-                    The complete solution to manage your business and invoices with simplicity.
+                    {{ __('messages.The complete solution to manage your business and invoices with simplicity.') }}
                 </p>
 
                 <!-- Social Icons -->
@@ -60,14 +60,14 @@
                 Links Columns
             ========================== -->
             @foreach ([
-                ['title' => 'Quick Links', 'links' => [
-                    ['label' => 'Home', 'route' => route('welcome')],
-                    ['label' => 'Features', 'route' => '#features'],
-                    ['label' => 'Plans', 'route' => '#account_type'] ]],
-                ['title' => 'Company', 'links' => [
-                    ['label' => 'About Us', 'route' => route('about')],
-                    ['label' => 'Contact', 'route' => route('contact')],
-                    ['label' => 'FAQ', 'route' => route('faq')] ]]
+                ['title' => __('messages.Quick Links'), 'links' => [
+                    ['label' => __('messages.Home'), 'route' => route('welcome')],
+                    ['label' => __('messages.Features'), 'route' => '#features'],
+                    ['label' => __('messages.Plans'), 'route' => '#account_type'] ]],
+                ['title' => __('messages.Company'), 'links' => [
+                    ['label' => __('messages.About Us'), 'route' => route('about')],
+                    ['label' => __('messages.Contact'), 'route' => route('contact')],
+                    ['label' => __('messages.FAQ'), 'route' => route('faq')] ]]
                 ]
                 as $column)
                 <div>
