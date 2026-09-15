@@ -23,3 +23,4 @@ yarn-error.log
 /public/invoices
 /public/creditNote
 /public/notedefrais
+/public/videos/*.mp4
