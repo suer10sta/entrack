@@ -19,23 +19,23 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <main class="flex-1 overflow-y-auto ">
-            <div class="w-full px-4 md:px-6 py-4">
-                <div class="flex flex-wrap -mx-3 mb-5">
+        <main class="flex-1 overflow-y-auto">
+            <div class="w-full px-4 md:px-6 py-4 sm:py-6">
+                <div class="flex flex-wrap mb-5">
                     <div class="w-full">
                         <div class="w-full lg:w-10/12 xl:w-8/12 mx-auto my-4">
 
                             {{-- Page Header --}}
-                            <div class="flex items-center justify-between mb-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                                 <div>
-                                    <h1 class="text-3xl font-bold text-gray-800">{{ __('messages.Help & Support') }}</h1>
+                                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">{{ __('messages.Help & Support') }}</h1>
                                     <p class="text-base text-gray-500">
                                         {{ __('messages.This support form is optimized for your enterprise account. Tell us what you need and our team will assist you.') }}
                                     </p>
                                 </div>
-                                <div class="mt-3 md:mt-0">
+                                <div class="mt-0">
                                     <a href="{{ route('admin.support.index') }}"
-                                       class="inline-flex items-center px-4 py-2 border border-blue-200 text-sm font-medium rounded-md shadow-sm text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                       class="inline-flex items-center justify-center px-4 py-2 border border-blue-200 text-sm font-medium rounded-md shadow-sm text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full sm:w-auto">
                                         {{ __('messages.My Tickets') }}
                                     </a>
                                 </div>
@@ -72,7 +72,7 @@
                             @endphp
 
                             {{-- Card --}}
-                            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6">
+                            <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 md:p-8 mb-6">
                                 {{-- Enterprise context --}}
                                 <div class="border border-gray-200 rounded-lg p-4 mb-6 bg-gray-50">
                                     <h6 class="text-xs font-semibold tracking-wide text-gray-500 uppercase mb-3">{{ __('messages.Enterprise Context') }}</h6>
@@ -103,7 +103,7 @@
                                         @enderror
                                     </div>
 
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                         <div>
                                             <label for="category" class="{{ $labelClasses }}">{{ __('messages.Category (optional)') }}</label>
                                             <select name="category" id="category" class="{{ $inputClasses }}">
@@ -141,9 +141,9 @@
                                         @enderror
                                     </div>
 
-                                    <div class="flex justify-end">
+                                    <div class="flex flex-col sm:flex-row sm:justify-end gap-3">
                                         <button type="submit"
-                                            class="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                            class="inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full sm:w-auto">
                                             {{ __('messages.Submit Support Request') }}
                                         </button>
                                     </div>

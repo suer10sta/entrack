@@ -4,6 +4,19 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ __('messages.Watch Demo') }} | DalyTrac</title>
+    <meta name="description" content="Watch DalyTrac demo videos to see how our platform handles dashboards, invoices, projects, time tracking, expenses, clients and more.">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="{{ route('demo') }}">
+
+    <meta property="og:title" content="{{ __('messages.Watch Demo') }} | DalyTrac">
+    <meta property="og:description" content="Explore DalyTrac feature demos and discover how to streamline your business operations end‑to‑end.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ route('demo') }}">
+    <meta property="og:image" content="{{ asset('img/background_hero.png') }}">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ __('messages.Watch Demo') }} | DalyTrac">
+    <meta name="twitter:description" content="See DalyTrac in action across invoicing, projects, time tracking, calendar and more.">
 
     <link rel="preconnect" href="https://fonts.bunny.net" />
     <link

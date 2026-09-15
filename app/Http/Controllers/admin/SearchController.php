@@ -15,10 +15,26 @@ use Illuminate\Support\Facades\Auth;
 
 class SearchController extends Controller
 {
+    private function getRoutePrefix()
+    {
+        $user = Auth::user();
+        if ($user->hasRole('Admin') || $user->hasRole('SuperAdmin')) {
+            return 'admin';
+        } elseif ($user->hasRole('Responsable de projet et gestionnaire')) {
+            return 'Responsable_gestionnaire';
+        } elseif ($user->hasRole('Responsable de projet')) {
+            return 'Responsable_de_projet';
+        } elseif ($user->hasRole('Employee')) {
+            return 'employee';
+        }
+        return 'admin';
+    }
+
     public function search(Request $request)
     {
         $query = $request->input('q', '');
         $entrepriseId = Auth::user()->entreprise_id;
+        $prefix = $this->getRoutePrefix();
 
         if (empty($query) || strlen($query) < 2) {
             return response()->json([
@@ -45,8 +61,9 @@ class SearchController extends Controller
                 'id' => $client->id,
                 'title' => $client->name,
                 'subtitle' => $client->email ?: $client->phone,
-                'url' => route('admin.clients.show', $client->id),
-                'icon' => 'user'
+                'url' => route($prefix . '.clients.show', $client->id),
+                'icon' => 'user',
+                'archived' => !empty($client->archived),
             ];
         }
 
@@ -66,8 +83,9 @@ class SearchController extends Controller
                 'id' => $project->id,
                 'title' => $project->name,
                 'subtitle' => $project->client ? $project->client->name : 'No client',
-                'url' => route('admin.projects.show', $project->id),
-                'icon' => 'folder'
+                'url' => route($prefix . '.projects.show', $project->id),
+                'icon' => 'folder',
+                'archived' => !empty($project->archived),
             ];
         }
 
@@ -86,7 +104,7 @@ class SearchController extends Controller
                 'id' => $task->id,
                 'title' => $task->title,
                 'subtitle' => $task->project_name ?: 'No project',
-                'url' => route('admin.tasks.show', $task->id),
+                'url' => route($prefix . '.tasks.show', $task->id),
                 'icon' => 'check-circle'
             ];
         }
@@ -107,8 +125,9 @@ class SearchController extends Controller
                 'id' => $employee->id,
                 'title' => $employee->name,
                 'subtitle' => $employee->email ?: $employee->phoneNumber,
-                'url' => route('admin.employees.show', $employee->id),
-                'icon' => 'users'
+                'url' => route($prefix . '.employees.show', $employee->id),
+                'icon' => 'users',
+                'archived' => !empty($employee->archived),
             ];
         }
 
@@ -124,7 +143,7 @@ class SearchController extends Controller
                 'id' => $team->id,
                 'title' => $team->name,
                 'subtitle' => 'Team',
-                'url' => route('admin.teams.index') . '#team-' . $team->id,
+                'url' => route($prefix . '.teams.index') . '#team-' . $team->id,
                 'icon' => 'user-group'
             ];
         }
@@ -146,7 +165,7 @@ class SearchController extends Controller
                 'id' => $invoice->id,
                 'title' => 'Invoice #' . $invoiceNumber . ' - ' . $invoice->project_name,
                 'subtitle' => 'Total: €' . number_format($invoice->total_ttc ?? 0, 2),
-                'url' => route('admin.invoices.servePdf', ['invoiceName' => $invoice->id]),
+                'url' => route($prefix . '.invoices.servePdf', ['invoiceName' => $invoice->id]),
                 'icon' => 'document-text'
             ];
         }
@@ -168,7 +187,7 @@ class SearchController extends Controller
                 'id' => $devi->id,
                 'title' => 'Devis #' . $devi->devis_number . ' - ' . ($devi->Project_name ?: $devi->client_name),
                 'subtitle' => 'Budget: €' . number_format($devi->budget ?? 0, 2),
-                'url' => route('admin.devis.downloadDevis', ['id' => $devi->devis_number]),
+                'url' => route($prefix . '.devis.downloadDevis', ['id' => $devi->devis_number]),
                 'icon' => 'document-duplicate'
             ];
         }

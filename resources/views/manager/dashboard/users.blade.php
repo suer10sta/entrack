@@ -13,8 +13,8 @@
         </div>
 
         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div class="p-6 overflow-x-auto">
-                <table class="min-w-full text-left text-sm">
+            <div class="manager-table-wrapper p-6 overflow-x-auto">
+                <table class="manager-table min-w-full text-left text-sm">
                     <thead class="border-b border-gray-200 bg-gray-50">
                     <tr>
                         <th class="px-4 py-2 font-semibold text-gray-600">{{ __('messages.Name') }}</th>
@@ -25,10 +25,21 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                     @forelse($usersList as $user)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-2 text-gray-900">{{ $user->name }}</td>
-                            <td class="px-4 py-2 text-gray-500">{{ $user->email }}</td>
-                            <td class="px-4 py-2 text-gray-700">
+                        <tr class="manager-card-row hover:bg-gray-50" aria-expanded="true">
+                            <td data-label="{{ __('messages.Name') }}" data-span="2" data-manager-card-toggle class="manager-toggle-cell px-4 py-2 text-gray-900">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="min-w-0">
+                                        {{ $user->name }}
+                                    </div>
+                                    <span class="shrink-0 mt-0.5 text-slate-400 lg:hidden" aria-hidden="true">
+                                        <svg class="manager-chevron w-5 h-5" viewBox="0 0 24 24" fill="none">
+                                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </span>
+                                </div>
+                            </td>
+                            <td data-label="{{ __('messages.Email') }}" data-span="2" class="px-4 py-2 text-gray-500">{{ $user->email }}</td>
+                            <td data-label="{{ __('messages.Entreprise name') }}" data-span="2" class="px-4 py-2 text-gray-700">
                                 @if ($user->entreprise)
                                     <a href="{{ route('manager.subscriptions.show', $user->entreprise) }}"
                                        class="text-blue-600 hover:text-blue-800 hover:underline">
@@ -38,7 +49,7 @@
                                     —
                                 @endif
                             </td>
-                            <td class="px-4 py-2 text-gray-700">
+                            <td data-label="{{ __('messages.Location') }}" data-span="2" class="px-4 py-2 text-gray-700">
                                 @if ($user->last_login_country || $user->last_login_city)
                                     {{ $user->last_login_country }}
                                     @if ($user->last_login_city)

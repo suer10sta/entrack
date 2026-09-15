@@ -1,4 +1,14 @@
-<aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between h-screen overflow-y-auto custom-scrollbar">
+{{-- Mobile backdrop --}}
+<div
+    id="appSidebarBackdrop"
+    class="fixed inset-0 bg-black/40 z-40 hidden lg:hidden opacity-0 transition-opacity duration-200"
+    onclick="toggleAppSidebar(false)"
+></div>
+
+<aside
+    id="appSidebar"
+    class="hidden fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex-col justify-between h-screen overflow-y-auto custom-scrollbar transform -translate-x-full transition-transform duration-200 ease-out lg:static lg:sticky lg:top-0 lg:translate-x-0 lg:flex"
+>
     <div>
         <div class="p-6 flex items-center space-x-3">
             <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center shadow-md shadow-blue-200">
@@ -8,7 +18,7 @@
             </div>
             <div class="overflow-hidden">
                 <h1 class="text-sm font-bold text-gray-900 truncate">
-                    {{ App\Models\Employees::where('user_id', Auth::user()->id)->first()->name }}
+                    {{ optional(App\Models\Employees::where('user_id', Auth::user()->id)->first())->name ?? Auth::user()->name }}
                 </h1>
                 <p class="text-xs text-gray-500">
                     @if(Auth::user()->hasRole('Responsable de projet')) Project Manager
@@ -46,6 +56,7 @@
             </a>
             @endcan
 
+            @canany(['View client', 'View employee', 'View teams', 'View project', 'View task', 'Pointage reports', 'View pointage', 'Manage workDaysReports'])
             <div>
                 <button type="button" onclick="toggleDropdown('reporting')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
                     <span class="flex items-center space-x-3">
@@ -106,7 +117,7 @@
                         <a href="{{ $teamRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Teams Reports</a>
                     @endcan
 
-                    @can('View pointage')
+                    @canany(['Pointage reports', 'View pointage'])
                         @php
                             $pointageRoute = '#';
                             if(Auth::user()->hasRole('Responsable de projet')) $pointageRoute = route('Responsable_de_projet.tasks.pointage');
@@ -114,7 +125,7 @@
                             elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $pointageRoute = route('Responsable_gestionnaire.tasks.pointage');
                         @endphp
                         <a href="{{ $pointageRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Pointage Reports</a>
-                    @endcan
+                    @endcanany
 
                     @can('Manage workDaysReports')
                         @php
@@ -127,6 +138,7 @@
                     @endcan
                 </div>
             </div>
+            @endcanany
 
             @can('Create invoice')
             <div>

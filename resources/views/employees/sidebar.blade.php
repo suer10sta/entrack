@@ -1,4 +1,10 @@
-<aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between h-screen fixed left-0 top-0 z-50 overflow-y-auto custom-scrollbar">
+{{-- Mobile backdrop --}}
+<div id="appSidebarBackdrop" class="fixed inset-0 bg-black/40 z-40 hidden lg:hidden" onclick="toggleAppSidebar(false)"></div>
+
+<aside
+    id="appSidebar"
+    class="hidden fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex-col justify-between h-screen overflow-y-auto custom-scrollbar transform -translate-x-full transition-transform duration-200 ease-out lg:static lg:sticky lg:top-0 lg:translate-x-0 lg:flex"
+>
     <div>
         <div class="pl-3 pr-4 pt-3 pb-2 flex items-start overflow-hidden">
             <img
@@ -21,6 +27,7 @@
                 <span>Dashboard</span>
             </a>
 
+            @canany(['View client', 'View employee', 'View teams', 'View project', 'View task', 'Pointage reports', 'View pointage', 'Manage workDaysReports'])
             <div>
                 <button type="button" onclick="toggleDropdown('reporting')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
                     <span class="flex items-center space-x-3">
@@ -81,7 +88,7 @@
                         <a href="{{ $teamRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Teams Reports</a>
                     @endcan
 
-                    @can('View pointage')
+                    @canany(['Pointage reports', 'View pointage'])
                         @php
                             $pointageRoute = '#';
                             if(Auth::user()->hasRole('Responsable de projet')) $pointageRoute = route('Responsable_de_projet.tasks.pointage');
@@ -89,7 +96,7 @@
                             elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $pointageRoute = route('Responsable_gestionnaire.tasks.pointage');
                         @endphp
                         <a href="{{ $pointageRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Pointage Reports</a>
-                    @endcan
+                    @endcanany
 
                     @can('Manage workDaysReports')
                         @php
@@ -102,6 +109,7 @@
                     @endcan
                 </div>
             </div>
+            @endcanany
 
             @can('Create invoice')
             <div>

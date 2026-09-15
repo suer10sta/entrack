@@ -13,5 +13,7 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         'stripe/*',
+        // Public tracking endpoint called from JS (no CSRF token).
+        'track/visit',
     ];
 }

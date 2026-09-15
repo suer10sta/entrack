@@ -185,6 +185,208 @@
         border-color: #1d4ed8 !important;
         color: #ffffff !important;
     }
+
+    /* Dashboard: Team employees Overview table -> mobile cards + accordion */
+    @media (max-width: 1024px) {
+        .team-employees-overview-table-wrap {
+            overflow-x: visible !important;
+        }
+
+        #employeesTable thead {
+            display: none;
+        }
+
+        #employeesTable tbody {
+            display: block;
+            width: 100%;
+        }
+
+        #employeesTable tbody tr.employee-overview-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+            padding: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.55);
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
+            box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
+        }
+
+        #employeesTable tbody td {
+            display: block;
+            width: 100%;
+            padding: 10px 12px !important;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.78);
+            text-align: left !important;
+            white-space: normal !important;
+            word-break: break-word;
+        }
+
+        #employeesTable tbody td[data-span="2"] {
+            grid-column: span 2 / span 2;
+        }
+
+        #employeesTable tbody td[data-label]::before {
+            content: attr(data-label);
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        /* Accordion: collapsed shows only employee cell */
+        #employeesTable tbody tr.employee-overview-row.is-collapsed td:not(.employee-overview-toggle-cell) {
+            display: none !important;
+        }
+        #employeesTable tbody tr.employee-overview-row td.employee-overview-toggle-cell {
+            cursor: pointer;
+            user-select: none;
+        }
+        /* No pseudo label for the toggle cell */
+        #employeesTable tbody tr.employee-overview-row td.employee-overview-toggle-cell[data-label]::before {
+            content: none !important;
+        }
+        #employeesTable tbody tr.employee-overview-row td.employee-overview-toggle-cell .employee-overview-chevron {
+            transition: transform 180ms ease;
+        }
+        #employeesTable tbody tr.employee-overview-row[aria-expanded="true"] td.employee-overview-toggle-cell .employee-overview-chevron {
+            transform: rotate(180deg);
+        }
+    }
+
+    /* Dashboard: modern cards + mobile overview */
+    @media (max-width: 1024px) {
+        /* Employee Overview: remove forced horizontal scrolling on mobile */
+        .dashboard-employee-overview .overview-scroll {
+            overflow-x: visible !important;
+        }
+        .dashboard-employee-overview .overview-minw {
+            min-width: 0 !important;
+        }
+        .dashboard-employee-overview .overview-headers {
+            display: none !important;
+        }
+
+        /* Employee Overview: convert rows into 2-col card blocks */
+        .dashboard-employee-overview-list .dashboard-emp-row {
+            padding: 0 !important;
+            margin: 0 0 16px 0;
+            border: 1px solid rgba(148, 163, 184, 0.55);
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
+            box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
+        }
+        .dashboard-employee-overview-list .dashboard-emp-project {
+            display: block !important;
+            padding: 12px;
+        }
+
+        /* Keep EMPLOYEES block as flex (avatar left) */
+        .dashboard-employee-overview-list .dashboard-emp-employee {
+            display: block !important;
+            width: 100% !important;
+            margin-bottom: 10px;
+            padding-right: 0 !important;
+        }
+
+        /* Convert detail columns into a 2-col grid */
+        .dashboard-employee-overview-list .dashboard-emp-details {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px !important;
+            width: 100% !important;
+        }
+
+        /* Reset Tailwind col-span-* on mobile so grid can flow */
+        .dashboard-employee-overview-list .dashboard-emp-details > div {
+            grid-column: span 1 / span 1 !important;
+        }
+
+        .dashboard-employee-overview-list .dashboard-emp-employee::before,
+        .dashboard-employee-overview-list .dashboard-emp-details > div[data-label]::before {
+            content: attr(data-label);
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .dashboard-employee-overview-list .dashboard-emp-employee,
+        .dashboard-employee-overview-list .dashboard-emp-details > div {
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.78);
+            padding: 10px 12px;
+        }
+
+        /* Ensure avatar + name stay aligned inside EMPLOYEES block */
+        .dashboard-employee-overview-list .dashboard-emp-employee .dashboard-emp-employee-inner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Mobile accordion for each employee card */
+        .dashboard-employee-overview-list .dashboard-emp-row.is-collapsed .dashboard-emp-details {
+            display: none !important;
+        }
+        .dashboard-employee-overview-list .dashboard-emp-row .emp-overview-chevron {
+            transition: transform 180ms ease;
+        }
+        .dashboard-employee-overview-list .dashboard-emp-row[aria-expanded="true"] .emp-overview-chevron {
+            transform: rotate(180deg);
+        }
+
+        /* Actions: center the eye button nicely */
+        .dashboard-employee-overview-list .dashboard-emp-actions {
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+            align-items: flex-start !important;
+            padding-top: 0 !important;
+            gap: 8px;
+        }
+
+        /* Full-width blocks in the 2-col grid */
+        .dashboard-employee-overview-list .dashboard-emp-details > div[data-span="2"] {
+            grid-column: span 2 / span 2;
+        }
+    }
+
+    .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+    .modal-content { animation: slideDown 0.3s ease-out; }
+    @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-content-custom {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+        text-align: center;
+        position: relative;
+        border-radius: 0.75rem;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    .close-button {
+        color: #94a3b8;
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .close-button:hover { color: #475569; }
 </style>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -195,7 +397,7 @@
 
 <div class="flex-1 overflow-auto bg-[#eaebef]">
     {{-- Main content --}}
-    <div class="p-8">
+    <div class="p-4 sm:p-6 lg:p-8">
 
         {{-- Stats Cards --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -332,21 +534,21 @@
 
 
         {{-- Team employees Overview --}}
-        <div class="mt-8 border-0 shadow-sm bg-white rounded-lg overflow-hidden hover:shadow-xl animate-fadeInSlideUp"
+        <div class="mt-8 rounded-2xl border border-slate-200 bg-white shadow-[0_20px_50px_rgba(15,23,42,0.12),0_4px_12px_rgba(15,23,42,0.08)] overflow-hidden hover:shadow-xl animate-fadeInSlideUp"
             style="animation-delay: 500ms;">
             {{-- Header and action button --}}
-            <div class="p-6 flex items-center justify-between border-b border-gray-200">
+            <div class="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between border-b border-gray-200">
                 <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Team employees Overview') }}</h2>
                 @unless($isSoloPlan)
                     <a href="{{ route('admin.employees.create') }}"
-                        class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">
+                        class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg w-full sm:w-auto text-center">
                         + {{__('messages.Add employee')}}
                     </a>
                 @endunless
             </div>
 
             {{-- Table --}}
-            <div class="p-6 overflow-x-auto">
+            <div class="team-employees-overview-table-wrap p-4 sm:p-6 overflow-x-auto">
                 <table id="employeesTable" class="w-full text-left" style="width:100%">
                     <thead class="bg-gray-50">
                         <tr class="border-b border-gray-200">
@@ -396,10 +598,11 @@
                             $avatarColors = ['bg-emerald-500', 'bg-gray-400', 'bg-amber-500', 'bg-red-500', 'bg-purple-500', 'bg-sky-500', 'bg-rose-800', 'bg-slate-700', 'bg-yellow-400', 'bg-indigo-500'];
                         @endphp
                         @foreach($data['employees'] as $employee)
-                            <tr class="hover:bg-gray-50" data-employee-id="{{ $employee->id }}">
+                            <tr class="employee-overview-row hover:bg-gray-50" data-employee-id="{{ $employee->id }}" aria-expanded="true">
                                 {{-- Employee --}}
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
+                                <td data-label="{{ __('messages.Employee') }}" data-span="2" class="px-6 py-4 employee-overview-toggle-cell" data-employee-overview-toggle>
+                                    <div class="flex items-center justify-between gap-3">
+                                        <div class="flex items-center gap-3 min-w-0">
                                         <div
                                             class="flex h-10 w-10 items-center justify-center rounded-full text-white font-semibold {{ $avatarColors[$loop->index % count($avatarColors)] }}">
                                             {{ strtoupper(substr($employee->name, 0, 1)) }}
@@ -425,11 +628,17 @@
                                                 @endforelse
                                             </div>
                                         </div>
+                                        </div>
+                                        <span class="shrink-0 text-slate-400 lg:hidden">
+                                            <svg class="employee-overview-chevron w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </span>
                                     </div>
                                 </td>
 
                                 {{-- Current Status --}}
-                                <td class="px-6 py-4 text-center align-middle text-sm cell-current-status">
+                                <td data-label="{{ __('messages.Current Status') }}" class="px-6 py-4 text-center align-middle text-sm cell-current-status">
                                     @php
                                         $employeeUser = \App\Models\User::find($employee->user_id);
                                     @endphp
@@ -468,7 +677,7 @@
                                 </td>
 
                                 {{-- Current Project --}}
-                                <td class="px-6 py-4 text-center align-middle text-sm cell-current-project">
+                                <td data-label="{{ __('messages.Current Project') }}" data-span="2" class="px-6 py-4 text-center align-middle text-sm cell-current-project">
                                     @php
                                         $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
                                         if ($isSuperAdmin) {
@@ -539,7 +748,7 @@
                                 </td>
 
                                 {{-- Current Task --}}
-                                <td class="px-6 py-4 text-center align-middle text-sm cell-current-task">
+                                <td data-label="{{ __('messages.Current Task') }}" data-span="2" class="px-6 py-4 text-center align-middle text-sm cell-current-task">
                                     @php
                                         $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
                                         if ($isSuperAdmin) {
@@ -642,7 +851,7 @@
                                 </td> --}}
 
                                 {{-- Duration --}}
-                                <td class="px-6 py-4 text-center align-middle text-sm cell-duration">
+                                <td data-label="{{ __('messages.Duration') }}" class="px-6 py-4 text-center align-middle text-sm cell-duration">
                                     @php
                                         // Show TOTAL worked time today per task, grouped by project (initial render)
                                         $today = \Carbon\Carbon::today();
@@ -721,7 +930,7 @@
                                 </td>
 
                                 {{-- Chrono (Stop button only, matching legacy behaviour) --}}
-                                <td class="px-6 py-4 text-center align-middle text-sm cell-chrono">
+                                <td data-label="{{ __('messages.Chrono') }}" class="px-6 py-4 text-center align-middle text-sm cell-chrono">
                                     @php
                                         $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
                                         if ($isSuperAdmin) {
@@ -783,7 +992,7 @@
                                 </td>
 
                                 {{-- Account Status --}}
-                                <td class="px-6 py-4 text-center align-middle text-sm cell-account-status">
+                                <td data-label="{{ __('messages.Account Status') }}" class="px-6 py-4 text-center align-middle text-sm cell-account-status">
                                     @if($employeeUser && $employeeUser->is_activate == 1)
                                         <form action="{{ route('admin.employee.deactivate', $employee->id) }}" method="post"
                                             onsubmit="return confirm('Are you sure?');">
@@ -806,7 +1015,7 @@
                                 </td>
 
                                 {{-- Archive --}}
-                                <td class="px-6 py-4 text-center align-middle text-sm">
+                                <td data-label="{{ __('messages.Archive') }}" class="px-6 py-4 text-center align-middle text-sm">
                                     <form action="{{ route('admin.employees.archive', $employee->id) }}" method="post"
                                         onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
                                         @csrf
@@ -818,7 +1027,7 @@
                                 </td>
 
                                 {{-- Actions (view / edit / delete / tasks done today) --}}
-                                <td class="px-6 py-4 whitespace-nowrap align-top">
+                                <td data-label="{{ __('messages.Actions') }}" data-span="2" class="px-6 py-4 whitespace-nowrap align-top">
                                     <div class="relative flex items-center justify-start gap-2">
                                         @php
                                             $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
@@ -932,14 +1141,14 @@
                                                 }
                                             @endphp
                                             <div
-                                                class="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2">
+                                                class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2">
                                                 <div class="flex flex-col">
                                                     <span
                                                         class="text-sm font-medium text-gray-900">{{ $doneTask->task_name ?? ($taskModel->title ?? __('messages.Task')) }}</span>
                                                     <span
                                                         class="text-xs text-gray-500">{{ $projectName ?? __('messages.No project linked') }}</span>
                                                 </div>
-                                                <div class="flex items-center gap-3">
+                                                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
                                                     <span
                                                         class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700">{{ __('messages.Completed') }}</span>
                                                     <span class="text-xs text-gray-700 whitespace-nowrap">{{ $h }}h
@@ -950,9 +1159,9 @@
                                                         data-task-id="{{ $doneTask->task_employee_id ?? $doneTask->task_id }}">
                                                         @csrf
                                                         <textarea name="comment" placeholder="{{ __('messages.Enter comment') }}" rows="1"
-                                                            class="border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring focus:ring-emerald-200 resize-y min-h-[32px]"></textarea>
+                                                            class="border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring focus:ring-emerald-200 resize-y min-h-[32px] w-full sm:w-56"></textarea>
                                                         <button type="submit"
-                                                            class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500 text-white hover:bg-emerald-600">
+                                                            class="inline-flex items-center justify-center px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500 text-white hover:bg-emerald-600 w-full sm:w-auto">
                                                             {{ __('messages.Start') }}
                                                         </button>
                                                     </form>
@@ -971,33 +1180,35 @@
         </div>
 
         {{-- Project Overview + Events --}}
-        <div class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
 
             {{-- Employee Overview (col-span-3) --}}
-            <div class="lg:col-span-3 border-0 shadow-sm bg-white rounded-lg hover:shadow-xl animate-fadeInSlideUp"
+            <div class="dashboard-employee-overview lg:col-span-3 rounded-2xl border border-slate-200 bg-white shadow-[0_20px_50px_rgba(15,23,42,0.12),0_4px_12px_rgba(15,23,42,0.08)] hover:shadow-xl animate-fadeInSlideUp"
                 style="animation-delay: 600ms;">
-                <h2 class="p-6 text-lg font-semibold text-gray-900 border-b border-gray-200">
+                <h2 class="p-4 sm:p-6 text-lg font-semibold text-gray-900 border-b border-gray-200">
                     {{ __('messages.Employee Overview - Today\'s Work') }}
                 </h2>
 
-                {{-- Column headers --}}
-                <div class="px-6 py-3 grid grid-cols-12 gap-4 border-b border-gray-200">
-                    <span
-                        class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('messages.EMPLOYEES') }}</span>
-                    <span
-                        class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('messages.PROJECTS & CLIENT') }}</span>
-                    <span
-                        class="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('messages.TIME TRACKING') }}</span>
-                    <span
-                        class="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('messages.TASKS') }}</span>
-                    <span
-                        class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('messages.TASK DURATION') }}</span>
-                    <span
-                        class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">{{ __('messages.Employee Actions') }}</span>
-                </div>
+                <div class="overview-scroll overflow-x-auto" style="-webkit-overflow-scrolling: touch;">
+                    <div class="overview-minw" style="min-width: 1100px;">
+                        {{-- Column headers --}}
+                        <div class="overview-headers px-4 sm:px-6 py-3 grid grid-cols-12 gap-2 sm:gap-4 border-b border-gray-200">
+                            <span
+                                class="col-span-2 text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap truncate overflow-hidden">{{ __('messages.EMPLOYEES') }}</span>
+                            <span
+                                class="col-span-3 text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap truncate overflow-hidden">{{ __('messages.PROJECTS & CLIENT') }}</span>
+                            <span
+                                class="col-span-2 text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap truncate overflow-hidden">{{ __('messages.TIME TRACKING') }}</span>
+                            <span
+                                class="col-span-3 text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap truncate overflow-hidden">{{ __('messages.TASKS') }}</span>
+                            <span
+                                class="col-span-1 text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap truncate overflow-hidden">{{ __('messages.TASK DURATION') }}</span>
+                            <span
+                                class="col-span-1 text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap truncate overflow-hidden text-right">{{ __('messages.Employee Actions') }}</span>
+                        </div>
 
-                {{-- Employee list container --}}
-                <div id="projects-container">
+                        {{-- Employee list container --}}
+                        <div id="projects-container">
                     @php
                         $hasWorkedToday = false;
                         $todayStart = \Carbon\Carbon::today();
@@ -1025,21 +1236,23 @@
 
                     @include('components.dashboard.employee-overview-list', ['employeesToday' => $employeesToday, 'timersToday' => $timersToday])
 
+                        </div>
+                    </div>
                 </div>
             </div>
 
             {{-- Today's Events section remains the same --}}
-            <div class="lg:col-span-1 border-0 shadow-sm bg-white rounded-2xl hover:shadow-xl p-6 h-fit animate-fadeInSlideUp"
+            <div class="lg:col-span-1 border-0 shadow-sm bg-white rounded-2xl hover:shadow-xl p-4 sm:p-6 h-fit animate-fadeInSlideUp"
                 style="animation-delay: 700ms;">
                 {{-- Header with "Add Event" button --}}
-                <div class="flex items-center justify-between mb-1">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between mb-1">
                     <div class="flex items-center gap-2">
                         <div class="w-1.5 h-5 bg-blue-600 rounded"></div>
                         <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Today\'s Events') }}</h2>
                     </div>
 
                     <a href="{{ route('admin.calendar.index') }}"
-                        class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-1.5 rounded-lg">
+                        class="flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-1.5 rounded-lg w-full sm:w-auto">
                         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="2.0" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -1092,6 +1305,39 @@
                 if (!row) return;
                 row.classList.toggle('hidden');
             }
+
+            // Mobile accordion for "Employee Overview - Today's Work" cards
+            (function initEmployeeOverviewCardsAccordion() {
+                const mql = window.matchMedia('(max-width: 1024px)');
+
+                function setCollapsed(row, collapsed) {
+                    if (!row) return;
+                    row.classList.toggle('is-collapsed', collapsed);
+                    row.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+                }
+
+                function initForViewport() {
+                    const rows = document.querySelectorAll('.dashboard-employee-overview-list .dashboard-emp-row');
+                    const isMobile = mql.matches;
+                    rows.forEach(r => setCollapsed(r, isMobile));
+                }
+
+                document.addEventListener('click', function (e) {
+                    const btn = e.target.closest('[data-emp-overview-toggle]');
+                    if (!btn) return;
+
+                    const row = btn.closest('.dashboard-emp-row');
+                    if (!row) return;
+
+                    const collapsed = row.classList.contains('is-collapsed');
+                    setCollapsed(row, !collapsed);
+                });
+
+                if (mql.addEventListener) mql.addEventListener('change', initForViewport);
+                else if (mql.addListener) mql.addListener(initForViewport);
+
+                document.addEventListener('DOMContentLoaded', initForViewport);
+            })();
 
             function stopAllTimersForEmployee(employeeId) {
                 const forms = document.querySelectorAll('.stop-form-' + employeeId);
@@ -1403,5 +1649,453 @@
             // Clean up on page unload
             window.addEventListener('beforeunload', () => {
                 stopAutoRefresh();
+            });
+
+            // Mobile accordion for Team employees Overview table
+            const employeeOverviewMql = window.matchMedia('(max-width: 1024px)');
+
+            function setEmployeeOverviewRowCollapsed(row, collapsed) {
+                if (!row) return;
+                row.classList.toggle('is-collapsed', collapsed);
+                row.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            }
+
+            function initEmployeeOverviewAccordion() {
+                const rows = document.querySelectorAll('#employeesTable tbody tr.employee-overview-row');
+                const isMobile = employeeOverviewMql.matches;
+                rows.forEach(row => setEmployeeOverviewRowCollapsed(row, isMobile));
+            }
+
+            document.addEventListener('click', function (e) {
+                const toggleCell = e.target.closest('[data-employee-overview-toggle]');
+                if (!toggleCell) return;
+
+                // Allow link clicks to navigate normally.
+                if (e.target.closest('a')) return;
+
+                const row = toggleCell.closest('tr.employee-overview-row');
+                if (!row) return;
+
+                const collapsed = row.classList.contains('is-collapsed');
+                setEmployeeOverviewRowCollapsed(row, !collapsed);
+            });
+
+            if (employeeOverviewMql.addEventListener) employeeOverviewMql.addEventListener('change', initEmployeeOverviewAccordion);
+            else if (employeeOverviewMql.addListener) employeeOverviewMql.addListener(initEmployeeOverviewAccordion);
+
+            initEmployeeOverviewAccordion();
+        </script>
+
+        {{-- Stop Comment Modal --}}
+        <div id="stopCommentModal" class="modal">
+            <div class="modal-content-custom">
+                <span id="stopCommentClose" class="close-button">&times;</span>
+                <div class="flex items-center justify-center mb-3">
+                    <div class="bg-red-100 rounded-full p-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                        </svg>
+                    </div>
+                </div>
+                <h2 class="text-lg font-semibold text-slate-800 mb-2">{{ __('messages.Stop Task') }}</h2>
+                <p class="text-sm text-slate-500 mb-4">{{ __('messages.Please leave a comment describing the work done before stopping the task.') }}</p>
+                <div class="text-left mb-4">
+                    <div class="flex justify-between items-center mb-1">
+                        <label for="stopCommentText" class="block text-sm font-medium text-slate-700">{{ __('messages.Comment') }} <span class="text-red-500">*</span></label>
+                        <div class="flex gap-3 items-center">
+                            <button type="button" id="stopCommentAiBtn" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors opacity-50 cursor-not-allowed" title="{{ __('messages.Correct with AI') }}" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                </svg>
+                                <span id="stopCommentAiBtnText">{{ __('messages.Correct with AI') }}</span>
+                            </button>
+                            <button type="button" id="stopCommentTranslateBtn" class="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors opacity-50 cursor-not-allowed" title="{{ __('messages.Translate to Dutch') }}" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5c-.006 3.125-1.026 6.042-2.751 8.498m-1.782-2.5A18.022 18.022 0 014.888 5h7.863z" />
+                                </svg>
+                                <span id="stopCommentTranslateBtnText">{{ __('messages.Translate to Dutch') }}</span>
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="stopCommentText" rows="3" maxlength="500" placeholder="{{ __('messages.Describe what you worked on...') }}" spellcheck="true" class="border border-slate-300 rounded-lg px-3 py-2 w-full text-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none transition-colors"></textarea>
+                    <p id="stopCommentError" class="text-xs text-red-500 mt-1 hidden">{{ __('messages.Comment is required to stop the task.') }}</p>
+                    <p id="stopCommentAiFeedback" class="text-xs mt-1 hidden"></p>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" id="stopCommentCancelBtn" class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">{{ __('messages.Cancel') }}</button>
+                    <button type="button" id="stopCommentConfirmBtn" class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors opacity-50 cursor-not-allowed" disabled>{{ __('messages.Confirm Stop') }}</button>
+                </div>
+            </div>
+        </div>
+
+        {{-- Spell-Check Confirmation Modal --}}
+        <div id="spellCheckModal" class="modal" style="z-index: 60;">
+            <div class="modal-content-custom" style="max-width: 420px;">
+                <div class="flex items-center justify-center mb-3">
+                    <div class="bg-amber-100 rounded-full p-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <h2 class="text-lg font-semibold text-slate-800 mb-2">{{ __('messages.Check Spelling?') }}</h2>
+                <p class="text-sm text-slate-500 mb-5">{{ __('messages.Would you like to verify the spelling of your comment before submitting?') }}</p>
+                <div class="flex flex-col gap-2">
+                    <button type="button" id="spellCheckVerifyBtn" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-indigo-500 rounded-lg hover:bg-indigo-600 transition-colors flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {{ __('messages.Yes, verify spelling') }}
+                    </button>
+                    <button type="button" id="spellCheckSkipBtn" class="w-full px-4 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+                        {{ __('messages.No, submit as is') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {{-- Translate Confirmation Modal --}}
+        <div id="translateCheckModal" class="modal" style="z-index: 60;">
+            <div class="modal-content-custom" style="max-width: 420px;">
+                <div class="flex items-center justify-center mb-3">
+                    <div class="bg-blue-100 rounded-full p-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5c-.006 3.125-1.026 6.042-2.751 8.498m-1.782-2.5A18.022 18.022 0 014.888 5h7.863z" />
+                        </svg>
+                    </div>
+                </div>
+                <h2 class="text-lg font-semibold text-slate-800 mb-2">{{ __('messages.Translate to Dutch?') }}</h2>
+                <p class="text-sm text-slate-500 mb-5">{{ __('messages.Would you like to translate your comment into Dutch before submitting?') }}</p>
+                <div class="flex flex-col gap-2">
+                    <button type="button" id="translateCheckVerifyBtn" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {{ __('messages.Yes, translate to Dutch') }}
+                    </button>
+                    <button type="button" id="translateCheckSkipBtn" class="w-full px-4 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+                        {{ __('messages.No, submit as is') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(function() {
+                // Store the form action URL and CSRF token at click time
+                // (the DOM element may be replaced by auto-refresh before the user confirms)
+                var storedFormAction = null;
+                var storedCsrfToken = null;
+                var stopModal = document.getElementById('stopCommentModal');
+                var stopCommentText = document.getElementById('stopCommentText');
+                var stopCommentError = document.getElementById('stopCommentError');
+                var stopConfirmBtn = document.getElementById('stopCommentConfirmBtn');
+                var stopCancelBtn = document.getElementById('stopCommentCancelBtn');
+                var stopCloseBtn = document.getElementById('stopCommentClose');
+                var stopCommentAiBtn = document.getElementById('stopCommentAiBtn');
+                var stopCommentAiBtnText = document.getElementById('stopCommentAiBtnText');
+                var stopCommentTranslateBtn = document.getElementById('stopCommentTranslateBtn');
+                var stopCommentTranslateBtnText = document.getElementById('stopCommentTranslateBtnText');
+                var stopCommentAiFeedback = document.getElementById('stopCommentAiFeedback');
+                var spellCheckModal = document.getElementById('spellCheckModal');
+                var spellCheckVerifyBtn = document.getElementById('spellCheckVerifyBtn');
+                var spellCheckSkipBtn = document.getElementById('spellCheckSkipBtn');
+                var translateCheckModal = document.getElementById('translateCheckModal');
+                var translateCheckVerifyBtn = document.getElementById('translateCheckVerifyBtn');
+                var translateCheckSkipBtn = document.getElementById('translateCheckSkipBtn');
+
+                // State flags to avoid repetitive popups
+                var hasSpelledChecked = false;
+                var hasTranslated = false;
+
+                // Intercept stop button clicks to show modal
+                $(document).on('click', '.stop-button', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    var form = $(this).closest('.stop-form')[0];
+                    // Snapshot the action URL and CSRF token NOW before auto-refresh replaces the DOM
+                    storedFormAction = form.getAttribute('action');
+                    storedCsrfToken = form.querySelector('input[name="_token"]').value;
+
+                    // Pause dashboard auto-refresh while the modal is open
+                    if (typeof stopAutoRefresh === 'function') stopAutoRefresh();
+                    
+                    // Reset modal state
+                    stopCommentText.value = '';
+                    stopCommentError.classList.add('hidden');
+                    stopCommentAiFeedback.classList.add('hidden');
+                    stopCommentAiFeedback.textContent = '';
+                    stopConfirmBtn.disabled = true;
+                    stopConfirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    stopCommentAiBtn.disabled = true;
+                    stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    stopCommentTranslateBtn.disabled = true;
+                    stopCommentTranslateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    hasSpelledChecked = false;
+                    hasTranslated = false;
+                    stopModal.style.display = 'block';
+                    stopCommentText.focus();
+                });
+
+                // Enable/disable confirm, AI and Translate button based on comment content
+                stopCommentText.addEventListener('input', function() {
+                    var hasContent = this.value.trim().length > 0;
+                    stopConfirmBtn.disabled = !hasContent;
+                    stopCommentAiBtn.disabled = !hasContent;
+                    stopCommentTranslateBtn.disabled = !hasContent;
+                    if (hasContent) {
+                        stopConfirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        stopCommentAiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        stopCommentTranslateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        stopCommentError.classList.add('hidden');
+                    } else {
+                        stopConfirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                        stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                        stopCommentTranslateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+                });
+
+                // AI correction request
+                stopCommentAiBtn.addEventListener('click', function() {
+                    var comment = stopCommentText.value.trim();
+                    if (!comment) return;
+
+                    stopCommentAiBtn.disabled = true;
+                    stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    stopCommentText.disabled = true;
+                    var oldBtnText = stopCommentAiBtnText.textContent;
+                    stopCommentAiBtnText.textContent = "{{ __('messages.Correcting...') }}";
+                    stopCommentAiFeedback.classList.add('hidden');
+
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                    fetch('/tasks/correct-comment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify({ comment: comment })
+                    })
+                    .then(function(res) {
+                        if (!res.ok) {
+                            return res.json().then(function(err) {
+                                throw new Error(err.error || 'Failed to correct comment.');
+                            });
+                        }
+                        return res.json();
+                    })
+                    .then(function(data) {
+                        if (data.corrected) {
+                            stopCommentText.value = data.corrected;
+                            stopCommentAiFeedback.textContent = "{{ __('messages.Spelling and grammar corrected!') }}";
+                            stopCommentAiFeedback.className = "text-xs mt-1 text-emerald-600 font-medium";
+                            stopCommentAiFeedback.classList.remove('hidden');
+                            hasSpelledChecked = true;
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error(err);
+                        stopCommentAiFeedback.textContent = "{{ __('messages.Failed to correct comment. Please check API configuration.') }}";
+                        stopCommentAiFeedback.className = "text-xs mt-1 text-red-500 font-medium";
+                        stopCommentAiFeedback.classList.remove('hidden');
+                    })
+                    .finally(function() {
+                        stopCommentAiBtn.disabled = false;
+                        stopCommentAiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        stopCommentText.disabled = false;
+                        stopCommentAiBtnText.textContent = oldBtnText;
+                    });
+                });
+
+                // Translate request
+                stopCommentTranslateBtn.addEventListener('click', function() {
+                    var comment = stopCommentText.value.trim();
+                    if (!comment) return;
+
+                    stopCommentTranslateBtn.disabled = true;
+                    stopCommentTranslateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    stopCommentAiBtn.disabled = true;
+                    stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    stopCommentText.disabled = true;
+                    var oldBtnText = stopCommentTranslateBtnText.textContent;
+                    stopCommentTranslateBtnText.textContent = "{{ __('messages.Translating...') }}";
+                    stopCommentAiFeedback.classList.add('hidden');
+
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                    fetch('/tasks/translate-comment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify({ comment: comment })
+                    })
+                    .then(function(res) {
+                        if (!res.ok) {
+                            return res.json().then(function(err) {
+                                throw new Error(err.error || 'Failed to translate comment.');
+                            });
+                        }
+                        return res.json();
+                    })
+                    .then(function(data) {
+                        if (data.translated) {
+                            stopCommentText.value = data.translated;
+                            stopCommentAiFeedback.textContent = "{{ __('messages.Translated to Dutch!') }}";
+                            stopCommentAiFeedback.className = "text-xs mt-1 text-emerald-600 font-medium";
+                            stopCommentAiFeedback.classList.remove('hidden');
+                            hasTranslated = true;
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error(err);
+                        stopCommentAiFeedback.textContent = "{{ __('messages.Failed to translate comment. Please check API configuration.') }}";
+                        stopCommentAiFeedback.className = "text-xs mt-1 text-red-500 font-medium";
+                        stopCommentAiFeedback.classList.remove('hidden');
+                    })
+                    .finally(function() {
+                        stopCommentTranslateBtn.disabled = false;
+                        stopCommentTranslateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        stopCommentAiBtn.disabled = false;
+                        stopCommentAiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        stopCommentText.disabled = false;
+                        stopCommentTranslateBtnText.textContent = oldBtnText;
+                    });
+                });
+
+                // Function to actually submit the stop task
+                function doSubmitStop() {
+                    var comment = stopCommentText.value.trim();
+                    if (!storedFormAction) return;
+
+                    // Disable button to prevent double submission
+                    stopConfirmBtn.disabled = true;
+                    stopConfirmBtn.textContent = "{{ __('messages.Stopping...') }}";
+
+                    var formData = new FormData();
+                    formData.append('_token', storedCsrfToken);
+                    formData.append('stop_comment', comment);
+
+                    fetch(storedFormAction, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        }
+                    })
+                    .then(function(response) {
+                        if (response.ok) {
+                            stopModal.style.display = 'none';
+                            // Refresh the dashboard data to reflect the stopped task
+                            if (typeof refreshEmployeeData === 'function') refreshEmployeeData();
+                            if (typeof startAutoRefresh === 'function') startAutoRefresh();
+                        } else {
+                            throw new Error('Request failed');
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error('Stop task error:', err);
+                        alert("{{ __('messages.An error occurred while stopping the task.') }}");
+                        stopConfirmBtn.disabled = false;
+                        stopConfirmBtn.textContent = "{{ __('messages.Confirm Stop') }}";
+                        if (typeof startAutoRefresh === 'function') startAutoRefresh();
+                    });
+                }
+
+                // Confirm stop: show spell-check or translate popups if they haven't been completed yet
+                stopConfirmBtn.addEventListener('click', function() {
+                    var comment = stopCommentText.value.trim();
+                    if (!comment) {
+                        stopCommentError.classList.remove('hidden');
+                        stopCommentText.focus();
+                        return;
+                    }
+                    if (!storedFormAction) return;
+                    
+                    if (!hasSpelledChecked) {
+                        spellCheckModal.style.display = 'block';
+                    } else if (!hasTranslated) {
+                        translateCheckModal.style.display = 'block';
+                    } else {
+                        doSubmitStop();
+                    }
+                });
+
+                // Spell-check popup: verify spelling (trigger AI correction then return to comment modal)
+                spellCheckVerifyBtn.addEventListener('click', function() {
+                    spellCheckModal.style.display = 'none';
+                    hasSpelledChecked = true;
+                    // Trigger the AI correction button click
+                    if (!stopCommentAiBtn.disabled) {
+                        stopCommentAiBtn.click();
+                    }
+                });
+
+                // Spell-check popup: skip and open translate confirmation popup
+                spellCheckSkipBtn.addEventListener('click', function() {
+                    spellCheckModal.style.display = 'none';
+                    hasSpelledChecked = true;
+                    if (!hasTranslated) {
+                        translateCheckModal.style.display = 'block';
+                    } else {
+                        doSubmitStop();
+                    }
+                });
+
+                // Close spell-check modal on outside click
+                spellCheckModal.addEventListener('click', function(e) {
+                    if (e.target === spellCheckModal) {
+                        spellCheckModal.style.display = 'none';
+                    }
+                });
+
+                // Translate popup: verify spelling (trigger translation then return to comment modal)
+                translateCheckVerifyBtn.addEventListener('click', function() {
+                    translateCheckModal.style.display = 'none';
+                    hasTranslated = true;
+                    if (!stopCommentTranslateBtn.disabled) {
+                        stopCommentTranslateBtn.click();
+                    }
+                });
+
+                // Translate popup: skip and submit directly
+                translateCheckSkipBtn.addEventListener('click', function() {
+                    translateCheckModal.style.display = 'none';
+                    hasTranslated = true;
+                    doSubmitStop();
+                });
+
+                // Close translate modal on outside click
+                translateCheckModal.addEventListener('click', function(e) {
+                    if (e.target === translateCheckModal) {
+                        translateCheckModal.style.display = 'none';
+                    }
+                });
+
+                // Cancel / Close modal
+                function closeStopModal() {
+                    stopModal.style.display = 'none';
+                    storedFormAction = null;
+                    storedCsrfToken = null;
+                    // Resume auto-refresh
+                    if (typeof startAutoRefresh === 'function') startAutoRefresh();
+                }
+                stopCancelBtn.addEventListener('click', closeStopModal);
+                stopCloseBtn.addEventListener('click', closeStopModal);
+                stopModal.addEventListener('click', function(e) {
+                    if (e.target === stopModal) closeStopModal();
+                });
+
+                stopCommentText.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (!stopConfirmBtn.disabled) {
+                            stopConfirmBtn.click();
+                        }
+                    }
+                });
             });
         </script>

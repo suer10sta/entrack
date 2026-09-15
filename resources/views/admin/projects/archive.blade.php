@@ -107,6 +107,8 @@
                                 $diffminutes = abs($difference) % 60;
                                 $estimatedMinutes = $project->estimated_hours * 60;
                                 $progressPercentage = $estimatedMinutes > 0 ? ($totalduration / $estimatedMinutes) * 100 : 0;
+                                // Clamp the visual width between 0% and 100% so the bar does not overflow its column
+                                $clampedProgressPercentage = max(0, min($progressPercentage, 100));
                                 $formattedProgressPercentage = number_format($progressPercentage, 2);
                             @endphp
 
@@ -126,7 +128,7 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-sm min-w-[150px]">
-                                <div class="w-full bg-gray-200 rounded-full h-3 relative">
+                                <div class="w-full bg-gray-200 rounded-full h-3 relative overflow-hidden">
                                     @php
                                         $progressColor = 'bg-green-500';
                                         if ($progressPercentage >= 75) $progressColor = 'bg-red-500';
@@ -135,7 +137,7 @@
                                     <div class="absolute inset-0 flex items-center justify-center">
                                         <span class="text-xs font-semibold {{ $progressPercentage > 40 ? 'text-white' : 'text-gray-700' }}">{{$formattedProgressPercentage}}%</span>
                                     </div>
-                                    <div class="{{ $progressColor }} h-3 rounded-full" style="width: {{$formattedProgressPercentage}}%"></div>
+                                    <div class="{{ $progressColor }} h-3 rounded-full" style="width: {{$clampedProgressPercentage}}%"></div>
                                 </div>
                             </td>
                             @endif

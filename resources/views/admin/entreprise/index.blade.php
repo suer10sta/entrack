@@ -18,19 +18,19 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <main class="flex-1 overflow-y-auto ">
+        <main class="flex-1 overflow-y-auto">
 
                 {{-- Main content container --}}
-                <div class="w-full px-4 md:px-6 py-4">
+                <div class="w-full px-4 md:px-6 py-4 sm:py-6">
                     <div class="flex flex-wrap -mx-3 mb-5">
                         <div class="w-full">
                             <div class="w-full lg:w-10/12 xl:w-8/12 mx-auto my-4">
 
                                 {{-- Page Header --}}
-                                <h1 class="text-3xl font-bold text-gray-800">{{ __('messages.Enterprise Information') }}</h1>
+                                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">{{ __('messages.Enterprise Information') }}</h1>
                                 <p class="text-base text-gray-500 mb-8">{{ __('messages.Enterprise Information subtitle') }}</p>
 
-                                <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6">
+                                <div class="bg-white rounded-2xl border border-slate-200 shadow-[0_20px_50px_rgba(15,23,42,0.12),0_4px_12px_rgba(15,23,42,0.08)] px-5 sm:px-8 md:px-10 py-4 sm:py-6 md:py-8 mb-6">
                                     {{-- Card Header --}}
                                     <div class="mb-6">
                                         <h5 class="text-xl font-bold text-gray-900">{{ __('messages.Enterprise Infos') }}</h5>
@@ -38,10 +38,11 @@
                                     </div>
 
                                     {{-- Form Grid (3 columns) --}}
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                         @php
                                             $inputClasses = "editable entrepriseInfos mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-gray-50";
                                             $labelClasses = "block text-sm font-medium text-gray-700";
+                                            $countriesList = json_decode(file_get_contents(base_path('countries.json')), true) ?? [];
                                         @endphp
 
                                         <div>
@@ -78,10 +79,16 @@
 
                                         <div>
                                             <label class="{{ $labelClasses }}">{{ __('messages.Country') }}:</label>
-                                            <input
-                                                class="{{ $inputClasses }}"
-                                                type="text" name="country" value="{{$entreprise->country}}"
-                                                readonly />
+                                            <select
+                                                class="{{ $inputClasses }} h-9"
+                                                name="country">
+                                                @foreach($countriesList as $country)
+                                                    <option value="{{ $country['name'] }}"
+                                                        @if($entreprise->country === $country['name']) selected @endif>
+                                                        {{ $country['name'] }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
                                         </div>
 
                                         <div>
@@ -131,6 +138,51 @@
                                                 type="text" name="bic"
                                                 value="{{$entreprise->swift}}/{{$entreprise->bic}}"
                                                 readonly />
+                                        </div>
+
+                                        <div class="sm:col-span-2 lg:col-span-3">
+                                            <label class="{{ $labelClasses }}">{{ __('messages.Billit API key') }}</label>
+                                            <p class="text-xs text-gray-500 mb-1">{{ __('messages.Billit API key help') }}</p>
+                                            @if(filled($entreprise->billit_api_key))
+                                                <p class="text-xs text-green-700 mb-1">{{ __('messages.Billit API key saved hint') }}</p>
+                                            @endif
+                                            @php
+                                                $billitMask = filled($entreprise->billit_api_key) ? str_repeat('*', 12) : '';
+                                            @endphp
+                                            <div class="relative">
+                                                <input
+                                                    class="{{ $inputClasses }} pr-20"
+                                                    type="password"
+                                                    name="billit_api_key"
+                                                    value="{{ $billitMask }}"
+                                                    data-masked-value="{{ $billitMask }}"
+                                                    data-real-value="{{ (string) ($entreprise->billit_api_key ?? '') }}"
+                                                    data-has-existing="{{ filled($entreprise->billit_api_key) ? '1' : '0' }}"
+                                                    autocomplete="new-password"
+                                                    placeholder=""
+                                                    readonly />
+                                                @if(filled($entreprise->billit_api_key))
+                                                    <button
+                                                        type="button"
+                                                        class="absolute inset-y-0 right-10 px-3 flex items-center text-gray-500 hover:text-gray-700"
+                                                        aria-label="Clear Billit API key"
+                                                        data-clear-billit-key>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm2.707-10.707a1 1 0 00-1.414-1.414L10 7.586 8.707 6.293a1 1 0 00-1.414 1.414L8.586 9l-1.293 1.293a1 1 0 101.414 1.414L10 10.414l1.293 1.293a1 1 0 001.414-1.414L11.414 9l1.293-1.293z" clip-rule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                @endif
+                                                <button
+                                                    type="button"
+                                                    class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700"
+                                                    aria-label="Toggle Billit API key visibility"
+                                                    data-toggle-billit-visibility>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path d="M10 3c-4.5 0-8.3 3.1-9.6 7.4a1 1 0 000 .6C1.7 15.9 5.5 19 10 19s8.3-3.1 9.6-7.4a1 1 0 000-.6C18.3 6.1 14.5 3 10 3zm0 13a6 6 0 01-6-6 6 6 0 0112 0 6 6 0 01-6 6z"/>
+                                                        <path d="M10 7a3 3 0 100 6 3 3 0 000-6z"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
                                         </div>
 
                                         <div>
@@ -189,7 +241,7 @@
                                     </form>
                                 </div>
 
-                                <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6">
+                                <div class="bg-white rounded-2xl border border-slate-200 shadow-[0_20px_50px_rgba(15,23,42,0.12),0_4px_12px_rgba(15,23,42,0.08)] px-5 sm:px-8 md:px-10 py-4 sm:py-6 md:py-8 mb-6">
                                     {{-- Card Header --}}
                                     <div class="mb-6">
                                         <h5 class="text-xl font-bold text-gray-900">{{ __('messages.Emails Backup') }}</h5>
@@ -197,7 +249,7 @@
                                     </div>
 
                                     {{-- Form Fields --}}
-                                    <div class="space-y-6">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                         @php
                                             $textareaClasses = "editable entrepriseInfos mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-gray-50";
                                         @endphp
@@ -224,7 +276,7 @@
                                 
 
                                 {{-- Footer Buttons --}}
-                                <div class="flex justify-between items-center mt-8 mb-8">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mt-8 mb-8">
                                     {{-- Back Button --}}
                                     <div>
                                         @php
@@ -255,9 +307,9 @@
                                     </div>
 
                                     {{-- Save Changes Button --}}
-                                    <div>
+                                    <div class="w-full sm:w-auto">
                                         <button type="button" id="save-changes-btn"
-                                            class="inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                                            class="inline-flex justify-center w-full sm:w-auto py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
                                             <span id="save-text">{{ __('messages.Save All Changes enterprise') }}</span>
                                             <svg id="save-spinner" class="hidden animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -310,22 +362,121 @@
     $(document).ready(function() {
         // Double click to edit - Enterprise Info
         $(".entrepriseInfos").dblclick(function() {
-            $(this).prop('readonly', false);
-            $(this).removeClass('bg-gray-50').addClass('bg-white border-blue-300');
+            var $field = $(this);
+
+            // Keep <select> always editable; no need to toggle disabled/readonly
+            if ($field.is('select')) {
+                return;
+            }
+
+            // If this is the Billit API key and it currently displays the mask,
+            // clear it so the user can type a replacement key.
+            if ($field.attr('name') === 'billit_api_key') {
+                const masked = $field.attr('data-masked-value') || '';
+                if ($field.val() === masked) {
+                    $field.val('');
+                }
+            }
+
+            $field.prop('readonly', false);
+            $field.removeClass('bg-gray-50').addClass('bg-white border-blue-300');
         });
 
-        // On blur - save individual field
-        $(".entrepriseInfos").blur(function() {
-            $(this).prop('readonly', true);
-            $(this).removeClass('bg-white border-blue-300').addClass('bg-gray-50');
-            
+        // On blur / change - save individual field
+        $(".entrepriseInfos").on('blur change', function() {
             var $field = $(this);
+
+            if (!$field.is('select')) {
+                $field.prop('readonly', true);
+                $field.removeClass('bg-white border-blue-300').addClass('bg-gray-50');
+            }
+            
             var newContent = $field.val();
             var columnName = $field.attr('name');
-            
+
+            // Never queue the masked stars value
+            if (columnName === 'billit_api_key') {
+                const masked = $field.attr('data-masked-value') || '';
+                if (masked !== '' && newContent === masked) {
+                    return;
+                }
+                // If the user only revealed the existing key (no changes), don't queue it.
+                const hasExisting = ($field.attr('data-has-existing') || '0') === '1';
+                const real = $field.attr('data-real-value') || '';
+                if (hasExisting && real !== '' && newContent === real) {
+                    return;
+                }
+                // Allow empty only when explicitly cleared
+                const clearing = ($field.attr('data-clearing') || '0') === '1';
+                if ((newContent === '' || newContent === undefined) && !clearing) {
+                    return;
+                }
+            }
+
             // Store modified field
             modifiedFields[columnName] = newContent;
         });
+
+        // Capture live typing for sensitive fields like Billit API key, so clicking
+        // "Save" without blurring still persists the value.
+        $(".entrepriseInfos").on('input', function() {
+            var $field = $(this);
+            var columnName = $field.attr('name');
+            if (columnName !== 'billit_api_key') {
+                return;
+            }
+
+            var newContent = $field.val();
+            const masked = $field.attr('data-masked-value') || '';
+            if (masked !== '' && newContent === masked) {
+                return;
+            }
+            const hasExisting = ($field.attr('data-has-existing') || '0') === '1';
+            const real = $field.attr('data-real-value') || '';
+            if (hasExisting && real !== '' && newContent === real) {
+                return;
+            }
+            const clearing = ($field.attr('data-clearing') || '0') === '1';
+            if ((newContent === '' || newContent === undefined) && !clearing) {
+                return;
+            }
+            modifiedFields[columnName] = newContent;
+        });
+
+        // Eye toggle for Billit API key visibility
+        const billitInput = document.querySelector('input[name="billit_api_key"]');
+        const billitToggle = document.querySelector('[data-toggle-billit-visibility]');
+        if (billitInput && billitToggle) {
+            billitToggle.addEventListener('click', function() {
+                const masked = billitInput.getAttribute('data-masked-value') || '';
+                const real = billitInput.getAttribute('data-real-value') || '';
+                const hasExisting = (billitInput.getAttribute('data-has-existing') || '0') === '1';
+
+                const isPassword = billitInput.getAttribute('type') === 'password';
+                const willShow = isPassword;
+
+                billitInput.setAttribute('type', willShow ? 'text' : 'password');
+
+                // Only swap values when the field is not being edited.
+                if (billitInput.hasAttribute('readonly') && hasExisting) {
+                    billitInput.value = willShow ? real : masked;
+                }
+            });
+        }
+
+        // Clear Billit key (explicit removal)
+        const clearBillitBtn = document.querySelector('[data-clear-billit-key]');
+        if (billitInput && clearBillitBtn) {
+            clearBillitBtn.addEventListener('click', function() {
+                if (!confirm('Remove the Billit API key for this enterprise?')) {
+                    return;
+                }
+                billitInput.removeAttribute('readonly');
+                billitInput.value = '';
+                billitInput.setAttribute('data-clearing', '1');
+                modifiedFields['billit_api_key'] = '';
+            });
+        }
 
         // Double click to edit - SMTP Info
         $(".editableSmtp").dblclick(function() {
@@ -348,6 +499,22 @@
 
         // Save Changes button click handler
         $('#save-changes-btn').click(function() {
+            // Fallback: ensure Billit API key is captured even if the field never blurred.
+            const billitInput = document.querySelector('input[name="billit_api_key"]');
+            if (billitInput) {
+                const masked = billitInput.getAttribute('data-masked-value') || '';
+                const hasExisting = (billitInput.getAttribute('data-has-existing') || '0') === '1';
+                const real = billitInput.getAttribute('data-real-value') || '';
+                const isJustViewingExisting = hasExisting && real !== '' && billitInput.value === real;
+                const clearing = (billitInput.getAttribute('data-clearing') || '0') === '1';
+
+                if (clearing) {
+                    modifiedFields['billit_api_key'] = '';
+                } else if (billitInput.value && !isJustViewingExisting && (masked === '' || billitInput.value !== masked)) {
+                    modifiedFields['billit_api_key'] = billitInput.value;
+                }
+            }
+
             if (Object.keys(modifiedFields).length === 0) {
                 alert('No changes to save');
                 return;

@@ -39,7 +39,55 @@
                  #editableTable tbody tr { border-bottom: 1px solid #e2e8f0; }
                  .editable { cursor: pointer; background-color: #e6f3ff !important; }
                  .editable:hover { background-color: #cce7ff !important; }
+                 .editable-no-bg,
+                 .editable-no-bg:hover { background-color: transparent !important; }
                  #editableTable th.editable-header { background-color: #b3d9ff !important; }
+
+                /* Mobile: convert table rows into modern stacked cards (no side-scroll) */
+                @media (max-width: 1024px) {
+                    .workdays-table-responsive { overflow-x: visible !important; }
+
+                    #editableTable thead { display: none; }
+                    #editableTable tbody { display: block; width: 100%; }
+
+                    #editableTable tbody tr {
+                        display: grid;
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
+                        gap: 10px;
+                        margin-bottom: 16px;
+                        padding: 12px;
+                        border: 1px solid rgba(148, 163, 184, 0.55);
+                        border-radius: 16px;
+                        background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
+                        box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
+                        transition: transform 180ms ease, box-shadow 180ms ease;
+                    }
+
+                    #editableTable tbody td {
+                        display: block;
+                        width: 100%;
+                        padding: 10px 12px !important;
+                        border: 1px solid rgba(226, 232, 240, 0.9);
+                        border-radius: 12px;
+                        background: rgba(255,255,255,0.78);
+                        text-align: left !important;
+                        white-space: normal !important;
+                        word-break: break-word;
+                    }
+
+                    #editableTable tbody td[data-span="2"] { grid-column: span 2 / span 2; }
+
+                    #editableTable tbody td[data-label]::before {
+                        content: attr(data-label);
+                        display: block;
+                        font-size: 11px;
+                        font-weight: 700;
+                        letter-spacing: .06em;
+                        text-transform: uppercase;
+                        color: #64748b; /* slate-500 */
+                        margin-bottom: 6px;
+                    }
+                }
             </style>
 
             @php
@@ -130,6 +178,8 @@
                             </button>
                             <form method="POST" action="{{ $nextMonthRoute }}" class="m-0">
                                 @csrf
+                                <input type="hidden" name="currentMonth" value="{{ $currentMonth }}">
+                                <input type="hidden" name="currentYear" value="{{ $currentYear }}">
                                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">{{ __('messages.Next Month') }}</button>
                             </form>
                         </div>
@@ -149,7 +199,7 @@
                 {{-- Table Wrapper - Added p-6 div to match target --}}
                 <div class="p-6">
                     {{-- Table --}}
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto workdays-table-responsive">
                         <table id="editableTable" class="w-full text-left border-collapse min-w-full">
                             <thead class="border-b border-gray-200 bg-gray-50">
                                 <tr>
@@ -205,21 +255,21 @@
                                         }
                                     @endphp
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $employee->name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $workDay->work_days_gross ?? 0 }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $internalHoursFormatted }} - {{ $workDay->days_worked ?? 0 }} jrs</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $joursTravail }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-column="days_of_unpaid_absence" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->days_of_unpaid_absence ?? 0 }}</p></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-column="sick_days" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->sick_days ?? 0 }}</p></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-column="holidays" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->holidays ?? 0 }}</p></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $workDay->remaining_days_of_paid_leave ?? 0 }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $workDay->number_of_days_of_paid_leave_acquired ?? 0 }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-column="number_of_days_of_paid_leave_taken" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->number_of_days_of_paid_leave_taken ?? 0 }}</p></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold {{ ($workDay->holiday_balance ?? 0) < 0 ? 'text-red-600' : 'text-blue-600' }}">{{ $workDay->holiday_balance ?? 0 }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-column="dates_of_holidays" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->dates_of_holidays ?? '' }}</p></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-column="days_to_recover" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->days_to_recover ?? 0 }}</p></td>
-                                    <td class="px-6 py-4 text-sm text-gray-700 editable" data-column="remarque" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->remarque ?? '' }}</p></td>
-                                    <td class="px-6 py-4 text-sm text-gray-700 editable" data-column="interne_remarque" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->interne_remarque ?? '' }}</p></td>
+                                    <td data-label="{{ __('messages.Employee Name header') }}" data-span="2" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $employee->name }}</td>
+                                    <td data-label="{{ __('messages.Gross Days') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $workDay->work_days_gross ?? 0 }}</td>
+                                    <td data-label="{{ __('messages.Internal Work Days') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $internalHoursFormatted }} - {{ $workDay->days_worked ?? 0 }} jrs</td>
+                                    <td data-label="{{ __('messages.Work Days Without Holidays') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $joursTravail }}</td>
+                                    <td data-label="{{ __('messages.Unpaid Absence Days') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-column="days_of_unpaid_absence" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->days_of_unpaid_absence ?? 0 }}</p></td>
+                                    <td data-label="{{ __('messages.Sick Days') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-column="sick_days" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->sick_days ?? 0 }}</p></td>
+                                    <td data-label="{{ __('messages.Holidays') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-column="holidays" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->holidays ?? 0 }}</p></td>
+                                    <td data-label="{{ __('messages.Remaining Paid Leave') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable editable-no-bg" data-column="remaining_days_of_paid_leave" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->remaining_days_of_paid_leave ?? 0 }}</p></td>
+                                    <td data-label="{{ __('messages.Paid Leave Acquired') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $workDay->number_of_days_of_paid_leave_acquired ?? 0 }}</td>
+                                    <td data-label="{{ __('messages.Paid Leave Taken') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-column="number_of_days_of_paid_leave_taken" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->number_of_days_of_paid_leave_taken ?? 0 }}</p></td>
+                                    <td data-label="{{ __('messages.Leave Balance') }}" class="px-6 py-4 whitespace-nowrap text-sm font-semibold editable editable-no-bg" data-column="holiday_balance" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->holiday_balance ?? 0 }}</p></td>
+                                    <td data-label="{{ __('messages.Paid Leave Dates') }}" data-span="2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-column="dates_of_holidays" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->dates_of_holidays ?? '' }}</p></td>
+                                    <td data-label="{{ __('messages.Days To Recover') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 editable" data-column="days_to_recover" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->days_to_recover ?? 0 }}</p></td>
+                                    <td data-label="{{ __('messages.Remark') }}" data-span="2" class="px-6 py-4 text-sm text-gray-700 editable" data-column="remarque" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->remarque ?? '' }}</p></td>
+                                    <td data-label="{{ __('messages.Internal Remark') }}" data-span="2" class="px-6 py-4 text-sm text-gray-700 editable" data-column="interne_remarque" data-id="{{ $workDay->id }}"><p class="text-sm font-weight-bold mb-0">{{ $workDay->interne_remarque ?? '' }}</p></td>
                                 </tr>
                                 @empty
                                 <tr>

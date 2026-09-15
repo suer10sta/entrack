@@ -4,6 +4,19 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ __('messages.About Us') }} | DalyTrac</title>
+    <meta name="description" content="Learn about DalyTrac, the all‑in‑one business management platform that unifies invoices, projects, teams and finances into one calm, powerful workspace.">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="{{ route('about') }}">
+
+    <meta property="og:title" content="{{ __('messages.About Us') }} | DalyTrac">
+    <meta property="og:description" content="Discover the story, mission and values behind DalyTrac and how we help teams simplify operations, invoicing and time tracking.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ route('about') }}">
+    <meta property="og:image" content="{{ asset('img/background_hero.png') }}">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ __('messages.About Us') }} | DalyTrac">
+    <meta name="twitter:description" content="DalyTrac connects your invoices, projects and people in a single, unified platform.">
 
     <link rel="preconnect" href="https://fonts.bunny.net" />
     <link

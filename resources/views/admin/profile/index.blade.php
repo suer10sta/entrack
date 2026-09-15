@@ -256,7 +256,76 @@
                                 {{ $currentPlan['button_text'] }}
                             </a>
 
-                            @if($user->entreprise && $user->entreprise->hasActiveSubscription())
+                            @php
+                                $entreprise = $user->entreprise;
+                                $currentRenewalPreference = optional($entreprise)->auto_renew === false ? 'manual' : 'auto';
+                                $profileRenewalSync = $renewalSync ?? [
+                                    'state' => 'unknown',
+                                    'is_synced' => false,
+                                    'label' => __('messages.Renewal status unavailable'),
+                                ];
+                            @endphp
+
+                            @if($entreprise && $entreprise->hasActiveSubscription())
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3">
+                                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                        <div>
+                                            <p class="text-xs font-semibold text-gray-800 uppercase tracking-wider">
+                                                {{ __('messages.Renewal preference') }}
+                                            </p>
+                                            <p class="text-xs text-gray-500">
+                                                {{ __('messages.Renewal preference description') }}
+                                            </p>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <form method="POST" action="{{ route('subscription.renewal-preference.update') }}">
+                                                @csrf
+                                                <input type="hidden" name="renewal" value="auto">
+                                                <button type="submit"
+                                                        class="px-3 py-1.5 text-xs font-medium rounded-md {{ $currentRenewalPreference === 'auto' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200' }}">
+                                                    {{ __('messages.Auto renew') }}
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ route('subscription.renewal-preference.update') }}">
+                                                @csrf
+                                                <input type="hidden" name="renewal" value="manual">
+                                                <button type="submit"
+                                                        class="px-3 py-1.5 text-xs font-medium rounded-md {{ $currentRenewalPreference === 'manual' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200' }}">
+                                                    {{ __('messages.Manual renew') }}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-2 inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2">
+                                        @php
+                                            $badgeState = $profileRenewalSync['state'] ?? 'unknown';
+                                            $badgeIsSynced = !empty($profileRenewalSync['is_synced']);
+                                        @endphp
+                                        @php
+                                            $badgeClasses = 'rounded-full px-2 py-0.5 text-[11px] font-medium ';
+                                            if ($badgeState === 'synced' && $badgeIsSynced) {
+                                                $badgeClasses .= 'bg-green-100 text-green-700';
+                                                $badgeLabel = __('messages.Synced');
+                                            } elseif ($badgeState === 'out_of_sync') {
+                                                $badgeClasses .= 'bg-red-100 text-red-700';
+                                                $badgeLabel = __('messages.Not synced');
+                                            } else {
+                                                $badgeClasses .= 'bg-gray-100 text-gray-700';
+                                                $badgeLabel = __('messages.Unknown');
+                                            }
+                                        @endphp
+                                        <span class="{{ $badgeClasses }}">
+                                            {{ $badgeLabel }}
+                                        </span>
+                                        <span class="text-xs text-gray-600">
+                                            {{ $profileRenewalSync['label'] ?? __('messages.Renewal status unavailable') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if($entreprise && $entreprise->hasActiveSubscription())
                                 <form method="POST"
                                       action="{{ route('subscription.cancel') }}"
                                       onsubmit="return confirm('{{ __('messages.Cancel subscription confirm') }}');">
@@ -393,5 +462,6 @@
             });
         })();
     </script>
+
 </body>
 </html>

@@ -37,4 +37,13 @@ return [
         'channel' => env('BILLIT_CHANNEL', 'Peppol'),
     ],
 
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+    ],
+
 ];

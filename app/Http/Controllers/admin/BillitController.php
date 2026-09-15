@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Entreprise;
 use App\Services\BillitService;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse; 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\File;
@@ -13,12 +14,6 @@ use setasign\Fpdi\Fpdi;
 
 class BillitController extends Controller
 {
-    protected $billitService;
-
-    public function __construct(BillitService $billitService)
-    {
-        $this->billitService = $billitService;
-    }
 
     public function test()
     {
@@ -81,7 +76,17 @@ class BillitController extends Controller
         ];
 
         try {
-            $response = $this->billitService->sendInvoice($invoiceData);
+            $entreprise = auth()->user()
+                ? Entreprise::find(auth()->user()->entreprise_id)
+                : null;
+            $billit = BillitService::forEntreprise($entreprise);
+            if (! $billit->isConfigured()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Billit is not configured. Add your Billit API key under Enterprise Information for this company.',
+                ], 422);
+            }
+            $response = $billit->sendInvoice($invoiceData);
             return response()->json([
                 'success' => true,
                 'data' => $response
@@ -148,6 +153,18 @@ class BillitController extends Controller
             return response()->json(['success' => false, 'message' => 'Enterprise not found for invoice'], 404);
         }
 
+        if (! auth()->user() || (int) $invoice->entreprise_id !== (int) auth()->user()->entreprise_id) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $billit = BillitService::forEntreprise($entreprise);
+        if (! $billit->isConfigured()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Billit is not configured for this enterprise. Add your Billit API key under Enterprise Information.',
+            ], 422);
+        }
+
         // Build payload to create the invoice/order in Billit only.
         // We deliberately do NOT trigger the Billit "commands/send" endpoint here,
         // so that the user can send the invoice manually from within Billit (Peppol/email/etc.).
@@ -185,7 +202,7 @@ class BillitController extends Controller
 
         try {
             // Only create the order in Billit; no automatic Peppol/email sending.
-            $response = $this->billitService->sendInvoice($orderData);
+            $response = $billit->sendInvoice($orderData);
 
             // Optional forward to provided recipients (from contacts modal)
             $recipientsJson = (string)$request->input('forward_recipients', '');
@@ -247,6 +264,15 @@ class BillitController extends Controller
         return back()->with('error', 'Entreprise introuvable pour cette facture.');
     }
 
+    if (! auth()->user() || (int) $invoice->entreprise_id !== (int) auth()->user()->entreprise_id) {
+        return back()->with('error', 'Non autorisé.');
+    }
+
+    $billit = BillitService::forEntreprise($entreprise);
+    if (! $billit->isConfigured()) {
+        return back()->with('error', 'Billit n’est pas configuré. Ajoutez votre clé API Billit dans les informations entreprise.');
+    }
+
     // Build payload to create the invoice/order in Billit only.
     // We deliberately do NOT trigger the Billit "commands/send" endpoint here,
     // so that the user can send the invoice manually from within Billit (Peppol/email/etc.).
@@ -273,9 +299,15 @@ class BillitController extends Controller
      * $response = $this->billitService->sendInvoiceViaPeppol($orderData, $channel);
      */
 
+    $channel = strtoupper((string) $request->query('channel', ''));
+
     try {
-        // Only create the order in Billit; no automatic Peppol/email sending.
-        $response = $this->billitService->sendInvoice($orderData);
+        if ($channel === 'PEPPOL') {
+            $response = $billit->sendInvoiceViaPeppol($orderData, 'Peppol');
+        } else {
+            // Only create the order in Billit; no automatic Peppol/email sending.
+            $response = $billit->sendInvoice($orderData);
+        }
 
         // Optional email forwarding
         $recipientsJson = (string)$request->input('forward_recipients', '');
@@ -295,7 +327,11 @@ class BillitController extends Controller
         $invoice->sentInvoice = 1;
         $invoice->save();
 
-        return back()->with('success', 'Facture envoyée avec succès via Billit (' . $type . ')');
+        $successMsg = $channel === 'PEPPOL'
+            ? 'Facture créée dans Billit pour envoi Peppol (' . $type . ')'
+            : 'Facture envoyée avec succès via Billit (' . $type . ')';
+
+        return back()->with('success', $successMsg);
 
     } catch (\Exception $e) {
         return back()->with('error', 'Échec d’envoi : ' . $e->getMessage());
@@ -530,13 +566,18 @@ class BillitController extends Controller
             case 'period':
                 // Use invoice->duration (minutes) → quantity in hours
                 $minutes = (int)($invoice->duration ?? 0);
-                $hours = round($minutes / 60, 2);
+                // Keep full precision for unit price math; round only for the quantity sent out.
+                $hoursRaw = $minutes / 60;
+                $hours = round($hoursRaw, 2);
                 if ($project && isset($project->cost_per_hour) && (float)$project->cost_per_hour > 0 && $hours > 0) {
                     $quantity = $hours;
                     $unitPrice = (float)$project->cost_per_hour;
                 } elseif ($hours > 0) {
                     $quantity = $hours;
-                    $unitPrice = round($baseAmount / max($hours, 1), 2);
+                    // If we already have a computed base amount for the period,
+                    // derive the hourly unit price so that (qty * unit price) matches baseAmount,
+                    // including when qty < 1 hour.
+                    $unitPrice = round($baseAmount / max($hoursRaw, 0.000001), 2);
                 } else {
                     $quantity = 1;
                     $unitPrice = $baseAmount;

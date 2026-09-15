@@ -60,7 +60,7 @@ class teamsController extends Controller
         $entreprise = Auth::user()->entreprise;
 
     // 2. VÉRIFIER LA LIMITE AVANT DE CONTINUER
-    if (!$entreprise->canAddMoreUsers()) {
+    if ($entreprise && !$entreprise->canAddMoreUsers()) {
         
         // 3. Si la limite est atteinte, arrêter et renvoyer une erreur
         return back()->with('error', 'Vous avez atteint la limite de ' . $entreprise->getUserLimit() . ' utilisateurs pour votre plan. Veuillez passer au plan Pro pour en ajouter davantage.');

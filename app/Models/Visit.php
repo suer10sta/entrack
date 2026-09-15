@@ -19,6 +19,11 @@ class Visit extends Model
         'referrer',
         'utm_source',
         'device_type',
+        'is_proxy',
+        'is_hosting',
+        'last_activity_at',
+        'ended_at',
+        'duration_seconds',
     ];
 }
 

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Entreprise;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -11,18 +12,53 @@ class BillitService
     protected $baseUrl;
     protected $defaultChannel;
 
-    public function __construct()
+    public function __construct(?string $apiKey = null, ?string $baseUrl = null, ?string $defaultChannel = null)
     {
-        $this->apiKey = config('services.billit.api_key');
-        $this->baseUrl = rtrim((string) config('services.billit.base_url'), '/');
-        $this->defaultChannel = (string) config('services.billit.channel', 'Peppol');
+        // API key must be provided per-enterprise; no env fallback.
+        $this->apiKey = (string) ($apiKey ?? '');
+        $this->baseUrl = rtrim((string) ($baseUrl ?? config('services.billit.base_url')), '/');
+        $this->defaultChannel = (string) ($defaultChannel ?? config('services.billit.channel', 'Peppol'));
+    }
+
+    /**
+     * Create a Billit client using the platform (env/config) API key explicitly.
+     * Intended for flows that are not tenant-scoped (e.g. manager subscription invoices).
+     */
+    public static function fromPlatformConfig(): self
+    {
+        return new self((string) config('services.billit.api_key'));
+    }
+
+    /**
+     * Use the entreprise's Billit API key when set. No global fallback.
+     */
+    public static function forEntreprise(?Entreprise $entreprise): self
+    {
+        $apiKey = '';
+        if ($entreprise && filled($entreprise->billit_api_key)) {
+            $apiKey = $entreprise->billit_api_key;
+        }
+
+        return new self($apiKey);
+    }
+
+    public function isConfigured(): bool
+    {
+        return $this->apiKey !== '';
     }
 
     public function sendInvoice(array $invoiceData)
     {
         try {
-            // Log the API key (first few characters) for debugging
-            Log::info('Using API Key: ' . substr($this->apiKey, 0, 8) . '...');
+            // Log the outgoing payload (without sensitive headers) for debugging
+            Log::info('Billit payload before sending', [
+                'url' => $this->baseUrl . '/v1/orders',
+                'payload' => $invoiceData,
+            ]);
+
+            Log::info('Billit request using configured API key', [
+                'api_key_prefix' => $this->apiKey !== '' ? substr($this->apiKey, 0, 6) . '…' : '(empty)',
+            ]);
 
             $response = Http::withHeaders([
                 'ApiKey' => $this->apiKey,
@@ -31,12 +67,16 @@ class BillitService
             ])->post($this->baseUrl . '/v1/orders', $invoiceData);
 
             if ($response->successful()) {
+                Log::info('Billit API success', [
+                    'status' => $response->status(),
+                    'response' => $response->json(),
+                ]);
                 return $response->json();
             }
 
             Log::error('Billit API Error', [
                 'status' => $response->status(),
-                'response' => $response->json(),
+                'response' => $response->body(),
                 'headers' => $response->headers(),
                 'request_url' => $this->baseUrl . '/v1/orders',
             ]);
@@ -69,75 +109,15 @@ class BillitService
             }
         }
 
-        // Step 1: Create the order
+        // Step 1: Create the order ONLY.
+        // We deliberately do NOT call the commands/send endpoint here so that
+        // the user can send the invoice manually from within the Billit UI.
         $created = $this->sendInvoice($invoiceData);
 
-        Log::info('Billit create response', ['response' => $created]);
-        // Step 2: Extract order id from creation response
-        $orderId = $this->extractOrderId($created);
-        if (!$orderId) {
-            Log::warning('Billit send - could not extract order id from create response', [ 'response' => $created ]);
-            return $created; // return create response; caller may handle
-        }
+        Log::info('Billit create response (no auto-send)', ['response' => $created]);
 
-        // Step 3: Send the order using commands/send (bulk endpoint with Transporttype)
-        // Choose Peppol only if we have a valid identifier (GLN) or ReceiverEndpointID; else default to Email
-        $transportOrder = $channelOverride ?: (
-            $this->shouldUsePeppol($invoiceData['Customer'] ?? [], $invoiceData) ? 'Peppol' : 'Email'
-        );
-        try {
-            $commandsEndpoint = $this->baseUrl . "/v1/orders/commands/send";
-            $payload = [
-                'Transporttype' => $transportOrder,
-                'OrderIDs' => [ (int)$orderId ],
-            ];
-
-            $sendResponse = Http::withHeaders([
-                'ApiKey' => $this->apiKey,
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ])->post($commandsEndpoint, $payload);
-
-            if ($sendResponse->successful()) {
-                return [ 'created' => $created, 'send' => $sendResponse->json(), 'transport' => $transportOrder ];
-            }
-
-            // Fallback: if Peppol fails, try Email once
-            if (!$channelOverride && strcasecmp($transportOrder, 'Peppol') === 0) {
-                Log::warning('Billit send via Peppol failed, retrying via Email', [
-                    'status' => $sendResponse->status(),
-                    'response' => $sendResponse->json(),
-                    'order_id' => $orderId,
-                ]);
-                $payload['Transporttype'] = 'Email';
-                $sendEmailResp = Http::withHeaders([
-                    'ApiKey' => $this->apiKey,
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
-                ])->post($commandsEndpoint, $payload);
-
-                if ($sendEmailResp->successful()) {
-                    return [ 'created' => $created, 'send' => $sendEmailResp->json(), 'transport' => 'Email' ];
-                }
-
-                Log::error('Billit send via Email also failed', [
-                    'status' => $sendEmailResp->status(),
-                    'response' => $sendEmailResp->json(),
-                    'order_id' => $orderId,
-                ]);
-                return [ 'created' => $created, 'send_error' => $sendEmailResp->json(), 'status' => $sendEmailResp->status(), 'transport' => 'Email' ];
-            }
-
-            Log::error('Billit send error', [
-                'status' => $sendResponse->status(),
-                'response' => $sendResponse->json(),
-                'order_id' => $orderId,
-            ]);
-            return [ 'created' => $created, 'send_error' => $sendResponse->json(), 'status' => $sendResponse->status(), 'transport' => $transportOrder ];
-        } catch (\Exception $e) {
-            Log::error('Billit send exception', [ 'message' => $e->getMessage(), 'order_id' => $orderId, 'transport' => $transportOrder ]);
-            return [ 'created' => $created, 'send_exception' => $e->getMessage(), 'transport' => $transportOrder ];
-        }
+        // Return the create response directly; callers can inspect it or log it.
+        return $created;
     }
 
     /**

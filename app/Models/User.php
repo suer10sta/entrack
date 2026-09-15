@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Notifications\CustomResetPasswordNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -11,7 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use App\Traits\HasEnterprisePermissions;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles, HasEnterprisePermissions;
 
@@ -27,6 +27,7 @@ class User extends Authenticatable
         'entreprise_id',
         'is_employee',
         'is_activate',
+        'locale',
         'timezone',
         'last_login_ip',
         'last_login_country',

@@ -6,6 +6,12 @@
     <title>{{ __('messages.Detailed Invoice - DalyTrac') }}</title> 
     @vite('resources/css/app.css')
     @livewireStyles
+
+    @if(session('error'))
+        <script>
+            alert(@json(session('error')));
+        </script>
+    @endif
     
     {{-- Custom styles to make <select> match <input> --}}
     <style>
@@ -25,6 +31,36 @@
         option {
             color: #111827;
         }
+
+        /* Mobile: stack invoice detail inputs one-per-line */
+        @media (max-width: 1024px) {
+            #invoiceDetailsTable thead {
+                display: none;
+            }
+            #invoiceDetailsTable tbody tr {
+                display: block;
+                padding: 0.75rem 0.75rem;
+            }
+            #invoiceDetailsTable tbody td {
+                display: block;
+                padding: 0.5rem 0;
+            }
+            #invoiceDetailsTable tbody td::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 0.75rem;
+                line-height: 1rem;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: #6b7280; /* gray-500 */
+                margin-bottom: 0.35rem;
+            }
+            #invoiceDetailsTable tbody td[data-label=""]::before {
+                content: "";
+                margin-bottom: 0;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
@@ -43,7 +79,7 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
             
             <div class="w-full"> 
                 @if(session('message'))
@@ -56,11 +92,11 @@
                 
                 {{-- Main Card --}}
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="flex justify-between items-center p-6 pb-0 border-b border-gray-200">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-4 sm:p-6 pb-4 border-b border-gray-200">
                         <h6 class="text-lg font-semibold text-gray-900">{{ __('messages.Detailed Invoice Generator') }}</h6>
                     </div>
                     
-                    <div class="p-6">
+                    <div class="p-4 sm:p-6">
                         {{-- Project and Comment Grid --}}
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                             <div class="md:col-span-1">
@@ -92,34 +128,34 @@
                             <label class="block text-base font-semibold text-gray-800 mb-2">{{ __('messages.Invoice Details') }}</label>
                             
                             {{-- NEW Table Structure --}}
-                            <div class="overflow-x-auto rounded-lg border border-gray-200">
-                                <table class="w-full min-w-full divide-y divide-gray-200">
+                            <div class="overflow-x-auto rounded-lg border border-gray-200" style="-webkit-overflow-scrolling: touch;">
+                                <table id="invoiceDetailsTable" class="w-full min-w-[1100px] divide-y divide-gray-200 table-auto">
                                     <thead class="bg-gray-50">
                                         <tr>
-                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-5/12">{{ __('messages.Detail') }}</th>
-                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-2/12">{{ __('messages.Quantity') }}</th>
-                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-2/12">{{ __('messages.Unit Price (€)') }}</th>
-                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 w-2/12">{{ __('messages.Total') }}</th>
-                                            <th scope="col" class="py-3 px-4 text-center text-sm font-semibold text-gray-700 w-1/12">{{ __('messages.Action') }}</th>
+                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 whitespace-nowrap">{{ __('messages.Detail') }}</th>
+                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 whitespace-nowrap">{{ __('messages.Quantity') }}</th>
+                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 whitespace-nowrap">{{ __('messages.Unit Price (€)') }}</th>
+                                            <th scope="col" class="py-3 px-4 text-left text-sm font-semibold text-gray-700 whitespace-nowrap">{{ __('messages.Total') }}</th>
+                                            <th scope="col" class="py-3 px-4 text-center text-sm font-semibold text-gray-700 whitespace-nowrap">{{ __('messages.Action') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody id="detailsContainer" class="bg-white divide-y divide-gray-200">
                                         {{-- Detail Row Template --}}
                                         <tr class="detail-row">
-                                            <td class="p-2 px-4">
-                                                <input type="text" class="detail-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="{{ __('messages.Enter detail') }}">
+                                            <td class="p-2 px-4" data-label="{{ __('messages.Detail') }}">
+                                                <input type="text" class="detail-input block w-full min-w-[320px] rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="{{ __('messages.Enter detail') }}">
                                             </td>
-                                            <td class="p-2 px-4">
-                                                <input type="number" step="0.01" class="quantity-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="Quantity">
+                                            <td class="p-2 px-4" data-label="{{ __('messages.Quantity') }}">
+                                                <input type="number" step="0.01" class="quantity-input block w-full min-w-[140px] rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="Quantity">
                                             </td>
-                                            <td class="p-2 px-4">
-                                                <input type="number" step="0.01" class="price-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="Unit price">
+                                            <td class="p-2 px-4" data-label="{{ __('messages.Unit Price (€)') }}">
+                                                <input type="number" step="0.01" class="price-input block w-full min-w-[180px] rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="Unit price">
                                             </td>
-                                            <td class="p-2 px-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            <td class="p-2 px-4 whitespace-nowrap text-sm font-medium text-gray-900" data-label="{{ __('messages.Total') }}">
                                                 {{-- Total is now a span, not an input --}}
                                                 <span class="row-total">0.00</span>€
                                             </td>
-                                            <td class="p-2 px-4 whitespace-nowrap text-center">
+                                            <td class="p-2 px-4 whitespace-nowrap text-center" data-label="{{ __('messages.Action') }}">
                                                 {{-- Delete button is now an icon --}}
                                                 <button type="button" class="deleteRowBtn text-red-600 hover:text-red-800">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

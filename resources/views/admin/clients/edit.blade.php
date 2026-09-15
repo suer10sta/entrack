@@ -77,6 +77,9 @@
                                                 <h5 class="font-weight-bolder mb-0">Personal Infos</h5>
                                                 <p class="mb-0 text-sm">Mandatory informations</p>
                                                 <div class="multisteps-form__content ">
+                                                    @php
+                                                        $countriesList = json_decode(file_get_contents(base_path('countries.json')), true) ?? [];
+                                                    @endphp
                                                     <div class="row mt-3">
                                                         <div class="col-12 col-sm-6">
                                                             <label>Name : </label>
@@ -131,9 +134,16 @@
                                                                 type="number" value="{{$client->zip}}" name="zip"/>
                                                         </div>
                                                         <div class="col-12 col-sm-6">
-                                                        <label>Country : </label>
-                                                            <input class="multisteps-form__input form-control"
-                                                                type="text" value="{{$client->country}}" name="country"/>
+                                                            <label>Country : </label>
+                                                            <select class="multisteps-form__input form-control"
+                                                                name="country">
+                                                                @foreach($countriesList as $country)
+                                                                    <option value="{{ $country['name'] }}"
+                                                                        @if($client->country === $country['name']) selected @endif>
+                                                                        {{ $country['name'] }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
                                                         </div>
                                                     </div>
                                                 </div>

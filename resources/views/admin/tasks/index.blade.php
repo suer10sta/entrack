@@ -8,6 +8,76 @@
     @livewireStyles
     {{-- Include dashboard_layouts.head if needed --}}
     {{-- @include('dashboard_layouts.head') --}}
+
+    <style>
+        /* Mobile-only: accordion by project + show only task name */
+        @media (max-width: 1024px) {
+            #tasksTable thead {
+                display: none;
+            }
+
+            /* Remove horizontal scrolling on mobile */
+            .tasks-table-responsive {
+                overflow-x: visible !important;
+            }
+
+            #tasksTable tbody {
+                display: block;
+                width: 100%;
+            }
+
+            /* Project header as a modern clickable card */
+            #tasksTable tbody tr.project-header {
+                display: block;
+                margin: 12px 12px 6px 12px;
+                border-radius: 14px;
+                border: 1px solid rgba(148, 163, 184, 0.55);
+                background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
+                box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
+            }
+
+            #tasksTable tbody tr.project-header td {
+                display: block;
+                padding: 12px 14px !important;
+                text-align: left !important;
+            }
+
+            /* Task rows become simple list items showing only name */
+            #tasksTable tbody tr.task-row {
+                display: block;
+                margin: 0 12px;
+                border-left: 1px solid rgba(226, 232, 240, 0.9);
+                border-right: 1px solid rgba(226, 232, 240, 0.9);
+                border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+                background: rgba(255,255,255,0.92);
+            }
+
+            #tasksTable tbody tr.task-row:first-of-type {
+                border-top: 1px solid rgba(226, 232, 240, 0.9);
+            }
+
+            /* Only keep first column visible (task title) */
+            #tasksTable tbody tr.task-row td {
+                display: none;
+            }
+            #tasksTable tbody tr.task-row td:first-child {
+                display: block;
+                padding: 12px 14px !important;
+                white-space: normal !important;
+                word-break: break-word;
+            }
+
+            /* Make sure hidden rows actually disappear */
+            #tasksTable tbody tr.hidden {
+                display: none !important;
+            }
+        }
+
+        /* Ensure hidden wins on all breakpoints */
+        #tasksTable tbody tr.hidden {
+            display: none !important;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
 
@@ -91,7 +161,7 @@
 
                 {{-- Table Wrapper --}}
                 <div class="p-0"> {{-- No padding for edge-to-edge table --}}
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto tasks-table-responsive">
                         <table class="w-full text-left border-collapse" id="tasksTable">
                             <thead class="border-b border-gray-200 bg-gray-50">
                                 <tr>
@@ -115,20 +185,26 @@
                                         $firstTask = $projectTasks->first(); // Use first task to get project name if project not found
                                     @endphp
                                     {{-- Project Header Row --}}
-                                    <tr class="bg-gray-200 project-header"> {{-- Class for filtering --}}
-                                        <td colspan="8" class="px-2 py-2 font-semibold text-gray-600 text-sm break-words text-center">
+                                    <tr class="bg-gray-200 project-header cursor-pointer select-none"
+                                        data-project-group="{{ $projectId }}" aria-expanded="true"> {{-- Class for filtering --}}
+                                        <td colspan="8" class="px-2 py-2 font-semibold text-gray-600 text-sm break-words">
                                             @php
                                                 $projectName = $project ? $project->name : ($firstTask ? $firstTask->project_name : 'Unknown Project');
                                             @endphp
-                                            <a href="{{ route('admin.projects.show', $projectId) }}" class="text-blue-600 hover:underline">
-                                                {{ $projectName }}
-                                            </a>
+                                            <div class="flex items-center justify-between gap-3">
+                                                <a href="{{ route('admin.projects.show', $projectId) }}" class="text-blue-600 hover:underline">
+                                                    {{ $projectName }}
+                                                </a>
+                                                <svg class="task-project-chevron w-5 h-5 text-slate-500 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6" />
+                                                </svg>
+                                            </div>
                                         </td>
                                     </tr>
 
                                     {{-- Tasks for this project --}}
                                     @foreach($projectTasks as $task)
-                                        <tr class="hover:bg-gray-50 task-row"> {{-- Class for filtering --}}
+                                        <tr class="hover:bg-gray-50 task-row" data-project-parent="{{ $projectId }}"> {{-- Class for filtering --}}
                                             {{-- Task Title --}}
                                             <td class="px-6 py-4 whitespace-normal break-words text-sm font-medium text-gray-900 task-title"> 
                                                 <a href="{{ route('admin.tasks.show', $task->id) }}" class="text-blue-600 hover:underline">
@@ -318,6 +394,37 @@
             const tableBody = document.querySelector('#tasksTable tbody');
             const allRows = Array.from(tableBody.querySelectorAll('tr')); // All rows including headers
 
+            // Mobile-only: collapse tasks by project, showing only task names
+            const setProjectExpanded = (headerRow, expanded) => {
+                headerRow.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+                const chevron = headerRow.querySelector('.task-project-chevron');
+                if (chevron) chevron.classList.toggle('rotate-180', expanded);
+
+                const projectId = headerRow.getAttribute('data-project-group');
+                if (!projectId) return;
+                document
+                    .querySelectorAll(`#tasksTable tbody tr.task-row[data-project-parent="${projectId}"]`)
+                    .forEach((row) => row.classList.toggle('hidden', !expanded));
+            };
+
+            const initProjectAccordionForViewport = () => {
+                const isMobile = window.matchMedia('(max-width: 1024px)').matches;
+                document.querySelectorAll('#tasksTable tbody tr.project-header[data-project-group]').forEach((headerRow) => {
+                    // Default: collapsed on mobile, expanded on desktop
+                    setProjectExpanded(headerRow, !isMobile);
+
+                    // Bind once
+                    if (headerRow.dataset.boundToggle === '1') return;
+                    headerRow.dataset.boundToggle = '1';
+
+                    headerRow.addEventListener('click', (e) => {
+                        if (e.target && e.target.closest('a')) return; // keep navigation
+                        const expanded = headerRow.getAttribute('aria-expanded') === 'true';
+                        setProjectExpanded(headerRow, !expanded);
+                    });
+                });
+            };
+
             function applyFilters() {
                 const filterValue = taskFilter.value.toLowerCase();
                 const searchValue = taskSearch.value.toLowerCase();
@@ -355,10 +462,25 @@
                          row.style.display = visibleProjectHeaders.has(row) ? "" : "none";
                      }
                 });
+
+                // After filtering, re-apply accordion state (mobile should remain collapsed unless user opened)
+                // We keep current header aria-expanded where possible.
+                const isMobile = window.matchMedia('(max-width: 1024px)').matches;
+                if (isMobile) {
+                    document.querySelectorAll('#tasksTable tbody tr.project-header[data-project-group]').forEach((headerRow) => {
+                        const expanded = headerRow.getAttribute('aria-expanded') === 'true';
+                        setProjectExpanded(headerRow, expanded);
+                    });
+                }
             }
 
             taskFilter.addEventListener('change', applyFilters);
             taskSearch.addEventListener('input', applyFilters);
+
+            initProjectAccordionForViewport();
+            const mq = window.matchMedia('(max-width: 1024px)');
+            if (mq.addEventListener) mq.addEventListener('change', initProjectAccordionForViewport);
+            else mq.addListener(initProjectAccordionForViewport);
         });
     </script>
     
@@ -371,6 +493,7 @@
             var alertSound = document.getElementById("alertSound"); // Ensure this exists
             var alertInterval;
             var checkStateInterval;
+            var previousTimerId = null;
 
             if (span) {
                 span.onclick = function() {
@@ -424,6 +547,12 @@
                     fetch(url)
                         .then(response => response.json())
                         .then(data => {
+                            var currentTimerId = data.tasksTimer ? data.tasksTimer.id : null;
+                            if (previousTimerId !== null && currentTimerId === null) {
+                                location.reload();
+                                return;
+                            }
+                            previousTimerId = currentTimerId;
                             checkTimerState(data.tasksTimer);
                         })
                         .catch(error => {

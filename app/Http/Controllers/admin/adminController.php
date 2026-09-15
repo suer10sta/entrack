@@ -618,10 +618,21 @@ class adminController extends Controller
             $html .= '<div class="space-y-1 w-full flex flex-col items-center' . ($hasBorder ? ' pb-2 border-b border-gray-200' : '') . '">';
 
             foreach ($projectTasks as $activeTask) {
-                $html .= '<form class="flex items-center justify-center gap-2 stop-form-' . $employee->id . '" action="' . route('admin.tasks.stop', ['tasks' => $activeTask->task_employee_id, 'employee_id' => $employee->id]) . '" method="POST" data-confirm="' . e(__('messages.Stop')) . '">';
-                $html .= csrf_field();
-                $html .= '<button type="submit" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white hover:bg-red-600">' . e(__('messages.Stop')) . '</button>';
-                $html .= '</form>';
+                $currentUserEmployeeId = \App\Models\Employees::where('user_id', auth()->user()->id)->first()?->id;
+                $isOwnTask = ($employee->id == $currentUserEmployeeId);
+
+                if ($isOwnTask) {
+                    $html .= '<form class="flex items-center justify-center gap-2 stop-form stop-form-' . $employee->id . '" action="' . route('admin.tasks.stop', ['tasks' => $activeTask->task_employee_id, 'employee_id' => $employee->id]) . '" method="POST">';
+                    $html .= csrf_field();
+                    $html .= '<input type="hidden" name="stop_comment" class="stop-comment-field">';
+                    $html .= '<button type="submit" class="stop-button inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white hover:bg-red-600" data-task-id="' . $activeTask->task_id . '">' . e(__('messages.Stop')) . '</button>';
+                    $html .= '</form>';
+                } else {
+                    $html .= '<form class="flex items-center justify-center gap-2 stop-form-' . $employee->id . '" action="' . route('admin.tasks.stop', ['tasks' => $activeTask->task_employee_id, 'employee_id' => $employee->id]) . '" method="POST" data-confirm="' . e(__('messages.Stop')) . '">';
+                    $html .= csrf_field();
+                    $html .= '<button type="submit" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white hover:bg-red-600">' . e(__('messages.Stop')) . '</button>';
+                    $html .= '</form>';
+                }
             }
 
             $html .= '</div>';

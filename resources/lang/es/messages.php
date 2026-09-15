@@ -20,7 +20,7 @@ return [
     'No team' => 'Sin equipo',
     'No task' => 'Sin tarea',
     'No data' => 'Sin datos',
-    'Are you sure you want to delete this employee?' => '¿Estás seguro de querer eliminar este empleado?',  
+    'Are you sure you want to delete this employee?' => '¿Estás seguro de querer eliminar este empleado?',
 
     'Project Overview' => 'Resumen de proyectos',
     'PROJECT INFO' => 'INFO DEL PROYECTO',
@@ -101,6 +101,10 @@ return [
     'WorkDays Emails label' => 'Correos receptores de WorkDay/Informe (introduzca cada correo separado por comas):',
     'Double Click to Configure it' => 'Haga doble clic para configurarlo',
     'Save All Changes enterprise' => 'Guardar todos los cambios',
+    'Billit API key' => 'Clave API de Billit (Peppol)',
+    'Billit API key help' => 'Se usa para crear facturas en su cuenta Billit al enviar por Peppol. Se guarda cifrada.',
+    'Billit API key saved hint' => 'Hay una clave guardada. Introduzca un valor nuevo para reemplazarla.',
+    'Leave empty to use platform default' => 'Dejar vacío para usar la clave predeterminada de la plataforma',
 
     // Enterprise expenses (create) page
     'Enterprise Expenses - DalyTrac' => 'Gastos de la empresa - DalyTrac',
@@ -183,17 +187,23 @@ return [
     'Save Changes' => 'Guardar cambios',
     '_START_–_END_ of _TOTAL_ employees' => '_START_–_END_ de _TOTAL_ empleados',
     'Are you sure?' => '¿Estás seguro?',
-    
+
     // Language & UI
     'Language' => 'Idioma',
     'English' => 'Inglés',
     'Français' => 'Francés',
     'Español' => 'Español',
     'Nederlands' => 'Neerlandés',
-    
+
     // Common Buttons
     'Add' => 'Agregar',
     'Edit' => 'Editar',
+    'Save Timer' => 'Guardar tiempo',
+    'Add Manual Time' => 'Agregar tiempo manual',
+    'Start Date and Time' => 'Fecha y hora de inicio',
+    'End Date and Time' => 'Fecha y hora de fin',
+    'Select Employee' => 'Seleccionar empleado',
+    'Add manual timer' => 'Agregar tiempo manual',
 
     // Employees Index
     'Employees - DalyTrac' => 'Empleados - DalyTrac',
@@ -331,6 +341,8 @@ return [
     'Create new project for your client' => 'Crear un nuevo proyecto para su cliente',
     'Create project' => 'Crear proyecto',
     'Create SubProject' => 'Crear subproyecto',
+    'Show' => 'Mostrar',
+    'Hide' => 'Ocultar',
 
     // Project Show
     'Project Details - DalyTrac' => 'Detalles del proyecto - DalyTrac',
@@ -428,6 +440,10 @@ return [
     'Error sending email. Please try again.' => 'Error al enviar el correo. Inténtelo de nuevo.',
     'Team Members:' => 'Miembros del equipo:',
     'View' => 'Ver',
+    'View in Stripe' => 'Ver en Stripe',
+    'Send' => 'Enviar',
+    'Send via Email' => 'Enviar por correo',
+    'Send via Peppol' => 'Enviar vía Peppol',
     'Work Days Reports' => 'Informes de días trabajados',
     'Internal Work Days' => 'Días trabajados internos',
     'Sick Days' => 'Días de enfermedad',
@@ -471,7 +487,7 @@ return [
     'Reports PDF' => 'Informes PDF',
     'Add Team' => 'Agregar equipo',
     'Add Employee' => 'Agregar empleado',
-    
+
     // Common Messages
     'No results found' => 'No se encontraron resultados',
     'Searching...' => 'Buscando...',
@@ -479,7 +495,7 @@ return [
     'Mark as read' => 'Marcar como leído',
     'Read' => 'Leído',
     'Dismiss alert' => 'Descartar alerta',
-    
+
     // Table Headers
     'Name' => 'Nombre',
     'Email' => 'Correo electrónico',
@@ -488,7 +504,7 @@ return [
     'Date' => 'Fecha',
     'Time' => 'Hora',
     'Description' => 'Descripción',
-    
+
     // Employees Table & Dashboard
     'Employees Table' => 'Tabla de empleados',
     'No work today' => 'Sin trabajo hoy',
@@ -638,6 +654,18 @@ return [
     'Invoices History - DalyTrac' => 'Historial de facturas - DalyTrac',
     'Invoices History' => 'Historial de facturas',
     'Manage and track all your invoices in one place' => 'Gestione y siga todas sus facturas en un solo lugar',
+    // Invoices Archive Page
+    'Invoices Archive - DalyTrac' => 'Archivo de facturas - DalyTrac',
+    'Invoices Archive' => 'Archivo de facturas',
+    'Sort by Date' => 'Ordenar por fecha',
+    'Payment Date' => 'Fecha de pago',
+    'Partial Period' => 'Período parcial',
+    'Full Period' => 'Período completo',
+    'Unarchive this invoice?' => '¿Desarchivar esta factura?',
+    'Amount exceeds total cost.' => 'El importe supera el costo total.',
+    'Default' => 'Predeterminado',
+    'Descending' => 'Descendente',
+    'Ascending' => 'Ascendente',
     'Invoices Reports PDF' => 'Informes de facturas PDF',
     'Start Date' => 'Fecha de inicio',
     'End Date' => 'Fecha de fin',
@@ -695,6 +723,8 @@ return [
     'Send via Email' => 'Enviar por correo electrónico',
     'Send via Peppol' => 'Enviar vía Peppol',
     'Select Recipients (Email):' => 'Seleccionar destinatarios (correo):',
+    'CopyRecipient' => 'Destinatario en copia',
+    'Send the invoice only to the checked emails.' => 'Enviar la factura solo a los correos seleccionados.',
     'Loading...' => 'Cargando...',
     'Download Invoices Reports' => 'Descargar informes de facturas',
     'Choose payment statuses (optional):' => 'Elija los estados de pago (opcional):',
@@ -839,6 +869,7 @@ return [
     'Devis N' => 'Presupuesto N',
     'Client Name / Emails' => 'Nombre del cliente / Correos',
     'Unbilled Budget' => 'Presupuesto no facturado',
+    'Billed Budget' => 'Presupuesto facturado',
     'Created at' => 'Creado el',
     'Acceptance' => 'Aceptación',
     'Download Devis Reports' => 'Descargar informes de presupuestos',
@@ -846,6 +877,15 @@ return [
     'Include archived' => 'Incluir archivados',
     'Date range (optional) will be applied from the fields at the top.' => 'El rango de fechas (opcional) se aplicará desde los campos de la parte superior.',
     'Download PDF' => 'Descargar PDF',
+
+    // Project show - Devis & files & contacts
+    'Devis' => 'Presupuestos',
+    'Project Files' => 'Archivos del proyecto',
+    'File Name' => 'Nombre del archivo',
+    'Uploaded At' => 'Subido el',
+    'No devis found' => 'No se encontraron presupuestos',
+    'No files uploaded' => 'No se han subido archivos',
+    'Upload' => 'Subir',
 
     // Workdays preview page
     'Workdays Report Preview Title' => 'Vista previa del informe de días trabajados - DalyTrac',
@@ -890,6 +930,7 @@ return [
     'Description' => 'Descripción',
     'Event Description placeholder' => 'Añada detalles sobre el evento...',
     'Tag Color' => 'Color de etiqueta',
+    'Tag Color helper' => 'Color usado como color predeterminado del proyecto en el calendario.',
     'Assign to Employees label' => 'Asignar a empleados',
     'Assign to Employees helper' => 'Seleccione uno o varios empleados para este evento.',
     'Client' => 'Cliente',
@@ -1124,6 +1165,9 @@ return [
     'Period Invoice' => 'Factura por período',
     'Partial Invoice' => 'Factura parcial',
     'Percentage Invoice' => 'Factura porcentual',
+    'Subscription invoice' => 'Factura de suscripción',
+    'Subscription' => 'Suscripción',
+    'Detailed Invoice' => 'Factura detallada',
     'Select Project' => 'Seleccionar proyecto',
     'Hours (h:mm)' => 'Horas (h:mm)',
     'Example: 5:30' => 'Ejemplo: 5:30',
@@ -1165,6 +1209,7 @@ return [
     'Customer preview warning line2' => 'El resto del informe se ha generado correctamente. Puede revisar los detalles de las tareas omitidas.',
     'View skipped tasks' => 'Ver tareas omitidas',
     'View Task' => 'Ver tarea',
+    'View Project' => 'Ver proyecto',
     'PDF preview' => 'Vista previa del PDF',
     'PDF preview subtitle' => 'Revise el worksheet antes de enviarlo al cliente.',
     'Send by email' => 'Enviar por correo electrónico',
@@ -1861,4 +1906,85 @@ return [
     'view contacts' => 'Ver contactos',
     'Billings' => 'Facturación',
     'Create planning' => 'Crear planificación',
+
+    // Manager blog (interfaz administrador)
+    'Manager Blog posts title' => 'Entradas del blog',
+    'Manager Blog posts subtitle' => 'Crea y gestiona los artículos que aparecen en el blog público de DalyTrac.',
+    'Manager Blog new post' => 'Nueva entrada',
+    'Manager Blog empty' => 'Todavía no hay entradas. Haz clic en “Nueva entrada” para crear tu primer artículo.',
+    'Manager Blog table title' => 'Título',
+    'Manager Blog table slug' => 'Slug',
+    'Manager Blog table status' => 'Estado',
+    'Manager Blog table published_at' => 'Fecha de publicación',
+    'Manager Blog table actions' => 'Acciones',
+    'Manager Blog status published' => 'Publicado',
+    'Manager Blog status draft' => 'Borrador',
+    'Manager Blog action view' => 'Ver',
+    'Manager Blog action edit' => 'Editar',
+    'Manager Blog action delete' => 'Eliminar',
+    'Manager Blog delete confirm' => '¿Eliminar esta entrada?',
+    'Manager Blog new title' => 'Nueva entrada de blog',
+    'Manager Blog back to posts' => 'Volver a las entradas',
+    'Manager Blog field title' => 'Título',
+    'Manager Blog field slug optional' => 'Slug (opcional)',
+    'Manager Blog field slug' => 'Slug',
+    'Manager Blog slug placeholder' => 'Se genera automáticamente a partir del título si se deja vacío',
+    'Manager Blog publish datetime' => 'Fecha y hora de publicación',
+    'Manager Blog excerpt label' => 'Extracto (opcional, máx. 500 caracteres)',
+    'Manager Blog content label' => 'Contenido',
+    'Manager Blog content helper' => 'Puedes usar texto plano; los saltos de línea se conservarán en el blog público.',
+    'Manager Blog publish immediately' => 'Publicar inmediatamente',
+    'Manager Blog save post' => 'Guardar entrada',
+    'Manager Blog edit title' => 'Editar entrada de blog',
+    'Manager Blog editing label' => 'Editando:',
+    'Manager Blog slug helper' => 'Se usa en la URL: /blog/&lt;slug&gt;',
+    'Manager Blog view public page' => 'Ver página pública',
+    'Manager Blog save changes' => 'Guardar cambios',
+
+    // Marketing blog
+    'Blog' => 'Blog',
+    'Latest insights from DalyTrac' => 'Últimas ideas de DalyTrac',
+    'Practical tips on invoicing, projects, and time tracking to help your team work smarter.' => 'Consejos prácticos sobre facturación, proyectos y control de tiempo para ayudar a tu equipo a trabajar de forma más inteligente.',
+    'Read more' => 'Leer más',
+    'DalyTrac Blog' => 'Blog de DalyTrac',
+    'Back to blog' => 'Volver al blog',
+    'No blog posts yet. Check back soon!' => 'Todavía no hay publicaciones en el blog. Vuelve pronto.',
+    'Stop Task' => 'Detener tarea',
+    'Please leave a comment describing the work done before stopping the task.' => 'Por favor, deje un comentario describiendo el trabajo realizado antes de detener la tarea.',
+    'Comment' => 'Comentario',
+    'Describe what you worked on...' => 'Describa en qué trabajó...',
+    'Comment is required to stop the task.' => 'El comentario es obligatorio para detener la tarea.',
+    'Confirm Stop' => 'Confirmar detención',
+    'Correct with AI' => 'Corregir con IA',
+    'Correcting...' => 'Corrigiendo...',
+    'Spelling and grammar corrected!' => '¡Ortografía y gramática corregidas!',
+    'Failed to correct comment. Please check API configuration.' => 'Error al corregir el comentario. Verifique la configuración de la API.',
+
+    'Cost HT' => 'Coste (sin IVA)',
+    'Cost TVA' => 'IVA',
+    'Cost TTC' => 'Coste (con IVA)',
+    'Check Spelling?' => '¿Verificar ortografía?',
+    'Would you like to verify the spelling of your comment before submitting?' => '¿Le gustaría verificar la ortografía de su comentario antes de enviarlo?',
+    'Yes, verify spelling' => 'Sí, verificar ortografía',
+    'No, submit as is' => 'No, enviar tal cual',
+    'Translate to Dutch' => 'Traducir al neerlandés',
+    'Translating...' => 'Traduciendo...',
+    'Translated to Dutch!' => '¡Traducido al neerlandés!',
+    'Failed to translate comment. Please check API configuration.' => 'Error al traducir el comentario. Verifique la configuración de la API.',
+    'Translate to Dutch?' => '¿Traducir al neerlandés?',
+    'Would you like to translate your comment into Dutch before submitting?' => '¿Le gustaría traducir su comentario al neerlandés antes de enviarlo?',
+    'Yes, translate to Dutch' => 'Sí, traducir al neerlandés',
+
+    // Visit filters
+    'Exclude known bots' => 'Excluir bots conocidos',
+    'Exclude no-JS visits' => 'Excluir visitas sin JS',
+    'Exclude hosting IPs' => 'Excluir IPs de hosting',
+    'Exclude VPN IPs' => 'Excluir IPs VPN',
+    'Exclude abnormal traffic' => 'Excluir tráfico anormal',
+    'Apply filters' => 'Aplicar filtros',
+    'Clear filters' => 'Limpiar filtros',
+    'Pin project' => 'Fijar proyecto',
+    'Unpin project' => 'Desfijar proyecto',
+    'Toggle tasks' => 'Mostrar/Ocultar tareas',
+
 ];

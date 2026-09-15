@@ -120,6 +120,7 @@ thead {
         <thead>
             <tr>
                 <th>{{ __('messages.Project Name column') }}</th>
+                <th>{{ __('messages.Comment') }}</th>
                 <th>{{ __('messages.Start Date column pointage') }}</th>
                 <th>{{ __('messages.End Date column pointage') }}</th>
                 <th>{{ __('messages.Duration column pointage') }}</th>
@@ -139,6 +140,7 @@ thead {
                     @endphp
                     {{ $project?->name ?? __('messages.N/A') }}
                 </td>
+                <td>{{ $task->comment ?? '-' }}</td>
                 <td>{{$task->start_date}}</td>
                 <td>{{$task->end_date}}</td>
                 <td>
@@ -153,7 +155,7 @@ thead {
             </tr>
             @endforeach
             <tr style="background-color: #f8f9fa;">
-                <td colspan="3" style="text-align: right; border: none;"><strong>{{ __('messages.Task Total label') }}</strong></td>
+                <td colspan="4" style="text-align: right; border: none;"><strong>{{ __('messages.Task Total label') }}</strong></td>
                 <td style="border: none;">
                     @php
                         $taskHours = floor($taskTotalDuration / 60);
@@ -168,7 +170,7 @@ thead {
 
     <table>
         <tr style="background-color: #e9ecef;">
-            <td colspan="3" style="text-align: right; border: none;"><strong>{{ __('messages.Grand Total label') }}</strong></td>
+            <td colspan="4" style="text-align: right; border: none;"><strong>{{ __('messages.Grand Total label') }}</strong></td>
             <td style="border: 1px solid black;">
                 @php
                     $grandHours = floor($grandTotalDuration / 60);

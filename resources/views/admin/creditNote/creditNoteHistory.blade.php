@@ -85,6 +85,87 @@
             cursor: pointer; transition: all 0.2s;
         }
         .btn-delete:hover { background-color: #B91C1C; }
+
+        /* Mobile: show credit-note rows as modern 2-col cards (no horizontal scroll) */
+        @media (max-width: 1024px) {
+            .credit-note-table-wrapper {
+                overflow-x: visible !important;
+            }
+
+            .credit-note-table thead {
+                display: none;
+            }
+
+            .credit-note-table tbody {
+                display: block;
+                width: 100%;
+            }
+
+            .credit-note-table tbody tr {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                margin-bottom: 16px;
+                padding: 12px;
+                border: 1px solid rgba(148, 163, 184, 0.55);
+                border-radius: 16px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
+                box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
+                transition: transform 180ms ease, box-shadow 180ms ease;
+            }
+
+            .credit-note-table tbody td {
+                display: block;
+                width: 100%;
+                padding: 10px 12px !important;
+                border: 1px solid rgba(226, 232, 240, 0.9);
+                border-radius: 12px;
+                background: rgba(255,255,255,0.78);
+                text-align: left !important;
+                white-space: normal !important;
+                word-break: break-word;
+            }
+
+            .credit-note-table tbody td[data-span="2"] {
+                grid-column: span 2 / span 2;
+            }
+
+            .credit-note-table tbody td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+                color: #64748b;
+                margin-bottom: 6px;
+            }
+
+            /* Keep action buttons readable on mobile */
+            .credit-note-table tbody td[data-label="Actions"] .flex {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            /* Mobile accordion: collapsed row shows only credit note number */
+            .credit-note-table tbody tr.credit-note-item-row.is-collapsed td:not(.credit-note-toggle-cell) {
+                display: none !important;
+            }
+            .credit-note-table tbody tr.credit-note-item-row td.credit-note-toggle-cell {
+                cursor: pointer;
+                user-select: none;
+            }
+            /* We render the label inline in markup for this cell */
+            .credit-note-table tbody tr.credit-note-item-row td.credit-note-toggle-cell[data-label]::before {
+                content: none !important;
+            }
+            .credit-note-table tbody tr.credit-note-item-row td.credit-note-toggle-cell .credit-note-chevron {
+                transition: transform 180ms ease;
+            }
+            .credit-note-table tbody tr.credit-note-item-row[aria-expanded="true"] td.credit-note-toggle-cell .credit-note-chevron {
+                transform: rotate(180deg);
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -104,25 +185,25 @@
             <x-dashboard.navbar />
 
             {{-- Main Content Area --}}
-            <main class="flex-1 p-6 bg-gray-50">
+            <main class="flex-1 p-4 sm:p-6 lg:p-8 bg-gray-50">
                 <div class="mb-6">
-                    <div class="flex justify-between items-start mb-4">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
                         <div>
                             <h1 class="text-2xl font-bold text-gray-900 mb-1">{{ __('messages.Credit Note History') }}</h1>
                             <p class="text-sm text-gray-500">{{ __('messages.Manage and track all credit notes') }}</p>
                         </div>
                         
-                        <div class="flex items-end gap-3">
-                            <div x-data="datePicker()" class="flex items-end gap-3">
+                        <div class="flex items-end gap-3 w-full sm:w-auto">
+                            <div x-data="datePicker()" class="flex flex-col sm:flex-row sm:items-end gap-3 w-full sm:w-auto">
                                 <div>
                                     <label for="startDate" class="block text-xs font-medium text-gray-700 mb-1">{{ __('messages.Start Date') }}:</label>
-                                    <input type="date" id="startDate" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" x-model="startDate">
+                                    <input type="date" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" x-model="startDate">
                                 </div>
                                 <div>
                                     <label for="endDate" class="block text-xs font-medium text-gray-700 mb-1">{{ __('messages.End Date') }}:</label>
-                                    <input type="date" id="endDate" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" x-model="endDate">
+                                    <input type="date" id="endDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" x-model="endDate">
                                 </div>
-                                <button @click.prevent="updateHref" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center gap-2 h-[42px]">
+                                <button @click.prevent="updateHref" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center justify-center gap-2 h-[42px] w-full sm:w-auto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
                                     </svg>
@@ -149,9 +230,9 @@
                         </div>
                     @endif
 
-                    <div class="bg-white border border-gray-200 rounded-lg p-5 mb-6">
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 sm:p-5 mb-6">
                         <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">{{ __('messages.Credit Note Filters') }}</h3>
-                        <div class="grid grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                             <div>
                                 <label for="clientFilter" class="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-2">{{ __('messages.Credit Note Client') }}</label>
                                 <select id="clientFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 form-select-custom">
@@ -187,20 +268,20 @@
                 </div>
 
                 <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                    <div class="overflow-x-auto">
-                        <table class="w-full credit-note-table">
+                    <div class="credit-note-table-wrapper overflow-x-auto" style="-webkit-overflow-scrolling: touch;">
+                        <table class="w-full credit-note-table table-auto">
                             <thead>
                                 <tr>
-                                    <th>{{ __('messages.Credit Note N') }}</th>
-                                    <th>{{ __('messages.Project') }}</th>
+                                    <th class="whitespace-nowrap">{{ __('messages.Credit Note N') }}</th>
+                                    <th class="whitespace-nowrap">{{ __('messages.Project') }}</th>
                                     <th class="text-center">{{ __('messages.VAT') }}</th>
-                                    <th>{{ __('messages.Client') }}</th>
-                                    <th class="text-center">{{ __('messages.Start Date column') }}</th>
-                                    <th class="text-center">{{ __('messages.End Date column') }}</th>
-                                    <th class="text-center">{{ __('messages.Type') }}</th>
-                                    <th class="text-center">{{ __('messages.Created At') }}</th>
-                                    <th class="text-right">{{ __('messages.Amount') }}</th>
-                                    <th class="text-center">{{ __('messages.Actions') }}</th>
+                                    <th class="whitespace-nowrap">{{ __('messages.Client') }}</th>
+                                    <th class="text-center whitespace-nowrap">{{ __('messages.Start Date column') }}</th>
+                                    <th class="text-center whitespace-nowrap">{{ __('messages.End Date column') }}</th>
+                                    <th class="text-center whitespace-nowrap">{{ __('messages.Type') }}</th>
+                                    <th class="text-center whitespace-nowrap">{{ __('messages.Created At') }}</th>
+                                    <th class="text-right whitespace-nowrap">{{ __('messages.Amount') }}</th>
+                                    <th class="text-center whitespace-nowrap">{{ __('messages.Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -217,48 +298,72 @@
                                         $typeLabel = ($creditNoteKind === 'Partial') ? 'Partial Full' : 'Full';
                                     }
                                 @endphp
-                                <tr data-type="{{ strtolower($typeLabel) }}">
-                                    <td>
+                                <tr data-type="{{ strtolower($typeLabel) }}" class="credit-note-item-row" data-credit-note-row aria-expanded="true">
+                                    <td data-label="{{ __('messages.Credit Note N') }}" data-span="2" class="credit-note-toggle-cell" data-credit-note-toggle>
                                         @if(Auth::user()->hasRole('Responsable de projet'))
-                                        <a href="{{ route('Responsable_de_projet.invoices.serveCreditNotePdf', $credit_note->id) }}" target="_blank" class="credit-note-link">
+                                        <a href="{{ route('Responsable_de_projet.invoices.serveCreditNotePdf', $credit_note->id) }}" target="_blank" class="credit-note-link hidden lg:inline">
                                             NC-{{ $credit_note->created_at->format('ym') }}{{ $credit_note->credit_note_number }}
                                         </a>
                                         @endif
                                         @if(Auth::user()->hasRole('Admin'))
-                                        <a href="{{ route('admin.invoices.serveCreditNotePdf', $credit_note->id ) }}" target="_blank" class="credit-note-link">
+                                        <a href="{{ route('admin.invoices.serveCreditNotePdf', $credit_note->id ) }}" target="_blank" class="credit-note-link hidden lg:inline">
                                             NC-{{ $credit_note->created_at->format('ym') }}{{ $credit_note->credit_note_number }}
                                         </a>
                                         @endif
                                         @if(Auth::user()->hasRole('Employee'))
-                                        <a href="{{ route('employee.invoices.serveCreditNotePdf', $credit_note->id) }}" target="_blank" class="credit-note-link">
+                                        <a href="{{ route('employee.invoices.serveCreditNotePdf', $credit_note->id) }}" target="_blank" class="credit-note-link hidden lg:inline">
                                             NC-{{ $credit_note->created_at->format('ym') }}{{ $credit_note->credit_note_number }}
                                         </a>
                                         @endif
                                         @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                        <a href="{{ route('Responsable_gestionnaire.invoices.serveCreditNotePdf', $credit_note->id) }}" target="_blank" class="credit-note-link">
+                                        <a href="{{ route('Responsable_gestionnaire.invoices.serveCreditNotePdf', $credit_note->id) }}" target="_blank" class="credit-note-link hidden lg:inline">
                                             NC-{{ $credit_note->created_at->format('ym') }}{{ $credit_note->credit_note_number }}
                                         </a>
                                         @endif
+
+                                        {{-- Mobile accordion header --}}
+                                        <div class="flex items-start justify-between gap-3 lg:hidden">
+                                            <div class="flex items-baseline gap-2 min-w-0">
+                                                <span class="text-[11px] leading-none font-bold tracking-[.06em] uppercase text-slate-500 whitespace-nowrap">
+                                                    {{ __('messages.Credit Note N') }}
+                                                </span>
+                                                @php
+                                                    $creditNotePdfRoute = '';
+                                                    if(Auth::user()->hasRole('Responsable de projet')) $creditNotePdfRoute = route('Responsable_de_projet.invoices.serveCreditNotePdf', $credit_note->id);
+                                                    elseif(Auth::user()->hasRole('Admin')) $creditNotePdfRoute = route('admin.invoices.serveCreditNotePdf', $credit_note->id);
+                                                    elseif(Auth::user()->hasRole('Employee')) $creditNotePdfRoute = route('employee.invoices.serveCreditNotePdf', $credit_note->id);
+                                                    elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $creditNotePdfRoute = route('Responsable_gestionnaire.invoices.serveCreditNotePdf', $credit_note->id);
+                                                @endphp
+                                                <a href="{{ $creditNotePdfRoute ?: '#' }}" target="_blank" class="credit-note-link truncate leading-none">
+                                                    NC-{{ $credit_note->created_at->format('ym') }}{{ $credit_note->credit_note_number }}
+                                                </a>
+                                            </div>
+                                            <span class="shrink-0 mt-0.5 text-slate-400">
+                                                <svg class="credit-note-chevron w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                    <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </span>
+                                        </div>
                                     </td>
-                                    <td class="font-medium">{{strtoupper($credit_note->project_name)}}</td>
-                                    <td class="text-center">
+                                    <td data-label="{{ __('messages.Project') }}" class="font-medium">{{strtoupper($credit_note->project_name)}}</td>
+                                    <td data-label="{{ __('messages.VAT') }}" class="text-center">
                                             @php 
                                             $project = App\Models\Project::find($credit_note->project_id);
                                         @endphp
                                         {{$project->tva}}%
                                     </td>
-                                    <td>
+                                    <td data-label="{{ __('messages.Client') }}">
                                         @php
                                         $client = \App\Models\Client::where('id', $credit_note->client_id)->first();
                                         @endphp
                                         {{$client->name}}
                                     </td>
-                                    <td class="text-center">{{$credit_note->start_date}}</td>
-                                    <td class="text-center">{{$credit_note->end_date}}</td>
-                                    <td class="text-center">{{$typeLabel}}</td>
-                                    <td class="text-center">{{$credit_note->created_at}}</td>
-                                    <td class="text-right amount-negative">-€{{number_format($credit_note->total_ttc, 2, '.', '')}}</td>
-                                    <td>
+                                    <td data-label="{{ __('messages.Start Date column') }}" class="text-center">{{$credit_note->start_date}}</td>
+                                    <td data-label="{{ __('messages.End Date column') }}" class="text-center">{{$credit_note->end_date}}</td>
+                                    <td data-label="{{ __('messages.Type') }}" class="text-center">{{$typeLabel}}</td>
+                                    <td data-label="{{ __('messages.Created At') }}" class="text-center">{{$credit_note->created_at}}</td>
+                                    <td data-label="{{ __('messages.Amount') }}" data-span="2" class="text-right amount-negative">-€{{number_format($credit_note->total_ttc, 2, '.', '')}}</td>
+                                    <td data-label="{{ __('messages.Actions') }}" data-span="2">
                                         <div class="flex items-center justify-center gap-2">
                                             @if(Auth::user()->hasRole('Responsable de projet'))
                                                 <a href="{{ route('Responsable_de_projet.invoices.serveCreditNotePdf', $credit_note->id) }}" class="btn-view">
@@ -519,6 +624,42 @@
                     }
                 });
             }
+        });
+
+        // Mobile accordion per credit note row (show only number when collapsed)
+        document.addEventListener('DOMContentLoaded', function () {
+            const mql = window.matchMedia('(max-width: 1024px)');
+
+            function setRowCollapsed(row, collapsed) {
+                if (!row) return;
+                row.classList.toggle('is-collapsed', collapsed);
+                row.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            }
+
+            function initAccordions() {
+                const rows = document.querySelectorAll('.credit-note-table tbody tr.credit-note-item-row');
+                const isMobile = mql.matches;
+                rows.forEach(row => setRowCollapsed(row, isMobile));
+            }
+
+            document.addEventListener('click', function (e) {
+                const toggleCell = e.target.closest('[data-credit-note-toggle]');
+                if (!toggleCell) return;
+
+                // Let normal link clicks open the PDF without toggling.
+                if (e.target.closest('a')) return;
+
+                const row = toggleCell.closest('tr.credit-note-item-row');
+                if (!row) return;
+
+                const collapsed = row.classList.contains('is-collapsed');
+                setRowCollapsed(row, !collapsed);
+            });
+
+            if (mql.addEventListener) mql.addEventListener('change', initAccordions);
+            else if (mql.addListener) mql.addListener(initAccordions);
+
+            initAccordions();
         });
     </script>
     

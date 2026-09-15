@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Cashier\Cashier;
 use App\Mail\AdminActivityAlertMail;
+use App\Services\SubscriptionInvoiceService;
 
 class SubscriptionController extends Controller
 {
@@ -80,11 +81,21 @@ class SubscriptionController extends Controller
             }
         }
 
-        return response()->json([
+        $payload = [
             'message' => 'Préférence de renouvellement enregistrée.',
             'renewal' => $renewalPreference,
             'stripe_sync' => $entreprise->fresh()->renewalSyncStatus(),
-        ]);
+        ];
+
+        // Support both JSON (AJAX) and regular form submissions.
+        if ($request->expectsJson() || $request->wantsJson() || $request->isJson()) {
+            return response()->json($payload);
+        }
+
+        return redirect()
+            ->back()
+            ->with('success', $payload['message'])
+            ->with('renewal', $payload['renewal']);
     }
 
     /**
@@ -95,15 +106,30 @@ class SubscriptionController extends Controller
     {
         $validPlans = ['solo', 'premium', 'pro'];
         if (!in_array($planName, $validPlans, true)) {
-            return redirect()->back()->with('alertmessage', 'Plan invalide.');
+            return redirect()
+                ->route('profile.upgrade')
+                ->with('error', 'Plan invalide.');
         }
 
         $entreprise = Auth::user()->entreprise;
 
+        if (! $entreprise) {
+            return redirect()
+                ->route('profile.upgrade')
+                ->with('error', 'Aucune entreprise associée à cet utilisateur.');
+        }
+
+        // Before starting payment, ensure the entreprise has a country configured.
+        if (empty(trim((string) $entreprise->country))) {
+            return redirect()
+                ->route('profile.upgrade')
+                ->with('error', 'Veuillez d\'abord renseigner le pays de votre entreprise dans les informations d\'entreprise avant de souscrire à un plan.');
+        }
+
         if ($entreprise->subscribed('default')) {
             return redirect()
                 ->route('dashboard')
-                ->with('alertmessage', 'Votre entreprise est déjà abonnée !');
+                ->with('error', 'Votre entreprise est déjà abonnée !');
         }
 
         $priceId = match ($planName) {
@@ -114,6 +140,8 @@ class SubscriptionController extends Controller
             //'solo'    => env('STRIPE_PRICE_SOLO', 'price_1SzeGWB4LVww0NzztR9cOrna'),
             'premium' => env('STRIPE_PRICE_PREMIUM', 'price_1Sl5B5B4LVww0NzzuRKyJNtf'),
             'pro'     => env('STRIPE_PRICE_PRO', 'price_1Sl5BcB4LVww0Nzzwstbphvv'),
+            // Pro plan price 99€/month (test mode)
+            //'pro'     => env('STRIPE_PRICE_PRO', 'price_1SVBpSB4LVww0NzzFxjCdtU1'),
         };
 
         $renewalPreference = $request->query('renewal', 'auto');
@@ -178,6 +206,29 @@ class SubscriptionController extends Controller
                 } catch (\Throwable $e) {
                     // Keep success flow resilient if direct Stripe update fails.
                 }
+            }
+        }
+
+        // For local/test usage: try to generate a custom PDF subscription invoice
+        // even if the Stripe webhook is not configured/reachable.
+        if ($entreprise->stripe_id) {
+            try {
+                $invoices = $entreprise->invoicesIncludingPending();
+                $latestInvoice = $invoices[0] ?? null;
+
+                if ($latestInvoice) {
+                    $stripeInvoice = $latestInvoice->asStripeInvoice();
+                    if (method_exists($stripeInvoice, 'toArray')) {
+                        $payload = $stripeInvoice->toArray();
+                    } else {
+                        // Fallback: rely on public properties
+                        $payload = json_decode(json_encode($stripeInvoice), true) ?? [];
+                    }
+
+                    app(SubscriptionInvoiceService::class)->createFromStripeInvoice($entreprise, $payload);
+                }
+            } catch (\Throwable $e) {
+                // Do not block user flow if PDF generation fails
             }
         }
 

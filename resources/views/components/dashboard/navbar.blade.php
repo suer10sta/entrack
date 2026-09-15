@@ -24,9 +24,24 @@
     }
 @endphp
 
-<header class="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200">
-    
-    <div class="flex items-center w-full max-w-lg" x-data="searchDropdown()" x-init="init()">
+<header class="flex items-center justify-between px-4 sm:px-6 py-3 bg-white border-b border-gray-200">
+    <div class="flex items-center gap-3 flex-1 min-w-0">
+        {{-- Mobile hamburger (shows sidebar) --}}
+        <button
+            type="button"
+            class="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+            onclick="toggleAppSidebar(true)"
+            aria-label="{{ __('messages.Open menu') }}"
+        >
+            <span class="sr-only">{{ __('messages.Open menu') }}</span>
+            <div class="flex flex-col gap-1">
+                <span class="block h-1 w-5 bg-gray-800"></span>
+                <span class="block h-1 w-5 bg-gray-800"></span>
+                <span class="block h-1 w-5 bg-gray-800"></span>
+            </div>
+        </button>
+
+        <div class="flex items-center w-full max-w-lg min-w-0" x-data="searchDropdown()" x-init="init()">
         <div class="relative w-full">
             <span class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-400">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -114,7 +129,15 @@
                                     </div>
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-semibold text-gray-900 truncate" x-text="result.title"></p>
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-sm font-semibold text-gray-900 truncate" x-text="result.title"></p>
+                                        <span
+                                            x-show="result.archived"
+                                            class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-800"
+                                        >
+                                            Archived
+                                        </span>
+                                    </div>
                                     <p class="text-xs text-gray-500 truncate" x-text="result.subtitle"></p>
                                     <span class="inline-block mt-1 text-xs px-2 py-0.5 rounded"
                                           :class="{
@@ -133,6 +156,7 @@
                     </template>
                 </div>
             </div>
+        </div>
         </div>
     </div>
 
@@ -496,3 +520,42 @@
         }
     </script>
 @endonce
+
+<script>
+    // Mobile sidebar toggle (shared by admin + employee sidebars)
+    function toggleAppSidebar(forceOpen = null) {
+        const sidebar = document.getElementById('appSidebar');
+        const backdrop = document.getElementById('appSidebarBackdrop');
+        if (!sidebar || !backdrop) return;
+
+        const isOpen = !sidebar.classList.contains('hidden') && !sidebar.classList.contains('-translate-x-full');
+        const shouldOpen = forceOpen === null ? !isOpen : Boolean(forceOpen);
+
+        if (shouldOpen) {
+            sidebar.classList.remove('hidden');
+            // Ensure flex layout on mobile when shown
+            sidebar.classList.add('flex');
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.add('translate-x-0');
+            backdrop.classList.remove('hidden');
+        } else {
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            backdrop.classList.add('hidden');
+            // After slide-out, fully hide so it never “sticks”
+            window.setTimeout(() => {
+                sidebar.classList.add('hidden');
+                sidebar.classList.remove('flex');
+            }, 200);
+        }
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') toggleAppSidebar(false);
+    });
+
+    // Hard-close on initial load (mobile)
+    document.addEventListener('DOMContentLoaded', function () {
+        toggleAppSidebar(false);
+    });
+</script>

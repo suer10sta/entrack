@@ -36,14 +36,24 @@ class InvoicesEmail extends Mailable
 
     public function envelope(): Envelope
     {
-        $entreprise_id = Auth::user()->entreprise_id;
-        $entreprise_email = Entreprise::where('id', $entreprise_id)->value('email');
-        $entreprise = Entreprise::where('id', $entreprise_id)->first();
+        $entrepriseId = Auth::user()?->entreprise_id;
+        $entreprise = $entrepriseId ? Entreprise::where('id', $entrepriseId)->first() : null;
+
+        // In manager context, Auth::user() may not be tied to an entreprise.
+        // Fallback to a safe default sender so we don't crash on `$entreprise->name`.
+        $configuredFrom = (string) (config('mail.from.address') ?: '');
+        $smtpUsername = (string) (config('mail.mailers.smtp.username') ?: '');
+
+        // Prefer configured "from", then SMTP username, then hard fallback.
+        $senderEmail = $entreprise?->email
+            ?: ($configuredFrom !== '' && $configuredFrom !== 'hello@example.com' ? $configuredFrom : '')
+            ?: ($smtpUsername !== '' ? $smtpUsername : 'dalytrac@support.com');
+        $senderName = $entreprise?->name ?? 'Dalytrac';
 
         return new Envelope(
-            from: new Address($entreprise_email, 'Invoice-'.$entreprise->name),
+            from: new Address($senderEmail, 'Invoice-'.$senderName),
             replyTo: [
-                new Address($entreprise_email, 'Invoice-'.$entreprise->name)
+                new Address($senderEmail, 'Invoice-'.$senderName)
             ],
             subject: $this->subject,
         );
@@ -59,11 +69,14 @@ class InvoicesEmail extends Mailable
     public function attachments(): array
     {
         $attachments = [];
-        $user_enterprise = Auth::user()->entreprise_id;
-        $entreprise = Entreprise::where('id', $user_enterprise)->first();
+        $user_enterprise = Auth::user()?->entreprise_id;
+        $entreprise = $user_enterprise ? Entreprise::where('id', $user_enterprise)->first() : null;
 
         // For the main invoice (now handles merged PDFs as well)
         if ($this->invoiceId !== null && !$this->reminder) {
+            if (! $entreprise) {
+                return $attachments;
+            }
             $invoice = invoices_history::find($this->invoiceId);
             $year = $invoice->created_at->format('Y'); 
             $year_forname = $invoice->created_at->format('y');
@@ -79,6 +92,25 @@ class InvoicesEmail extends Mailable
                 $pdfPath = Storage::disk('public')->url("invoices/{$entreprise->id}/{$year}/{$entreprise->invoice_prefix}-{$invoice->number}.pdf");
                 $customFilename = "{$entreprise->invoice_prefix}-{$year_forname}{$month}{$invoice->number}.pdf";
                 $attachments[] = Attachment::fromPath($pdfPath)->as($customFilename);
+            }
+        }
+
+        // NEW: Direct attachment mode (used by subscription invoices)
+        // When there's no `invoices_history` row, we still want to attach the provided PDF.
+        if ($this->invoiceId === null && $this->reminder === null && !empty($this->filePath) && is_array($this->filePath) && isset($this->filePath[0])) {
+            $disk = Storage::disk('public');
+
+            foreach ($this->filePath as $relativePath) {
+                if (!is_string($relativePath) || $relativePath === '') {
+                    continue;
+                }
+                if (! $disk->exists($relativePath)) {
+                    continue;
+                }
+
+                $absolutePath = $disk->path($relativePath);
+                $customFilename = basename((string) $relativePath);
+                $attachments[] = Attachment::fromPath($absolutePath)->as($customFilename);
             }
         }
 

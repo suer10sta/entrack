@@ -35,6 +35,70 @@
         td.editable:hover {
             background-color: #f9fafb; /* gray-50 */
         }
+
+        /* Section collapse/expand chevron */
+        .section-chevron.rotate-180 { transform: rotate(180deg); }
+
+        /* Mobile: Projects/Invoices tables become modern 2-column cards */
+        @media (max-width: 1024px) {
+            #clientProjectsTable thead,
+            #clientInvoicesTable thead {
+                display: none;
+            }
+
+            #clientProjectsTable tbody,
+            #clientInvoicesTable tbody {
+                display: block;
+            }
+
+            #clientProjectsTable tbody tr,
+            #clientInvoicesTable tbody tr {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                margin-bottom: 16px;
+                border: 1px solid rgba(148, 163, 184, 0.55);
+                border-radius: 16px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%);
+                overflow: hidden;
+                box-shadow: 0 18px 45px rgba(15, 23, 42, 0.10), 0 3px 10px rgba(15, 23, 42, 0.08);
+                padding: 12px;
+            }
+
+            #clientProjectsTable tbody td,
+            #clientInvoicesTable tbody td {
+                display: block;
+                width: 100%;
+                padding: 10px 10px;
+                border: 1px solid rgba(226, 232, 240, 0.9);
+                border-radius: 12px;
+                background: rgba(255,255,255,0.75);
+                text-align: left !important;
+                white-space: normal !important;
+            }
+
+            #clientProjectsTable tbody td[data-span="2"],
+            #clientInvoicesTable tbody td[data-span="2"] {
+                grid-column: 1 / -1;
+            }
+
+            #clientProjectsTable tbody td[data-label]::before,
+            #clientInvoicesTable tbody td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .04em;
+                text-transform: uppercase;
+                color: #64748b;
+                margin-bottom: 4px;
+            }
+
+            #clientProjectsTable tbody td[data-label] .client-project-actions,
+            #clientInvoicesTable tbody td[data-label] .client-invoice-actions {
+                justify-content: center !important;
+            }
+        }
     </style>
 </head>
 
@@ -51,16 +115,23 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <main class="flex-1 p-8">
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
             <div class="max-w-8xl mx-auto space-y-6">
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Personal Infos') }}</h2>
+                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_20px_50px_rgba(15,23,42,0.12),0_4px_12px_rgba(15,23,42,0.08)]">
+                        <div class="flex items-center justify-between mb-1">
+                            <h2 class="text-xl font-bold text-slate-900">{{ __('messages.Personal Infos') }}</h2>
+                            @if(!empty($client->archived))
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                    Archived
+                                </span>
+                            @endif
+                        </div>
                         <p class="text-sm text-slate-500 mb-4">{{ __('messages.Mandatory informations') }}</p>
                         <div class="space-y-4">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Name') }}</label>
                                     <input type="text" name="name" value="{{$client->name}}"
@@ -74,7 +145,7 @@
                                            data-id="{{$client->id}}" data-column="client_number" readonly />
                                 </div>
                             </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Email') }}</label>
                                     <input type="text" name="email" value="{{$client->email}}"
@@ -91,11 +162,11 @@
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_20px_50px_rgba(15,23,42,0.12),0_4px_12px_rgba(15,23,42,0.08)]">
                         <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Address Infos') }}</h2>
                         <p class="text-sm text-slate-500 mb-4">{{ __('messages.Mandatory informations') }}</p>
                         <div class="space-y-4">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Street') }}</label>
                                     <input type="text" name="address" value="{{$client->address}}"
@@ -109,7 +180,7 @@
                                            data-id="{{$client->id}}" data-column="city" readonly />
                                 </div>
                             </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Zip Code') }}</label>
                                     <input type="number" name="zip" value="{{$client->zip}}"
@@ -126,11 +197,11 @@
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_20px_50px_rgba(15,23,42,0.12),0_4px_12px_rgba(15,23,42,0.08)]">
                         <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Billing Infos') }}</h2>
                         <p class="text-sm text-slate-500 mb-4">{{ __('messages.Mandatory informations') }}</p>
                         <div class="space-y-4">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.TVA Number') }}</label>
                                     <input type="text" name="TVA" value="{{$client->TVA}}"
@@ -145,12 +216,12 @@
                                 </div>
                             </div>
 
-                            <div class="flex items-center pt-2">
+                            <div class="col-span-2 flex items-center pt-2">
                                 <input id="billingSameAsClient" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                 <label for="billingSameAsClient" class="ml-2 block text-sm font-medium text-gray-800">{{ __('messages.Billing address is same as client') }}</label>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Billing Street') }}</label>
                                     <input type="text" name="billing_street" value="{{$client->billing_street}}"
@@ -164,7 +235,7 @@
                                            data-id="{{$client->id}}" data-column="billing_city" readonly />
                                 </div>
                             </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Billing Zip Code') }}</label>
                                     <input type="text" name="billing_zip" value="{{$client->billing_zip}}"
@@ -181,8 +252,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <div class="p-6 border-b border-gray-200">
+                    <div class="rounded-2xl border border-slate-200 bg-white shadow-[0_20px_50px_rgba(15,23,42,0.12),0_4px_12px_rgba(15,23,42,0.08)] overflow-hidden">
+                    <div class="p-6 border-b border-gray-200 flex items-center justify-between gap-3">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                             <div>
                                 <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Projects Infos') }}</h2>
@@ -201,10 +272,19 @@
                                 </a>
                             @endcan
                         </div>
+                        <button type="button"
+                                class="section-toggle inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"
+                                data-target="clientProjectsBody" aria-expanded="false">
+                            <span class="hidden lg:inline">{{ __('messages.Show') }}</span>
+                            <svg class="section-chevron w-5 h-5 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6" />
+                            </svg>
+                        </button>
                     </div>
                     
+                    <div id="clientProjectsBody" class="hidden">
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200" id="clientProjectsTable">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Project') }}</th>
@@ -223,7 +303,7 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($projects as $project)
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <td data-label="{{ __('messages.Project') }}" data-span="2" class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         @php
                                             // Resolve project show route based on role; fallback to admin if available
                                             $roleRouteMap = [
@@ -252,8 +332,8 @@
                                             <span class="text-gray-900">{{ strtoupper($project->name) }}</span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">€{{$project->budget}}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">€{{$project->cost_per_hour}}</td>
+                                    <td data-label="{{ __('messages.Budget') }}" class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">€{{$project->budget}}</td>
+                                    <td data-label="CPH" class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">€{{$project->cost_per_hour}}</td>
                                     
                                     @php
                                         $projecttasksId = App\Models\Tasks::where('project_id', $project->id)->pluck('id');
@@ -268,9 +348,9 @@
                                         $formattedProgressPercentage = number_format($progressPercentage, 2);
                                     @endphp
 
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">{{$hours}}h:{{$minutes}}m</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">{{$project->estimated_hours}}h</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold">
+                                    <td data-label="{{ __('messages.Duration') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">{{$hours}}h:{{$minutes}}m</td>
+                                    <td data-label="{{ __('messages.Estimated Hours') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">{{$project->estimated_hours}}h</td>
+                                    <td data-label="{{ __('messages.Difference') }}" class="px-6 py-4 whitespace-nowrap text-sm font-bold">
                                         @if($project->estimated_hours !== null)
                                             @if($difference > 0)
                                                 <span class="text-green-600">+{{$diffhours}}h:{{$diffminutes}}m</span>
@@ -281,7 +361,7 @@
                                             @endif
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 min-w-[150px]">
+                                    <td data-label="{{ __('messages.Progress') }}" data-span="2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 min-w-[150px]">
                                         <div class="w-full bg-gray-200 rounded-full h-3 relative">
                                             @php
                                                 $progressColor = 'bg-green-500'; // Default: < 50%
@@ -294,17 +374,17 @@
                                             <div class="{{ $progressColor }} h-3 rounded-full" style="width: {{$formattedProgressPercentage}}%"></div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">%{{$project->tva}}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    <td data-label="{{ __('messages.VAT') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">%{{$project->tva}}</td>
+                                    <td data-label="{{ __('messages.Client column') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                         {{-- Client link logic truncated for brevity, assuming it's the current client --}}
                                         {{ App\Models\Client::where('id', $project->client_id)->first()->name }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    <td data-label="{{ __('messages.Teams column') }}" data-span="2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                         @foreach(App\Models\project_teams::where('project_id', $project->id)->get() as $project_team)
                                             <span class="block">{{$project_team->team_name}}</span>
                                         @endforeach
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                    <td data-label="{{ __('messages.Actions') }}" data-span="2" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                                         @php
                                             $editRoute = '#'; $archiveRoute = '#'; $deleteRoute = '#';
                                             if(Auth::user()->hasRole('Admin')) {
@@ -327,6 +407,7 @@
                                         @endphp
 
                                         @if($editRoute != '#')
+                                        <div class="client-project-actions flex flex-wrap items-center justify-center gap-2">
                                         <a href="{{ $editRoute }}" class="inline-block px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-xs font-medium">Edit</a>
                                         
                                 <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
@@ -339,6 +420,7 @@
                                             @method('DELETE')
                                             <button type="submit" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs font-medium">{{ __('messages.Delete') }}</button>
                                         </form>
+                                        </div>
                                         @endif
                                     </td>
                                 </tr>
@@ -346,10 +428,11 @@
                             </tbody>
                         </table>
                     </div>
+                    </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <div class="p-6 border-b border-gray-200">
+                <div class="rounded-2xl border border-slate-200 bg-white shadow-[0_20px_50px_rgba(15,23,42,0.12),0_4px_12px_rgba(15,23,42,0.08)] overflow-hidden">
+                    <div class="p-6 border-b border-gray-200 flex items-center justify-between gap-3">
                         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                         <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                                 @php
@@ -387,10 +470,19 @@
                                 </div>
                             </div>
                         </div>
+                        <button type="button"
+                                class="section-toggle inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"
+                                data-target="clientInvoicesBody" aria-expanded="false">
+                            <span class="hidden lg:inline">{{ __('messages.Show') }}</span>
+                            <svg class="section-chevron w-5 h-5 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6" />
+                            </svg>
+                        </button>
                     </div>
 
+                    <div id="clientInvoicesBody" class="hidden">
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200" id="invoicesTable">
+                        <table class="min-w-full divide-y divide-gray-200" id="clientInvoicesTable">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Invoice N') }}</th>
@@ -401,7 +493,7 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($invoices as $invoice)
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <td data-label="{{ __('messages.Invoice N') }}" data-span="2" class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         @php
                                             $dueDate = \Carbon\Carbon::parse($invoice->due_date);
                                             $today = \Carbon\Carbon::now();
@@ -421,14 +513,15 @@
                                             @endif
                                         </a>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ strtoupper($invoice->project_name) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold {{ $invoice->Payment_status==1 ? 'text-green-600' : 'text-red-600' }}">
+                                    <td data-label="{{ __('messages.Project Name') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ strtoupper($invoice->project_name) }}</td>
+                                    <td data-label="{{ __('messages.Cost Total') }}" class="px-6 py-4 whitespace-nowrap text-sm font-bold {{ $invoice->Payment_status==1 ? 'text-green-600' : 'text-red-600' }}">
                                         €{{ number_format($invoice->total_ttc, 2, ',', ' ') }}
                                     </td>
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
 
@@ -438,8 +531,21 @@
                 
                 @if($comptable)
                 <div class="bg-white rounded-2xl shadow-lg p-6">
-                    <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Comptable Infos') }}</h2>
-                    <p class="text-sm text-slate-500 mb-4">{{ __('messages.Mandatory informations') }}</p>
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Comptable Infos') }}</h2>
+                            <p class="text-sm text-slate-500 mb-4">{{ __('messages.Mandatory informations') }}</p>
+                        </div>
+                        <button type="button"
+                                class="section-toggle inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"
+                                data-target="clientComptableBody" aria-expanded="false">
+                            <span class="hidden lg:inline">{{ __('messages.Show') }}</span>
+                            <svg class="section-chevron w-5 h-5 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="clientComptableBody" class="hidden">
                     <div class="space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
@@ -462,6 +568,7 @@
                             </div>
                         </div>
                     </div>
+                    </div>
                 </div>
                 @endif
                 
@@ -471,8 +578,22 @@
                 @endphp
                 
                 <div class="bg-white rounded-2xl shadow-lg p-6">
-                    <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Contacts Infos') }}</h2>
-                    <p class="text-sm text-slate-500 mb-4">{{ __('messages.Mandatory informations') }}</p>
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900 mb-1">{{ __('messages.Contacts Infos') }}</h2>
+                            <p class="text-sm text-slate-500 mb-4">{{ __('messages.Mandatory informations') }}</p>
+                        </div>
+                        <button type="button"
+                                class="section-toggle inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"
+                                data-target="clientContactsBody" aria-expanded="false">
+                            <span class="hidden lg:inline">{{ __('messages.Show') }}</span>
+                            <svg class="section-chevron w-5 h-5 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6" />
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div id="clientContactsBody" class="hidden">
                     
                     <div id="accordion" class="space-y-3">
                         @foreach ($contacts as $contact)
@@ -567,6 +688,7 @@
                         <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow">{{ __('messages.Save New Contacts') }}</button>
                         </div>
                     </form>
+                    </div>
                 </div>
 
             </div>
@@ -666,6 +788,35 @@
         });
     });
     @endcan
+    </script>
+
+    <script>
+        // Section collapse/expand (Projects / Invoices / Comptable / Contacts)
+        document.addEventListener('DOMContentLoaded', function () {
+            const isMobile = () => window.matchMedia && window.matchMedia('(max-width: 1024px)').matches;
+
+            function setExpanded(btn, expanded) {
+                const targetId = btn.getAttribute('data-target');
+                const panel = targetId ? document.getElementById(targetId) : null;
+                if (!panel) return;
+
+                btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+                panel.classList.toggle('hidden', !expanded);
+
+                const chevron = btn.querySelector('.section-chevron');
+                if (chevron) chevron.classList.toggle('rotate-180', expanded);
+            }
+
+            document.querySelectorAll('button.section-toggle[data-target]').forEach(btn => {
+                // Mobile: collapsed by default. Desktop: expanded by default.
+                setExpanded(btn, !isMobile());
+
+                btn.addEventListener('click', () => {
+                    const expanded = btn.getAttribute('aria-expanded') === 'true';
+                    setExpanded(btn, !expanded);
+                });
+            });
+        });
     </script>
 
     {{-- Add New Contact Script --}}

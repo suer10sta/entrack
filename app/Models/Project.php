@@ -10,6 +10,7 @@ class Project extends Model
     use HasFactory;
     protected $fillable = [
         'parent_id',
+        'color',
         'name',
         'description',
         'budget',

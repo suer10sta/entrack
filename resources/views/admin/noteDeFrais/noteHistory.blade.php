@@ -9,6 +9,85 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
 
+    <style>
+        /* Mobile: show expense note rows as modern 2-col cards (no horizontal scroll) */
+        @media (max-width: 1024px) {
+            .expense-table-wrapper {
+                overflow-x: visible !important;
+            }
+
+            #expenseTable thead {
+                display: none;
+            }
+
+            #expenseTable tbody {
+                display: block;
+                width: 100%;
+            }
+
+            #expenseTable tbody tr {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                margin-bottom: 16px;
+                padding: 12px;
+                border: 1px solid rgba(148, 163, 184, 0.55);
+                border-radius: 16px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
+                box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
+            }
+
+            #expenseTable tbody td {
+                display: block;
+                width: 100%;
+                padding: 10px 12px !important;
+                border: 1px solid rgba(226, 232, 240, 0.9);
+                border-radius: 12px;
+                background: rgba(255,255,255,0.78);
+                text-align: left !important;
+                white-space: normal !important;
+                word-break: break-word;
+            }
+
+            #expenseTable tbody td[data-span="2"] {
+                grid-column: span 2 / span 2;
+            }
+
+            #expenseTable tbody td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+                color: #64748b;
+                margin-bottom: 6px;
+            }
+
+            #expenseTable tbody td[data-label="Actions"] .flex {
+                justify-content: center !important;
+            }
+
+            /* Mobile accordion: collapsed row shows only Note N */
+            #expenseTable tbody tr.expense-row.is-collapsed td:not(.expense-toggle-cell) {
+                display: none !important;
+            }
+            #expenseTable tbody tr.expense-row td.expense-toggle-cell {
+                cursor: pointer;
+                user-select: none;
+            }
+            /* We render the label inline in markup for this cell */
+            #expenseTable tbody tr.expense-row td.expense-toggle-cell[data-label]::before {
+                content: none !important;
+            }
+            #expenseTable tbody tr.expense-row td.expense-toggle-cell .expense-chevron {
+                transition: transform 180ms ease;
+            }
+            #expenseTable tbody tr.expense-row[aria-expanded="true"] td.expense-toggle-cell .expense-chevron {
+                transform: rotate(180deg);
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100 flex h-screen overflow-hidden font-sans">
@@ -23,15 +102,15 @@
         {{-- Navbar Component --}}
         <x-dashboard.navbar />
 
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8 space-y-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8 space-y-8">
         {{--  Header Section --}}
-            <div class="flex flex-wrap justify-between items-center gap-4">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                     <h1 class="text-2xl font-semibold text-gray-900">{{ __('messages.Expense Note History') }}</h1>
                     <p class="text-sm text-gray-500">{{ __('messages.Track and manage all expense notes') }}</p>
                 </div>
-                <div class="flex items-center gap-3">
-                <button type="button" id="openDevisReportModal" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                <button type="button" id="openDevisReportModal" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm w-full sm:w-auto">
                         {{-- Download Icon --}}
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -47,21 +126,21 @@
              {{-- Date Pickers + Total Accepted in one row --}}
              <div class="flex flex-col lg:flex-row justify-between items-center gap-6">
                 {{-- Date Pickers --}}
-                <div class="flex flex-wrap items-end gap-4">
-                    <div>
+                <div class="grid grid-cols-2 gap-4 w-full sm:flex sm:flex-row sm:flex-wrap sm:items-end sm:w-auto lg:w-auto">
+                    <div class="sm:col-auto">
                         <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Start Date') }}</label>
                         <input type="date" id="startDate" placeholder="jj/mm/aaaa"
-                        class="block w-44 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                        class="block w-full sm:w-44 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                     </div>
                     
-                    <div>
+                    <div class="sm:col-auto">
                         <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.End Date') }}</label>
                         <input type="date" id="endDate" placeholder="jj/mm/aaaa"
-                        class="block w-44 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                        class="block w-full sm:w-44 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                     </div>
                 </div>
                 {{-- Total Accepted Card --}}
-                <div class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 min-w-[280px]">
+                <div class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 min-w-[280px] w-full lg:w-auto">
                     <div class="flex-shrink-0 bg-green-100 rounded-full p-3">
                         <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -78,15 +157,15 @@
 
             {{-- Table Section --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full min-w-full divide-y divide-gray-200" >
+                <div class="expense-table-wrapper overflow-x-auto" style="-webkit-overflow-scrolling: touch;">
+                    <table id="expenseTable" class="w-full divide-y divide-gray-200 table-auto" >
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">{{ __('messages.Note N') }}</th>
-                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">{{ __('messages.Employee Name') }}</th>
-                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase tracking-wider">{{ __('messages.Budget') }}</th>
-                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider">{{ __('messages.Created at expense') }}</th>
-                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase tracking-wider">{{ __('messages.Actions') }}</th>
+                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">{{ __('messages.Note N') }}</th>
+                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">{{ __('messages.Employee Name') }}</th>
+                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">{{ __('messages.Budget') }}</th>
+                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">{{ __('messages.Created at expense') }}</th>
+                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">{{ __('messages.Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -94,8 +173,8 @@
                             @forelse($notedefrais as $note)
                             {{-- Corrected variable from $d to $note --}}
                             {{-- Removed the 'sent' check as 'note_de_frais' might not have a 'sent' status like devis/invoices --}}
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-3 text-blue-600 whitespace-nowrap text-sm">
+                            <tr class="expense-row hover:bg-gray-50" data-expense-row aria-expanded="true">
+                                <td data-label="{{ __('messages.Note N') }}" data-span="2" class="px-4 py-3 text-blue-600 whitespace-nowrap text-sm expense-toggle-cell" data-expense-toggle>
                                     {{-- Use devis-link-normal style --}}
                                     @php $noteNumberDisplay = $entreprise->notedefraisPrefix . '-' . date('ymd', strtotime($note->created_at)) . $note->note_number; @endphp {{-- Changed date format --}}
                                     @php $downloadRoute = '#'; @endphp
@@ -103,18 +182,36 @@
                                     @if(Auth::user()->hasRole('Admin')) @php $downloadRoute = route('admin.notedefrais.downloadNoteDeFrais', $note->note_number); @endphp @endif
                                     @if(Auth::user()->hasRole('Employee')) @php $downloadRoute = route('employee.notedefrais.downloadNoteDeFrais', $note->note_number); @endphp @endif
                                     @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $downloadRoute = route('Responsable_gestionnaire.notedefrais.downloadNoteDeFrais', $note->note_number); @endphp @endif
-                                    <a href="{{ $downloadRoute }}" class="note-link-normal">{{ $noteNumberDisplay }}</a>
+                                    {{-- Desktop: keep original simple link layout --}}
+                                    <a href="{{ $downloadRoute }}" class="note-link-normal hidden lg:inline">{{ $noteNumberDisplay }}</a>
+
+                                    {{-- Mobile accordion header --}}
+                                    <div class="flex items-start justify-between gap-3 lg:hidden">
+                                        <div class="flex items-baseline gap-2 min-w-0">
+                                            <span class="text-[11px] leading-none font-bold tracking-[.06em] uppercase text-slate-500 whitespace-nowrap">
+                                                {{ __('messages.Note N') }}
+                                            </span>
+                                            <a href="{{ $downloadRoute }}" class="note-link-normal truncate leading-none">
+                                                {{ $noteNumberDisplay }}
+                                            </a>
+                                        </div>
+                                        <span class="shrink-0 mt-0.5 text-slate-400">
+                                            <svg class="expense-chevron w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </span>
+                                    </div>
                                 </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-medium">
+                                <td data-label="{{ __('messages.Employee Name') }}" class="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-medium">
                                     {{$note->employee_name}}
                                 </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 text-right">
+                                <td data-label="{{ __('messages.Budget') }}" class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 text-right">
                                     {{number_format($note->budget, 2, ',', '')}}€ 
                                 </td>
-                                <td class="px-4 py-3 text-sm text-gray-500 text-center">
+                                <td data-label="{{ __('messages.Created at expense') }}" class="px-4 py-3 text-sm text-gray-500 text-center">
                                     {{ $note->created_at ? \Carbon\Carbon::parse($note->created_at)->format('Y-m-d H:i:s') : '' }} 
                                 </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-right">
+                                <td data-label="{{ __('messages.Actions') }}" data-span="2" class="px-4 py-3 whitespace-nowrap text-sm text-right">
                                     {{-- Action Buttons - styled like screenshot --}}
                                     <div class="flex items-center justify-end gap-2"> 
                                         @php $dlRoute = '#'; $delRoute = '#'; @endphp
@@ -265,6 +362,40 @@
             if(startDateFilter) startDateFilter.addEventListener('change', filterTable);
             if(endDateFilter) endDateFilter.addEventListener('change', filterTable);
             filterTable(); // Run on load
+
+            // Mobile accordion per expense note row (show only number when collapsed)
+            const mql = window.matchMedia('(max-width: 1024px)');
+
+            function setRowCollapsed(row, collapsed) {
+                if (!row) return;
+                row.classList.toggle('is-collapsed', collapsed);
+                row.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            }
+
+            function initAccordions() {
+                const rows = document.querySelectorAll('#expenseTable tbody tr.expense-row');
+                const isMobile = mql.matches;
+                rows.forEach(row => setRowCollapsed(row, isMobile));
+            }
+
+            document.addEventListener('click', function (e) {
+                const toggleCell = e.target.closest('[data-expense-toggle]');
+                if (!toggleCell) return;
+
+                // Let normal link clicks open the PDF without toggling.
+                if (e.target.closest('a')) return;
+
+                const row = toggleCell.closest('tr.expense-row');
+                if (!row) return;
+
+                const collapsed = row.classList.contains('is-collapsed');
+                setRowCollapsed(row, !collapsed);
+            });
+
+            if (mql.addEventListener) mql.addEventListener('change', initAccordions);
+            else if (mql.addListener) mql.addListener(initAccordions);
+
+            initAccordions();
          });
     </script>
     

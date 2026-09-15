@@ -42,10 +42,22 @@ class ProfileController extends Controller
             $daysLeft = 0;
         }
 
+        // Renewal sync status for auto/manual payment preference
+        $renewalSync = $entreprise
+            ? $entreprise->renewalSyncStatus()
+            : [
+                'state' => 'unknown',
+                'is_synced' => false,
+                'expected' => 'auto',
+                'stripe' => null,
+                'label' => 'No entreprise linked to this account.',
+            ];
+
         return view('admin.profile.index', [
             'user' => $user,
             'planKey' => $planKey,
-            'daysLeft' => $daysLeft
+            'daysLeft' => $daysLeft,
+            'renewalSync' => $renewalSync,
         ]);
     }
     
@@ -81,6 +93,12 @@ class ProfileController extends Controller
         }
 
         $user->save();
+
+        // If the user updated their language, apply immediately for this session.
+        if (!empty($validatedData['locale'])) {
+            $request->session()->put('locale', $validatedData['locale']);
+            app()->setLocale($validatedData['locale']);
+        }
 
         // 4. Save data to the 'employees' table
         $user->employee()->updateOrCreate(

@@ -1,11 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Accueil - DalyTrac</title>
+    <title>DalyTrac – E-invoicing, Project Management & Time Tracking</title>
+    <meta name="description" content="DalyTrac is an all-in-one business platform for E-invoicing, project management, intelligent time tracking and team collaboration, helping you capture clean, billable hours with ease.">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="{{ route('welcome') }}">
+
+    <meta property="og:title" content="DalyTrac – E-invoicing, Project Management & Time Tracking">
+    <meta property="og:description" content="Centralize your invoices, projects, time tracking and teams in one powerful, easy-to-use platform with DalyTrac.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ route('welcome') }}">
+    <meta property="og:image" content="{{ asset('img/background_hero.png') }}">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="DalyTrac – E-invoicing, Project Management & Time Tracking">
+    <meta name="twitter:description" content="Manage projects, invoices and time tracking in one place and simplify your business operations with DalyTrac.">
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "DalyTrac",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "url": "{{ route('welcome') }}",
+        "description": "All-in-one platform for e-invoicing, project management, time tracking and team collaboration.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0.00",
+          "priceCurrency": "EUR",
+          "description": "Free trial available. Paid plans for teams and enterprises."
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "DalyTrac"
+        }
+      }
+    </script>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -100,6 +135,26 @@
     </style>
 
     <style>
+        /* Prevent horizontal overflow + layout shift (scrollbar) */
+        html {
+            overflow-x: hidden !important;
+            scrollbar-gutter: stable;
+            width: 100%;
+        }
+        body {
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 100%;
+        }
+        img, svg, video, canvas {
+            max-width: 100%;
+        }
+        @supports (overflow: clip) {
+            html, body {
+                overflow-x: clip !important;
+            }
+        }
+
         /* Floating chatbot button & panel */
         .chatbot-toggle-btn {
             position: fixed;
@@ -301,7 +356,7 @@
     </style>
   </head>
 
-  <body class="antialiased pt-20">
+  <body class="antialiased pt-20 lg:pt-36 overflow-x-hidden">
 
     <x-Home_page.header />
 
@@ -471,6 +526,8 @@
             });
         })();
     </script>
+
+    {{-- Tracking JS moved to the shared footer component --}}
 
   </body>
 

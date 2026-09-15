@@ -1,7 +1,21 @@
-<header class="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200">
-    <div>
-        <h1 class="text-lg font-semibold text-gray-900">Manager area</h1>
-        <p class="text-xs text-gray-500">Monitor subscriptions and entreprises</p>
+<header class="flex items-center justify-between px-4 sm:px-6 py-3 bg-white border-b border-gray-200">
+    <div class="flex items-center gap-3">
+        {{-- Mobile sidebar toggle --}}
+        <button
+            type="button"
+            class="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm text-slate-700 hover:bg-slate-50"
+            onclick="toggleManagerSidebar(true)"
+            aria-label="Open sidebar"
+        >
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+        </button>
+
+        <div>
+            <h1 class="text-lg font-semibold text-gray-900">Manager area</h1>
+            <p class="text-xs text-gray-500">Monitor subscriptions and entreprises</p>
+        </div>
     </div>
     
     {{-- Language Switcher --}}

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use App\Mail\ContactFormMail;
 use App\Mail\AdminActivityAlertMail;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
 
 class ContactController extends Controller
 {
@@ -16,23 +17,46 @@ class ContactController extends Controller
      */
     public function submit(Request $request)
     {
+        // Check Honeypot first
+        if (!empty($request->input('website'))) {
+            Log::info('Bot submission detected and blocked via Honeypot.');
+            return redirect()->route('welcome');
+        }
+
         $validated = $request->validate([
-            'name'    => ['required', 'string', 'max:255'],
-            'email'   => ['required', 'email', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
             'subject' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string'],
         ]);
 
+        // Turnstile Validation
+        $turnstileResponse = $request->input('cf-turnstile-response');
+        if (!$turnstileResponse) {
+            return back()->withInput()->withErrors(['cf-turnstile-response' => __('Veuillez cocher la case pour prouver que vous n\'êtes pas un robot.')]);
+        }
+
+        $verify = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+            'secret' => config('services.turnstile.secret_key'),
+            'response' => $turnstileResponse,
+            'remoteip' => $request->ip(),
+        ]);
+
+        if (!$verify->json('success')) {
+            Log::warning('Turnstile verification failed.', ['response' => $verify->json()]);
+            return back()->withInput()->withErrors(['cf-turnstile-response' => __('La validation de sécurité a échoué. Veuillez réessayer.')]);
+        }
+
         // Basic debug info before sending
         Log::info('Contact form submission received.', [
-            'name'          => $validated['name'],
-            'email'         => $validated['email'],
-            'subject'       => $validated['subject'],
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'subject' => $validated['subject'],
             // Don't log full message body in case of sensitive info
-            'message_length'=> strlen($validated['message']),
-            'mailer'        => config('mail.default'),
-            'mail_host'     => config('mail.mailers.' . config('mail.default') . '.host'),
-            'mail_from'     => config('mail.from'),
+            'message_length' => strlen($validated['message']),
+            'mailer' => config('mail.default'),
+            'mail_host' => config('mail.mailers.' . config('mail.default') . '.host'),
+            'mail_from' => config('mail.from'),
         ]);
 
         try {
@@ -47,7 +71,7 @@ class ContactController extends Controller
             // Check for low‑level send failures, if supported
             $failures = method_exists(Mail::getFacadeRoot(), 'failures') ? Mail::failures() : [];
 
-            if (! empty($failures)) {
+            if (!empty($failures)) {
                 Log::error('Mail::failures() reported problems when sending contact email.', [
                     'failures' => $failures,
                 ]);

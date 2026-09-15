@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class PasswordResetLinkController extends Controller
@@ -25,6 +27,29 @@ class PasswordResetLinkController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Check Honeypot first
+        if (!empty($request->input('website'))) {
+            Log::info('Bot password reset link request blocked via Honeypot.');
+            return redirect()->route('welcome');
+        }
+
+        // Turnstile Validation
+        $turnstileResponse = $request->input('cf-turnstile-response');
+        if (!$turnstileResponse) {
+            return back()->withInput()->withErrors(['cf-turnstile-response' => __('Veuillez cocher la case pour prouver que vous n\'êtes pas un robot.')]);
+        }
+
+        $verify = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+            'secret' => config('services.turnstile.secret_key'),
+            'response' => $turnstileResponse,
+            'remoteip' => $request->ip(),
+        ]);
+
+        if (!$verify->json('success')) {
+            Log::warning('Turnstile verification failed for password reset link request.', ['response' => $verify->json()]);
+            return back()->withInput()->withErrors(['cf-turnstile-response' => __('La validation de sécurité a échoué. Veuillez réessayer.')]);
+        }
+
         $request->validate([
             'email' => ['required', 'email'],
         ]);

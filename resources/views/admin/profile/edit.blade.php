@@ -66,6 +66,25 @@
                         <input type="email" name="email" id="email" value="{{ $user->email }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                     </div>
 
+                    {{-- Language --}}
+                    <div>
+                        <label for="locale" class="block text-sm font-medium text-gray-700">{{ __('messages.Language') }}</label>
+                        @php
+                            $selectedLocale = old('locale', $user->locale ?? app()->getLocale());
+                        @endphp
+                        <select id="locale"
+                                name="locale"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <option value="en" {{ $selectedLocale === 'en' ? 'selected' : '' }}>{{ __('messages.English') }}</option>
+                            <option value="fr" {{ $selectedLocale === 'fr' ? 'selected' : '' }}>{{ __('messages.Français') }}</option>
+                            <option value="es" {{ $selectedLocale === 'es' ? 'selected' : '' }}>{{ __('messages.Español') }}</option>
+                            <option value="nl" {{ $selectedLocale === 'nl' ? 'selected' : '' }}>{{ __('messages.Nederlands') }}</option>
+                        </select>
+                        @error('locale')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     {{-- 3. Phone Number --}}
                     <div>
                         <label for="phoneNumber" class="block text-sm font-medium text-gray-700">{{ __('messages.Phone Number') }}</label>

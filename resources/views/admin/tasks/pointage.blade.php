@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -80,7 +80,8 @@
                 $rolePrefix = 'Responsable_gestionnaire';
             }
         @endphp
-        const rolePrefix = @json($rolePrefix);
+        window.rolePrefix = @json($rolePrefix);
+        var rolePrefix = window.rolePrefix;
 
         function moveDurationModal() {
             return {
@@ -294,6 +295,130 @@
         .table td, .table th {
             padding: 0.75rem;
         }
+
+        /* Mobile: show task timer rows as modern 2-col cards (no horizontal scroll) */
+        @media (max-width: 1024px) {
+            .table-responsive {
+                overflow-x: visible !important;
+            }
+
+            #taskTable thead {
+                display: none;
+            }
+
+            #taskTable tbody { display: block; }
+
+            #taskTable tbody tr.task-group-row {
+                margin: 14px 0 10px;
+                border: 0;
+                border-radius: 0;
+                background: transparent;
+                overflow: visible;
+            }
+
+            #taskTable tbody tr.task-group-row td {
+                padding: 6px 2px;
+                border: 0;
+                background: transparent;
+                text-align: left !important;
+            }
+
+            #taskTable tbody tr.task-data-row {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                margin-bottom: 16px;
+                padding: 12px;
+                border: 1px solid rgba(148, 163, 184, 0.55);
+                border-radius: 16px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
+                box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
+                transition: transform 180ms ease, box-shadow 180ms ease;
+            }
+
+            #taskTable tbody tr.task-data-row td {
+                display: block;
+                width: 100%;
+                padding: 10px 12px !important;
+                border: 1px solid rgba(226, 232, 240, 0.9);
+                border-radius: 12px;
+                background: rgba(255,255,255,0.78);
+                text-align: left !important;
+                white-space: normal !important;
+                word-break: break-word;
+            }
+
+            #taskTable tbody tr.task-data-row td[data-span="2"] {
+                grid-column: span 2 / span 2;
+            }
+
+            #taskTable tbody tr.task-data-row td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+                color: #64748b;
+                margin-bottom: 6px;
+            }
+
+            /* Mobile/tablet accordion: collapsed card shows only header */
+            #taskTable tbody tr.task-data-row.is-collapsed td {
+                display: none !important;
+            }
+            #taskTable tbody tr.task-data-row.is-collapsed td.task-toggle-cell {
+                display: block !important;
+                grid-column: span 2 / span 2;
+            }
+            #taskTable tbody tr.task-data-row td.task-toggle-cell {
+                cursor: pointer;
+                user-select: none;
+            }
+            #taskTable tbody tr.task-data-row td.task-toggle-cell[data-label]::before {
+                content: none !important;
+            }
+            #taskTable tbody tr.task-data-row td.task-toggle-cell .task-pointage-chevron {
+                transition: transform 180ms ease;
+            }
+            #taskTable tbody tr.task-data-row[aria-expanded="true"] td.task-toggle-cell .task-pointage-chevron {
+                transform: rotate(180deg);
+            }
+
+            /* Actions inline on mobile */
+            #taskTable tbody tr.task-data-row td.task-pointage-actions .flex {
+                flex-direction: row !important;
+                justify-content: center !important;
+                align-items: center !important;
+                flex-wrap: nowrap !important;
+                gap: 8px !important;
+            }
+            #taskTable tbody tr.task-data-row td.task-pointage-actions form,
+            #taskTable tbody tr.task-data-row td.task-pointage-actions button,
+            #taskTable tbody tr.task-data-row td.task-pointage-actions a {
+                flex: 0 0 auto;
+            }
+
+            /* Date total row as a compact card */
+            #taskTable tbody tr.date-total-row {
+                display: block;
+                margin: 10px 0 18px;
+                padding: 12px;
+                border: 1px solid rgba(148, 163, 184, 0.55);
+                border-radius: 16px;
+                background: #ffffff;
+                box-shadow: 0 12px 30px rgba(15,23,42,0.10), 0 2px 8px rgba(15,23,42,0.08);
+            }
+            #taskTable tbody tr.date-total-row td {
+                display: block;
+                width: 100%;
+                padding: 8px 10px;
+                border: 0;
+                background: transparent;
+                text-align: left !important;
+                white-space: normal !important;
+            }
+        }
         
         [x-cloak] { display: none !important; }
     </style>
@@ -318,23 +443,37 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#eaebef] p-8 space-y-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#eaebef] p-4 sm:p-6 lg:p-8 space-y-8">
 
             {{-- 1. Header Section --}}
-            <div class="flex flex-wrap justify-between items-center gap-4">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                     <h1 class="text-2xl font-semibold text-gray-900">{{ __('messages.Tasks Timer') }}</h1>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button type="button" id="exportBtn" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                    <button type="button" id="exportBtn" class="inline-flex justify-center items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm w-full sm:w-auto">
                         {{ __('messages.Export to Excel') }}
                     </button>
-                    <button type="button" id="exportPDFBtn" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
+                    <button type="button" id="exportPDFBtn" class="inline-flex justify-center items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm w-full sm:w-auto">
                         {{ __('messages.Export to PDF') }}
                     </button>
-                    <button type="button" id="exportPDFBtnCustomer" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
+                    <button type="button" id="exportPDFBtnCustomer" class="inline-flex justify-center items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm w-full sm:w-auto">
                         {{ __('messages.Export to PDF for Customer') }}
                     </button>
+                    @if(Auth::user()->hasRole('Admin'))
+                    <form method="POST" action="{{ route('admin.pointage.time-transfer.export') }}" id="timeTransferExportForm" class="inline-flex w-full sm:w-auto">
+                        @csrf
+                        <input type="hidden" name="start_date" id="timeTransferStartDate">
+                        <input type="hidden" name="end_date" id="timeTransferEndDate">
+                        <input type="hidden" name="project_id" id="timeTransferProjectId">
+                        <button type="submit" class="inline-flex justify-center items-center bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm w-full sm:w-auto">
+                            {{ __('messages.Export time transfer') }}
+                        </button>
+                    </form>
+                    <a href="#" id="timeTransferImportLink" class="inline-flex justify-center items-center bg-emerald-400 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm w-full sm:w-auto">
+                        {{ __('messages.Import time transfer') }}
+                    </a>
+                    @endif
                 </div>
             </div>
             
@@ -366,7 +505,7 @@
             </div>
 
             {{-- 3. Date Fetch Form --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
                 <h6 class="text-base font-semibold text-gray-800 mb-4">{{ __('messages.Fetch Data') }}</h6>
                 @php $dateFormAction = ''; @endphp
                 @if(Auth::user()->hasRole('Admin')) @php $dateFormAction = route('admin.pointage.filterPointageByDate'); @endphp @endif
@@ -403,7 +542,7 @@
             </div>
 
             {{-- 4. Filter Form --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
                 <h6 class="text-base font-semibold text-gray-800 mb-4">{{ __('messages.Filters') }}</h6>
                 @php $filterFormAction = ''; @endphp
                 @if(Auth::user()->hasRole('Admin')) @php $filterFormAction = route('admin.pointage.filterPointageTable'); @endphp @endif
@@ -505,22 +644,22 @@
             {{-- 5. Table Section --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div class="table-responsive">
-                    <table id="taskTable" class="w-full divide-y divide-gray-200 table table-fixed">
+                    <table id="taskTable" class="w-full divide-y divide-gray-200 table table-auto">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Project') }}</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Task Filter Task') }}</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Employee') }}</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Start Date') }}</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.End Date') }}</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Duration') }}</th>
-                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Op. Cost') }}</th>
-                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Sales column') }}</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Project') }}</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Task Filter Task') }}</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Employee') }}</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Start Date') }}</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.End Date') }}</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Duration') }}</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Op. Cost') }}</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Sales column') }}</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">
                                     {{ __('messages.Comment column') }}
                                     <span class="block text-[10px] font-normal text-gray-400 normal-case">{{ __('messages.Double-click to add comment') }}</span>
                                 </th>
-                                <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Actions') }}</th>
+                                <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Actions') }}</th>
                             </tr>
                         </thead>
 
@@ -557,7 +696,7 @@
                                 @endphp
 
                                 @if($dateObject)
-                                <tr>
+                                <tr class="task-group-row">
                                     <td colspan="10" class="px-4 py-2 bg-gray-100 text-gray-800 font-bold">
                                         <strong>{{ $displayDate }}</strong>
                                     </td>
@@ -584,29 +723,57 @@
                                         $isRegie = $project->regie === 1;
                                     @endphp
                                 
-                                    <tr class="{{ $hasInvoice ? 'highlighted-task' : '' }} {{ $isRegie ? 'regie-task' : '' }} hover:bg-gray-50" 
+                                    <tr class="task-data-row {{ $hasInvoice ? 'highlighted-task' : '' }} {{ $isRegie ? 'regie-task' : '' }} hover:bg-gray-50" 
                                         id="{{ $task->id }}" 
                                         data-employee-id="{{ $task->employee_id }}"
                                         data-project-id="{{ $task_project_id}}" 
-                                        data-task-id="{{ $task->task_id }}">
+                                        data-task-id="{{ $task->task_id }}"
+                                        data-task-row
+                                        aria-expanded="true">
                                         
-                                        <td class="px-4 py-3 text-sm text-gray-800 whitespace-normal break-words">
-                                            @if(Auth::user()->can('View project'))
-                                                @if(Auth::user()->hasRole('Admin')) <a href="{{route('admin.projects.show',$task_project_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $project->name }}</a> @endif
-                                                @if(Auth::user()->hasRole('Responsable de projet')) <a href="{{route('Responsable_de_projet.projects.show',$task_project_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $project->name }}</a> @endif
-                                                @if(Auth::user()->hasRole('Employee')) <a href="{{route('employee.projects.show',$task_project_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $project->name }}</a> @endif
-                                                @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.projects.show',$task_project_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $project->name }}</a> @endif
-                                            @else
-                                                {{ $project->name }}
-                                            @endif
+                                        <td data-label="{{ __('messages.Project') }}" data-span="2" class="px-4 py-3 text-sm text-gray-800 whitespace-normal break-words task-toggle-cell" data-task-toggle>
+                                            {{-- Desktop: keep original (project link only) --}}
+                                            <div class="hidden lg:block">
+                                                @if(Auth::user()->can('View project'))
+                                                    @if(Auth::user()->hasRole('Admin')) <a href="{{route('admin.projects.show',$task_project_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $project->name }}</a> @endif
+                                                    @if(Auth::user()->hasRole('Responsable de projet')) <a href="{{route('Responsable_de_projet.projects.show',$task_project_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $project->name }}</a> @endif
+                                                    @if(Auth::user()->hasRole('Employee')) <a href="{{route('employee.projects.show',$task_project_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $project->name }}</a> @endif
+                                                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.projects.show',$task_project_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $project->name }}</a> @endif
+                                                @else
+                                                    {{ $project->name }}
+                                                @endif
+                                            </div>
+
+                                            {{-- Mobile/tablet: accordion header (project + task + chevron) --}}
+                                            <div class="flex items-start justify-between gap-3 lg:hidden">
+                                                <div class="min-w-0">
+                                                    <div class="text-[11px] font-bold tracking-[.06em] uppercase text-slate-500 whitespace-nowrap">
+                                                        {{ __('messages.Project') }}
+                                                    </div>
+                                                    <div class="min-w-0 truncate font-extrabold text-slate-900">
+                                                        {{ $project->name }}
+                                                    </div>
+                                                    <div class="mt-1 text-[11px] font-bold tracking-[.06em] uppercase text-slate-500 whitespace-nowrap">
+                                                        {{ __('messages.Task Filter Task') }}
+                                                    </div>
+                                                    <div class="min-w-0 truncate text-sm text-slate-900">
+                                                        {{ $task->task_name }}
+                                                    </div>
+                                                </div>
+                                                <span class="shrink-0 mt-1 text-slate-400" aria-hidden="true">
+                                                    <svg class="task-pointage-chevron w-5 h-5" viewBox="0 0 24 24" fill="none">
+                                                        <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                </span>
+                                            </div>
                                         </td>
-                                        <td class="px-4 py-3 text-sm text-gray-800 whitespace-normal break-words">
-                                            @if(auth()->user()->hasRole('Admin')) <a href="{{route('admin.tasks.show', $task->task_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $task->task_name }}</a> @endif
-                                            @if(auth()->user()->hasRole('Responsable de projet')) <a href="{{route('Responsable_de_projet.tasks.show', $task->task_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $task->task_name }}</a> @endif
-                                            @if(auth()->user()->hasRole('Employee')) <a href="{{route('employee.tasks.show', $task->task_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $task->task_name }}</a> @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.tasks.show', $task->task_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $task->task_name }}</a> @endif
+                                        <td data-label="{{ __('messages.Task Filter Task') }}" data-span="2" class="px-4 py-3 text-sm text-gray-800 whitespace-normal break-words">
+                                            @if(auth()->user()->hasRole('Admin')) <a href="{{route('admin.tasks.show', $task->task_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop title="{{ $task->task_name }}">{{ $task->task_name }}</a> @endif
+                                            @if(auth()->user()->hasRole('Responsable de projet')) <a href="{{route('Responsable_de_projet.tasks.show', $task->task_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop title="{{ $task->task_name }}">{{ $task->task_name }}</a> @endif
+                                            @if(auth()->user()->hasRole('Employee')) <a href="{{route('employee.tasks.show', $task->task_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop title="{{ $task->task_name }}">{{ $task->task_name }}</a> @endif
+                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.tasks.show', $task->task_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop title="{{ $task->task_name }}">{{ $task->task_name }}</a> @endif
                                         </td>
-                                        <td class="px-4 py-3 text-sm text-gray-800 whitespace-normal break-words">
+                                        <td data-label="{{ __('messages.Employee') }}" class="px-4 py-3 text-sm text-gray-800 whitespace-normal break-words">
                                             @if(Auth::user()->can('View employee'))
                                                 @if(Auth::user()->hasRole('Admin')) <a href="{{route('admin.employees.show',$employee->id )}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $employee->name }}</a> @endif
                                                 @if(Auth::user()->hasRole('Responsable de projet')) <a href="{{route('Responsable_de_projet.employees.show',$employee->id )}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $employee->name }}</a> @endif
@@ -617,7 +784,7 @@
                                             @endif
                                         </td>
                                         
-                                        <td class="px-4 py-3 whitespace-nowrap text-sm" data-field="start_date" 
+                                        <td data-label="{{ __('messages.Start Date') }}" class="px-4 py-3 whitespace-nowrap text-sm" data-field="start_date" 
                                             @click.prevent.stop="$dispatch('open-edit-date-modal', { 
                                                 taskId: {{ $task->id }}, 
                                                 field: 'start_date', 
@@ -625,7 +792,7 @@
                                             })">
                                             {{ \Carbon\Carbon::parse($task->start_date)->format('d-m-Y H:i:s') }}
                                         </td>
-                                        <td class="px-4 py-3 whitespace-nowrap text-sm" data-field="end_date"
+                                        <td data-label="{{ __('messages.End Date') }}" class="px-4 py-3 whitespace-nowrap text-sm" data-field="end_date"
                                             @click.prevent.stop="$dispatch('open-edit-date-modal', { 
                                                 taskId: {{ $task->id }}, 
                                                 field: 'end_date', 
@@ -634,7 +801,7 @@
                                             {{ $task->end_date ? \Carbon\Carbon::parse($task->end_date)->format('d-m-Y H:i:s') : 'Still Working' }}
                                         </td>
                                         
-                                        <td id="duration-{{ $task->id }}" class="px-4 py-3 whitespace-nowrap text-sm text-gray-800" data-task-id="{{ $task->id }}">
+                                        <td data-label="{{ __('messages.Duration') }}" id="duration-{{ $task->id }}" class="px-4 py-3 whitespace-nowrap text-sm text-gray-800" data-task-id="{{ $task->id }}">
                                             @if (is_null($task->end_date))
                                                 <script>
                                                     document.addEventListener('DOMContentLoaded', function () {
@@ -663,17 +830,17 @@
                                                 {{ formatDuration($task->duration) }}
                                             @endif
                                         </td>
-                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-right">{{ $task->end_date ? number_format((float)$task->cost, 3, '.', '') : '0.00' }}€</td>
-                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-right">{{ $task->end_date ? number_format((($task->duration / 60) * $project->cost_per_hour), 3, '.', '') : '0.00' }}€</td>
+                                        <td data-label="{{ __('messages.Op. Cost') }}" class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-right">{{ $task->end_date ? number_format((float)$task->cost, 3, '.', '') : '0.00' }}€</td>
+                                        <td data-label="{{ __('messages.Sales column') }}" class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-right">{{ $task->end_date ? number_format((($task->duration / 60) * $project->cost_per_hour), 3, '.', '') : '0.00' }}€</td>
                                         
-                                        <td class="px-4 py-3 text-sm text-gray-800 whitespace-normal break-words editable-comment" 
+                                        <td data-label="{{ __('messages.Comment column') }}" data-span="2" class="px-4 py-3 text-sm text-gray-800 whitespace-normal break-words editable-comment" 
                                             data-id="{{ $task->id }}" 
                                             data-field="comment" 
                                             data-update-url="{{ route('admin.tasks.updateField', ['field' => 'comment', 'id' => $task->id]) }}">
                                             <span class="comment-text">{{ $task->comment }}</span>
                                         </td>
                                         
-                                        <td class="px-2 py-3">
+                                        <td data-label="{{ __('messages.Actions') }}" data-span="2" class="px-2 py-3 task-pointage-actions">
                                             <div class="flex flex-col items-center gap-2">
                                                 @if($task->end_date)
                                                 <button type="button" class="inline-flex justify-center w-full text-white bg-blue-600 hover:bg-blue-700 font-medium rounded text-xs px-2 py-1 text-center" 
@@ -705,7 +872,7 @@
                                     </tr>
                                 @endforeach
                                 
-                                <tr class="bg-gray-50 font-bold">
+                                <tr class="bg-gray-50 font-bold date-total-row">
                                     <td colspan="5" class="px-4 py-3 text-sm text-gray-900 text-right">Date Total:</td>
                                     <td class="px-4 py-3 text-sm text-gray-900 text-left">{{ formatDuration($groupTotalDuration) }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-900 text-right">{{ number_format($groupTotal, 3, ',', '') }}€</td>
@@ -841,6 +1008,47 @@
                     }
                 }
             }, true); // Use capture phase to catch early
+
+            // --- Mobile/tablet accordion for task cards ---
+            (function initTaskPointageAccordions() {
+                const mql = window.matchMedia('(max-width: 1024px)');
+
+                function setRowCollapsed(row, collapsed) {
+                    if (!row) return;
+                    row.classList.toggle('is-collapsed', !!collapsed);
+                    row.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+                }
+
+                function initForViewport() {
+                    const isCompact = mql.matches;
+                    const rows = Array.from(document.querySelectorAll('#taskTableBody tr.task-data-row[data-task-row]'));
+
+                    for (const row of rows) {
+                        const toggleCell = row.querySelector('td.task-toggle-cell[data-task-toggle]');
+                        if (!toggleCell) continue;
+
+                        if (!toggleCell.dataset.pointageToggleBound) {
+                            toggleCell.dataset.pointageToggleBound = '1';
+                            toggleCell.addEventListener('click', (e) => {
+                                const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+                                if (tag === 'a' || tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea' || tag === 'label') return;
+
+                                e.preventDefault();
+                                e.stopPropagation();
+
+                                const isCollapsed = row.classList.contains('is-collapsed');
+                                setRowCollapsed(row, !isCollapsed);
+                            });
+                        }
+
+                        setRowCollapsed(row, isCompact);
+                    }
+                }
+
+                initForViewport();
+                if (mql.addEventListener) mql.addEventListener('change', initForViewport);
+                else mql.addListener(initForViewport);
+            })();
             
             // --- NO AUTO-SUBMIT - Users must click "Apply Filters" button to submit ---
             // Handle "All Tasks" option - if "all" is selected, deselect all other tasks
@@ -984,6 +1192,35 @@
                 localStorage.setItem('projectTypeFilter', document.getElementById('projectTypeFilter').value);
             });
             
+            function setSelectValueIfOptionExists(selectId, value) {
+                if (!value) return;
+                const select = document.getElementById(selectId);
+                if (!select) return;
+                const exists = Array.from(select.options).some(opt => opt.value === String(value));
+                if (exists) {
+                    select.value = String(value);
+                }
+            }
+
+            function getActiveProjectId() {
+                const select = document.getElementById('projectFilter');
+                if (!select) return '';
+
+                const fromSelect = select.value || '';
+                if (fromSelect) return fromSelect;
+
+                const fromUrl = new URLSearchParams(window.location.search).get('project');
+                if (fromUrl && Array.from(select.options).some(opt => opt.value === fromUrl)) {
+                    return fromUrl;
+                }
+
+                if (select.selectedIndex > 0) {
+                    return select.options[select.selectedIndex].value || '';
+                }
+
+                return '';
+            }
+
             function restoreFilterValues() {
                 const urlParams = new URLSearchParams(window.location.search);
                 const employeeValue = urlParams.get('employee') || localStorage.getItem('employeeFilter');
@@ -1006,8 +1243,8 @@
                 
                 const projectTypeValue = urlParams.get('project_type') || localStorage.getItem('projectTypeFilter');
 
-                if (employeeValue) document.getElementById('employeeFilter').value = employeeValue;
-                if (projectValue) document.getElementById('projectFilter').value = projectValue;
+                setSelectValueIfOptionExists('employeeFilter', employeeValue);
+                setSelectValueIfOptionExists('projectFilter', projectValue);
                 
                 // Restore multiple task selections
                 const taskFilter = document.getElementById('taskFilter');
@@ -1024,8 +1261,65 @@
                 }
                 
                 if (projectTypeValue) document.getElementById('projectTypeFilter').value = projectTypeValue;
+
+                syncTimeTransferFilters();
             }
+            // Time transfer export/import (uses current date + project filters)
+            const timeTransferExportForm = document.getElementById('timeTransferExportForm');
+            const timeTransferImportLink = document.getElementById('timeTransferImportLink');
+            const importBaseUrl = @json(url('/admin/projects'));
+
+            function syncTimeTransferFilters() {
+                const start = document.getElementById('startDateInput')?.value || '';
+                const end = document.getElementById('endDateInput')?.value || '';
+                const project = getActiveProjectId();
+
+                if (document.getElementById('timeTransferStartDate')) {
+                    document.getElementById('timeTransferStartDate').value = start;
+                }
+                if (document.getElementById('timeTransferEndDate')) {
+                    document.getElementById('timeTransferEndDate').value = end;
+                }
+                if (document.getElementById('timeTransferProjectId')) {
+                    document.getElementById('timeTransferProjectId').value = project;
+                }
+                if (timeTransferImportLink) {
+                    timeTransferImportLink.href = project
+                        ? `${importBaseUrl}/${project}/time-transfer/import`
+                        : '#';
+                    timeTransferImportLink.classList.toggle('opacity-50', !project);
+                    timeTransferImportLink.classList.toggle('pointer-events-none', !project);
+                }
+            }
+
             restoreFilterValues();
+            document.getElementById('startDateInput')?.addEventListener('change', syncTimeTransferFilters);
+            document.getElementById('endDateInput')?.addEventListener('change', syncTimeTransferFilters);
+            document.getElementById('projectFilter')?.addEventListener('change', function() {
+                localStorage.setItem('projectFilter', getActiveProjectId());
+                syncTimeTransferFilters();
+            });
+
+            if (timeTransferExportForm) {
+                timeTransferExportForm.addEventListener('submit', function(e) {
+                    syncTimeTransferFilters();
+                    const project = document.getElementById('timeTransferProjectId')?.value;
+                    if (!project) {
+                        e.preventDefault();
+                        alert(@json(__('messages.Please select a project to export transfer CSV.')));
+                    }
+                });
+            }
+
+            if (timeTransferImportLink) {
+                timeTransferImportLink.addEventListener('click', function(e) {
+                    const project = getActiveProjectId();
+                    if (!project) {
+                        e.preventDefault();
+                        alert(@json(__('messages.Please select a project to import transfer CSV.')));
+                    }
+                });
+            }
 
             // Total Calculator
             function updateTotals() {
@@ -1157,6 +1451,32 @@
             // Debug: Log baseUrl to ensure it's set correctly
             console.log('baseUrl set to:', baseUrl, 'for role:', userRole, 'trimmed:', userRole.trim());
             
+            const rolePrefixes = {
+                'Admin': 'admin',
+                'admin': 'admin',
+                'SuperAdmin': 'admin',
+                'Responsable de projet': 'Responsable_de_projet',
+                'Employee': 'employee',
+                'employee': 'employee',
+                'Responsable de projet et gestionnaire': 'Responsable_gestionnaire'
+            };
+            var rolePrefix = window.rolePrefix || rolePrefixes[userRole] || (userRole ? rolePrefixes[userRole.trim()] : '') || '';
+            if (!rolePrefix) {
+                const currentPath = window.location.pathname;
+                if (currentPath.includes('/admin/')) {
+                    rolePrefix = 'admin';
+                } else if (currentPath.includes('/Responsable_de_projet/')) {
+                    rolePrefix = 'Responsable_de_projet';
+                } else if (currentPath.includes('/employee/')) {
+                    rolePrefix = 'employee';
+                } else if (currentPath.includes('/Responsable_gestionnaire/')) {
+                    rolePrefix = 'Responsable_gestionnaire';
+                } else {
+                    rolePrefix = 'admin';
+                }
+            }
+            window.rolePrefix = rolePrefix;
+            
             // Store projects with tasks in the selected date range
             const projectsWithTasks = @json(isset($projectsWithTasks) ? $projectsWithTasks : []);
 
@@ -1206,6 +1526,7 @@
                 const clientId = document.getElementById('clientFilter').value;
                 const url = clientId ? `${baseUrl}/clients/${clientId}/projects` : `${baseUrl}/all-projects?include_tva=true`;
                 await fetchAndPopulate(url, 'projectFilter', 'All Projects');
+                syncTimeTransferFilters();
                 // Reset task filter when client changes
                 const taskFilter = document.getElementById('taskFilter');
                 taskFilter.innerHTML = '<option value="all" selected>All Tasks</option>';
@@ -1220,15 +1541,19 @@
                     await fetchAndPopulate(`${baseUrl}/all-projects?include_tva=true`, 'projectFilter', 'All Projects');
                     await fetchAndPopulate(`${baseUrl}/all-tasks`, 'taskFilter', 'All Tasks', true);
                 }
+                syncTimeTransferFilters();
             });
             
             // Update tasks when project is selected (without submitting form)
+            // Also keep time transfer import/export buttons in sync, even if other listeners fail.
             document.getElementById('projectFilter').addEventListener('change', async () => {
+                syncTimeTransferFilters();
                 const projectId = document.getElementById('projectFilter').value;
                 if (!projectId) {
                     // If no project selected, load all tasks
                     const url = baseUrl ? `${baseUrl}/all-tasks` : '/admin/filter/all-tasks';
                     await fetchAndPopulate(url, 'taskFilter', 'All Tasks', false);
+                    syncTimeTransferFilters();
                     return;
                 }
                 
@@ -1242,6 +1567,7 @@
                 
                 // Don't preserve selections when project changes - reset to show all tasks for the new project
                 await fetchAndPopulate(url, 'taskFilter', 'All Tasks', false);
+                syncTimeTransferFilters();
             });
             
             // Filter tasks on page load if a project is selected
@@ -1273,6 +1599,8 @@
                     await fetchAndPopulate(url, 'taskFilter', 'All Tasks', true);
                     restoreFilterValues();
                 }
+
+                syncTimeTransferFilters();
             })();
             
             // Logic for Generate Period Invoice Button
@@ -1406,6 +1734,9 @@
                                     try {
                                         const errorData = JSON.parse(errorText);
                                         errorMessage = errorData.message || errorData.error || errorMessage;
+                                        if (errorData.detail) {
+                                            errorMessage += ' [' + errorData.detail + ']';
+                                        }
                                         // Check if skipped tasks are in the response body (for 400 errors when all tasks are skipped)
                                         if (errorData.skippedTasks && Array.isArray(errorData.skippedTasks)) {
                                             skippedTasks = errorData.skippedTasks;

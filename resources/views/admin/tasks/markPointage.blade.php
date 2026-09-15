@@ -41,6 +41,86 @@
             font-weight: 600; /* font-semibold */
             color: #1f2937; /* text-gray-800 */
         }
+        /* Ensure hidden rows are actually hidden */
+        #pointageTable tbody tr.hidden {
+            display: none !important;
+        }
+
+        /* Mobile: convert rows to modern cards and add client collapse */
+        @media (max-width: 1024px) {
+            .pointage-table-wrapper {
+                overflow-x: visible !important;
+            }
+
+            #pointageTable thead {
+                display: none;
+            }
+
+            #pointageTable tbody {
+                display: block;
+                width: 100%;
+            }
+
+            /* Client header as accordion card */
+            #pointageTable tbody tr.client-header-row {
+                display: block;
+                margin: 12px 12px 6px 12px;
+                border-radius: 14px;
+                border: 1px solid rgba(148, 163, 184, 0.55);
+                background: linear-gradient(180deg, rgba(248,250,252,0.98), rgba(226,232,240,0.96));
+                box-shadow: 0 18px 45px rgba(15,23,42,0.08), 0 3px 10px rgba(15,23,42,0.06);
+            }
+
+            #pointageTable tbody tr.client-header-row td {
+                display: block;
+                padding: 10px 14px !important;
+                border: none;
+            }
+
+            /* Project rows as 2-col cards */
+            #pointageTable tbody tr.project-row {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                margin: 0 12px 16px 12px;
+                padding: 12px;
+                border: 1px solid rgba(148, 163, 184, 0.55);
+                border-radius: 16px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
+                box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
+            }
+
+            #pointageTable tbody tr.project-row td {
+                display: block;
+                width: 100%;
+                padding: 10px 12px !important;
+                border: 1px solid rgba(226, 232, 240, 0.9);
+                border-radius: 12px;
+                background: rgba(255,255,255,0.78);
+                text-align: left !important;
+                white-space: normal !important;
+                word-break: break-word;
+            }
+
+            #pointageTable tbody tr.project-row td:first-child {
+                display: none !important;
+            }
+
+            #pointageTable tbody tr.project-row td[data-span="2"] {
+                grid-column: span 2 / span 2;
+            }
+
+            #pointageTable tbody tr.project-row td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+                color: #64748b; /* slate-500 */
+                margin-bottom: 6px;
+            }
+        }
 </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden font-sans">
@@ -143,7 +223,7 @@
 
             {{-- 3. Table Section Card --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div class="overflow-x-auto">
+                <div class="pointage-table-wrapper overflow-x-auto">
                     <table id="pointageTable" class="w-full min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50"> 
                             <tr class="text-left">
@@ -155,9 +235,14 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($clients as $client)
                                 {{-- Ligne de l'en-tête du client --}}
-                                <tr class="client-header-row text-left" data-client-name="{{ strtoupper($client->name) }}"> 
+                                <tr class="client-header-row text-left cursor-pointer select-none" data-client-name="{{ strtoupper($client->name) }}" aria-expanded="true"> 
                                     <td colspan="3" class="px-4 py-3"> 
-                                        {{strtoupper($client->name)}}
+                                        <div class="flex items-center justify-between gap-2">
+                                            <span>{{strtoupper($client->name)}}</span>
+                                            <svg class="client-chevron w-5 h-5 text-slate-500 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6" />
+                                            </svg>
+                                        </div>
                                     </td>
                                 </tr>
                                 
@@ -193,7 +278,7 @@
                                         
                                         <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500"></td> 
                                         
-                                        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-800">
+                                        <td data-label="{{ __('messages.Project Name header') }}" data-span="2" class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-800">
                                             @if(Auth::user()->hasRole('Admin') && Auth::user()->can('View project'))
                                                 <a href="{{route('admin.projects.show', $project->id)}}" class="project-link">
                                                     {{strtoupper($project->name)}}
@@ -214,7 +299,7 @@
                                                 {{strtoupper($project->name)}}
                                             @endif
                                         </td>
-                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-left">
+                                        <td data-label="{{ __('messages.Total Duration header') }}" class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-left">
                                            {{ $hours }}h:{{ sprintf('%02d', $minutes) }}m
                                         </td>
                                     </tr>
@@ -284,6 +369,40 @@ document.addEventListener("DOMContentLoaded", function() {
     // Add event listeners to both filters
     clientFilter.addEventListener("change", applyFilters);
     searchInput.addEventListener("keyup", applyFilters);
+
+    // --- Client accordion (collapse by client name) ---
+    function setClientExpanded(headerRow, expanded) {
+        const clientName = headerRow.dataset.clientName;
+        headerRow.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        const chevron = headerRow.querySelector('.client-chevron');
+        if (chevron) {
+            chevron.classList.toggle('rotate-180', expanded);
+        }
+        projectRows.forEach(row => {
+            if (row.dataset.clientName === clientName) {
+                row.classList.toggle('hidden', !expanded);
+            }
+        });
+    }
+
+    function initClientAccordionForViewport() {
+        const isMobile = window.matchMedia('(max-width: 1024px)').matches;
+        clientHeaderRows.forEach(headerRow => {
+            setClientExpanded(headerRow, !isMobile);
+        });
+    }
+
+    clientHeaderRows.forEach(headerRow => {
+        headerRow.addEventListener('click', () => {
+            const expanded = headerRow.getAttribute('aria-expanded') === 'true';
+            setClientExpanded(headerRow, !expanded);
+        });
+    });
+
+    initClientAccordionForViewport();
+    const mq = window.matchMedia('(max-width: 1024px)');
+    if (mq.addEventListener) mq.addEventListener('change', initClientAccordionForViewport);
+    else mq.addListener(initClientAccordionForViewport);
 });
 </script>
 

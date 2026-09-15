@@ -1,12 +1,4 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DalyTrac Sidebar</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
+<style>
         .dropdown-menu {
             max-height: 0;
             opacity: 0;
@@ -56,11 +48,15 @@
         .submenu-item:hover::before {
             height: 60%;
         }
-    </style>
-</head>
+</style>
 
-<body class="bg-gray-100">
-    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between h-screen">
+{{-- Mobile backdrop --}}
+<div id="appSidebarBackdrop" class="fixed inset-0 bg-black/40 z-40 hidden lg:hidden" onclick="toggleAppSidebar(false)"></div>
+
+<aside
+    id="appSidebar"
+    class="hidden fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex-col justify-between h-screen overflow-y-auto transform -translate-x-full transition-transform duration-200 ease-out lg:static lg:sticky lg:top-0 lg:translate-x-0 lg:flex"
+>
         <div>
             <div class="px-6 pt-3 pb-1 flex items-center overflow-hidden">
                 <img
@@ -615,6 +611,3 @@
             }
         });
     </script>
-</body>
-
-</html>

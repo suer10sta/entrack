@@ -48,7 +48,7 @@
                         <p class="text-sm text-gray-500 mt-1">{{ __('messages.Mandatory information for all invoices') }}</p>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="invoice_prefix" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Invoice Prefix') }}</label>
                             <input id="invoice_prefix" 
@@ -57,6 +57,15 @@
                                    name="invoice_prefix" 
                                    value="{{ $entreprise->invoice_prefix ?? '' }}" />
                             <p class="mt-1 text-xs text-gray-500">{{ __('messages.Used as prefix for all invoice numbers') }}</p>
+                        </div>
+                        <div>
+                            <label for="invoice_start_number" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Start Number') }}</label>
+                            <input id="invoice_start_number"
+                                   class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+                                   type="text"
+                                   name="invoice_start_number"
+                                   value="{{ $entreprise->invoice_start_number ?? '' }}" />
+                            <p class="mt-1 text-xs text-gray-500">Next generated invoice will increment from this value.</p>
                         </div>
                     </div>
 

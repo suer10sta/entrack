@@ -58,8 +58,25 @@ class entrepriseController extends Controller
             'iban',
             'swift',
             'bic',
+            'invoice_prefix',
+            'invoice_start_number',
+            'general_conditions',
+            'invoice_body',
+            'first_reminder',
+            'second_reminder',
+            'third_reminder',
+            'devis_prefix',
+            'devis_start_number',
+            'general_conditions_Devis',
+            'devis_body',
+            'notedefraisPrefix',
+            'creditnoteprefix',
+            'monthBudget',
+            'peppol_id',
+            'peppol_sheme',
             'emails_backup',
             'workdays_emails',
+            'billit_api_key',
         ];
 
         if (!in_array($request->column, $allowedColumns, true)) {
@@ -67,7 +84,15 @@ class entrepriseController extends Controller
         }
 
         $Entreprise = Entreprise::find($request->id);
-        $Entreprise->{$request->column} = $request->content;
+
+        if ($request->column === 'billit_api_key') {
+            $trimmed = trim((string) $request->content);
+            // Empty string means explicit removal.
+            $Entreprise->billit_api_key = ($trimmed === '') ? null : $trimmed;
+        } else {
+            $Entreprise->{$request->column} = $request->content;
+        }
+
         $Entreprise->save();
 
         return response()->json(['success'=>'Entreprise updated successfully.']);

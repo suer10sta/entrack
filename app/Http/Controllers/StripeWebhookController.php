@@ -6,6 +6,8 @@ use Laravel\Cashier\Http\Controllers\WebhookController as CashierWebhookControll
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Log;
 use App\Models\Entreprise;
+use App\Services\SubscriptionInvoiceService;
+use App\Services\SubscriptionInvoiceSender;
 
 class StripeWebhookController extends CashierWebhookController
 {
@@ -16,6 +18,7 @@ class StripeWebhookController extends CashierWebhookController
     {
         try {
             $customerId = $payload['data']['object']['customer'] ?? null;
+            $invoice = $payload['data']['object'] ?? null;
             Log::info('Stripe invoice.succeeded customer: '.$customerId);
 
             $entreprise = $customerId
@@ -26,6 +29,17 @@ class StripeWebhookController extends CashierWebhookController
                 $entreprise->forceFill([
                     'account_status' => 'active',
                 ])->save();
+
+                // Generate a custom PDF subscription invoice using app name and TVA rules,
+                // then automatically send it either by email (non‑Belgian) or via Peppol/Billit (Belgian).
+                if (is_array($invoice)) {
+                    try {
+                        $relativePath = app(SubscriptionInvoiceService::class)->createFromStripeInvoice($entreprise, $invoice);
+                        app(SubscriptionInvoiceSender::class)->sendAutomatic($entreprise, $invoice, $relativePath);
+                    } catch (\Throwable $e) {
+                        Log::error('Failed to generate/send custom subscription invoice: '.$e->getMessage());
+                    }
+                }
             } else {
                 Log::warning('Stripe invoice.succeeded: no entreprise found for customer '.$customerId);
             }

@@ -8,6 +8,8 @@ use Illuminate\Validation\Rule;
 
 class ProfileUpdateRequest extends FormRequest
 {
+    private const AVAILABLE_LOCALES = ['en', 'fr', 'es', 'nl'];
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -19,6 +21,7 @@ class ProfileUpdateRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
 
+            'locale' => ['nullable', 'string', Rule::in(self::AVAILABLE_LOCALES)],
 
             'phoneNumber' => ['nullable', 'string', 'max:30'],
             'cnss' => ['nullable', 'string', 'max:50'],

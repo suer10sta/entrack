@@ -108,7 +108,7 @@
         <div class="header">
             <div class="header logo-right">
                 @if($entreprise->image)
-                        <img src="{{ storage_path('app/public/' . $entreprise->image) }}" alt="Company Logo" class="company-logo">
+                <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
                     @endif
             </div>
         </div>

@@ -1,18 +1,17 @@
 <header class="fixed top-0 z-50 w-full bg-background/80 backdrop-blur-xl border-b border-border/60 shadow-sm transition-all duration-300">
-<div class="container mx-auto flex items-center justify-between px-6 h-16 md:h-20 relative">
+<div class="container mx-auto flex items-center justify-between px-6 h-16 md:h-20 lg:h-36 relative">
     
     <!-- ===== Logo ===== -->
     <a href="{{ route('welcome') }}" class="flex items-center group">
       <img
         src="{{ asset('img/dalytraclogo.png') }}"
         alt="DalyTrac logo"
-        class="h-48 w-auto md:h-52 object-contain"
-        style="margin-top: 12px;"
+        class="home-header-logo h-12 w-auto object-contain sm:h-14 md:h-16 lg:h-32"
       />
     </a>
 
     <!-- ===== Desktop Navigation (perfectly centered) ===== -->
-    <nav class="hidden md:flex items-center gap-8 text-sm font-medium absolute left-1/2 -translate-x-1/2 transform">
+    <nav class="hidden lg:flex items-center gap-8 text-sm font-medium absolute left-1/2 -translate-x-1/2 transform">
       <a 
         href="{{ route('welcome') }}#features" 
         class="relative text-foreground/80 hover:text-foreground transition-colors
@@ -21,9 +20,9 @@
       </a>
       <a 
         href="{{ route('welcome') }}#account_type" 
-        class="relative text-foreground/80 hover:text-foreground transition-colors">
-        {{ __('messages.Plans') }}
-      </a>
+        class="relative text-foreground/80 hover:text-foreground transition-colors"> 
+        {{ __('messages.Plans') }} 
+      </a> 
       <a 
         href="{{ route('demo') }}" 
         class="relative text-foreground/80 hover:text-foreground transition-colors
@@ -47,10 +46,13 @@
         class="relative text-foreground/80 hover:text-foreground transition-colors">
         {{ __('messages.Contact') }}
       </a>
+      <a href="{{ route('blog.index') }}" class="relative text-foreground/80 hover:text-foreground transition-colors">
+    {{ __('messages.Blog') }}
+    </a>
     </nav>
 
     <!-- ===== Desktop Auth Buttons (right aligned) ===== -->
-    <div class="hidden md:flex items-center justify-end flex-shrink-0 ml-auto gap-3">
+    <div class="hidden lg:flex items-center justify-end flex-shrink-0 ml-auto gap-3">
       {{-- Language Switcher --}}
       <div class="relative" x-data="{ open: false }">
         <button 
@@ -138,7 +140,7 @@
               class="block px-4 py-2 text-sm text-foreground/90 hover:bg-secondary transition-colors flex items-center gap-2 {{ app()->getLocale() === 'nl' ? 'bg-primary/10 text-primary' : '' }}"
             >
               <img src="https://flagcdn.com/be.svg" alt="Nederlands" class="w-4 h-3 rounded-sm object-cover">
-              <span>{{ __('messages.Nederlands') }}</span>
+              <span>{{ __('messages.Nederlands') }}</span>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
               @if(app()->getLocale() === 'nl')
                 <svg class="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
@@ -173,7 +175,7 @@
     </div>
 
     <!-- ===== Mobile Menu Button ===== -->
-    <div class="md:hidden">
+    <div class="lg:hidden">
       <button id="mobile-menu-btn" class="inline-flex items-center justify-center rounded-lg p-1.5 text-foreground hover:bg-secondary focus:outline-none">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -184,7 +186,7 @@
   </div>
 
   <!-- ===== Mobile Menu ===== -->
-  <div id="mobile-menu" class="hidden md:hidden bg-background/95 backdrop-blur-xl shadow-lg border-t border-border/60">
+  <div id="mobile-menu" class="hidden lg:hidden bg-background/95 backdrop-blur-xl shadow-lg border-t border-border/60">
     <nav class="flex flex-col gap-4 p-6 text-sm">
       <a href="{{ route('welcome') }}#features" class="text-foreground/90 hover:text-primary font-medium">
         {{ __('messages.Features') }}
@@ -203,6 +205,9 @@
       </a>
       <a href="{{ url('/contact') }}" class="text-foreground/90 hover:text-primary font-medium">
         {{ __('messages.Contact') }}
+      </a>
+      <a href="{{ route('blog.index') }}" class="text-foreground/90 hover:text-primary font-medium">
+        {{ __('messages.Blog') }}
       </a>
 
       {{-- Mobile Language Switcher --}}
@@ -289,6 +294,16 @@
   /* Hide Alpine.js elements until Alpine is initialized */
   [x-cloak] {
     display: none !important;
+  }
+
+  /* Force desktop logo size (avoid legacy CSS overrides) */
+  @media (min-width: 1024px) {
+    .home-header-logo {
+      height: 140px !important;
+      width: auto !important;
+      max-height: none !important;
+      max-width: none !important;
+    }
   }
 </style>
 

@@ -18,6 +18,7 @@ use App\Models\project_teams;
 use App\Models\Entreprise;
 use App\Models\work_days_repports;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use App\Models\employees_tasks;
 use App\Models\client_contacts_projects;
 use App\Models\client_contacts;
@@ -31,10 +32,14 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use App\Models\invoices_history;
 use App\Mail\CustomerReportMail;
+use App\Services\PointageFilterService;
 
 
 class tasksController extends Controller
 {
+    public function __construct(private PointageFilterService $pointageFilterService)
+    {
+    }
 
     /**
      * Normalize incoming IDs (JSON string | array | collection | scalar) to array of integers.
@@ -200,6 +205,7 @@ class tasksController extends Controller
             "description" => "nullable",
             "estimated_hours" => "nullable|numeric|min:0",
             "consumed_hours" => "nullable|numeric|min:0",
+            "add_to_planning" => "nullable|boolean",
         ]);
 
         $user_id = Auth::user()->id;
@@ -295,51 +301,54 @@ class tasksController extends Controller
             $admin_task->save();
         }
 
-        // Create a calendar planning event linked to this task
-        // Use task/project/client data and task dates.
-        // If only one of start/end is set on the task, copy it into the other.
-        $rawStart = $task->start ? Carbon::parse($task->start) : null;
-        $rawEnd = $task->end ? Carbon::parse($task->end) : null;
+        // Optionally create a calendar planning event linked to this task
+        // Only create it if the checkbox was sent AND is truthy.
+        if ($request->boolean('add_to_planning')) {
+            // Use task/project/client data and task dates.
+            // If only one of start/end is set on the task, copy it into the other.
+            $rawStart = $task->start ? Carbon::parse($task->start) : null;
+            $rawEnd = $task->end ? Carbon::parse($task->end) : null;
 
-        if ($rawStart && !$rawEnd) {
-            $rawEnd = $rawStart->copy();
-        } elseif ($rawEnd && !$rawStart) {
-            $rawStart = $rawEnd->copy();
-        }
+            if ($rawStart && !$rawEnd) {
+                $rawEnd = $rawStart->copy();
+            } elseif ($rawEnd && !$rawStart) {
+                $rawStart = $rawEnd->copy();
+            }
 
-        if (!$rawStart && !$rawEnd) {
-            $rawStart = Carbon::now();
-            $rawEnd = Carbon::now();
-        }
+            if (!$rawStart && !$rawEnd) {
+                $rawStart = Carbon::now();
+                $rawEnd = Carbon::now();
+            }
 
-        $startDate = $rawStart->copy()->startOfDay();
-        $endDate = $rawEnd->copy()->endOfDay();
+            $startDate = $rawStart->copy()->startOfDay();
+            $endDate = $rawEnd->copy()->endOfDay();
 
-        $event = calendars::create([
-            'title'        => $task->title,
-            'description'  => $task->description,
-            // Default color for task-created events (indigo-600)
-            'color'        => '#4f46e5',
-            'is_finished'  => false,
-            'start_date'   => $startDate,
-            'end_date'     => $endDate,
-            'entreprise_id'=> $enterpriseId,
-            'user_id'      => $user_id,
-            'client_id'    => $project->client_id ?? null,
-            'project_id'   => $project->id,
-            'task_id'      => $task->id,
-        ]);
+            $event = calendars::create([
+                'title' => $task->title,
+                'description' => $task->description,
+                // Use the project's color for task-created events, fallback to previous default if none
+                'color' => $project->color ?: '#ffd059',
+                'is_finished' => false,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'entreprise_id' => $enterpriseId,
+                'user_id' => $user_id,
+                'client_id' => $project->client_id ?? null,
+                'project_id' => $project->id,
+                'task_id' => $task->id,
+            ]);
 
-        // Attach all employees assigned to this task to the calendar event
-        $eventEmployeeIds = employees_tasks::where('task_id', $task->id)
-            ->where('entreprise_id', $enterpriseId)
-            ->pluck('employee_id')
-            ->unique()
-            ->values()
-            ->all();
+            // Attach all employees assigned to this task to the calendar event
+            $eventEmployeeIds = employees_tasks::where('task_id', $task->id)
+                ->where('entreprise_id', $enterpriseId)
+                ->pluck('employee_id')
+                ->unique()
+                ->values()
+                ->all();
 
-        if (!empty($eventEmployeeIds)) {
-            $event->employees()->sync($eventEmployeeIds);
+            if (!empty($eventEmployeeIds)) {
+                $event->employees()->sync($eventEmployeeIds);
+            }
         }
 
 
@@ -374,7 +383,12 @@ class tasksController extends Controller
             ->get();
         if ($old_employees) {
             foreach ($old_employees as $old_emp) {
+                // It is possible that the related employee record was deleted.
+                // In that case, skip to avoid "Attempt to read property 'user_id' on null".
                 $old_employee = employees::where('id', $old_emp->employee_id)->first();
+                if (!$old_employee) {
+                    continue;
+                }
                 $old_employee_usr = User::where('id', $old_employee->user_id)
                     ->where('is_activate', 1)
                     ->get();
@@ -485,7 +499,7 @@ class tasksController extends Controller
             foreach ($team_members as $member) {
                 $employee = Employees::find($member->employee_id);
                 if ($employee) {
-            
+
                     $employee_task = new employees_tasks;
                     $employee_task->employee_id = $employee->id;
                     $employee_task->employee_name = $this->getEmployeeDisplayName($employee);
@@ -627,6 +641,21 @@ class tasksController extends Controller
             return back()->with('alertmessage', 'A timer is already running for this task. Please stop the existing timer before starting a new one.');
         }
 
+        // Check if the employee has reached the daily work hours limit
+        $work_minutes_limit = (float) $employee->workHours_limit * 60;
+        if ($work_minutes_limit > 0) {
+            $today_completed_tasks = tasks_timer::where('employee_id', $employee_id)
+                ->whereDate('start_date', Carbon::today())
+                ->whereNotNull('end_date')
+                ->sum('duration');
+
+            $today_completed_tasks += $this->getRunningTasksDurationToday($employee_id);
+
+            if ($today_completed_tasks >= $work_minutes_limit) {
+                return back()->with('alertmessage', 'You have reached your daily work hours limit. Cannot start a new task.');
+            }
+        }
+
         // Check if the employee is a SuperAdmin (to allow multiple tasks)
         // We check the employee's user, not the current authenticated user
         $isEmployeeSuperAdmin = false;
@@ -674,7 +703,7 @@ class tasksController extends Controller
             return back()->with('error', 'Task not found.');
         }
 
-        $task_timer = tasks_timer::where('task_employee_id', $tasks->id)->latest()->first();
+        $task_timer = tasks_timer::where('task_employee_id', $tasks->id)->whereNull('end_date')->latest()->first();
 
         if ($task_timer && $task_timer->pause_date === null && $task_timer->end_date === null) {
             $task_timer->update(['pause_date' => now()]);
@@ -709,7 +738,7 @@ class tasksController extends Controller
             return back()->with('error', 'Task not found.');
         }
 
-        $task_timer = tasks_timer::where('task_employee_id', $tasks->id)->latest()->first();
+        $task_timer = tasks_timer::where('task_employee_id', $tasks->id)->whereNull('end_date')->latest()->first();
 
         if ($task_timer && $task_timer->pause_date != null && $task_timer->end_date === null) {
             $task_timer->update(['resume_date' => now()]);
@@ -724,7 +753,7 @@ class tasksController extends Controller
 
 
 
-    public function stop($task, $employee_id)
+    public function stop(Request $request, $task, $employee_id)
     {
         $tasks = employees_tasks::where('id', $task)->where('employee_id', $employee_id)->first();
         $employee = Employees::where('id', $employee_id)->first();
@@ -750,7 +779,26 @@ class tasksController extends Controller
             return back()->with('error', 'Task not found.');
         }
 
-        $task_timer = tasks_timer::where('task_employee_id', $tasks->id)->latest()->first();
+        $task_timer = tasks_timer::where('task_employee_id', $tasks->id)->whereNull('end_date')->latest()->first();
+
+        // Calculate total completed minutes for today to enforce daily work hours limit
+        $today_completed_tasks = 0;
+        $work_minutes_limit = (float) $employee->workHours_limit * 60;
+        if ($task_timer) {
+            $today_completed_tasks = tasks_timer::where('employee_id', $employee_id)
+                ->whereDate('start_date', Carbon::today())
+                ->whereNotNull('end_date')
+                ->where('id', '!=', $task_timer->id)
+                ->sum('duration');
+
+            $today_completed_tasks += $this->getRunningTasksDurationToday($employee_id, $task_timer->id);
+        }
+
+        // Save stop comment from modal if provided
+        if ($task_timer && $request->has('stop_comment') && $request->input('stop_comment')) {
+            $task_timer->comment = $request->input('stop_comment');
+            $task_timer->save();
+        }
 
 
         if ($task_timer && $task_timer->pause_date === null && $task_timer->end_date === null) {
@@ -759,44 +807,46 @@ class tasksController extends Controller
             $start_date = Carbon::parse($task_timer->start_date);
             $end_date = Carbon::parse($task_timer->end_date);
 
+            $current_duration = $start_date->diffInMinutes($end_date);
+
             if ($start_date->diffInSeconds($end_date) < 30) {
                 $task_timer->delete();
-            } elseif ($start_date->diffInMinutes($end_date) < 5) {
-                $add15min = new DateInterval('PT15M');
-                $task_timer->end_date = clone $start_date; // Clone to avoid modifying original start_date
-                $task_timer->end_date->add($add15min); // Add 15 minutes to the start date
-                $task_timer->duration = 15;
-                $cost_per_hour = $employee->cost_per_hour;
-                $cost = $cost_per_hour * ((float) 15 / 60);
-                $task_timer->cost = $cost;
-                $task_timer->save();
-
-
-            } elseif ($start_date->diffInMinutes($end_date) > ($employee->workHours_limit * 60)) {
-
-                // Use minutes directly to support fractional hour limits (e.g. 8.5h = 510 minutes)
-                $work_hours_minutes = (int) round($employee->workHours_limit * 60);
-                $task_timer->end_date = (clone $start_date)->addMinutes($work_hours_minutes);
-                $task_timer->duration = $work_hours_minutes;
-                $cost_per_hour = $employee->cost_per_hour;
-                $cost = $cost_per_hour * ((float) $employee->workHours_limit);
-                $task_timer->cost = $cost;
-                $task_timer->save();
-
-
-
+            } elseif ($work_minutes_limit > 0 && $today_completed_tasks >= $work_minutes_limit) {
+                $task_timer->delete();
+            } elseif ($current_duration < 5) {
+                $effective_duration = 15;
+                if ($work_minutes_limit > 0) {
+                    $remaining = $work_minutes_limit - $today_completed_tasks;
+                    $effective_duration = (int) min(15, $remaining);
+                }
+                if ($effective_duration <= 0) {
+                    $task_timer->delete();
+                } else {
+                    $task_timer->end_date = (clone $start_date)->addMinutes($effective_duration);
+                    $task_timer->duration = $effective_duration;
+                    $cost_per_hour = $employee->cost_per_hour;
+                    $cost = $cost_per_hour * ((float) $effective_duration / 60);
+                    $task_timer->cost = $cost;
+                    $task_timer->save();
+                }
+            } elseif ($work_minutes_limit > 0 && ($today_completed_tasks + $current_duration) > $work_minutes_limit) {
+                $remaining = max(0, $work_minutes_limit - $today_completed_tasks);
+                if ($remaining <= 0) {
+                    $task_timer->delete();
+                } else {
+                    $task_timer->end_date = (clone $start_date)->addMinutes($remaining);
+                    $task_timer->duration = $remaining;
+                    $cost_per_hour = $employee->cost_per_hour;
+                    $cost = $cost_per_hour * ((float) $remaining / 60);
+                    $task_timer->cost = $cost;
+                    $task_timer->save();
+                }
             } else {
-                // Calculate the duration of the task
-                $duration = $start_date->diffInMinutes($end_date);
-                $task_timer->duration = $duration;
-
-                // Calculate the cost of the task
+                $task_timer->duration = $current_duration;
                 $cost_per_hour = $employee->cost_per_hour;
-                $cost = $cost_per_hour * ((float) $duration / 60);
+                $cost = $cost_per_hour * ((float) $current_duration / 60);
                 $task_timer->cost = $cost;
                 $task_timer->save();
-
-
             }
 
             return back()->with('success', 'Task ended successfully.');
@@ -816,24 +866,32 @@ class tasksController extends Controller
             $taskduration = $duration1 + $duration2;
 
             if ($taskduration < 5) {
-                // For very short tasks, set minimum duration to 15 minutes
-                $add15min = new DateInterval('PT15M');
-                $task_timer->end_date = clone $start_date;
-                $task_timer->end_date->add($add15min);
-                $task_timer->duration = 15;
-                $cost_per_hour = $employee->cost_per_hour;
-                $cost = $cost_per_hour * ((float) 15 / 60);
-                $task_timer->cost = $cost;
-            } elseif ($taskduration > ($employee->workHours_limit * 60)) {
-                // Cap duration at work hours limit, supporting fractional hours
-                $work_hours_minutes = (int) round($employee->workHours_limit * 60);
-                $task_timer->end_date = (clone $start_date)->addMinutes($work_hours_minutes);
-                $task_timer->duration = $work_hours_minutes;
-                $cost_per_hour = $employee->cost_per_hour;
-                $cost = $cost_per_hour * ((float) $employee->workHours_limit);
-                $task_timer->cost = $cost;
+                $effective_duration = 15;
+                if ($work_minutes_limit > 0) {
+                    $remaining = $work_minutes_limit - $today_completed_tasks;
+                    $effective_duration = (int) min(15, $remaining);
+                }
+                if ($effective_duration <= 0) {
+                    $task_timer->delete();
+                } else {
+                    $task_timer->end_date = (clone $start_date)->addMinutes($effective_duration);
+                    $task_timer->duration = $effective_duration;
+                    $cost_per_hour = $employee->cost_per_hour;
+                    $cost = $cost_per_hour * ((float) $effective_duration / 60);
+                    $task_timer->cost = $cost;
+                }
+            } elseif ($work_minutes_limit > 0 && ($today_completed_tasks + $taskduration) > $work_minutes_limit) {
+                $remaining = max(0, $work_minutes_limit - $today_completed_tasks);
+                if ($remaining <= 0) {
+                    $task_timer->delete();
+                } else {
+                    $task_timer->end_date = (clone $start_date)->addMinutes($remaining);
+                    $task_timer->duration = $remaining;
+                    $cost_per_hour = $employee->cost_per_hour;
+                    $cost = $cost_per_hour * ((float) $remaining / 60);
+                    $task_timer->cost = $cost;
+                }
             } else {
-                // Normal case - use actual calculated duration
                 $task_timer->duration = $taskduration;
                 $cost_per_hour = $employee->cost_per_hour;
                 $cost = $cost_per_hour * ((float) $taskduration / 60);
@@ -845,6 +903,125 @@ class tasksController extends Controller
         } else {
             return back()->with('alertmessage', 'The timer was not initiated to stop it.');
         }
+    }
+
+    public function correctComment(Request $request)
+    {
+        $comment = $request->input('comment');
+        if (blank($comment)) {
+            return response()->json(['error' => 'Comment is empty'], 400);
+        }
+
+        $apiKey = config('services.openai.api_key');
+        if (blank($apiKey)) {
+            return response()->json(['error' => 'OpenAI API Key is not configured'], 500);
+        }
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type' => 'application/json',
+            ])->post('https://api.openai.com/v1/chat/completions', [
+                        'model' => 'gpt-4o-mini',
+                        'messages' => [
+                            [
+                                'role' => 'system',
+                                'content' => "You are a professional assistant. Correct the spelling, typos, and grammar of the user's task description or comment. Output ONLY the corrected text. Do not add any greeting, preamble, explanations, comments, or quotes. Keep the same language as the input."
+                            ],
+                            [
+                                'role' => 'user',
+                                'content' => $comment
+                            ]
+                        ],
+                        'temperature' => 0.3,
+                    ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $correctedText = $data['choices'][0]['message']['content'] ?? $comment;
+                $correctedText = trim($correctedText, "\"' ");
+                return response()->json(['corrected' => $correctedText]);
+            } else {
+                $errorData = $response->json();
+                $errorMessage = $errorData['error']['message'] ?? 'OpenAI API request failed';
+                return response()->json(['error' => $errorMessage], 500);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function translateComment(Request $request)
+    {
+        $comment = $request->input('comment');
+        if (blank($comment)) {
+            return response()->json(['error' => 'Comment is empty'], 400);
+        }
+
+        $apiKey = config('services.openai.api_key');
+        if (blank($apiKey)) {
+            return response()->json(['error' => 'OpenAI API Key is not configured'], 500);
+        }
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type' => 'application/json',
+            ])->post('https://api.openai.com/v1/chat/completions', [
+                        'model' => 'gpt-4o-mini',
+                        'messages' => [
+                            [
+                                'role' => 'system',
+                                'content' => "You are a professional translator specialized in civil engineering (génie civil / bouwkunde). The texts you translate are related to construction projects, building plans, BIM modeling, structural engineering, architectural design, site management, and related technical fields. Use the appropriate Dutch technical terminology for this domain. Translate the user's task description or comment into Dutch (Nederlands). Output ONLY the translated text. Do not add any greeting, preamble, explanations, comments, or quotes."
+                            ],
+                            [
+                                'role' => 'user',
+                                'content' => $comment
+                            ]
+                        ],
+                        'temperature' => 0.3,
+                    ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $translatedText = $data['choices'][0]['message']['content'] ?? $comment;
+                $translatedText = trim($translatedText, "\"' ");
+                return response()->json(['translated' => $translatedText]);
+            } else {
+                $errorData = $response->json();
+                $errorMessage = $errorData['error']['message'] ?? 'OpenAI API request failed';
+                return response()->json(['error' => $errorMessage], 500);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
+    private function getRunningTasksDurationToday($employee_id, $exclude_timer_id = null)
+    {
+        $query = tasks_timer::where('employee_id', $employee_id)
+            ->whereDate('start_date', Carbon::today())
+            ->whereNull('end_date');
+
+        if ($exclude_timer_id) {
+            $query->where('id', '!=', $exclude_timer_id);
+        }
+
+        $running_tasks = $query->get();
+        $total = 0;
+
+        foreach ($running_tasks as $rt) {
+            if ($rt->paused == 1) {
+                $total += (float) ($rt->duration ?? 0);
+            } elseif ($rt->resume_date !== null) {
+                $total += (float) ($rt->duration ?? 0) + Carbon::parse($rt->resume_date)->diffInMinutes(now());
+            } else {
+                $total += Carbon::parse($rt->start_date)->diffInMinutes(now());
+            }
+        }
+
+        return $total;
     }
 
     public function checkTasksAndTime()
@@ -864,10 +1041,15 @@ class tasksController extends Controller
                 $start_date = Carbon::parse($task->start_date);
                 $current_time = now();
 
-                // If task is paused, handle differently
-                if ($task->pause_date !== null) {
-                    $duration = $task->duration; // Keep existing duration for paused tasks
+                // Calculate actual elapsed duration for the current task
+                if ($task->paused == 1) {
+                    // Task is currently paused - use accumulated duration
+                    $duration = (float) ($task->duration ?? 0);
+                } elseif ($task->resume_date !== null) {
+                    // Task was paused and resumed - accumulated + time since resume
+                    $duration = (float) ($task->duration ?? 0) + Carbon::parse($task->resume_date)->diffInMinutes($current_time);
                 } else {
+                    // Task was never paused - calculate from start
                     $duration = $start_date->diffInMinutes($current_time);
                 }
 
@@ -877,6 +1059,9 @@ class tasksController extends Controller
                     ->whereNotNull('end_date')
                     ->where('id', '!=', $task->id)
                     ->sum('duration');
+
+                // Also include elapsed time of other currently running tasks
+                $today_completed_tasks += $this->getRunningTasksDurationToday($task->employee_id, $task->id);
 
                 // Calculate total duration including current task
                 $total_duration = $today_completed_tasks + $duration;
@@ -912,444 +1097,46 @@ class tasksController extends Controller
 
     public function pointage()
     {
-        $projects = Project::where('entreprise_id', Auth::user()->entreprise_id)
-            ->where(function ($query) {
-                $query->whereNull('AcceptedDevisProject')
-                    ->orWhere('AcceptedDevisProject', '=', 1);
-            })
-            ->where('archived', 0)
-            ->whereNull('parent_id')  // Exclude subprojects
-            ->select('id', 'name', 'tva')  // Explicitly select the TVA field
-            ->orderBy('name')
-            ->get();
-        $enterpriseId = Auth::user()->entreprise_id;
-        $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name')->get();
-        $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
-        
-        // Filter tasks by project if project is selected in request
-        $project_id = request()->query('project');
-        $allTasks = Tasks::where('entreprise_id', Auth::user()->entreprise_id);
-        if ($project_id != null && $project_id != '') {
-            $allTasks = $allTasks->where('project_id', $project_id);
-        }
-        $allTasks = $allTasks->orderBy('title')->get();
-        
-        $tasks = Tasks::where('user_id', Auth::user()->id)->get();
+        $entrepriseId = (int) Auth::user()->entreprise_id;
+        $filters = [
+            'start_date' => null,
+            'end_date' => null,
+            'project_id' => request()->query('project') ?: null,
+        ];
 
-        $employees_tasks = employees_tasks::where('entreprise_id', Auth::user()->entreprise_id)->get();
-        $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)
-            ->where(function ($query) {
-                $query->whereNull('AcceptedDevisClient')
-                    ->orWhere('AcceptedDevisClient', '=', 1);
-            })
-            ->whereIn('id', function ($query) {
-                $query->select('client_id')
-                    ->from('projects')
-                    ->where('entreprise_id', Auth::user()->entreprise_id)
-                    ->where(function ($q) {
-                        $q->whereNull('AcceptedDevisProject')
-                            ->orWhere('AcceptedDevisProject', '=', 1);
-                    })
-                    ->where('archived', 0);
-            })
-            ->orderBy('name')
-            ->get();
+        $data = $this->pointageFilterService->getPointageViewData(
+            $entrepriseId,
+            (int) Auth::user()->id,
+            $filters
+        );
 
-        $today = Carbon::today()->toDateString();
-
-        // Get period invoices for today (any overlapping period)
-        $periodInvoices = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
-            ->where('type', 'Period')
-            ->where(function ($query) use ($today) {
-                $query->where('start_date', '<=', $today)
-                    ->where('end_date', '>=', $today);
-            })
-            ->pluck('project_id')
-            ->unique()
-            ->values()
-            ->toArray();
-
-        // Get projects that have a period invoice exactly for today (start_date == end_date == $today)
-        $projectsWithExactInvoices = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
-            ->where('type', 'Period')
-            ->whereDate('start_date', $today)
-            ->whereDate('end_date', $today)
-            ->pluck('project_id')
-            ->map(function ($id) {
-                return (int) $id;
-            })
-            ->unique()
-            ->values()
-            ->toArray();
-
-        // Fetch tasks information for the selected start date
-        $tasks_timer = tasks_timer::whereDate('start_date', $today)
-            ->where('entreprise_id', Auth::user()->entreprise_id)
-            ->orderBy('start_date', 'asc') // Order by start_date
-            ->get()
-            ->groupBy(function ($date) {
-                return Carbon::parse($date->start_date)->format('l - Y-m-d'); // Group by date
-            });
-
-        // Get project IDs that have tasks_hours in the selected date range
-        $projectsWithTasks = tasks_timer::whereDate('start_date', $today)
-            ->where('entreprise_id', Auth::user()->entreprise_id)
-            ->whereNotNull('project_id')
-            ->distinct()
-            ->pluck('project_id')
-            ->toArray();
-
-        return view('admin.tasks.pointage', compact(
-            'employees_tasks',
-            'projects',
-            'employees',
-            'teams',
-            'tasks',
-            'allTasks',
-            'tasks_timer',
-            'clients',
-            'periodInvoices',
-            'projectsWithTasks',
-            'projectsWithExactInvoices'
-        ));
+        return view('admin.tasks.pointage', $data);
     }
 
 
     public function filterPointageByDate(Request $request)
     {
-        $projects = Project::where('entreprise_id', Auth::user()->entreprise_id)
-            ->where(function ($query) {
-                $query->whereNull('AcceptedDevisProject')
-                    ->orWhere('AcceptedDevisProject', '=', 1);
-            })
-            ->where('archived', 0)
-            ->whereNull('parent_id')  // Exclude subprojects
-            ->select('id', 'name', 'tva')  // Explicitly select the TVA field
-            ->orderBy('name')
-            ->get();
-        $enterpriseId = Auth::user()->entreprise_id;
-        $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name')->get();
-        $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
-        $allTasks = Tasks::where('entreprise_id', Auth::user()->entreprise_id)->orderBy('title')->get();
-        $tasks = Tasks::where('user_id', Auth::user()->id)->get();
-        $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)
-            ->where(function ($query) {
-                $query->whereNull('AcceptedDevisClient')
-                    ->orWhere('AcceptedDevisClient', '=', 1);
-            })
-            ->whereIn('id', function ($query) {
-                $query->select('client_id')
-                    ->from('projects')
-                    ->where('entreprise_id', Auth::user()->entreprise_id)
-                    ->where(function ($q) {
-                        $q->whereNull('AcceptedDevisProject')
-                            ->orWhere('AcceptedDevisProject', '=', 1);
-                    })
-                    ->where('archived', 0);
-            })
-            ->orderBy('name')
-            ->get();
+        $filters = $this->pointageFilterService->filtersFromRequest($request);
+        $data = $this->pointageFilterService->getPointageViewData(
+            (int) Auth::user()->entreprise_id,
+            (int) Auth::user()->id,
+            $filters
+        );
 
-        $employees_tasks = employees_tasks::where('entreprise_id', Auth::user()->entreprise_id)->get();
-
-        $startDate = Carbon::parse($request->input('start_date'))->toDateString();
-        $endDate = Carbon::parse($request->input('end_date'))->toDateString();
-
-        // Get period invoices for the date range (any overlapping period)
-        $periodInvoices = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
-            ->where('type', 'Period')
-            ->where(function ($query) use ($startDate, $endDate) {
-                $query->whereBetween('start_date', [$startDate, $endDate])
-                    ->orWhereBetween('end_date', [$startDate, $endDate])
-                    ->orWhere(function ($q) use ($startDate, $endDate) {
-                        $q->where('start_date', '<=', $startDate)
-                            ->where('end_date', '>=', $endDate);
-                    });
-            })
-            ->pluck('project_id')
-            ->map(function ($id) {
-                return (int) $id;
-            })
-            ->unique()
-            ->values()
-            ->toArray();
-
-        // Get projects that have a period invoice exactly matching the selected range
-        $projectsWithExactInvoices = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
-            ->where('type', 'Period')
-            ->whereDate('start_date', $startDate)
-            ->whereDate('end_date', $endDate)
-            ->pluck('project_id')
-            ->map(function ($id) {
-                return (int) $id;
-            })
-            ->unique()
-            ->values()
-            ->toArray();
-
-
-        if ($request->input('start_date') != null && $request->input('end_date') != null) {
-            $tasks_timer = tasks_timer::where('start_date', '>=', $startDate)
-                ->where('entreprise_id', Auth::user()->entreprise_id)
-                ->where(function ($query) use ($endDate) {
-                    // Add one day to the endDate for inclusive comparison
-                    $inclusiveEndDate = Carbon::parse($endDate)->addDay()->format('Y-m-d');
-                    $query->where(function ($q) use ($inclusiveEndDate) {
-                        $q->where('end_date', '<', $inclusiveEndDate)
-                            ->whereNotNull('end_date')
-                            ->orWhereNull('end_date'); // Include tasks that are still working
-                    });
-                })
-                ->orderBy('start_date', 'asc') // Order by start_date
-                ->get()
-                ->groupBy(function ($date) {
-                    return Carbon::parse($date->start_date)->format('l - Y-m-d'); // Group by date
-                });
-            
-            // Get project IDs that have tasks_hours in the selected date range
-            $projectsWithTasks = tasks_timer::where('start_date', '>=', $startDate)
-                ->where('entreprise_id', Auth::user()->entreprise_id)
-                ->where(function ($query) use ($endDate) {
-                    $inclusiveEndDate = Carbon::parse($endDate)->addDay()->format('Y-m-d');
-                    $query->where(function ($q) use ($inclusiveEndDate) {
-                        $q->where('end_date', '<', $inclusiveEndDate)
-                            ->whereNotNull('end_date')
-                            ->orWhereNull('end_date');
-                    });
-                })
-                ->whereNotNull('project_id')
-                ->distinct()
-                ->pluck('project_id')
-                ->toArray();
-        } else {
-            $tasks_timer = tasks_timer::whereDate('start_date', $startDate)
-                ->where('entreprise_id', Auth::user()->entreprise_id)
-                ->orderBy('start_date', 'asc') // Order by start_date
-                ->get()
-                ->groupBy(function ($date) {
-                    return Carbon::parse($date->start_date)->format('l - Y-m-d'); // Group by date
-                });
-            
-            // Get project IDs that have tasks_hours in the selected date range
-            $projectsWithTasks = tasks_timer::whereDate('start_date', $startDate)
-                ->where('entreprise_id', Auth::user()->entreprise_id)
-                ->whereNotNull('project_id')
-                ->distinct()
-                ->pluck('project_id')
-                ->toArray();
-        }
-
-        return view('admin.tasks.pointage', compact(
-            'employees_tasks',
-            'projects',
-            'employees',
-            'teams',
-            'tasks',
-            'allTasks',
-            'tasks_timer',
-            'clients',
-            'periodInvoices',
-            'projectsWithTasks',
-            'projectsWithExactInvoices'
-        ));
+        return view('admin.tasks.pointage', $data);
     }
 
     public function filterPointageTable(Request $request)
     {
-        $projects = Project::where('entreprise_id', Auth::user()->entreprise_id)
-            ->where(function ($query) {
-                $query->whereNull('AcceptedDevisProject')
-                    ->orWhere('AcceptedDevisProject', '=', 1);
-            })
-            ->where('archived', 0)
-            ->whereNull('parent_id')  // Exclude subprojects
-            ->select('id', 'name', 'tva')  // Explicitly select the TVA field
-            ->orderBy('name')
-            ->get();
-        $enterpriseId = Auth::user()->entreprise_id;
-        $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name')->get();
-        $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
-        
-        // Filter tasks by project if project is selected
-        $project_id = $request->query('project');
-        $allTasks = Tasks::where('entreprise_id', Auth::user()->entreprise_id);
-        if ($project_id != null && $project_id != '') {
-            $allTasks = $allTasks->where('project_id', $project_id);
-        }
-        $allTasks = $allTasks->orderBy('title')->get();
-        
-        $tasks = Tasks::where('user_id', Auth::user()->id)->get();
-        $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)
-            ->where(function ($query) {
-                $query->whereNull('AcceptedDevisClient')
-                    ->orWhere('AcceptedDevisClient', '=', 1);
-            })
-            ->whereIn('id', function ($query) {
-                $query->select('client_id')
-                    ->from('projects')
-                    ->where('entreprise_id', Auth::user()->entreprise_id)
-                    ->where(function ($q) {
-                        $q->whereNull('AcceptedDevisProject')
-                            ->orWhere('AcceptedDevisProject', '=', 1);
-                    })
-                    ->where('archived', 0);
-            })
-            ->orderBy('name')
-            ->get();
+        $filters = $this->pointageFilterService->filtersFromRequest($request);
+        $data = $this->pointageFilterService->getPointageViewData(
+            (int) Auth::user()->entreprise_id,
+            (int) Auth::user()->id,
+            $filters
+        );
 
-        $employees_tasks = employees_tasks::where('entreprise_id', Auth::user()->entreprise_id)->get();
-
-        $startDate = Carbon::parse($request->query('start_date'))->toDateString();
-        $endDate = Carbon::parse($request->query('end_date'))->toDateString();
-        $employee_id = $request->query('employee');
-        $project_id = $request->query('project');
-        $taskIds = (array) $request->query('task');
-        $client_id = $request->query('client');
-        $project_type = $request->query('project_type');
-
-        // Get period invoices for the date range (any overlapping period)
-        $periodInvoices = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
-            ->where('type', 'Period')
-            ->where(function ($query) use ($startDate, $endDate) {
-                $query->whereBetween('start_date', [$startDate, $endDate])
-                    ->orWhereBetween('end_date', [$startDate, $endDate])
-                    ->orWhere(function ($q) use ($startDate, $endDate) {
-                        $q->where('start_date', '<=', $startDate)
-                            ->where('end_date', '>=', $endDate);
-                    });
-            })
-            ->pluck('project_id')
-            ->map(function ($id) {
-                return (int) $id;
-            })
-            ->unique()
-            ->values()
-            ->toArray();
-
-        // Get projects that have a period invoice exactly matching the selected range
-        $projectsWithExactInvoices = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
-            ->where('type', 'Period')
-            ->whereDate('start_date', $startDate)
-            ->whereDate('end_date', $endDate)
-            ->pluck('project_id')
-            ->map(function ($id) {
-                return (int) $id;
-            })
-            ->unique()
-            ->values()
-            ->toArray();
-
-        // Base query builder
-        $query = tasks_timer::where('entreprise_id', Auth::user()->entreprise_id);
-
-        // Add date range conditions
-        if ($request->input('start_date') != null && $request->input('end_date') != null) {
-            $query->where('start_date', '>=', $startDate)
-                ->where(function ($query) use ($endDate) {
-                    $inclusiveEndDate = Carbon::parse($endDate)->addDay()->format('Y-m-d');
-                    $query->where(function ($q) use ($inclusiveEndDate) {
-                        $q->where('end_date', '<', $inclusiveEndDate)
-                            ->whereNotNull('end_date')
-                            ->orWhereNull('end_date'); // Include tasks that are still working
-                    });
-                });
-        } else {
-            $query->whereDate('start_date', $startDate);
-        }
-
-        // Add client filter if provided
-        if ($client_id != null) {
-            $projectIds = Project::where('client_id', $client_id)->pluck('id');
-            $query->whereIn('project_id', $projectIds);
-        }
-
-        // Add project type filter if provided
-        if ($project_type != null) {
-            if ($project_type == 'regie') {
-                $projectIds = Project::where('regie', 1)->pluck('id');
-                $query->whereIn('project_id', $projectIds);
-            } elseif ($project_type == 'devis') {
-                $projectIds = Project::where('AcceptedDevisProject', 1)->pluck('id');
-                $query->whereIn('project_id', $projectIds);
-            }
-        }
-
-        // Add other filters
-        if ($employee_id != null) {
-            $query->where('employee_id', $employee_id);
-        }
-        if ($project_id != null) {
-            $query->where('project_id', $project_id);
-        }
-
-        // Filter by multiple tasks if provided
-        // If "all" is in the array, don't filter by tasks (show all tasks)
-        if (!empty($taskIds)) {
-            $flatTaskIds = [];
-            foreach ($taskIds as $val) {
-                if (is_array($val)) {
-                    foreach ($val as $v) {
-                        $flatTaskIds[] = $v;
-                    }
-                } else {
-                    $flatTaskIds[] = $val;
-                }
-            }
-            // Filter out empty values and "all" option
-            $flatTaskIds = array_filter($flatTaskIds, function ($v) {
-                return $v !== '' && $v !== null && $v !== 'all';
-            });
-            // Only apply task filter if there are specific tasks selected (not "all")
-            if (!empty($flatTaskIds)) {
-                $query->whereIn('task_id', $flatTaskIds);
-            }
-        }
-
-        // Execute query and group results
-        $tasks_timer = $query->orderBy('start_date', 'asc')
-            ->get()
-            ->groupBy(function ($date) {
-                return Carbon::parse($date->start_date)->format('l - Y-m-d');
-            });
-
-        // Get project IDs that have tasks_hours in the selected date range
-        $projectsWithTasksQuery = tasks_timer::where('entreprise_id', Auth::user()->entreprise_id);
-        
-        if ($request->input('start_date') != null && $request->input('end_date') != null) {
-            $projectsWithTasksQuery->where('start_date', '>=', $startDate)
-                ->where(function ($query) use ($endDate) {
-                    $inclusiveEndDate = Carbon::parse($endDate)->addDay()->format('Y-m-d');
-                    $query->where(function ($q) use ($inclusiveEndDate) {
-                        $q->where('end_date', '<', $inclusiveEndDate)
-                            ->whereNotNull('end_date')
-                            ->orWhereNull('end_date');
-                    });
-                });
-        } else {
-            $projectsWithTasksQuery->whereDate('start_date', $startDate);
-        }
-        
-        $projectsWithTasks = $projectsWithTasksQuery
-            ->whereNotNull('project_id')
-            ->distinct()
-            ->pluck('project_id')
-            ->toArray();
-
-        return view('admin.tasks.pointage', compact(
-            'employees_tasks',
-            'projects',
-            'employees',
-            'teams',
-            'tasks',
-            'allTasks',
-            'tasks_timer',
-            'clients',
-            'periodInvoices',
-            'projectsWithTasks',
-            'projectsWithExactInvoices'
-        ));
+        return view('admin.tasks.pointage', $data);
     }
-
     public function get_timer_state()
     {
         $user = Auth::user();
@@ -1358,6 +1145,44 @@ class tasksController extends Controller
             ->whereDate('start_date', '=', now()->toDateString())
             ->whereNull('end_date')
             ->first();
+
+        if ($tasksTimer) {
+            $work_minutes_limit = (float) ($employee->workHours_limit ?? 0) * 60;
+            if ($work_minutes_limit > 0) {
+                $start_date = \Carbon\Carbon::parse($tasksTimer->start_date);
+
+                if ($tasksTimer->paused == 1) {
+                    $duration = (float) ($tasksTimer->duration ?? 0);
+                } elseif ($tasksTimer->resume_date !== null) {
+                    $duration = (float) ($tasksTimer->duration ?? 0) + \Carbon\Carbon::parse($tasksTimer->resume_date)->diffInMinutes(now());
+                } else {
+                    $duration = $start_date->diffInMinutes(now());
+                }
+
+                $today_completed_tasks = App\Models\tasks_timer::where('employee_id', $employee->id)
+                    ->whereDate('start_date', \Carbon\Carbon::today())
+                    ->whereNotNull('end_date')
+                    ->where('id', '!=', $tasksTimer->id)
+                    ->sum('duration');
+
+                $today_completed_tasks += $this->getRunningTasksDurationToday($employee->id, $tasksTimer->id);
+
+                $total_duration = $today_completed_tasks + $duration;
+
+                if ($total_duration >= $work_minutes_limit) {
+                    $remaining_minutes = max(0, $work_minutes_limit - $today_completed_tasks);
+                    if ($remaining_minutes <= 0) {
+                        $tasksTimer->delete();
+                    } else {
+                        $tasksTimer->duration = $remaining_minutes;
+                        $tasksTimer->cost = $employee->cost_per_hour * ((float) $remaining_minutes / 60);
+                        $tasksTimer->end_date = $start_date->copy()->addMinutes($remaining_minutes);
+                        $tasksTimer->save();
+                    }
+                    $tasksTimer = null;
+                }
+            }
+        }
 
         return response()->json(['tasksTimer' => $tasksTimer]);
     }
@@ -1640,97 +1465,97 @@ class tasksController extends Controller
 
     public function downloadPointageRepports($startDate, $endDate)
     {
-        $startDate = Carbon::createFromFormat('Y-m-d', $startDate)->startOfDay();
-        $endDate = Carbon::createFromFormat('Y-m-d', $endDate)->endOfDay();
+        try {
+            $startDate = Carbon::parse($startDate)->startOfDay();
+            $endDate = Carbon::parse($endDate)->endOfDay();
 
-        $projectId = request('projectId');
-        $employeeId = request('employeeId');
-        $clientId = request('clientId');
-        $taskIds = request('taskIds');
-        $fileName = request('fileName', 'report');
+            $projectId = request('projectId');
+            $employeeId = request('employeeId');
+            $clientId = request('clientId');
+            $taskIds = request('taskIds');
+            $fileName = request('fileName', 'report');
 
-        $query = tasks_timer::where('entreprise_id', Auth::user()->entreprise_id)
-            ->whereBetween('start_date', [$startDate, $endDate]);
+            $query = tasks_timer::where('entreprise_id', Auth::user()->entreprise_id)
+                ->whereBetween('start_date', [$startDate, $endDate]);
 
-        if ($projectId) {
-            $query->where('project_id', $projectId);
-        }
-
-        if ($employeeId) {
-            $query->where('employee_id', $employeeId);
-        }
-
-        if ($clientId) {
-            $projectIds = Project::where('client_id', $clientId)->pluck('id');
-            $query->whereIn('project_id', $projectIds);
-        }
-
-        if ($taskIds) {
-            $taskIds = $this->normalizeIds($taskIds);
-            if (!empty($taskIds)) {
-                $query->whereIn('task_id', $taskIds);
-            }
-        }
-
-        $tasks_timer = $query->orderBy('start_date')->get();
-        $entreprise = Entreprise::find(Auth::user()->entreprise_id);
-        $project = $projectId ? Project::find($projectId) : null;
-
-        // Detect and filter out problematic tasks (e.g., missing project or cost_per_hour)
-        $skippedTasks = [];
-        $filteredTasks = $tasks_timer->filter(function ($task) use (&$skippedTasks) {
-            $projectId = Tasks::where('id', $task->task_id)->value('project_id');
-            $employeeName = Employees::where('id', $task->employee_id)->value('name');
-
-            $taskInfo = [
-                'task_id'       => $task->task_id,
-                'task_name'     => $task->task_name ?? ('Task #' . $task->task_id),
-                'project_id'    => $projectId,
-                'project_name'  => null,
-                'employee_id'   => $task->employee_id,
-                'employee_name' => $employeeName,
-                'start_date'    => $task->start_date,
-                'end_date'      => $task->end_date,
-                'duration'      => $task->duration,
-            ];
-
-            if (!$projectId) {
-                $skippedTasks[] = $taskInfo;
-                return false;
+            if ($projectId) {
+                $query->where('project_id', $projectId);
             }
 
-            $projectForTask = Project::find($projectId);
-            $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
-
-            if (!$projectForTask || is_null($projectForTask->cost_per_hour) || $projectForTask->cost_per_hour === '') {
-                $skippedTasks[] = $taskInfo;
-                return false;
+            if ($employeeId) {
+                $query->where('employee_id', $employeeId);
             }
 
-            return true;
-        })->values();
+            if ($clientId) {
+                $projectIds = Project::where('client_id', $clientId)->pluck('id');
+                $query->whereIn('project_id', $projectIds);
+            }
 
-        $tasks_timer = $filteredTasks;
+            if ($taskIds) {
+                $taskIds = $this->normalizeIds($taskIds);
+                if (!empty($taskIds)) {
+                    $query->whereIn('task_id', $taskIds);
+                }
+            }
 
-        // Check if all tasks were filtered out
-        if ($tasks_timer->isEmpty() && !empty($skippedTasks)) {
+            $tasks_timer = $query->orderBy('start_date')->get();
+            $entreprise = Entreprise::find(Auth::user()->entreprise_id);
+            $project = $projectId ? Project::find($projectId) : null;
+
+            // Detect and prepare task details for export
+            $skippedTasks = [];
+            $filteredTasks = $tasks_timer->filter(function ($task) use (&$skippedTasks) {
+                $projectId = $task->project_id ?: Tasks::where('id', $task->task_id)->value('project_id');
+                $employeeName = Employees::where('id', $task->employee_id)->value('name');
+
+                $taskInfo = [
+                    'task_id' => $task->task_id,
+                    'task_name' => $task->task_name ?? ('Task #' . $task->task_id),
+                    'project_id' => $projectId,
+                    'project_name' => null,
+                    'employee_id' => $task->employee_id,
+                    'employee_name' => $employeeName,
+                    'start_date' => $task->start_date,
+                    'end_date' => $task->end_date,
+                    'duration' => $task->duration,
+                ];
+
+                if ($projectId) {
+                    $projectForTask = Project::find($projectId);
+                    $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
+                }
+
+                return true;
+            })->values();
+
+            $tasks_timer = $filteredTasks;
+
+            $pdf = PDF::loadView('admin.tasks.downloadPointageRepports', compact('tasks_timer', 'entreprise', 'startDate', 'endDate', 'project'));
+
+            $response = $pdf->download($fileName . '.pdf');
+
+            if (!empty($skippedTasks)) {
+                // Encode list of skipped tasks (with details) into a response header for the frontend
+                $encoded = base64_encode(json_encode($skippedTasks));
+                $response->headers->set('X-Skipped-Tasks', $encoded);
+            }
+
+            return $response;
+        } catch (\Throwable $e) {
+            \Log::error('Pointage PDF Error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'startDate' => $startDate ?? null,
+                'endDate' => $endDate ?? null,
+                'projectId' => $projectId ?? null,
+                'employeeId' => $employeeId ?? null,
+            ]);
             return response()->json([
-                'error' => 'No valid tasks to export. All tasks were skipped because they have missing project cost per hour (CPH).',
-                'skippedTasks' => $skippedTasks
-            ], 400);
+                'error' => 'Failed to generate PDF: ' . $e->getMessage(),
+                'detail' => $e->getFile() . ':' . $e->getLine(),
+            ], 500);
         }
-
-        $pdf = PDF::loadView('admin.tasks.downloadPointageRepports', compact('tasks_timer', 'entreprise', 'startDate', 'endDate', 'project'));
-
-        $response = $pdf->download($fileName . '.pdf');
-
-        if (!empty($skippedTasks)) {
-            // Encode list of skipped tasks (with details) into a response header for the frontend
-            $encoded = base64_encode(json_encode($skippedTasks));
-            $response->headers->set('X-Skipped-Tasks', $encoded);
-        }
-
-        return $response;
     }
 
     public function CustomerdownloadPointageRepports($startDate, $endDate)
@@ -1772,35 +1597,27 @@ class tasksController extends Controller
             $entreprise = Entreprise::find(Auth::user()->entreprise_id);
             $project = $projectId ? Project::find($projectId) : null;
 
-            // Detect and filter out problematic tasks for customer PDF
+            // Detect and prepare task details for customer PDF
             $skippedTasks = [];
             $filteredTasks = $tasks_timer->filter(function ($task) use (&$skippedTasks) {
-                $projectIdForTask = Tasks::where('id', $task->task_id)->value('project_id');
+                $projectIdForTask = $task->project_id ?: Tasks::where('id', $task->task_id)->value('project_id');
                 $employeeName = Employees::where('id', $task->employee_id)->value('name');
 
                 $taskInfo = [
-                    'task_id'       => $task->task_id,
-                    'task_name'     => $task->task_name ?? ('Task #' . $task->task_id),
-                    'project_id'    => $projectIdForTask,
-                    'project_name'  => null,
-                    'employee_id'   => $task->employee_id,
+                    'task_id' => $task->task_id,
+                    'task_name' => $task->task_name ?? ('Task #' . $task->task_id),
+                    'project_id' => $projectIdForTask,
+                    'project_name' => null,
+                    'employee_id' => $task->employee_id,
                     'employee_name' => $employeeName,
-                    'start_date'    => $task->start_date,
-                    'end_date'      => $task->end_date,
-                    'duration'      => $task->duration,
+                    'start_date' => $task->start_date,
+                    'end_date' => $task->end_date,
+                    'duration' => $task->duration,
                 ];
 
-                if (!$projectIdForTask) {
-                    $skippedTasks[] = $taskInfo;
-                    return false;
-                }
-
-                $projectForTask = Project::find($projectIdForTask);
-                $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
-
-                if (!$projectForTask || is_null($projectForTask->cost_per_hour) || $projectForTask->cost_per_hour === '') {
-                    $skippedTasks[] = $taskInfo;
-                    return false;
+                if ($projectIdForTask) {
+                    $projectForTask = Project::find($projectIdForTask);
+                    $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
                 }
 
                 return true;
@@ -1856,103 +1673,107 @@ class tasksController extends Controller
                 'skippedTasks' => $skippedTasks,
             ]);
         } catch (\Exception $e) {
-            \Log::error('PDF Generation Error: ' . $e->getMessage());
-            return response()->json(['error' => 'Failed to generate PDF: ' . $e->getMessage()], 500);
+            \Log::error('Customer PDF Generation Error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json([
+                'error' => 'Failed to generate PDF: ' . $e->getMessage(),
+                'detail' => $e->getFile() . ':' . $e->getLine(),
+            ], 500);
         }
     }
 
     public function downloadOneDayRepports(Request $request, $startDate)
     {
-        $startDate = Carbon::createFromFormat('Y-m-d', $startDate)->startOfDay();
-        $endDate = $startDate->copy()->endOfDay();
+        try {
+            $startDate = Carbon::parse($startDate)->startOfDay();
+            $endDate = $startDate->copy()->endOfDay();
 
-        $projectId = request('projectId');
-        $employeeId = request('employeeId');
-        $clientId = request('clientId');
-        $taskIds = request('taskIds');
-        $fileName = request('fileName', 'report');
+            $projectId = request('projectId');
+            $employeeId = request('employeeId');
+            $clientId = request('clientId');
+            $taskIds = request('taskIds');
+            $fileName = request('fileName', 'report');
 
-        $query = tasks_timer::where('entreprise_id', Auth::user()->entreprise_id)
-            ->whereBetween('start_date', [$startDate, $endDate]);
+            $query = tasks_timer::where('entreprise_id', Auth::user()->entreprise_id)
+                ->whereBetween('start_date', [$startDate, $endDate]);
 
-        if ($projectId) {
-            $query->where('project_id', $projectId);
-        }
-
-        if ($employeeId) {
-            $query->where('employee_id', $employeeId);
-        }
-
-        if ($clientId) {
-            $projectIds = Project::where('client_id', $clientId)->pluck('id');
-            $query->whereIn('project_id', $projectIds);
-        }
-
-        if ($taskIds) {
-            $taskIds = $this->normalizeIds($taskIds);
-            if (!empty($taskIds)) {
-                $query->whereIn('task_id', $taskIds);
-            }
-        }
-
-        $tasks_timer = $query->orderBy('start_date')->get();
-        $entreprise = Entreprise::find(Auth::user()->entreprise_id);
-        $project = $projectId ? Project::find($projectId) : null;
-
-        // Detect and filter out problematic tasks
-        $skippedTasks = [];
-        $filteredTasks = $tasks_timer->filter(function ($task) use (&$skippedTasks) {
-            $projectId = Tasks::where('id', $task->task_id)->value('project_id');
-            $employeeName = Employees::where('id', $task->employee_id)->value('name');
-
-            $taskInfo = [
-                'task_id'       => $task->task_id,
-                'task_name'     => $task->task_name ?? ('Task #' . $task->task_id),
-                'project_id'    => $projectId,
-                'project_name'  => null,
-                'employee_id'   => $task->employee_id,
-                'employee_name' => $employeeName,
-                'start_date'    => $task->start_date,
-                'end_date'      => $task->end_date,
-                'duration'      => $task->duration,
-            ];
-
-            if (!$projectId) {
-                $skippedTasks[] = $taskInfo;
-                return false;
+            if ($projectId) {
+                $query->where('project_id', $projectId);
             }
 
-            $projectForTask = Project::find($projectId);
-            $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
-
-            if (!$projectForTask || is_null($projectForTask->cost_per_hour) || $projectForTask->cost_per_hour === '') {
-                $skippedTasks[] = $taskInfo;
-                return false;
+            if ($employeeId) {
+                $query->where('employee_id', $employeeId);
             }
 
-            return true;
-        })->values();
+            if ($clientId) {
+                $projectIds = Project::where('client_id', $clientId)->pluck('id');
+                $query->whereIn('project_id', $projectIds);
+            }
 
-        $tasks_timer = $filteredTasks;
+            if ($taskIds) {
+                $taskIds = $this->normalizeIds($taskIds);
+                if (!empty($taskIds)) {
+                    $query->whereIn('task_id', $taskIds);
+                }
+            }
 
-        // Check if all tasks were filtered out
-        if ($tasks_timer->isEmpty() && !empty($skippedTasks)) {
+            $tasks_timer = $query->orderBy('start_date')->get();
+            $entreprise = Entreprise::find(Auth::user()->entreprise_id);
+            $project = $projectId ? Project::find($projectId) : null;
+
+            // Detect and prepare task details
+            $skippedTasks = [];
+            $filteredTasks = $tasks_timer->filter(function ($task) use (&$skippedTasks) {
+                $projectId = $task->project_id ?: Tasks::where('id', $task->task_id)->value('project_id');
+                $employeeName = Employees::where('id', $task->employee_id)->value('name');
+
+                $taskInfo = [
+                    'task_id' => $task->task_id,
+                    'task_name' => $task->task_name ?? ('Task #' . $task->task_id),
+                    'project_id' => $projectId,
+                    'project_name' => null,
+                    'employee_id' => $task->employee_id,
+                    'employee_name' => $employeeName,
+                    'start_date' => $task->start_date,
+                    'end_date' => $task->end_date,
+                    'duration' => $task->duration,
+                ];
+
+                if ($projectId) {
+                    $projectForTask = Project::find($projectId);
+                    $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
+                }
+
+                return true;
+            })->values();
+
+            $tasks_timer = $filteredTasks;
+
+            $pdf = PDF::loadView('admin.tasks.downloadOneDayPointageRepports', compact('tasks_timer', 'entreprise', 'startDate', 'project'));
+
+            $response = $pdf->download($fileName . '.pdf');
+
+            if (!empty($skippedTasks)) {
+                $encoded = base64_encode(json_encode($skippedTasks));
+                $response->headers->set('X-Skipped-Tasks', $encoded);
+            }
+
+            return $response;
+        } catch (\Throwable $e) {
+            \Log::error('OneDay Pointage PDF Error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'startDate' => $startDate ?? null,
+            ]);
             return response()->json([
-                'error' => 'No valid tasks to export. All tasks were skipped because they have missing project cost per hour (CPH).',
-                'skippedTasks' => $skippedTasks
-            ], 400);
+                'error' => 'Failed to generate PDF: ' . $e->getMessage(),
+                'detail' => $e->getFile() . ':' . $e->getLine(),
+            ], 500);
         }
-
-        $pdf = PDF::loadView('admin.tasks.downloadOneDayPointageRepports', compact('tasks_timer', 'entreprise', 'startDate', 'project'));
-
-        $response = $pdf->download($fileName . '.pdf');
-
-        if (!empty($skippedTasks)) {
-            $encoded = base64_encode(json_encode($skippedTasks));
-            $response->headers->set('X-Skipped-Tasks', $encoded);
-        }
-
-        return $response;
     }
 
     public function CustomerdownloadOneDayRepports(Request $request, $startDate)
@@ -1993,35 +1814,27 @@ class tasksController extends Controller
         $entreprise = Entreprise::find(Auth::user()->entreprise_id);
         $project = $projectId ? Project::find($projectId) : null;
 
-        // Detect and filter out problematic tasks for customer one-day PDF
+        // Detect and prepare task details for customer one-day PDF
         $skippedTasks = [];
         $filteredTasks = $tasks_timer->filter(function ($task) use (&$skippedTasks) {
-            $projectIdForTask = Tasks::where('id', $task->task_id)->value('project_id');
+            $projectIdForTask = $task->project_id ?: Tasks::where('id', $task->task_id)->value('project_id');
             $employeeName = Employees::where('id', $task->employee_id)->value('name');
 
             $taskInfo = [
-                'task_id'       => $task->task_id,
-                'task_name'     => $task->task_name ?? ('Task #' . $task->task_id),
-                'project_id'    => $projectIdForTask,
-                'project_name'  => null,
-                'employee_id'   => $task->employee_id,
+                'task_id' => $task->task_id,
+                'task_name' => $task->task_name ?? ('Task #' . $task->task_id),
+                'project_id' => $projectIdForTask,
+                'project_name' => null,
+                'employee_id' => $task->employee_id,
                 'employee_name' => $employeeName,
-                'start_date'    => $task->start_date,
-                'end_date'      => $task->end_date,
-                'duration'      => $task->duration,
+                'start_date' => $task->start_date,
+                'end_date' => $task->end_date,
+                'duration' => $task->duration,
             ];
 
-            if (!$projectIdForTask) {
-                $skippedTasks[] = $taskInfo;
-                return false;
-            }
-
-            $projectForTask = Project::find($projectIdForTask);
-            $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
-
-            if (!$projectForTask || is_null($projectForTask->cost_per_hour) || $projectForTask->cost_per_hour === '') {
-                $skippedTasks[] = $taskInfo;
-                return false;
+            if ($projectIdForTask) {
+                $projectForTask = Project::find($projectIdForTask);
+                $taskInfo['project_name'] = $projectForTask ? $projectForTask->name : null;
             }
 
             return true;
@@ -2239,6 +2052,144 @@ class tasksController extends Controller
         return response()->json($tasks);
     }
 
+    public function createManualTimer(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $validated = $request->validate([
+                'task_id' => 'required|exists:tasks,id',
+                'employee_id' => 'required|exists:employees,id',
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after:start_date',
+            ]);
+
+            $task = Tasks::find($validated['task_id']);
+            $employee = Employees::find($validated['employee_id']);
+
+            if (!$task || !$employee) {
+                throw new \Exception('Task or employee not found');
+            }
+
+            $start = Carbon::parse($validated['start_date']);
+            $end = Carbon::parse($validated['end_date']);
+
+            if ($end->lessThanOrEqualTo($start)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'End date must be after start date.'
+                ], 422);
+            }
+
+            // Prepare employee_task link once
+            $employeeTask = employees_tasks::firstOrCreate(
+                [
+                    'task_id' => $task->id,
+                    'employee_id' => $employee->id,
+                ],
+                [
+                    'task_name' => $task->title,
+                    'employee_name' => $this->getEmployeeDisplayName($employee),
+                    'entreprise_id' => auth()->user()->entreprise_id,
+                ]
+            );
+
+            // Work hours limit in minutes (per day).
+            $workMinutesLimit = (float) ($employee->workHours_limit ?? 0) * 60;
+            $startTimeOfDay = $start->copy()->format('H:i:s');
+            $isMultiDay = $start->toDateString() !== $end->toDateString();
+
+            if ($workMinutesLimit <= 0) {
+                // No daily limit configured: create a single timer for the full range
+                $durationMinutes = $end->diffInMinutes($start);
+
+                $timer = new tasks_timer();
+                $timer->task_id = $task->id;
+                $timer->task_name = $task->title;
+                $timer->task_employee_id = $employeeTask->id;
+                $timer->project_id = $task->project_id;
+                $timer->employee_id = $employee->id;
+                $timer->start_date = $start->format('Y-m-d H:i:s');
+                $timer->end_date = $end->format('Y-m-d H:i:s');
+                $timer->duration = $durationMinutes;
+                $timer->cost = $employee->cost_per_hour * ($durationMinutes / 60);
+                $timer->entreprise_id = auth()->user()->entreprise_id;
+                $timer->paused = 0;
+                $timer->comment = null;
+                $timer->save();
+            } elseif (!$isMultiDay) {
+                // Single-day range: cap by daily work-hours limit but respect the chosen end time
+                $limitEnd = $start->copy()->addMinutes($workMinutesLimit);
+                $sliceEnd = $limitEnd->lt($end) ? $limitEnd : $end;
+
+                $durationMinutes = $sliceEnd->diffInMinutes($start);
+
+                $timer = new tasks_timer();
+                $timer->task_id = $task->id;
+                $timer->task_name = $task->title;
+                $timer->task_employee_id = $employeeTask->id;
+                $timer->project_id = $task->project_id;
+                $timer->employee_id = $employee->id;
+                $timer->start_date = $start->format('Y-m-d H:i:s');
+                $timer->end_date = $sliceEnd->format('Y-m-d H:i:s');
+                $timer->duration = $durationMinutes;
+                $timer->cost = $employee->cost_per_hour * ($durationMinutes / 60);
+                $timer->entreprise_id = auth()->user()->entreprise_id;
+                $timer->paused = 0;
+                $timer->comment = null;
+                $timer->save();
+            } else {
+                // Multi-day range: ignore the time part of the end date.
+                // For each day from start date to end date (inclusive), create
+                // a timer from the chosen start time with duration = workHours_limit.
+                $lastDate = $end->copy()->startOfDay();
+                $currentStart = $start->copy();
+
+                while ($currentStart->copy()->startOfDay()->lte($lastDate)) {
+                    $sliceEnd = $currentStart->copy()->addMinutes($workMinutesLimit);
+                    $durationMinutes = $sliceEnd->diffInMinutes($currentStart);
+
+                    if ($durationMinutes <= 0) {
+                        break;
+                    }
+
+                    $timer = new tasks_timer();
+                    $timer->task_id = $task->id;
+                    $timer->task_name = $task->title;
+                    $timer->task_employee_id = $employeeTask->id;
+                    $timer->project_id = $task->project_id;
+                    $timer->employee_id = $employee->id;
+                    $timer->start_date = $currentStart->format('Y-m-d H:i:s');
+                    $timer->end_date = $sliceEnd->format('Y-m-d H:i:s');
+                    $timer->duration = $durationMinutes;
+                    $timer->cost = $employee->cost_per_hour * ($durationMinutes / 60);
+                    $timer->entreprise_id = auth()->user()->entreprise_id;
+                    $timer->paused = 0;
+                    $timer->comment = null;
+                    $timer->save();
+
+                    // Move to next day at the same start time
+                    $currentStart = $currentStart->copy()->addDay()->setTimeFromTimeString($startTimeOfDay);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Timer created successfully',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Create Manual Timer Error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create timer: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function moveTask(Request $request)
     {
         try {
@@ -2248,7 +2199,7 @@ class tasksController extends Controller
             ]);
 
             $enterpriseId = auth()->user()->entreprise_id;
-            
+
             // Get task and verify it belongs to user's enterprise
             $task = Tasks::where('id', $validated['task_id'])
                 ->where('entreprise_id', $enterpriseId)
@@ -2437,15 +2388,15 @@ class tasksController extends Controller
                 $employeeName = Employees::where('id', $task->employee_id)->value('name');
 
                 $taskInfo = [
-                    'task_id'       => $task->task_id,
-                    'task_name'     => $task->task_name ?? ('Task #' . $task->task_id),
-                    'project_id'    => $projectIdForTask,
-                    'project_name'  => null,
-                    'employee_id'   => $task->employee_id,
+                    'task_id' => $task->task_id,
+                    'task_name' => $task->task_name ?? ('Task #' . $task->task_id),
+                    'project_id' => $projectIdForTask,
+                    'project_name' => null,
+                    'employee_id' => $task->employee_id,
                     'employee_name' => $employeeName,
-                    'start_date'    => $task->start_date,
-                    'end_date'      => $task->end_date,
-                    'duration'      => $task->duration,
+                    'start_date' => $task->start_date,
+                    'end_date' => $task->end_date,
+                    'duration' => $task->duration,
                 ];
 
                 if (!$projectIdForTask) {
@@ -2564,15 +2515,15 @@ class tasksController extends Controller
                 $employeeName = Employees::where('id', $task->employee_id)->value('name');
 
                 $taskInfo = [
-                    'task_id'       => $task->task_id,
-                    'task_name'     => $task->task_name ?? ('Task #' . $task->task_id),
-                    'project_id'    => $projectIdForTask,
-                    'project_name'  => null,
-                    'employee_id'   => $task->employee_id,
+                    'task_id' => $task->task_id,
+                    'task_name' => $task->task_name ?? ('Task #' . $task->task_id),
+                    'project_id' => $projectIdForTask,
+                    'project_name' => null,
+                    'employee_id' => $task->employee_id,
                     'employee_name' => $employeeName,
-                    'start_date'    => $task->start_date,
-                    'end_date'      => $task->end_date,
-                    'duration'      => $task->duration,
+                    'start_date' => $task->start_date,
+                    'end_date' => $task->end_date,
+                    'duration' => $task->duration,
                 ];
 
                 if (!$projectIdForTask) {

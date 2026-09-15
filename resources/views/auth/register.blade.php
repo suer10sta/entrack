@@ -81,6 +81,7 @@
             f.parentNode.insertBefore(j, f);
         })(window, document, "script", "dataLayer", "GTM-NKDMSK6");
     </script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 
 <body class="bg-gradient-to-b from-sky-50 via-sky-100 to-slate-50 text-foreground font-sans antialiased">
@@ -230,6 +231,18 @@
                         class="space-y-5">
                         @csrf
 
+                        {{-- Honeypot Field --}}
+                        <div style="display: none;">
+                            <label for="website">Website</label>
+                            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+                        </div>
+
+                        @if($errors->has('cf-turnstile-response'))
+                        <div class="mb-4 rounded-md border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-600" role="alert">
+                            <span>{{ $errors->first('cf-turnstile-response') }}</span>
+                        </div>
+                        @endif
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="space-y-1">
                                 <label for="email" class="block text-sm font-medium text-foreground">Email <span
@@ -275,6 +288,11 @@
                                 </select>
                             </div>
                         </div>
+
+                        {{-- Turnstile Widget --}}
+                        @if(config('services.turnstile.site_key'))
+                            <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"></div>
+                        @endif
 
                         <button type="submit"
                             class="w-full bg-primary text-primary-foreground py-2.5 px-4 rounded-md text-sm font-semibold shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">

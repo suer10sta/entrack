@@ -35,7 +35,7 @@
         .fc-toolbar h2 {
             font-size: 1.25rem;
             font-weight: 600;
-            color: #111827;
+            color: #111827; 
         }
 
         .fc-button {
@@ -69,10 +69,13 @@
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             transition: transform 0.1s;
             margin-bottom: 6px;
+            font-family: "Arial", sans-serif;
+            font-size: 0.85rem;
         }
 
         .fc-event .fc-title {
             font-weight: 600;
+            font-size: 0.9rem;
         }
 
         .fc-event:hover {
@@ -117,6 +120,41 @@
             background: #cbd5e1;
             border-radius: 3px;
         }
+
+        /* Responsive tweaks for FullCalendar v3 toolbar on mobile */
+        @media (max-width: 1024px) {
+            #calendar {
+                padding: 12px;
+            }
+
+            .fc-toolbar {
+                margin-bottom: 1rem;
+            }
+
+            .fc-toolbar .fc-left,
+            .fc-toolbar .fc-center,
+            .fc-toolbar .fc-right {
+                float: none !important;
+                width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+                margin-bottom: 0.5rem;
+                text-align: center;
+            }
+
+            .fc-toolbar h2 {
+                width: 100%;
+                font-size: 1.05rem;
+                line-height: 1.25rem;
+            }
+
+            .fc-button {
+                padding: 0.4rem 0.7rem !important;
+                font-size: 0.85rem !important;
+            }
+        }
     </style>
 </head>
 
@@ -140,7 +178,7 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6 lg:p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
 
             {{-- Container for the calendar --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -152,10 +190,10 @@
                             <h1 class="text-xl font-bold text-gray-900">{{ __('messages.Planning Calendar') }}</h1>
                             <p class="text-sm text-gray-500 mt-1">{{ __('messages.Planning Calendar subtitle') }}</p>
                         </div>
-                        <div class="flex gap-3">
+                        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                             @can('Create planning')
                             <button id="openEventModal" type="button"
-                                class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 rounded-lg shadow-sm transition-colors duration-200">
+                                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 rounded-lg shadow-sm transition-colors duration-200 w-full sm:w-auto">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                 </svg>
@@ -163,7 +201,7 @@
                             </button>
                             @endcan
                             <button id="openSendEventsModal" type="button"
-                                class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 rounded-lg shadow-sm transition-colors duration-200">
+                                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 rounded-lg shadow-sm transition-colors duration-200 w-full sm:w-auto">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
@@ -202,7 +240,7 @@
                 </div>
 
                 {{-- Calendar Body --}}
-                <div class="p-6">
+                <div class="p-4 sm:p-6">
                     <div id="calendar"></div>
                 </div>
             </div>
@@ -378,22 +416,33 @@
                 </div>
 
                 <!-- Footer -->
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
-                    <button type="button" id="saveEvent"
-                        class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200">
-                        {{ __('messages.Save Event') }}
-                    </button>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:items-center sm:justify-end sm:flex-row-reverse sm:gap-2 border-t border-gray-200">
+                    
                     <button type="button" id="deleteEvent" style="display: none;"
-                        class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200">
-                        {{ __('messages.Delete Event') }}
+                        class="w-full inline-flex items-center justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:w-auto sm:text-sm transition-colors duration-200"
+                        title="{{ __('messages.Delete Event') }}">
+                        <span class="sr-only">{{ __('messages.Delete Event') }}</span>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path d="M7 2a1 1 0 0 0-1 1v1H4a1 1 0 1 0 0 2h.293l.853 10.24A2 2 0 0 0 7.14 18h5.72a2 2 0 0 0 1.994-1.76L15.707 6H16a1 1 0 1 0 0-2h-2V3a1 1 0 0 0-1-1H7zm1 3a1 1 0 0 1 2 0v10a1 1 0 1 1-2 0V5zm4 0a1 1 0 0 1 2 0v10a1 1 0 1 1-2 0V5z"/>
+                        </svg>
+                    </button>
+                    <button type="button" id="saveEvent"
+                        class="w-full inline-flex items-center justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:w-auto sm:text-sm transition-colors duration-200"
+                        title="{{ __('messages.Save Event') }}">
+                        {{ __('messages.Save Event') }}
                     </button>
                     <!-- View Task button (shown only when event has a related project & task) -->
                     <button type="button" id="viewTask"
-                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200 hidden">
+                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors duration-200 hidden">
                         {{ __('messages.View Task') }}
                     </button>
+                    <!-- View Project button (shown only when event has a selected project) -->
+                    <button type="button" id="viewProject"
+                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-emerald-600 text-base font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors duration-200 hidden">
+                        {{ __('messages.View Project') }}
+                    </button>
                     <button type="button" id="cancelEvent" onclick="$('#closeEventModal').click()"
-                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200">
+                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors duration-200">
                         {{ __('messages.Cancel') }}
                     </button>
                 </div>
@@ -511,10 +560,17 @@
                 } elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
                     $taskShowRouteTemplate = route('Responsable_gestionnaire.tasks.show', ['task' => '__TASK_ID__']);
                 }
+
+                // Project show route template (only for roles that have it)
+                $projectShowRouteTemplate = null;
+                if (Auth::user()->hasRole('Admin')) {
+                    $projectShowRouteTemplate = route('admin.projects.show', '__PROJECT_ID__');
+                }
             @endphp
             var calendarRoutePrefix = '{{ $calendarRoutePrefix }}';
             var canCreatePlanning = {{ $canCreatePlanning ? 'true' : 'false' }};
             var taskShowRouteTemplate = @json($taskShowRouteTemplate);
+            var projectShowRouteTemplate = @json($projectShowRouteTemplate);
 
             // Currently selected filters
             var selectedClientId = '';
@@ -643,7 +699,26 @@
             }
 
             $('#project_id').on('change', function () {
-                populateTaskOptions($(this).val(), null);
+                var projectId = $(this).val();
+                populateTaskOptions(projectId, null);
+
+                // When a project is selected, automatically use its color for the event (if defined)
+                if (projectId) {
+                    var selectedProject = allProjects.find(function (project) {
+                        return String(project.id) === String(projectId);
+                    });
+
+                    if (selectedProject && selectedProject.color) {
+                        $("#color").spectrum("set", selectedProject.color);
+                        originalColor = selectedProject.color;
+                    } else {
+                        // Fall back to default color if project has no color and event is not marked finished
+                        if (!$('#is_finished').is(':checked')) {
+                            $("#color").spectrum("set", defaultEventColor);
+                            originalColor = null;
+                        }
+                    }
+                }
             });
 
             $('#client_id').on('change', function () {
@@ -659,25 +734,26 @@
                 if ($(this).is(':checked')) {
                     // Store current color before changing to gray (only if not already stored)
                     var currentColor = $("#color").spectrum("get").toHexString();
-                    if (!originalColor || originalColor === '#6b7280') {
-                        originalColor = currentColor !== '#6b7280' ? currentColor : defaultEventColor;
+                    if (!originalColor || originalColor === '#e5e7eb') {
+                        originalColor = currentColor !== '#e5e7eb' ? currentColor : defaultEventColor;
                     }
-                    // Set color to gray when finished is checked
-                    $("#color").spectrum("set", "#6b7280");
+                    // Set color to a light gray when finished is checked
+                    $("#color").spectrum("set", "#e5e7eb");
                 } else {
-                    // If unchecked, restore the original color if we have it, otherwise default to blue
-                    if (originalColor && originalColor !== '#6b7280') {
+                    // If unchecked, restore the original color if we have it, otherwise default to the default event color
+                    if (originalColor && originalColor !== '#e5e7eb') {
                         $("#color").spectrum("set", originalColor);
                     } else {
-                        // Default to blue when unchecked
+                        // Default to pastel color when unchecked
                         $("#color").spectrum("set", defaultEventColor);
-                        originalColor = null; // Reset so it defaults to blue next time
+                        originalColor = null; // Reset so it defaults to the pastel next time
                     }
                 }
             });
 
             const $modal = $('#eventModal');
             const $viewTaskBtn = $('#viewTask');
+            const $viewProjectBtn = $('#viewProject');
 
             // Function to show modal using Tailwind classes
             const showModal = () => {
@@ -696,6 +772,8 @@
                 $('#deleteEvent').hide();
                 // Reset "View Task" button state
                 $viewTaskBtn.data('taskUrl', null).addClass('hidden');
+                // Reset "View Project" button state
+                $viewProjectBtn.data('projectUrl', null).addClass('hidden');
                 originalColor = null; // Reset original color
             };
 
@@ -757,6 +835,7 @@
                     $('#deleteEvent').removeData('eventId');
                     $('#deleteEvent').hide();
                     $viewTaskBtn.data('taskUrl', null).addClass('hidden');
+                    $viewProjectBtn.data('projectUrl', null).addClass('hidden');
                     $('.modal-title').text('Add Event');
                     
                     // Set start to clicked day at 09:00 and end at 10:00
@@ -798,6 +877,7 @@
                             $('#deleteEvent').removeData('eventId');
                             $('#deleteEvent').hide();
                             $viewTaskBtn.data('taskUrl', null).addClass('hidden');
+                            $viewProjectBtn.data('projectUrl', null).addClass('hidden');
                             $('.modal-title').text('Add Event');
                             
                             var clickedDay = startMoment.startOf('day').hour(9).minute(0);
@@ -822,6 +902,7 @@
                     $('#deleteEvent').removeData('eventId');
                     $('#deleteEvent').hide();
                     $viewTaskBtn.data('taskUrl', null).addClass('hidden');
+                    $viewProjectBtn.data('projectUrl', null).addClass('hidden');
                     $('.modal-title').text('Add Event');
                     
                     // Use the selected times for range selection
@@ -990,24 +1071,30 @@
                 eventRender: function (event, element, view) {
                     // Limit exceeded is determined on the backend: time consumed (ended timers) vs task estimate (or 0h)
                     var isLimitExceeded = !!event.is_limit_exceeded;
+                    var isFinished = !!event.is_finished;
                     if (isLimitExceeded) {
+                        // Use a lighter red for over-estimated events to keep them readable
                         element.css({
-                            'background-color': '#dc2626',
-                            'border-color': '#dc2626',
-                            'color': '#ffffff'
+                            'background-color': '#fecaca', // light red
+                            'border-color': '#fecaca',
+                            'color': '#b91c1c' // dark red text
                         });
-                    }
-
-                    // Adjust text color based on event background color
-                    var bgColor = event.color || element.css('background-color');
-                    if (isLimitExceeded) {
-                        bgColor = '#dc2626';
-                    }
-                    if (bgColor && typeof bgColor === 'string' && bgColor[0] === '#') {
-                        if (isLightColor(bgColor)) {
-                            element.css('color', '#000000'); // pure black for light backgrounds
-                        } else {
-                            element.css('color', '#000000'); // white for dark backgrounds
+                    } else if (isFinished) {
+                        // Use a light gray for finished tasks
+                        element.css({
+                            'background-color': '#B5B5B5', // light gray
+                            'border-color': '#e5e7eb',
+                            'color': '#000000' // dark gray text
+                        });
+                    } else {
+                        // Adjust text color based on event background color (non exceeded, non finished events)
+                        var bgColor = event.color || element.css('background-color');
+                        if (bgColor && typeof bgColor === 'string' && bgColor[0] === '#') {
+                            if (isLightColor(bgColor)) {
+                                element.css('color', '#000000'); // pure black for light backgrounds
+                            } else {
+                                element.css('color', '#000000'); // black for dark backgrounds
+                            }
                         }
                     }
 
@@ -1046,11 +1133,11 @@
                     element.find('.fc-time').remove();
 
                     if (event.project_name) {
-                        element.find('.fc-title').after('<div class="event-project text-xs opacity-90 mt-0.5">{{ __('messages.Project label') }} ' + event.project_name + '</div>');
+                        element.find('.fc-title').after('<div class="event-project text-xs opacity-90 mt-0.5"><span class="font-bold">{{ __('messages.Project label') }}</span> ' + event.project_name + '</div>');
                     }
 
                     if (event.task_name) {
-                        element.find('.fc-title').after('<div class="event-task text-xs opacity-90 mt-0.5">{{ __('messages.Task label calendar') }} ' + event.task_name + '</div>');
+                        element.find('.fc-title').after('<div class="event-task text-xs opacity-90 mt-0.5"><span class="font-bold">{{ __('messages.Task label calendar') }}</span> ' + event.task_name + '</div>');
                     }
 
                     var budgetAndTimeParts = [];
@@ -1064,11 +1151,11 @@
 
                     // Time consumed vs selected task estimated hours
                     if (timeConsumedHours !== null) {
-                        budgetAndTimeParts.push('{{ __('messages.Time consumed label') }} ' + timeConsumedHours + 'h / ' + taskEstimatedDisplay + 'h');
+                        budgetAndTimeParts.push('<span class="font-bold">{{ __('messages.Time consumed label') }}</span> ' + timeConsumedHours + 'h / ' + taskEstimatedDisplay + 'h');
                     }
 
                     if (projectBudget !== null && projectSpent !== null) {
-                        budgetAndTimeParts.push('{{ __('messages.Project budget label') }} ' + projectSpent + ' / ' + projectBudget);
+                        budgetAndTimeParts.push('<span class="font-bold">{{ __('messages.Project budget label') }}</span> ' + projectSpent + ' / ' + projectBudget);
                     }
 
                     if (budgetAndTimeParts.length > 0) {
@@ -1087,7 +1174,7 @@
                     // Add assigned employees below the event (if any)
                     if (event.employee_names && event.employee_names.length > 0) {
                         var employeesLabel = event.employee_names.join(', ');
-                        element.find('.fc-title').after(`<div class="event-employees text-xs opacity-80 mt-0.5">{{ __('messages.Employees label') }} ${employeesLabel}</div>`);
+                        element.find('.fc-title').after(`<div class="event-employees text-xs opacity-80 mt-0.5"><span class="font-bold">{{ __('messages.Employees label') }}</span> ${employeesLabel}</div>`);
                     }
                 },
 
@@ -1098,8 +1185,8 @@
                     // Store the original color from the event (use originalColor if available, otherwise color)
                     originalColor = event.originalColor || event.color;
                     
-                    // If event is finished, show gray color in picker, otherwise show original
-                    var displayColor = event.is_finished ? '#6b7280' : originalColor;
+                    // If event is finished, show light gray color in picker, otherwise show original
+                    var displayColor = event.is_finished ? '#e5e7eb' : originalColor;
                     $("#color").spectrum("set", displayColor);
                     
                     // Set finished checkbox
@@ -1176,6 +1263,18 @@
                             .addClass('hidden');
                     }
 
+                    // Configure "View Project" button: only if the event has a project and we know the route template
+                    if (event.project_id && projectShowRouteTemplate) {
+                        var projectUrl = projectShowRouteTemplate.replace('__PROJECT_ID__', event.project_id);
+                        $viewProjectBtn
+                            .data('projectUrl', projectUrl)
+                            .removeClass('hidden');
+                    } else {
+                        $viewProjectBtn
+                            .data('projectUrl', null)
+                            .addClass('hidden');
+                    }
+
                     $('.modal-title').text('Edit Event');
                     $('#saveEvent').data('eventId', event.id);
                     $('#deleteEvent').data('eventId', event.id);
@@ -1189,6 +1288,25 @@
                 var taskUrl = $(this).data('taskUrl');
                 if (taskUrl) {
                     window.location.href = taskUrl;
+                }
+            });
+
+            // Navigate to the related project when "View Project" is clicked
+            $viewProjectBtn.on('click', function () {
+                var projectUrl = $(this).data('projectUrl');
+                if (projectUrl) {
+                    window.location.href = projectUrl;
+                }
+            });
+
+            // Keep "View Project" button in sync with the project selector (also applies to Add Event)
+            $('#project_id').on('change', function () {
+                var projectId = $(this).val();
+                if (projectId && projectShowRouteTemplate) {
+                    var projectUrl = projectShowRouteTemplate.replace('__PROJECT_ID__', projectId);
+                    $viewProjectBtn.data('projectUrl', projectUrl).removeClass('hidden');
+                } else {
+                    $viewProjectBtn.data('projectUrl', null).addClass('hidden');
                 }
             });
 
@@ -1223,6 +1341,7 @@
                 $('#deleteEvent').removeData('eventId');
                 $('#deleteEvent').hide();
                 $viewTaskBtn.data('taskUrl', null).addClass('hidden');
+                $viewProjectBtn.data('projectUrl', null).addClass('hidden');
                 showModal();
             });
 
@@ -1236,9 +1355,9 @@
                 // Get the color - if finished is checked, save gray; otherwise save the selected color
                 var selectedColor = $("#color").spectrum("get").toHexString();
                 var isFinished = $('#is_finished').is(':checked');
-                // If finished, always save gray; if not finished, save the selected color
-                // But if selected color is gray and not finished, default to blue
-                var colorToSave = isFinished ? '#6b7280' : (selectedColor !== '#6b7280' ? selectedColor : defaultEventColor);
+                // If finished, always save light gray; if not finished, save the selected color
+                // But if selected color is that gray and not finished, default to the pastel color
+                var colorToSave = isFinished ? '#e5e7eb' : (selectedColor !== '#e5e7eb' ? selectedColor : defaultEventColor);
 
                 var employeeIds = $('input[name="employee_ids[]"]:checked').map(function () {
                     return $(this).val();

@@ -19,7 +19,10 @@ use App\Models\Role;
 use App\Models\Permission;
 use App\Models\EnterpriseRolePermission;
 use App\Mail\AdminActivityAlertMail;
+use App\Notifications\WelcomeNotification;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use DateTime;
 
 
@@ -40,6 +43,32 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Check Honeypot first
+        if (!empty($request->input('website'))) {
+            Log::info('Bot registration attempt blocked via Honeypot.');
+            return redirect()->route('welcome');
+        }
+
+        // Turnstile Validation (skip in local environment)
+        $turnstileSecret = config('services.turnstile.secret_key');
+        if ($turnstileSecret && app()->environment('production')) {
+            $turnstileResponse = $request->input('cf-turnstile-response');
+            if (!$turnstileResponse) {
+                return back()->withInput()->withErrors(['cf-turnstile-response' => __('Veuillez cocher la case pour prouver que vous n\'êtes pas un robot.')]);
+            }
+
+            $verify = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                'secret' => $turnstileSecret,
+                'response' => $turnstileResponse,
+                'remoteip' => $request->ip(),
+            ]);
+
+            if (!$verify->json('success')) {
+                Log::warning('Turnstile verification failed for registration.', ['response' => $verify->json()]);
+                return back()->withInput()->withErrors(['cf-turnstile-response' => __('La validation de sécurité a échoué. Veuillez réessayer.')]);
+            }
+        }
+
         $validated = $request->validate([
             "email" => "required|email|unique:users,email",
             "password" => "required",
@@ -189,6 +218,16 @@ class RegisteredUserController extends Controller
 
 
         Auth::login($user);
+
+        // Fire Registered event (triggers SendEmailVerificationNotification)
+        event(new Registered($user));
+
+        // Send welcome notification to the user
+        try {
+            $user->notify(new WelcomeNotification($entreprise));
+        } catch (\Throwable $e) {
+            Log::warning('Failed to send welcome notification', ['error' => $e->getMessage()]);
+        }
 
         // Notify admin that a new enterprise has registered
         try {

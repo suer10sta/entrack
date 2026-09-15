@@ -13,6 +13,7 @@ use App\Models\tasks_timer;
 use App\Models\Entreprise;
 use Illuminate\Http\Request;
 use App\Models\employees_tasks;
+use App\Models\work_days_repports;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
@@ -117,12 +118,57 @@ class tasksController extends Controller
         $employees = Employees::where('entreprise_id', auth()->user()->entreprise_id)->get();
         $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)->get();
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
-        
 
-        $employee_id= Employees::where('user_id', Auth::user()->id)->first()->id;
-        $employees_tasks= employees_tasks::where('employee_id', $employee_id)->get();
-        
-        return view('employees.tasks.pointage', compact('employees_tasks', 'employee_id', 'projects', 'tasks', 'employees', 'clients', 'teams'));
+        $employee_id = Employees::where('user_id', Auth::user()->id)->first()->id;
+        $employees_tasks = employees_tasks::where('employee_id', $employee_id)->get();
+
+        $currentYear = strval(Carbon::now()->year);
+        $currentMonth = str_pad(Carbon::now()->month, 2, '0', STR_PAD_LEFT);
+        $startDate = Carbon::createFromDate($currentYear, $currentMonth, 1)->startOfMonth();
+        $endDate = Carbon::createFromDate($currentYear, $currentMonth, 1)->endOfMonth();
+
+        $work_days_repports = work_days_repports::where('employee_id', $employee_id)
+            ->where('year', $currentYear)
+            ->where('month', $currentMonth)
+            ->first();
+
+        if ($work_days_repports) {
+            $totalMinutesForEmployee = tasks_timer::where('employee_id', $employee_id)
+                ->whereBetween('start_date', [$startDate, $endDate])
+                ->whereNotNull('end_date')
+                ->sum('duration');
+
+            $totalHours = $totalMinutesForEmployee / 60;
+            $totalDays = $totalHours / 8.5;
+            $daysWorked = ceil($totalDays);
+            $diff = $totalDays - $daysWorked;
+            $hoursToAdd = number_format($diff * 8.5, 2, '.', '');
+
+            if ($daysWorked !== $totalDays && $daysWorked < $totalDays) {
+                $previous_month_report = work_days_repports::where('employee_id', $employee_id)
+                    ->where('month', date('m', strtotime('-1 month')))
+                    ->where('year', date('Y', strtotime('-1 month')))
+                    ->first();
+
+                $work_days_repports->hours_accumulate = $previous_month_report
+                    ? $previous_month_report->hours_accumulate + $hoursToAdd
+                    : $hoursToAdd;
+            }
+
+            $work_days_repports->days_worked = $daysWorked;
+            $work_days_repports->save();
+        }
+
+        return view('employees.tasks.pointage', compact(
+            'employees_tasks',
+            'employee_id',
+            'projects',
+            'tasks',
+            'employees',
+            'clients',
+            'teams',
+            'work_days_repports'
+        ));
     }
 
     public function getTasksInfo($startDate, $employee_id) 

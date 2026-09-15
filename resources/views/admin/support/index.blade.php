@@ -20,13 +20,13 @@
 
         {{-- Main Content --}}
         <main class="flex-1 overflow-y-auto ">
-            <div class="w-full px-4 md:px-6 py-4">
-                <div class="flex flex-wrap -mx-3 mb-5">
+            <div class="w-full px-4 md:px-6 py-4 sm:py-6">
+                <div class="flex flex-wrap mb-5">
                     <div class="w-full">
                         <div class="w-full lg:w-10/12 xl:w-8/12 mx-auto my-4">
 
                             {{-- Page Header --}}
-                            <div class="flex items-center justify-between mb-6">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                                 <div>
                                     <h1 class="text-3xl font-bold text-gray-800">{{ __('messages.My Support Tickets') }}</h1>
                                     <p class="text-base text-gray-500">
@@ -35,7 +35,7 @@
                                 </div>
                                 <div>
                                     <a href="{{ route('admin.support.create') }}"
-                                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                       class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full sm:w-auto">
                                         {{ __('messages.New Support Request') }}
                                     </a>
                                 </div>

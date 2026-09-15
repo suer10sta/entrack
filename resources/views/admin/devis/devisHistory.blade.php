@@ -50,6 +50,81 @@
         .table td, .table th {
             padding: 0.75rem;
         }
+
+        /* Mobile: show devis rows as modern 2-col cards (no horizontal scroll) */
+        @media (max-width: 1024px) {
+            .table-responsive {
+                overflow-x: visible !important;
+            }
+
+            #devisTable thead {
+                display: none;
+            }
+
+            #devisTable tbody {
+                display: block;
+                width: 100%;
+            }
+
+            #devisTable tbody tr {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                margin-bottom: 16px;
+                padding: 12px;
+                border: 1px solid rgba(148, 163, 184, 0.55);
+                border-radius: 16px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
+                box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
+                transition: transform 180ms ease, box-shadow 180ms ease;
+            }
+
+            #devisTable tbody td {
+                display: block;
+                width: 100%;
+                padding: 10px 12px !important;
+                border: 1px solid rgba(226, 232, 240, 0.9);
+                border-radius: 12px;
+                background: rgba(255,255,255,0.78);
+                text-align: left !important;
+                white-space: normal !important;
+                word-break: break-word;
+            }
+
+            #devisTable tbody td[data-span="2"] {
+                grid-column: span 2 / span 2;
+            }
+
+            #devisTable tbody td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+                color: #64748b; /* slate-500 */
+                margin-bottom: 6px;
+            }
+
+            /* Mobile accordion: collapsed row shows only devis number */
+            #devisTable tbody tr.devis-row.is-collapsed td:not(.devis-toggle-cell) {
+                display: none !important;
+            }
+            #devisTable tbody tr.devis-row td.devis-toggle-cell {
+                cursor: pointer;
+                user-select: none;
+            }
+            /* We render the label inline in markup for this cell */
+            #devisTable tbody tr.devis-row td.devis-toggle-cell[data-label]::before {
+                content: none !important;
+            }
+            #devisTable tbody tr.devis-row td.devis-toggle-cell .devis-chevron {
+                transition: transform 180ms ease;
+            }
+            #devisTable tbody tr.devis-row[aria-expanded="true"] td.devis-toggle-cell .devis-chevron {
+                transform: rotate(180deg);
+            }
+        }
 </style>
 </head>
 
@@ -64,14 +139,14 @@
     <div class="flex flex-col flex-1 overflow-y-auto">
         {{-- Navbar Component --}}
         <x-dashboard.navbar />
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8 space-y-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8 space-y-8">
         {{-- 1. Header Section --}}
-            <div class="flex flex-wrap justify-between items-center gap-4">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                     <h1 class="text-2xl font-semibold text-gray-900">{{ __('messages.Devis History') }}</h1>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button type="button" id="openDevisReportModal" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                    <button type="button" id="openDevisReportModal" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm w-full sm:w-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
@@ -85,7 +160,7 @@
                     @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $archiveRoute = route('Responsable_gestionnaire.devisArchived.archiveIndex'); @endphp @endif
 
                     @if($archiveRoute)
-                    <a href="{{ $archiveRoute }}" class="inline-flex items-center bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 shadow-sm">
+                    <a href="{{ $archiveRoute }}" class="inline-flex items-center justify-center bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 shadow-sm w-full sm:w-auto">
                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                          </svg>
@@ -187,7 +262,7 @@
             </div>
 
             {{-- 4. Filters Section --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
                  <h6 class="text-base font-semibold text-gray-800 mb-4">{{ __('messages.Filters') }}</h6>
                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                      <div>
@@ -214,38 +289,62 @@
             {{-- 5. Table Section [STYLES UPDATED] --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div class="table-responsive overflow-x-auto">
-                    <table class="w-full divide-y divide-gray-200 table" id="devisTable">
+                    <table class="w-full divide-y divide-gray-200 table table-auto" id="devisTable">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Devis N') }}</th>
-                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Project Name') }}</th>
-                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Client Name / Emails') }}</th>
-                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Budget') }}</th>
-                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Unbilled Budget') }}</th>
-                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Created at') }}</th>
-                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Status') }}</th>
-                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Acceptance') }}</th>
-                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Actions') }}</th>
+                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Devis N') }}</th>
+                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Project Name') }}</th>
+                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Client Name / Emails') }}</th>
+                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Budget') }}</th>
+                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Unbilled Budget') }}</th>
+                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Created at') }}</th>
+                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Status') }}</th>
+                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Acceptance') }}</th>
+                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($devis as $d)
-                            <tr class="{{ $d->sent == 1 ? 'bg-green-50' : '' }} hover:bg-gray-50">
-                                <td class="px-4 py-3 whitespace-nowrap text-sm">
+                            <tr class="devis-row {{ $d->sent == 1 ? 'bg-green-50' : '' }} hover:bg-gray-50" data-devis-row aria-expanded="true">
+                                <td data-label="{{ __('messages.Devis N') }}" data-span="2" class="px-4 py-3 whitespace-nowrap text-sm devis-toggle-cell" data-devis-toggle>
                                     @if(Auth::user()->hasRole('Responsable de projet'))
-                                        <a href="{{ route('Responsable_de_projet.devis.downloadDevis', $d->devis_number) }}" class="devis-link-normal">{{$entreprise->devis_prefix}}-{{$d->devis_number}}</a>
+                                        <a href="{{ route('Responsable_de_projet.devis.downloadDevis', $d->devis_number) }}" class="devis-link-normal hidden lg:inline">{{$entreprise->devis_prefix}}-{{$d->devis_number}}</a>
                                     @endif
                                     @if(Auth::user()->hasRole('Admin'))
-                                        <a href="{{ route('admin.devis.downloadDevis', $d->devis_number) }}" class="devis-link-normal">{{$entreprise->devis_prefix}}-{{$d->devis_number}}</a>
+                                        <a href="{{ route('admin.devis.downloadDevis', $d->devis_number) }}" class="devis-link-normal hidden lg:inline">{{$entreprise->devis_prefix}}-{{$d->devis_number}}</a>
                                     @endif
                                     @if(Auth::user()->hasRole('Employee'))
-                                        <a href="{{ route('employee.devis.downloadDevis', $d->devis_number) }}" class="devis-link-normal">{{$entreprise->devis_prefix}}-{{$d->devis_number}}</a>
+                                        <a href="{{ route('employee.devis.downloadDevis', $d->devis_number) }}" class="devis-link-normal hidden lg:inline">{{$entreprise->devis_prefix}}-{{$d->devis_number}}</a>
                                     @endif
                                     @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                        <a href="{{ route('Responsable_gestionnaire.devis.downloadDevis', $d->devis_number) }}" class="devis-link-normal">{{$entreprise->devis_prefix}}-{{$d->devis_number}}</a>
+                                        <a href="{{ route('Responsable_gestionnaire.devis.downloadDevis', $d->devis_number) }}" class="devis-link-normal hidden lg:inline">{{$entreprise->devis_prefix}}-{{$d->devis_number}}</a>
                                     @endif
+
+                                    {{-- Mobile accordion header --}}
+                                    <div class="flex items-start justify-between gap-3 lg:hidden">
+                                        <div class="flex items-baseline gap-2 min-w-0">
+                                            <span class="text-[11px] leading-none font-bold tracking-[.06em] uppercase text-slate-500 whitespace-nowrap">
+                                                {{ __('messages.Devis N') }}
+                                            </span>
+                                            @php
+                                                $devisRoute = '';
+                                                if(Auth::user()->hasRole('Responsable de projet')) $devisRoute = route('Responsable_de_projet.devis.downloadDevis', $d->devis_number);
+                                                elseif(Auth::user()->hasRole('Admin')) $devisRoute = route('admin.devis.downloadDevis', $d->devis_number);
+                                                elseif(Auth::user()->hasRole('Employee')) $devisRoute = route('employee.devis.downloadDevis', $d->devis_number);
+                                                elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $devisRoute = route('Responsable_gestionnaire.devis.downloadDevis', $d->devis_number);
+                                            @endphp
+                                            <a href="{{ $devisRoute ?: '#' }}" class="devis-link-normal truncate leading-none">
+                                                {{$entreprise->devis_prefix}}-{{$d->devis_number}}
+                                            </a>
+                                        </div>
+                                        <span class="shrink-0 mt-0.5 text-slate-400">
+                                            <svg class="devis-chevron w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </span>
+                                    </div>
                                 </td>
-                                <td class="px-4 py-3 text-sm text-gray-800 font-medium" style="max-width: 200px; word-wrap: break-word; white-space: normal;">
+                                <td data-label="{{ __('messages.Project Name') }}" data-span="2" class="px-4 py-3 text-sm text-gray-800 font-medium whitespace-normal break-words">
                                     @php $project = \App\Models\Project::where('id', $d->project_id)->first(); @endphp
                                     @if($project)
                                         @if($d->acceptanceStatus == 1 || $d->Existing_project_name != null)
@@ -256,7 +355,7 @@
                                         @else {{$project->name}} @endif
                                     @else {{ __('messages.N/A') }} @endif
                                 </td>
-                                <td class="px-4 py-3 text-sm text-gray-800 font-medium" style="max-width: 200px; word-wrap: break-word; white-space: normal;">
+                                <td data-label="{{ __('messages.Client Name / Emails') }}" data-span="2" class="px-4 py-3 text-sm text-gray-800 font-medium whitespace-normal break-words">
                                     @php $client = \App\Models\Client::where('id', $d->client_id)->first(); @endphp
                                     @if ($d->emails)
                                         @php $emailArray = array_map('trim', explode(',', $d->emails)); @endphp
@@ -268,20 +367,20 @@
                                         @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.clients.show', $client->id)}}" class="text-blue-600 hover:text-blue-700">{{$client->name}}</a> @endif
                                     @else {{ __('messages.N/A') }} @endif
                                 </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 text-right">
+                                <td data-label="{{ __('messages.Budget') }}" class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 text-right">
                                     €{{ number_format($d->budget, 2, ',', ' ') }}
                                 </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 text-right">
+                                <td data-label="{{ __('messages.Unbilled Budget') }}" class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 text-right">
                                     @php
                                         $devisInvoicesTotal = \App\Models\invoices_history::where('devis_id', $d->id)->where('Payment_status', '!=', -1)->sum('total_htva');
                                         $unbilledBudget = ($d->budget ?? 0) - ($devisInvoicesTotal ?? 0);
                                     @endphp
                                     €{{ number_format(max($unbilledBudget, 0), 2, ',', ' ') }}
                                 </td>
-                                <td class="px-4 py-3 text-sm text-gray-600 text-center whitespace-nowrap">
+                                <td data-label="{{ __('messages.Created at') }}" class="px-4 py-3 text-sm text-gray-600 text-center whitespace-nowrap">
                                     {{ $d->created_at ? \Carbon\Carbon::parse($d->created_at)->format('Y-m-d') : '' }}
                                 </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
+                                <td data-label="{{ __('messages.Status') }}" class="px-4 py-3 whitespace-nowrap text-sm text-center">
                                     @if($d->acceptanceStatus == 1)
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800"> {{ __('messages.Accepted') }} </span>
                                     @elseif($d->acceptanceStatus == 2 )
@@ -290,28 +389,28 @@
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800"> {{ __('messages.Pending') }} </span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
-                                    <div class="flex flex-col items-center space-y-1">
+                                <td data-label="{{ __('messages.Acceptance') }}" data-span="2" class="px-4 py-3 text-sm text-center">
+                                    <div class="flex items-center justify-center gap-2 flex-wrap">
                                         @if(Auth::user()->hasRole('Responsable de projet'))
-                                        <form action="{{route('Responsable_de_projet.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Accepted?') }}');"> @csrf <button type="submit" class="w-full text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Accept') }}</button> </form>
-                                        <form action="{{route('Responsable_de_projet.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Declined?') }}');"> @csrf <button type="submit" class="w-full text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Decline') }}</button> </form>
+                                        <form action="{{route('Responsable_de_projet.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Accepted?') }}');" class="inline-block"> @csrf <button type="submit" class="text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-3 py-1 text-center whitespace-nowrap">{{ __('messages.Accept') }}</button> </form>
+                                        <form action="{{route('Responsable_de_projet.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Declined?') }}');" class="inline-block"> @csrf <button type="submit" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-3 py-1 text-center whitespace-nowrap">{{ __('messages.Decline') }}</button> </form>
                                         @endif
                                         @if(Auth::user()->hasRole('Admin'))
-                                        <form action="{{route('admin.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Accepted?') }}');"> @csrf <button type="submit" class="w-full text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Accept') }}</button> </form>
-                                        <form action="{{route('admin.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Declined?') }}');"> @csrf <button type="submit" class="w-full text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Decline') }}</button> </form>
+                                        <form action="{{route('admin.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Accepted?') }}');" class="inline-block"> @csrf <button type="submit" class="text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-3 py-1 text-center whitespace-nowrap">{{ __('messages.Accept') }}</button> </form>
+                                        <form action="{{route('admin.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Declined?') }}');" class="inline-block"> @csrf <button type="submit" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-3 py-1 text-center whitespace-nowrap">{{ __('messages.Decline') }}</button> </form>
                                         @endif
                                         @if(Auth::user()->hasRole('Employee'))
-                                        <form action="{{route('employee.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Accepted?') }}');"> @csrf <button type="submit" class="w-full text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Accept') }}</button> </form>
-                                        <form action="{{route('employee.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Declined?') }}');"> @csrf <button type="submit" class="w-full text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Decline') }}</button> </form>
+                                        <form action="{{route('employee.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Accepted?') }}');" class="inline-block"> @csrf <button type="submit" class="text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-3 py-1 text-center whitespace-nowrap">{{ __('messages.Accept') }}</button> </form>
+                                        <form action="{{route('employee.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Declined?') }}');" class="inline-block"> @csrf <button type="submit" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-3 py-1 text-center whitespace-nowrap">{{ __('messages.Decline') }}</button> </form>
                                         @endif
                                         @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                        <form action="{{route('Responsable_gestionnaire.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Accepted?') }}');"> @csrf <button type="submit" class="w-full text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Accept') }}</button> </form>
-                                        <form action="{{route('Responsable_gestionnaire.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Declined?') }}');"> @csrf <button type="submit" class="w-full text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Decline') }}</button> </form>
+                                        <form action="{{route('Responsable_gestionnaire.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Accepted?') }}');" class="inline-block"> @csrf <button type="submit" class="text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-3 py-1 text-center whitespace-nowrap">{{ __('messages.Accept') }}</button> </form>
+                                        <form action="{{route('Responsable_gestionnaire.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Declined?') }}');" class="inline-block"> @csrf <button type="submit" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-3 py-1 text-center whitespace-nowrap">{{ __('messages.Decline') }}</button> </form>
                                         @endif
                                     </div>
                                 </td>
                                 
-                                <td class="px-2 py-3">
+                                <td data-label="{{ __('messages.Actions') }}" data-span="2" class="px-2 py-3">
                                     <div class="flex flex-col items-center gap-2">
                                 
                                         {{-- 2x2 Grid for first 4 buttons --}}
@@ -720,6 +819,42 @@ document.addEventListener('DOMContentLoaded', function() {
             alert(@json(__('messages.An error occurred while sending the devis')));
         });
     });
+});
+
+// Mobile accordion per devis row (show only number when collapsed)
+document.addEventListener('DOMContentLoaded', function () {
+    const mql = window.matchMedia('(max-width: 1024px)');
+
+    function setRowCollapsed(row, collapsed) {
+        if (!row) return;
+        row.classList.toggle('is-collapsed', collapsed);
+        row.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    }
+
+    function initAccordions() {
+        const rows = document.querySelectorAll('#devisTable tbody tr.devis-row');
+        const isMobile = mql.matches;
+        rows.forEach(row => setRowCollapsed(row, isMobile));
+    }
+
+    document.addEventListener('click', function (e) {
+        const toggleCell = e.target.closest('[data-devis-toggle]');
+        if (!toggleCell) return;
+
+        // Let normal link clicks open the PDF without toggling.
+        if (e.target.closest('a')) return;
+
+        const row = toggleCell.closest('tr.devis-row');
+        if (!row) return;
+
+        const collapsed = row.classList.contains('is-collapsed');
+        setRowCollapsed(row, !collapsed);
+    });
+
+    if (mql.addEventListener) mql.addEventListener('change', initAccordions);
+    else if (mql.addListener) mql.addListener(initAccordions);
+
+    initAccordions();
 });
 </script>
 

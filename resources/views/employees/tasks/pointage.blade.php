@@ -9,15 +9,75 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tom Select CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 
     <style>
         [x-cloak] { display: none !important; }
+
+        /* Tom Select custom styling overrides */
+        .ts-wrapper.single .ts-control {
+            border: 1px solid #e2e8f0 !important; /* border-slate-200 */
+            border-radius: 0.5rem !important; /* rounded-lg */
+            padding: 0.5rem 0.75rem !important;
+            font-size: 0.875rem !important; /* text-sm */
+            background-color: #fff !important;
+            min-height: 38px !important;
+            color: #475569 !important; /* text-slate-600 */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important; /* shadow-sm */
+        }
+        .ts-wrapper.single .ts-control:focus,
+        .ts-wrapper.single.focus .ts-control {
+            border-color: #3b82f6 !important; /* focus:border-blue-500 */
+            box-shadow: 0 0 0 1px #3b82f6 !important;
+        }
+        .ts-dropdown {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 0.5rem !important;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1) !important;
+            z-index: 50 !important;
+        }
+        .ts-dropdown .option {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 0.875rem !important;
+            white-space: nowrap !important;
+        }
+        .ts-wrapper .ts-control {
+            white-space: nowrap !important;
+        }
+        .ts-dropdown .option.active {
+            background-color: #eff6ff !important;
+            color: #1e40af !important;
+        }
+        .ts-dropdown .option:hover {
+            background-color: #f8fafc !important;
+        }
+        .ts-control input {
+            font-size: 0.875rem !important;
+        }
         
         /* Custom Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 7px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Pin button */
+        .pin-btn.is-pinned {
+            fill: #eab308 !important;
+            color: #eab308 !important;
+        }
+        .pin-btn.is-pinned svg {
+            fill: #eab308;
+        }
+
+        /* Collapse toggle */
+        .collapse-toggle.is-collapsed .chevron-icon {
+            transform: rotate(-90deg);
+        }
+        .project-tasks-collapsed {
+            display: none !important;
+        }
 
         /* Modal Styles */
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
@@ -48,6 +108,168 @@
             cursor: pointer;
         }
         .close-button:hover { color: #475569; }
+
+        /* Mobile: tables -> modern 2-col cards (no horizontal scroll) */
+        @media (max-width: 640px) {
+            .custom-scrollbar {
+                overflow-x: visible !important;
+            }
+
+            /* Shared card table pattern */
+            #tasksTable thead,
+            #taskTable thead,
+            #editableTable thead {
+                display: none;
+            }
+
+            #tasksTable tbody,
+            #taskTable tbody,
+            #editableTable tbody {
+                display: block;
+                width: 100%;
+            }
+
+            #tasksTable tbody tr.task-row,
+            #taskTable tbody tr.task-timer-row,
+            #editableTable tbody tr {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                margin-bottom: 16px;
+                padding: 12px;
+                border: 1px solid rgba(148, 163, 184, 0.55);
+                border-radius: 16px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
+                box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
+            }
+
+            /* Group header rows (project name) should stay as simple headers */
+            #tasksTable tbody tr.project-group-row {
+                display: block !important;
+                margin: 14px 0 10px;
+                padding: 0;
+                border: 0;
+                border-radius: 0;
+                background: transparent;
+                box-shadow: none;
+            }
+            #tasksTable tbody tr.project-group-row td {
+                display: block;
+                width: 100%;
+                padding: 6px 2px !important;
+                border: 0;
+                background: transparent;
+                text-align: left !important;
+                white-space: nowrap !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #tasksTable tbody tr.task-row td,
+            #taskTable tbody tr.task-timer-row td,
+            #editableTable tbody td {
+                display: block;
+                width: 100%;
+                padding: 10px 12px !important;
+                border: 1px solid rgba(226, 232, 240, 0.9);
+                border-radius: 12px;
+                background: rgba(255,255,255,0.78);
+                text-align: left !important;
+                white-space: normal !important;
+                word-break: break-word;
+            }
+
+            #tasksTable tbody td[data-span="2"],
+            #taskTable tbody td[data-span="2"],
+            #editableTable tbody td[data-span="2"] {
+                grid-column: span 2 / span 2;
+            }
+
+            #tasksTable tbody td[data-label]::before,
+            #taskTable tbody td[data-label]::before,
+            #editableTable tbody td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+                color: #64748b;
+                margin-bottom: 6px;
+            }
+
+            /* Totals row in Task Timer export table */
+            #taskTable tbody tr.total-row {
+                display: block !important;
+                margin: 10px 0 18px;
+                padding: 12px;
+                border: 1px solid rgba(148, 163, 184, 0.55);
+                border-radius: 16px;
+                background: #ffffff;
+                box-shadow: 0 12px 30px rgba(15,23,42,0.10), 0 2px 8px rgba(15,23,42,0.08);
+            }
+            #taskTable tbody tr.total-row td {
+                display: block;
+                width: 100%;
+                padding: 8px 10px !important;
+                border: 0;
+                background: transparent;
+                text-align: left !important;
+            }
+
+            /* Actions in employee tasks table: keep buttons readable */
+            #tasksTable tbody td[data-label="{{ __('messages.Action') }}"] .flex,
+            #tasksTable tbody td[data-label="Action"] .flex {
+                justify-content: center !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+
+            /* Tasks accordion: collapsed shows only name + action (two columns) */
+            #tasksTable tbody tr.task-row.is-collapsed td:not(.task-name-cell):not(.task-action-cell) {
+                display: none !important;
+            }
+            #tasksTable tbody tr.task-row td.task-name-cell,
+            #tasksTable tbody tr.task-row td.task-action-cell {
+                align-self: start;
+                grid-column: span 2 / span 2;
+            }
+            /* Remove pseudo labels on the header row cells for a cleaner compact line */
+            #tasksTable tbody tr.task-row td.task-name-cell[data-label]::before,
+            #tasksTable tbody tr.task-row td.task-action-cell[data-label]::before {
+                content: none !important;
+            }
+            #tasksTable tbody tr.task-row td.task-name-cell .task-chevron {
+                transition: transform 180ms ease;
+            }
+            #tasksTable tbody tr.task-row[aria-expanded="true"] td.task-name-cell .task-chevron {
+                transform: rotate(180deg);
+            }
+
+            /* Make Start/Stop buttons more readable on mobile */
+            #tasksTable tbody tr.task-row td.task-action-cell .start-button,
+            #tasksTable tbody tr.task-row td.task-action-cell .stop-button {
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                min-width: 110px;
+                min-height: 38px;
+                padding: 8px 14px !important;
+                font-size: 13px !important;
+                line-height: 1 !important;
+                border-radius: 12px !important;
+                white-space: nowrap !important;
+                box-shadow: 0 10px 22px rgba(15, 23, 42, 0.10), 0 2px 6px rgba(15, 23, 42, 0.08);
+            }
+            #tasksTable tbody tr.task-row td.task-action-cell .flex {
+                justify-content: center !important;
+            }
+            #tasksTable tbody tr.task-row td.task-action-cell input[name="comment"] {
+                min-width: 0;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden font-sans antialiased text-slate-600">
@@ -62,6 +284,26 @@
         <div class="flex flex-col flex-1 overflow-y-auto w-full">
         {{-- Main Content --}}
         <main class="flex flex-col flex-1 overflow-y-auto w-full px-4 md:px-8">
+
+            {{-- Mobile top bar (sidebar toggle) --}}
+            <div class="sticky top-0 z-30 -mx-4 md:mx-0 px-4 md:px-0 pt-3 pb-2 bg-gray-100/95 backdrop-blur lg:hidden">
+                <div class="flex items-center justify-between">
+                    <button type="button"
+                        class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm text-slate-700 hover:bg-slate-50"
+                        onclick="toggleAppSidebar(true)"
+                        aria-label="Open sidebar">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+
+                    <div class="text-sm font-semibold text-slate-900 truncate">
+                        {{ __('messages.Pointage Dashboard') }}
+                    </div>
+
+                    <div class="w-10 h-10"></div>
+                </div>
+            </div>
 
             <div class="mb-6">
                 @if(session('alertmessage'))
@@ -136,7 +378,7 @@
                     </div>
 
                     <div class="mb-4">
-                        <select id="projectFilter" class="block w-48 rounded-lg border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-slate-600 shadow-sm py-2 px-3">
+                        <select id="projectFilter" class="block w-96 rounded-lg border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-slate-600 shadow-sm py-2 px-3">
                             <option value="">{{ __('messages.All Projects') }}</option>
                             @foreach($projects as $project)
                             <option value="{{ $project->name }}">{{ $project->name }}</option>
@@ -145,25 +387,39 @@
                         </div>
                     </div>
 
-                <div class="overflow-x-auto custom-scrollbar">
-                    <table id="tasksTable" class="w-full text-left border-collapse">
+                <div class="overflow-x-auto lg:overflow-x-visible custom-scrollbar">
+                    <table id="tasksTable" class="w-full text-left border-collapse table-fixed">
                         <thead class="bg-slate-50">
                             <tr>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Task Name') }}</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Total Duration') }}</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Estimated Hours') }}</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Difference') }}</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-32">{{ __('messages.Progress') }}</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Comments') }}</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Today\'s Duration') }}</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">{{ __('messages.Action') }}</th>
+                                <th class="px-3 lg:px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-72">{{ __('messages.Task Name') }}</th>
+                                <th class="px-3 lg:px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-28">{{ __('messages.Total Duration') }}</th>
+                                <th class="px-3 lg:px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-28">{{ __('messages.Estimated Hours') }}</th>
+                                <th class="px-3 lg:px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-28">{{ __('messages.Difference') }}</th>
+                                <th class="px-3 lg:px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-32">{{ __('messages.Progress') }}</th>
+                                <th class="px-3 lg:px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Comments') }}</th>
+                                <th class="px-3 lg:px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-28">{{ __('messages.Today\'s Duration') }}</th>
+                                <th class="px-3 lg:px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-80">{{ __('messages.Action') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             @foreach($tasksByProject as $projectName => $projectTasks)
-                                <tr>
-                                    <td colspan="8" class="px-6 py-3 bg-slate-200 text-center">
-                                        <span class="text-xs font-bold text-slate-800 uppercase tracking-wide">{{ strtoupper($projectName) }}</span>
+                                <tr class="project-group-row" data-project-name="{{ $projectName }}">
+                                    <td colspan="8" class="px-3 lg:px-4 py-2 bg-slate-200">
+                                        <div class="flex items-center justify-between gap-2">
+                                            <div class="flex items-center gap-2 min-w-0 overflow-hidden">
+                                                <button type="button" class="pin-btn shrink-0 text-slate-400 hover:text-yellow-400 transition-colors" data-project="{{ $projectName }}" title="{{ __('messages.Pin project') }}">
+                                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                                    </svg>
+                                                </button>
+                                                <span class="text-xs font-bold text-slate-800 uppercase tracking-wide truncate">{{ strtoupper($projectName) }}</span>
+                                            </div>
+                                            <button type="button" class="collapse-toggle shrink-0 text-slate-400 hover:text-slate-600 transition-transform duration-200" data-project="{{ $projectName }}" title="{{ __('messages.Toggle tasks') }}">
+                                                <svg class="w-4 h-4 chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                                    <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 @foreach($projectTasks as $task)
@@ -180,11 +436,18 @@
                                                     ? 'Responsable_gestionnaire'
                                                     : 'employee'));
                                     @endphp
-                                    <tr class="hover:bg-slate-50 transition-colors">
-                                        <td class="px-6 py-4">
-                                            <a href="#" class="text-sm font-medium text-blue-500 hover:text-blue-700">{{ $task->task_name }}</a>
+                                    <tr class="task-row hover:bg-slate-50 transition-colors" data-task-row aria-expanded="true" data-project-name="{{ $projectName }}" data-active-timer="{{ $task_timer ? 'true' : 'false' }}">
+                                        <td data-label="{{ __('messages.Task Name') }}" class="px-3 lg:px-4 py-3 task-name-cell">
+                                            <div class="flex items-center justify-between gap-3">
+                                                <a href="#" class="min-w-0 truncate text-sm font-medium text-blue-500 hover:text-blue-700" title="{{ $task->task_name }}">{{ $task->task_name }}</a>
+                                                <button type="button" class="shrink-0 text-slate-400 hover:text-slate-600 sm:hidden" data-task-collapse-toggle aria-label="Toggle task details">
+                                                    <svg class="task-chevron w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                        <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
                                         </td>
-                                        <td class="px-6 py-4 text-sm text-slate-600">
+                                        <td data-label="{{ __('messages.Total Duration') }}" class="px-3 lg:px-4 py-3 text-sm text-slate-600 whitespace-nowrap">
                                             @php 
                                                 $tasktotalduration = App\Models\tasks_timer::where('task_id', $task_id)->where('employee_id', $employee_id)->sum('duration');
                                                 $taskhours = floor($tasktotalduration / 60);
@@ -192,8 +455,8 @@
                                             @endphp
                                             {{$taskhours}}h{{$taskminutes}}m
                                         </td>
-                                        <td class="px-6 py-4 text-sm text-slate-600">{{$task_name->estimated_hours ?? '-'}} h</td>
-                                        <td class="px-6 py-4 text-sm text-slate-500">
+                                        <td data-label="{{ __('messages.Estimated Hours') }}" class="px-3 lg:px-4 py-3 text-sm text-slate-600 whitespace-nowrap">{{$task_name->estimated_hours ?? '-'}} h</td>
+                                        <td data-label="{{ __('messages.Difference') }}" class="px-3 lg:px-4 py-3 text-sm text-slate-500 whitespace-nowrap">
                                             @php
                                                 $taskEstimatedMinutes = ($task_name->estimated_hours ?? 0) * 60;
                                                 $taskConsumedMinutes = ($task_name->consumed_hours ?? 0) * 60;
@@ -216,15 +479,15 @@
                                                 <span class="text-xs text-slate-400">{{ __('messages.No estimated hours inserted') }}</span>
                                             @endif
                                         </td>
-                                        <td class="px-6 py-4 align-middle">
+                                        <td data-label="{{ __('messages.Progress') }}" class="px-3 lg:px-4 py-3 align-middle">
                                             <div class="w-full bg-slate-200 rounded-full h-1.5 flex items-center">
                                                 <div class="h-1.5 rounded-full bg-blue-500" style="width: {{$taskformattedProgressPercentage}}%"></div>
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4 text-sm text-slate-600">
+                                        <td data-label="{{ __('messages.Comments') }}" data-span="2" class="px-3 lg:px-4 py-3 text-sm text-slate-600 break-words">
                                             {{ $task->comment ?? __('messages.No Comment') }}
                                         </td>
-                                        <td class="px-6 py-4 text-sm font-bold text-slate-800">
+                                        <td data-label="{{ __('messages.Today\'s Duration') }}" class="px-3 lg:px-4 py-3 text-sm font-bold text-slate-800 whitespace-nowrap">
                                             @php
                                                 $today = \Carbon\Carbon::today()->toDateString();
                                                 $totalDurationToday = App\Models\tasks_timer::where('task_employee_id', $task->id)->whereNotNull('duration')->whereDate('start_date', '=', $today)->sum('duration');
@@ -233,31 +496,44 @@
                                             @endphp
                                             <span id="duration-{{$task->id}}">{{ $totalDurationToday ? $hours . 'h' . sprintf('%02d', $minutes).'m' : '00h00m' }}</span>
                                         </td>
-                                        <td class="px-6 py-4 text-right">
-                                            <div class="flex justify-end gap-2">
-                                            @php $routePrefix = Auth::user()->hasRole('Employee') ? 'employee' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet' : 'Responsable_gestionnaire'); @endphp
-                                            
-                                            @unless($task_timer)
-                                                <form class="inline-flex items-center gap-2" action="{{ route($routePrefix.'.tasks.start', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST">
-                                                    @csrf
-                                                    <input type="text"
-                                                           name="comment"
-                                                           placeholder="{{ __('messages.Enter comment') }}"
-                                                           class="border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring focus:ring-emerald-200">
-                                                    <button type="submit" class="start-button bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm" id="start-btn" data-task-id="{{$task->id}}">
-                                                        {{ __('messages.Start') }}
-                                                    </button>
-                                                </form>
-                                            @endunless
+                                        <td data-label="{{ __('messages.Action') }}" class="px-3 lg:px-4 py-3 text-right task-action-cell">
+                                            <div class="flex justify-end gap-2 flex-wrap">
+                                                @php $routePrefix = Auth::user()->hasRole('Employee') ? 'employee' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet' : 'Responsable_gestionnaire'); @endphp
 
-                                            @if($task_timer)
-                                                <form class="inline-block stop-form" action="{{ route($routePrefix.'.tasks.stop', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST">
-                                                    @csrf
-                                                    <button type="submit" class="stop-button bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm" data-task-id="{{$task->id}}">
-                                                        {{ __('messages.Stop') }}
+                                                @can('Add manual timer')
+                                                    <button type="button"
+                                                            class="manual-timer-btn bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm flex items-center justify-center"
+                                                            title="{{ __('messages.Add Manual Time') }}"
+                                                            data-task-id="{{ $task_id }}"
+                                                            data-employee-id="{{ $employee_id }}">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M12 6a6 6 0 016 6 6 6 0 11-6-6z" />
+                                                        </svg>
                                                     </button>
-                                                </form>
-                                            @endif
+                                                @endcan
+                                            
+                                                @unless($task_timer)
+                                                    <form class="inline-flex items-center gap-2 flex-wrap" action="{{ route($routePrefix.'.tasks.start', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST">
+                                                        @csrf
+                                                        <input type="text"
+                                                               name="comment"
+                                                               placeholder="{{ __('messages.Enter comment') }}"
+                                                               class="border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring focus:ring-emerald-200 w-40 max-w-full min-w-0">
+                                                        <button type="submit" class="start-button bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm whitespace-nowrap" id="start-btn" data-task-id="{{$task->id}}">
+                                                            {{ __('messages.Start') }}
+                                                        </button>
+                                                    </form>
+                                                @endunless
+
+                                                @if($task_timer)
+                                                    <form class="inline-block stop-form" action="{{ route($routePrefix.'.tasks.stop', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST">
+                                                        @csrf
+                                                        <input type="hidden" name="stop_comment" class="stop-comment-field">
+                                                        <button type="submit" class="stop-button bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm whitespace-nowrap" data-task-id="{{$task->id}}">
+                                                            {{ __('messages.Stop') }}
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>
@@ -265,6 +541,127 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            {{-- Manual Timer Modal --}}
+            <div id="manualTimerModal" class="modal">
+                <div class="modal-content-custom">
+                    <span id="manualTimerClose" class="close-button">&times;</span>
+                    <h2 class="text-lg font-semibold text-slate-800 mb-4">{{ __('messages.Add Manual Time') }}</h2>
+                    <form id="manualTimerForm" class="space-y-4">
+                        @csrf
+                        <input type="hidden" id="manualTimerTaskId" name="task_id">
+                        <input type="hidden" id="manualTimerEmployeeId" name="employee_id">
+
+                        <div class="text-left">
+                            <label for="manualStartDate" class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Start Date and Time') }}</label>
+                            <input type="datetime-local" id="manualStartDate" name="start_date" class="border border-slate-300 rounded-lg px-3 py-2 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="text-left">
+                            <label for="manualEndDate" class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.End Date and Time') }}</label>
+                            <input type="datetime-local" id="manualEndDate" name="end_date" class="border border-slate-300 rounded-lg px-3 py-2 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+
+                        <div class="flex justify-end gap-2 pt-2">
+                            <button type="button" id="manualTimerCancelBtn" class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50">{{ __('messages.Close button') }}</button>
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700">{{ __('messages.Save Timer') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {{-- Stop Comment Modal --}}
+            <div id="stopCommentModal" class="modal">
+                <div class="modal-content-custom">
+                    <span id="stopCommentClose" class="close-button">&times;</span>
+                    <div class="flex items-center justify-center mb-3">
+                        <div class="bg-red-100 rounded-full p-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h2 class="text-lg font-semibold text-slate-800 mb-2">{{ __('messages.Stop Task') }}</h2>
+                    <p class="text-sm text-slate-500 mb-4">{{ __('messages.Please leave a comment describing the work done before stopping the task.') }}</p>
+                    <div class="text-left mb-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="stopCommentText" class="block text-sm font-medium text-slate-700">{{ __('messages.Comment') }} <span class="text-red-500">*</span></label>
+                            <div class="flex gap-3 items-center">
+                                <button type="button" id="stopCommentAiBtn" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors opacity-50 cursor-not-allowed" title="{{ __('messages.Correct with AI') }}" disabled>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                    </svg>
+                                    <span id="stopCommentAiBtnText">{{ __('messages.Correct with AI') }}</span>
+                                </button>
+                                <button type="button" id="stopCommentTranslateBtn" class="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors opacity-50 cursor-not-allowed" title="{{ __('messages.Translate to Dutch') }}" disabled>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5c-.006 3.125-1.026 6.042-2.751 8.498m-1.782-2.5A18.022 18.022 0 014.888 5h7.863z" />
+                                    </svg>
+                                    <span id="stopCommentTranslateBtnText">{{ __('messages.Translate to Dutch') }}</span>
+                                </button>
+                            </div>
+                        </div>
+                        <textarea id="stopCommentText" rows="3" maxlength="500" placeholder="{{ __('messages.Describe what you worked on...') }}" spellcheck="true" class="border border-slate-300 rounded-lg px-3 py-2 w-full text-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none transition-colors"></textarea>
+                        <p id="stopCommentError" class="text-xs text-red-500 mt-1 hidden">{{ __('messages.Comment is required to stop the task.') }}</p>
+                        <p id="stopCommentAiFeedback" class="text-xs mt-1 hidden"></p>
+                    </div>
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button type="button" id="stopCommentCancelBtn" class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">{{ __('messages.Cancel') }}</button>
+                        <button type="button" id="stopCommentConfirmBtn" class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors opacity-50 cursor-not-allowed" disabled>{{ __('messages.Confirm Stop') }}</button>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Spell-Check Confirmation Modal --}}
+            <div id="spellCheckModal" class="modal" style="z-index: 60;">
+                <div class="modal-content-custom" style="max-width: 420px;">
+                    <div class="flex items-center justify-center mb-3">
+                        <div class="bg-amber-100 rounded-full p-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h2 class="text-lg font-semibold text-slate-800 mb-2">{{ __('messages.Check Spelling?') }}</h2>
+                    <p class="text-sm text-slate-500 mb-5">{{ __('messages.Would you like to verify the spelling of your comment before submitting?') }}</p>
+                    <div class="flex flex-col gap-2">
+                        <button type="button" id="spellCheckVerifyBtn" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-indigo-500 rounded-lg hover:bg-indigo-600 transition-colors flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ __('messages.Yes, verify spelling') }}
+                        </button>
+                        <button type="button" id="spellCheckSkipBtn" class="w-full px-4 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+                            {{ __('messages.No, submit as is') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Translate Confirmation Modal --}}
+            <div id="translateCheckModal" class="modal" style="z-index: 60;">
+                <div class="modal-content-custom" style="max-width: 420px;">
+                    <div class="flex items-center justify-center mb-3">
+                        <div class="bg-blue-100 rounded-full p-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5c-.006 3.125-1.026 6.042-2.751 8.498m-1.782-2.5A18.022 18.022 0 014.888 5h7.863z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h2 class="text-lg font-semibold text-slate-800 mb-2">{{ __('messages.Translate to Dutch?') }}</h2>
+                    <p class="text-sm text-slate-500 mb-5">{{ __('messages.Would you like to translate your comment into Dutch before submitting?') }}</p>
+                    <div class="flex flex-col gap-2">
+                        <button type="button" id="translateCheckVerifyBtn" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ __('messages.Yes, translate to Dutch') }}
+                        </button>
+                        <button type="button" id="translateCheckSkipBtn" class="w-full px-4 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+                            {{ __('messages.No, submit as is') }}
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -290,7 +687,7 @@
                     </div>
                 </div>
 
-                <div class="overflow-x-auto custom-scrollbar border-t border-slate-100">
+                <div class="overflow-x-auto lg:overflow-x-visible custom-scrollbar border-t border-slate-100">
                     <table id="taskTable" class="w-full text-left border-collapse">
                         <thead class="bg-slate-50">
                             <tr>
@@ -312,7 +709,7 @@
                 <div class="p-6 border-b border-slate-100">
                     <h3 class="text-base font-bold text-slate-800">{{ __('messages.Work Days Reports') }}</h3>
                 </div>
-                <div class="overflow-x-auto custom-scrollbar">
+                <div class="overflow-x-auto lg:overflow-x-visible custom-scrollbar">
                     <table id="editableTable" class="w-full text-left border-collapse">
                         <thead class="bg-slate-50">
                             <tr>
@@ -330,9 +727,9 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-slate-600">
-                            @if($work_days_repports)
+                            @isset($work_days_repports)
                             <tr class="hover:bg-slate-50">
-                                <td class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="days_worked">
+                                <td data-label="{{ __('messages.Number of') }} {{ __('messages.Working Days') }}" class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="days_worked">
                                     @php
                                         $firstDay = Carbon\Carbon::create($work_days_repports->year, $work_days_repports->month, 1);
                                         $lastDay = $firstDay->copy()->endOfMonth();
@@ -342,18 +739,18 @@
                                     @endphp
                                     {{$totalDays}}
                                 </td>
-                                <td class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="sick_days">{{$work_days_repports->sick_days}}</td>
-                                <td class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="holidays">{{$work_days_repports->holidays}}</td>
-                                <td class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="remaining_days_of_paid_leave">{{$work_days_repports->remaining_days_of_paid_leave}}</td>
-                                <td class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="number_of_days_of_paid_leave_acquired">{{$work_days_repports->number_of_days_of_paid_leave_acquired}}</td>
-                                <td class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="number_of_days_of_paid_leave_taken">{{$work_days_repports->number_of_days_of_paid_leave_taken}}</td>
-                                <td class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="holiday_balance">{{$work_days_repports->holiday_balance}}</td>
-                                <td class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="days_of_unpaid_absence">{{$work_days_repports->days_of_unpaid_absence}}</td>
-                                <td class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="dates_of_holidays">{{$work_days_repports->dates_of_holidays}}</td>
-                                <td class="px-4 py-4 text-sm text-blue-500 editable" data-id="{{$work_days_repports->id}}" data-column="month">{{$work_days_repports->month}}</td>
-                                <td class="px-4 py-4 text-sm text-blue-500 editable" data-id="{{$work_days_repports->id}}" data-column="year">{{$work_days_repports->year}}</td>
+                                <td data-label="{{ __('messages.Number of') }} {{ __('messages.Sick Days') }}" class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="sick_days">{{$work_days_repports->sick_days}}</td>
+                                <td data-label="{{ __('messages.Number of') }} {{ __('messages.Public Holidays') }}" class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="holidays">{{$work_days_repports->holidays}}</td>
+                                <td data-label="{{ __('messages.Remaining') }} {{ __('messages.Paid Leave Days') }}" class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="remaining_days_of_paid_leave">{{$work_days_repports->remaining_days_of_paid_leave}}</td>
+                                <td data-label="{{ __('messages.Paid Leave') }} {{ __('messages.Days Accrued') }}" class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="number_of_days_of_paid_leave_acquired">{{$work_days_repports->number_of_days_of_paid_leave_acquired}}</td>
+                                <td data-label="{{ __('messages.Paid Leave') }} {{ __('messages.Days Taken') }}" class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="number_of_days_of_paid_leave_taken">{{$work_days_repports->number_of_days_of_paid_leave_taken}}</td>
+                                <td data-label="{{ __('messages.Leave') }} {{ __('messages.Balance') }}" class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="holiday_balance">{{$work_days_repports->holiday_balance}}</td>
+                                <td data-label="{{ __('messages.Days of') }} {{ __('messages.Absence') }}" class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="days_of_unpaid_absence">{{$work_days_repports->days_of_unpaid_absence}}</td>
+                                <td data-label="{{ __('messages.Paid Leave') }} {{ __('messages.Dates') }}" data-span="2" class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="dates_of_holidays">{{$work_days_repports->dates_of_holidays}}</td>
+                                <td data-label="{{ __('messages.Month') }}" class="px-4 py-4 text-sm text-blue-500 editable" data-id="{{$work_days_repports->id}}" data-column="month">{{$work_days_repports->month}}</td>
+                                <td data-label="{{ __('messages.Year') }}" class="px-4 py-4 text-sm text-blue-500 editable" data-id="{{$work_days_repports->id}}" data-column="year">{{$work_days_repports->year}}</td>
                             </tr>
-                            @endif
+                            @endisset
                         </tbody>
                     </table>
                 </div>
@@ -378,6 +775,47 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
     <script src="https://unpkg.com/jspdf-autotable@3.5.17/dist/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+
+    <script>
+        // Sidebar toggle for employee layout (mobile)
+        function toggleAppSidebar(shouldOpen) {
+            const sidebar = document.getElementById('appSidebar');
+            const backdrop = document.getElementById('appSidebarBackdrop');
+            if (!sidebar || !backdrop) return;
+
+            const willOpen = shouldOpen === undefined ? sidebar.classList.contains('-translate-x-full') : shouldOpen;
+
+            if (willOpen) {
+                // Show elements first, then trigger transitions next frame
+                sidebar.classList.remove('hidden');
+                sidebar.classList.add('flex');
+                backdrop.classList.remove('hidden');
+
+                // Start from hidden state
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('opacity-0');
+
+                requestAnimationFrame(() => {
+                    sidebar.classList.remove('-translate-x-full');
+                    sidebar.classList.add('translate-x-0');
+                    backdrop.classList.remove('opacity-0');
+                });
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                sidebar.classList.remove('translate-x-0');
+                backdrop.classList.add('opacity-0');
+
+                // Wait for transition, then fully hide to prevent tab focus
+                window.setTimeout(() => {
+                    if (sidebar.classList.contains('-translate-x-full')) {
+                        sidebar.classList.add('hidden');
+                        sidebar.classList.remove('flex');
+                        backdrop.classList.add('hidden');
+                    }
+                }, 200);
+            }
+        }
+    </script>
     
     {{-- Alpine.js for Language Switcher --}}
     <script>
@@ -472,14 +910,16 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             var modal = document.getElementById("customAlertModal");
-            var span = document.getElementsByClassName("close-button")[0];
             var alertSound = document.getElementById("alertSound");
             var alertInterval;
 
-            span.onclick = function() { modal.style.display = "none"; }
+            modal.querySelector('.close-button').onclick = function() { modal.style.display = "none"; }
             function showAlert() { modal.style.display = "block"; alertSound.play(); }
+            function hideAlert() { modal.style.display = "none"; }
             function startAlertInterval() { clearInterval(alertInterval); alertInterval = setInterval(showAlert, 300000); }
             function clearAlertInterval() { clearInterval(alertInterval); }
+            function handleTimerStarted() { tasksTimer = { paused: 0, pause_date: null }; hideAlert(); clearAlertInterval(); }
+            function handleTimerStopped() { tasksTimer = null; startAlertInterval(); }
 
             var tasksTimer = @json($tasks_timer);
 
@@ -504,6 +944,18 @@
             btns.forEach(btn => {
                 btn.addEventListener('click', function() { checkTimerState(); });
             });
+
+            var previousTimerId = tasksTimer ? tasksTimer.id : null;
+            setInterval(function() {
+                fetch('/employee/pointage/get-timer-state')
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        var currentTimerId = data.tasksTimer ? data.tasksTimer.id : null;
+                        if (previousTimerId !== null && currentTimerId === null) {
+                            location.reload();
+                        }
+                    });
+            }, 60000);
         });
     </script>
 
@@ -610,6 +1062,13 @@
             }
 
             function fetchAndPopulateTable(url) {
+                const lblProjectName = @json(__('messages.Project Name'));
+                const lblTaskName = @json(__('messages.Task Name'));
+                const lblStartDate = @json(__('messages.Start Date'));
+                const lblEndDate = @json(__('messages.End Date'));
+                const lblComment = @json(__('messages.Comment'));
+                const lblDuration = @json(__('messages.Duration'));
+
                 fetch(url)
                     .then(response => response.json())
                     .then(data => {
@@ -652,12 +1111,12 @@
                                                 let formattedD = `${d_h.toString().padStart(2, '0')}h:${d_m.toString().padStart(2, '0')}m:00s`;
 
                                 var row = `
-                                                  <tr id="${rowId}" class="text-center hover:bg-gray-50">
-                                                      <td class="px-4 py-3 text-sm text-gray-700">${projectData.name.toUpperCase()}</td>                      
-                                                      <td class="px-4 py-3 text-sm text-gray-700 font-medium">${task.task_name}</td>
-                                                      <td class="px-4 py-3 text-sm text-gray-700">${task.start_date}</td>
-                                                      <td class="px-4 py-3 text-sm text-gray-700">${endDateText}</td>
-                                                      <td class="px-4 py-3 text-sm text-gray-700">
+                                                  <tr id="${rowId}" class="task-timer-row text-center hover:bg-gray-50">
+                                                      <td data-label="${lblProjectName}" data-span="2" class="px-4 py-3 text-sm text-gray-700">${projectData.name.toUpperCase()}</td>                      
+                                                      <td data-label="${lblTaskName}" data-span="2" class="px-4 py-3 text-sm text-gray-700 font-medium">${task.task_name}</td>
+                                                      <td data-label="${lblStartDate}" class="px-4 py-3 text-sm text-gray-700">${task.start_date}</td>
+                                                      <td data-label="${lblEndDate}" class="px-4 py-3 text-sm text-gray-700">${endDateText}</td>
+                                                      <td data-label="${lblComment}" data-span="2" class="px-4 py-3 text-sm text-gray-700">
                                                           <span class="comment-display cursor-pointer hover:text-blue-600" style="display: block;">${task.comment ? task.comment : {!! json_encode(__('messages.No Comment')) !!}}</span>
                                                           <input type="text" 
                                                                  class="comment-input border border-gray-300 rounded px-2 py-1 text-sm text-gray-700 focus:outline-none focus:ring focus:ring-blue-200 w-full" 
@@ -665,7 +1124,7 @@
                                                                  data-timer-id="${task.id}"
                                                                  style="display: none;">
                                                       </td>
-                                                      <td class="px-4 py-3 text-sm text-gray-700 task_duration">${task.end_date ? formattedD : ""}</td>
+                                                      <td data-label="${lblDuration}" class="px-4 py-3 text-sm text-gray-700 task_duration">${task.end_date ? formattedD : ""}</td>
                                                   </tr>`;
                                                 
                                                 tableBody.insertAdjacentHTML('beforeend', row);
@@ -726,7 +1185,136 @@
         });
     </script>
 
-    {{-- 7. JQuery AJAX for Start/Stop --}}
+    {{-- 7. Manual Timer Modal Logic --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('manualTimerModal');
+            const form = document.getElementById('manualTimerForm');
+            const taskIdInput = document.getElementById('manualTimerTaskId');
+            const employeeIdInput = document.getElementById('manualTimerEmployeeId');
+            const startInput = document.getElementById('manualStartDate');
+            const endInput = document.getElementById('manualEndDate');
+            const closeBtn = document.getElementById('manualTimerClose');
+            const cancelBtn = document.getElementById('manualTimerCancelBtn');
+
+            function openModal(taskId, employeeId) {
+                taskIdInput.value = taskId;
+                employeeIdInput.value = employeeId;
+                startInput.value = '';
+                endInput.value = '';
+                modal.style.display = 'block';
+            }
+
+            function closeModal() {
+                modal.style.display = 'none';
+            }
+
+            document.querySelectorAll('.manual-timer-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const taskId = this.getAttribute('data-task-id');
+                    const employeeId = this.getAttribute('data-employee-id');
+                    openModal(taskId, employeeId);
+                });
+            });
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeModal);
+            }
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', closeModal);
+            }
+
+            window.addEventListener('click', function (event) {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                    let manualTimerUrl = '';
+                    @if(Auth::user()->hasRole('Employee'))
+                        manualTimerUrl = '{{ url('/employee/tasks/manual-timer') }}';
+                    @endif
+                    @if(Auth::user()->hasRole('Responsable de projet'))
+                        manualTimerUrl = '{{ url('/Responsable_de_projet/tasks/manual-timer') }}';
+                    @endif
+                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                        manualTimerUrl = '{{ url('/Responsable_gestionnaire/tasks/manual-timer') }}';
+                    @endif
+                    @if(Auth::user()->hasRole('Admin') || Auth::user()->hasRole('SuperAdmin') || Auth::user()->hasRole('super_admin'))
+                        manualTimerUrl = '{{ url('/admin/tasks/manual-timer') }}';
+                    @endif
+
+                    fetch(manualTimerUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify({
+                            task_id: taskIdInput.value,
+                            employee_id: employeeIdInput.value,
+                            start_date: startInput.value,
+                            end_date: endInput.value
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            closeModal();
+                            window.location.reload();
+                        } else {
+                            alert(data.message || 'Failed to create timer.');
+                        }
+                    })
+                    .catch(() => {
+                        alert('Failed to create timer.');
+                    });
+                });
+            }
+        });
+    </script>
+
+    {{-- 8. Mobile accordion for Employee Tasks table --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mql = window.matchMedia('(max-width: 640px)');
+
+            function setTaskRowCollapsed(row, collapsed) {
+                if (!row) return;
+                row.classList.toggle('is-collapsed', collapsed);
+                row.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            }
+
+            function initTaskAccordions() {
+                const rows = document.querySelectorAll('#tasksTable tbody tr.task-row');
+                const isMobile = mql.matches;
+                rows.forEach(row => setTaskRowCollapsed(row, isMobile));
+            }
+
+            document.addEventListener('click', function (e) {
+                const toggleBtn = e.target.closest('[data-task-collapse-toggle]');
+                if (!toggleBtn) return;
+
+                const row = toggleBtn.closest('tr.task-row');
+                if (!row) return;
+
+                const collapsed = row.classList.contains('is-collapsed');
+                setTaskRowCollapsed(row, !collapsed);
+            });
+
+            if (mql.addEventListener) mql.addEventListener('change', initTaskAccordions);
+            else if (mql.addListener) mql.addListener(initTaskAccordions);
+
+            initTaskAccordions();
+        });
+    </script>
+
+    {{-- 8. JQuery AJAX for Start/Stop --}}
     <script>
         $(document).ready(function() {
             $('.start-button').click(function() {
@@ -736,26 +1324,295 @@
                     url: '/tasks/' + taskId + '/start/' + employeeId,
                     type: 'POST',
                     data: { task_id: taskId, employee_id: employeeId },
-                    success: function(response) { /* handle success */ },
-                    error: function(response) { /* handle error */ }
+                    success: function(response) { handleTimerStarted(); },
+                    error: function(response) { console.error('Error starting timer:', response); }
                 });
             });
 
-            $('.stop-button').click(function() {
-                var taskId = $(this).data('task-id');
-                var employeeId = @json($employee_id); // Fixed usage
-                $.ajax({
-                    url: '/tasks/' + taskId + '/stop/' + employeeId,
-                    type: 'POST',
-                    data: { task_id: taskId, employee_id: employeeId },
-                    success: function(response) { /* handle success */ },
-                    error: function(response) { /* handle error */ }
+            // Stop Comment Modal logic
+            var activeStopForm = null;
+            var stopModal = document.getElementById('stopCommentModal');
+            var stopCommentText = document.getElementById('stopCommentText');
+            var stopCommentError = document.getElementById('stopCommentError');
+            var stopConfirmBtn = document.getElementById('stopCommentConfirmBtn');
+            var stopCancelBtn = document.getElementById('stopCommentCancelBtn');
+            var stopCloseBtn = document.getElementById('stopCommentClose');
+            var stopCommentAiBtn = document.getElementById('stopCommentAiBtn');
+            var stopCommentAiBtnText = document.getElementById('stopCommentAiBtnText');
+            var stopCommentTranslateBtn = document.getElementById('stopCommentTranslateBtn');
+            var stopCommentTranslateBtnText = document.getElementById('stopCommentTranslateBtnText');
+            var stopCommentAiFeedback = document.getElementById('stopCommentAiFeedback');
+            var spellCheckModal = document.getElementById('spellCheckModal');
+            var spellCheckVerifyBtn = document.getElementById('spellCheckVerifyBtn');
+            var spellCheckSkipBtn = document.getElementById('spellCheckSkipBtn');
+            var translateCheckModal = document.getElementById('translateCheckModal');
+            var translateCheckVerifyBtn = document.getElementById('translateCheckVerifyBtn');
+            var translateCheckSkipBtn = document.getElementById('translateCheckSkipBtn');
+
+            // State flags to avoid repetitive popups
+            var hasSpelledChecked = false;
+            var hasTranslated = false;
+
+            // Intercept stop button clicks to show modal
+            $(document).on('click', '.stop-button', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                activeStopForm = $(this).closest('.stop-form')[0];
+                // Reset modal state
+                stopCommentText.value = '';
+                stopCommentError.classList.add('hidden');
+                stopCommentAiFeedback.classList.add('hidden');
+                stopCommentAiFeedback.textContent = '';
+                stopConfirmBtn.disabled = true;
+                stopConfirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                stopCommentAiBtn.disabled = true;
+                stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                stopCommentTranslateBtn.disabled = true;
+                stopCommentTranslateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                hasSpelledChecked = false;
+                hasTranslated = false;
+                stopModal.style.display = 'block';
+                stopCommentText.focus();
+            });
+
+            // Enable/disable confirm, AI and Translate button based on comment content
+            stopCommentText.addEventListener('input', function() {
+                var hasContent = this.value.trim().length > 0;
+                stopConfirmBtn.disabled = !hasContent;
+                stopCommentAiBtn.disabled = !hasContent;
+                stopCommentTranslateBtn.disabled = !hasContent;
+                if (hasContent) {
+                    stopConfirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    stopCommentAiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    stopCommentTranslateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    stopCommentError.classList.add('hidden');
+                } else {
+                    stopConfirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    stopCommentTranslateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            });
+
+            // AI correction request
+            stopCommentAiBtn.addEventListener('click', function() {
+                var comment = stopCommentText.value.trim();
+                if (!comment) return;
+
+                // Set loading state
+                stopCommentAiBtn.disabled = true;
+                stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                stopCommentText.disabled = true;
+                var oldBtnText = stopCommentAiBtnText.textContent;
+                stopCommentAiBtnText.textContent = "{{ __('messages.Correcting...') }}";
+                stopCommentAiFeedback.classList.add('hidden');
+
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                fetch('/tasks/correct-comment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ comment: comment })
+                })
+                .then(function(res) {
+                    if (!res.ok) {
+                        return res.json().then(function(err) {
+                            throw new Error(err.error || 'Failed to correct comment.');
+                        });
+                    }
+                    return res.json();
+                })
+                .then(function(data) {
+                    if (data.corrected) {
+                        stopCommentText.value = data.corrected;
+                        stopCommentAiFeedback.textContent = "{{ __('messages.Spelling and grammar corrected!') }}";
+                        stopCommentAiFeedback.className = "text-xs mt-1 text-emerald-600 font-medium";
+                        stopCommentAiFeedback.classList.remove('hidden');
+                        hasSpelledChecked = true;
+                    }
+                })
+                .catch(function(err) {
+                    console.error(err);
+                    stopCommentAiFeedback.textContent = "{{ __('messages.Failed to correct comment. Please check API configuration.') }}";
+                    stopCommentAiFeedback.className = "text-xs mt-1 text-red-500 font-medium";
+                    stopCommentAiFeedback.classList.remove('hidden');
+                })
+                .finally(function() {
+                    stopCommentAiBtn.disabled = false;
+                    stopCommentAiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    stopCommentText.disabled = false;
+                    stopCommentAiBtnText.textContent = oldBtnText;
                 });
+            });
+
+            // Translate request
+            stopCommentTranslateBtn.addEventListener('click', function() {
+                var comment = stopCommentText.value.trim();
+                if (!comment) return;
+
+                stopCommentTranslateBtn.disabled = true;
+                stopCommentTranslateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                stopCommentAiBtn.disabled = true;
+                stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                stopCommentText.disabled = true;
+                var oldBtnText = stopCommentTranslateBtnText.textContent;
+                stopCommentTranslateBtnText.textContent = "{{ __('messages.Translating...') }}";
+                stopCommentAiFeedback.classList.add('hidden');
+
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                fetch('/tasks/translate-comment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ comment: comment })
+                })
+                .then(function(res) {
+                    if (!res.ok) {
+                        return res.json().then(function(err) {
+                            throw new Error(err.error || 'Failed to translate comment.');
+                        });
+                    }
+                    return res.json();
+                })
+                .then(function(data) {
+                    if (data.translated) {
+                        stopCommentText.value = data.translated;
+                        stopCommentAiFeedback.textContent = "{{ __('messages.Translated to Dutch!') }}";
+                        stopCommentAiFeedback.className = "text-xs mt-1 text-emerald-600 font-medium";
+                        stopCommentAiFeedback.classList.remove('hidden');
+                        hasTranslated = true;
+                    }
+                })
+                .catch(function(err) {
+                    console.error(err);
+                    stopCommentAiFeedback.textContent = "{{ __('messages.Failed to translate comment. Please check API configuration.') }}";
+                    stopCommentAiFeedback.className = "text-xs mt-1 text-red-500 font-medium";
+                    stopCommentAiFeedback.classList.remove('hidden');
+                })
+                .finally(function() {
+                    stopCommentTranslateBtn.disabled = false;
+                    stopCommentTranslateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    stopCommentAiBtn.disabled = false;
+                    stopCommentAiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    stopCommentText.disabled = false;
+                    stopCommentTranslateBtnText.textContent = oldBtnText;
+                });
+            });
+
+            // Function to actually submit the stop task
+            function doSubmitStop() {
+                var comment = stopCommentText.value.trim();
+                if (activeStopForm) {
+                    // Set the hidden field value
+                    activeStopForm.querySelector('.stop-comment-field').value = comment;
+                    // Clear the interval for this task
+                    var taskId = activeStopForm.querySelector('.stop-button').getAttribute('data-task-id');
+                    if (window.taskIntervals && window.taskIntervals[taskId]) {
+                        clearInterval(window.taskIntervals[taskId]);
+                        delete window.taskIntervals[taskId];
+                    }
+                    stopModal.style.display = 'none';
+                    activeStopForm.submit();
+                }
+            }
+
+            // Confirm stop: show spell-check or translate popups if they haven't been completed yet
+            stopConfirmBtn.addEventListener('click', function() {
+                var comment = stopCommentText.value.trim();
+                if (!comment) {
+                    stopCommentError.classList.remove('hidden');
+                    stopCommentText.focus();
+                    return;
+                }
+                
+                if (!hasSpelledChecked) {
+                    spellCheckModal.style.display = 'block';
+                } else if (!hasTranslated) {
+                    translateCheckModal.style.display = 'block';
+                } else {
+                    doSubmitStop();
+                }
+            });
+
+            // Spell-check popup: verify spelling (trigger AI correction then return to comment modal)
+            spellCheckVerifyBtn.addEventListener('click', function() {
+                spellCheckModal.style.display = 'none';
+                hasSpelledChecked = true;
+                if (!stopCommentAiBtn.disabled) {
+                    stopCommentAiBtn.click();
+                }
+            });
+
+            // Spell-check popup: skip and open translate confirmation popup
+            spellCheckSkipBtn.addEventListener('click', function() {
+                spellCheckModal.style.display = 'none';
+                hasSpelledChecked = true;
+                if (!hasTranslated) {
+                    translateCheckModal.style.display = 'block';
+                } else {
+                    doSubmitStop();
+                }
+            });
+
+            // Close spell-check modal on outside click
+            spellCheckModal.addEventListener('click', function(e) {
+                if (e.target === spellCheckModal) {
+                    spellCheckModal.style.display = 'none';
+                }
+            });
+
+            // Translate popup: verify spelling (trigger translation then return to comment modal)
+            translateCheckVerifyBtn.addEventListener('click', function() {
+                translateCheckModal.style.display = 'none';
+                hasTranslated = true;
+                if (!stopCommentTranslateBtn.disabled) {
+                    stopCommentTranslateBtn.click();
+                }
+            });
+
+            // Translate popup: skip and submit directly
+            translateCheckSkipBtn.addEventListener('click', function() {
+                translateCheckModal.style.display = 'none';
+                hasTranslated = true;
+                doSubmitStop();
+            });
+
+            // Close translate modal on outside click
+            translateCheckModal.addEventListener('click', function(e) {
+                if (e.target === translateCheckModal) {
+                    translateCheckModal.style.display = 'none';
+                }
+            });
+
+            // Cancel / Close modal
+            function closeStopModal() {
+                stopModal.style.display = 'none';
+                activeStopForm = null;
+            }
+            stopCancelBtn.addEventListener('click', closeStopModal);
+            stopCloseBtn.addEventListener('click', closeStopModal);
+            stopModal.addEventListener('click', function(e) {
+                if (e.target === stopModal) closeStopModal();
+            });
+
+            // Allow Enter to confirm if comment is filled
+            stopCommentText.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!stopConfirmBtn.disabled) {
+                        stopConfirmBtn.click();
+                    }
+                }
             });
         });
     </script>
-
-    {{-- 8. Close Banner Logic --}}
+    
+    {{-- 9. Close Banner Logic --}}
     <script>
         function closeBanner() {
             var closeButton = document.querySelector('#close-bar');
@@ -764,7 +1621,7 @@
         window.onload = closeBanner;
     </script>
 
-    {{-- 9. Client-side Filtering for Main Task Table --}}
+    {{-- 10. Client-side Filtering for Main Task Table --}}
     <script>
         document.getElementById('projectFilter').addEventListener('change', function() {
             var filter = this.value.toLowerCase();
@@ -785,7 +1642,7 @@
         });
     </script>
 
-    {{-- 10. Inline Comment Editing --}}
+    {{-- 11. Inline Comment Editing --}}
     <script>
         // Inline comment editing handlers
         document.addEventListener('click', function(e) {
@@ -869,6 +1726,168 @@
         }, true);
     </script>
 
+    <!-- Tom Select JS Complete CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Tom Select for both project filters
+            ['projectFilter', 'projectFilterExport'].forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el) {
+                    new TomSelect(el, {
+                        create: false,
+                        sortField: { field: 'text', direction: 'asc' },
+                        maxOptions: null,
+                        allowEmptyOption: true,
+                        placeholder: el.options[0] ? el.options[0].text : 'Search...'
+                    });
+                }
+            });
+        });
+    </script>
+
+    {{-- 12. Project pinning and collapse --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const STORAGE_KEY = 'entrack_pinned';
+
+            function getPinned() {
+                try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+                catch { return []; }
+            }
+
+            function setPinned(names) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(names));
+            }
+
+            function updatePinButton($btn) {
+                const pinned = getPinned();
+                const project = $btn.dataset.project;
+                const isPinned = pinned.includes(project);
+                $btn.classList.toggle('is-pinned', isPinned);
+                const svg = $btn.querySelector('svg');
+                if (svg) {
+                    svg.setAttribute('fill', isPinned ? '#eab308' : 'none');
+                }
+                $btn.title = isPinned ? '{{ __('messages.Unpin project') }}' : '{{ __('messages.Pin project') }}';
+            }
+
+            function updateAllPinButtons() {
+                document.querySelectorAll('.pin-btn').forEach(updatePinButton);
+            }
+
+            function togglePin(e) {
+                const btn = e.currentTarget;
+                const project = btn.dataset.project;
+                let pinned = getPinned();
+                const idx = pinned.indexOf(project);
+                if (idx > -1) {
+                    pinned.splice(idx, 1);
+                } else {
+                    pinned.push(project);
+                }
+                setPinned(pinned);
+                updatePinButton(btn);
+                reorderProjects();
+            }
+
+            function hasActiveTimer(projectName) {
+                const rows = document.querySelectorAll(
+                    '#tasksTable tbody tr.task-row[data-project-name="' + projectName.replace(/"/g, '\\"') + '"]'
+                );
+                for (let r of rows) {
+                    if (r.dataset.activeTimer === 'true') return true;
+                }
+                return false;
+            }
+
+            function collapseAllProjects() {
+                const pinned = getPinned();
+                const toggles = document.querySelectorAll('.collapse-toggle');
+                toggles.forEach(function(t) {
+                    const project = t.dataset.project;
+                    if (pinned.includes(project) || hasActiveTimer(project)) {
+                        t.classList.remove('is-collapsed');
+                    } else {
+                        t.classList.add('is-collapsed');
+                    }
+                });
+                const rows = document.querySelectorAll('#tasksTable tbody tr.task-row');
+                rows.forEach(function(r) {
+                    const project = r.dataset.projectName;
+                    const keepOpen = pinned.includes(project) || hasActiveTimer(project);
+                    r.classList.toggle('project-tasks-collapsed', !keepOpen);
+                });
+            }
+
+            function reorderProjects() {
+                const pinned = getPinned();
+                if (pinned.length === 0) return;
+
+                const tbody = document.querySelector('#tasksTable tbody');
+                const groups = [];
+                let currentGroup = null;
+
+                Array.from(tbody.children).forEach(function(child) {
+                    if (child.classList.contains('project-group-row')) {
+                        currentGroup = {
+                            name: child.dataset.projectName,
+                            header: child,
+                            tasks: []
+                        };
+                        groups.push(currentGroup);
+                    } else if (child.classList.contains('task-row') && currentGroup) {
+                        currentGroup.tasks.push(child);
+                    }
+                });
+
+                groups.sort(function(a, b) {
+                    const aP = pinned.includes(a.name);
+                    const bP = pinned.includes(b.name);
+                    if (aP && !bP) return -1;
+                    if (!aP && bP) return 1;
+                    return 0;
+                });
+
+                groups.forEach(function(g) {
+                    tbody.appendChild(g.header);
+                    g.tasks.forEach(function(t) {
+                        tbody.appendChild(t);
+                    });
+                });
+            }
+
+            // Init: pin buttons
+            document.querySelectorAll('.pin-btn').forEach(function(btn) {
+                btn.addEventListener('click', togglePin);
+                updatePinButton(btn);
+            });
+
+            // Init: collapse toggles — click anywhere on the project header row
+            document.querySelectorAll('.project-group-row td').forEach(function(td) {
+                td.addEventListener('click', function(e) {
+                    if (e.target.closest('.pin-btn')) return;
+                    const btn = this.querySelector('.collapse-toggle');
+                    if (!btn) return;
+                    btn.classList.toggle('is-collapsed');
+                    const isCollapsed = btn.classList.contains('is-collapsed');
+                    const project = btn.dataset.project;
+                    const rows = document.querySelectorAll(
+                        '#tasksTable tbody tr.task-row[data-project-name="' + project.replace(/"/g, '\\"') + '"]'
+                    );
+                    rows.forEach(function(r) {
+                        r.classList.toggle('project-tasks-collapsed', isCollapsed);
+                    });
+                });
+            });
+
+            // Default: collapse all projects
+            collapseAllProjects();
+
+            // Reorder pinned projects to top
+            reorderProjects();
+        });
+    </script>
 </body>
 </html>
 

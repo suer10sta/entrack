@@ -9,7 +9,7 @@
             </p>
         </div>
 
-        <div class="flex flex-col md:flex-row md:space-x-6 space-y-4 md:space-y-0">
+        <div class="grid grid-cols-2 xl:grid-cols-5 gap-4 md:gap-6">
             <a href="{{ route('manager.subscriptions.index') }}"
                class="flex-1 bg-white rounded-lg shadow-sm border p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-200 hover:border-gray-300">
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Total entreprises') }}</p>
@@ -28,19 +28,13 @@
                 <p class="text-3xl font-semibold text-sky-600">{{ $totalUsers }}</p>
             </a>
 
-            <a href="{{ route('manager.dashboard.visits.non-client') }}"
-               class="flex-1 bg-white rounded-lg shadow-sm border p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Website visits (non client)') }}</p>
-                <p class="text-3xl font-semibold text-indigo-600">{{ number_format($totalVisits) }}</p>
-            </a>
-
             <a href="{{ route('manager.dashboard.visits.non-client-unique') }}"
                class="flex-1 bg-white rounded-lg shadow-sm border p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500">
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Unique visitors (non client)') }}</p>
                 <p class="text-3xl font-semibold text-purple-600">{{ number_format($uniqueNonClientVisits) }}</p>
             </a>
 
-            <div class="flex-1 bg-white rounded-lg shadow-sm border p-6">
+            <div class="col-span-2 xl:col-span-1 bg-white rounded-lg shadow-sm border p-6">
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Visit to signup conversion (30d)') }}</p>
                 <p class="text-3xl font-semibold text-emerald-600">
                     {{ number_format($visitToSignupConversionRate, 1) }}%
@@ -49,7 +43,7 @@
         </div>
 
         {{-- Engagement summary --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <div class="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-6 mt-6">
             <a href="{{ route('manager.dashboard.users.daily-active') }}"
                class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
@@ -72,7 +66,7 @@
         </div>
 
         {{-- Signups, trials and onboarding summary --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-6">
 
             <a href="{{ route('manager.dashboard.users.new-signups') }}"
                class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -96,7 +90,7 @@
         </div>
 
         {{-- Earnings summary cards (from Stripe invoices) --}}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             <a href="{{ route('manager.dashboard.invoices') }}"
                class="bg-white rounded-lg shadow-sm border p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 border-gray-200 hover:border-gray-300">
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Total invoiced') }}</p>
@@ -112,10 +106,10 @@
                 </p>
             </div>
 
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="col-span-2 md:col-span-1 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Outstanding') }}</p>
                 <p class="text-2xl font-semibold text-emerald-600">
-                    {{ number_format($totalOutstanding, 2) }} EUR
+                    {{ number_format($totalOutstanding, 2) }} EUR  
                 </p>
             </div>
         </div>
@@ -146,8 +140,8 @@
                     </div>
                 </div>
 
-                <div class="overflow-x-auto text-sm">
-                    <table class="min-w-full text-left">
+                <div class="manager-table-wrapper overflow-x-auto text-sm">
+                    <table class="manager-table min-w-full text-left">
                         <thead class="border-b border-gray-200 bg-gray-50 text-xs">
                         <tr>
                             <th class="px-4 py-2 font-semibold text-gray-600">{{ __('messages.Country') }}</th>
@@ -162,19 +156,28 @@
                                     ? $row->country
                                     : '__unknown__';
                             @endphp
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-2 text-gray-900">
-                                    <a href="{{ route('manager.dashboard.visits.non-client', ['country' => $countryFilter]) }}" class="text-blue-600 hover:underline">
-                                        {{ $row->country ?? __('messages.Unknown location') }}
-                                    </a>
+                            <tr class="manager-card-row hover:bg-gray-50" aria-expanded="true">
+                                <td data-label="{{ __('messages.Country') }}" data-span="2" data-manager-card-toggle class="manager-toggle-cell px-4 py-2 text-gray-900">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="min-w-0">
+                                            <a href="{{ route('manager.dashboard.visits.non-client-unique', ['country' => $countryFilter]) }}" class="text-blue-600 hover:underline">
+                                                {{ $row->country ?? __('messages.Unknown location') }}
+                                            </a>
+                                        </div>
+                                        <span class="shrink-0 mt-0.5 text-slate-400 lg:hidden" aria-hidden="true">
+                                            <svg class="manager-chevron w-5 h-5" viewBox="0 0 24 24" fill="none">
+                                                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </span>
+                                    </div>
                                 </td>
-                                <td class="px-4 py-2 text-gray-700">
-                                    <a href="{{ route('manager.dashboard.visits.non-client', ['country' => $countryFilter]) }}" class="text-blue-600 hover:underline">
+                                <td data-label="{{ __('messages.Visits (non client)') }}" class="px-4 py-2 text-gray-700">
+                                    <a href="{{ route('manager.dashboard.visits.non-client-unique', ['country' => $countryFilter]) }}" class="text-blue-600 hover:underline">
                                         {{ number_format($row->total) }}
                                     </a>
                                 </td>
-                                <td class="px-4 py-2 text-gray-700">
-                                    <a href="{{ route('manager.dashboard.visits.non-client', ['country' => $countryFilter]) }}" class="text-blue-600 hover:underline">
+                                <td data-label="{{ __('messages.Unique visitors (non client)') }}" class="px-4 py-2 text-gray-700">
+                                    <a href="{{ route('manager.dashboard.visits.non-client-unique', ['country' => $countryFilter]) }}" class="text-blue-600 hover:underline">
                                         {{ number_format($row->unique_total) }}
                                     </a>
                                 </td>
@@ -201,8 +204,8 @@
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-sm font-semibold text-gray-900">{{ __('messages.Top traffic sources') }}</h3>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-left text-sm">
+                <div class="manager-table-wrapper overflow-x-auto">
+                    <table class="manager-table min-w-full text-left text-sm">
                         <thead class="border-b border-gray-200 bg-gray-50">
                         <tr>
                             <th class="px-4 py-2 font-semibold text-gray-600">{{ __('messages.Source') }}</th>
@@ -211,11 +214,20 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                         @forelse($topTrafficSources as $row)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-2 text-gray-900">
-                                    {{ $row->source ?? '—' }}
+                            <tr class="manager-card-row hover:bg-gray-50" aria-expanded="true">
+                                <td data-label="{{ __('messages.Source') }}" data-span="2" data-manager-card-toggle class="manager-toggle-cell px-4 py-2 text-gray-900">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="min-w-0">
+                                            {{ $row->source ?? '—' }}
+                                        </div>
+                                        <span class="shrink-0 mt-0.5 text-slate-400 lg:hidden" aria-hidden="true">
+                                            <svg class="manager-chevron w-5 h-5" viewBox="0 0 24 24" fill="none">
+                                                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </span>
+                                    </div>
                                 </td>
-                                <td class="px-4 py-2 text-gray-700">
+                                <td data-label="{{ __('messages.Visits (non client)') }}" class="px-4 py-2 text-gray-700">
                                     {{ number_format($row->total) }}
                                 </td>
                             </tr>

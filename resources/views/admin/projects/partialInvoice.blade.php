@@ -4,6 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @if(session('error'))
+        <script>
+            alert(@json(session('error')));
+        </script>
+    @endif
     <style>
     body {
         font-family: Tahoma, sans-serif;

@@ -10,6 +10,7 @@
         "barryvdh/laravel-dompdf": "^2.2",
         "doctrine/dbal": "^3.10",
         "guzzlehttp/guzzle": "^7.2",
+        "jaybizzle/crawler-detect": "^1.4",
         "laravel/cashier": "^16.0",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",

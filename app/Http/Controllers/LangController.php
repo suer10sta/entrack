@@ -24,6 +24,19 @@ class LangController extends Controller
             $lang = 'en'; // Fallback to English
         }
         
+        // Persist on the authenticated account (so it sticks after login).
+        if (auth()->check()) {
+            $user = auth()->user();
+            if (($user->locale ?? null) !== $lang) {
+                $user->forceFill(['locale' => $lang])->save();
+            }
+        } elseif (auth('manager')->check()) {
+            $manager = auth('manager')->user();
+            if (($manager->locale ?? null) !== $lang) {
+                $manager->forceFill(['locale' => $lang])->save();
+            }
+        }
+
         // Set locale in session
         Session::put('locale', $lang);
         

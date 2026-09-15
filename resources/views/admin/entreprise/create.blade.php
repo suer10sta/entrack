@@ -11,6 +11,28 @@
     {{-- Use the new styling system --}}
     @vite('resources/css/app.css')
     @livewireStyles
+
+    <style>
+        /* Entreprise expenses: collapse budget cards on mobile/tablet */
+        @media (max-width: 1024px) {
+            .enterprise-card[data-budget-history-collapsible] [data-collapsible-header] {
+                cursor: pointer;
+                user-select: none;
+            }
+
+            .enterprise-card[data-budget-history-collapsible].is-collapsed [data-collapsible-body] {
+                display: none !important;
+            }
+
+            .enterprise-card .enterprise-chevron {
+                transition: transform 180ms ease;
+            }
+
+            .enterprise-card[data-budget-history-collapsible][aria-expanded="true"] .enterprise-chevron {
+                transform: rotate(180deg);
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-gray-50 flex h-screen overflow-hidden font-sans">
@@ -30,18 +52,18 @@
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
             <div class="max-w-7xl mx-auto">
 
-                <div class="mb-8">
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ __('messages.Expenses') }}</h1>
+                <div class="mb-6 sm:mb-8">
+                    <h1 class="text-2xl sm:text-4xl font-bold text-gray-900 mb-2">{{ __('messages.Expenses') }}</h1>
                     <p class="text-gray-600">{{ __('messages.Expenses subtitle') }}</p>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
                     
                     <div class="lg:col-span-1 bg-white rounded-lg shadow-sm border border-gray-200">
-                        <div class="p-6 border-b border-gray-200">
+                        <div class="p-4 sm:p-6 border-b border-gray-200">
                             <h2 class="text-xl font-semibold text-gray-900">{{ __('messages.Current Budget') }}</h2>
                         </div>
-                        <div class="p-6 space-y-4">
+                        <div class="p-4 sm:p-6 space-y-4">
                             @if($latestBudget)
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Cashbox label') }}</label>
@@ -64,7 +86,7 @@
                     </div>
 
                     <div class="lg:col-span-2 space-y-8">
-                        <div x-data="datePicker()" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <div x-data="datePicker()" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
                             <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ __('messages.Export Report') }}</h3>
                             <div class="flex flex-col md:flex-row md:items-end gap-4">
                                 <div class="flex-1">
@@ -78,7 +100,7 @@
                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 </div>
                                 <a href="#" @click.prevent="updateHref" id="downloadLink"
-                                   class="flex-shrink-0 text-center px-4 py-2 h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                                   class="flex-shrink-0 text-center px-4 py-2 h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium w-full md:w-auto">
                                     {{ __('messages.Print PDF') }}
                                 </a>
                             </div>
@@ -91,7 +113,7 @@
                             elseif (Auth::user()->hasRole('Employee')) $addBudgetRoute = route('employee.entreprise.addBudget');
                             elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $addBudgetRoute = route('Responsable_gestionnaire.entreprise.addBudget');
                         @endphp
-                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
                             <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ __('messages.Add Budget to Cashbox') }}</h3>
                             <form action="{{ $addBudgetRoute }}" method="post" class="flex flex-col md:flex-row md:items-end gap-4">
                                 @csrf
@@ -102,7 +124,7 @@
                                            placeholder="{{ __('messages.Amount to add') }}">
                                 </div>
                                 <button type="submit"
-                                        class="flex-shrink-0 text-center px-4 py-2 h-10 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors text-sm font-medium">
+                                        class="flex-shrink-0 text-center px-4 py-2 h-10 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors text-sm font-medium w-full md:w-auto">
                                     {{ __('messages.Add') }}
                                 </button>
                             </form>
@@ -140,10 +162,10 @@
                 <form class="mb-8" method="POST" action="{{ $storeExpenseRoute }}" enctype="multipart/form-data" autocomplete="off">
                     @csrf
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-                        <div class="p-6 border-b border-gray-200">
+                        <div class="p-4 sm:p-6 border-b border-gray-200">
                             <h2 class="text-xl font-semibold text-gray-900">{{ __('messages.New Expense') }}</h2>
                         </div>
-                        <div class="p-6">
+                        <div class="p-4 sm:p-6">
                             @if(session('successNewDepense'))
                                 <div class="mb-4 bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-lg text-sm">
                                     {{ session('successNewDepense') }}
@@ -156,7 +178,7 @@
                             @endif
 
                             <div id="billings" class="space-y-4">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Expense description') }}</label>
                                         <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" placeholder="{{ __('messages.Expense name placeholder') }}" name="name[]" />
@@ -173,11 +195,11 @@
                             </button>
                         </div>
                         
-                        <div class="p-6 bg-gray-50 border-t border-gray-200 flex justify-end items-center gap-4">
-                            <a href="{{ $cancelRoute }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
+                        <div class="p-4 sm:p-6 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 sm:gap-4">
+                            <a href="{{ $cancelRoute }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium w-full sm:w-auto text-center">
                                 {{ __('messages.Cancel') }}
                             </a>
-                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium w-full sm:w-auto">
                                 {{ __('messages.Submit') }}
                             </button>
                         </div>
@@ -186,29 +208,40 @@
 
                 <div class="space-y-8">
                     @foreach($billings_budget as $billing)
-                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-                            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                        <div class="enterprise-card bg-white rounded-lg shadow-sm border border-gray-200"
+                             data-budget-history-collapsible
+                             aria-expanded="true">
+                            <div class="p-4 sm:p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
+                                 data-collapsible-header>
                                 <div>
                                     <h3 class="text-xl font-semibold text-gray-900">{{ __('messages.Budget label enterprise') }} {{$billing->budget}}€</h3>
                                     <p class="text-sm text-gray-500">{{ __('messages.Budget created at') }} {{$billing->created_at->format('d-m-Y')}}</p>
                                 </div>
-                                @php
-                                    $deleteBudgetRoute = '#';
-                                    if (Auth::user()->hasRole('Admin')) $deleteBudgetRoute = route('admin.billing.destroy', $billing->id);
-                                    elseif (Auth::user()->hasRole('Responsable de projet')) $deleteBudgetRoute = route('Responsable_de_projet.billing.destroy', $billing->id);
-                                    elseif (Auth::user()->hasRole('Employee')) $deleteBudgetRoute = route('employee.billing.destroy', $billing->id);
-                                    elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $deleteBudgetRoute = route('Responsable_gestionnaire.billing.destroy', $billing->id);
-                                @endphp
-                                <form method="post" action="{{ $deleteBudgetRoute }}" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs font-medium">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                    </button>
-                                </form>
+                                <div class="flex items-center gap-2 self-start sm:self-auto">
+                                    @php
+                                        $deleteBudgetRoute = '#';
+                                        if (Auth::user()->hasRole('Admin')) $deleteBudgetRoute = route('admin.billing.destroy', $billing->id);
+                                        elseif (Auth::user()->hasRole('Responsable de projet')) $deleteBudgetRoute = route('Responsable_de_projet.billing.destroy', $billing->id);
+                                        elseif (Auth::user()->hasRole('Employee')) $deleteBudgetRoute = route('employee.billing.destroy', $billing->id);
+                                        elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $deleteBudgetRoute = route('Responsable_gestionnaire.billing.destroy', $billing->id);
+                                    @endphp
+                                    <form method="post" action="{{ $deleteBudgetRoute }}" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs font-medium">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        </button>
+                                    </form>
+
+                                    <span class="shrink-0 text-slate-400 lg:hidden" aria-hidden="true">
+                                        <svg class="enterprise-chevron w-5 h-5" viewBox="0 0 24 24" fill="none">
+                                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </span>
+                                </div>
                             </div>
 
-                            <div class="divide-y divide-gray-200">
+                            <div class="divide-y divide-gray-200" data-collapsible-body>
                                 @php 
                                     $entrepriseCharges = App\Models\entrepriseCharges::where('entreprise_id', $entreprise->id)->where('Billings_budget_id', $billing->id)->orderBy('created_at')->get();
                                 @endphp
@@ -285,7 +318,8 @@
                                         </div>
                                     @endforeach
                                 @endif
-                            </div> </div>
+                            </div>
+                        </div>
                     @endforeach
                 </div>
             </div>
@@ -509,6 +543,53 @@
                 location.reload();
             });
         }
+
+        // Collapse cards on mobile/tablet (<= 1024px)
+        (function initEntrepriseExpensesCardAccordions() {
+            const mql = window.matchMedia('(max-width: 1024px)');
+
+            function setCollapsed(card, collapsed) {
+                if (!card) return;
+                card.classList.toggle('is-collapsed', !!collapsed);
+                card.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            }
+
+            function initForViewport() {
+                const isCompact = mql.matches;
+                const cards = Array.from(document.querySelectorAll('.enterprise-card[data-budget-history-collapsible]'));
+
+                for (const card of cards) {
+                    const header = card.querySelector('[data-collapsible-header]');
+                    const body = card.querySelector('[data-collapsible-body]');
+                    if (!header || !body) continue;
+
+                    if (!header.dataset.collapseBound) {
+                        header.dataset.collapseBound = '1';
+                        header.addEventListener('click', (e) => {
+                            const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+                            if (tag === 'a' || tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea' || tag === 'label') return;
+
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            const collapsed = card.classList.contains('is-collapsed');
+                            setCollapsed(card, !collapsed);
+                        });
+                    }
+
+                    setCollapsed(card, isCompact);
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initForViewport);
+            } else {
+                initForViewport();
+            }
+
+            if (mql.addEventListener) mql.addEventListener('change', initForViewport);
+            else if (mql.addListener) mql.addListener(initForViewport);
+        })();
     </script>
 </body>
 </html>

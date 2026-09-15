@@ -6,6 +6,33 @@
     <title>{{ __('messages.Project Details - DalyTrac') }}</title>
     @vite('resources/css/app.css')
     @livewireStyles
+    <style>
+        .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+        .modal-content { animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-content-custom {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .close-button {
+            color: #94a3b8;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-button:hover { color: #475569; }
+    </style>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script>
         // Register Alpine.js components BEFORE Alpine loads
@@ -149,6 +176,61 @@
                     const matches = durationString.match(/^(\d+)h:(\d{2})m$/);
                     if (!matches) return 0;
                     return (parseInt(matches[1]) * 60) + parseInt(matches[2]);
+                }
+            }));
+
+            Alpine.data('manualTimerModal', () => ({
+                show: false,
+                taskId: '',
+                employeeId: '',
+                startDate: '',
+                endDate: '',
+                open(detail) {
+                    this.taskId = detail.taskId || '';
+                    this.employeeId = detail.employeeId || '';
+                    this.startDate = '';
+                    this.endDate = '';
+                    this.show = true;
+                },
+                save() {
+                    if (!this.taskId || !this.employeeId || !this.startDate || !this.endDate) {
+                        alert('Please select an employee and both start and end dates.');
+                        return;
+                    }
+
+                    let url = '';
+                    @if(Auth::user()->hasRole('Admin')) url = '/admin/tasks/manual-timer'; @endif
+                    @if(Auth::user()->hasRole('Responsable de projet')) url = '/Responsable_de_projet/tasks/manual-timer'; @endif
+                    @if(Auth::user()->hasRole('Employee')) url = '/employee/tasks/manual-timer'; @endif
+                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) url = '/Responsable_gestionnaire/tasks/manual-timer'; @endif
+
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: {
+                            task_id: this.taskId,
+                            employee_id: this.employeeId,
+                            start_date: this.startDate,
+                            end_date: this.endDate,
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: (response) => {
+                            if (response.status === 'success') {
+                                location.reload();
+                            } else {
+                                alert(response.message || 'Failed to create timer.');
+                            }
+                        },
+                        error: (xhr) => {
+                            let msg = 'Failed to create timer.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            }
+                            alert(msg);
+                        }
+                    });
+
+                    this.show = false;
                 }
             }));
 
@@ -389,6 +471,161 @@
             vertical-align: top; /* Align content to the top */
         }
 
+        /* Mobile: Tasks table becomes stacked cards (no horizontal scroll) */
+        @media (max-width: 1024px) {
+            #taskTable thead {
+                display: none;
+            }
+            #taskTable tbody,
+            #taskTable tr,
+            #taskTable td {
+                width: 100%;
+            }
+            #taskTable tbody tr {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                margin-bottom: 16px;
+                border: 1px solid rgba(148, 163, 184, 0.55); /* slate-400/55 */
+                border-radius: 16px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%);
+                overflow: hidden;
+                box-shadow:
+                    0 18px 45px rgba(15, 23, 42, 0.10),
+                    0 3px 10px rgba(15, 23, 42, 0.08);
+                transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+                padding: 12px;
+            }
+            #taskTable tbody tr:hover {
+                transform: translateY(-1px);
+                border-color: rgba(59, 130, 246, 0.45); /* blue-500/45 */
+                box-shadow:
+                    0 22px 55px rgba(15, 23, 42, 0.12),
+                    0 4px 14px rgba(15, 23, 42, 0.10);
+            }
+            #taskTable tbody td {
+                display: block;
+                padding: 10px 10px;
+                border: 1px solid rgba(226, 232, 240, 0.9); /* slate-200 */
+                border-radius: 12px;
+                background: rgba(255,255,255,0.75);
+                text-align: left !important;
+                white-space: normal !important;
+            }
+            #taskTable tbody td[data-span="2"] {
+                grid-column: 1 / -1;
+            }
+            #taskTable tbody td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .04em;
+                text-transform: uppercase;
+                color: #64748b; /* slate-500 */
+                margin-bottom: 4px;
+            }
+            #taskTable tbody td[data-label] .task-actions {
+                justify-content: center !important;
+            }
+        }
+
+        /* Mobile: Invoices table becomes modern 2-column cards */
+        @media (max-width: 1024px) {
+            #invoicesTable thead {
+                display: none;
+            }
+            #invoicesTable tbody {
+                display: block;
+            }
+            #invoicesTable tbody tr {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                margin-bottom: 16px;
+                border: 1px solid rgba(148, 163, 184, 0.55);
+                border-radius: 16px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%);
+                overflow: hidden;
+                box-shadow: 0 18px 45px rgba(15, 23, 42, 0.10), 0 3px 10px rgba(15, 23, 42, 0.08);
+                padding: 12px;
+            }
+            #invoicesTable tbody td {
+                display: block;
+                width: 100%;
+                padding: 10px 10px;
+                border: 1px solid rgba(226, 232, 240, 0.9);
+                border-radius: 12px;
+                background: rgba(255,255,255,0.75);
+                text-align: left !important;
+                white-space: normal !important;
+            }
+            #invoicesTable tbody td[data-span="2"] {
+                grid-column: 1 / -1;
+            }
+            #invoicesTable tbody td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .04em;
+                text-transform: uppercase;
+                color: #64748b;
+                margin-bottom: 4px;
+            }
+            #invoicesTable tbody td[data-label] .invoice-actions {
+                justify-content: center !important;
+            }
+        }
+
+        /* Mobile: Devis table becomes modern 2-column cards */
+        @media (max-width: 1024px) {
+            #devisTable thead {
+                display: none;
+            }
+            #devisTable tbody {
+                display: block;
+            }
+            #devisTable tbody tr {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                margin-bottom: 16px;
+                border: 1px solid rgba(148, 163, 184, 0.55);
+                border-radius: 16px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%);
+                overflow: hidden;
+                box-shadow: 0 18px 45px rgba(15, 23, 42, 0.10), 0 3px 10px rgba(15, 23, 42, 0.08);
+                padding: 12px;
+            }
+            #devisTable tbody td {
+                display: block;
+                width: 100%;
+                padding: 10px 10px;
+                border: 1px solid rgba(226, 232, 240, 0.9);
+                border-radius: 12px;
+                background: rgba(255,255,255,0.75);
+                text-align: left !important;
+                white-space: normal !important;
+            }
+            #devisTable tbody td[data-span="2"] {
+                grid-column: 1 / -1;
+            }
+            #devisTable tbody td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .04em;
+                text-transform: uppercase;
+                color: #64748b;
+                margin-bottom: 4px;
+            }
+            #devisTable tbody td[data-label] .devis-actions {
+                justify-content: center !important;
+            }
+        }
+
         [x-cloak] { display: none !important; }
     </style>
 </head>
@@ -413,6 +650,15 @@
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#eaebef] p-4 sm:p-6 lg:p-8">
             {{-- [FIX] Using max-w-10xl for "larger" cards and space-y-6 for spacing --}}
             <div class="max-w-10xl mx-auto space-y-6"> 
+
+                {{-- Global alert message (e.g. when trying to edit a running task) --}}
+                @if(session('alertmessage'))
+                    <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                        <strong class="font-bold">{{ __('messages.Error!') }}</strong>
+                        <span class="block sm:inline">{{ session('alertmessage') }}</span>
+                        <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="{{ __('messages.Close') }}">&times;</button>
+                    </div>
+                @endif
                 
                 @php
                     // --- Project Header Logic ---
@@ -427,6 +673,8 @@
                     $progressPercentage = $estimatedMinutes > 0 ? ($totalduration / $estimatedMinutes) * 100 : 0;
                     $formattedProgressPercentage = number_format($progressPercentage, 2);
                     $projectTeams = \App\Models\project_teams::where('project_id', $project->id)->get();
+                    $totalBilled = \App\Models\invoices_history::where('project_id', $project->id)->where('Payment_status', '!=', -1)->sum('total_htva');
+                    $unbilledBudget = $project->budget - $totalBilled;
 
                     // --- Determine Route Prefixes Once ---
                     $taskRoutePrefix = 'admin.'; // Default
@@ -438,67 +686,89 @@
                 {{-- 1. Project Header Card --}}
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-                        <h1 class="text-2xl font-bold text-gray-900 mb-2 sm:mb-0">{{ $project->name }}</h1>
+                        <div class="flex items-center gap-2 mb-2 sm:mb-0">
+                            <h1 class="text-2xl font-bold text-gray-900">{{ $project->name }}</h1>
+                            @if(!empty($project->archived))
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                    Archived
+                                </span>
+                            @endif
+                        </div>
                         @can('Add task')
-                        <a href="{{ route($taskRoutePrefix . 'tasks.create', $project->id) }}"
-                            class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex-shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                            {{ __('messages.Add Task') }}
-                        </a>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a href="{{ route($taskRoutePrefix . 'tasks.create', $project->id) }}"
+                                class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                {{ __('messages.Add Task') }}
+                            </a>
+                            @if(Auth::user()->hasRole('Admin'))
+                                <a href="{{ route('admin.projects.time-transfer.export', $project) }}"
+                                    class="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex-shrink-0">
+                                    {{ __('messages.Export time transfer') }}
+                                </a>
+                                <a href="{{ route('admin.projects.time-transfer.import', $project) }}"
+                                    class="inline-flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex-shrink-0">
+                                    {{ __('messages.Import time transfer') }}
+                                </a>
+                            @endif
+                        </div>
                         @endcan
                     </div>
 
                     <div class="border-t border-gray-200 pt-4">
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-x-6 gap-y-4">
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">{{ __('messages.Budget') }}</p>
-                                <p class="text-lg font-semibold text-gray-900 editable" data-id="{{$project->id}}" data-column="budget">€{{ number_format($project->budget, 2, ',', ' ') }}</p>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-3 sm:gap-4">
+                            <div class="rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 px-3 py-3 shadow-sm">
+                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{{ __('messages.Budget') }}</p>
+                                <p class="mt-1 text-base font-extrabold text-slate-900 editable" data-id="{{$project->id}}" data-column="budget">€{{ number_format($project->budget, 2, ',', ' ') }}</p>
                             </div>
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">{{ __('messages.Unbilled') }}</p>
-                                @php
-                                    $totalBilled = \App\Models\invoices_history::where('project_id', $project->id)->where('Payment_status', '!=', -1)->sum('total_htva');
-                                    $unbilledBudget = $project->budget - $totalBilled;
-                                @endphp
-                                <p class="text-lg font-semibold text-gray-900">€{{ number_format(max($unbilledBudget, 0), 2, ',', ' ') }}</p>
+                            <div class="rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 px-3 py-3 shadow-sm">
+                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{{ __('messages.Total invoiced') }}</p>
+                                <p class="mt-1 text-base font-extrabold text-emerald-700">€{{ number_format($totalBilled, 2, ',', ' ') }}</p>
                             </div>
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">{{ __('messages.Cost/Hour label') }}</p>
-                                <p class="text-lg font-semibold text-gray-900 editable" data-id="{{$project->id}}" data-column="cost_per_hour">€{{ number_format($project->cost_per_hour, 2, ',', ' ') }}</p>
+                            <div class="rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 px-3 py-3 shadow-sm">
+                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{{ __('messages.Unbilled') }}</p>
+                                <p class="mt-1 text-base font-extrabold text-slate-900">€{{ number_format(max($unbilledBudget, 0), 2, ',', ' ') }}</p>
                             </div>
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">{{ __('messages.Duration') }}</p>
-                                <p class="text-lg font-semibold text-gray-900">{{ $hours }}h:{{ $minutes }}m</p>
+                            <div class="rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 px-3 py-3 shadow-sm">
+                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{{ __('messages.Cost/Hour label') }}</p>
+                                <p class="mt-1 text-base font-extrabold text-slate-900 editable" data-id="{{$project->id}}" data-column="cost_per_hour">€{{ number_format($project->cost_per_hour, 2, ',', ' ') }}</p>
                             </div>
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">{{ __('messages.Est. Hours header') }}</p>
-                                <p class="text-lg font-semibold text-gray-900 editable" data-id="{{$project->id}}" data-column="estimated_hours">{{ $project->estimated_hours }}h</p>
+                            <div class="rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 px-3 py-3 shadow-sm">
+                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{{ __('messages.Duration') }}</p>
+                                <p class="mt-1 text-base font-extrabold text-slate-900">{{ $hours }}h:{{ $minutes }}m</p>
                             </div>
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">{{ __('messages.Difference') }}</p>
-                                <p class="text-lg font-semibold">
+                            <div class="rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 px-3 py-3 shadow-sm">
+                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{{ __('messages.Est. Hours header') }}</p>
+                                <p class="mt-1 text-base font-extrabold text-slate-900 editable" data-id="{{$project->id}}" data-column="estimated_hours">{{ $project->estimated_hours }}h</p>
+                            </div>
+                            <div class="rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 px-3 py-3 shadow-sm">
+                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{{ __('messages.Difference') }}</p>
+                                <p class="mt-1 text-base font-extrabold">
                                     @if($difference > 0)
-                                        <span class="text-green-600">+{{ $diffhours }}h:{{ $diffminutes }}m</span>
+                                        <span class="text-emerald-600">+{{ $diffhours }}h:{{ $diffminutes }}m</span>
                                     @elseif($difference < 0)
                                         <span class="text-red-600">-{{ $diffhours }}h:{{ $diffminutes }}m</span>
                                     @else
-                                        <span class="text-gray-600">{{ $diffhours }}h:{{ $diffminutes }}m</span>
+                                        <span class="text-slate-600">{{ $diffhours }}h:{{ $diffminutes }}m</span>
                                     @endif
                                 </p>
                             </div>
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">{{ __('messages.VAT') }}</p>
-                                <p class="text-lg font-semibold text-gray-900 editable" data-id="{{$project->id}}" data-column="tva">{{ $project->tva }}%</p>
+                            <div class="rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 px-3 py-3 shadow-sm">
+                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{{ __('messages.VAT') }}</p>
+                                <p class="mt-1 text-base font-extrabold text-slate-900 editable" data-id="{{$project->id}}" data-column="tva">{{ $project->tva }}%</p>
                             </div>
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">{{ __('messages.Client') }}</p>
-                                <p class="text-lg font-semibold text-gray-900">{{ $project->client->name ?? '-' }}</p>
+                            <div class="rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 px-3 py-3 shadow-sm">
+                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{{ __('messages.Client') }}</p>
+                                <p class="mt-1 truncate text-base font-extrabold text-slate-900">{{ $project->client->name ?? '-' }}</p>
                             </div>
-                            <div class="col-span-2 sm:col-span-1 lg:col-span-1">
-                                <p class="text-sm text-gray-500 mb-1">{{ __('messages.Progress') }}</p>
-                                <p class="text-lg font-semibold text-gray-900">{{ $formattedProgressPercentage }}%</p>
-                                <div class="mt-1 w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                                    <div class="h-full rounded-full @if($progressPercentage < 50) bg-green-500 @elseif($progressPercentage < 75) bg-yellow-500 @else bg-red-500 @endif" 
+                            <div class="col-span-2 sm:col-span-1 lg:col-span-1 rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 px-3 py-3 shadow-sm">
+                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{{ __('messages.Progress') }}</p>
+                                <div class="mt-1 flex items-center justify-between gap-2">
+                                    <p class="text-base font-extrabold text-slate-900">{{ $formattedProgressPercentage }}%</p>
+                                    <span class="text-[11px] font-semibold text-slate-500">{{ __('messages.Progress') }}</span>
+                                </div>
+                                <div class="mt-2 w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                                    <div class="h-full rounded-full @if($progressPercentage < 50) bg-emerald-500 @elseif($progressPercentage < 75) bg-yellow-500 @else bg-red-500 @endif"
                                          style="width: {{ min($formattedProgressPercentage, 100) }}%">
                                     </div>
                                 </div>
@@ -506,11 +776,36 @@
                         </div>
                     </div>
                     @if(Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Responsable de projet'))
-                        <div class="pt-4 mt-4 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-end sm:space-x-3 space-y-2 sm:space-y-0">
+                        <div class="pt-4 mt-4 border-t border-gray-200">
+                            <div class="flex flex-wrap items-center justify-center gap-2 sm:flex-nowrap sm:justify-end">
                             @can('Update project')
                                 <a href="{{ route(Auth::user()->hasRole('Admin') ? 'admin.projects.edit' : 'Responsable_de_projet.projects.edit', $project->id) }}" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">
-                                    {{ __('messages.Edit Project') }}
+                                    {{ __('messages.Edit') }}
                                 </a>
+                            @endcan
+
+                            @can('Delete project')
+                                @php
+                                    $archiveRoute = route($taskRoutePrefix . 'projects.archive', $project->id);
+                                    $deleteRoute = route($taskRoutePrefix . 'projects.destroy', $project->id);
+                                @endphp
+
+                                <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Archive this project?') }}');" class="inline">
+                                    @csrf
+                                    <button type="submit"
+                                            class="inline-flex justify-center bg-gray-600 hover:bg-gray-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">
+                                        {{ __('messages.Archive') }}
+                                    </button>
+                                </form>
+
+                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure you want to delete this project?') }}');" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                            class="inline-flex justify-center bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">
+                                        {{ __('messages.Delete') }}
+                                    </button>
+                                </form>
                             @endcan
 
                             @can('Add project')
@@ -520,12 +815,13 @@
                                         : 'Responsable_de_projet.projects.create';
                                 @endphp
                                 <a href="{{ route($createRouteName, ['client_id' => $project->client_id, 'parent_id' => $project->id]) }}"
-                                   class="inline-flex justify-center bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">
+                                   class="inline-flex justify-center bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm w-full sm:w-auto">
                                     {{ __('messages.Create SubProject') }}
                                 </a>
                             @endcan
                         </div>
                     @endif
+                </div>
                 </div>
 
                 @if(isset($subprojects) && $subprojects->count() > 0)
@@ -551,6 +847,7 @@
                             </div>
                         </div>
                     </div>
+                    
 
                     {{-- Subprojects List --}}
                     <div class="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -608,32 +905,42 @@
                     $activeTimers = $allTaskTimers->where('employee_id', $current_employee_id)->whereNull('end_date')->keyBy('task_id');
                 @endphp
                 {{-- Card still has overflow-hidden, which is fine as it has no dropdowns --}}
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="p-6 border-b border-gray-200 flex justify-between items-center">
-                        <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Tasks header') }}</h2>
+                <div class="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-4 sm:p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                        <div class="flex items-center justify-between gap-3 w-full">
+                            <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Tasks header') }}</h2>
+                            <button type="button" class="section-toggle inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"
+                                    data-target="projectTasksBody" aria-expanded="false">
+                                <span class="hidden lg:inline">{{ __('messages.Show') ?? 'Show' }}</span>
+                                <svg class="section-chevron w-5 h-5 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6" />
+                                </svg>
+                            </button>
+                        </div>
                         <div class="relative">
                             <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18.5a7.5 7.5 0 006.15-3.85z"/></svg>
                             <input type="text" id="taskSearchInput" placeholder="{{ __('messages.Search tasks...') }}" class="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                         </div>
                     </div>
-                    
-                    {{-- [FIX] Removed overflow-x-auto, table-fixed, and all inline widths --}}
-                    <div>
-                        <table class="w-full text-left border-collapse" id="taskTable">
+
+                    <div id="projectTasksBody" class="hidden">
+                    <div class="overflow-x-visible" style="-webkit-overflow-scrolling: touch;">
+                        <table class="w-full text-left border-collapse table-auto" id="taskTable">
                             <thead class="border-b border-gray-200 bg-gray-50">
                                 <tr>
                                     {{-- Removed all style="width: ...%" attributes --}}
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center">{{ __('messages.Task column') }}</th>
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center">{{ __('messages.Description column') }}</th>
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center">{{ __('messages.Employees column') }}</th>
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center">{{ __('messages.Duration') }}</th>
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center">{{ __('messages.Total column') }}</th>
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center">{{ __('messages.Estimated column') }}</th>
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center">{{ __('messages.Difference column') }}</th>
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center">{{ __('messages.Progress column') }}</th>
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center">{{ __('messages.Teams column') }}</th>
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center">{{ __('messages.Pointage') }}</th>
-                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider text-center">{{ __('messages.Action column') }}</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Task column') }}</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Description column') }}</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Employees column') }}</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Duration') }}</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Total column') }}</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Estimated column') }}</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Difference column') }}</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.End Date') }}</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Progress column') }}</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Teams column') }}</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Pointage') }}</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Action column') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
@@ -641,8 +948,9 @@
                                 @php
                                     $taskEmployees = $allTaskEmployees->get($task->id, collect());
                                     $employeeIds = $taskEmployees->pluck('employee_id');
-                                    $employees = $allEmployeeDetails->whereIn('id', $employeeIds);
+                                    $taskEmployeeDetails = $allEmployeeDetails->whereIn('id', $employeeIds); 
                                     $taskTotalDuration = $allTaskTimers->where('task_id', $task->id)->sum('duration');
+                                    $taskEndDate = $allTaskTimers->where('task_id', $task->id)->max('end_date');
                                     $taskHours = floor($taskTotalDuration / 60);     
                                     $taskMinutes = $taskTotalDuration % 60;
                                     $estimatedMinutes = max(0, (($task->estimated_hours ?? 0) - ($task->consumed_hours ?? 0)) * 60);
@@ -656,19 +964,19 @@
                                     $employee_task = $taskEmployees->where('employee_id', $current_employee_id)->first();
                                 @endphp
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">
+                                    <td data-label="{{ __('messages.Task column') }}" data-span="2" class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">
                                         <a href="{{ route('admin.tasks.show', $task->id) }}" class="text-blue-600 hover:underline font-semibold">
                                             {{ $task->title }}
                                         </a>
                                     </td>
-                                    <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate whitespace-normal break-words">{{ $task->description }}</td>
-                                    <td class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">
-                                        @foreach($employees as $employee)
+                                    <td data-label="{{ __('messages.Description column') }}" data-span="2" class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate whitespace-normal break-words">{{ $task->description }}</td>
+                                    <td data-label="{{ __('messages.Employees column') }}" class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">
+                                        @foreach($taskEmployeeDetails as $employee)
                                             <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mb-1">{{ $employee->name }}</span><br>
                                         @endforeach
                                     </td>
-                                    <td class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">
-                                        @foreach($employees as $employee)
+                                    <td data-label="{{ __('messages.Duration') }}" class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">
+                                        @foreach($taskEmployeeDetails as $employee)
                                             @php
                                                 $duration = $allTaskTimers->where('task_id', $task->id)->where('employee_id', $employee->id)->sum('duration');
                                                 $h = floor($duration / 60);
@@ -679,9 +987,9 @@
                                             </a><br>
                                         @endforeach
                                     </td>
-                                    <td class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">{{ $taskHours }}h:{{ $taskMinutes }}m</td>
-                                    <td class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">{{ $task->estimated_hours }}h</td>
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                    <td data-label="{{ __('messages.Total column') }}" class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">{{ $taskHours }}h:{{ $taskMinutes }}m</td>
+                                    <td data-label="{{ __('messages.Estimated column') }}" class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">{{ $task->estimated_hours }}h</td>
+                                    <td data-label="{{ __('messages.Difference column') }}" class="px-4 py-3 text-sm whitespace-nowrap">
                                         @if($taskDifference > 0)
                                             <span class="text-green-600">+{{ $diffHours }}h:{{ $diffMinutes }}m</span>
                                         @elseif($taskDifference < 0)
@@ -690,18 +998,25 @@
                                             <span class="text-gray-600">0h:0m</span>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-3">
+                                    <td data-label="{{ __('messages.End Date') }}" class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
+                                        @if($taskEndDate)
+                                            {{ \Carbon\Carbon::parse($taskEndDate)->format('d-m-Y H:i') }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td data-label="{{ __('messages.Progress column') }}" class="px-4 py-3">
                                         <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
                                             <div class="h-full rounded-full @if($taskProgress < 50) bg-green-500 @elseif($taskProgress < 75) bg-yellow-500 @else bg-red-500 @endif" style="width: {{ min($taskProgressFormatted, 100) }}%"></div>
                                         </div>
                                         <span class="text-xs text-gray-700 mt-1">{{ $taskProgressFormatted }}%</span>
                                     </td>
-                                    <td class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">
+                                    <td data-label="{{ __('messages.Teams column') }}" class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">
                                         @foreach($teamTasks as $teamTask)
                                             {{ $allTeamDetails->get($teamTask->team_id)?->name }}<br>
                                         @endforeach
                                     </td>
-                                    <td class="px-4 py-3 text-sm text-gray-900">
+                                    <td data-label="{{ __('messages.Pointage') }}" data-span="2" class="px-4 py-3 text-sm text-gray-900">
                                         @if($employee_task)
                                             @if(!$task_timer)
                                                 <form class="flex flex-col gap-2" action="{{ route($taskRoutePrefix . 'tasks.start', ['tasks' => $employee_task->id, 'employee_id' => $current_employee_id]) }}" method="POST">
@@ -711,22 +1026,41 @@
                                                     <button class="px-3 py-1.5 text-xs font-medium text-white bg-green-600 rounded-lg hover:bg-green-700" type="submit">{{ __('messages.Start') }}</button>
                                                 </form>
                                             @else
-                                                <form class="mt-2" action="{{ route($taskRoutePrefix . 'tasks.stop', ['tasks' => $employee_task->id, 'employee_id' => $current_employee_id]) }}" method="POST">
+                                                <form class="mt-2 stop-form" action="{{ route($taskRoutePrefix . 'tasks.stop', ['tasks' => $employee_task->id, 'employee_id' => $current_employee_id]) }}" method="POST">
                                                     @csrf
-                                                    <button class="px-3 py-1.5 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700" type="submit">{{ __('messages.Stop') }}</button>
+                                                    <input type="hidden" name="stop_comment" class="stop-comment-field">
+                                                    <button class="stop-button px-3 py-1.5 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700" type="submit" data-task-id="{{ $task->id }}">{{ __('messages.Stop') }}</button>
                                                 </form>
                                             @endif
                                         @endif
                                     </td>
-                                    <td class="px-4 py-3">
-                                        <div class="flex items-center justify-center gap-3">
+                                    <td data-label="{{ __('messages.Action column') }}" data-span="2" class="px-4 py-3">
+                                        <div class="task-actions flex items-center justify-center gap-3">
                                             @can('Update task')
-                                            <a href="{{ route($taskRoutePrefix . 'tasks.edit', $task->id) }}" class="p-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700" title="{{ __('messages.Edit Task') }}">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                                            </a>
-                                            <button type="button" class="p-1.5 rounded-md bg-purple-600 text-white hover:bg-purple-700" title="{{ __('messages.Move Task') }}" @click="$dispatch('open-move-task-modal', { taskId: {{ $task->id }}, currentProjectId: {{ $project->id }} })">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
-                                            </button>
+                                                <a href="{{ route($taskRoutePrefix . 'tasks.edit', $task->id) }}" class="p-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700" title="{{ __('messages.Edit Task') }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                    </svg>
+                                                </a>
+                                            @endcan
+
+                                            @can('Add manual timer')
+                                                <button type="button"
+                                                        class="p-1.5 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 flex items-center justify-center"
+                                                        title="{{ __('messages.Add Manual Time') }}"
+                                                        @click="$dispatch('open-manual-timer-modal', { taskId: {{ $task->id }}, employeeId: {{ $current_employee_id ?? 'null' }} })">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M12 6a6 6 0 016 6 6 6 0 11-6-6z" />
+                                                    </svg>
+                                                </button>
+                                            @endcan
+
+                                            @can('Update task')
+                                                <button type="button" class="p-1.5 rounded-md bg-purple-600 text-white hover:bg-purple-700" title="{{ __('messages.Move Task') }}" @click="$dispatch('open-move-task-modal', { taskId: {{ $task->id }}, currentProjectId: {{ $project->id }} })">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                                    </svg>
+                                                </button>
                                             @endcan
                                             @can('Delete task')
                                             <form method="post" action="{{ route($taskRoutePrefix . 'tasks.destroy', $task->id) }}" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
@@ -748,15 +1082,25 @@
                             </tbody>
                         </table>
                     </div>
+                    </div>
                 </div>
 
                 {{-- 3. Invoices Table --}}
-                @can('view invoices')
+                @can('View invoices')
                 @if($invoices !== null)
                 {{-- [FIX] Removed overflow-hidden from card to prevent dropdown clipping --}}
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-                    <div class="p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center">
-                        <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Invoices header') }}</h2>
+                    <div class="p-4 sm:p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <div class="flex items-center justify-between gap-3 w-full">
+                            <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Invoices header') }}</h2>
+                            <button type="button" class="section-toggle inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"
+                                    data-target="projectInvoicesBody" aria-expanded="false">
+                                <span class="hidden lg:inline">{{ __('messages.Show') ?? 'Show' }}</span>
+                                <svg class="section-chevron w-5 h-5 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6" />
+                                </svg>
+                            </button>
+                        </div>
                         @php
                             $totalPaid = App\Models\invoices_history::where('entreprise_id', Auth::user()->entreprise_id)->where('project_id',$project->id)->where('Payment_status', 1)->sum('total_ttc');
                             $totalUnpaid = App\Models\invoices_history::where('entreprise_id', Auth::user()->entreprise_id)->where('project_id',$project->id)
@@ -771,8 +1115,8 @@
                             <span>{{ __('messages.Total TVA') }}: <strong class="text-gray-800">€{{ number_format($totaltva, 2, ',', ' ') }}</strong></span>
                         </div>
                     </div>
-                    {{-- [FIX] Removed table-responsive wrapper. Table will squish. --}}
-                    <div>
+                    <div id="projectInvoicesBody" class="hidden">
+                    <div class="overflow-x-visible" style="-webkit-overflow-scrolling: touch;">
                         <table class="w-full table" id="invoicesTable">
                             <thead class="bg-gray-50">
                                 <tr>
@@ -781,14 +1125,16 @@
                                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Client') }}</th>
                                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Type') }}</th>
                                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Created At') }}</th>
-                                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Cost Total') }}</th>
+                                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Cost HT') ?? 'Cost HT' }}</th>
+                                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Cost TVA') ?? 'Cost TVA' }}</th>
+                                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Cost TTC') ?? 'Cost TTC' }}</th>
                                     <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 @forelse($invoices as $invoice)
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 text-sm font-medium whitespace-nowrap">
+                                    <td data-label="{{ __('messages.Invoice N') }}" data-span="2" class="px-4 py-3 text-sm font-medium whitespace-nowrap">
                                         @php $pdfRoute = '#'; @endphp
                                         @if(Auth::user()->hasRole('Responsable de projet')) @php $pdfRoute = route('Responsable_de_projet.invoices.servePdf', ['invoiceName' => $invoice->id]); @endphp @endif
                                         @if(Auth::user()->hasRole('Admin')) @php $pdfRoute = route('admin.invoices.servePdf', ['invoiceName' => $invoice->id]); @endphp @endif
@@ -799,16 +1145,30 @@
                                             {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
                                         </a>
                                     </td>
-                                    <td class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
+                                    <td data-label="{{ __('messages.VAT') }}" class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
                                         @php $project = App\Models\Project::find($invoice->project_id); @endphp
                                         {{$project->tva ?? 'N/A'}}%
                                     </td>
-                                    <td class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">{{ $invoice->client_name }}</td>
-                                    <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{{ $invoice->type }}</td>
-                                    <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{{ $invoice->created_at->format('Y-m-d') }}</td>
-                                    <td class="py-4 px-4 text-sm font-semibold text-gray-900 text-right">€{{ number_format($invoice->total_ttc, 2, ',', ' ') }}</td>
-                                    <td class="px-7 py-3">
-                                        <div class="flex flex-row items-center gap-2">
+                                    <td data-label="{{ __('messages.Client') }}" class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">{{ $invoice->client_name }}</td>
+                                    <td data-label="{{ __('messages.Type') }}" class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
+                                        @if(($invoice->type ?? '') === 'Percentage')
+                                            {{ $invoice->type }} ({{ (float)($invoice->percentage ?? 0) }}%)
+                                        @else
+                                            {{ $invoice->type }}
+                                        @endif
+                                    </td>
+                                    <td data-label="{{ __('messages.Created At') }}" class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{{ $invoice->created_at->format('Y-m-d') }}</td>
+                                    <td data-label="{{ __('messages.Cost HT') ?? 'Cost HT' }}" class="py-4 px-4 text-sm font-semibold text-gray-900 text-right">
+                                        €{{ number_format((float)($invoice->total_htva ?? 0), 2, ',', ' ') }}
+                                    </td>
+                                    <td data-label="{{ __('messages.Cost TVA') ?? 'Cost TVA' }}" class="py-4 px-4 text-sm font-semibold text-gray-900 text-right">
+                                        €{{ number_format((float)($invoice->total_tva ?? 0), 2, ',', ' ') }}
+                                    </td>
+                                    <td data-label="{{ __('messages.Cost TTC') ?? 'Cost TTC' }}" class="py-4 px-4 text-sm font-semibold text-gray-900 text-right">
+                                        €{{ number_format((float)($invoice->total_ttc ?? 0), 2, ',', ' ') }}
+                                    </td>
+                                    <td data-label="{{ __('messages.Actions') }}" data-span="2" class="px-7 py-3">
+                                        <div class="invoice-actions flex flex-row items-center justify-center gap-2">
                                             @php
                                                 $isPaid = $invoice->Payment_status == 1;
                                                 $toggleRoute = '#';
@@ -817,23 +1177,23 @@
                                                 elseif(Auth::user()->hasRole('Employee')) $toggleRoute = $isPaid ? route('employee.invoice.deactivate', $invoice->id) : route('employee.invoice.activate', $invoice->id);
                                                 elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $toggleRoute = $isPaid ? route('Responsable_gestionnaire.invoice.deactivate', $invoice->id) : route('Responsable_gestionnaire.invoice.activate', $invoice->id);
                                             @endphp
-                                            <form action="{{ $toggleRoute }}" method="post" onsubmit="return confirm('Change payment status?');" class="w-full">
+                                            <form action="{{ $toggleRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Change payment status?') }}');" class="w-full">
                                                 @csrf
-                                                <button type="submit" title="{{ $isPaid ? 'Mark as Unpaid' : 'Mark as Paid' }}"
+                                                <button type="submit" title="{{ $isPaid ? __('messages.Mark as Unpaid') : __('messages.Mark as Paid') }}"
                                                         class="payment-button w-full px-2 py-1 rounded-md text-xs font-medium {{ $isPaid ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-red-600 hover:bg-red-700 text-white' }} whitespace-nowrap">
-                                                    {{ $isPaid ? 'Paid' : 'Unpaid' }}
+                                                    {{ $isPaid ? __('messages.Paid') : __('messages.Unpaid') }}
                                                 </button>
                                             </form>
                                             
-                                            <button type="button" title="{{ $invoice->sentInvoice == 0 ? 'Send Invoice' : 'Resend Invoice' }}"
+                                            <button type="button" title="{{ $invoice->sentInvoice == 0 ? __('messages.Send Invoice') : __('messages.Resend Invoice') }}"
                                                     class="w-full px-2 py-1 rounded-md bg-gray-600 text-white hover:bg-gray-700 text-xs font-medium whitespace-nowrap"
                                                     @click="$dispatch('open-send-invoice-modal', { invoiceId: {{ $invoice->id }} })">
-                                                Send
+                                                {{ __('messages.Send') }}
                                             </button>
                                             
                                             <div x-data="{ open: false }" class="relative w-full">
-                                                <button @click="open = !open" type="button" title="Create Credit Note" class="w-full px-2 py-1 rounded-md bg-purple-600 text-white hover:bg-purple-700 text-xs font-medium whitespace-nowrap">
-                                                    Credit Note
+                                                <button @click="open = !open" type="button" title="{{ __('messages.Create Credit Note') }}" class="w-full px-2 py-1 rounded-md bg-purple-600 text-white hover:bg-purple-700 text-xs font-medium whitespace-nowrap">
+                                                    {{ __('messages.Credit Note') }}
                                                 </button>
                                                 <ul x-show="open" @click.outside="open = false" x-transition style="display: none;"
                                                     class="absolute right-0 bottom-full mb-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
@@ -846,11 +1206,11 @@
                                                     @endphp
                                                     
                                                     @if($invoice->type == 'Detailed' && $detailedCreditNoteRoute)
-                                                        <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" @click.prevent="$dispatch('open-partial-credit-modal', { invoiceId: {{ $invoice->id }}, totalCost: {{ $invoice->total_ttc }} }); open = false;">Partial</a></li>
-                                                        <li><a href="{{ route($detailedCreditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Full</a></li>
+                                                        <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" @click.prevent="$dispatch('open-partial-credit-modal', { invoiceId: {{ $invoice->id }}, totalCost: {{ $invoice->total_ttc }} }); open = false;">{{ __('messages.Partial') }}</a></li>
+                                                        <li><a href="{{ route($detailedCreditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('messages.Full') }}</a></li>
                                                     @elseif($creditNoteRoute)
-                                                        <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" @click.prevent="$dispatch('open-partial-credit-modal', { invoiceId: {{ $invoice->id }}, totalCost: {{ $invoice->total_ttc }} }); open = false;">Partial</a></li>
-                                                        <li><a href="{{ route($creditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Full</a></li>
+                                                        <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" @click.prevent="$dispatch('open-partial-credit-modal', { invoiceId: {{ $invoice->id }}, totalCost: {{ $invoice->total_ttc }} }); open = false;">{{ __('messages.Partial') }}</a></li>
+                                                        <li><a href="{{ route($creditNoteRoute, $invoice->id) }}?type=full" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('messages.Full') }}</a></li>
                                                     @endif
                                                 </ul>
                                             </div>
@@ -859,11 +1219,12 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="7" class="py-8 text-center text-gray-500">No invoices found</td>
+                                    <td colspan="9" class="py-8 text-center text-gray-500">{{ __('messages.No invoices found') }}</td>
                                 </tr>
                                 @endforelse
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
                 @endif
@@ -882,40 +1243,57 @@
                     $devisClientIds = $devis->pluck('client_id')->filter();
                     $devisClients = \App\Models\Client::whereIn('id', $devisClientIds)->get()->keyBy('id');
                     $devisIds = $devis->pluck('id');
-                    $devisInvoicesTotal = \App\Models\invoices_history::whereIn('devis_id', $devisIds)->where('Payment_status', '!=', -1)->select('devis_id', \DB::raw('SUM(total_htva) as total'))->groupBy('devis_id')->get()->keyBy('devis_id');
+                    $devisInvoicesTotal = \App\Models\invoices_history::where('project_id', $project->id)
+                        ->whereIn('devis_id', $devisIds)
+                        ->where('Payment_status', '!=', -1)
+                        ->select('devis_id', \DB::raw('SUM(total_htva) as total'))
+                        ->groupBy('devis_id')
+                        ->get()
+                        ->keyBy('devis_id');
+                    $singleDevisOnProject = $devis->count() === 1;
                 @endphp
                 {{-- [FIX] Removed overflow-hidden from card to prevent dropdown clipping --}}
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-                    <div class="p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center">
-                        <h2 class="text-lg font-semibold text-gray-900">Devis</h2>
+                    <div class="p-4 sm:p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <div class="flex items-center justify-between gap-3 w-full">
+                            <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Devis') }}</h2>
+                            <button type="button" class="section-toggle inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"
+                                    data-target="projectDevisBody" aria-expanded="false">
+                                <span class="hidden lg:inline">{{ __('messages.Show') ?? 'Show' }}</span>
+                                <svg class="section-chevron w-5 h-5 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6" />
+                                </svg>
+                            </button>
+                        </div>
                         <div class="text-right mt-2 sm:mt-0">
-                            <span class="text-sm font-medium text-gray-700">Total Accepted: </span>
+                            <span class="text-sm font-medium text-gray-700">{{ __('messages.TOTAL ACCEPTED') }}: </span>
                             <strong class="text-green-600">€{{ number_format($Total_Accpeted, 2, ',', ' ') }}</strong>
                         </div>
                     </div>
-                    {{-- [FIX] Removed table-responsive wrapper. Table will squish. --}}
-                    <div>
-                        <table class="w-full table">
+                    <div id="projectDevisBody" class="hidden">
+                    <div class="overflow-x-visible" style="-webkit-overflow-scrolling: touch;">
+                        <table class="w-full table" id="devisTable">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Devis N</th>
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Client / Emails</th>
-                                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">Budget</th>
-                                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">Unbilled</th>
-                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">Created at</th>
-                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">Status</th>
-                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">Actions</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.devis N') }}</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Client Name / Emails') }}</th>
+                                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Budget label devis') }}</th>
+                                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Billed Budget') ?? 'Budget Facturé' }}</th>
+                                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Unbilled Budget') }}</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Created at') }}</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Acceptance') }}</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 @forelse($devis as $d)
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 text-sm font-semibold whitespace-nowrap">
+                                    <td data-label="{{ __('messages.devis N') }}" data-span="2" class="px-4 py-3 text-sm font-semibold whitespace-nowrap">
                                         <a href="{{ route($devisRoutePrefix . 'devis.downloadDevis', $d->devis_number) }}" class="text-blue-600 hover:text-blue-800">
                                             {{$entreprise_infos->devis_prefix}}-{{$d->devis_number}}
                                         </a>
                                     </td>
-                                    <td class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">
+                                    <td data-label="{{ __('messages.Client Name / Emails') }}" data-span="2" class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">
                                         @php $client = $devisClients->get($d->client_id); @endphp
                                         @if (!$client)
                                             @foreach (explode(',', $d->emails) as $email)
@@ -925,27 +1303,32 @@
                                             {{$client->name}}
                                         @endif
                                     </td>
-                                    <td class="py-4 px-4 text-sm font-medium text-gray-900 text-right">€{{ number_format($d->budget, 2, ',', ' ') }}</td>
-                                    <td class="py-4 px-4 text-sm font-medium text-gray-900 text-right">
-                                        @php
-                                            $totalBilled = $devisInvoicesTotal->get($d->id)?->total ?? 0;
-                                            $unbilledBudget = ($d->budget ?? 0) - $totalBilled;
-                                        @endphp
+                                    <td data-label="{{ __('messages.Budget label devis') }}" class="py-4 px-4 text-sm font-medium text-gray-900 text-right">€{{ number_format($d->budget, 2, ',', ' ') }}</td>
+                                    @php
+                                        $totalBilledForDevis = $singleDevisOnProject
+                                            ? $totalBilled
+                                            : (float) ($devisInvoicesTotal->get($d->id)?->total ?? 0);
+                                        $unbilledBudget = ($d->budget ?? 0) - $totalBilledForDevis;
+                                    @endphp
+                                    <td data-label="{{ __('messages.Billed Budget') ?? 'Budget Facturé' }}" class="py-4 px-4 text-sm font-medium text-gray-900 text-right">
+                                        €{{ number_format($totalBilledForDevis, 2, ',', ' ') }}
+                                    </td>
+                                    <td data-label="{{ __('messages.Unbilled Budget') }}" class="py-4 px-4 text-sm font-medium text-gray-900 text-right">
                                         €{{ number_format(max($unbilledBudget, 0), 2, ',', ' ') }}
                                     </td>
-                                    <td class="py-4 px-4 text-sm text-gray-700 text-center whitespace-nowrap">{{$d->created_at->format('Y-m-d')}}</td>
-                                    <td class="py-4 px-4 text-center whitespace-nowrap">
+                                    <td data-label="{{ __('messages.Created at') }}" class="py-4 px-4 text-sm text-gray-700 text-center whitespace-nowrap">{{$d->created_at->format('Y-m-d')}}</td>
+                                    <td data-label="{{ __('messages.Acceptance') }}" class="py-4 px-4 text-center whitespace-nowrap">
                                         @if($d->acceptanceStatus == 1)
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Accepted</span>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">{{ __('messages.Accepted') }}</span>
                                         @elseif($d->acceptanceStatus == 2)
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">Declined</span>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">{{ __('messages.Declined') }}</span>
                                         @else
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">{{ __('messages.Pending') }}</span>
                                         @endif
                                     </td>
-                                    <td class="py-4 px-4">
-                                        <div class="flex items-center justify-center gap-3">
-                                            <a href="{{ route($devisRoutePrefix . 'devis.downloadDevis', $d->devis_number) }}" class="p-1 text-blue-600 hover:text-blue-800 rounded-md hover:bg-gray-100" title="Download">
+                                    <td data-label="{{ __('messages.Actions') }}" data-span="2" class="py-4 px-4">
+                                        <div class="devis-actions flex items-center justify-center gap-3">
+                                            <a href="{{ route($devisRoutePrefix . 'devis.downloadDevis', $d->devis_number) }}" class="p-1 text-blue-600 hover:text-blue-800 rounded-md hover:bg-gray-100" title="{{ __('messages.Download') }}">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                                 </svg>
@@ -954,7 +1337,7 @@
                                             <form action="{{ route($devisRoutePrefix . 'devis.sendDevis') }}" method="post" class="inline-block">
                                                 @csrf
                                                 <input type="hidden" name="devis_id" value="{{ $d->id }}">
-                                                <button type="submit" class="p-1 text-green-600 hover:text-green-800 rounded-md hover:bg-gray-100" title="Send">
+                                                <button type="submit" class="p-1 text-green-600 hover:text-green-800 rounded-md hover:bg-gray-100" title="{{ __('messages.Send') }}">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                                                     </svg>
@@ -962,17 +1345,17 @@
                                             </form>
                                             @endcan
                                             @can('Delete devis')
-                                            <form action="{{route($devisRoutePrefix . 'devis.destroy', $d->id)}}" method="post" onsubmit="return confirm('Are you sure?');" class="inline-block">
+                                            <form action="{{route($devisRoutePrefix . 'devis.destroy', $d->id)}}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="p-1 text-red-600 hover:text-red-800 rounded-md hover:bg-gray-100" title="Delete">
+                                                <button type="submit" class="p-1 text-red-600 hover:text-red-800 rounded-md hover:bg-gray-100" title="{{ __('messages.Delete') }}">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
                                                 </button>
                                             </form>
                                             @endcan
-                                            <a href="{{route($devisRoutePrefix . 'devis.editDevis', $d->id)}}" class="p-1 text-cyan-600 hover:text-cyan-800 rounded-md hover:bg-gray-100" title="Edit">
+                                            <a href="{{route($devisRoutePrefix . 'devis.editDevis', $d->id)}}" class="p-1 text-cyan-600 hover:text-cyan-800 rounded-md hover:bg-gray-100" title="{{ __('messages.Edit Devis') }}">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
@@ -982,11 +1365,12 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="7" class="py-8 text-center text-gray-500">No devis found</td>
+                                    <td colspan="7" class="py-8 text-center text-gray-500">{{ __('messages.No devis found') }}</td>
                                 </tr>
                                 @endforelse
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
                 @endif
@@ -998,63 +1382,92 @@
                     $fileRoutePrefix = 'admin.';
                 @endphp
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="p-6 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold text-gray-900">Project Files</h2>
+                    <div class="p-6 border-b border-gray-200 flex items-center justify-between gap-3">
+                        <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Project Files') }}</h2>
+                        <button type="button" class="section-toggle inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"
+                                data-target="projectFilesBody" aria-expanded="false">
+                            <span class="hidden lg:inline">{{ __('messages.Show') ?? 'Show' }}</span>
+                            <svg class="section-chevron w-5 h-5 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6" />
+                            </svg>
+                        </button>
                     </div>
                     
-                    <div class="p-6">
-                        <form action="{{ route($fileRoutePrefix . 'projects.uploadFile', $project->id) }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-3">
+                    <div id="projectFilesBody" class="hidden">
+                    <style>
+                        /* Project Files: keep Actions visible on mobile */
+                        @media (max-width: 1024px) {
+                            .project-files-table th,
+                            .project-files-table td {
+                                padding-left: 12px !important;
+                                padding-right: 12px !important;
+                            }
+
+                            .project-files-uploaded-col { display: none; }
+
+                            .project-files-actions-col {
+                                width: 1%;
+                                white-space: nowrap;
+                            }
+                        }
+                    </style>
+                    <div class="p-4 sm:p-6">
+                        <form action="{{ route($fileRoutePrefix . 'projects.uploadFile', $project->id) }}" method="POST" enctype="multipart/form-data" class="flex flex-col sm:flex-row sm:items-center gap-3">
                             @csrf
                             <input type="file" name="file" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                            <button type="submit" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">Upload</button>
+                            <button type="submit" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm w-full sm:w-auto">{{ __('messages.Upload') }}</button>
                         </form>
                     </div>
                 
-                    {{-- [FIX] Removed table-responsive wrapper. Table will squish. --}}
-                    <div>
-                        <table class="w-full table">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">File Name</th>
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">Uploaded At</th>
-                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                @forelse($Project_files as $file)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">
-                                        <a href="{{ route($fileRoutePrefix . 'projects.downloadfiles', $file->file_name) }}" class="text-blue-600 hover:text-blue-800">{{ $file->file_name }}</a>
-                                    </td>
-                                    <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
-                                        {{ $file->created_at->format('Y-m-d H:i') }}
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <div class="flex items-center justify-center gap-4">
-                                            <a href="{{ route($fileRoutePrefix . 'projects.downloadfiles', $file->file_name) }}" class="p-1 text-blue-600 hover:text-blue-800 rounded-md hover:bg-gray-100" title="Download">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                                </svg>
-                                            </a>
-                                            <form action="{{ route($fileRoutePrefix . 'projects.deletefiles', $file->file_name) }}" method="POST" onsubmit="return confirm('Are you sure?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="p-1 text-red-600 hover:text-red-800 rounded-md hover:bg-gray-100" title="Delete">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="3" class="py-8 text-center text-gray-500">No files uploaded</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                    <div class="px-4 sm:px-6 pb-4 sm:pb-6">
+                        <div class="rounded-xl border border-slate-200 overflow-hidden bg-white">
+                            <div class="overflow-x-visible" style="-webkit-overflow-scrolling: touch;">
+                                <table class="project-files-table w-full table">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.File Name') }}</th>
+                                            <th class="project-files-uploaded-col px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Uploaded At') }}</th>
+                                            <th class="project-files-actions-col px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Action') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        @forelse($Project_files as $file)
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-4 py-3 text-sm text-gray-900 whitespace-normal break-words">
+                                                <a href="{{ route($fileRoutePrefix . 'projects.downloadfiles', $file->file_name) }}" class="text-blue-600 hover:text-blue-800">{{ $file->file_name }}</a>
+                                            </td>
+                                            <td class="project-files-uploaded-col px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
+                                                {{ $file->created_at->format('Y-m-d H:i') }}
+                                            </td>
+                                            <td class="project-files-actions-col px-4 py-3">
+                                                <div class="flex items-center justify-center gap-4">
+                                                    <a href="{{ route($fileRoutePrefix . 'projects.downloadfiles', $file->file_name) }}" class="p-1 text-blue-600 hover:text-blue-800 rounded-md hover:bg-gray-100" title="{{ __('messages.Download') }}">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                        </svg>
+                                                    </a>
+                                                    <form action="{{ route($fileRoutePrefix . 'projects.deletefiles', $file->file_name) }}" method="POST" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="p-1 text-red-600 hover:text-red-800 rounded-md hover:bg-gray-100" title="{{ __('messages.Delete') }}">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="3" class="py-8 text-center text-gray-500">{{ __('messages.No files uploaded') }}</td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                     </div>
                 </div>
                 @endif
@@ -1068,8 +1481,8 @@
                 @endphp
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                     <div class="p-6 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold text-gray-900">Contacts Infos</h2>
-                        <p class="text-sm text-gray-600 mt-1">Mandatory informations</p>
+                        <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Contacts Infos') }}</h2>
+                        <p class="text-sm text-gray-600 mt-1">{{ __('messages.Mandatory informations') }}</p>
                     </div>
                     <div class="divide-y divide-gray-200">
                         @foreach ($contacts as $contact)
@@ -1086,23 +1499,23 @@
                             <div x-show="open" x-transition class="p-6 bg-gray-50 border-t border-gray-200">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Full Name:</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Full Name') }}:</label>
                                         <input class="block w-full rounded-lg border-gray-300 shadow-sm sm:text-sm py-2 px-3 bg-gray-100" type="text" value="{{$contact->name}}" readonly />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Functionality:</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Functionality') }}:</label>
                                         <input class="block w-full rounded-lg border-gray-300 shadow-sm sm:text-sm py-2 px-3 bg-gray-100" type="text" value="{{$contact->functionality}}" readonly />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Mobile/Fix:</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Mobile Fix') }}:</label>
                                         <input class="block w-full rounded-lg border-gray-300 shadow-sm sm:text-sm py-2 px-3 bg-gray-100" type="text" value="{{$contact->mobile_fix}}" readonly />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Email:</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Email') }}:</label>
                                         <input class="block w-full rounded-lg border-gray-300 shadow-sm sm:text-sm py-2 px-3 bg-gray-100" type="text" value="{{$contact->email}}" readonly />
                                     </div>
                                     <div class="sm:col-span-2">
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Address:</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Address') }}:</label>
                                         <input class="block w-full rounded-lg border-gray-300 shadow-sm sm:text-sm py-2 px-3 bg-gray-100" type="text" value="{{$contact->address}}" readonly />
                                     </div>
                                 </div>
@@ -1256,8 +1669,43 @@
             </div>
         </div>
     </div>
+
+    {{-- 3. Manual Timer Modal --}}
+    <div x-data="manualTimerModal()" x-cloak x-show="show"
+         @open-manual-timer-modal.window="open($event.detail)"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <div @click.outside="show = false" class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+            <div class="flex items-center justify-between p-4 border-b">
+                <h5 class="text-lg font-semibold">{{ __('messages.Add Manual Time') }}</h5>
+                <button @click="show = false" type="button" class="text-gray-400 hover:text-gray-600">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label for="manualEmployeeSelect" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Employee') }}</label>
+                    <select x-model="employeeId" id="manualEmployeeSelect" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                        <option value="">{{ __('messages.Select Employee') }}</option>
+                        @foreach($employees as $employee)
+                            <option value="{{ $employee->id }}">{{ $employee->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="manualStartDate" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Start Date and Time') }}</label>
+                    <input type="datetime-local" x-model="startDate" id="manualStartDate" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                </div>
+                <div>
+                    <label for="manualEndDate" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.End Date and Time') }}</label>
+                    <input type="datetime-local" x-model="endDate" id="manualEndDate" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                </div>
+            </div>
+            <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
+                <button @click="show = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">{{ __('messages.Close button') }}</button>
+                <button @click="save()" type="button" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">{{ __('messages.Save Timer') }}</button>
+            </div>
+        </div>
+    </div>
     
-    {{-- 3. Export Report Modal --}}
+    {{-- 4. Export Report Modal --}}
     <div x-data="exportReportModal()" x-cloak x-show="show"
          @open-export-modal.window="open($event.detail.isCustomer)"
          class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
@@ -1276,13 +1724,13 @@
         </div>
     </div>
     
-    {{-- 4. Send Invoice Modal (for Invoices Table) --}}
+    {{-- 5. Send Invoice Modal (for Invoices Table) --}}
     <div x-data="sendInvoiceModal()" x-cloak x-show="show" 
          @open-send-invoice-modal.window="open($event.detail.invoiceId)"
          class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
         <div x-show="show" x-transition @click.outside="show = false" class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
             <div class="flex items-center justify-between p-4 border-b">
-                <h5 class="text-lg font-semibold">Send Invoice</h5>
+                <h5 class="text-lg font-semibold">{{ __('messages.Send Invoice') }}</h5>
                 <button @click="show = false" type="button" class="text-gray-400 hover:text-gray-600">&times;</button>
             </div>
             <form id="sendInvoiceForm" @submit.prevent="submitForm">
@@ -1299,7 +1747,7 @@
                 </div>
                 <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
                     <button @click="show = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Close</button>
-                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Send Invoice</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">{{ __('messages.Send Invoice') }}</button>
                 </div>
             </form>
         </div>
@@ -1311,7 +1759,7 @@
          class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
         <div x-show="show" x-transition @click.outside="show = false" class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
             <div class="flex items-center justify-between p-4 border-b">
-                <h5 class="text-lg font-semibold">Partial Credit Note</h5>
+                <h5 class="text-lg font-semibold">{{ __('messages.Partial Credit Note') }}</h5>
                 <button @click="show = false" type="button" class="text-gray-400 hover:text-gray-600">&times;</button>
             </div>
             <form @submit.prevent="submitForm">
@@ -1643,6 +2091,405 @@
             });
             }
 
+        });
+    </script>
+
+    <script>
+        // Section collapse/expand (Tasks / Invoices / Devis / Files)
+        document.addEventListener('DOMContentLoaded', function () {
+            const isMobile = () => window.matchMedia && window.matchMedia('(max-width: 1024px)').matches;
+
+            function setExpanded(btn, expanded) {
+                const targetId = btn.getAttribute('data-target');
+                const panel = targetId ? document.getElementById(targetId) : null;
+                if (!panel) return;
+
+                btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+                panel.classList.toggle('hidden', !expanded);
+
+                const chevron = btn.querySelector('.section-chevron');
+                if (chevron) chevron.classList.toggle('rotate-180', expanded);
+            }
+
+            document.querySelectorAll('button.section-toggle[data-target]').forEach(btn => {
+                // Mobile: collapsed by default. Desktop: expanded by default.
+                setExpanded(btn, !isMobile());
+
+                btn.addEventListener('click', () => {
+                    const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+                    setExpanded(btn, !isExpanded);
+                });
+            });
+        });
+    </script>
+
+    {{-- Stop Comment Modal --}}
+    <div id="stopCommentModal" class="modal">
+        <div class="modal-content-custom">
+            <span id="stopCommentClose" class="close-button">&times;</span>
+            <div class="flex items-center justify-center mb-3">
+                <div class="bg-red-100 rounded-full p-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                    </svg>
+                </div>
+            </div>
+            <h2 class="text-lg font-semibold text-slate-800 mb-2">{{ __('messages.Stop Task') }}</h2>
+            <p class="text-sm text-slate-500 mb-4">{{ __('messages.Please leave a comment describing the work done before stopping the task.') }}</p>
+            <div class="text-left mb-4">
+                <div class="flex justify-between items-center mb-1">
+                    <label for="stopCommentText" class="block text-sm font-medium text-slate-700">{{ __('messages.Comment') }} <span class="text-red-500">*</span></label>
+                    <div class="flex gap-3 items-center">
+                        <button type="button" id="stopCommentAiBtn" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors opacity-50 cursor-not-allowed" title="{{ __('messages.Correct with AI') }}" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                            </svg>
+                            <span id="stopCommentAiBtnText">{{ __('messages.Correct with AI') }}</span>
+                        </button>
+                        <button type="button" id="stopCommentTranslateBtn" class="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors opacity-50 cursor-not-allowed" title="{{ __('messages.Translate to Dutch') }}" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5c-.006 3.125-1.026 6.042-2.751 8.498m-1.782-2.5A18.022 18.022 0 014.888 5h7.863z" />
+                            </svg>
+                            <span id="stopCommentTranslateBtnText">{{ __('messages.Translate to Dutch') }}</span>
+                        </button>
+                    </div>
+                </div>
+                <textarea id="stopCommentText" rows="3" maxlength="500" placeholder="{{ __('messages.Describe what you worked on...') }}" spellcheck="true" class="border border-slate-300 rounded-lg px-3 py-2 w-full text-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none transition-colors"></textarea>
+                <p id="stopCommentError" class="text-xs text-red-500 mt-1 hidden">{{ __('messages.Comment is required to stop the task.') }}</p>
+                <p id="stopCommentAiFeedback" class="text-xs mt-1 hidden"></p>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" id="stopCommentCancelBtn" class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">{{ __('messages.Cancel') }}</button>
+                <button type="button" id="stopCommentConfirmBtn" class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors opacity-50 cursor-not-allowed" disabled>{{ __('messages.Confirm Stop') }}</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Spell-Check Confirmation Modal --}}
+    <div id="spellCheckModal" class="modal" style="z-index: 60;">
+        <div class="modal-content-custom" style="max-width: 420px;">
+            <div class="flex items-center justify-center mb-3">
+                <div class="bg-amber-100 rounded-full p-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <h2 class="text-lg font-semibold text-slate-800 mb-2">{{ __('messages.Check Spelling?') }}</h2>
+            <p class="text-sm text-slate-500 mb-5">{{ __('messages.Would you like to verify the spelling of your comment before submitting?') }}</p>
+            <div class="flex flex-col gap-2">
+                <button type="button" id="spellCheckVerifyBtn" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-indigo-500 rounded-lg hover:bg-indigo-600 transition-colors flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {{ __('messages.Yes, verify spelling') }}
+                </button>
+                <button type="button" id="spellCheckSkipBtn" class="w-full px-4 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+                    {{ __('messages.No, submit as is') }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Translate Confirmation Modal --}}
+    <div id="translateCheckModal" class="modal" style="z-index: 60;">
+        <div class="modal-content-custom" style="max-width: 420px;">
+            <div class="flex items-center justify-center mb-3">
+                <div class="bg-blue-100 rounded-full p-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5c-.006 3.125-1.026 6.042-2.751 8.498m-1.782-2.5A18.022 18.022 0 014.888 5h7.863z" />
+                    </svg>
+                </div>
+            </div>
+            <h2 class="text-lg font-semibold text-slate-800 mb-2">{{ __('messages.Translate to Dutch?') }}</h2>
+            <p class="text-sm text-slate-500 mb-5">{{ __('messages.Would you like to translate your comment into Dutch before submitting?') }}</p>
+            <div class="flex flex-col gap-2">
+                <button type="button" id="translateCheckVerifyBtn" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {{ __('messages.Yes, translate to Dutch') }}
+                </button>
+                <button type="button" id="translateCheckSkipBtn" class="w-full px-4 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+                    {{ __('messages.No, submit as is') }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            var activeStopForm = null;
+            var stopModal = document.getElementById('stopCommentModal');
+            var stopCommentText = document.getElementById('stopCommentText');
+            var stopCommentError = document.getElementById('stopCommentError');
+            var stopConfirmBtn = document.getElementById('stopCommentConfirmBtn');
+            var stopCancelBtn = document.getElementById('stopCommentCancelBtn');
+            var stopCloseBtn = document.getElementById('stopCommentClose');
+            var stopCommentAiBtn = document.getElementById('stopCommentAiBtn');
+            var stopCommentAiBtnText = document.getElementById('stopCommentAiBtnText');
+            var stopCommentTranslateBtn = document.getElementById('stopCommentTranslateBtn');
+            var stopCommentTranslateBtnText = document.getElementById('stopCommentTranslateBtnText');
+            var stopCommentAiFeedback = document.getElementById('stopCommentAiFeedback');
+            var spellCheckModal = document.getElementById('spellCheckModal');
+            var spellCheckVerifyBtn = document.getElementById('spellCheckVerifyBtn');
+            var spellCheckSkipBtn = document.getElementById('spellCheckSkipBtn');
+            var translateCheckModal = document.getElementById('translateCheckModal');
+            var translateCheckVerifyBtn = document.getElementById('translateCheckVerifyBtn');
+            var translateCheckSkipBtn = document.getElementById('translateCheckSkipBtn');
+
+            // State flags to avoid repetitive popups
+            var hasSpelledChecked = false;
+            var hasTranslated = false;
+
+            // Intercept stop button clicks to show modal
+            $(document).on('click', '.stop-button', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                activeStopForm = $(this).closest('.stop-form')[0];
+                
+                // Reset modal state
+                stopCommentText.value = '';
+                stopCommentError.classList.add('hidden');
+                stopCommentAiFeedback.classList.add('hidden');
+                stopCommentAiFeedback.textContent = '';
+                stopConfirmBtn.disabled = true;
+                stopConfirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                stopCommentAiBtn.disabled = true;
+                stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                stopCommentTranslateBtn.disabled = true;
+                stopCommentTranslateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                hasSpelledChecked = false;
+                hasTranslated = false;
+                stopModal.style.display = 'block';
+                stopCommentText.focus();
+            });
+
+            // Enable/disable confirm, AI and Translate button based on comment content
+            stopCommentText.addEventListener('input', function() {
+                var hasContent = this.value.trim().length > 0;
+                stopConfirmBtn.disabled = !hasContent;
+                stopCommentAiBtn.disabled = !hasContent;
+                stopCommentTranslateBtn.disabled = !hasContent;
+                if (hasContent) {
+                    stopConfirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    stopCommentAiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    stopCommentTranslateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    stopCommentError.classList.add('hidden');
+                } else {
+                    stopConfirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    stopCommentTranslateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            });
+
+            // AI correction request
+            stopCommentAiBtn.addEventListener('click', function() {
+                var comment = stopCommentText.value.trim();
+                if (!comment) return;
+
+                stopCommentAiBtn.disabled = true;
+                stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                stopCommentText.disabled = true;
+                var oldBtnText = stopCommentAiBtnText.textContent;
+                stopCommentAiBtnText.textContent = "{{ __('messages.Correcting...') }}";
+                stopCommentAiFeedback.classList.add('hidden');
+
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                fetch('/tasks/correct-comment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ comment: comment })
+                })
+                .then(function(res) {
+                    if (!res.ok) {
+                        return res.json().then(function(err) {
+                            throw new Error(err.error || 'Failed to correct comment.');
+                        });
+                    }
+                    return res.json();
+                })
+                .then(function(data) {
+                    if (data.corrected) {
+                        stopCommentText.value = data.corrected;
+                        stopCommentAiFeedback.textContent = "{{ __('messages.Spelling and grammar corrected!') }}";
+                        stopCommentAiFeedback.className = "text-xs mt-1 text-emerald-600 font-medium";
+                        stopCommentAiFeedback.classList.remove('hidden');
+                        hasSpelledChecked = true;
+                    }
+                })
+                .catch(function(err) {
+                    console.error(err);
+                    stopCommentAiFeedback.textContent = "{{ __('messages.Failed to correct comment. Please check API configuration.') }}";
+                    stopCommentAiFeedback.className = "text-xs mt-1 text-red-500 font-medium";
+                    stopCommentAiFeedback.classList.remove('hidden');
+                })
+                .finally(function() {
+                    stopCommentAiBtn.disabled = false;
+                    stopCommentAiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    stopCommentText.disabled = false;
+                    stopCommentAiBtnText.textContent = oldBtnText;
+                });
+            });
+
+            // Translate request
+            stopCommentTranslateBtn.addEventListener('click', function() {
+                var comment = stopCommentText.value.trim();
+                if (!comment) return;
+
+                stopCommentTranslateBtn.disabled = true;
+                stopCommentTranslateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                stopCommentAiBtn.disabled = true;
+                stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                stopCommentText.disabled = true;
+                var oldBtnText = stopCommentTranslateBtnText.textContent;
+                stopCommentTranslateBtnText.textContent = "{{ __('messages.Translating...') }}";
+                stopCommentAiFeedback.classList.add('hidden');
+
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                fetch('/tasks/translate-comment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ comment: comment })
+                })
+                .then(function(res) {
+                    if (!res.ok) {
+                        return res.json().then(function(err) {
+                            throw new Error(err.error || 'Failed to translate comment.');
+                        });
+                    }
+                    return res.json();
+                })
+                .then(function(data) {
+                    if (data.translated) {
+                        stopCommentText.value = data.translated;
+                        stopCommentAiFeedback.textContent = "{{ __('messages.Translated to Dutch!') }}";
+                        stopCommentAiFeedback.className = "text-xs mt-1 text-emerald-600 font-medium";
+                        stopCommentAiFeedback.classList.remove('hidden');
+                        hasTranslated = true;
+                    }
+                })
+                .catch(function(err) {
+                    console.error(err);
+                    stopCommentAiFeedback.textContent = "{{ __('messages.Failed to translate comment. Please check API configuration.') }}";
+                    stopCommentAiFeedback.className = "text-xs mt-1 text-red-500 font-medium";
+                    stopCommentAiFeedback.classList.remove('hidden');
+                })
+                .finally(function() {
+                    stopCommentTranslateBtn.disabled = false;
+                    stopCommentTranslateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    stopCommentAiBtn.disabled = false;
+                    stopCommentAiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    stopCommentText.disabled = false;
+                    stopCommentTranslateBtnText.textContent = oldBtnText;
+                });
+            });
+
+            // Function to actually submit the stop task
+            function doSubmitStop() {
+                var comment = stopCommentText.value.trim();
+                if (activeStopForm) {
+                    activeStopForm.querySelector('.stop-comment-field').value = comment;
+                    stopModal.style.display = 'none';
+                    activeStopForm.submit();
+                }
+            }
+
+            // Confirm stop: show spell-check or translate popups if they haven't been completed yet
+            stopConfirmBtn.addEventListener('click', function() {
+                var comment = stopCommentText.value.trim();
+                if (!comment) {
+                    stopCommentError.classList.remove('hidden');
+                    stopCommentText.focus();
+                    return;
+                }
+                
+                if (!hasSpelledChecked) {
+                    spellCheckModal.style.display = 'block';
+                } else if (!hasTranslated) {
+                    translateCheckModal.style.display = 'block';
+                } else {
+                    doSubmitStop();
+                }
+            });
+
+            // Spell-check popup: verify spelling (trigger AI correction then return to comment modal)
+            spellCheckVerifyBtn.addEventListener('click', function() {
+                spellCheckModal.style.display = 'none';
+                hasSpelledChecked = true;
+                if (!stopCommentAiBtn.disabled) {
+                    stopCommentAiBtn.click();
+                }
+            });
+
+            // Spell-check popup: skip and open translate confirmation popup
+            spellCheckSkipBtn.addEventListener('click', function() {
+                spellCheckModal.style.display = 'none';
+                hasSpelledChecked = true;
+                if (!hasTranslated) {
+                    translateCheckModal.style.display = 'block';
+                } else {
+                    doSubmitStop();
+                }
+            });
+
+            // Close spell-check modal on outside click
+            spellCheckModal.addEventListener('click', function(e) {
+                if (e.target === spellCheckModal) {
+                    spellCheckModal.style.display = 'none';
+                }
+            });
+
+            // Translate popup: verify spelling (trigger translation then return to comment modal)
+            translateCheckVerifyBtn.addEventListener('click', function() {
+                translateCheckModal.style.display = 'none';
+                hasTranslated = true;
+                if (!stopCommentTranslateBtn.disabled) {
+                    stopCommentTranslateBtn.click();
+                }
+            });
+
+            // Translate popup: skip and submit directly
+            translateCheckSkipBtn.addEventListener('click', function() {
+                translateCheckModal.style.display = 'none';
+                hasTranslated = true;
+                doSubmitStop();
+            });
+
+            // Close translate modal on outside click
+            translateCheckModal.addEventListener('click', function(e) {
+                if (e.target === translateCheckModal) {
+                    translateCheckModal.style.display = 'none';
+                }
+            });
+
+            // Cancel / Close modal
+            function closeStopModal() {
+                stopModal.style.display = 'none';
+                activeStopForm = null;
+            }
+            stopCancelBtn.addEventListener('click', closeStopModal);
+            stopCloseBtn.addEventListener('click', closeStopModal);
+            stopModal.addEventListener('click', function(e) {
+                if (e.target === stopModal) closeStopModal();
+            });
+
+            stopCommentText.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!stopConfirmBtn.disabled) {
+                        stopConfirmBtn.click();
+                    }
+                }
+            });
         });
     </script>
 </body>

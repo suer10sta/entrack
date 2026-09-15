@@ -1,6 +1,6 @@
 {{-- resources/views/components/hero-section.blade.php --}}
 
-<section id="hero" class="hero-glow relative overflow-hidden pt-24 pb-20 lg:pt-32 lg:pb-32 transition-all duration-500">
+<section id="hero" class="hero-glow relative overflow-hidden overflow-x-clip pt-24 pb-20 lg:pt-32 lg:pb-32 transition-all duration-500">
     
     {{-- Background Image - extends to top behind header --}}
     <div class="absolute top-0 left-0 right-0 bottom-0 z-0" style="top: -80px; height: calc(100% + 80px);">
@@ -88,7 +88,7 @@
     <div class="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-transparent to-transparent"></div>
 
     {{-- Content --}}
-    <div class="container relative z-20 mx-auto px-6">
+    <div class="container relative z-20 mx-auto px-4 sm:px-6">
         <div class="mx-auto max-w-5xl text-center">
             
             {{-- Badge --}}
@@ -100,33 +100,33 @@
             </div>
 
             {{-- Main Heading --}}
-            <h1 class="scroll-fade-in mb-6 text-balance text-5xl font-bold leading-tight text-foreground lg:text-6xl xl:text-7xl" data-scroll-delay="100">
+            <h1 class="scroll-fade-in mb-6 text-balance text-3xl font-bold leading-tight text-foreground sm:text-5xl lg:text-6xl xl:text-7xl" data-scroll-delay="100">
                 {{ __('messages.Streamline Your Business Operations with') }}
                 <span class="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">DalyTrac</span>
             </h1>
 
             {{-- Subheading --}}
-            <p class="scroll-fade-in mx-auto mb-8 max-w-2xl text-pretty text-xl leading-relaxed text-gray-700 dark:text-gray-500 lg:text-2xl" data-scroll-delay="200">
+            <p class="scroll-fade-in mx-auto mb-8 max-w-2xl text-pretty text-base leading-relaxed text-gray-700 dark:text-gray-500 sm:text-xl lg:text-2xl" data-scroll-delay="200">
                 {{ __('messages.The complete solution for E-invoicing, Project Management, intelligent Time Tracking, and Team Collaboration.') }} 
                 <span class="font-semibold text-foreground">{{ __('messages.Your teams simply start and stop a timer on their projects and tasks, while DalyTrac quietly captures clean, billable hours in the background.') }}</span>
             </p>
 
             {{-- Value Propositions --}}
-            <div class="scroll-fade-in mb-10 flex flex-wrap items-center justify-center gap-4 sm:gap-6" data-scroll-delay="300">
-                <div class="value-prop-badge group flex items-center gap-2.5 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 px-5 py-3 text-base font-bold text-black backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:from-green-500/30 hover:to-emerald-500/30">
-                    <svg class="h-6 w-6 text-green-600 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="scroll-fade-in mb-10 flex flex-wrap items-center justify-center gap-3 sm:gap-6" data-scroll-delay="300">
+                <div class="value-prop-badge group flex items-center gap-2 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 px-4 py-2 text-sm font-bold text-black backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:from-green-500/30 hover:to-emerald-500/30 sm:px-5 sm:py-3 sm:text-base">
+                    <svg class="h-5 w-5 text-green-600 drop-shadow-lg sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                     </svg>
                     <span class="text-shadow-sm">{{ __('messages.No Credit Card Required') }}</span>
                 </div>
-                <div class="value-prop-badge group flex items-center gap-2.5 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/20 px-5 py-3 text-base font-bold text-black backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:from-blue-500/30 hover:to-cyan-500/30">
-                    <svg class="h-6 w-6 text-blue-600 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="value-prop-badge group flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/20 px-4 py-2 text-sm font-bold text-black backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:from-blue-500/30 hover:to-cyan-500/30 sm:px-5 sm:py-3 sm:text-base">
+                    <svg class="h-5 w-5 text-blue-600 drop-shadow-lg sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                     </svg>
                     <span class="text-shadow-sm">{{ __('messages.Free Trial Available') }}</span>
                 </div>
-                <div class="value-prop-badge group flex items-center gap-2.5 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-5 py-3 text-base font-bold text-black backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:from-purple-500/30 hover:to-pink-500/30">
-                    <svg class="h-6 w-6 text-purple-600 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="value-prop-badge group flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-4 py-2 text-sm font-bold text-black backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:from-purple-500/30 hover:to-pink-500/30 sm:px-5 sm:py-3 sm:text-base">
+                    <svg class="h-5 w-5 text-purple-600 drop-shadow-lg sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                     </svg>
                     <span class="text-shadow-sm">{{ __('messages.Setup in Minutes') }}</span>
@@ -135,14 +135,14 @@
 
             {{-- CTA Buttons --}}
             <div class="scroll-fade-in flex flex-col items-center justify-center gap-4 sm:flex-row" data-scroll-delay="400">
-                <a href="{{ route('register') }}" class="cta-button-float group inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                <a href="{{ route('register') }}" class="cta-button-float group inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-4 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl sm:w-auto sm:px-8">
                     {{ __('messages.Start Free Trial') }}
                     <svg class="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                 </a>
 
-                <a href="{{ route('demo') }}" class="cta-button-float-delayed inline-flex items-center justify-center gap-2 rounded-lg border-2 border-primary/30 bg-card px-8 py-4 text-base font-semibold text-foreground transition-all duration-300 hover:border-primary/50 hover:bg-primary/5">
+                <a href="{{ route('demo') }}" class="cta-button-float-delayed inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 border-primary/30 bg-card px-6 py-4 text-base font-semibold text-foreground transition-all duration-300 hover:border-primary/50 hover:bg-primary/5 sm:w-auto sm:px-8">
                     <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="12" cy="12" r="11" fill="#FF0000" stroke="#CC0000" stroke-width="1"/>
                         <path d="M9.5 7.5L16.5 12L9.5 16.5V7.5Z" fill="white"/>
@@ -152,17 +152,17 @@
             </div>
 
             {{-- Trust Indicators --}}
-            <div class="scroll-fade-in mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-gray-700 dark:text-gray-500" data-scroll-delay="500">
+            <div class="scroll-fade-in mt-12 flex flex-col items-center justify-center gap-6 text-sm text-gray-700 dark:text-gray-500 sm:flex-row sm:flex-wrap sm:gap-8" data-scroll-delay="500">
                 <div class="text-center">
                     <div class="text-2xl font-bold text-foreground">10,000+</div>
                     <div>{{ __('messages.Active Users') }}</div>
                 </div>
-                <div class="h-12 w-px bg-border"></div>
+                <div class="hidden h-12 w-px bg-border sm:block"></div>
                 <div class="text-center">
                     <div class="text-2xl font-bold text-foreground">50,000+</div>
                     <div>{{ __('messages.Invoices Generated') }}</div>
                 </div>
-                <div class="h-12 w-px bg-border"></div>
+                <div class="hidden h-12 w-px bg-border sm:block"></div>
                 <div class="text-center">
                     <div class="text-2xl font-bold text-foreground">99.9%</div>
                     <div>{{ __('messages.Uptime') }}</div>
@@ -176,6 +176,28 @@
 <style>
     .hero-glow {
         position: relative;
+    }
+
+    /* Mobile performance + overflow safety */
+    @media (max-width: 640px) {
+        #cursor-glow {
+            width: 320px;
+            height: 320px;
+            filter: blur(50px);
+        }
+
+        #cursor-glow-secondary {
+            width: 220px;
+            height: 220px;
+            filter: blur(35px);
+        }
+    }
+
+    @media (pointer: coarse) {
+        #cursor-glow,
+        #cursor-glow-secondary {
+            display: none;
+        }
     }
     
     /* Yellow glow effect for lightning bolt icon */

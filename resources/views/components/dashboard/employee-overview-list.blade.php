@@ -6,7 +6,7 @@
     $today = \Carbon\Carbon::today();
 @endphp
 
-<div class="divide-y divide-gray-200">
+<div class="dashboard-employee-overview-list divide-y divide-gray-200">
     @foreach($employeesToday as $employeeIndex => $employee)
         @php
             // Get all timers for this employee today
@@ -109,27 +109,53 @@
         @endphp
 
         @if($employeeProjects->isNotEmpty())
-            <div class="px-6 py-4 hover:bg-gray-50">
+            <div class="dashboard-emp-row px-6 py-4 hover:bg-gray-50">
                 @foreach($employeeProjects as $projectIndex => $project)
-                    <div class="grid grid-cols-12 gap-4 items-start">
+                    <div class="dashboard-emp-project grid grid-cols-12 gap-4 items-start">
                         {{-- EMPLOYEE (col-span-2) - Only show on first project --}}
-                        <div class="col-span-2 flex items-center gap-3 pr-4">
+                        <div class="dashboard-emp-employee col-span-2 flex items-center gap-3 pr-4" data-label="{{ __('messages.EMPLOYEES') }}">
                             @if($projectIndex === 0)
-                                <div
-                                    class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full text-white font-semibold {{ $avatarColors[$employeeIndex % count($avatarColors)] }}">
-                                    {{ strtoupper(substr($employee->name, 0, 2)) }}
-                                </div>
-                                <div class="min-w-0">
-                                    <p class="text-sm font-medium text-gray-900 truncate">{{ $employee->name }}</p>
-                                    <p class="text-xs text-gray-500 truncate">{{ $employee->email }}</p>
+                                <div class="flex items-center justify-between gap-3 w-full">
+                                    <div class="dashboard-emp-employee-inner flex items-center gap-3 min-w-0">
+                                    <div
+                                        class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full text-white font-semibold {{ $avatarColors[$employeeIndex % count($avatarColors)] }}">
+                                        {{ strtoupper(substr($employee->name, 0, 2)) }}
+                                    </div>
+                                    <div class="min-w-0 flex flex-col gap-0.5">
+                                        <p class="text-sm font-medium text-gray-900 truncate">{{ $employee->name }}</p>
+                                        <p class="text-xs text-gray-500 truncate">{{ $employee->email }}</p>
+                                        @php
+                                            $employeeRoles = is_array($employee->roles ?? null) ? $employee->roles : (array) ($employee->roles ?? []);
+                                        @endphp
+                                        @if(!empty($employeeRoles))
+                                            <div class="flex flex-wrap gap-1 pt-1">
+                                                @foreach($employeeRoles as $role)
+                                                    <span class="inline-block px-2 py-0.5 text-[10.5px] font-medium rounded {{ $role == 'SuperAdmin' ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-purple-100 text-purple-700'}}">
+                                                        {{ $role }}
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        class="shrink-0 text-slate-400 hover:text-slate-600 lg:hidden"
+                                        data-emp-overview-toggle
+                                        aria-label="Toggle employee overview details"
+                                    >
+                                        <svg class="emp-overview-chevron w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </button>
                                 </div>
                             @endif
                         </div>
 
                         {{-- PROJECTS & CLIENT onwards - with border --}}
-                        <div class="col-span-10 grid grid-cols-10 gap-4 items-start {{ !$loop->last ? 'pb-3 border-b border-gray-200 mb-3' : '' }}">
+                        <div class="dashboard-emp-details col-span-10 grid grid-cols-10 gap-4 items-start {{ !$loop->last ? 'pb-3 border-b border-gray-200 mb-3' : '' }}">
                             {{-- PROJECTS & CLIENT (col-span-3) --}}
-                            <div class="col-span-3">
+                            <div class="col-span-3" data-label="{{ __('messages.PROJECTS & CLIENT') }}" data-span="2">
                                 <a href="{{ route('admin.projects.show', $project->id) }}"
                                     class="text-sm font-medium text-emerald-600 hover:underline">
                                     {{ $project->name }}
@@ -148,7 +174,7 @@
                             </div>
 
                             {{-- TIME TRACKING (col-span-2) --}}
-                            <div class="col-span-2">
+                            <div class="col-span-2" data-label="{{ __('messages.TIME TRACKING') }}">
                             @php
                                 // Today's duration
                                 $todayHours = floor($project->employee_today_duration / 60);
@@ -174,7 +200,7 @@
                         </div>
 
                             {{-- TASKS (col-span-3) --}}
-                            <div class="col-span-3">
+                            <div class="col-span-3" data-label="{{ __('messages.TASKS') }}" data-span="2">
                                 @if($project->employee_tasks && $project->employee_tasks->isNotEmpty())
                                     @foreach($project->employee_tasks as $task)
                                         <div class="mb-2 last:mb-0">
@@ -190,7 +216,7 @@
                             </div>
 
                             {{-- TASK DURATION (col-span-1) --}}
-                            <div class="col-span-1">
+                            <div class="col-span-1" data-label="{{ __('messages.TASK DURATION') }}">
                                 @if($project->employee_tasks && $project->employee_tasks->isNotEmpty())
                                     @foreach($project->employee_tasks as $task)
                                         @php
@@ -218,7 +244,7 @@
                             </div>
 
                             {{-- ACTIONS (col-span-1) - Only show on first project --}}
-                            <div class="col-span-1 flex justify-end items-start pt-1">
+                            <div class="dashboard-emp-actions col-span-1 flex justify-end items-start pt-1" data-label="{{ __('messages.Employee Actions') }}" data-span="2">
                                 @if($projectIndex === 0)
                                     <a href="{{ route('admin.employees.show', $employee->id) }}"
                                         class="p-1 rounded-md bg-purple-600 text-white hover:bg-purple-700"

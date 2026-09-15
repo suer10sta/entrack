@@ -41,6 +41,13 @@ class Entreprise extends Model
 {
     use HasFactory, Billable;
 
+    /**
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'billit_api_key',
+    ];
+
     protected $fillable = [
         'name', 
         'phone',
@@ -61,6 +68,7 @@ class Entreprise extends Model
         'entreprise_number',
         'general_conditions',
         'invoice_prefix',
+        'invoice_start_number',
         'second_reminder',
         'third_reminder',
         'devis_prefix',
@@ -82,6 +90,7 @@ class Entreprise extends Model
         'trial_ends_at',
         'account_status',
         'auto_renew',
+        'billit_api_key',
     ];
 
     public function getAddressAttribute($value)
@@ -100,7 +109,16 @@ class Entreprise extends Model
     protected $casts = [
         'trial_ends_at' => 'datetime',
         'auto_renew' => 'boolean',
+        'billit_api_key' => 'encrypted',
     ];
+
+    /**
+     * Whether Billit can be called for this entreprise.
+     */
+    public function isBillitConfigured(): bool
+    {
+        return filled($this->billit_api_key);
+    }
 
     public function user()
     {

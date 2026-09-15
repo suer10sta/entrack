@@ -29,6 +29,7 @@ use App\Mail\WorkdaysReportMail;
 use App\Mail\EmployeeSendingMail;
 use Illuminate\Support\Str;
 use App\Mail\EmployeeEmail;
+use Illuminate\Validation\Rule;
 
 class employeesController extends Controller
 {
@@ -82,14 +83,14 @@ class employeesController extends Controller
 
         $entreprise = Auth::user()->entreprise;
         // 2. VÉRIFIER LA LIMITE AVANT DE CONTINUER
-        if (!$entreprise->canAddMoreUsers()) {
+        if ($entreprise && !$entreprise->canAddMoreUsers()) {
             // 3. Si la limite est atteinte, arrêter et renvoyer une erreur
             return back()->with('error', 'Vous avez atteint la limite de ' . $entreprise->getUserLimit() . ' utilisateurs pour votre plan. Veuillez passer au plan Pro pour en ajouter davantage.');
         }
 
         $validated = $request->validate([
             "name" => "required",
-            "email" => "required|unique:employees,email",
+            "email" => "required|unique:employees,email,NULL,id,archived,0",
             "password" => "required",
             "phoneNumber" => "nullable",
             "age" => "nullable",
@@ -107,8 +108,25 @@ class employeesController extends Controller
         ]);
 
         $validated_user_email = $request->validate([
-            "email" => "required|unique:users,email",
+            "email" => [
+                "required",
+                Rule::unique('users', 'email')->where(function ($query) {
+                    $query->whereNotIn('id', function ($sub) {
+                        $sub->select('user_id')
+                            ->from('employees')
+                            ->where('archived', 1);
+                    });
+                }),
+            ],
         ]);
+        // Delete old users linked to archived employees with the same email
+        $oldUsers = User::where('email', $validated_user_email['email'])->get();
+        foreach ($oldUsers as $oldUser) {
+            $archivedEmployee = Employees::where('user_id', $oldUser->id)->where('archived', 1)->first();
+            if ($archivedEmployee) {
+                $oldUser->delete();
+            }
+        }
         // Create the user and associate it with the enterprise
         $users = new User([
             'name' => $validated['name'],
@@ -493,13 +511,12 @@ class employeesController extends Controller
         elseif($request->column == 'number_of_days_of_paid_leave_taken')
         {
             $work_days_repports->{$request->column} = $request->content;
-            $work_days_repports->holiday_balance = $work_days_repports->holiday_balance - $work_days_repports->number_of_days_of_paid_leave_taken ;
-            $work_days_repports->remaining_days_of_paid_leave = $work_days_repports->holiday_balance - 1.5 ;
+            $work_days_repports->holiday_balance = $work_days_repports->remaining_days_of_paid_leave + $work_days_repports->number_of_days_of_paid_leave_acquired - $work_days_repports->number_of_days_of_paid_leave_taken;
         }
         elseif($request->column == 'remaining_days_of_paid_leave')
         {
             $work_days_repports->{$request->column} = $request->content;
-            $work_days_repports->holiday_balance = $work_days_repports->remaining_days_of_paid_leave +  1.5;
+            $work_days_repports->holiday_balance = $work_days_repports->remaining_days_of_paid_leave + $work_days_repports->number_of_days_of_paid_leave_acquired - $work_days_repports->number_of_days_of_paid_leave_taken;
         }
         elseif($request->column == 'days_to_recover')
         {
@@ -942,13 +959,9 @@ public function nextMonthRepports(Request $request)
     // Get the authenticated user's enterprise_id
     $enterpriseId = Auth::user()->entreprise_id;
     $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
-    $latestWorkdaysRepport = work_days_repports::where('entreprise_id', $enterpriseId)
-    ->orderBy('year', 'desc')
-    ->orderBy('month', 'desc')
-    ->first();
 
-    $year = $latestWorkdaysRepport->year;
-    $month = $latestWorkdaysRepport->month;
+    $year = $request->input('currentYear', $currentYear);
+    $month = str_pad($request->input('currentMonth', $currentMonth), 2, '0', STR_PAD_LEFT);
 
     // Calculate next month and year
     if ($month == 12) {
@@ -983,10 +996,21 @@ public function nextMonthRepports(Request $request)
     }
 
     foreach ($employees as $employee) {
+        $existingReport = work_days_repports::where('employee_id', $employee->id)
+            ->where('year', $nextYear)
+            ->where('month', $nextMonth)
+            ->first();
+
+        if ($existingReport) {
+            continue;
+        }
+
         $previousWorkdaysRepport = work_days_repports::where('employee_id', $employee->id)
             ->where('year', $year)
             ->where('month', $month)
             ->first();
+
+        $previousBalance = $previousWorkdaysRepport ? $previousWorkdaysRepport->holiday_balance : 0;
 
         $work_days_repports = new work_days_repports([
             'work_days_per_month' => $weekdays,
@@ -994,10 +1018,10 @@ public function nextMonthRepports(Request $request)
             'sick_days' => 0,
             'holidays' => 0,
             'days_of_unpaid_absence' => 0,
-            'remaining_days_of_paid_leave' => $previousWorkdaysRepport->remaining_days_of_paid_leave + 1.5,
+            'remaining_days_of_paid_leave' => $previousBalance,
             'number_of_days_of_paid_leave_acquired' => 1.5,
             'number_of_days_of_paid_leave_taken' => 0,
-            'holiday_balance' => $previousWorkdaysRepport->holiday_balance + 1.5,
+            'holiday_balance' => $previousBalance + 1.5,
             'remarque' => '',
             'month' => $nextMonth,
             'year' => $nextYear,

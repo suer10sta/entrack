@@ -6,6 +6,17 @@
     <meta name="csrf-token" content="{{ csrf_token() }}"> {{-- IMPORTANT pour AJAX --}}
     <title>DalyTrac Dashboard</title>
     @vite('resources/css/app.css')
+    <style>
+        td.editable-comment { cursor: pointer; background-color: #f9fafb; }
+        td.editable-comment:hover { background-color: #eff6ff; }
+        td.editable-comment .comment-text { border-bottom: 1px dashed #9ca3af; }
+        td.editable-comment .comment-text:empty::before {
+            content: '{{ __('messages.Double-click to add comment') }}';
+            font-size: 0.75rem;
+            color: #9ca3af;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
@@ -44,6 +55,10 @@
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Début</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Fin</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durée</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {{ __('messages.Comment column') }}
+                            <span class="block text-[10px] font-normal text-gray-400 normal-case">{{ __('messages.Double-click to add comment') }}</span>
+                        </th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Déplacer Durée</th>
                     </tr>
                 </thead>
@@ -64,7 +79,7 @@
                         
                         {{-- Ligne d'en-tête de Date --}}
                         <tr>
-                            <td colspan="6" class="px-6 py-3 bg-gray-100">
+                            <td colspan="7" class="px-6 py-3 bg-gray-100">
                                 <h6 class="mb-0 text-sm font-bold text-gray-900">{{ \Carbon\Carbon::parse($date)->format('l') }} : {{ $formatted_date }}</h6>
                             </td>
                         </tr>
@@ -101,6 +116,26 @@
                                     @endphp
                                     {{$taskhours}}h:{{ str_pad($taskminutes, 2, '0', STR_PAD_LEFT) }}m
                                 </td>
+                                {{-- Commentaire --}}
+                                <td class="px-6 py-4 text-sm text-gray-700 whitespace-normal break-words editable-comment"
+                                    data-id="{{ $task->id }}"
+                                    data-field="comment"
+                                    @php
+                                        if (Auth::user()->hasRole('Admin')) {
+                                            $commentUpdateRoute = route('admin.tasks.updateField', ['field' => 'comment', 'id' => $task->id]);
+                                        } elseif (Auth::user()->hasRole('Responsable de projet')) {
+                                            $commentUpdateRoute = route('Responsable_de_projet.tasks.updateField', ['field' => 'comment', 'id' => $task->id]);
+                                        } elseif (Auth::user()->hasRole('Employee')) {
+                                            $commentUpdateRoute = route('employee.tasks.updateField', ['field' => 'comment', 'id' => $task->id]);
+                                        } elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                                            $commentUpdateRoute = route('Responsable_gestionnaire.tasks.updateField', ['field' => 'comment', 'id' => $task->id]);
+                                        } else {
+                                            $commentUpdateRoute = '';
+                                        }
+                                    @endphp
+                                    data-update-url="{{ $commentUpdateRoute }}">
+                                    <span class="comment-text">{{ $task->comment }}</span>
+                                </td>
                                 {{-- Déplacer Durée --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                     <button class="move-duration-btn inline-flex items-center bg-gray-600 hover:bg-gray-700 text-white font-medium px-3 py-1.5 rounded-lg text-xs" 
@@ -128,6 +163,7 @@
                                 @endphp
                                 {{$dailyhours}}h:{{ str_pad($dailyminutes, 2, '0', STR_PAD_LEFT) }}m
                             </td>
+                            <td class="px-6 py-4"></td>
                             <td class="px-6 py-4"></td> {{-- Cellule vide pour l'alignement --}}
                         </tr>
                     @endforeach
@@ -144,6 +180,7 @@
                             @endphp
                             {{$totalhours}}h:{{ str_pad($totalminutes, 2, '0', STR_PAD_LEFT) }}m
                         </td>
+                        <td class="px-6 py-4"></td>
                         <td class="px-6 py-4"></td> {{-- Cellule vide pour l'alignement --}}
                     </tr>
                 </tbody>
@@ -626,6 +663,54 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         closeModal('moveDurationModal');
+    });
+
+
+    document.querySelectorAll('.editable-comment').forEach(function(cell) {
+        cell.addEventListener('dblclick', function() {
+            var span = cell.querySelector('.comment-text');
+            if (!span) return;
+            var originalText = span.textContent || '';
+            if (cell.getAttribute('data-editing') === '1') return;
+            var updateUrl = cell.getAttribute('data-update-url');
+            if (!updateUrl) return;
+            cell.setAttribute('data-editing', '1');
+            var input = document.createElement('textarea');
+            input.className = 'block w-full rounded-lg border-gray-300 shadow-sm sm:text-sm py-1 px-2';
+            input.value = originalText;
+            input.rows = 2;
+            span.style.display = 'none';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+            var save = function(newValue) {
+                var trimmed = (newValue || '').trim();
+                if (trimmed === (originalText || '').trim()) { cancel(); return; }
+                var field = cell.getAttribute('data-field') || 'comment';
+                var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                fetch(updateUrl, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': token, 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: field + '=' + encodeURIComponent(trimmed)
+                }).then(resp => resp.json())
+                .then(json => {
+                    if (json.status === 'success') span.textContent = trimmed;
+                    else { span.textContent = originalText; alert(json.message || 'Echec'); }
+                }).catch(() => { span.textContent = originalText; alert('Erreur reseau'); })
+                .finally(() => cleanup());
+            };
+            var cancel = () => cleanup();
+            var cleanup = () => {
+                if (input && input.parentNode) input.parentNode.removeChild(input);
+                span.style.display = '';
+                cell.removeAttribute('data-editing');
+            };
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); save(input.value); }
+                else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+            });
+            input.addEventListener('blur', () => save(input.value));
+        });
     });
 
 });

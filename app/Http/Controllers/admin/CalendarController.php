@@ -36,7 +36,7 @@ class CalendarController extends Controller
                     ->orWhere('archived', 0);
             })
             ->orderBy('name', 'asc')
-            ->get(['id', 'client_id', 'name', 'budget', 'cost_per_hour', 'estimated_hours']);
+            ->get(['id', 'client_id', 'name', 'budget', 'cost_per_hour', 'estimated_hours', 'color']);
 
         $tasks = Tasks::where('entreprise_id', auth()->user()->entreprise_id)
             ->orderBy('title', 'asc')
@@ -205,6 +205,18 @@ class CalendarController extends Controller
 
         $request->merge(['start' => $start, 'end' => $end]);
 
+        // If a project is selected and it has a color, force the event color to match the project color.
+        // This guarantees that all new project-related events inherit the project's color.
+        if ($request->filled('project_id')) {
+            $project = Project::where('id', $request->project_id)
+                ->where('entreprise_id', auth()->user()->entreprise_id)
+                ->first();
+
+            if ($project && $project->color) {
+                $request->merge(['color' => $project->color]);
+            }
+        }
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -284,6 +296,17 @@ class CalendarController extends Controller
         }
 
         $request->merge(['start' => $start, 'end' => $end]);
+
+        // If a project is (re)selected and it has a color, force the event color to match the project color.
+        if ($request->filled('project_id')) {
+            $project = Project::where('id', $request->project_id)
+                ->where('entreprise_id', auth()->user()->entreprise_id)
+                ->first();
+
+            if ($project && $project->color) {
+                $request->merge(['color' => $project->color]);
+            }
+        }
 
         $request->validate([
             'title' => 'sometimes|string|max:255',

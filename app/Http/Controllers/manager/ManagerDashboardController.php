@@ -11,9 +11,11 @@ use App\Models\Project;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Jaybizzle\CrawlerDetect\CrawlerDetect;
 
 class ManagerDashboardController extends Controller
 {
+
     public function index(Request $request)
     {
         $totalEntreprises = Entreprise::count();
@@ -490,6 +492,87 @@ class ManagerDashboardController extends Controller
         ]);
     }
 
+    /**
+     * Apply visit filters (bots, no-JS, hosting, abnormal) to a query.
+     */
+    private function applyVisitFilters($query, Request $request)
+    {
+        // 1. Exclude known bots via CrawlerDetect (jaybizzle/crawler-detect)
+        if ($request->boolean('exclude_bots')) {
+            $crawlerDetect = new CrawlerDetect();
+            // Collect IDs of visits identified as bots
+            $botIds = (clone $query)
+                ->select('id', 'user_agent')
+                ->whereNotNull('user_agent')
+                ->get()
+                ->filter(function ($visit) use ($crawlerDetect) {
+                    return $crawlerDetect->isCrawler($visit->user_agent);
+                })
+                ->pluck('id')
+                ->toArray();
+
+            if (!empty($botIds)) {
+                $query->whereNotIn('id', $botIds);
+            }
+        }
+
+        // 2. Exclude no-JS visits (duration_seconds = 0 or NULL)
+        if ($request->boolean('exclude_nojs')) {
+            $query->where(function ($q) {
+                $q->whereNotNull('duration_seconds')
+                  ->where('duration_seconds', '>', 0);
+            });
+        }
+
+        // 3. Exclude hosting/datacenter IPs
+        if ($request->boolean('exclude_hosting')) {
+            $query->where(function ($q) {
+                $q->whereNull('is_hosting')
+                  ->orWhere('is_hosting', false);
+            });
+        }
+
+        // 4. Exclude VPN/proxy IPs
+        if ($request->boolean('exclude_vpn')) {
+            $query->where(function ($q) {
+                $q->whereNull('is_proxy')
+                  ->orWhere('is_proxy', false);
+            });
+        }
+
+        // 5. Exclude abnormal behaviour (high-frequency IPs)
+        if ($request->boolean('exclude_abnormal')) {
+            $abnormalIps = Visit::query()
+                ->select('ip')
+                ->whereNotNull('ip')
+                ->where('created_at', '>=', Carbon::now()->subHour())
+                ->groupBy('ip')
+                ->havingRaw('COUNT(*) > 300')
+                ->pluck('ip')
+                ->toArray();
+
+            if (!empty($abnormalIps)) {
+                $query->whereNotIn('ip', $abnormalIps);
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * Get filter toggle states for the view.
+     */
+    private function getFilterState(Request $request): array
+    {
+        return [
+            'exclude_bots'     => $request->boolean('exclude_bots'),
+            'exclude_nojs'     => $request->boolean('exclude_nojs'),
+            'exclude_hosting'  => $request->boolean('exclude_hosting'),
+            'exclude_vpn'      => $request->boolean('exclude_vpn'),
+            'exclude_abnormal' => $request->boolean('exclude_abnormal'),
+        ];
+    }
+
     public function nonClientVisits(Request $request)
     {
         $selectedCountry = $request->query('country');
@@ -521,6 +604,15 @@ class ManagerDashboardController extends Controller
                 $baseQuery->where('country', $selectedCountry);
             }
         }
+
+        $countries = (clone $baseQuery)
+            ->whereNotNull('country')
+            ->where('country', '!=', '')
+            ->distinct()
+            ->orderBy('country')
+            ->pluck('country');
+
+        $this->applyVisitFilters($baseQuery, $request);
 
         $visitsList = (clone $baseQuery)
             ->orderByRaw("CASE WHEN country IS NULL OR country = '' THEN 1 ELSE 0 END")
@@ -560,12 +652,18 @@ class ManagerDashboardController extends Controller
             'isUnique' => false,
             'selectedCountry' => $selectedCountry,
             'unknownCountryToken' => $unknownCountryToken,
+            'countries' => $countries,
+            'filters' => $this->getFilterState($request),
         ]);
     }
 
-    public function uniqueNonClientVisitors()
+    public function uniqueNonClientVisitors(Request $request)
     {
-        $visitsList = Visit::query()
+        $selectedCountry = $request->query('country');
+        $unknownCountryToken = '__unknown__';
+
+        // Base query: non-client visits only (exclude IPs found in users.last_login_ip).
+        $baseQuery = Visit::query()
             ->whereNotNull('ip')
             ->whereNotIn('ip', ['127.0.0.1', '::1'])
             ->whereNotIn('ip', function ($subQuery) {
@@ -573,7 +671,29 @@ class ManagerDashboardController extends Controller
                     ->select('last_login_ip')
                     ->from('users')
                     ->whereNotNull('last_login_ip');
-            })
+            });
+
+        if ($selectedCountry !== null && $selectedCountry !== '') {
+            if ($selectedCountry === $unknownCountryToken) {
+                $baseQuery->where(function ($query) {
+                    $query->whereNull('country')->orWhere('country', '');
+                });
+            } else {
+                $baseQuery->where('country', $selectedCountry);
+            }
+        }
+
+        $countries = (clone $baseQuery)
+            ->select('country')
+            ->whereNotNull('country')
+            ->where('country', '!=', '')
+            ->distinct()
+            ->orderBy('country')
+            ->pluck('country');
+
+        $this->applyVisitFilters($baseQuery, $request);
+
+        $visitsList = (clone $baseQuery)
             ->select(
                 'ip',
                 DB::raw('MAX(created_at) as visited_at'),
@@ -585,13 +705,54 @@ class ManagerDashboardController extends Controller
             ->orderByRaw("CASE WHEN MAX(country) IS NULL OR MAX(country) = '' THEN 1 ELSE 0 END")
             ->orderByRaw("MAX(country) ASC")
             ->orderByDesc('visited_at')
-            ->paginate(25);
+            ->paginate(25)
+            ->withQueryString();
 
         return view('manager.dashboard.visits', [
             'visitsList' => $visitsList,
             'title' => 'Unique visitors (non client)',
-            'subtitle' => 'One row per non-client IP with latest visit date/time and location.',
+            'subtitle' => 'One row per non-client IP with latest location. Click an IP to see visits per date.',
             'isUnique' => true,
+            'selectedCountry' => $selectedCountry,
+            'unknownCountryToken' => $unknownCountryToken,
+            'countries' => $countries,
+            'filters' => $this->getFilterState($request),
+        ]);
+    }
+
+    public function nonClientVisitsByIp(string $ip, Request $request)
+    {
+        $ip = trim($ip);
+
+        // Base query: non-client visits only (exclude IPs found in users.last_login_ip).
+        $baseQuery = Visit::query()
+            ->where('ip', $ip)
+            ->whereNotIn('ip', ['127.0.0.1', '::1'])
+            ->whereNotIn('ip', function ($subQuery) {
+                $subQuery
+                    ->select('last_login_ip')
+                    ->from('users')
+                    ->whereNotNull('last_login_ip');
+            });
+
+        // Show all visits (one row per Visit record) for the given IP.
+        $this->applyVisitFilters($baseQuery, $request);
+
+        $visitsList = (clone $baseQuery)
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate(50)
+            ->withQueryString();
+
+        $totalVisits = (clone $baseQuery)->count();
+
+        return view('manager.dashboard.visits_by_ip', [
+            'ip' => $ip,
+            'totalVisits' => $totalVisits,
+            'visitsList' => $visitsList,
+            'title' => "Visits for IP {$ip} (non client)",
+            'subtitle' => 'One row per visit record (date + time).',
+            'filters' => $this->getFilterState($request),
         ]);
     }
 

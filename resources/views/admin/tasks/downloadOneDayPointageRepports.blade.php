@@ -106,7 +106,9 @@ thead {
 
     <div class="details">
         <div class="details-left">
-        <img src="{{ storage_path('app/public/' . $entreprise->image) }}" alt="Company Logo" class="company-logo">
+            @if(isset($entreprise) && $entreprise->image && file_exists(storage_path('app/public/' . $entreprise->image)))
+                <img src="{{ storage_path('app/public/' . $entreprise->image) }}" alt="Company Logo" class="company-logo">
+            @endif
         </div>
         <div class="details-right">
             <div class="header-info">
@@ -127,6 +129,7 @@ thead {
                 <th>{{ __('messages.Project Name column') }}</th>
                 <th>{{ __('messages.Task Name column') }}</th>
                 <th>{{ __('messages.Employee Name column') }}</th>
+                <th>{{ __('messages.Comment') }}</th>
                 <th>{{ __('messages.Start Date column pointage') }}</th>
                 <th>{{ __('messages.End Date column pointage') }}</th>
                 <th>{{ __('messages.Duration column pointage') }}</th>
@@ -139,8 +142,7 @@ thead {
             <tr>
                 <td>
                     @php
-                        // Get a single project_id value instead of a collection
-                        $projectId = App\Models\Tasks::where('id', $task->task_id)->value('project_id');
+                        $projectId = $task->project_id ?: App\Models\Tasks::where('id', $task->task_id)->value('project_id');
                         $project = $projectId ? App\Models\Project::find($projectId) : null;
                     @endphp
                     {{ $project ? $project->name : '' }}
@@ -150,36 +152,40 @@ thead {
                     @php
                         $employee = App\Models\Employees::where('id', $task->employee_id)->first();
                     @endphp
-                    {{$employee->name}}
+                    {{ $employee ? $employee->name : '-' }}
                 </td>
+                <td>{{ $task->comment ?? '-' }}</td>
                 <td>{{$task->start_date}}</td>
                 <td>{{$task->end_date}}</td>
                 <td>
                     @php
-                    $hours = floor($task->duration / 60);
-                    $minutes = $task->duration % 60;
-                    $totalDuration += $task->duration;
+                        $duration = (int) ($task->duration ?? 0);
+                        $hours = floor($duration / 60);
+                        $minutes = $duration % 60;
+                        $totalDuration += $duration;
                     @endphp
                     {{ sprintf("%02dh:%02dm", $hours, $minutes) }}
                 </td>
                 <td>
-                    {{ number_format($task->cost, 2, ',', ' ') }}€
                     @php
-                        $totalOperatingCost += $task->cost;
+                        $taskCost = (float) ($task->cost ?? 0);
+                        $totalOperatingCost += $taskCost;
                     @endphp
+                    {{ number_format($taskCost, 2, ',', ' ') }}€
                 </td>
                 <td>
                     @php
                         // Safely handle missing project or missing cost_per_hour
-                        $costPerHour = $project && isset($project->cost_per_hour) ? $project->cost_per_hour : 0;
-                        $rowRecette = ($task->duration / 60) * $costPerHour;
+                        $costPerHour = (float) ($project && isset($project->cost_per_hour) ? $project->cost_per_hour : 0);
+                        $rowRecette = ($duration / 60) * $costPerHour;
                         $totalRecette += $rowRecette;
                     @endphp
-                    {{ number_format($rowRecette, 2, ',', ' ') }}€
+                    {{ number_format((float) $rowRecette, 2, ',', ' ') }}€
                 </td>
             </tr>
             @endforeach
             <tr style="border: none;">
+                <td style="border: none;"></td>
                 <td style="border: none;"></td>
                 <td style="border: none;"></td>
                 <td style="border: none;"></td>
@@ -192,8 +198,8 @@ thead {
                     @endphp
                     <strong> {{ sprintf("%02dh:%02dm", $hours, $minutes) }} </strong>  
                 </td>
-                <td style="border: none;"> <strong> {{ number_format($totalOperatingCost, 2, ',', ' ') }}€ </strong> </td>
-                <td style="border: none;"> <strong> {{ number_format($totalRecette, 2, ',', ' ') }}€ </strong> </td>
+                <td style="border: none;"> <strong> {{ number_format((float) $totalOperatingCost, 2, ',', ' ') }}€ </strong> </td>
+                <td style="border: none;"> <strong> {{ number_format((float) $totalRecette, 2, ',', ' ') }}€ </strong> </td>
             </tr>
         </tbody>
     </table>

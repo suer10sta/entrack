@@ -74,6 +74,14 @@
                             </div>
                         </div>
 
+                        <div class="md:col-span-2">
+                            <label for="projectColor" class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Tag Color') }}</label>
+                            <input type="color" id="projectColor" name="color" value="#FDE68A" class="w-full h-10 border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 bg-white" />
+                            <p class="mt-1 text-xs text-slate-500">
+                                {{ __('messages.Tag Color helper') }}
+                            </p>
+                        </div>
+
                         <div class="flex items-center">
                             <input id="regie" name="regie" type="checkbox" value="1" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                             <label for="regie" class="ml-2 block text-sm text-gray-900">

@@ -344,6 +344,7 @@
                 <thead>
                     <td bordercolor=' #ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Task Name') }}</strong></td>
                     <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Project / Subproject') }}</strong></td>
+                    <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Comment') }}</strong></td>
                     <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Start Date') }} </strong>
                     </td>
                     <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.End Date') }}</strong></td>
@@ -358,6 +359,7 @@
                     <tr>
                         <td valign='top' style='font-size:9px;'>{{$coll->task_name}}</td>
                         <td valign='top' style='font-size:9px;'>{{ $coll->project_name ?? $projectinfos->name }}</td>
+                        <td valign='top' style='font-size:9px;'>{{ $coll->comment }}</td>
                         <td valign='top' style='font-size:9px;'>{{ \Carbon\Carbon::parse($coll->start_date)->format('d-m-Y H:i') }}</td>
                         <td valign='top' style='font-size:9px;'>{{ \Carbon\Carbon::parse($coll->end_date)->format('d-m-Y H:i') }}</td>
                         <td valign='top' style='font-size:9px;'>
@@ -373,7 +375,7 @@
                     </tr>
                     @endforeach
                     <tr>
-                        <td colspan="4" style='font-size:9px; text-align: right;'><strong>{{ __('messages.Total Duration') }}:</strong></td>
+                        <td colspan="5" style='font-size:9px; text-align: right;'><strong>{{ __('messages.Total Duration') }}:</strong></td>
                         <td valign='top' style='font-size:9px;'>
                             {{ floor($totalMinutes / 60) }}h:{{ sprintf('%02d', $totalMinutes % 60) }}m
                         </td>

@@ -2,7 +2,17 @@
     $manager = auth('manager')->user();
 @endphp
 
-<aside class="w-64 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col justify-between h-screen sticky top-0 z-20">
+{{-- Mobile backdrop --}}
+<div
+    id="managerSidebarBackdrop"
+    class="fixed inset-0 bg-black/40 z-40 hidden lg:hidden opacity-0 transition-opacity duration-200"
+    onclick="toggleManagerSidebar(false)"
+></div>
+
+<aside
+    id="managerSidebar"
+    class="hidden fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex-col justify-between h-screen overflow-y-auto custom-scrollbar transform -translate-x-full transition-transform duration-200 ease-out lg:static lg:sticky lg:top-0 lg:translate-x-0 lg:flex"
+>
     <div>
         <div class="p-6 flex items-center space-x-3">
         <img
@@ -27,6 +37,7 @@
                 <span>Dashboard</span>
             </a>
 
+
             <a href="{{ route('manager.subscriptions.index') }}"
                class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative
                     {{ request()->routeIs('manager.subscriptions.*') ? 'bg-blue-500 text-white' : '' }}">
@@ -38,6 +49,21 @@
                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.598 1M12 8V6m0 10v2m8-8a8 8 0 11-16 0 8 8 0 0116 0z" />
                 </svg>
                 <span>Subscriptions</span>
+            </a>
+
+            <a href="{{ route('manager.blog.index') }}"
+               class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors relative
+                    {{ request()->routeIs('manager.blog.*') ? 'bg-blue-500 text-white' : '' }}">
+                @if(request()->routeIs('manager.blog.*'))
+                    <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full"></div>
+                @endif
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M12 20h9" />
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M16.5 3.5a2.121 2.121 0 013 3L9 17l-4 1 1-4 10.5-10.5z" />
+                </svg>
+                <span>Blog</span>
             </a>
 
             @php

@@ -58,9 +58,9 @@ Route::get('/', function () {
         $utmSource = null;
         $deviceType = null;
 
-        if ($ip && !in_array($ip, ['127.0.0.1', '::1'], true)) {
+        if (!app()->environment('local') && $ip && !in_array($ip, ['127.0.0.1', '::1'], true)) {
             try {
-                $response = Http::get('http://ip-api.com/json/' . $ip . '?fields=status,country,countryCode,city');
+                $response = Http::timeout(2)->get('http://ip-api.com/json/' . $ip . '?fields=status,country,countryCode,city');
                 if ($response->ok() && ($response['status'] ?? null) === 'success') {
                     $country = $response['country'] ?? null;
                     $countryCode = $response['countryCode'] ?? null;
@@ -125,6 +125,9 @@ Route::get('/demo', function () {
     return view('components.Home_page.demo');
 })->name('demo');
 
+Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{post:slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
+
 // Public chatbot endpoint for landing page assistant
 Route::post('/chatbot/ask', [ChatbotController::class, 'ask'])->name('chatbot.ask');
 
@@ -146,7 +149,7 @@ Route::get('/dashboard', function () {
     }
 })->middleware(['auth', 'verified', \App\Http\Middleware\CustomLoginMiddleware::class])->name('dashboard');
 
-Route::middleware(['auth', 'role:super_admin'])->name('superadmin.')->prefix('superadmin')->group(function () {
+Route::middleware(['auth', 'verified', 'role:super_admin'])->name('superadmin.')->prefix('superadmin')->group(function () {
     Route::get("/", [IndexController::class, "index"])->name("index");
     Route::resource('/roles', RoleController::class);
     Route::post('/roles/{role}/assign_permission', [RoleController::class, "assign_permission"])->name("roles.assign_permission");
@@ -167,7 +170,7 @@ Route::middleware(['auth', 'role:super_admin'])->name('superadmin.')->prefix('su
 
 //Route::middleware(['auth', 'role:Admin', \App\Http\Middleware\CheckEntrepriseDuration::class])->name('admin.')->prefix('admin')->group(function () {
 
-Route::middleware(['auth', 'role:Admin'])->name('admin.')->prefix('admin')->group(function () {
+Route::middleware(['auth', 'verified', 'role:Admin'])->name('admin.')->prefix('admin')->group(function () {
     Route::get("/", [adminController::class, "index"])->name("index");
     Route::resource('/roles', RoleController::class);
     Route::post('/roles/{role}/assign_permission', [RoleController::class, "assign_permission"])->name("roles.assign_permission");
@@ -519,7 +522,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/search', [SearchController::class, 'search'])->name('search');
 });
 
-Route::middleware(['auth', 'role:Responsable de projet'])->name('Responsable_de_projet.')->prefix('Responsable_de_projet')->group(function () {
+Route::middleware(['auth', 'verified', 'role:Responsable de projet'])->name('Responsable_de_projet.')->prefix('Responsable_de_projet')->group(function () {
     Route::get("/", [EmployeesIndexController::class, "index"])->name("index");
 
     Route::post('/tasks/{tasks}/{employee_id}/start', [tasksController::class, "start"])->name('tasks.start');
@@ -898,7 +901,7 @@ Route::middleware(['auth', 'role:Responsable de projet'])->name('Responsable_de_
 
 
 
-Route::middleware(['auth', 'role:Employee'])->name('employee.')->prefix('employee')->group(function () {
+Route::middleware(['auth', 'verified', 'role:Employee'])->name('employee.')->prefix('employee')->group(function () {
     Route::get("/", [EmployeesIndexController::class, "index"])->name("index");
 
     Route::post('/tasks/{tasks}/{employee_id}/start', [tasksController::class, "start"])->name('tasks.start');
@@ -1267,7 +1270,7 @@ Route::middleware(['auth', 'role:Employee'])->name('employee.')->prefix('employe
 
 
 
-Route::middleware(['auth', 'role:SuperAdmin'])->name('SuperAdmin.')->prefix('SuperAdmin')->group(function () {
+Route::middleware(['auth', 'verified', 'role:SuperAdmin'])->name('SuperAdmin.')->prefix('SuperAdmin')->group(function () {
     Route::get("/", [adminController::class, "index"])->name("index");
     Route::resource('/roles', RoleController::class);
     Route::post('/roles/{role}/assign_permission', [RoleController::class, "assign_permission"])->name("roles.assign_permission");
@@ -1561,7 +1564,7 @@ Route::middleware(['auth', 'role:SuperAdmin'])->name('SuperAdmin.')->prefix('Sup
 
 
 
-Route::middleware(['auth', 'role:Responsable de projet et gestionnaire'])->name('Responsable_gestionnaire.')->prefix('Responsable_gestionnaire')->group(function () {
+Route::middleware(['auth', 'verified', 'role:Responsable de projet et gestionnaire'])->name('Responsable_gestionnaire.')->prefix('Responsable_gestionnaire')->group(function () {
     Route::get("/", [EmployeesIndexController::class, "index"])->name("index");
 
     Route::post('/tasks/{tasks}/{employee_id}/start', [tasksController::class, "start"])->name('tasks.start');

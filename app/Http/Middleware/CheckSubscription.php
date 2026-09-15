@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Events\TrialExpirationWarning;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,12 +22,21 @@ class CheckSubscription
 
         View::share('showTrialExpiredModal', false);
         if (Auth::check()) {
+            $user = Auth::user();
+            $entreprise = $user ? $user->entreprise : null;
+
+            // Send trial expiration warning for all users with an entreprise (including admins)
+            if ($entreprise) {
+                $this->sendTrialExpirationIfNeeded($user, $entreprise);
+            }
+
+            // Admin users may not be linked to a specific entreprise; skip subscription checks entirely.
+            if ($user && (method_exists($user, 'hasRole') && ($user->hasRole('Admin') || $user->hasRole('super_admin')))) {
+                return $next($request);
+            }
             // Ensure the user has an 'entreprise' relationship loaded
             // We'll use auth()->user() which is generally available after login.
-            $entreprise = Auth::user()->entreprise;
 
-            // This 'if' check is crucial for login/register routes
-            if ($entreprise) {
                 // Check if subscription is canceled
                 $hasCanceledSubscription = method_exists($entreprise, 'hasCanceledSubscription') 
                     ? $entreprise->hasCanceledSubscription() 
@@ -50,16 +60,11 @@ class CheckSubscription
                     || $request->routeIs('profile.index')
                     || $request->routeIs('logout')
                 ) {
-                    \Log::info('Route is profile/subscription/logout - allowing access');
                     $isBlocked = false;
-                } else {
-                    \Log::info('Route is NOT profile - blocked? ' . ($isBlocked ? 'TRUE' : 'FALSE'));
                 }
 
                 // Share flag for any UI modal logic
                 View::share('showTrialExpiredModal', $isBlocked);
-                \Log::info('Final showTrialExpiredModal: ' . ($isBlocked ? 'TRUE' : 'FALSE'));
-                \Log::info('=== End Debug ===');
 
                 // If blocked, force redirect to upgrade page and prevent access to other interfaces
                 if ($isBlocked) {
@@ -74,12 +79,42 @@ class CheckSubscription
                         return redirect()->route('profile.upgrade');
                     }
                 }
-            } else {
-                \Log::info('No entreprise found for user');
             }
-        } else {
-            \Log::info('User not authenticated');
         }
         return $next($request);
+    }
+
+    /**
+     * Send trial expiration warning notification if trial ends within 3 days.
+     * Uses a session flag to avoid spamming the user on every request.
+     */
+    private function sendTrialExpirationIfNeeded($user, $entreprise): void
+    {
+        if (!$user || !$entreprise || !$entreprise->trial_ends_at) {
+            return;
+        }
+
+        // Only send if trial is still active but expiring soon
+        if (!$entreprise->isOnTrial()) {
+            return;
+        }
+
+        $daysRemaining = (int) $entreprise->trial_ends_at->diffInDays(now());
+
+        if ($daysRemaining > 3) {
+            return;
+        }
+
+        // Use session to avoid sending multiple times per day
+        $sessionKey = 'trial_warning_sent_' . $user->id;
+        $lastSent = session($sessionKey);
+
+        if ($lastSent && $lastSent >= now()->startOfDay()->timestamp) {
+            return;
+        }
+
+        session([$sessionKey => now()->timestamp]);
+
+        event(new TrialExpirationWarning($user, $entreprise, $daysRemaining));
     }
 }

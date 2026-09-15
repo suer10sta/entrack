@@ -92,4 +92,55 @@
         <div class="mt-12 flex flex-col md:flex-row items-center justify-between gap-4 border-t border-[#E5E7EB] pt-6 text-sm text-[#9CA3AF]">
         </div>
     </div>
+    @php
+        // In Blade components, parent view vars are not always directly available.
+        // Fallback to globally shared view data so tracking still works.
+        $scriptVisitId = $visitId ?? (view()->shared('visitId') ?? null);
+        $shouldTrack = !empty($scriptVisitId);
+    @endphp
+
+    @if($shouldTrack)
+        <script>
+            (function () {
+                const visitId = @json($scriptVisitId);
+                const endpoint = @json(route('track.visit'));
+                const payloadBase = { visit_id: visitId };
+
+                function send(event) {
+                    const payload = JSON.stringify({ ...payloadBase, event: event });
+
+                    if (navigator.sendBeacon) {
+                        const blob = new Blob([payload], { type: 'application/json' });
+                        navigator.sendBeacon(endpoint, blob);
+                        return;
+                    }
+
+                    fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: payload,
+                        keepalive: true
+                    }).catch(function () {});
+                }
+
+                // Update last activity while the user stays on the page.
+                const intervalMs = 15000;
+                send('ping');
+                const timer = setInterval(function () { send('ping'); }, intervalMs);
+
+                // Mark end when tab becomes hidden or unloads.
+                document.addEventListener('visibilitychange', function () {
+                    if (document.visibilityState === 'hidden') {
+                        send('end');
+                        clearInterval(timer);
+                    }
+                });
+
+                window.addEventListener('beforeunload', function () {
+                    send('end');
+                    clearInterval(timer);
+                });
+            })();
+        </script>
+    @endif
 </footer>

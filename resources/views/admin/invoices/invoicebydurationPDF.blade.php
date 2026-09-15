@@ -185,6 +185,34 @@
 </head>
 
 <body>
+    @php
+        // Some controller paths (e.g. direct download/regenerate) don't pass this flag.
+        // Default it so the PDF can render normally.
+        $is_Editing = $is_Editing ?? false;
+
+        // Some controller paths also don't pass these pre-formatted dates.
+        // Derive them from the provided invoice model when missing.
+        if (! isset($invoice_date)) {
+            $invoice_date = isset($invoice) && $invoice?->created_at
+                ? \Carbon\Carbon::parse($invoice->created_at)->format('d-m-Y')
+                : '';
+        }
+
+        if (! isset($due_date)) {
+            $due_date = isset($invoice) && $invoice?->due_date
+                ? \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y')
+                : '';
+        }
+
+        // Comment may be passed by some flows, but not by the download/regenerate path.
+        $comment = $comment ?? ($invoice->comment ?? '');
+
+        // Always use the invoice's original creation month/year for the displayed invoice number.
+        // Prevents regenerating in a different month from changing e.g. F-2601004 -> F-2603004.
+        $invoiceYm = isset($invoice) && $invoice?->created_at
+            ? \Carbon\Carbon::parse($invoice->created_at)->format('ym')
+            : date('ym');
+    @endphp
     <div class="page">
         <div class="content-wrappe">
             <div class="header">
@@ -205,7 +233,7 @@
                         {{$is_Editing ? $due_last_date : $due_date}}
                         <br>
                         {{ __('messages.Client Number') }} : {{ $client->client_number }} <br>
-                        {{ __('messages.Invoice Number') }} : {{date('ym')}}@if(request()->has('number')){{request()->input('number')}}@else{{$invoice_id }}@endif
+                        {{ __('messages.Invoice Number') }} : {{$invoiceYm}}@if(request()->has('number')){{request()->input('number')}}@else{{$invoice_id }}@endif
                     </p>
                 </div>
                 <div class="details-right">
@@ -220,7 +248,7 @@
             <br><br><br><br><br>
             <div class="invoice-number">
                 {{ __('messages.Invoice') }} :
-                {{$entreprise->invoice_prefix}}-{{date('ym')}}@if(request()->has('number')){{request()->input('number')}}@else{{$invoice_id }}
+                {{$entreprise->invoice_prefix}}-{{$invoiceYm}}@if(request()->has('number')){{request()->input('number')}}@else{{$invoice_id }}
                 @endif
             </div>
 
@@ -303,7 +331,7 @@
                 <strong>{{number_format(($prixtotal + ($prixtotal * ($projectinfos->tva / 100))), 2, ',', '')}}€</strong>
                 {{ __('messages.on the account mentioned below before') }}
                 {{$is_Editing ? $due_last_date : $due_date}}
-                {{ __('messages.mentioning the invoice number') }} <strong>{{date('ym')}}@if(request()->has('number')){{request()->input('number')}}@else{{$invoice_id }} @endif</strong>
+                {{ __('messages.mentioning the invoice number') }} <strong>{{$invoiceYm}}@if(request()->has('number')){{request()->input('number')}}@else{{$invoice_id }} @endif</strong>
                 <br>
                 - {{ __('messages.Intracommunity delivery services note') }}
                 <br>
@@ -340,6 +368,7 @@
                 <thead>
                     <td bordercolor=' #ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Task Name') }}</strong></td>
                     <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Project / Subproject') }}</strong></td>
+                    <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Comment') }}</strong></td>
                     <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.Start Date') }} </strong>
                     </td>
                     <td bordercolor='#ccc' bgcolor='#f2f2f2' style='font-size:12px;'><strong>{{ __('messages.End Date') }}</strong></td>
@@ -354,6 +383,7 @@
                     <tr>
                         <td valign='top' style='font-size:9px;'>{{$coll->task_name}}</td>
                         <td valign='top' style='font-size:9px;'>{{ $coll->project_name ?? $projectinfos->name }}</td>
+                        <td valign='top' style='font-size:9px;'>{{ $coll->comment }}</td>
                         <td valign='top' style='font-size:9px;'>{{ \Carbon\Carbon::parse($coll->start_date)->format('d-m-Y H:i') }}</td>
                         <td valign='top' style='font-size:9px;'>{{ \Carbon\Carbon::parse($coll->end_date)->format('d-m-Y H:i') }}</td>
                         <td valign='top' style='font-size:9px;'>
@@ -369,7 +399,7 @@
                     </tr>
                     @endforeach
                     <tr>
-                        <td colspan="4" style='font-size:9px; text-align: right;'><strong>{{ __('messages.Total Duration') }}:</strong></td>
+                        <td colspan="5" style='font-size:9px; text-align: right;'><strong>{{ __('messages.Total Duration') }}:</strong></td>
                         <td valign='top' style='font-size:9px;'>
                             {{ floor($totalMinutes / 60) }}h:{{ sprintf('%02d', $totalMinutes % 60) }}m
                         </td>

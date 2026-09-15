@@ -5,6 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DalyTrac Dashboard</title>
     @vite('resources/css/app.css')
+
+    <style>
+        /* Mobile: convert task details table to stacked cards (no side-scroll) */
+        @media (max-width: 1024px) {
+            #taskDetailsTable thead {
+                display: none;
+            }
+
+            #taskDetailsTable tbody {
+                display: block;
+                width: 100%;
+            }
+
+            #taskDetailsTable tbody tr {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                margin: 12px;
+                padding: 12px;
+                border: 1px solid rgba(148, 163, 184, 0.55);
+                border-radius: 16px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
+                box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
+            }
+
+            #taskDetailsTable tbody td {
+                display: block;
+                width: 100%;
+                padding: 10px 12px !important;
+                border: 1px solid rgba(226, 232, 240, 0.9);
+                border-radius: 12px;
+                background: rgba(255,255,255,0.78);
+                text-align: left !important;
+                white-space: normal !important;
+                word-break: break-word;
+            }
+
+            #taskDetailsTable tbody td[data-span="2"] {
+                grid-column: span 2 / span 2;
+            }
+
+            #taskDetailsTable tbody td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+                color: #64748b;
+                margin-bottom: 6px;
+            }
+
+            /* Center action buttons in mobile card */
+            #taskDetailsTable tbody td[data-label] .task-actions {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+        }
+    </style>
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
@@ -37,17 +99,19 @@
                         <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Task Details') }}</h2>
                     </div>
                     
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                    <div class="overflow-x-auto task-table-responsive">
+                        <table id="taskDetailsTable" class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Task') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Project') }}</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Teams') }}</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Description') }}</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Employees') }}</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Duration') }}</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Estimated Hours') }}</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Difference') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.End Date') }}</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Progress') }}</th>
                                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.Actions') }}</th>
                                 </tr>
@@ -55,12 +119,35 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <tr>
                                     {{-- Tâche --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                                    <td data-label="{{ __('messages.Task') }}" data-span="2" class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                                         {{$task->title}}
+                                    </td>
+
+                                    {{-- Projet --}}
+                                    <td data-label="{{ __('messages.Project') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                        @php
+                                            $projectName = $task->project_name ?? null;
+                                            $project = null;
+                                            if (!empty($task->project_id)) {
+                                                $project = App\Models\Project::find($task->project_id);
+                                                if (!$projectName && $project) $projectName = $project->name;
+                                            }
+
+                                            $projectShowRoute = null;
+                                            if(Auth::user()->hasRole('Admin') && $project) $projectShowRoute = route('admin.projects.show', $project->id);
+                                        @endphp
+
+                                        @if($projectShowRoute)
+                                            <a href="{{ $projectShowRoute }}" class="text-blue-600 hover:text-blue-800 hover:underline">
+                                                {{ $projectName ?? '-' }}
+                                            </a>
+                                        @else
+                                            {{ $projectName ?? '-' }}
+                                        @endif
                                     </td>
                                     
                                     {{-- Équipes --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    <td data-label="{{ __('messages.Teams') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                         @php
                                             $teams_id = App\Models\team_tasks::where('task_id', $task->id)->pluck('team_id');
                                             $teams = App\Models\Teams::whereIn('id', $teams_id)->get();
@@ -71,12 +158,12 @@
                                     </td>
                                     
                                     {{-- Description --}}
-                                    <td class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">
+                                    <td data-label="{{ __('messages.Description') }}" data-span="2" class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">
                                         {{$task->description}}
                                     </td>
                                     
                                     {{-- Employés --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    <td data-label="{{ __('messages.Employees') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                         @php
                                             $employee_id = App\Models\employees_tasks::where('task_id', $task->id)->pluck('employee_id');
                                             // Show all employees assigned to the task (including the current user),
@@ -96,7 +183,7 @@
                                     </td>
                                     
                                     {{-- Durée par Employé --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-medium">
+                                    <td data-label="{{ __('messages.Duration') }}" class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-medium">
                                         @foreach($employees as $employee)
                                             @php
                                                 $employeeTaskDuration = App\Models\tasks_timer::where('task_id', $task->id)
@@ -118,12 +205,12 @@
                                     </td>
                                     
                                     {{-- Heures Estimées --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">
+                                    <td data-label="{{ __('messages.Estimated Hours') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">
                                         {{$task->estimated_hours}}h
                                     </td>
                                     
                                     {{-- Différence --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold">
+                                    <td data-label="{{ __('messages.Difference') }}" class="px-6 py-4 whitespace-nowrap text-sm font-bold">
                                         @php
                                             $overallTaskDuration = App\Models\tasks_timer::where('task_id', $task->id)->sum('duration');
                                             $estimatedMinutes = ($task->estimated_hours ?? 0) * 60;
@@ -142,9 +229,21 @@
                                             @endif
                                         @endif
                                     </td>
+
+                                    {{-- Task End Date (latest timer end_date) --}}
+                                    <td data-label="{{ __('messages.End Date') }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                        @php
+                                            $taskEndDate = App\Models\tasks_timer::where('task_id', $task->id)->max('end_date');
+                                        @endphp
+                                        @if($taskEndDate)
+                                            {{ \Carbon\Carbon::parse($taskEndDate)->format('d-m-Y H:i') }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     
                                     {{-- Progrès --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 min-w-[150px]">
+                                    <td data-label="{{ __('messages.Progress') }}" data-span="2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 min-w-[150px]">
                                         @php
                                             $taskestimatedMinutes = max(0, (($task->estimated_hours ?? 0) - ($task->consumed_hours ?? 0)) * 60);
                                             $taskprogressPercentage = $taskestimatedMinutes > 0 ? ($overallTaskDuration / $taskestimatedMinutes) * 100 : 0;
@@ -163,7 +262,8 @@
                                     </td>
                                     
                                     {{-- Actions --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                    <td data-label="{{ __('messages.Actions') }}" data-span="2" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <div class="task-actions">
                                         @php
                                             $editRoute = '#';
                                             $deleteRoute = '#';
@@ -192,6 +292,7 @@
                                             <button type="submit" class="inline-block px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium">X</button>
                                         </form>
                                         @endcan
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>

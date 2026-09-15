@@ -4,6 +4,52 @@
         <meta charset="utf-8"> 
         <meta name="viewport" content="width=device-width, initial-scale=1"> 
         <title>{{ __('messages.FAQ') }} | DalyTrac</title>
+        <meta name="description" content="Find quick answers to common questions about DalyTrac features, pricing, security and support so you can get up and running fast.">
+        <meta name="robots" content="index,follow">
+        <link rel="canonical" href="{{ route('faq') }}">
+
+        <meta property="og:title" content="{{ __('messages.FAQ') }} | DalyTrac">
+        <meta property="og:description" content="Frequently asked questions about using DalyTrac for time tracking, invoicing, projects and more.">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ route('faq') }}">
+        <meta property="og:image" content="{{ asset('img/background_hero.png') }}">
+
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ __('messages.FAQ') }} | DalyTrac">
+        <meta name="twitter:description" content="Get answers about DalyTrac’s business management platform, from setup to billing and support.">
+
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What is DalyTrac?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "DalyTrac is a business management platform that brings together invoicing, project management, time tracking and team collaboration in one place."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is my data secure in DalyTrac?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "We encrypt data in transit and at rest and follow industry best practices to keep your business information secure."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Do you offer a free trial?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, DalyTrac offers a free trial so you can explore invoicing, projects and time tracking before choosing a paid plan."
+              }
+            }
+          ]
+        }
+        </script>
         <link rel="preconnect" href="https://fonts.bunny.net"> 
         <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" /> 
         <link rel="stylesheet" href="welcome/css/bootstrap.min.css"> 

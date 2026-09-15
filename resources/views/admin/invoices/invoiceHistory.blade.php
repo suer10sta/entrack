@@ -42,6 +42,98 @@
         .table td, .table th {
             padding: 0.75rem;
         }
+
+        /* Mobile/tablet: show invoice rows as stacked cards (no horizontal scroll) */
+        @media (max-width: 1024px) {
+            .table-responsive {
+                overflow-x: visible !important;
+            }
+
+            #invoicesTable thead {
+                display: none;
+            }
+
+            #invoicesTable tbody {
+                display: block;
+                width: 100%;
+            }
+
+            #invoicesTable tbody tr {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                margin-bottom: 16px;
+                padding: 12px;
+                border: 1px solid rgba(148, 163, 184, 0.55);
+                border-radius: 16px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
+                box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
+                transition: transform 180ms ease, box-shadow 180ms ease;
+            }
+            #invoicesTable tbody td {
+                display: block;
+                width: 100%;
+                padding: 10px 12px !important;
+                border: 1px solid rgba(226, 232, 240, 0.9);
+                border-radius: 12px;
+                background: rgba(255,255,255,0.78);
+                text-align: left !important;
+                white-space: normal !important;
+                word-break: break-word;
+            }
+
+            #invoicesTable tbody td[data-span="2"] {
+                grid-column: span 2 / span 2;
+            }
+
+            #invoicesTable tbody td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+                color: #64748b; /* slate-500 */
+                margin-bottom: 6px;
+            }
+
+            /* Keep action buttons on one line on mobile */
+            #invoicesTable tbody td[data-label="Actions"] .flex {
+                justify-content: center !important;
+                flex-wrap: nowrap !important;
+                gap: 8px !important;
+            }
+
+            #invoicesTable tbody td[data-label="Actions"] form,
+            #invoicesTable tbody td[data-label="Actions"] button,
+            #invoicesTable tbody td[data-label="Actions"] a {
+                flex: 0 0 auto;
+            }
+
+            #invoicesTable tbody td[data-label="Actions"] .payment-button {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            /* Mobile accordion: collapsed invoice shows only invoice number */
+            #invoicesTable tbody tr.invoice-row.is-collapsed td:not(.invoice-toggle-cell) {
+                display: none !important;
+            }
+            #invoicesTable tbody tr.invoice-row td.invoice-toggle-cell {
+                cursor: pointer;
+                user-select: none;
+            }
+            /* We render the "Invoice N°" label inline in markup for this cell */
+            #invoicesTable tbody tr.invoice-row td.invoice-toggle-cell[data-label]::before {
+                content: none !important;
+            }
+            #invoicesTable tbody tr.invoice-row td.invoice-toggle-cell .invoice-chevron {
+                transition: transform 180ms ease;
+            }
+            #invoicesTable tbody tr.invoice-row[aria-expanded="true"] td.invoice-toggle-cell .invoice-chevron {
+                transform: rotate(180deg);
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden font-sans">
@@ -153,7 +245,7 @@
             @endphp
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {{-- Total Paid Card --}}
-                <div onclick="filterByStatus('Paid')" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                <div onclick="filterByStatus('paid')" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer hover:bg-gray-50 transition-colors">
                     <div class="flex-shrink-0 bg-green-100 rounded-full p-3">
                         <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -166,7 +258,7 @@
                     </div>
                 </div>
                 {{-- Total Unpaid Card --}}
-                <div onclick="filterByStatus('Unpaid')" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                <div onclick="filterByStatus('unpaid')" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer hover:bg-gray-50 transition-colors">
                     <div class="flex-shrink-0 bg-red-100 rounded-full p-3">
                         <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -232,19 +324,19 @@
                         <label for="paymentFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Payment') }}</label>
                         <select id="paymentFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                             <option value="">{{ __('messages.All Invoices') }}</option>
-                            <option value="Paid">{{ __('messages.Paid') }}</option>
-                            <option value="Unpaid">{{ __('messages.Unpaid') }}</option>
-                            <option value="Overdue">{{ __('messages.Overdue') }}</option> {{-- [ADDED] Overdue Option --}}
+                            <option value="paid">{{ __('messages.Paid') }}</option>
+                            <option value="unpaid">{{ __('messages.Unpaid') }}</option>
+                            <option value="overdue">{{ __('messages.Overdue') }}</option> {{-- [ADDED] Overdue Option --}}
                         </select>
                     </div>
                     <div>
                         <label for="typeFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Type') }}</label>
                         <select id="typeFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
                             <option value="">{{ __('messages.All Invoices') }}</option>
-                            <option value="partial">{{ __('messages.Partial') }}</option>
-                            <option value="percentage">{{ __('messages.Percentage') }}</option>
+                            <option value="partial">{{ __('messages.Partial Invoice') }}</option>
+                            <option value="percentage">{{ __('messages.Percentage Invoice') }}</option>
                             <option value="period">{{ __('messages.Period Invoice') }}</option>
-                            <option value="detailed">{{ __('messages.Detailed Invoice Generator') }}</option>
+                            <option value="detailed">{{ __('messages.Detailed Invoice') }}</option>
                             <option value="full">{{ __('messages.Full Invoice') }}</option>
                         </select>
                     </div>
@@ -269,8 +361,13 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
 @forelse($invoices as $invoice)
-<tr class="{{ $invoice->sentInvoice == 1 ? 'bg-green-50 hover:bg-green-100' : 'hover:bg-gray-50' }}">
-    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
+<tr
+    data-payment-status="{{ $invoice->Payment_status == 1 ? 'paid' : ($invoice->Payment_status == -1 ? 'credit_note' : 'unpaid') }}"
+    class="invoice-row {{ $invoice->sentInvoice == 1 ? 'bg-green-50 hover:bg-green-100' : 'hover:bg-gray-50' }}"
+    data-invoice-row
+    aria-expanded="true"
+>
+    <td data-label="{{ __('messages.Invoice N°') }}" data-span="2" class="px-4 py-3 whitespace-nowrap text-sm font-medium invoice-toggle-cell" data-invoice-toggle>
         @php
             $dueDate = \Carbon\Carbon::parse($invoice->due_date);
             $today = \Carbon\Carbon::now();
@@ -282,33 +379,54 @@
             elseif(Auth::user()->hasRole('Employee')) $pdfRoute = route('employee.invoices.servePdf', ['invoiceName' => $invoice->id]);
             elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $pdfRoute = route('Responsable_gestionnaire.invoices.servePdf', ['invoiceName' => $invoice->id]);
         @endphp
-        <a href="{{ $pdfRoute }}" target="_blank" class="{{ $isOverdue ? 'invoice-link-overdue' : 'invoice-link-normal' }}">
+        {{-- Desktop: keep original simple link layout --}}
+        <a href="{{ $pdfRoute }}" target="_blank" class="{{ $isOverdue ? 'invoice-link-overdue' : 'invoice-link-normal' }} hidden lg:inline">
             {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
             @if($isOverdue)
                 <span class="block text-xs">({{ $daysOverdue }} {{ __('messages.Invoice days overdue') }})</span>
             @endif
         </a>
+
+        {{-- Mobile: accordion header (label + number inline + chevron) --}}
+        <div class="flex items-start justify-between gap-3 lg:hidden">
+            <div class="flex items-start gap-2 min-w-0">
+                <span class="text-[11px] font-bold tracking-[.06em] uppercase text-slate-500 whitespace-nowrap">
+                    {{ __('messages.Invoice N°') }}
+                </span>
+                <a href="{{ $pdfRoute }}" target="_blank" class="{{ $isOverdue ? 'invoice-link-overdue' : 'invoice-link-normal' }} truncate">
+                    {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
+                    @if($isOverdue)
+                        <span class="block text-xs">({{ $daysOverdue }} {{ __('messages.Invoice days overdue') }})</span>
+                    @endif
+                </a>
+            </div>
+            <span class="shrink-0 mt-0.5 text-slate-400">
+                <svg class="invoice-chevron w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+        </div>
     </td>
-    <td class="px-4 py-3 text-sm text-gray-800" style="max-width: 200px; word-wrap: break-word; white-space: normal;">{{strtoupper($invoice->project_name)}}</td>
-    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+    <td data-label="{{ __('messages.Project') }}" class="px-4 py-3 text-sm text-gray-800" style="max-width: 200px; word-wrap: break-word; white-space: normal;">{{strtoupper($invoice->project_name)}}</td>
+    <td data-label="{{ __('messages.VAT') }}" class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
         @php $project = App\Models\Project::find($invoice->project_id); @endphp
         {{$project->tva ?? __('messages.N/A')}}%
     </td>
-    <td class="px-4 py-3 text-sm text-gray-800" style="max-width: 200px; word-wrap: break-word; white-space: normal;">
+    <td data-label="{{ __('messages.Client') }}" class="px-4 py-3 text-sm text-gray-800" style="max-width: 200px; word-wrap: break-word; white-space: normal;">
         @php $client = \App\Models\Client::where('id', $invoice->client_id)->first(); @endphp
         {{$client->name ?? __('messages.N/A')}}
     </td>
-    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 capitalize">
+    <td data-label="{{ __('messages.Type') }}" class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 capitalize">
         @if($invoice->type == 'Partial') {{$invoice->type}}-{{$invoice->partial}}
         @elseif($invoice->type == 'Percentage') {{$invoice->type}}-{{$invoice->percentage}}
         @else {{$invoice->type}}
         @endif
     </td>
-    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{{ \Carbon\Carbon::parse($invoice->created_at)->format('Y-m-d') }}</td>
+    <td data-label="{{ __('messages.Created At') }}" class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{{ \Carbon\Carbon::parse($invoice->created_at)->format('Y-m-d') }}</td>
     
-    <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-green-700">€{{ number_format($invoice->total_ttc, 2, ',', ' ') }}</td>
+    <td data-label="{{ __('messages.Amount') }}" data-span="2" class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-green-700">€{{ number_format($invoice->total_ttc, 2, ',', ' ') }}</td>
     
-    <td class="px-2 py-3">
+    <td data-label="Actions" data-span="2" class="px-2 py-3">
         @php
             $isPaid = $invoice->Payment_status == 1;
             $toggleRoute = '';
@@ -497,7 +615,7 @@
         @endif
 
             {{-- Edit & Delete buttons in a row below the grid --}}
-            <div class="flex items-center justify-center gap-1.5 w-full">
+            <div class="flex items-center justify-center gap-1.5 w-full" style="padding-top: 10px;"> 
                 {{-- Edit Button: only for first row and if not paid --}}
                 @if($loop->first && $invoice->Payment_status != 1)
                     @php 
@@ -775,7 +893,7 @@
                                 </div>
                                 <div class="flex items-center">
                                     <input class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" type="checkbox" id="status_overdue" value="overdue">
-                                    <label class="ml-2 text-sm text-gray-700" for="status_overdue">Overdue</label>
+                                    <label class="ml-2 text-sm text-gray-700" for="status_overdue">{{ __('messages.Overdue') }}</label>
                                 </div>
                             </div>
                         </div>
@@ -935,11 +1053,13 @@
                         showMessage(data.message, 'success');
                         setTimeout(() => window.location.reload(), 2000);
                     } else {
+                        if (sendInvoiceModal) sendInvoiceModal.classList.add('hidden');
                         showMessage('Error sending invoice: ' + (data.message || 'Unknown error'), 'danger');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    if (sendInvoiceModal) sendInvoiceModal.classList.add('hidden');
                     showMessage('An error occurred while sending the invoice. Please try again.', 'danger');
                 });
             });
@@ -993,6 +1113,7 @@
         const closeSendPeppolModalBtn = document.getElementById('closeSendPeppolModal');
         const cancelSendPeppolModalBtn = document.getElementById('cancelSendPeppolModal');
         const sendPeppolForm = document.getElementById('sendPeppolForm');
+        const billitConfigured = @json(filled(optional(\App\Models\Entreprise::find(Auth::user()->entreprise_id))->billit_api_key));
         
         if (closeSendPeppolModalBtn) {
             closeSendPeppolModalBtn.addEventListener('click', () => {
@@ -1031,32 +1152,37 @@
                     body: formData,
                     headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
                 })
-                .then(response => {
-                    if (response.redirected || response.ok) {
+                .then(async (response) => {
+                    const ok = response.ok;
+                    const redirected = response.redirected;
+
+                    // Attempt to parse JSON for accurate error messages.
+                    let data = null;
+                    const contentType = response.headers.get('content-type') || '';
+                    try {
+                        if (contentType.includes('application/json')) {
+                            data = await response.json();
+                        } else {
+                            const text = await response.text();
+                            data = JSON.parse(text);
+                        }
+                    } catch {
+                        data = null;
+                    }
+
+                    if (!ok && !redirected) {
                         if (sendPeppolModal) sendPeppolModal.classList.add('hidden');
-                        showMessage('Invoice sent successfully via Peppol', 'success');
-                        setTimeout(() => window.location.reload(), 2000);
+                        showMessage('Error sending invoice via Peppol: ' + ((data && data.message) ? data.message : 'Unknown error'), 'danger');
                         return;
                     }
-                    return response.text().then(text => {
-                        try {
-                            const data = JSON.parse(text);
-                            if (data.success) {
-                                if (sendPeppolModal) sendPeppolModal.classList.add('hidden');
-                                showMessage(data.message || 'Invoice sent successfully via Peppol', 'success');
-                                setTimeout(() => window.location.reload(), 2000);
-                            } else {
-                                showMessage('Error sending invoice: ' + (data.message || 'Unknown error'), 'danger');
-                            }
-                        } catch {
-                            if (sendPeppolModal) sendPeppolModal.classList.add('hidden');
-                            showMessage('Invoice sent successfully via Peppol', 'success');
-                            setTimeout(() => window.location.reload(), 2000);
-                        }
-                    });
+
+                    if (sendPeppolModal) sendPeppolModal.classList.add('hidden');
+                    showMessage((data && data.message) ? data.message : 'Invoice sent successfully via Peppol', 'success');
+                    setTimeout(() => window.location.reload(), 2000);
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    if (sendPeppolModal) sendPeppolModal.classList.add('hidden');
                     showMessage('An error occurred while sending the invoice. Please try again.', 'danger');
                 });
             }); 
@@ -1064,6 +1190,10 @@
         
         // Function to open Send Peppol Modal (simple confirmation, no recipients)
         window.openSendPeppolModal = function(invoiceId, invoiceType) {
+            if (!billitConfigured) {
+                showMessage('Billit is not configured for your enterprise. Please add your Billit API key in Enterprise Information before sending via Peppol.', 'danger');
+                return;
+            }
             document.getElementById('peppol_invoice_id').value = invoiceId;
             document.getElementById('peppol_invoice_type').value = invoiceType || 'full';
             
@@ -1317,6 +1447,11 @@
                     showMessage('Please select at least one sending option (Email or Peppol).', 'danger');
                     return;
                 }
+                if (sendPeppol && !billitConfigured) {
+                    if (combinedSendModal) combinedSendModal.classList.add('hidden');
+                    showMessage('Billit is not configured for your enterprise. Please add your Billit API key in Enterprise Information before sending via Peppol.', 'danger');
+                    return;
+                }
 
                 const invoiceId = document.getElementById('combined_invoice_id')?.value;
                 const invoiceType = document.getElementById('combined_invoice_type')?.value || 'full';
@@ -1332,6 +1467,7 @@
                     if (sendEmail) {
                         const selectedRecipients = Array.from(document.querySelectorAll('input[name="combined_selected_recipients[]"]:checked')).map(cb => cb.value);
                         if (selectedRecipients.length === 0) {
+                            if (combinedSendModal) combinedSendModal.classList.add('hidden');
                             showMessage('Please select at least one email recipient.', 'danger');
                             return;
                         }
@@ -1367,6 +1503,7 @@
                             try {
                                 const data = JSON.parse(text);
                                 if (!data.success) {
+                                    if (combinedSendModal) combinedSendModal.classList.add('hidden');
                                     showMessage('Error sending invoice by email: ' + (data.message || 'Unknown error'), 'danger');
                                     return;
                                 }
@@ -1376,6 +1513,7 @@
                         } else {
                             const data = await emailResponse.json();
                             if (!data.success) {
+                                if (combinedSendModal) combinedSendModal.classList.add('hidden');
                                 showMessage('Error sending invoice by email: ' + (data.message || 'Unknown error'), 'danger');
                                 return;
                             }
@@ -1408,17 +1546,21 @@
                         });
 
                         if (!(peppolResponse.redirected || peppolResponse.ok)) {
-                            const text = await peppolResponse.text();
+                            let errMsg = 'Unknown error';
+                            const contentType = peppolResponse.headers.get('content-type') || '';
                             try {
-                                const data = JSON.parse(text);
-                                if (!data.success) {
-                                    showMessage('Error sending invoice via Peppol: ' + (data.message || 'Unknown error'), 'danger');
-                                    return;
+                                if (contentType.includes('application/json')) {
+                                    const data = await peppolResponse.json();
+                                    if (data && data.message) errMsg = data.message;
+                                } else {
+                                    const text = await peppolResponse.text();
+                                    const data = JSON.parse(text);
+                                    if (data && data.message) errMsg = data.message;
                                 }
-                            } catch {
-                                showMessage('Error sending invoice via Peppol.', 'danger');
-                                return;
-                            }
+                            } catch {}
+                            if (combinedSendModal) combinedSendModal.classList.add('hidden');
+                            showMessage('Error sending invoice via Peppol: ' + errMsg, 'danger');
+                            return;
                         }
                     }
 
@@ -1435,6 +1577,7 @@
                     setTimeout(() => window.location.reload(), 2000);
                 } catch (error) {
                     console.error('Error:', error);
+                    if (combinedSendModal) combinedSendModal.classList.add('hidden');
                     showMessage('An error occurred while sending the invoice. Please try again.', 'danger');
                 }
             });
@@ -1659,6 +1802,10 @@
         const messageTitle = document.getElementById('messageTitle');
         let alertClasses = ''; 
         let titleText = '';
+
+        const billitNotConfiguredMessage = 'Billit is not configured for your enterprise. Please add your Billit API key in Enterprise Information before sending via Peppol.';
+        const shouldScrollToTop = String(message || '') === billitNotConfiguredMessage;
+        const autoHideMs = shouldScrollToTop ? 10000 : 5000;
         
         if (type === 'success') {
             alertClasses = 'bg-green-100 border border-green-400 text-green-700'; 
@@ -1675,11 +1822,39 @@
         messageTitle.textContent = titleText;
         messageText.textContent = message;
         messageContainer.style.display = 'block';
+
+        if (shouldScrollToTop) {
+            // This page uses a scrollable <main> (overflow-y-auto), so scrolling the window
+            // may do nothing. Prefer scrolling the alert into view (scrolls nearest container).
+            requestAnimationFrame(() => {
+                try {
+                    messageContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } catch {
+                    // ignore
+                }
+
+                const mainScrollContainer = messageContainer.closest('main');
+                if (mainScrollContainer && typeof mainScrollContainer.scrollTo === 'function') {
+                    try {
+                        mainScrollContainer.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                    } catch {
+                        mainScrollContainer.scrollTop = 0;
+                    }
+                } else {
+                    try {
+                        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                    } catch {
+                        window.scrollTo(0, 0);
+                    }
+                }
+            });
+        }
+
         setTimeout(() => { 
             if (messageContainer) { 
-                messageContainer.style.display = 'none'; 
+                messageContainer.style.display = 'none';  
             } 
-        }, 5000);
+        }, autoHideMs);
     }
 
     // Logique de filtre
@@ -1697,7 +1872,7 @@
         function filterTable() {
             const clientValue = clientFilter ? clientFilter.value.trim() : '';
             const projectValue = projectFilter ? projectFilter.value.trim() : '';
-            const paymentValue = paymentFilter ? paymentFilter.value.trim() : '';
+            const paymentValue = paymentFilter ? paymentFilter.value.trim().toLowerCase() : '';
             const typeValue = typeFilter ? typeFilter.value.trim().toLowerCase() : '';
 
             const rows = document.querySelectorAll('#invoicesTable tbody tr');
@@ -1715,17 +1890,8 @@
                 // [NEW] Overdue detection for filtering
                 const isOverdueRow = row.querySelector('.invoice-link-overdue') !== null;
                 
-                const paymentButton = row.querySelector('.payment-button');
-                let paymentStatus = '';
-                if (paymentButton) {
-                    // Check text content instead of class
-                    const buttonText = paymentButton.textContent.trim();
-                    if (buttonText === 'Paid') {
-                        paymentStatus = 'Paid';
-                    } else if (buttonText === 'Unpaid') {
-                        paymentStatus = 'Unpaid';
-                    }
-                }
+                // Language-agnostic payment status from markup
+                const paymentStatus = (row.dataset.paymentStatus || '').toLowerCase();
 
                 const invoiceTypeCell = row.querySelector('td:nth-child(5)')?.textContent.trim().toLowerCase() || '';
                 const invoiceType = invoiceTypeCell.split('-')[0].trim();
@@ -1737,7 +1903,7 @@
                 let paymentMatch = false;
                 if (paymentValue === '') {
                     paymentMatch = true;
-                } else if (paymentValue === 'Overdue') {
+                } else if (paymentValue === 'overdue') {
                     paymentMatch = isOverdueRow;
                 } else {
                     paymentMatch = paymentStatus === paymentValue;
@@ -1759,6 +1925,42 @@
             }
         }
         filterTable();
+    });
+
+    // Mobile accordion per invoice row (show only invoice number when collapsed)
+    document.addEventListener('DOMContentLoaded', function () {
+        const mql = window.matchMedia('(max-width: 1024px)');
+
+        function setInvoiceRowCollapsed(row, collapsed) {
+            if (!row) return;
+            row.classList.toggle('is-collapsed', collapsed);
+            row.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        }
+
+        function initInvoiceRowAccordions() {
+            const rows = document.querySelectorAll('#invoicesTable tbody tr.invoice-row');
+            const isMobile = mql.matches;
+            rows.forEach(row => setInvoiceRowCollapsed(row, isMobile));
+        }
+
+        document.addEventListener('click', function (e) {
+            const toggleCell = e.target.closest('[data-invoice-toggle]');
+            if (!toggleCell) return;
+
+            // Let normal link clicks open the PDF without toggling.
+            if (e.target.closest('a')) return;
+
+            const row = toggleCell.closest('tr.invoice-row');
+            if (!row) return;
+
+            const collapsed = row.classList.contains('is-collapsed');
+            setInvoiceRowCollapsed(row, !collapsed);
+        });
+
+        if (mql.addEventListener) mql.addEventListener('change', initInvoiceRowAccordions);
+        else if (mql.addListener) mql.addListener(initInvoiceRowAccordions);
+
+        initInvoiceRowAccordions();
     });
 </script>
 </body>

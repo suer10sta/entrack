@@ -6,6 +6,67 @@
     <title>{{ __('messages.Roles Page Title') }}</title>
     @vite('resources/css/app.css')
     @livewireStyles
+
+    <style>
+        /* Mobile: Roles table as modern 2-col cards (no horizontal scroll) */
+        @media (max-width: 1024px) {
+            .roles-table-wrapper {
+                overflow-x: visible !important;
+            }
+
+            #rolesTable thead {
+                display: none;
+            }
+
+            #rolesTable tbody {
+                display: block;
+                width: 100%;
+            }
+
+            #rolesTable tbody tr {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                margin-bottom: 16px;
+                padding: 12px;
+                border: 1px solid rgba(148, 163, 184, 0.55);
+                border-radius: 16px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
+                box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
+            }
+
+            #rolesTable tbody td {
+                display: block;
+                width: 100%;
+                padding: 10px 12px !important;
+                border: 1px solid rgba(226, 232, 240, 0.9);
+                border-radius: 12px;
+                background: rgba(255,255,255,0.78);
+                text-align: left !important;
+                white-space: normal !important;
+                word-break: break-word;
+            }
+
+            #rolesTable tbody td[data-span="2"] {
+                grid-column: span 2 / span 2;
+            }
+
+            #rolesTable tbody td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+                color: #64748b;
+                margin-bottom: 6px;
+            }
+
+            #rolesTable tbody td[data-label="{{ __('messages.ACTIONS header') }}"] .flex {
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-gray-50 flex h-screen overflow-hidden">
@@ -22,25 +83,25 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
 
             <div class="max-w-7xl mx-auto">
 
                 {{-- Header --}}
-                <div class="mb-8">
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ __('messages.Roles Management') }}</h1>
+                <div class="mb-6 sm:mb-8">
+                    <h1 class="text-2xl sm:text-4xl font-bold text-gray-900 mb-2">{{ __('messages.Roles Management') }}</h1>
                     <p class="text-gray-600">{{ __('messages.Roles Management subtitle') }}</p>
                 </div>
 
                 {{-- Controls --}}
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
 
                         {{-- Entries per page (placeholder UI, optional Livewire binding) --}}
                         <div class="flex items-center gap-2">
                             <label class="text-sm font-medium text-gray-700">{{ __('messages.Entries per page') }}</label>
                             <select
-                                class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto">
                                 <option value="5">5</option>
                                 <option value="10" selected>10</option>
                                 <option value="25">25</option>
@@ -79,13 +140,13 @@
 
                 {{-- Table --}}
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full" id="rolesTable">
+                    <div class="roles-table-wrapper overflow-x-auto" style="-webkit-overflow-scrolling: touch;">
+                        <table class="w-full table-auto" id="rolesTable">
                             <thead>
                                 <tr class="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-gray-200">
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">{{ __('messages.ROLE header') }}</th>
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">{{ __('messages.PERMISSIONS header') }}</th>
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">{{ __('messages.ACTIONS header') }}</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">{{ __('messages.ROLE header') }}</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">{{ __('messages.PERMISSIONS header') }}</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">{{ __('messages.ACTIONS header') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -114,10 +175,10 @@
                                                 }
                                             }
                                         @endphp
-                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $roleLabel }}</td>
+                                        <td data-label="{{ __('messages.ROLE header') }}" data-span="2" class="px-6 py-4 text-sm font-medium text-gray-900">{{ $roleLabel }}</td>
 
                                         {{-- Permissions --}}
-                                        <td class="px-6 py-4">
+                                        <td data-label="{{ __('messages.PERMISSIONS header') }}" data-span="2" class="px-6 py-4">
                                             @php
                                                 $enterprisePermissions = \App\Models\EnterpriseRolePermission::where('entreprise_id', Auth::user()->entreprise_id)
                                                     ->where('role_id', $role->id)
@@ -168,7 +229,7 @@
                                         </td>
 
                                         {{-- Actions --}}
-                                        <td class="px-6 py-4">
+                                        <td data-label="{{ __('messages.ACTIONS header') }}" data-span="2" class="px-6 py-4">
                                             <div class="flex items-center gap-2">
                                                 {{-- Edit --}}
                                                 @if (Auth::user()->hasRole('Admin'))

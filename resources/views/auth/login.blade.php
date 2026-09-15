@@ -81,6 +81,7 @@
             f.parentNode.insertBefore(j, f);
         })(window, document, "script", "dataLayer", "GTM-NKDMSK6");
     </script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 
 <body class="bg-gradient-to-b from-sky-50 via-sky-100 to-slate-50 text-foreground font-sans antialiased">
@@ -229,6 +230,18 @@
                     <form method="POST" action="{{ route('login') }}" class="space-y-5">
                         @csrf
 
+                        {{-- Honeypot Field --}}
+                        <div style="display: none;">
+                            <label for="website">Website</label>
+                            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+                        </div>
+
+                        @if($errors->has('cf-turnstile-response'))
+                        <div class="mb-4 rounded-md border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-600" role="alert">
+                            <span>{{ $errors->first('cf-turnstile-response') }}</span>
+                        </div>
+                        @endif
+
                         <div class="space-y-1">
                             <label for="email" class="block text-sm font-medium text-foreground">Email</label>
                             <div class="relative">
@@ -264,6 +277,11 @@
                                 <span>Keep me signed in on this device</span>
                             </label>
                         </div>
+
+                        {{-- Turnstile Widget --}}
+                        @if(config('services.turnstile.site_key'))
+                            <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"></div>
+                        @endif
 
                         <button type="submit"
                                 class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/40 transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background">
