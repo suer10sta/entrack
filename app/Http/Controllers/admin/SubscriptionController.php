@@ -55,7 +55,7 @@ class SubscriptionController extends Controller
                         'cancel_at_period_end' => $renewalPreference === 'manual',
                     ]);
                 } catch (\Throwable $e) {
-                    // Keep request successful even if Stripe API is temporarily unavailable.
+                    Log::error('Stripe subscription update failed: '.$e->getMessage(), ['entreprise_id' => $entreprise->id]);
                 }
             }
         }
@@ -204,7 +204,7 @@ class SubscriptionController extends Controller
                         'cancel_at_period_end' => true,
                     ]);
                 } catch (\Throwable $e) {
-                    // Keep success flow resilient if direct Stripe update fails.
+                    Log::error('Stripe cancel_at_period_end update failed: '.$e->getMessage(), ['entreprise_id' => $entreprise->id]);
                 }
             }
         }
@@ -228,7 +228,7 @@ class SubscriptionController extends Controller
                     app(SubscriptionInvoiceService::class)->createFromStripeInvoice($entreprise, $payload);
                 }
             } catch (\Throwable $e) {
-                // Do not block user flow if PDF generation fails
+                Log::error('Subscription invoice PDF generation failed: '.$e->getMessage(), ['entreprise_id' => $entreprise->id]);
             }
         }
 
@@ -356,7 +356,7 @@ class SubscriptionController extends Controller
             try {
                 $subscription->cancelNow();
             } catch (\Throwable $e) {
-                // Keep going even if immediate cancellation fails.
+                Log::error('Stripe immediate cancellation failed: '.$e->getMessage(), ['entreprise_id' => $entreprise->id]);
             }
         } else {
             $stripeSubscription = $entreprise->latestStripeSubscriptionFromApi();
@@ -364,7 +364,7 @@ class SubscriptionController extends Controller
                 try {
                     Cashier::stripe()->subscriptions->cancel((string) $stripeSubscription->id);
                 } catch (\Throwable $e) {
-                    // Ignore Stripe API errors so the user can still close the account.
+                    Log::error('Stripe subscription cancel failed: '.$e->getMessage(), ['entreprise_id' => $entreprise->id]);
                 }
             }
         }

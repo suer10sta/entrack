@@ -2016,7 +2016,7 @@ Route::middleware([
     });
 });
 
-Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleInvoicePaymentSucceeded'])
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
     ->name('stripe.webhook');
 
 Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->middleware('guest')->name('password.request');

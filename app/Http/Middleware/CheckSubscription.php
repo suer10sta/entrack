@@ -42,9 +42,9 @@ class CheckSubscription
                     ? $entreprise->hasCanceledSubscription() 
                     : false;
                 
-                // Inactive if trial expired OR account explicitly marked inactive OR subscription is canceled
+                // Inactive if trial expired OR blocked by failed payments OR subscription is canceled
                 $isBlocked = $entreprise->isTrialExpired()
-                    || $entreprise->account_status === 'inactive'
+                    || $entreprise->isBlockedByFailedPayments()
                     || $hasCanceledSubscription;
 
                 // Never block entreprises that are exempt from blocking (e.g. ID = 43)
@@ -72,9 +72,9 @@ class CheckSubscription
                     if ($hasCanceledSubscription) {
                         return redirect()->route('profile.upgrade')
                             ->with('error', 'Your subscription has been canceled. Please reactivate your plan to continue using the application.');
-                    } elseif ($entreprise->account_status === 'inactive') {
+                    } elseif ($entreprise->isBlockedByFailedPayments()) {
                         return redirect()->route('profile.upgrade')
-                            ->with('error', 'Your account is inactive. Please reactivate your subscription to continue using the application.');
+                            ->with('error', 'Votre paiement a échoué 3 fois consécutives. Veuillez mettre à jour votre moyen de paiement pour continuer.');
                     } else {
                         return redirect()->route('profile.upgrade');
                     }

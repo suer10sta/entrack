@@ -91,6 +91,8 @@ class Entreprise extends Model
         'account_status',
         'auto_renew',
         'billit_api_key',
+        'failed_payment_count',
+        'last_payment_failed_at',
     ];
 
     public function getAddressAttribute($value)
@@ -289,6 +291,32 @@ class Entreprise extends Model
 
         // Otherwise: trial date is in the past AND they do not have a paid plan
         return $this->trial_ends_at->isPast();
+    }
+
+    /**
+     * Check if the account should be blocked due to consecutive failed payments.
+     * Blocks after 3 consecutive failures.
+     */
+    public function isBlockedByFailedPayments(): bool
+    {
+        return $this->failed_payment_count >= 3;
+    }
+
+    /**
+     * Increment the failed payment counter.
+     */
+    public function recordFailedPayment(): void
+    {
+        $this->increment('failed_payment_count');
+        $this->update(['last_payment_failed_at' => now()]);
+    }
+
+    /**
+     * Reset the failed payment counter (called on successful payment).
+     */
+    public function resetFailedPaymentCount(): void
+    {
+        $this->update(['failed_payment_count' => 0, 'last_payment_failed_at' => null]);
     }
 
     /**

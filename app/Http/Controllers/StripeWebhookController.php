@@ -12,7 +12,7 @@ use App\Services\SubscriptionInvoiceSender;
 class StripeWebhookController extends CashierWebhookController
 {
     /**
-     * Payment succeeded -> keep account active.
+     * Payment succeeded -> keep account active, reset failure counter.
      */
     protected function handleInvoicePaymentSucceeded(array $payload): Response
     {
@@ -30,8 +30,8 @@ class StripeWebhookController extends CashierWebhookController
                     'account_status' => 'active',
                 ])->save();
 
-                // Generate a custom PDF subscription invoice using app name and TVA rules,
-                // then automatically send it either by email (non‑Belgian) or via Peppol/Billit (Belgian).
+                $entreprise->resetFailedPaymentCount();
+
                 if (is_array($invoice)) {
                     try {
                         $relativePath = app(SubscriptionInvoiceService::class)->createFromStripeInvoice($entreprise, $invoice);
@@ -51,7 +51,7 @@ class StripeWebhookController extends CashierWebhookController
     }
 
     /**
-     * Payment failed -> mark account inactive (blocked until fixed).
+     * Payment failed -> increment counter, block only after 3 consecutive failures.
      */
     protected function handleInvoicePaymentFailed(array $payload): Response
     {
@@ -64,9 +64,16 @@ class StripeWebhookController extends CashierWebhookController
                 : null;
 
             if ($entreprise) {
-                $entreprise->forceFill([
-                    'account_status' => 'inactive',
-                ])->save();
+                $entreprise->recordFailedPayment();
+
+                if ($entreprise->isBlockedByFailedPayments()) {
+                    $entreprise->forceFill([
+                        'account_status' => 'inactive',
+                    ])->save();
+                    Log::warning('Stripe: entreprise '.$entreprise->id.' blocked after 3 failed payments');
+                } else {
+                    Log::info('Stripe: entreprise '.$entreprise->id.' failed payment count: '.$entreprise->failed_payment_count);
+                }
             } else {
                 Log::warning('Stripe invoice.failed: no entreprise found for customer '.$customerId);
             }
@@ -78,7 +85,7 @@ class StripeWebhookController extends CashierWebhookController
     }
 
     /**
-     * Subscription cancelled/deleted -> also mark account inactive.
+     * Subscription cancelled -> mark account inactive.
      */
     protected function handleCustomerSubscriptionDeleted(array $payload): Response
     {
