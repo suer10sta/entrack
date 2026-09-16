@@ -114,7 +114,7 @@
                     </div>
 
                     {{-- Action Button --}}
-                    <a href="{{ route('login') }}" class="block text-center w-full rounded-lg py-3.5 text-sm font-bold transition-all {{ $account['highlight'] ? 'bg-yellow-400 text-gray-900 hover:bg-yellow-500' : 'bg-gray-700 text-white hover:bg-gray-800' }}">
+                    <a href="{{ route('register') }}" class="block text-center w-full rounded-lg py-3.5 text-sm font-bold transition-all {{ $account['highlight'] ? 'bg-yellow-400 text-gray-900 hover:bg-yellow-500' : 'bg-gray-700 text-white hover:bg-gray-800' }}">
                         {{ __('messages.Start Your Trial') }}
                     </a>
 
