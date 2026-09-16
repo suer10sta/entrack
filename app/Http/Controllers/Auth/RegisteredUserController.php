@@ -71,7 +71,7 @@ class RegisteredUserController extends Controller
 
         $validated = $request->validate([
             "email" => "required|email|unique:users,email",
-            "password" => "required",
+            "password" => ["required", "min:8", "confirmed"],
             "entreprise_name" => "required",
             'timezone' => 'required',
         ]);
