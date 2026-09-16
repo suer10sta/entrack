@@ -30,8 +30,9 @@ class CheckSubscription
                 $this->sendTrialExpirationIfNeeded($user, $entreprise);
             }
 
-            // Admin users may not be linked to a specific entreprise; skip subscription checks entirely.
-            if ($user && (method_exists($user, 'hasRole') && ($user->hasRole('Admin') || $user->hasRole('super_admin')))) {
+            // Only super_admin (platform admins) skip subscription checks entirely.
+            // Admin users of an entreprise ARE subject to the same checks as employees.
+            if ($user && (method_exists($user, 'hasRole') && $user->hasRole('super_admin'))) {
                 return $next($request);
             }
             // Ensure the user has an 'entreprise' relationship loaded
