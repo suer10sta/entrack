@@ -246,6 +246,7 @@ class RegisteredUserController extends Controller
             // Do not block user registration on alert failures
         }
 
-        return redirect(RouteServiceProvider::HOME);
+        return redirect()->route('verification.notice')
+            ->with('status', 'Votre compte a été créé avec succès. Un email de vérification a été envoyé à votre adresse email. Veuillez vérifier votre boîte de réception pour activer votre compte.');
     }
 }

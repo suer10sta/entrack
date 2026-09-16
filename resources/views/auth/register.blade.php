@@ -226,6 +226,13 @@
                         <span>{{ session('message') }}</span>
                     </div>
                     @endif
+                    @if(session('status'))
+                    <div
+                        class="mb-4 rounded-md border border-sky-500/40 bg-sky-500/10 px-4 py-3 text-sm text-sky-600"
+                        role="alert">
+                        <span>{{ session('status') }}</span>
+                    </div>
+                    @endif
 
                     <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data"
                         class="space-y-5">
@@ -248,24 +255,33 @@
                                 <label for="email" class="block text-sm font-medium text-foreground">Email <span
                                         class="text-red-500">*</span></label>
                                 <input type="email" name="email" id="email"
-                                    class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground"
+                                    class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground @error('email') border-red-500 @enderror"
                                     placeholder="you@company.com" value="{{ old('email') }}" required />
+                                @error('email')
+                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div class="space-y-1">
                                 <label for="entreprise_name" class="block text-sm font-medium text-foreground">Company
                                     name <span class="text-red-500">*</span></label>
                                 <input type="text" name="entreprise_name" id="entreprise_name"
-                                    class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground"
+                                    class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground @error('entreprise_name') border-red-500 @enderror"
                                     placeholder="Company name" value="{{ old('entreprise_name') }}" required />
+                                @error('entreprise_name')
+                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div class="space-y-1">
                                 <label for="password" class="block text-sm font-medium text-foreground">Password <span
                                         class="text-red-500">*</span></label>
                                 <input type="password" name="password" id="password"
-                                    class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground"
+                                    class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground @error('password') border-red-500 @enderror"
                                     placeholder="••••••••" required />
+                                @error('password')
+                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div class="space-y-1">
@@ -281,11 +297,14 @@
                                 <label for="timezone" class="block text-sm font-medium text-foreground">Timezone <span
                                         class="text-red-500">*</span></label>
                                 <select id="timezone" name="timezone"
-                                    class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/40">
+                                    class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/40 @error('timezone') border-red-500 @enderror">
                                     @foreach (timezone_identifiers_list() as $timezone)
-                                    <option value="{{ $timezone }}">{{ $timezone }}</option>
+                                    <option value="{{ $timezone }}" {{ old('timezone') == $timezone ? 'selected' : '' }}>{{ $timezone }}</option>
                                     @endforeach
                                 </select>
+                                @error('timezone')
+                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
 

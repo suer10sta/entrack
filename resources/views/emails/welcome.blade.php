@@ -1,5 +1,6 @@
 @php
     $appName = 'DalyTrac';
+    $logoUrl = config('app.url', 'https://dalytrac.com') . '/img/dalytraclogo.png';
 @endphp
 
 <!DOCTYPE html>
@@ -29,33 +30,41 @@
             max-width: 640px;
             margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 8px;
+            border-radius: 12px;
             box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
             overflow: hidden;
         }
 
         .email-header {
             text-align: center;
-            padding: 28px 28px 16px 28px;
-            background: #0f172a;
+            padding: 32px 28px 20px 28px;
+            background: #ffffff;
+            border-bottom: 3px solid #2563eb;
         }
 
         .email-logo img {
-            max-width: 140px;
+            max-width: 180px;
             height: auto;
             display: block;
             margin: 0 auto;
         }
 
-        .email-header-title {
-            margin-top: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            color: #e5e7eb;
-        }
-
         .email-body {
             padding: 28px;
+        }
+
+        .badge {
+            display: block;
+            width: fit-content;
+            margin: 0 auto 20px auto;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-radius: 999px;
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #059669;
+            text-align: center;
         }
 
         .greeting {
@@ -72,7 +81,7 @@
         }
 
         .highlight-box {
-            border-radius: 8px;
+            border-radius: 10px;
             background: linear-gradient(135deg, #eff6ff, #dbeafe);
             border: 1px solid #bfdbfe;
             padding: 16px 18px;
@@ -135,12 +144,13 @@
     <div class="email-container">
         <div class="email-header">
             <div class="email-logo">
-                <img src="{{ asset('img/dalytraclogo.png') }}" alt="{{ $appName }} Logo">
+                <img src="{{ $logoUrl }}" alt="{{ $appName }}">
             </div>
-            <div class="email-header-title">{{ $appName }}</div>
         </div>
 
         <div class="email-body">
+            <div class="badge">BIENVENUE</div>
+
             <p class="greeting">Bienvenue {{ $userName }} !</p>
 
             <p class="body-text">

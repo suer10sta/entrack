@@ -1655,7 +1655,7 @@ return [
     'Can I integrate with other tools?' => '¿Puedo integrar con otras herramientas?',
     'We focus on built-in time tracking, projects, invoicing, and calendar. If you need a specific integration, contact support and we\'ll discuss options.' => 'Nos enfocamos en seguimiento de tiempo integrado, proyectos, facturación y calendario. Si necesita una integración específica, contacte al soporte y discutiremos opciones.',
     'What payment methods do you accept?' => '¿Qué métodos de pago aceptan?',
-    'We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 14-day free trial for new users.' => 'Aceptamos todas las principales tarjetas de crédito, transferencias bancarias y métodos de pago digitales. Puede elegir facturación mensual o anual, y ofrecemos una prueba gratuita de 14 días para nuevos usuarios.',
+    'We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 14-day free trial for new users.' => 'Aceptamos todas las principales tarjetas de crédito, transferencias bancarias y métodos de pago digitales. Puede elegir facturación mensual o anual, y ofrecemos una prueba gratuita de 15 días para nuevos usuarios.',
     'Is there customer support available?' => '¿Hay soporte al cliente disponible?',
     'We offer 24/7 customer support via email, chat, and phone. Our support team is dedicated to helping you get the most out of DalyTrac.' => 'Ofrecemos soporte al cliente 24/7 por correo electrónico, chat y teléfono. Nuestro equipo de soporte está dedicado a ayudarle a aprovechar al máximo DalyTrac.',
     'Can I export my data?' => '¿Puedo exportar mis datos?',
