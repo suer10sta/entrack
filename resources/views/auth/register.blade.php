@@ -306,6 +306,21 @@
                                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                                 @enderror
                             </div>
+
+                            <div class="md:col-span-2 space-y-1">
+                                <label for="country" class="block text-sm font-medium text-foreground">Pays <span
+                                        class="text-red-500">*</span></label>
+                                <select id="country" name="country"
+                                    class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/40 @error('country') border-red-500 @enderror" required>
+                                    <option value="">Sélectionnez votre pays</option>
+                                    @foreach (\Locale::getIsoCountries() as $code => $name)
+                                    <option value="{{ $name }}" {{ old('country') == $name ? 'selected' : '' }}>{{ $name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('country')
+                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
 
                         {{-- Turnstile Widget --}}

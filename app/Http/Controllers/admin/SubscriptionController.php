@@ -5,6 +5,7 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Cashier\Cashier;
 use App\Mail\AdminActivityAlertMail;
@@ -119,6 +120,12 @@ class SubscriptionController extends Controller
                 ->with('error', 'Aucune entreprise associée à cet utilisateur.');
         }
 
+        // If country is provided via request, save it if empty
+        $country = $request->query('country');
+        if ($country && empty(trim((string) $entreprise->country))) {
+            $entreprise->update(['country' => trim($country)]);
+        }
+
         // Before starting payment, ensure the entreprise has a country configured.
         if (empty(trim((string) $entreprise->country))) {
             return redirect()
@@ -191,6 +198,7 @@ class SubscriptionController extends Controller
             'type_compt' => $planName,
             'trial_ends_at' => null,
             'auto_renew' => $renewalPreference === 'auto',
+            'account_status' => 'active',
         ])->save();
 
         $subscription = $entreprise->currentSubscription();

@@ -74,6 +74,7 @@ class RegisteredUserController extends Controller
             "password" => ["required", "min:8", "confirmed"],
             "entreprise_name" => "required",
             'timezone' => 'required',
+            'country' => 'required',
         ]);
 
         
@@ -96,6 +97,7 @@ class RegisteredUserController extends Controller
             'duration' => now()->addMonths(6), // Set duration to 6 months by default
             'image' => $imageName,
             'type_compt' => null, // null means no plan selected yet
+            'country' => $validated['country'],
             // 15-day free trial period
             'trial_ends_at' => now()->addDays(15),
         ]);
@@ -220,7 +222,15 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         // Fire Registered event (triggers SendEmailVerificationNotification)
-        event(new Registered($user));
+        try {
+            event(new Registered($user));
+        } catch (\Throwable $e) {
+            Log::error('Failed to send verification email during registration', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         // Send welcome notification to the user
         try {

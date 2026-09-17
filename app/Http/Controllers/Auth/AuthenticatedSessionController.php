@@ -109,7 +109,7 @@ class AuthenticatedSessionController extends Controller
                 $request->session()->regenerateToken();
 
                 return back()->withErrors([
-                    'email' => 'Your entreprise account is blocked. Please contact your administrator.',
+                    'email' => 'Votre compte entreprise est bloqué. Veuillez contacter votre administrateur ou écrire à support@dalytrac.com.',
                 ])->onlyInput('email');
             }
 

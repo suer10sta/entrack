@@ -21,17 +21,23 @@ class CheckSubscription
     {
 
         View::share('showTrialExpiredModal', false);
+        View::share('trialDaysRemaining', null);
+        View::share('isOnTrial', false);
         if (Auth::check()) {
             $user = Auth::user();
             $entreprise = $user ? $user->entreprise : null;
 
-            // Send trial expiration warning for all users with an entreprise (including admins)
             if ($entreprise) {
+                $trialDaysRemaining = $entreprise->trial_ends_at
+                    ? (int) $entreprise->trial_ends_at->diffInDays(now())
+                    : null;
+                $isOnTrial = $entreprise->isOnTrial();
+                View::share('trialDaysRemaining', $trialDaysRemaining);
+                View::share('isOnTrial', $isOnTrial);
+
                 $this->sendTrialExpirationIfNeeded($user, $entreprise);
             }
 
-            // Only super_admin (platform admins) skip subscription checks entirely.
-            // Admin users of an entreprise ARE subject to the same checks as employees.
             if ($user && (method_exists($user, 'hasRole') && $user->hasRole('super_admin'))) {
                 return $next($request);
             }

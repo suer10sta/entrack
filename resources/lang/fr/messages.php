@@ -628,10 +628,10 @@ return [
     'Edit Permission - DalyTrac' => 'Modifier la permission - DalyTrac',
     'Permission Infos' => 'Infos permission',
 
-    // Company / Enterprise info page
+// Company / Enterprise info page
     'Company Info - DalyTrac' => 'Informations entreprise - DalyTrac',
     'Enterprise Information' => 'Informations entreprise',
-    'Enterprise Information subtitle' => "Gérer les informations et les paramètres de votre entreprise",
+    'Enterprise Information subtitle' => 'Gérez les informations et les paramètres de votre entreprise',
     'Enterprise Infos' => 'Infos entreprise',
     'Phone Number' => 'Numéro de téléphone',
     'Bank Name' => 'Nom de la banque',
@@ -646,9 +646,30 @@ return [
     'Double Click to Configure it' => 'Double-cliquez pour le configurer',
     'Save All Changes enterprise' => 'Enregistrer toutes les modifications',
     'Billit API key' => 'Clé API Billit (Peppol)',
-    'Billit API key help' => 'Utilisée pour créer les factures dans votre compte Billit lors de l’envoi via Peppol. Stockée de fa çon chiffrée.',
+    'Billit API key help' => 'Utilisée pour créer les factures dans votre compte Billit lors de l\'envoi via Peppol. Stockée de façon chiffrée.',
     'Billit API key saved hint' => 'Une clé est enregistrée. Saisissez une nouvelle valeur pour la remplacer.',
     'Leave empty to use platform default' => 'Laisser vide pour utiliser la clé plateforme',
+
+// Company Information Section
+    'Company Information' => "Informations de l'entreprise",
+    'Your company country is required before subscribing.' => 'Le pays de votre entreprise est requis avant de souscrire.',
+    'Country' => 'Pays',
+    'Enter your country' => 'Saisissez votre pays',
+    'Validate' => 'Valider',
+    'Please enter your country before subscribing.' => 'Veuillez saisir le pays de votre entreprise avant de souscrire.',
+    'Country validated! You can now subscribe.' => 'Pays validé ! Vous pouvez maintenant souscrire.',
+
+    // Trust Section
+    'Secure Payments' => 'Paiements sécurisés',
+    'Your payment is processed securely through Stripe. We never store your card details on our servers.' => 'Votre paiement est traité de manière sécurisée via Stripe. Nous ne stockons jamais les détails de votre carte sur nos serveurs.',
+    'No Commitment' => 'Aucun Engagement',
+    'Cancel your subscription at any time. No hidden fees or long-term contracts required.' => 'Annulez votre abonnement à tout moment. Aucuns frais cachés ni contrat à long terme requis.',
+    'Guaranteed Refund' => 'Remboursement Garanti',
+    'Not satisfied? Get a full refund within 30 days. No questions asked.' => 'Insatisfait ? Obtenez un remboursement complet sous 30 jours. Aucune question posée.',
+    'SSL Secured' => 'SSL Sécurisé',
+    '256-bit Encryption' => 'Chiffrement 256 bits',
+    'Cancel anytime' => 'Annuler à tout moment',
+    '30-day guarantee' => 'Garantie 30 jours',
 
     // Enterprise expenses (create) page
     'Enterprise Expenses - DalyTrac' => 'Dépenses entreprise - DalyTrac',

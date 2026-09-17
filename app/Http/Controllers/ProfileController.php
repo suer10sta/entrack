@@ -112,6 +112,13 @@ class ProfileController extends Controller
     public function showUpgradePage(): View
     {
         $entreprise = Auth::user()?->entreprise;
+        
+        // Calculate remaining trial days
+        $trialDaysRemaining = 0;
+        if ($entreprise && $entreprise->trial_ends_at && $entreprise->trial_ends_at->isFuture()) {
+            $trialDaysRemaining = now()->diffInDays($entreprise->trial_ends_at, false);
+        }
+        
         $renewalSync = $entreprise
             ? $entreprise->renewalSyncStatus()
             : [
@@ -122,7 +129,7 @@ class ProfileController extends Controller
                 'label' => 'No entreprise linked to this account.',
             ];
 
-        return view('admin.profile.upgrade_page', compact('renewalSync'));
+        return view('admin.profile.upgrade_page', compact('renewalSync', 'trialDaysRemaining'));
     }
 
     /**

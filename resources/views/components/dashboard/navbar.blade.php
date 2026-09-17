@@ -24,6 +24,29 @@
     }
 @endphp
 
+@if(Auth::check() && Auth::user()->entreprise_id && Auth::user()->entreprise && Auth::user()->entreprise->trial_ends_at)
+        @php
+            $entreprise = Auth::user()->entreprise;
+            $isOnTrial = $entreprise->isOnTrial();
+            $isExpired = $entreprise->trial_ends_at->isPast();
+            $daysLeft = $isOnTrial ? (int) $entreprise->trial_ends_at->diffInDays(now()) : null;
+        @endphp
+        @if($isOnTrial && $daysLeft > 0)
+            <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-center">
+                <span class="text-sm font-semibold text-amber-800">
+                    ⏳ <strong>{{ $daysLeft }} jour{{ $daysLeft > 1 ? 's' : '' }}</strong> d'essai restant{{ $daysLeft > 1 ? 's' : '' }} avant la fin de votre période d'essai.
+                    <a href="{{ route('profile.upgrade') }}" class="ml-2 text-amber-600 underline font-medium hover:text-amber-800">Mettre à niveau</a>
+                </span>
+            </div>
+        @elseif($isExpired)
+            <div class="bg-red-50 border-b border-red-200 px-4 py-2 text-center">
+                <span class="text-sm font-semibold text-red-800">
+                    ⚠️ Votre essai a expiré. <a href="{{ route('profile.upgrade') }}" class="text-red-600 underline font-medium hover:text-red-800">Choisissez un plan</a> pour continuer.
+                </span>
+            </div>
+        @endif
+    @endif
+
 <header class="flex items-center justify-between px-4 sm:px-6 py-3 bg-white border-b border-gray-200">
     <div class="flex items-center gap-3 flex-1 min-w-0">
         {{-- Mobile hamburger (shows sidebar) --}}

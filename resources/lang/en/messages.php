@@ -108,6 +108,27 @@ return [
     'Billit API key saved hint' => 'A key is saved. Enter a new value to replace it.',
     'Leave empty to use platform default' => 'Leave empty to use platform default',
 
+    // Company Information Section
+    'Company Information' => 'Company Information',
+    'Your company country is required before subscribing.' => 'Your company country is required before subscribing.',
+    'Country' => 'Country',
+    'Enter your country' => 'Enter your country',
+    'Validate' => 'Validate',
+    'Please enter your country before subscribing.' => 'Please enter your country before subscribing.',
+    'Country validated! You can now subscribe.' => 'Country validated! You can now subscribe.',
+
+// Trust Section
+    'Secure Payments' => 'Secure Payments',
+    'Your payment is processed securely through Stripe. We never store your card details on our servers.' => 'Your payment is processed securely through Stripe. We never store your card details on our servers.',
+    'No Commitment' => 'No Commitment',
+    'Cancel your subscription at any time. No hidden fees or long-term contracts required.' => 'Cancel your subscription at any time. No hidden fees or long-term contracts required.',
+    'Guaranteed Refund' => 'Guaranteed Refund',
+    'Not satisfied? Get a full refund within 30 days. No questions asked.' => 'Not satisfied? Get a full refund within 30 days. No questions asked.',
+    'SSL Secured' => 'SSL Secured',
+    '256-bit Encryption' => '256-bit Encryption',
+    'Cancel anytime' => 'Cancel anytime',
+    '30-day guarantee' => '30-day guarantee',
+
     // Enterprise expenses (create) page
     'Enterprise Expenses - DalyTrac' => 'Enterprise Expenses - DalyTrac',
     'Expenses' => 'Expenses',
