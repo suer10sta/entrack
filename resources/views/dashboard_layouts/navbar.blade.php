@@ -3,19 +3,19 @@
             @php
                 $isOnTrial = Auth::user()->entreprise->isOnTrial();
                 $isExpired = Auth::user()->entreprise->trial_ends_at->isPast();
-                $daysLeft = $isOnTrial ? (int) Auth::user()->entreprise->trial_ends_at->diffInDays(now()) : null;
+                $daysLeft = $isOnTrial ? max(0, (int) ceil(now()->floatDiffInDays(Auth::user()->entreprise->trial_ends_at))) : null;
             @endphp
             @if($isOnTrial && $daysLeft > 0)
                 <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-center">
-                    <span class="text-sm font-semibold text-amber-800">
-                        ⏳ <strong>{{ $daysLeft }} jour{{ $daysLeft > 1 ? 's' : '' }}</strong> d'essai restant{{ $daysLeft > 1 ? 's' : '' }}.
-                        <a href="{{ route('profile.upgrade') }}" class="ml-2 text-amber-600 underline font-medium hover:text-amber-800">Mettre à niveau</a>
+                <span class="text-sm font-semibold text-amber-800">
+                        ⏳ {{ __('messages.days_left_trial', ['days' => $daysLeft]) }}.
+                        <a href="{{ route('profile.upgrade') }}" class="ml-2 text-amber-600 underline font-medium hover:text-amber-800">{{ __('messages.upgrade') }}</a>
                     </span>
                 </div>
             @elseif($isExpired)
                 <div class="bg-red-50 border-b border-red-200 px-4 py-2 text-center">
                     <span class="text-sm font-semibold text-red-800">
-                        ⚠️ Votre essai a expiré. <a href="{{ route('profile.upgrade') }}" class="text-red-600 underline font-medium hover:text-red-800">Choisissez un plan</a> pour continuer.
+                        ⚠️ {{ __('messages.trial_expired') }} <a href="{{ route('profile.upgrade') }}" class="text-red-600 underline font-medium hover:text-red-800">{{ __('messages.upgrade_plan') }}</a> pour continuer.
                     </span>
                 </div>
             @endif

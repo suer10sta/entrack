@@ -113,6 +113,19 @@ class AuthenticatedSessionController extends Controller
                 ])->onlyInput('email');
             }
 
+            // Archived employees (archived = 1) must not be able to sign in,
+            // even if the enterprise itself is otherwise active.
+            if ($user->employee && $user->employee->archived) {
+                Auth::logout();
+
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => 'Votre compte a été archivé par votre administrateur. Contactez-le pour être réactivé.',
+                ])->onlyInput('email');
+            }
+
             // Mark user as authenticated/online
             $user->Auth_status = 1;
             $user->save();

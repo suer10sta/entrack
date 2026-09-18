@@ -1673,7 +1673,7 @@ return [
     'Can I integrate with other tools?' => 'Puis-je intégrer avec d\'autres outils?',
     'We focus on built-in time tracking, projects, invoicing, and calendar. If you need a specific integration, contact support and we\'ll discuss options.' => 'Nous nous concentrons sur le suivi du temps intégré, les projets, la facturation et le calendrier. Si vous avez besoin d\'une intégration spécifique, contactez le support et nous discuterons des options.',
     'What payment methods do you accept?' => 'Quels modes de paiement acceptez-vous?',
-    'We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 14-day free trial for new users.' => 'Nous acceptons toutes les principales cartes de crédit, les virements bancaires et les méthodes de paiement numériques. Vous pouvez choisir la facturation mensuelle ou annuelle, et nous offrons un essai gratuit de 15 jours pour les nouveaux utilisateurs.',
+    'We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 15-day free trial for new users.' => 'Nous acceptons toutes les principales cartes de crédit, les virements bancaires et les méthodes de paiement numériques. Vous pouvez choisir la facturation mensuelle ou annuelle, et nous offrons un essai gratuit de 15 jours pour les nouveaux utilisateurs.',
     'Is there customer support available?' => 'Y a-t-il un support client disponible?',
     'We offer 24/7 customer support via email, chat, and phone. Our support team is dedicated to helping you get the most out of DalyTrac.' => 'Nous offrons un support client 24/7 par e-mail, chat et téléphone. Notre Équipe de support est dédiée à vous aider à tirer le meilleur parti de DalyTrac.',
     'Can I export my data?' => 'Puis-je exporter mes données?',
@@ -2027,5 +2027,89 @@ return [
     'Pin project' => 'Épingler le projet',
     'Unpin project' => 'Détacher le projet',
     'Toggle tasks' => 'Afficher/Masquer les tâches',
+
+    // Auth / Verify Email
+    'Verify Your Email' => 'Vérifiez votre email',
+    'Email Verification Required' => 'Vérification requise',
+    'Thank you for registering! A confirmation email has just been sent to you.<br>Please click the link in the email to activate your account.' => 'Merci pour votre inscription ! Un email de confirmation vient de vous être envoyé.<br>Veuillez cliquer sur le lien dans l\'email pour activer votre compte.',
+    'You did not receive the email?' => 'Vous n\'avez pas reçu l\'email ?',
+    'Check your spam folder or request a new verification email below.' => 'Vérifiez votre dossier spam ou demandez un nouvel email de vérification ci-dessous.',
+    'Resend verification email' => 'Renvoyer l\'email de vérification',
+    'Sign out' => 'Se déconnecter',
+
+    // Auth / Login
+    'Secure sign in' => 'Connexion sécurisée',
+    'Welcome back' => 'Bienvenue',
+    'Sign in to access your management dashboard and continue where you left off.' => 'Connectez-vous pour accéder à votre tableau de bord et continuez là où vous vous êtes arrêté.',
+    'Sign in to dashboard' => 'Se connecter au tableau de bord',
+    'Keep me signed in on this device' => 'Gardez-moi connecté sur cet appareil',
+    'Forgot password?' => 'Mot de passe oublié ?',
+    "Don't have an account?" => 'Vous n\'avez pas de compte ?',
+    'Create a free account' => 'Créer un compte gratuit',
+
+    // Auth / Register
+    'Create account' => 'Créer un compte',
+    'Get started' => 'Commencer',
+    'It only takes a moment to set up your DalyTrac workspace.' => 'Il ne faut qu\'un instant pour configurer votre espace de travail DalyTrac.',
+    'Sign up' => "S'inscrire",
+    'Already have an account?' => 'Vous avez déjà un compte ?',
+    'Sign in' => 'Se connecter',
+    'Company name' => 'Nom de l\'entreprise',
+    'Select your country' => 'Sélectionnez votre pays',
+    'Country' => 'Pays',
+    'Timezone' => 'Fuseau horaire',
+
+    // Auth / Reset Password
+    'Reset password' => 'Réinitialiser le mot de passe',
+    'Create new password' => 'Créer un nouveau mot de passe',
+    'Choose a strong password to secure your DalyTrac account.' => 'Choisissez un mot de passe solide pour sécuriser votre compte DalyTrac.',
+    'New password' => 'Nouveau mot de passe',
+    'Confirm password' => 'Confirmer le mot de passe',
+    'Remember your password?' => 'Mot de passe oublié ?',
+    'Back to sign in' => 'Retour à la connexion',
+
+    // Auth / Meta descriptions
+    'DalyTrac Login - Sign in to your management dashboard' => 'Connexion DalyTrac - Accédez à votre tableau de bord',
+    'DalyTrac Create Account - Start your free trial' => 'Créer un compte DalyTrac - Commencez votre essai gratuit',
+    'DalyTrac Reset Password - Secure your account' => 'Réinitialiser le mot de passe DalyTrac - Sécurisez votre compte',
+    'DalyTrac Verify Email - Confirm your account' => 'Vérification email DalyTrac - Confirmez votre compte',
+
+    // Auth / Verify Email status
+    'verification-link-sent' => 'Lien de vérification envoyé !',
+    'email-verified' => 'Votre email a été vérifié avec succès.',
+
+    // Trial Banner
+    'day' => 'jour',
+    'days' => 'jours',
+    'days_left_trial' => ':days jours restant(s) dans votre essai',
+    'upgrade' => 'Mettre à niveau',
+    'trial_expired' => 'Votre essai a expiré. Choisissez un plan pour continuer.',
+    'upgrade_plan' => 'Choisissez un plan pour continuer.',
+
+    // Footer
+    'DalyTrac © :year. All rights reserved.' => 'DalyTrac © :year. Tous droits réservés.',
+    'All rights reserved.' => 'Tous droits réservés.',
+
+    // Dashboard Meta
+    'DalyTrac Dashboard' => 'Tableau de bord DalyTrac',
+    'Management Dashboard' => 'Tableau de bord de gestion',
+
+    // Sidebar Logo
+    'DalyTrac Logo' => 'Logo DalyTrac',
+
+    // Old CSS
+    'DalyTrac Legacy Styles' => 'Styles Legacy DalyTrac',
+
+    // App Meta
+    'DalyTrac - E-invoicing, Project Management & Time Tracking' => 'DalyTrac - Facturation Électronique, Gestion de Projet & Suivi du Temps',
+
+    // Email template
+    'Hello' => 'Bonjour',
+    'Thank you for registering on :app' => 'Merci de vous être inscrit sur :app',
+    'Click the button below to activate your account.' => 'Cliquez sur le bouton ci-dessous pour activer votre compte.',
+    'Verify my email' => 'Vérifier mon email',
+    'This link expires in :time' => 'Ce lien expire dans :time',
+    'If you did not create an account, ignore this email.' => 'Si vous n\'avez pas créé de compte, ignorez cet email.',
+    'If the button does not work, copy this link:' => 'Si le bouton ne fonctionne pas, copiez ce lien :',
 
 ];

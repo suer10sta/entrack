@@ -26,7 +26,7 @@ class WelcomeNotification extends Notification
         $fromName = config('mail.from.name') ?: 'DalyTrac';
 
         $trialDays = $this->entreprise->trial_ends_at
-            ? $this->entreprise->trial_ends_at->diffInDays(now())
+            ? (int) ceil(now()->floatDiffInDays($this->entreprise->trial_ends_at))
             : 15;
 
         return (new MailMessage)

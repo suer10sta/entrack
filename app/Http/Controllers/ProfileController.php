@@ -12,6 +12,15 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
 
+    /**
+     * Neutral page shown to blocked users who are not allowed on the upgrade
+     * page (e.g. Employees): a message instead of a 403.
+     */
+    public function blocked(): View
+    {
+        return view('auth.account-blocked');
+    }
+
     public function index()
     {
         // Return the profile Blade view
@@ -34,8 +43,8 @@ class ProfileController extends Controller
             // Calculate days left for trial
             $daysLeft = 0;
             if ($entreprise->isOnTrial() && $entreprise->trial_ends_at) {
-                $daysLeft = now()->diffInDays($entreprise->trial_ends_at, false);
-                $daysLeft = max(0, ceil($daysLeft)); // Ensure it's not negative
+                $daysLeft = (int) ceil(now()->floatDiffInDays($entreprise->trial_ends_at));
+                $daysLeft = max(0, $daysLeft); // Ensure it's not negative
             }
         } else {
             $planKey = 'trial';
@@ -113,11 +122,11 @@ class ProfileController extends Controller
     {
         $entreprise = Auth::user()?->entreprise;
         
-        // Calculate remaining trial days
-        $trialDaysRemaining = 0;
-        if ($entreprise && $entreprise->trial_ends_at && $entreprise->trial_ends_at->isFuture()) {
-            $trialDaysRemaining = now()->diffInDays($entreprise->trial_ends_at, false);
-        }
+// Calculate remaining trial days
+            $trialDaysRemaining = 0;
+            if ($entreprise && $entreprise->trial_ends_at && $entreprise->trial_ends_at->isFuture()) {
+                $trialDaysRemaining = (int) ceil(now()->floatDiffInDays($entreprise->trial_ends_at));
+            }
         
         $renewalSync = $entreprise
             ? $entreprise->renewalSyncStatus()

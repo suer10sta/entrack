@@ -13,6 +13,11 @@
             {{ config('app.name', 'DalyTrac') }}
         @endif
     </title>
+    <meta name="description" content="{{ __('messages.DalyTrac - E-invoicing, Project Management & Time Tracking') }}">
+    <meta property="og:title" content="{{ config('app.name', 'DalyTrac') }}">
+    <meta property="og:description" content="{{ __('messages.DalyTrac - E-invoicing, Project Management & Time Tracking') }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ route('welcome') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

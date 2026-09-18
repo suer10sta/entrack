@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Laravel\Cashier\Http\Controllers\WebhookController as CashierWebhookController;
+use Laravel\Cashier\Cashier;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Log;
 use App\Models\Entreprise;
@@ -26,8 +27,19 @@ class StripeWebhookController extends CashierWebhookController
                 : null;
 
             if ($entreprise) {
+                // Do NOT blindly force account_status = 'active': an invoice
+                // succeeds while the subscription is still past_due/unpaid,
+                // so verify the real subscription status first. Only
+                // active/trialing subscriptions keep the account active.
+                $subscriptionStatus = $this->fetchSubscriptionStatus($invoice, $entreprise);
+
+                // When we cannot retrieve the subscription, keep the previous
+                // behaviour (payment succeeded -> active).
+                $healthy = $subscriptionStatus === null
+                    || in_array($subscriptionStatus, ['active', 'trialing'], true);
+
                 $entreprise->forceFill([
-                    'account_status' => 'active',
+                    'account_status' => $healthy ? 'active' : 'inactive',
                 ])->save();
 
                 $entreprise->resetFailedPaymentCount();
@@ -48,6 +60,31 @@ class StripeWebhookController extends CashierWebhookController
         }
 
         return $this->successMethod();
+    }
+
+    /**
+     * Fetch the Stripe status of the subscription referenced by an invoice.
+     *
+     * @param  array|null  $invoice
+     * @return string|null null when the subscription id is missing or unreachable.
+     */
+    private function fetchSubscriptionStatus(?array $invoice, Entreprise $entreprise): ?string
+    {
+        $subscriptionId = $invoice['subscription'] ?? null;
+
+        if (!$subscriptionId) {
+            return null;
+        }
+
+        try {
+            $subscription = Cashier::stripe()->subscriptions->retrieve($subscriptionId);
+
+            return $subscription->status ?? null;
+        } catch (\Throwable $e) {
+            Log::warning('Stripe invoice.succeeded: unable to retrieve subscription '.$subscriptionId.' - '.$e->getMessage());
+
+            return null;
+        }
     }
 
     /**

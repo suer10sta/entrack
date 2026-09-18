@@ -3,13 +3,15 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('img/dalytraclogo.png') }}" />
-    <link rel="icon" type="image/png" href="{{ asset('img/dalytraclogo.png') }}" />
-    <title>DalyTrac - Reset Password</title>
+    <meta name="description" content="{{ __('messages.DalyTrac Reset Password - Secure your account') }}">
+    <meta property="og:title" content="{{ __('messages.Create new password') }}">
+    <meta property="og:description" content="{{ __('messages.Choose a strong password to secure your DalyTrac account.') }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ route('password.reset', ['token' => $request->route('token')]) }}">
+    <title>{{ __('messages.DalyTrac Reset Password - Secure your account') }} | DalyTrac</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])

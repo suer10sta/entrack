@@ -90,6 +90,15 @@
         </div>
 
         <div class="mt-12 flex flex-col md:flex-row items-center justify-between gap-4 border-t border-[#E5E7EB] pt-6 text-sm text-[#9CA3AF]">
+            <p>{{ __('messages.DalyTrac © :year. All rights reserved.', ['year' => now()->year]) }}</p>
+            <div class="flex gap-4">
+                <a href="{{ route('welcome') }}" class="hover:text-[#007AFF] transition-colors">{{ __('messages.Home') }}</a>
+                <a href="#features" class="hover:text-[#007AFF] transition-colors">{{ __('messages.Features') }}</a>
+                <a href="#account_type" class="hover:text-[#007AFF] transition-colors">{{ __('messages.Plans') }}</a>
+                <a href="{{ route('about') }}" class="hover:text-[#007AFF] transition-colors">{{ __('messages.About Us') }}</a>
+                <a href="{{ route('contact') }}" class="hover:text-[#007AFF] transition-colors">{{ __('messages.Contact') }}</a>
+                <a href="{{ route('faq') }}" class="hover:text-[#007AFF] transition-colors">{{ __('messages.FAQ') }}</a>
+            </div>
         </div>
     </div>
     @php

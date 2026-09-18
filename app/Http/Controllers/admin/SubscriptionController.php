@@ -61,7 +61,8 @@ class SubscriptionController extends Controller
             }
         }
 
-        // If the user switched from auto to manual, treat it as a cancel-at-period-end
+        // COMMENTED: admin alert emails to dessin@bureaumercier.com disabled
+        /*
         if ($previousRenewalMode === 'auto' && $renewalPreference === 'manual') {
             try {
                 Mail::to('dessin@bureaumercier.com')->send(new AdminActivityAlertMail(
@@ -81,6 +82,7 @@ class SubscriptionController extends Controller
                 // Do not block API response on alert failures
             }
         }
+        */
 
         $payload = [
             'message' => 'Préférence de renouvellement enregistrée.',
@@ -133,10 +135,10 @@ class SubscriptionController extends Controller
                 ->with('error', 'Veuillez d\'abord renseigner le pays de votre entreprise dans les informations d\'entreprise avant de souscrire à un plan.');
         }
 
-        if ($entreprise->subscribed('default')) {
+        if ($entreprise->hasActivePaidSubscription()) {
             return redirect()
                 ->route('dashboard')
-                ->with('error', 'Votre entreprise est déjà abonnée !');
+                ->with('error', 'Votre entreprise est déjà abonnée à un plan !');
         }
 
         $priceId = match ($planName) {
@@ -180,18 +182,78 @@ class SubscriptionController extends Controller
     public function paymentSuccess(Request $request, string $planName)
     {
         $user = Auth::user();
-        $entreprise = $user->entreprise;
+        $entreprise = $user?->entreprise;
+
+        if (!$entreprise) {
+            return redirect()
+                ->route('profile.upgrade')
+                ->with('error', 'Aucune entreprise associée à cet utilisateur.');
+        }
+
+        $validPlans = ['solo', 'premium', 'pro'];
+        if (!in_array($planName, $validPlans, true)) {
+            return redirect()
+                ->route('profile.upgrade')
+                ->with('error', 'Plan invalide.');
+        }
 
         $renewalPreference = $request->query('renewal', 'auto');
         if (!in_array($renewalPreference, ['auto', 'manual'], true)) {
             $renewalPreference = 'auto';
         }
 
-        // If webhook has already updated everything, avoid double processing.
-        if ($entreprise->subscribed('default') && $entreprise->type_compt === $planName) {
+        // Prevent double processing (e.g. after a page refresh).
+        if ($entreprise->type_compt === $planName) {
             return redirect()
                 ->route('dashboard')
                 ->with('success', 'Abonnement déjà activé !');
+        }
+
+        // Protect existing enterprises (created before the Cashier wiring fix)
+        // that already have an active Stripe subscription: never create a
+        // second one. Plan changes are not supported yet.
+        if ($entreprise->hasActivePaidSubscription() && $entreprise->type_compt) {
+            return redirect()
+                ->route('dashboard')
+                ->with('error', 'Votre entreprise est déjà abonnée à un plan !');
+        }
+
+        // Validate the Stripe Checkout session before activating the plan.
+        $sessionId = $request->query('session_id');
+        if (!$sessionId) {
+            return redirect()
+                ->route('profile.upgrade')
+                ->with('error', 'Session de paiement manquante. Veuillez réessayer.');
+        }
+
+        try {
+            $session = Cashier::stripe()->checkout->sessions->retrieve($sessionId);
+        } catch (\Throwable $e) {
+            Log::error('Stripe checkout session verification failed: ' . $e->getMessage(), ['entreprise_id' => $entreprise->id]);
+            return redirect()
+                ->route('profile.upgrade')
+                ->with('error', 'Impossible de vérifier le paiement. Veuillez réessayer.');
+        }
+
+        if (($session->payment_status ?? '') !== 'paid') {
+            return redirect()
+                ->route('profile.upgrade')
+                ->with('error', 'Le paiement n\'a pas été confirmé.');
+        }
+
+        $meta = (array) ($session->metadata ?? []);
+        $metaPlan = $meta['plan_name'] ?? null;
+        $metaEntreprise = $meta['entreprise_id'] ?? null;
+
+        if ($metaPlan !== $planName || (int) $metaEntreprise !== (int) $entreprise->id) {
+            return redirect()
+                ->route('profile.upgrade')
+                ->with('error', 'Session de paiement incohérente. Veuillez recommencer.');
+        }
+
+        // Keep the Stripe customer id in sync if it was not stored during checkout.
+        if (!$entreprise->stripe_id && !empty($session->customer)) {
+            $entreprise->forceFill(['stripe_id' => $session->customer])->save();
         }
 
         $entreprise->forceFill([
@@ -240,7 +302,8 @@ class SubscriptionController extends Controller
             }
         }
 
-        // Notify admin that a subscription payment has succeeded
+        // COMMENTED: admin alert emails to dessin@bureaumercier.com disabled
+        /*
         try {
             Mail::to('dessin@bureaumercier.com')->send(new AdminActivityAlertMail(
                 'New subscription payment',
@@ -257,6 +320,7 @@ class SubscriptionController extends Controller
         } catch (\Throwable $alertException) {
             // Do not block user redirect on alert failures
         }
+        */
 
         return redirect()
             ->route('dashboard')
@@ -306,7 +370,8 @@ class SubscriptionController extends Controller
             }
         }
 
-        // Inform platform admin that the owner has canceled their subscription.
+        // COMMENTED: admin alert emails to dessin@bureaumercier.com disabled
+        /*
         try {
             Mail::to('dessin@bureaumercier.com')->send(new AdminActivityAlertMail(
                 'Subscription canceled by owner',
@@ -321,6 +386,7 @@ class SubscriptionController extends Controller
         } catch (\Throwable $alertException) {
             // Do not block user flow on alert failures.
         }
+        */
 
         return redirect()
             ->route('profile')
@@ -385,7 +451,8 @@ class SubscriptionController extends Controller
             // Delete entreprise and all its related data.
             $entreprise->deleteWithData();
 
-            // Notify platform admin that an enterprise has been closed.
+            // COMMENTED: admin alert emails to dessin@bureaumercier.com disabled
+            /*
             try {
                 Mail::to('dessin@bureaumercier.com')->send(new AdminActivityAlertMail(
                     'Enterprise closed by owner',
@@ -400,6 +467,7 @@ class SubscriptionController extends Controller
             } catch (\Throwable $alertException) {
                 // Do not block user flow on alert failures.
             }
+            */
 
             // Log the user out since their enterprise (and account) no longer exists.
             Auth::logout();

@@ -64,58 +64,6 @@
             </p>
         </div>
 
-        {{-- Trust Badges --}}
-        <div class="max-w-4xl mx-auto mb-10">
-            <div class="flex flex-wrap justify-center items-center gap-8 px-4 py-6 bg-white rounded-2xl shadow-sm border border-gray-100">
-                {{-- Stripe Logo --}}
-                <div class="flex flex-col items-center gap-2">
-                    <div class="flex items-center gap-1 text-gray-700 font-semibold text-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="20" viewBox="0 0 100 64" class="h-5">
-                            <rect width="100" height="64" rx="8" fill="#635BFF"/>
-                            <text x="50" y="40" text-anchor="middle" fill="white" font-size="14" font-weight="bold" font-family="sans-serif">Stripe</text>
-                        </svg>
-                    </div>
-                    <span class="text-xs text-gray-500">{{ __('messages.Secure Payments') }}</span>
-                </div>
-
-                {{-- SSL Badge --}}
-                <div class="flex flex-col items-center gap-2">
-                    <div class="flex items-center gap-1 text-green-600 font-semibold text-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                            <polyline points="9 12 11 14 15 10"/>
-                        </svg>
-                        {{ __('messages.SSL Secured') }}
-                    </div>
-                    <span class="text-xs text-gray-500">{{ __('messages.256-bit Encryption') }}</span>
-                </div>
-
-                {{-- No Commitment --}}
-                <div class="flex flex-col items-center gap-2">
-                    <div class="flex items-center gap-1 text-blue-600 font-semibold text-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
-                        </svg>
-                        {{ __('messages.No Commitment') }}
-                    </div>
-                    <span class="text-xs text-gray-500">{{ __('messages.Cancel anytime') }}</span>
-                </div>
-
-                {{-- Money Back Guarantee --}}
-                <div class="flex flex-col items-center gap-2">
-                    <div class="flex items-center gap-1 text-amber-600 font-semibold text-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="12" y1="1" x2="12" y2="23"/>
-                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                        </svg>
-                        {{ __('messages.Guaranteed Refund') }}
-                    </div>
-                    <span class="text-xs text-gray-500">{{ __('messages.30-day guarantee') }}</span>
-                </div>
-            </div>
-        </div>
-
         {{-- Country Required Warning --}}
         @if(session('error'))
             <div class="max-w-4xl mx-auto mb-6">
@@ -212,15 +160,19 @@
                     <svg class="h-6 w-6 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
                 <h3 class="text-lg font-semibold text-gray-900 mt-4">
-                    @if($trialDaysRemaining > 0)
-                        {{ $trialDaysRemaining }}-Day Trial
+                    @if($trialDaysRemaining !== null && $trialDaysRemaining > 0)
+                        {{ $trialDaysRemaining }} {{ __('messages.days left') }}
+                    @elseif($trialDaysRemaining === null)
+                        Essai en cours
                     @else
                         Trial Expiré
                     @endif
                 </h3>
                 <p class="text-gray-600 mt-1">
-                    @if($trialDaysRemaining > 0)
+                    @if($trialDaysRemaining !== null && $trialDaysRemaining > 0)
                         {{ __('messages.0-Day Trial description') }}
+                    @elseif($trialDaysRemaining === null)
+                        Essai en cours
                     @else
                         Votre période d'essai est terminée
                     @endif
@@ -335,14 +287,13 @@
                         </ul>
                     </div>
                 </div>
-            </div>        
-        </div>
-
+            </div>
+        
                 {{-- Trust & Guarantee Section --}}
         <div class="max-w-4xl mx-auto mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 gap-6">
                 {{-- Secure Payments --}}
-                <div class="bg-white rounded-2xl shadow-md p-6 text-center border border-gray-100">
+                <div class="bg-white rounded-2xl shadow-md p-8 text-center border border-gray-100">
                     <div class="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
@@ -350,33 +301,11 @@
                         </svg>
                     </div>
                     <h3 class="font-semibold text-gray-900 mb-1">{{ __('messages.Secure Payments') }}</h3>
-                    <p class="text-xs text-gray-500">{{ __('messages.Your payment is processed securely through Stripe. We never store your card details on our servers.') }}</p>
-                </div>
-
-                {{-- No Commitment --}}
-                <div class="bg-white rounded-2xl shadow-md p-6 text-center border border-gray-100">
-                    <div class="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
-                        </svg>
-                    </div>
-                    <h3 class="font-semibold text-gray-900 mb-1">{{ __('messages.No Commitment') }}</h3>
-                    <p class="text-xs text-gray-500">{{ __('messages.Cancel your subscription at any time. No hidden fees or long-term contracts required.') }}</p>
-                </div>
-
-                {{-- Money Back Guarantee --}}
-                <div class="bg-white rounded-2xl shadow-md p-6 text-center border border-gray-100">
-                    <div class="w-14 h-14 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                        </svg>
-                    </div>
-                    <h3 class="font-semibold text-gray-900 mb-1">{{ __('messages.Guaranteed Refund') }}</h3>
-                    <p class="text-xs text-gray-500">{{ __('messages.Not satisfied? Get a full refund within 30 days. No questions asked.') }}</p>
+                    <p class="text-sm text-gray-500">{{ __('messages.Your payment is processed securely through Stripe. We never store your card details on our servers.') }}</p>
                 </div>
             </div>
         </div>
+    </div>
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {

@@ -82,6 +82,8 @@ class ContactController extends Controller
             Log::info('Contact email dispatched successfully (no Mail::failures reported).');
 
             // Fire an admin activity alert without impacting user flow if it fails
+            // COMMENTED: admin alert emails to dessin@bureaumercier.com disabled
+            /*
             try {
                 Mail::to('dessin@bureaumercier.com')->send(new AdminActivityAlertMail(
                     'New contact form submission',
@@ -99,6 +101,7 @@ class ContactController extends Controller
                     'exception_class' => get_class($alertException),
                 ]);
             }
+            */
 
             return back()->with('success', 'Thank you for your message! We will get back to you soon.');
         } catch (\Throwable $e) {

@@ -29,7 +29,7 @@ class CheckSubscription
 
             if ($entreprise) {
                 $trialDaysRemaining = $entreprise->trial_ends_at
-                    ? (int) $entreprise->trial_ends_at->diffInDays(now())
+                    ? (int) ceil(now()->floatDiffInDays($entreprise->trial_ends_at))
                     : null;
                 $isOnTrial = $entreprise->isOnTrial();
                 View::share('trialDaysRemaining', $trialDaysRemaining);
@@ -65,6 +65,7 @@ class CheckSubscription
                     $request->routeIs('profile.*')
                     || $request->routeIs('subscription.*')
                     || $request->routeIs('profile.index')
+                    || $request->routeIs('account.blocked')
                     || $request->routeIs('logout')
                 ) {
                     $isBlocked = false;
@@ -75,15 +76,37 @@ class CheckSubscription
 
                 // If blocked, force redirect to upgrade page and prevent access to other interfaces
                 if ($isBlocked) {
+                    // The upgrade page is only reachable by roles allowed on it
+                    // (Admin / super_admin / SuperAdmin / Responsible de projet ...).
+                    // For everyone else (e.g. Employee), send them to a neutral
+                    // "account blocked" page instead of an Admin-only route that
+                    // would return 403.
+                    $upgradeRoles = [
+                        'Admin',
+                        'super_admin',
+                        'SuperAdmin',
+                        'Responsable de projet',
+                        'Responsable de projet et gestionnaire',
+                    ];
+
+                    $canAccessUpgrade = method_exists($user, 'hasAnyRole')
+                        ? $user->hasAnyRole($upgradeRoles)
+                        : false;
+
+                    if (!$canAccessUpgrade) {
+                        return redirect()->route('account.blocked');
+                    }
+
                     // Set appropriate message based on the reason
-                    if ($hasCanceledSubscription) {
-                        return redirect()->route('profile.upgrade')
-                            ->with('error', 'Your subscription has been canceled. Please reactivate your plan to continue using the application.');
-                    } elseif ($entreprise->isBlockedByFailedPayments()) {
+                    if ($entreprise->isBlockedByFailedPayments()) {
                         return redirect()->route('profile.upgrade')
                             ->with('error', 'Votre paiement a échoué 3 fois consécutives. Veuillez mettre à jour votre moyen de paiement pour continuer.');
+                    } elseif ($hasCanceledSubscription) {
+                        return redirect()->route('profile.upgrade')
+                            ->with('error', 'Your subscription has been canceled. Please reactivate your plan to continue using the application.');
                     } else {
-                        return redirect()->route('profile.upgrade');
+                        return redirect()->route('profile.upgrade')
+                            ->with('error', 'Votre période d\'essai est terminée. Choisissez un plan pour continuer à utiliser l\'application.');
                     }
                 }
             }
@@ -105,7 +128,7 @@ class CheckSubscription
             return;
         }
 
-        $daysRemaining = (int) $entreprise->trial_ends_at->diffInDays(now());
+        $daysRemaining = (int) ceil(now()->floatDiffInDays($entreprise->trial_ends_at));
 
         if ($daysRemaining > 3) {
             return;

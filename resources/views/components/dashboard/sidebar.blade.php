@@ -61,9 +61,8 @@
             <div class="px-6 pt-3 pb-1 flex items-center overflow-hidden">
                 <img
                     src="{{ asset('img/dalytraclogo.png') }}"
-                    alt="DalyTrac logo"
+                    alt="{{ __('messages.DalyTrac Logo') }}"
                     class="h-18 w-auto object-contain"
-                    style="transform: scale(1.8);transform-origin: left center;margin-left: -90px;margin-top: -22px;margin-bottom: -38px;"
                 /> 
             </div>
             <nav class="px-4 space-y-1 mt-2">

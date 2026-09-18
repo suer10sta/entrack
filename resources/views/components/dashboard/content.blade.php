@@ -512,19 +512,29 @@
                             <p class="text-3xl font-bold text-gray-800">
                                 €{{ number_format($data['monthlyRevenue'], 2, ',', ' ') }}</p>
                         </div>
+                        @php
+                            $revenueGrowth = $data['monthlyRevenueGrowth'] ?? 0;
+                            $growthIsPositive = $revenueGrowth >= 0;
+                        @endphp
                         <span
-                            class="px-3 py-1.5 bg-green-50 text-green-600 font-semibold text-sm rounded-full">+18%</span>
+                            class="px-3 py-1.5 font-semibold text-sm rounded-full {{ $growthIsPositive ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600' }}">
+                            {{ $growthIsPositive ? '+' : '' }}{{ number_format($revenueGrowth, 0) }}%</span>
                     </div>
+                    @php
+                        $collectionRate = $data['collectionRate'] ?? 0;
+                        $ringCircumference = 2 * pi() * 24;
+                        $ringOffset = $ringCircumference * (1 - $collectionRate / 100);
+                    @endphp
                     <div class="flex justify-center mt-4">
                         <div class="relative w-14 h-14">
                             <svg class="w-14 h-14 transform -rotate-90">
                                 <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="4" fill="none" />
                                 <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="4" fill="none"
-                                    stroke-dasharray="150.8" stroke-dashoffset="37.7"
+                                    stroke-dasharray="{{ number_format($ringCircumference, 1, '.', '') }}" stroke-dashoffset="{{ number_format($ringOffset, 1, '.', '') }}"
                                     class="transition-all duration-1000 ease-out" />
                             </svg>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="text-xs font-bold text-green-600">75%</span>
+                                <span class="text-xs font-bold text-green-600">{{ number_format($collectionRate, 0) }}%</span>
                             </div>
                         </div>
                     </div>

@@ -4,13 +4,15 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('img/dalytraclogo.png') }}" />
-    <link rel="icon" type="image/png" href="{{ asset('img/dalytraclogo.png') }}" />
-    <title>DalyTrac - Login</title>
+    <meta name="description" content="{{ __('messages.DalyTrac Login - Sign in to your management dashboard') }}">
+    <meta property="og:title" content="{{ __('messages.Welcome back') }}">
+    <meta property="og:description" content="{{ __('messages.Sign in to access your management dashboard and continue where you left off.') }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ route('login') }}">
+    <title>{{ __('messages.DalyTrac Login - Sign in to your management dashboard') }} | DalyTrac</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
