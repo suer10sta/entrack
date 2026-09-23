@@ -1647,7 +1647,7 @@ return [
     'Can I integrate with other tools?' => 'Can I integrate with other tools?',
     'We focus on built-in time tracking, projects, invoicing, and calendar. If you need a specific integration, contact support and we\'ll discuss options.' => 'We focus on built-in time tracking, projects, invoicing, and calendar. If you need a specific integration, contact support and we\'ll discuss options.',
     'What payment methods do you accept?' => 'What payment methods do you accept?',
-    'We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 14-day free trial for new users.' => 'We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 14-day free trial for new users.',
+    'We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 15-day free trial for new users.' => 'We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 15-day free trial for new users.',
     'Is there customer support available?' => 'Is there customer support available?',
     'We offer 24/7 customer support via email, chat, and phone. Our support team is dedicated to helping you get the most out of DalyTrac.' => 'We offer 24/7 customer support via email, chat, and phone. Our support team is dedicated to helping you get the most out of DalyTrac.',
     'Can I export my data?' => 'Can I export my data?',

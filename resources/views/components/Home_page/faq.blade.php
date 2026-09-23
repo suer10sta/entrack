@@ -186,7 +186,7 @@
                     ['id'=>4, 'question'=>__('messages.Can I integrate with other tools?'),
                     'answer'=>__('messages.We focus on built-in time tracking, projects, invoicing, and calendar. If you need a specific integration, contact support and we\'ll discuss options.')],
                     ['id'=>5, 'question'=>__('messages.What payment methods do you accept?'),
-                    'answer'=>__('messages.We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 14-day free trial for new users.')],
+                    'answer'=>__('messages.We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 15-day free trial for new users.')],
                     ['id'=>6, 'question'=>__('messages.Is there customer support available?'),
                     'answer'=>__('messages.We offer 24/7 customer support via email, chat, and phone. Our support team is dedicated to helping you get the most out of DalyTrac.')],
                     ['id'=>7, 'question'=>__('messages.Can I export my data?'),

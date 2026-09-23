@@ -24,6 +24,28 @@
     }
 @endphp
 
+@if(Auth::check() && Auth::user()->entreprise_id && Auth::user()->entreprise && Auth::user()->entreprise->trial_ends_at)
+        @php
+            $entreprise = Auth::user()->entreprise;
+            $isOnTrial = $entreprise->isOnTrial();
+            $isExpired = $entreprise->trial_ends_at->isPast();
+            $daysLeft = $isOnTrial ? max(0, (int) ceil(now()->floatDiffInDays($entreprise->trial_ends_at))) : null;
+        @endphp
+        @if($isOnTrial && $daysLeft > 0)
+            <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-center">
+                <span class="text-sm font-semibold text-amber-800">
+                    ⏳ {{ __('messages.days_left_trial', ['days' => $daysLeft]) }}. <a href="{{ route('profile.upgrade') }}" class="ml-2 text-amber-600 underline font-medium hover:text-amber-800">{{ __('messages.upgrade') }}</a>
+                </span>
+            </div>
+        @elseif($isExpired)
+            <div class="bg-red-50 border-b border-red-200 px-4 py-2 text-center">
+                <span class="text-sm font-semibold text-red-800">
+                    ⚠️ {{ __('messages.trial_expired') }} <a href="{{ route('profile.upgrade') }}" class="text-red-600 underline font-medium hover:text-red-800">{{ __('messages.upgrade_plan') }}</a>
+                </span>
+            </div>
+        @endif
+    @endif
+
 <header class="flex items-center justify-between px-4 sm:px-6 py-3 bg-white border-b border-gray-200">
     <div class="flex items-center gap-3 flex-1 min-w-0">
         {{-- Mobile hamburger (shows sidebar) --}}

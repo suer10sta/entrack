@@ -91,6 +91,8 @@ class Entreprise extends Model
         'account_status',
         'auto_renew',
         'billit_api_key',
+        'failed_payment_count',
+        'last_payment_failed_at',
     ];
 
     public function getAddressAttribute($value)
@@ -210,6 +212,30 @@ class Entreprise extends Model
     }
 
     /**
+     * Whether the company currently has an active paid subscription on Stripe.
+     *
+     * Checks the local Cashier record first, then falls back to the Stripe API
+     * so that entreprises created before the Cashier wiring fix (no local
+     * subscription row) are still protected against double billing.
+     */
+    public function hasActivePaidSubscription(): bool
+    {
+        $activeStatuses = ['active', 'trialing', 'past_due', 'unpaid'];
+
+        $subscription = $this->currentSubscription();
+        if ($subscription && in_array((string) $subscription->stripe_status, $activeStatuses, true)) {
+            return true;
+        }
+
+        $stripeSubscription = $this->latestStripeSubscriptionFromApi();
+        if ($stripeSubscription) {
+            return in_array((string) ($stripeSubscription->status ?? ''), $activeStatuses, true);
+        }
+
+        return false;
+    }
+
+    /**
      * Check if the company has a canceled subscription.
      * Only returns true if they have a plan (type_compt) and the subscription is canceled.
      */
@@ -220,8 +246,12 @@ class Entreprise extends Model
             return false;
         }
 
-        // If account_status is explicitly 'inactive', subscription is canceled
-        if ($this->account_status === 'inactive') {
+        // If account_status is explicitly 'inactive', subscription is canceled.
+        // BUT the webhook also sets account_status = 'inactive' after 3 failed
+        // payments (see StripeWebhookController::handleInvoicePaymentFailed),
+        // which is NOT a cancellation. In that case keep checking the real
+        // status so the failing-payment message is shown instead.
+        if ($this->account_status === 'inactive' && ! $this->isBlockedByFailedPayments()) {
             return true;
         }
 
@@ -281,14 +311,43 @@ class Entreprise extends Model
             return false;
         }
 
-        // If there is no trial date at all (e.g. 0-day trial / no trial configured),
-        // consider the trial "expired" so they must upgrade before accessing the app.
+        // Legacy accounts may have no trial date at all (trial_ends_at IS NULL).
+        // A missing date must never be interpreted as "already expired",
+        // otherwise any account created before trial tracking existed would
+        // be locked out immediately without recourse. They keep access
+        // (getUserLimit treats a null trial date like an active trial).
         if (!$this->trial_ends_at) {
-            return true;
+            return false;
         }
 
         // Otherwise: trial date is in the past AND they do not have a paid plan
         return $this->trial_ends_at->isPast();
+    }
+
+    /**
+     * Check if the account should be blocked due to consecutive failed payments.
+     * Blocks after 3 consecutive failures.
+     */
+    public function isBlockedByFailedPayments(): bool
+    {
+        return $this->failed_payment_count >= 3;
+    }
+
+    /**
+     * Increment the failed payment counter.
+     */
+    public function recordFailedPayment(): void
+    {
+        $this->increment('failed_payment_count');
+        $this->update(['last_payment_failed_at' => now()]);
+    }
+
+    /**
+     * Reset the failed payment counter (called on successful payment).
+     */
+    public function resetFailedPaymentCount(): void
+    {
+        $this->update(['failed_payment_count' => 0, 'last_payment_failed_at' => null]);
     }
 
     /**
@@ -301,7 +360,7 @@ class Entreprise extends Model
             'solo' => 1,
             'premium' => 10,
             'pro' => PHP_INT_MAX, // PHP_INT_MAX is a good way to say "unlimited"
-            default => $this->isOnTrial() ? PHP_INT_MAX : 1, // Unlimited on trial, 1 if expired
+            default => $this->isOnTrial() || !$this->trial_ends_at ? PHP_INT_MAX : 1, // Unlimited on trial or if no trial date is configured, 1 if expired
         };
     }
 
@@ -315,7 +374,9 @@ class Entreprise extends Model
             return true; 
         }
 
-        $currentUserCount = $this->user()->count();
+        $currentUserCount = $this->user()
+            ->whereDoesntHave('employee', fn ($q) => $q->where('archived', true))
+            ->count();
         return $currentUserCount < $limit;
     }
 

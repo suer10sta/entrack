@@ -67,6 +67,8 @@ class SupportController extends Controller
             );
 
             // Send an admin activity alert, but don't break user flow if it fails
+            // COMMENTED: admin alert emails to dessin@bureaumercier.com disabled
+            /*
             try {
                 Mail::to('dessin@bureaumercier.com')->send(
                     new AdminActivityAlertMail(
@@ -90,6 +92,7 @@ class SupportController extends Controller
                     'ticket_id' => $ticket->id,
                 ]);
             }
+            */
 
             return back()->with('success', 'Your support request has been sent. Our team will get back to you soon.');
         } catch (\Throwable $e) {

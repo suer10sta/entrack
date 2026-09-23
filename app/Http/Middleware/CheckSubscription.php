@@ -21,17 +21,24 @@ class CheckSubscription
     {
 
         View::share('showTrialExpiredModal', false);
+        View::share('trialDaysRemaining', null);
+        View::share('isOnTrial', false);
         if (Auth::check()) {
             $user = Auth::user();
             $entreprise = $user ? $user->entreprise : null;
 
-            // Send trial expiration warning for all users with an entreprise (including admins)
             if ($entreprise) {
+                $trialDaysRemaining = $entreprise->trial_ends_at
+                    ? (int) ceil(now()->floatDiffInDays($entreprise->trial_ends_at))
+                    : null;
+                $isOnTrial = $entreprise->isOnTrial();
+                View::share('trialDaysRemaining', $trialDaysRemaining);
+                View::share('isOnTrial', $isOnTrial);
+
                 $this->sendTrialExpirationIfNeeded($user, $entreprise);
             }
 
-            // Admin users may not be linked to a specific entreprise; skip subscription checks entirely.
-            if ($user && (method_exists($user, 'hasRole') && ($user->hasRole('Admin') || $user->hasRole('super_admin')))) {
+            if ($user && (method_exists($user, 'hasRole') && $user->hasRole('super_admin'))) {
                 return $next($request);
             }
             // Ensure the user has an 'entreprise' relationship loaded
@@ -42,9 +49,9 @@ class CheckSubscription
                     ? $entreprise->hasCanceledSubscription() 
                     : false;
                 
-                // Inactive if trial expired OR account explicitly marked inactive OR subscription is canceled
+                // Inactive if trial expired OR blocked by failed payments OR subscription is canceled
                 $isBlocked = $entreprise->isTrialExpired()
-                    || $entreprise->account_status === 'inactive'
+                    || $entreprise->isBlockedByFailedPayments()
                     || $hasCanceledSubscription;
 
                 // Never block entreprises that are exempt from blocking (e.g. ID = 43)
@@ -58,6 +65,7 @@ class CheckSubscription
                     $request->routeIs('profile.*')
                     || $request->routeIs('subscription.*')
                     || $request->routeIs('profile.index')
+                    || $request->routeIs('account.blocked')
                     || $request->routeIs('logout')
                 ) {
                     $isBlocked = false;
@@ -68,15 +76,37 @@ class CheckSubscription
 
                 // If blocked, force redirect to upgrade page and prevent access to other interfaces
                 if ($isBlocked) {
+                    // The upgrade page is only reachable by roles allowed on it
+                    // (Admin / super_admin / SuperAdmin / Responsible de projet ...).
+                    // For everyone else (e.g. Employee), send them to a neutral
+                    // "account blocked" page instead of an Admin-only route that
+                    // would return 403.
+                    $upgradeRoles = [
+                        'Admin',
+                        'super_admin',
+                        'SuperAdmin',
+                        'Responsable de projet',
+                        'Responsable de projet et gestionnaire',
+                    ];
+
+                    $canAccessUpgrade = method_exists($user, 'hasAnyRole')
+                        ? $user->hasAnyRole($upgradeRoles)
+                        : false;
+
+                    if (!$canAccessUpgrade) {
+                        return redirect()->route('account.blocked');
+                    }
+
                     // Set appropriate message based on the reason
-                    if ($hasCanceledSubscription) {
+                    if ($entreprise->isBlockedByFailedPayments()) {
+                        return redirect()->route('profile.upgrade')
+                            ->with('error', 'Votre paiement a échoué 3 fois consécutives. Veuillez mettre à jour votre moyen de paiement pour continuer.');
+                    } elseif ($hasCanceledSubscription) {
                         return redirect()->route('profile.upgrade')
                             ->with('error', 'Your subscription has been canceled. Please reactivate your plan to continue using the application.');
-                    } elseif ($entreprise->account_status === 'inactive') {
-                        return redirect()->route('profile.upgrade')
-                            ->with('error', 'Your account is inactive. Please reactivate your subscription to continue using the application.');
                     } else {
-                        return redirect()->route('profile.upgrade');
+                        return redirect()->route('profile.upgrade')
+                            ->with('error', 'Votre période d\'essai est terminée. Choisissez un plan pour continuer à utiliser l\'application.');
                     }
                 }
             }
@@ -98,7 +128,7 @@ class CheckSubscription
             return;
         }
 
-        $daysRemaining = (int) $entreprise->trial_ends_at->diffInDays(now());
+        $daysRemaining = (int) ceil(now()->floatDiffInDays($entreprise->trial_ends_at));
 
         if ($daysRemaining > 3) {
             return;

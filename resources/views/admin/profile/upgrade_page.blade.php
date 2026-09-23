@@ -64,6 +64,52 @@
             </p>
         </div>
 
+        {{-- Country Required Warning --}}
+        @if(session('error'))
+            <div class="max-w-4xl mx-auto mb-6">
+                <div class="rounded-lg bg-red-50 border border-red-200 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-red-800">
+                                {{ session('error') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <div class="max-w-4xl mx-auto mb-8 bg-white rounded-2xl shadow-md p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 21a4.622 4.622 0 01-1.341-8.753c0-1.051.26-1.784.608-2.487A4.997 4.997 0 018 6h8a4.997 4.997 0 013.733 1.76c.348.703.608 1.436.608 2.487A4.622 4.622 0 0121 21H3z" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Company Information') }}</h2>
+                    <p class="text-xs text-gray-500">{{ __('messages.Your company country is required before subscribing.') }}</p>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex-1">
+                    <label for="companyCountry" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Country') }}</label>
+                    <input type="text" id="companyCountry" name="country" value="{{ Auth::user()->entreprise?->country ?? '' }}" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="{{ __('messages.Enter your country') }}">
+                </div>
+                <div class="flex items-end">
+                    <button type="button" id="validateCountryBtn" class="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition text-sm">
+                        {{ __('messages.Validate') }}
+                    </button>
+                </div>
+            </div>
+            <div id="countryValidationMsg" class="mt-2 text-sm hidden"></div>
+        </div>
+
         {{-- Renewal preference toggle --}}
         <div class="max-w-xl mx-auto mb-10">
             <div class="bg-white rounded-2xl shadow-md p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -113,8 +159,24 @@
                 <div class="flex-shrink-0 bg-purple-100 p-3 rounded-lg inline-block">
                     <svg class="h-6 w-6 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mt-4">{{ __('messages.0-Day Trial') }}</h3>
-                <p class="text-gray-600 mt-1">{{ __('messages.0-Day Trial description') }}</p>
+                <h3 class="text-lg font-semibold text-gray-900 mt-4">
+                    @if($trialDaysRemaining !== null && $trialDaysRemaining > 0)
+                        {{ $trialDaysRemaining }} {{ __('messages.days left') }}
+                    @elseif($trialDaysRemaining === null)
+                        Essai en cours
+                    @else
+                        Trial Expiré
+                    @endif
+                </h3>
+                <p class="text-gray-600 mt-1">
+                    @if($trialDaysRemaining !== null && $trialDaysRemaining > 0)
+                        {{ __('messages.0-Day Trial description') }}
+                    @elseif($trialDaysRemaining === null)
+                        Essai en cours
+                    @else
+                        Votre période d'essai est terminée
+                    @endif
+                </p>
             </div>
 
             <div class="bg-white rounded-2xl shadow-lg p-6">
@@ -154,17 +216,18 @@
                             <span class="text-5xl font-extrabold text-gray-900">€19</span>
                             <span class="text-gray-500 font-medium"> {{ __('messages.per month') }}</span>
                         </div>
-                        <a href="{{ route('subscription.choose', ['plan' => 'solo']) }}"
-                           data-base-href="{{ route('subscription.choose', ['plan' => 'solo']) }}"
+                        <a href="{{ route('subscription.choose', ['plan' => 'solo', 'country' => Auth::user()->entreprise?->country]) }}"
+                           data-base-href="{{ route('subscription.choose', ['plan' => 'solo', 'country' => Auth::user()->entreprise?->country]) }}"
                            data-plan-link
                            class="block w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-center transition-colors mb-8">
                             {{ __('messages.Choose Solo') }}
                         </a>
                         <ul class="space-y-4 text-gray-600 flex-grow">
-                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> <strong>{{ __('messages.One User Maximum') }}</strong></li>
-                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Advanced Invoicing') }}</li>
-                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Unlimited Clients') }}</li>
-                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Advanced Reports') }}</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> <strong>1 utilisateur</strong></li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Facturation de base</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Jusqu'à 10 clients</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Rapports de base</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Support par email</li>
                         </ul>
                     </div>
 
@@ -180,17 +243,19 @@
                             <span class="text-5xl font-extrabold text-gray-900">€49</span>
                             <span class="text-gray-500 font-medium"> {{ __('messages.per month') }}</span>
                         </div>
-                        <a href="{{ route('subscription.choose', ['plan' => 'premium']) }}"
-                           data-base-href="{{ route('subscription.choose', ['plan' => 'premium']) }}"
+                        <a href="{{ route('subscription.choose', ['plan' => 'premium', 'country' => Auth::user()?->entreprise?->country]) }}"
+                           data-base-href="{{ route('subscription.choose', ['plan' => 'premium', 'country' => Auth::user()?->entreprise?->country]) }}"
                            data-plan-link
                            class="block w-full py-3 px-6 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg text-center transition-colors mb-8 shadow-md">
                             {{ __('messages.Choose Premium') }}
                         </a>
                         <ul class="space-y-4 text-gray-600 flex-grow">
-                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> <strong>{{ __('messages.Up to 10 Users') }}</strong></li>
-                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Advanced Invoicing') }}</li>
-                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Unlimited Clients') }}</li>
-                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Advanced Reports') }}</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> <strong>Jusqu'à 10 utilisateurs</strong></li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Facturation avancée</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Clients illimités</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Rapports avancés</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Collaboration d'équipe</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Support prioritaire</li>
                         </ul>
                     </div>
 
@@ -204,22 +269,43 @@
                             <span class="text-5xl font-extrabold text-gray-900">€99</span>
                             <span class="text-gray-500 font-medium"> {{ __('messages.per month') }}</span>
                         </div>
-                        <a href="{{ route('subscription.choose', ['plan' => 'pro']) }}"
-                           data-base-href="{{ route('subscription.choose', ['plan' => 'pro']) }}"
+                        <a href="{{ route('subscription.choose', ['plan' => 'pro', 'country' => Auth::user()?->entreprise?->country]) }}"
+                           data-base-href="{{ route('subscription.choose', ['plan' => 'pro', 'country' => Auth::user()?->entreprise?->country]) }}"
                            data-plan-link
                            class="block w-full py-3 px-6 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg text-center transition-colors mb-8">
                             {{ __('messages.Choose Pro') }}
                         </a>
                         <ul class="space-y-4 text-gray-600 flex-grow">
-                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> <strong>{{ __('messages.Unlimited Users') }}</strong></li>
-                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Advanced Invoicing') }}</li>
-                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Unlimited Clients') }}</li>
-                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Advanced Reports') }}</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> <strong>Utilisateurs illimités</strong></li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Facturation avancée + Personnalisation</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Clients illimités</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Rapports personnalisés</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Collaboration d'équipe avancée</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Support dédié</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Accès API</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Intégrations sur mesure</li>
                         </ul>
                     </div>
                 </div>
-            </div>        
+            </div>
+        
+                {{-- Trust & Guarantee Section --}}
+        <div class="max-w-4xl mx-auto mb-8">
+            <div class="grid grid-cols-1 gap-6">
+                {{-- Secure Payments --}}
+                <div class="bg-white rounded-2xl shadow-md p-8 text-center border border-gray-100">
+                    <div class="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-1">{{ __('messages.Secure Payments') }}</h3>
+                    <p class="text-sm text-gray-500">{{ __('messages.Your payment is processed securely through Stripe. We never store your card details on our servers.') }}</p>
+                </div>
+            </div>
         </div>
+    </div>
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -329,6 +415,67 @@
                     is_synced: (document.getElementById('stripeSyncStatus')?.dataset.isSynced || '0') === '1',
                     label: document.getElementById('stripeSyncStatus')?.dataset.label || '{{ __('messages.Renewal status unavailable') }}',
                 });
+
+                // Country validation before subscription
+                const planLinks = document.querySelectorAll('[data-plan-link]');
+                const countryInput = document.getElementById('companyCountry');
+                const validateBtn = document.getElementById('validateCountryBtn');
+                const validationMsg = document.getElementById('countryValidationMsg');
+
+                function validateCountry() {
+                    const country = countryInput.value.trim();
+                    if (!country) {
+                        validationMsg.textContent = '{{ __('messages.Please enter your country before subscribing.') }}';
+                        validationMsg.className = 'mt-2 text-sm text-red-600';
+                        validationMsg.classList.remove('hidden');
+                        return false;
+                    }
+                    validationMsg.textContent = '{{ __('messages.Country validated! You can now subscribe.') }}';
+                    validationMsg.className = 'mt-2 text-sm text-green-600';
+                    validationMsg.classList.remove('hidden');
+                    return true;
+                }
+
+                if (validateBtn) {
+                    validateBtn.addEventListener('click', function () {
+                        if (validateCountry()) {
+                            // Country validated, allow plan links to work
+                            planLinks.forEach(link => {
+                                const baseHref = link.getAttribute('data-base-href');
+                                const renewal = renewalInput.value || 'auto';
+                                if (baseHref) {
+                                    const separator = baseHref.includes('?') ? '&' : '?';
+                                    link.href = baseHref + separator + 'renewal=' + encodeURIComponent(renewal);
+                                }
+                            });
+                        }
+                    });
+                }
+
+                planLinks.forEach(link => {
+                    link.addEventListener('click', function (e) {
+                        if (!countryInput.value.trim()) {
+                            e.preventDefault();
+                            validationMsg.textContent = '{{ __('messages.Please enter your country before subscribing.') }}';
+                            validationMsg.className = 'mt-2 text-sm text-red-600';
+                            validationMsg.classList.remove('hidden');
+                            countryInput.focus();
+                        }
+                    });
+                });
+            });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const countryInput = document.getElementById('companyCountry');
+                if (countryInput) {
+                    countryInput.addEventListener('input', function () {
+                        const msg = document.getElementById('countryValidationMsg');
+                        if (msg && !msg.classList.contains('hidden')) {
+                            msg.classList.add('hidden');
+                        }
+                    });
+                }
             });
         </script>
     </body>

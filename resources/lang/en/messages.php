@@ -108,6 +108,27 @@ return [
     'Billit API key saved hint' => 'A key is saved. Enter a new value to replace it.',
     'Leave empty to use platform default' => 'Leave empty to use platform default',
 
+    // Company Information Section
+    'Company Information' => 'Company Information',
+    'Your company country is required before subscribing.' => 'Your company country is required before subscribing.',
+    'Country' => 'Country',
+    'Enter your country' => 'Enter your country',
+    'Validate' => 'Validate',
+    'Please enter your country before subscribing.' => 'Please enter your country before subscribing.',
+    'Country validated! You can now subscribe.' => 'Country validated! You can now subscribe.',
+
+// Trust Section
+    'Secure Payments' => 'Secure Payments',
+    'Your payment is processed securely through Stripe. We never store your card details on our servers.' => 'Your payment is processed securely through Stripe. We never store your card details on our servers.',
+    'No Commitment' => 'No Commitment',
+    'Cancel your subscription at any time. No hidden fees or long-term contracts required.' => 'Cancel your subscription at any time. No hidden fees or long-term contracts required.',
+    'Guaranteed Refund' => 'Guaranteed Refund',
+    'Not satisfied? Get a full refund within 30 days. No questions asked.' => 'Not satisfied? Get a full refund within 30 days. No questions asked.',
+    'SSL Secured' => 'SSL Secured',
+    '256-bit Encryption' => '256-bit Encryption',
+    'Cancel anytime' => 'Cancel anytime',
+    '30-day guarantee' => '30-day guarantee',
+
     // Enterprise expenses (create) page
     'Enterprise Expenses - DalyTrac' => 'Enterprise Expenses - DalyTrac',
     'Expenses' => 'Expenses',
@@ -1648,7 +1669,7 @@ return [
     'Can I integrate with other tools?' => 'Can I integrate with other tools?',
     'We focus on built-in time tracking, projects, invoicing, and calendar. If you need a specific integration, contact support and we\'ll discuss options.' => 'We focus on built-in time tracking, projects, invoicing, and calendar. If you need a specific integration, contact support and we\'ll discuss options.',
     'What payment methods do you accept?' => 'What payment methods do you accept?',
-    'We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 14-day free trial for new users.' => 'We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 14-day free trial for new users.',
+    'We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 15-day free trial for new users.' => 'We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 15-day free trial for new users.',
     'Is there customer support available?' => 'Is there customer support available?',
     'We offer 24/7 customer support via email, chat, and phone. Our support team is dedicated to helping you get the most out of DalyTrac.' => 'We offer 24/7 customer support via email, chat, and phone. Our support team is dedicated to helping you get the most out of DalyTrac.',
     'Can I export my data?' => 'Can I export my data?',
@@ -2015,5 +2036,89 @@ return [
     'Pin project' => 'Pin project',
     'Unpin project' => 'Unpin project',
     'Toggle tasks' => 'Toggle tasks',
+
+    // Auth / Verify Email
+    'Verify Your Email' => 'Verify Your Email',
+    'Email Verification Required' => 'Email Verification Required',
+    'Thank you for registering! A confirmation email has just been sent to you.<br>Please click the link in the email to activate your account.' => 'Thank you for registering! A confirmation email has just been sent to you.<br>Please click the link in the email to activate your account.',
+    'You did not receive the email?' => 'You did not receive the email?',
+    'Check your spam folder or request a new verification email below.' => 'Check your spam folder or request a new verification email below.',
+    'Resend verification email' => 'Resend verification email',
+    'Sign out' => 'Sign out',
+
+    // Auth / Login
+    'Secure sign in' => 'Secure sign in',
+    'Welcome back' => 'Welcome back',
+    'Sign in to access your management dashboard and continue where you left off.' => 'Sign in to access your management dashboard and continue where you left off.',
+    'Sign in to dashboard' => 'Sign in to dashboard',
+    'Keep me signed in on this device' => 'Keep me signed in on this device',
+    'Forgot password?' => 'Forgot password?',
+    "Don't have an account?" => "Don't have an account?",
+    'Create a free account' => 'Create a free account',
+
+    // Auth / Register
+    'Create account' => 'Create account',
+    'Get started' => 'Get started',
+    'It only takes a moment to set up your DalyTrac workspace.' => 'It only takes a moment to set up your DalyTrac workspace.',
+    'Sign up' => 'Sign up',
+    'Already have an account?' => 'Already have an account?',
+    'Sign in' => 'Sign in',
+    'Company name' => 'Company name',
+    'Select your country' => 'Select your country',
+    'Country' => 'Country',
+    'Timezone' => 'Timezone',
+
+    // Auth / Reset Password
+    'Reset password' => 'Reset password',
+    'Create new password' => 'Create new password',
+    'Choose a strong password to secure your DalyTrac account.' => 'Choose a strong password to secure your DalyTrac account.',
+    'New password' => 'New password',
+    'Confirm password' => 'Confirm password',
+    'Remember your password?' => 'Remember your password?',
+    'Back to sign in' => 'Back to sign in',
+
+    // Auth / Meta descriptions
+    'DalyTrac Login - Sign in to your management dashboard' => 'DalyTrac Login - Sign in to your management dashboard',
+    'DalyTrac Create Account - Start your free trial' => 'DalyTrac Create Account - Start your free trial',
+    'DalyTrac Reset Password - Secure your account' => 'DalyTrac Reset Password - Secure your account',
+    'DalyTrac Verify Email - Confirm your account' => 'DalyTrac Verify Email - Confirm your account',
+
+    // Auth / Verify Email status
+    'verification-link-sent' => 'Verification link sent!',
+    'email-verified' => 'Your email has been verified successfully.',
+
+    // Trial Banner
+    'day' => 'day',
+    'days' => 'days',
+    'days_left_trial' => ':days days left in your trial',
+    'upgrade' => 'Upgrade',
+    'trial_expired' => 'Your trial has expired. Choose a plan to continue.',
+    'upgrade_plan' => 'Choose a plan to continue.',
+
+    // Footer
+    'DalyTrac © :year. All rights reserved.' => 'DalyTrac © :year. All rights reserved.',
+    'All rights reserved.' => 'All rights reserved.',
+
+    // Dashboard Meta
+    'DalyTrac Dashboard' => 'DalyTrac Dashboard',
+    'Management Dashboard' => 'Management Dashboard',
+
+    // Sidebar Logo
+    'DalyTrac Logo' => 'DalyTrac Logo',
+
+    // Old CSS
+    'DalyTrac Legacy Styles' => 'DalyTrac Legacy Styles',
+
+    // App Meta
+    'DalyTrac - E-invoicing, Project Management & Time Tracking' => 'DalyTrac - E-invoicing, Project Management & Time Tracking',
+
+    // Email template
+    'Hello' => 'Hello',
+    'Thank you for registering on :app' => 'Thank you for registering on :app',
+    'Click the button below to activate your account.' => 'Click the button below to activate your account.',
+    'Verify my email' => 'Verify my email',
+    'This link expires in :time' => 'This link expires in :time',
+    'If you did not create an account, ignore this email.' => 'If you did not create an account, ignore this email.',
+    'If the button does not work, copy this link:' => 'If the button does not work, copy this link:',
 
 ];

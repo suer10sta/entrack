@@ -1,16 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('img/dalytraclogo.png') }}" />
-    <link rel="icon" type="image/png" href="{{ asset('img/dalytraclogo.png') }}" />
-    <title>DalyTrac - Vérifiez votre email</title>
+    <meta name="description" content="{{ __('messages.DalyTrac Verify Email - Confirm your account') }}">
+    <meta property="og:title" content="{{ __('messages.Verify Your Email') }}">
+    <meta property="og:description" content="{{ __('messages.DalyTrac Verify Email - Confirm your account') }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ route('verification.notice') }}">
+    <title>{{ __('messages.Verify Your Email') }} | DalyTrac</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -36,19 +38,18 @@
                         <span class="mr-2 flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                             <i class="fa-solid fa-envelope-circle-check text-[11px]"></i>
                         </span>
-                        Vérification requise
+                        {{ __('messages.Email Verification Required') }}
                     </div>
-                    <h1 class="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Vérifiez votre email</h1>
+                    <h1 class="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{{ __('messages.Verify Your Email') }}</h1>
                     <p class="mt-2 text-sm text-muted-foreground leading-relaxed">
-                        Merci pour votre inscription ! Un email de confirmation vient de vous être envoyé.<br>
-                        Veuillez cliquer sur le lien dans l'email pour activer votre compte.
+                        {{ __('messages.Thank you for registering! A confirmation email has just been sent to you.<br>Please click the link in the email to activate your account.') }}
                     </p>
                 </div>
 
                 @if(session('status'))
                 <div class="mb-6 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-600 flex items-center gap-2" role="alert">
                     <i class="fa-solid fa-circle-check"></i>
-                    <span>{{ session('status') }}</span>
+                    <span>{{ __('messages.' . session('status')) }}</span>
                 </div>
                 @endif
 
@@ -65,8 +66,8 @@
                             <i class="fa-solid fa-inbox text-sm"></i>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-slate-700">Vous n'avez pas reçu l'email ?</p>
-                            <p class="mt-1 text-xs text-slate-500">Vérifiez votre dossier spam ou demandez un nouvel email de vérification ci-dessous.</p>
+                            <p class="text-sm font-medium text-slate-700">{{ __('messages.You did not receive the email?') }}</p>
+                            <p class="mt-1 text-xs text-slate-500">{{ __('messages.Check your spam folder or request a new verification email below.') }}</p>
                         </div>
                     </div>
                 </div>
@@ -77,7 +78,7 @@
                         <button type="submit"
                             class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/40 transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2">
                             <i class="fa-solid fa-paper-plane text-xs"></i>
-                            <span>Renvoyer l'email de vérification</span>
+                            <span>{{ __('messages.Resend verification email') }}</span>
                         </button>
                     </form>
 
@@ -86,7 +87,7 @@
                         <button type="submit"
                             class="flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
                             <i class="fa-solid fa-right-from-bracket text-xs"></i>
-                            <span>Se déconnecter</span>
+                            <span>{{ __('messages.Sign out') }}</span>
                         </button>
                     </form>
                 </div>

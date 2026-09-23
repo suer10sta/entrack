@@ -21,6 +21,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\SendDailyTasksReport::class,
+        Commands\SyncStripeSubscriptions::class,
+        Commands\SendTrialWarnings::class,
     ];
 
     /**
@@ -68,6 +70,13 @@ class Kernel extends ConsoleKernel
                     $schedule->command('tasks:check-running')
                     ->everyMinute()
                     ->withoutOverlapping();
+
+                    // Trial expiration warnings (independent of web traffic)
+                    $schedule->command('subscriptions:send-trial-warnings')
+                    ->dailyAt('09:00')
+                    ->timezone('Africa/Casablanca')
+                    ->withoutOverlapping()
+                    ->appendOutputTo(storage_path('logs/scheduler.log'));
 
         } catch (\Exception $e) {
             Log::error('Error in schedule configuration', [

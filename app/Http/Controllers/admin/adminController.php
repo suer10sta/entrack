@@ -75,6 +75,27 @@ class adminController extends Controller
             ->whereYear('created_at', now()->year)
             ->sum('total_ttc');
 
+        $lastMonthRevenue = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
+            ->whereMonth('created_at', now()->copy()->subMonthNoOverflow()->month)
+            ->whereYear('created_at', now()->copy()->subMonthNoOverflow()->year)
+            ->sum('total_ttc');
+
+        if ($lastMonthRevenue > 0) {
+            $monthlyRevenueGrowth = (($monthlyRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100;
+        } else {
+            $monthlyRevenueGrowth = $monthlyRevenue > 0 ? 100 : 0;
+        }
+
+        $monthlyPaidRevenue = invoices_history::where('entreprise_id', Auth::user()->entreprise_id)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->where('Payment_status', 1)
+            ->sum('total_ttc');
+
+        $collectionRate = $monthlyRevenue > 0
+            ? min(100, max(0, ($monthlyPaidRevenue / $monthlyRevenue) * 100))
+            : 0;
+
         $enterpriseId = Auth::user()->entreprise_id;
         $employees = Employees::where('entreprise_id', $enterpriseId)
             ->where('archived', 0)
@@ -154,6 +175,8 @@ class adminController extends Controller
             'projectsFilter',
             'dayEvents',
             'monthlyRevenue',
+            'monthlyRevenueGrowth',
+            'collectionRate',
             'totalProjectsCount'
         ));
     }

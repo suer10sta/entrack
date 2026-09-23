@@ -109,7 +109,20 @@ class AuthenticatedSessionController extends Controller
                 $request->session()->regenerateToken();
 
                 return back()->withErrors([
-                    'email' => 'Your entreprise account is blocked. Please contact your administrator.',
+                    'email' => 'Votre compte entreprise est bloqué. Veuillez contacter votre administrateur ou écrire à support@dalytrac.com.',
+                ])->onlyInput('email');
+            }
+
+            // Archived employees (archived = 1) must not be able to sign in,
+            // even if the enterprise itself is otherwise active.
+            if ($user->employee && $user->employee->archived) {
+                Auth::logout();
+
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => 'Votre compte a été archivé par votre administrateur. Contactez-le pour être réactivé.',
                 ])->onlyInput('email');
             }
 

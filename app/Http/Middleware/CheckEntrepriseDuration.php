@@ -23,7 +23,16 @@ class CheckEntrepriseDuration
         if ($user && $user->entreprise) {
             // Check the duration and update is_activated accordingly
             $entreprise = $user->entreprise;
-            if (!$entreprise->is_activated || $entreprise->duration < now()) {
+
+            // The 6-month "duration" restriction (set at registration) must not
+            // apply to paying customers: a subscribed enterprise would otherwise
+            // be logged out after 6 months regardless of its active plan.
+            $isExempt = method_exists($entreprise, 'isBlockingExempt') && $entreprise->isBlockingExempt();
+            $hasPaidPlan = method_exists($entreprise, 'hasActiveSubscription') && $entreprise->hasActiveSubscription();
+
+            $durationExpired = $entreprise->duration && $entreprise->duration < now();
+
+            if (!$entreprise->is_activated || ($durationExpired && !$hasPaidPlan && !$isExempt)) {
                 $entreprise->update(['is_activated' => false]);
                 Auth::logout();
                 return redirect()->route('login')->with('error', 'You cannot log in, the activation time is out or the account is not activated.');

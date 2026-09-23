@@ -1,142 +1,174 @@
-<section id="account_type" class="py-24 lg:py-32 bg-gray-50">    
-<div class="container px-6 mx-auto max-w-7xl">
-    
-    {{-- 1. Global Trial Banner --}}
-    <div class="text-center mb-8 space-y-4">
-        <span class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-bold text-primary ring-1 ring-primary/20">
-            <span class="relative flex h-2.5 w-2.5">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
-            </span>
-            {{ __('messages.15-Day Free Trial') }}
-        </span>
-        <h3 class="text-3xl lg:text-4xl font-bold text-foreground">
-            {{ __('messages.One Platform, Three Plans') }}
-        </h3>
-        <p class="mx-auto max-w-2xl text-lg text-muted-foreground">
-            {{ __('messages.Enjoy') }} <strong>{{ __('messages.every feature') }}</strong> {{ __('messages.regardless of your plan. Simply choose the number of users you need.') }}
-        </p>
-    </div>
+{{-- resources/views/components/Home_page/Account_Types.blade.php --}}
 
-    {{-- 2. The Three Account Types --}}
-    <div class="grid gap-6 lg:grid-cols-3 lg:gap-6 items-start">
-        @php
-            $accounts = [
-                [
-                    'name' => 'Solo',
-                    'users' => '1',
-                    'users_label' => 'User',
-                    'desc' => 'For freelancers and solopreneurs.',
-                    'price' => '€19',
-                    'badge' => '1 User Maximum',
-                    'highlight' => false,
-                    'features' => [
-                        'Advanced Invoicing',
-                        'Unlimited Clients',
-                        'Advanced Reports',
-                    ],
-                ],
-                [
-                    'name' => 'Premium',
-                    'users' => '1 - 10',
-                    'users_label' => 'Users',
-                    'desc' => 'For startups and small teams.',
-                    'price' => '€49',
-                    'badge' => 'Up to 10 Users',
-                    'highlight' => true,
-                    'features' => [
-                        'Advanced Invoicing',
-                        'Unlimited Clients',
-                        'Advanced Reports',
-                    ],
-                ],
-                [
-                    'name' => 'Pro',
-                    'users' => 'Unlimited',
-                    'users_label' => 'Users',
-                    'desc' => 'For scaling companies.',
-                    'price' => '€99',
-                    'badge' => 'Unlimited Users',
-                    'highlight' => false,
-                    'features' => [
-                        'Advanced Invoicing',
-                        'Unlimited Clients',
-                        'Advanced Reports',
-                    ],
-                ],
-            ];
-        @endphp
+<section id="account_type" class="py-16 sm:py-24 bg-white">
+    <div class="container mx-auto px-4 sm:px-6">
+        
+        {{-- PART 1: RÔLES ET ACCÈS --}}
+        <div class="max-w-6xl mx-auto space-y-12">
+            
+            {{-- Section Header --}}
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-end">
+                <div class="lg:col-span-8 space-y-3">
+                    <div class="inline-flex items-center gap-2.5 text-xs font-bold tracking-wider text-slate-800 uppercase">
+                        <span class="w-5 h-0.5 bg-amber-500 rounded-full inline-block"></span>
+                        <span>RÔLES ET ACCÈS</span>
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl lg:text-[2.6rem] font-extrabold text-slate-900 leading-tight">
+                        Chaque membre de l'équipe accède <span class="text-[#1e535f]">aux outils dont il a besoin.</span>
+                    </h2>
+                </div>
+                <div class="lg:col-span-4 text-slate-500 text-sm sm:text-base leading-relaxed">
+                    L'interface employé reste simple, tandis que les responsables disposent des informations nécessaires pour suivre les projets et prendre des décisions.
+                </div>
+            </div>
 
-        @foreach($accounts as $account)
-            <div class="relative flex flex-col rounded-2xl {{ $account['highlight'] ? 'border-4 border-yellow-400 bg-white shadow-xl' : 'border border-gray-200 bg-white shadow-sm' }} p-8 transition-all duration-300">
+            {{-- Roles Table --}}
+            <div class="rounded-3xl border border-slate-200/80 shadow-sm bg-white overflow-hidden">
                 
-                @if($account['highlight'])
-                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-yellow-400 px-6 py-1.5 text-xs font-bold text-gray-900 uppercase tracking-wider shadow-md">
-                        {{ __('messages.Recommended') }}
-                    </div>
-                @endif
+                {{-- Table Header --}}
+                <div class="bg-[#0b2230] px-6 py-4 sm:px-8 sm:py-5 hidden md:grid md:grid-cols-12 gap-4 items-center text-[11px] font-bold tracking-widest text-slate-300 uppercase">
+                    <div class="md:col-span-4">Rôle</div>
+                    <div class="md:col-span-3">Mission principale</div>
+                    <div class="md:col-span-5">Usages dans DalyTrac</div>
+                </div>
 
-                <div class="flex-1">
-                    {{-- Plan Name --}}
-                    <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-[0.2em] mb-6">
-                        {{ __('messages.' . $account['name']) }}
-                    </h4>
-
-                    {{-- The Big Differentiator: User Count --}}
-                    <div class="mb-4">
-                        <span class="text-5xl font-black text-gray-900 tracking-tight block leading-none">
-                            {{ $account['users'] }}
-                        </span>
-                        <span class="text-base font-medium text-gray-600 block mt-2">
-                            {{ __('messages.' . $account['users_label']) }}
-                        </span>
-                    </div>
-
-                    {{-- Description --}}
-                    <p class="text-sm text-gray-600 mb-6">
-                        {{ __('messages.' . $account['desc']) }}
-                    </p>
-
-                    {{-- Badge --}}
-                    <div class="inline-flex items-center gap-2 rounded-md bg-green-50 border border-green-200 px-4 py-2 text-sm font-semibold text-green-700 mb-8">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                        {{ __('messages.' . $account['badge']) }}
-                    </div>
-
-                    {{-- Price --}}
-                    <div class="mb-8">
-                        <div class="flex items-baseline gap-1">
-                            <span class="text-4xl font-black text-gray-900">{{ $account['price'] }}</span>
-                            <span class="text-gray-500 text-sm font-medium">{{ __('messages./per month') }}</span>
+                <div class="divide-y divide-slate-100">
+                    
+                    {{-- Row 1: Administrateur --}}
+                    <div class="p-6 sm:px-8 sm:py-6 grid grid-cols-1 md:grid-cols-12 gap-4 items-center hover:bg-slate-50/50 transition-colors">
+                        <div class="md:col-span-4 flex items-center gap-3.5">
+                            <div class="w-8 h-8 rounded-lg bg-teal-500/10 text-[#1e535f] font-bold flex items-center justify-center text-xs shrink-0">
+                                A
+                            </div>
+                            <span class="font-bold text-slate-900 text-base">Administrateur</span>
+                        </div>
+                        <div class="md:col-span-3 font-bold text-slate-900 text-sm">
+                            Structurer l'environnement
+                        </div>
+                        <div class="md:col-span-5 text-slate-500 text-sm leading-relaxed">
+                            Configure l'entreprise, crée les collaborateurs, les projets et les tâches, puis exploite les données.
                         </div>
                     </div>
 
-                    {{-- Action Button --}}
-                    <a href="{{ route('login') }}" class="block text-center w-full rounded-lg py-3.5 text-sm font-bold transition-all {{ $account['highlight'] ? 'bg-yellow-400 text-gray-900 hover:bg-yellow-500' : 'bg-gray-700 text-white hover:bg-gray-800' }}">
-                        {{ __('messages.Start Your Trial') }}
-                    </a>
-
-                    {{-- Feature list --}}
-                    <div class="mt-10 pt-6 border-t border-gray-200">
-                        <h5 class="text-xs font-semibold text-gray-900 mb-4">{{ __('messages.All plans include:') }}</h5>
-                        <ul class="space-y-3">
-                            @foreach($account['features'] as $feature)
-                                <li class="flex items-center gap-3 text-sm text-gray-700">
-                                    <span class="flex-shrink-0">
-                                        <svg class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </span>
-                                    <span class="font-medium">{{ __('messages.' . $feature) }}</span>
-                                </li>
-                            @endforeach
-                        </ul>
+                    {{-- Row 2: Gestionnaire --}}
+                    <div class="p-6 sm:px-8 sm:py-6 grid grid-cols-1 md:grid-cols-12 gap-4 items-center hover:bg-slate-50/50 transition-colors">
+                        <div class="md:col-span-4 flex items-center gap-3.5">
+                            <div class="w-8 h-8 rounded-lg bg-teal-500/10 text-[#1e535f] font-bold flex items-center justify-center text-xs shrink-0">
+                                G
+                            </div>
+                            <span class="font-bold text-slate-900 text-base">Gestionnaire</span>
+                        </div>
+                        <div class="md:col-span-3 font-bold text-slate-900 text-sm">
+                            Coordonner l'activité
+                        </div>
+                        <div class="md:col-span-5 text-slate-500 text-sm leading-relaxed">
+                            Accède aux informations utiles au suivi de l'équipe et de son organisation.
+                        </div>
                     </div>
+
+                    {{-- Row 3: Responsable de projet --}}
+                    <div class="p-6 sm:px-8 sm:py-6 grid grid-cols-1 md:grid-cols-12 gap-4 items-center hover:bg-slate-50/50 transition-colors">
+                        <div class="md:col-span-4 flex items-center gap-3.5">
+                            <div class="w-8 h-8 rounded-lg bg-teal-500/10 text-[#1e535f] font-bold flex items-center justify-center text-xs shrink-0">
+                                P
+                            </div>
+                            <span class="font-bold text-slate-900 text-base">Responsable de projet</span>
+                        </div>
+                        <div class="md:col-span-3 font-bold text-slate-900 text-sm">
+                            Suivre l'avancement
+                        </div>
+                        <div class="md:col-span-5 text-slate-500 text-sm leading-relaxed">
+                            Suit les tâches, les temps et les projets dont il assure le suivi.
+                        </div>
+                    </div>
+
+                    {{-- Row 4: Employé (Highlighted row) --}}
+                    <div class="p-6 sm:px-8 sm:py-6 grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-[#edf5f7] transition-colors">
+                        <div class="md:col-span-4 flex items-center gap-3.5">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 font-bold flex items-center justify-center text-xs shrink-0">
+                                E
+                            </div>
+                            <span class="font-bold text-slate-900 text-base">Employé</span>
+                        </div>
+                        <div class="md:col-span-3 font-bold text-slate-900 text-sm">
+                            Faire avancer le travail
+                        </div>
+                        <div class="md:col-span-5 text-slate-500 text-sm leading-relaxed">
+                            Consulte ses tâches et son planning, lance ou arrête une tâche, commente et exporte en PDF.
+                        </div>
+                    </div>
+
                 </div>
             </div>
-        @endforeach
+        </div>
+
+        {{-- PART 2: QUICK START ONBOARDING (DARK SECTION) --}}
+        <div class="max-w-6xl mx-auto mt-20 sm:mt-28 rounded-3xl bg-[#0b2230] text-white p-8 sm:p-14 shadow-xl">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                
+                {{-- Left Text Column --}}
+                <div class="lg:col-span-5 space-y-4">
+                    <span class="text-xs font-bold tracking-wider text-amber-400 uppercase">PRISE EN MAIN RAPIDE</span>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
+                        Commencez simplement avec <span class="text-amber-400">un premier projet.</span>
+                    </h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        Pas besoin de paramétrage complexe. En 3 étapes simples, votre équipe est opérationnelle.
+                    </p>
+                    <div class="pt-2">
+                        <a href="{{ route('register') }}" 
+                           class="inline-block rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-7 py-3.5 text-sm transition-all shadow-md hover:scale-105">
+                            Créer mon compte gratuit
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Right 3 Steps Column --}}
+                <div class="lg:col-span-7 space-y-6">
+                    
+                    {{-- Step 1 --}}
+                    <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <div class="w-10 h-10 rounded-xl bg-amber-400 text-slate-900 font-extrabold flex items-center justify-center flex-shrink-0 text-sm">
+                            01
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-white text-base">Créez votre compte</h4>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                Sans carte bancaire, accès immédiat à toutes les fonctionnalités pendant 14 jours.
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Step 2 --}}
+                    <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <div class="w-10 h-10 rounded-xl bg-teal-400 text-slate-900 font-extrabold flex items-center justify-center flex-shrink-0 text-sm">
+                            02
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-white text-base">Invitez votre équipe</h4>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                Attribuez les rôles et permettez à chacun de démarrer son suivi de temps.
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Step 3 --}}
+                    <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-400 text-slate-900 font-extrabold flex items-center justify-center flex-shrink-0 text-sm">
+                            03
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-white text-base">Lancez votre premier projet</h4>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                Définissez le budget, ajoutez les tâches et suivez la rentabilité en direct.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
     </div>
-</div>
 </section>

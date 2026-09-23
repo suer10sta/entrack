@@ -1,13 +1,14 @@
 @php
-    $appName = 'DalyTrac';
+    $appName = config('app.name', 'DalyTrac');
     $logoUrl = config('app.url', 'https://dalytrac.com') . '/img/dalytraclogo.png';
+    $locale = app()->getLocale();
 @endphp
 
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ $locale }}">
 <head>
     <meta charset="UTF-8">
-    <title>Vérifiez votre email | {{ $appName }}</title>
+    <title>{{ __('messages.Verify Your Email') }} | {{ $appName }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body, html {
@@ -151,34 +152,34 @@
         </div>
 
         <div class="email-body">
-            <div class="badge">VERIFICATION REQUISE</div>
+            <div class="badge">{{ __('messages.Email Verification Required') }}</div>
 
-            <h1 class="title">Vérifiez votre adresse email</h1>
+            <h1 class="title">{{ __('messages.Verify Your Email') }}</h1>
 
             <p class="subtitle">
-                Bonjour <strong>{{ $userName }}</strong>,<br>
-                Merci pour votre inscription sur {{ $appName }}.<br>
-                Cliquez sur le bouton ci-dessous pour activer votre compte.
+                {{ __('messages.Hello') }} <strong>{{ $userName }}</strong>,<br>
+                {{ __('messages.Thank you for registering on :app', ['app' => $appName]) }}.<br>
+                {{ __('messages.Click the button below to activate your account.') }}
             </p>
 
             <div class="button-wrapper">
                 <a href="{{ $verificationUrl }}" class="primary-button" target="_blank" rel="noopener">
-                    Vérifier mon email
+                    {{ __('messages.Verify my email') }}
                 </a>
             </div>
 
             <div class="highlight-box">
                 <p>
-                    Ce lien expire dans <strong>60 minutes</strong>.
-                    Si vous n'avez pas créé de compte, ignorez cet email.
+                    {{ __('messages.This link expires in :time', ['time' => '60 minutes']) }}.
+                    {{ __('messages.If you did not create an account, ignore this email.') }}
                 </p>
             </div>
 
             <hr class="divider">
 
             <p class="footer-text">
-                © {{ date('Y') }} {{ $appName }}. Tous droits réservés.<br>
-                Si le bouton ne fonctionne pas, copiez ce lien :<br>
+                &copy; {{ date('Y') }} {{ $appName }}. {{ __('messages.All rights reserved.') }}<br>
+                {{ __('messages.If the button does not work, copy this link:') }}<br>
                 <a href="{{ $verificationUrl }}" style="word-break:break-all;">{{ $verificationUrl }}</a>
             </p>
         </div>

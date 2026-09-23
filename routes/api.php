@@ -18,4 +18,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/billit/test-invoice', [App\Http\Controllers\BillitController::class, 'sendTestInvoice']);
+Route::post('/billit/test-invoice', [\App\Http\Controllers\admin\BillitController::class, 'sendTestInvoice']);

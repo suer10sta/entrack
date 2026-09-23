@@ -42,19 +42,6 @@
       }
     </script>
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="welcome/css/bootstrap.min.css">
-    <link rel="stylesheet" href="welcome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="welcome/css/aos.css">
-    <link rel="stylesheet" href="welcome/css/owl.carousel.min.css">
-    <link rel="stylesheet" href="welcome/css/owl.theme.default.min.css">
-    
-
-    <!-- MAIN CSS -->
-    <link rel="stylesheet" href="welcome/css/templatemo-digital-trend.css">
-    
     <!-- Vite Assets (Tailwind CSS) -->
     @vite('resources/css/app.css')
     
@@ -356,7 +343,7 @@
     </style>
   </head>
 
-  <body class="antialiased pt-20 lg:pt-36 overflow-x-hidden">
+  <body class="antialiased pt-20 overflow-x-hidden bg-[#f8fafc] text-slate-900">
 
     <x-Home_page.header />
 

@@ -71,9 +71,10 @@ class RegisteredUserController extends Controller
 
         $validated = $request->validate([
             "email" => "required|email|unique:users,email",
-            "password" => "required",
+            "password" => ["required", "min:8", "confirmed"],
             "entreprise_name" => "required",
             'timezone' => 'required',
+            'country' => 'required',
         ]);
 
         
@@ -96,6 +97,7 @@ class RegisteredUserController extends Controller
             'duration' => now()->addMonths(6), // Set duration to 6 months by default
             'image' => $imageName,
             'type_compt' => null, // null means no plan selected yet
+            'country' => $validated['country'],
             // 15-day free trial period
             'trial_ends_at' => now()->addDays(15),
         ]);
@@ -219,32 +221,47 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        // Fire Registered event (triggers SendEmailVerificationNotification)
-        event(new Registered($user));
+        // Send emails/notifications AFTER the response so a slow or failing
+        // mail transport never blocks (or kills) the registration redirect.
+        dispatch(function () use ($user, $entreprise) {
+            // Fire Registered event (triggers SendEmailVerificationNotification)
+            try {
+                event(new Registered($user));
+            } catch (\Throwable $e) {
+                Log::error('Failed to send verification email during registration', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'error' => $e->getMessage(),
+                ]);
+            }
 
-        // Send welcome notification to the user
-        try {
-            $user->notify(new WelcomeNotification($entreprise));
-        } catch (\Throwable $e) {
-            Log::warning('Failed to send welcome notification', ['error' => $e->getMessage()]);
-        }
+            // Send welcome notification to the user
+            try {
+                $user->notify(new WelcomeNotification($entreprise));
+            } catch (\Throwable $e) {
+                Log::warning('Failed to send welcome notification', ['error' => $e->getMessage()]);
+            }
 
-        // Notify admin that a new enterprise has registered
-        try {
-            Mail::to('dessin@bureaumercier.com')->send(new AdminActivityAlertMail(
-                'New enterprise registration',
-                'A new enterprise has registered on the platform.',
-                [
-                    'entreprise_id' => $entreprise->id,
-                    'entreprise_name' => $entreprise->name,
-                    'admin_user_id' => $user->id,
-                    'admin_email' => $user->email,
-                    'timezone' => $user->timezone,
-                ]
-            ));
-        } catch (\Throwable $alertException) {
-            // Do not block user registration on alert failures
-        }
+            // Notify admin that a new enterprise has registered
+            // COMMENTED: admin alert emails to dessin@bureaumercier.com disabled
+            /*
+            try {
+                Mail::to('dessin@bureaumercier.com')->send(new AdminActivityAlertMail(
+                    'New enterprise registration',
+                    'A new enterprise has registered on the platform.',
+                    [
+                        'entreprise_id' => $entreprise->id,
+                        'entreprise_name' => $entreprise->name,
+                        'admin_user_id' => $user->id,
+                        'admin_email' => $user->email,
+                        'timezone' => $user->timezone,
+                    ]
+                ));
+            } catch (\Throwable $alertException) {
+                Log::warning('Failed to send admin alert for new registration', ['error' => $alertException->getMessage()]);
+            }
+            */
+        })->afterResponse();
 
         return redirect()->route('verification.notice')
             ->with('status', 'Votre compte a été créé avec succès. Un email de vérification a été envoyé à votre adresse email. Veuillez vérifier votre boîte de réception pour activer votre compte.');

@@ -4,40 +4,19 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
+    <meta name="description" content="{{ __('messages.DalyTrac - E-invoicing, Project Management & Time Tracking') }}">
+    <meta property="og:title" content="{{ config('app.name', 'DalyTrac') }}">
+    <meta property="og:description" content="{{ __('messages.DalyTrac - E-invoicing, Project Management & Time Tracking') }}">
+    <meta property="og:type" content="website">
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('img/dalytraclogo.png') }}" />
     <link rel="icon" type="image/png" href="{{ asset('img/dalytraclogo.png') }}" />
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=Figtree:400,500,600,700&display=swap" rel="stylesheet">
 
-  
-    <title>Entreprise Tracker</title>
+    <title>{{ config('app.name', 'DalyTrac') }}</title>
 
-    <link
-      rel="canonical"
-      href="https://www.creative-tim.com/product/argon-dashboard-pro"
-    />
-
-    <link
-      href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"
-      rel="stylesheet"
-    />
-
-    <link href="{{ asset('css/nucleo-icons.css') }}" rel="stylesheet" />
-    <link href="{{ asset('css/nucleo-svg.css')}}" rel="stylesheet" />
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <script
-      src="https://kit.fontawesome.com/42d5adcbca.js"
-      crossorigin="anonymous"
-    ></script>
-    <link href="{{asset('css/nucleo-svg.css')}}" rel="stylesheet" />
-
-    <link
-      id="pagestyle"
-      href="{{asset('css/argon-dashboard.min.css?v=2.0.5')}}"
-      rel="stylesheet"
-    />
+    <link rel="canonical" href="{{ route('welcome') }}">
 
     <style>
       .async-hide {

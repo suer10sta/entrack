@@ -1,146 +1,63 @@
-{{-- resources/views/components/footer.blade.php --}}
-@props(['theme' => 'blue'])
+{{-- resources/views/components/Home_page/footer.blade.php --}}
 
-<footer class="bg-[#F5F5F5] border-t border-[#E5E7EB]">
-    <div class="container px-6 py-12 mx-auto"> <!-- Added mx-auto to center the container -->
+<footer class="bg-[#0b1329] text-slate-400 border-t border-slate-800/80">
+    <div class="container mx-auto px-6 py-12 lg:py-16">
         <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
 
-            <!-- =========================
-                Logo & About Section
-            ========================== -->
+            {{-- Logo & About Section --}}
             <div class="lg:col-span-2 space-y-4">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#007AFF] shadow-lg">
-                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
-                        </svg>
-                    </div>
-                    <span class="text-xl font-bold text-[#1F2937]">
-                    DalyTrac
+                <a href="{{ route('welcome') }}" class="inline-flex items-center group">
+                    <span class="text-2xl font-extrabold tracking-tight">
+                        <span class="text-white">Daly</span><span class="text-[#1e535f]">Trac</span>
                     </span>
-                </div>
+                </a>
 
-                <p class="text-sm text-[#6B7280] max-w-sm">
-                    {{ __('messages.The complete solution to manage your business and invoices with simplicity.') }}
+                <p class="text-sm text-slate-400 max-w-sm leading-relaxed">
+                    La solution complète pour piloter vos projets, enregistrer votre temps et suivre vos marges opérationnelles du devis à la facturation.
                 </p>
 
-                <!-- Social Icons -->
-                <div class="flex gap-3">
-                    @foreach ([
-                        'M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z',
-                        'M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z',
-                        'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z'
-                    ] as $icon)
-                        <a
-                            href="#"
-                            class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#E5E7EB] text-black
-                                   hover:bg-[#007AFF] hover:text-white transition-colors"
-                        >
-                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="{{ $icon }}" />
-                            </svg>
-                        </a>
-                    @endforeach
+                <div class="text-xs text-slate-500 pt-2">
+                    DalyTrac © {{ now()->year }}. Tous droits réservés.
                 </div>
             </div>
 
-            <!-- =========================
-                Empty Spacer Column
-            ========================== -->
-            <!-- Empty column to push link lists to the right on large screens -->
+            {{-- Empty Spacer --}}
             <div class="hidden lg:block lg:col-span-1"></div>
 
+            {{-- Links Columns --}}
+            <div>
+                <h4 class="mb-4 text-xs font-bold uppercase tracking-wider text-slate-200">
+                    Produit
+                </h4>
+                <ul class="space-y-2.5 text-sm">
+                    <li><a href="#features" class="hover:text-white transition-colors">Fonctionnalités</a></li>
+                    <li><a href="#account_type" class="hover:text-white transition-colors">Formules & Tarifs</a></li>
+                    <li><a href="{{ route('demo') }}" class="hover:text-white transition-colors">Démonstration</a></li>
+                    <li><a href="{{ route('register') }}" class="hover:text-white transition-colors">Essai gratuit</a></li>
+                </ul>
+            </div>
 
-            <!-- =========================
-                Links Columns
-            ========================== -->
-            @foreach ([
-                ['title' => __('messages.Quick Links'), 'links' => [
-                    ['label' => __('messages.Home'), 'route' => route('welcome')],
-                    ['label' => __('messages.Features'), 'route' => '#features'],
-                    ['label' => __('messages.Plans'), 'route' => '#account_type'] ]],
-                ['title' => __('messages.Company'), 'links' => [
-                    ['label' => __('messages.About Us'), 'route' => route('about')],
-                    ['label' => __('messages.Contact'), 'route' => route('contact')],
-                    ['label' => __('messages.FAQ'), 'route' => route('faq')] ]]
-                ]
-                as $column)
-                <div>
-                    <h4 class="mb-4 text-sm font-semibold text-[#1F2937]">
-                        {{ $column['title'] }}
-                    </h4>
-                    <ul class="space-y-3 text-sm">
-                        @foreach ($column['links'] as $link)
-                            <li>
-                                <a href="{{ $link['route'] }}"
-                                    class="text-[#6B7280] hover:text-[#007AFF] transition-colors"
-                                >
-                                    {{ $link['label'] }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endforeach
+            <div>
+                <h4 class="mb-4 text-xs font-bold uppercase tracking-wider text-slate-200">
+                    Entreprise
+                </h4>
+                <ul class="space-y-2.5 text-sm">
+                    <li><a href="{{ route('about') }}" class="hover:text-white transition-colors">À propos</a></li>
+                    <li><a href="{{ route('faq') }}" class="hover:text-white transition-colors">FAQ</a></li>
+                    <li><a href="{{ url('/contact') }}" class="hover:text-white transition-colors">Contact</a></li>
+                    <li><a href="{{ route('blog.index') }}" class="hover:text-white transition-colors">Blog</a></li>
+                </ul>
+            </div>
+
         </div>
 
-        <div class="mt-12 flex flex-col md:flex-row items-center justify-between gap-4 border-t border-[#E5E7EB] pt-6 text-sm text-[#9CA3AF]">
+        <div class="mt-12 border-t border-slate-800/80 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <p>DalyTrac — Plateforme de gestion pour entreprises de services.</p>
+            <div class="flex gap-6">
+                <a href="{{ route('welcome') }}" class="hover:text-slate-300 transition-colors">Accueil</a>
+                <a href="{{ route('login') }}" class="hover:text-slate-300 transition-colors">Connexion</a>
+                <a href="{{ route('register') }}" class="hover:text-slate-300 transition-colors">Inscription</a>
+            </div>
         </div>
     </div>
-    @php
-        // In Blade components, parent view vars are not always directly available.
-        // Fallback to globally shared view data so tracking still works.
-        $scriptVisitId = $visitId ?? (view()->shared('visitId') ?? null);
-        $shouldTrack = !empty($scriptVisitId);
-    @endphp
-
-    @if($shouldTrack)
-        <script>
-            (function () {
-                const visitId = @json($scriptVisitId);
-                const endpoint = @json(route('track.visit'));
-                const payloadBase = { visit_id: visitId };
-
-                function send(event) {
-                    const payload = JSON.stringify({ ...payloadBase, event: event });
-
-                    if (navigator.sendBeacon) {
-                        const blob = new Blob([payload], { type: 'application/json' });
-                        navigator.sendBeacon(endpoint, blob);
-                        return;
-                    }
-
-                    fetch(endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: payload,
-                        keepalive: true
-                    }).catch(function () {});
-                }
-
-                // Update last activity while the user stays on the page.
-                const intervalMs = 15000;
-                send('ping');
-                const timer = setInterval(function () { send('ping'); }, intervalMs);
-
-                // Mark end when tab becomes hidden or unloads.
-                document.addEventListener('visibilitychange', function () {
-                    if (document.visibilityState === 'hidden') {
-                        send('end');
-                        clearInterval(timer);
-                    }
-                });
-
-                window.addEventListener('beforeunload', function () {
-                    send('end');
-                    clearInterval(timer);
-                });
-            })();
-        </script>
-    @endif
 </footer>
