@@ -343,7 +343,7 @@
     </style>
   </head>
 
-  <body class="antialiased pt-20 lg:pt-36 overflow-x-hidden">
+  <body class="antialiased pt-20 overflow-x-hidden bg-[#f8fafc] text-slate-900">
 
     <x-Home_page.header />
 

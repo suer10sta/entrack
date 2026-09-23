@@ -1,56 +1,64 @@
-@php
-$clients = [
-    ['id' => 1, 'name' => 'Smart Ladies', 'image' => 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-ljXgD91jQkgTZZpTX83ZiJLsaYSbRI.png', 'logo' => 'SL'],
-    ['id' => 2, 'name' => 'Shoes Factory', 'image' => 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-ljXgD91jQkgTZZpTX83ZiJLsaYSbRI.png', 'logo' => 'SF'],
-    ['id' => 3, 'name' => 'Tech Solutions', 'image' => '/modern-office-team-meeting.jpg', 'logo' => 'TS'],
-];
+{{-- resources/views/components/Home_page/ClientTestimonials.blade.php --}}
 
-$testimonials = [
-    ['id'=>1, 'text_key'=>'Testimonial 1 Text', 'author'=>'Marie Dubois', 'company'=>'Smart Ladies', 'role'=>'CEO'],
-    ['id'=>2, 'text_key'=>'Testimonial 2 Text', 'author'=>'Pierre Martin', 'company'=>'Shoes Factory', 'role'=>'Chief Financial Officer'],
-    ['id'=>3, 'text_key'=>'Testimonial 3 Text', 'author'=>'Sophie Laurent', 'company'=>'Tech Solutions', 'role'=>'Project Manager'],
-];
-@endphp
-
-<section id="customers" class="py-24 lg:py-32">
-    <div class="container px-6">
-        <div class="mb-16 text-center">
-            <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
-                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                </svg>
-                {{ __('messages.Customer Testimonials') }}
-            </div>
-            <h2 class="text-balance text-4xl font-bold text-foreground lg:text-5xl">{{ __('messages.Trusted by Growing Teams') }}</h2>
-            <p class="mt-4 text-pretty text-lg text-muted-foreground">
-                {{ __('messages.See what our customers say about the platform') }}
-            </p>
-        </div>
-
-        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            @foreach($testimonials as $testimonial)
-                <div class="group rounded-2xl border border-border bg-card p-8 shadow-lg transition-all hover:-translate-y-2 hover:shadow-2xl">
-                    <div class="mb-6 flex gap-1">
-                        @for($i=0; $i<5; $i++)
-                            <svg class="h-5 w-5 fill-primary" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                        @endfor
+<section id="demo-banner" class="py-16 sm:py-24 bg-[#f8fafc]">
+    <div class="container mx-auto px-4 sm:px-6">
+        
+        {{-- PART 1: VIDEO DEMO BANNER --}}
+        <div class="max-w-5xl mx-auto rounded-3xl bg-slate-50 border border-slate-200/90 p-6 sm:p-10 shadow-xs">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                
+                {{-- Left Graphic / Play Media Card --}}
+                <div class="lg:col-span-5 h-48 sm:h-56 rounded-2xl bg-teal-900/10 border border-teal-800/20 p-6 flex flex-col items-center justify-center text-center relative overflow-hidden group">
+                    <div class="w-12 h-12 rounded-full bg-[#1e535f] text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                        <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
                     </div>
-                    <blockquote class="mb-6 text-pretty leading-relaxed text-foreground">
-                        "{{ __('messages.' . $testimonial['text_key']) }}"
-                    </blockquote>
-                    <div class="flex items-center gap-4 border-t border-border pt-6">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-lg font-bold text-white shadow-lg">
-                            {{ collect(explode(' ', $testimonial['author']))->map(fn($n)=>$n[0])->join('') }}
-                        </div>
-                        <div>
-                            <p class="font-bold text-foreground">{{ $testimonial['author'] }}</p>
-                            <p class="text-sm text-muted-foreground">{{ $testimonial['role'] }}, {{ $testimonial['company'] }}</p>
-                        </div>
+                    <span class="mt-3 text-xs font-bold text-slate-700">DalyTrac en action</span>
+                    <span class="text-[10px] text-slate-400">Vidéo de présentation (2 min)</span>
+                </div>
+
+                {{-- Right Content --}}
+                <div class="lg:col-span-7 space-y-4">
+                    <span class="text-xs font-bold tracking-wider text-amber-600 uppercase">DÉMONSTRATION EN VIDÉO</span>
+                    <h3 class="text-xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+                        Suivez le parcours complet, <span class="text-[#1e535f]">de la création du projet aux premières données.</span>
+                    </h3>
+                    <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+                        Découvrez en quelques minutes comment DalyTrac simplifie la gestion de vos projets et accélère votre facturation.
+                    </p>
+                    <div class="pt-2 flex flex-wrap items-center gap-4">
+                        <a href="{{ route('demo') }}" 
+                           class="rounded-full bg-[#1e535f] hover:bg-[#163f47] text-white font-medium px-6 py-3 text-sm transition-all shadow-sm">
+                            Voir la démonstration
+                        </a>
+                        <a href="#features" class="text-sm font-semibold text-[#1e535f] hover:underline flex items-center gap-1">
+                            <span>En savoir plus</span>
+                            <span>→</span>
+                        </a>
                     </div>
                 </div>
-            @endforeach
+
+            </div>
         </div>
+
+        {{-- PART 2: FINAL BANNER CTA --}}
+        <div class="max-w-5xl mx-auto mt-16 sm:mt-24 rounded-3xl bg-[#0f2830] text-white p-8 sm:p-14 text-center shadow-2xl">
+            <div class="max-w-2xl mx-auto space-y-4">
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
+                    Choisissez un projet. <br class="hidden sm:inline"/>Obtenez une première vision claire.
+                </h2>
+                <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                    Rejoignez les entreprises de services qui piloteront leurs marges avec DalyTrac.
+                </p>
+                <div class="pt-4">
+                    <a href="{{ route('register') }}" 
+                       class="inline-block rounded-full bg-[#f59e0b] hover:bg-amber-400 text-slate-900 font-extrabold px-8 py-4 text-sm sm:text-base transition-all shadow-lg hover:scale-105">
+                        Essayer gratuitement
+                    </a>
+                </div>
+            </div>
+        </div>
+
     </div>
 </section>
