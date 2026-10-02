@@ -109,7 +109,7 @@
         @endphp
 
         @if($employeeProjects->isNotEmpty())
-            <div class="dashboard-emp-row px-6 py-4 hover:bg-gray-50">
+            <div class="dashboard-emp-row px-6 py-4 hover:bg-[#f4f7f6]">
                 @foreach($employeeProjects as $projectIndex => $project)
                     <div class="dashboard-emp-project grid grid-cols-12 gap-4 items-start">
                         {{-- EMPLOYEE (col-span-2) - Only show on first project --}}
@@ -164,7 +164,7 @@
                                     Client: 
                                     @if($project->client)
                                         <a href="{{ route('admin.clients.show', $project->client->id) }}" 
-                                           class="text-blue-600 hover:underline">
+                                           class="text-brand-secondary hover:underline">
                                             {{ $project->client->name }}
                                         </a>
                                     @else
@@ -194,7 +194,7 @@
                                     {{ $todayHours }}h:{{ sprintf('%02d', $todayMinutes) }}m
                                 </div>
                                 <div class="text-xs text-gray-500 mt-0.5">
-                                    Total: {{ $totalHours }}h:{{ sprintf('%02d', $totalMinutes) }}m
+                                    {{ __('messages.Total') }}: {{ $totalHours }}h:{{ sprintf('%02d', $totalMinutes) }}m
                                 </div>
                             </div>
                         </div>
@@ -205,13 +205,13 @@
                                     @foreach($project->employee_tasks as $task)
                                         <div class="mb-2 last:mb-0">
                                             <a href="{{ route('admin.tasks.show', $task->id) }}"
-                                                class="text-xs font-medium text-indigo-600 hover:underline">
+                                                class="text-xs font-medium text-brand-secondary hover:underline">
                                                 {{ $task->title }}
                                             </a>
                                         </div>
                                     @endforeach
                                 @else
-                                    <p class="text-xs text-gray-400">No tasks</p>
+                                    <p class="text-xs text-gray-400">{{ __('messages.No tasks') }}</p>
                                 @endif
                             </div>
 
@@ -234,7 +234,7 @@
                                                 {{ $taskTodayHours }}h:{{ sprintf('%02d', $taskTodayMinutes) }}m
                                             </div>
                                             <div class="text-gray-500 mt-0.5">
-                                                Total: {{ $taskTotalHours }}h:{{ sprintf('%02d', $taskTotalMinutes) }}m
+                                                {{ __('messages.Total') }}: {{ $taskTotalHours }}h:{{ sprintf('%02d', $taskTotalMinutes) }}m
                                             </div>
                                         </div>
                                     @endforeach
@@ -247,7 +247,7 @@
                             <div class="dashboard-emp-actions col-span-1 flex justify-end items-start pt-1" data-label="{{ __('messages.Employee Actions') }}" data-span="2">
                                 @if($projectIndex === 0)
                                     <a href="{{ route('admin.employees.show', $employee->id) }}"
-                                        class="p-1 rounded-md bg-purple-600 text-white hover:bg-purple-700"
+                                        class="p-1 rounded-md bg-brand-primary text-white hover:bg-[#16394a]"
                                         title="View Employee">
                                         <svg class="h-5 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -268,15 +268,16 @@
 
 {{-- No employees worked today message --}}
 @if(!$hasWorkedToday)
-    <div class="px-6 py-8 text-center">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+    <div class="px-6 py-10 text-center">
+        <div class="dt-empty-icon mx-auto mb-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
                     d="M17 21v-2a4 4 0 00-8 0v2m8 0H5a2 2 0 01-2-2V7a2 2 0 012-2h5l2 2h5a2 2 0 012 2v12a2 2 0 01-2 2z" />
             </svg>
         </div>
-        <p class="text-sm font-medium text-gray-900 mb-1">No Employees Worked Today</p>
-        <p class="text-sm text-gray-500">No employees have logged work today. Start tracking time to see it here.</p>
+        <p class="text-[13.5px] font-semibold text-[#0B2638] mb-1">{{ __('messages.No Employees Worked Today') }}</p>
+        <p class="text-[13px] text-slate-500 max-w-sm mx-auto">{{ __('messages.No employees have logged work today. Start tracking time to see it here.') }}</p>
     </div>
 @endif
+
 

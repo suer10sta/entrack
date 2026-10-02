@@ -3,8 +3,11 @@
 
 @include('dashboard_layouts.head')
 <style>
-  a {
-    color: blue;
+  .main-content a {
+    color: #2D7080;
+}
+  .main-content a:hover {
+    color: #0B2638;
 }
 </style>
 <meta name="csrf-token" content="{{ csrf_token() }}">

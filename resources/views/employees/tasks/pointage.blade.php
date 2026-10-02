@@ -28,8 +28,8 @@
         }
         .ts-wrapper.single .ts-control:focus,
         .ts-wrapper.single.focus .ts-control {
-            border-color: #3b82f6 !important; /* focus:border-blue-500 */
-            box-shadow: 0 0 0 1px #3b82f6 !important;
+            border-color: #2D7080 !important;
+            box-shadow: 0 0 0 2px rgba(45, 112, 128, 0.25) !important;
         }
         .ts-dropdown {
             border: 1px solid #e2e8f0 !important;
@@ -46,8 +46,8 @@
             white-space: nowrap !important;
         }
         .ts-dropdown .option.active {
-            background-color: #eff6ff !important;
-            color: #1e40af !important;
+            background-color: rgba(45, 112, 128, 0.10) !important;
+            color: #0B2638 !important;
         }
         .ts-dropdown .option:hover {
             background-color: #f8fafc !important;
@@ -110,7 +110,7 @@
         .close-button:hover { color: #475569; }
 
         /* Mobile: tables -> modern 2-col cards (no horizontal scroll) */
-        @media (max-width: 640px) {
+        @media (max-width: 1024px) {
             .custom-scrollbar {
                 overflow-x: visible !important;
             }
@@ -272,7 +272,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex h-screen overflow-hidden font-sans antialiased text-slate-600">
+<body class="bg-[#f8fafc] flex h-screen overflow-hidden font-sans antialiased text-slate-600">
     
     <audio id="alertSound" src="{{ asset('audio/alert_sound.mp3') }}" preload="auto"></audio>
 
@@ -282,26 +282,21 @@
 
 
         <div class="flex flex-col flex-1 overflow-y-auto w-full">
+        {{-- Navbar (same design as Admin Dashboard) --}}
+        <x-employees.navbar />
+
         {{-- Main Content --}}
-        <main class="flex flex-col flex-1 overflow-y-auto w-full px-4 md:px-8">
+        <main class="flex flex-col flex-1 overflow-y-auto w-full">
+            <div class="p-4 sm:p-6 lg:px-20 lg:py-8 mx-auto w-full flex flex-col flex-1">
 
-            {{-- Mobile top bar (sidebar toggle) --}}
-            <div class="sticky top-0 z-30 -mx-4 md:mx-0 px-4 md:px-0 pt-3 pb-2 bg-gray-100/95 backdrop-blur lg:hidden">
-                <div class="flex items-center justify-between">
-                    <button type="button"
-                        class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm text-slate-700 hover:bg-slate-50"
-                        onclick="toggleAppSidebar(true)"
-                        aria-label="Open sidebar">
-                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                        </svg>
-                    </button>
-
-                    <div class="text-sm font-semibold text-slate-900 truncate">
+            {{-- Page heading (same design as Admin Dashboard) --}}
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
+                <div class="min-w-0">
+                    <!-- <p class="dt-overline mb-1">{{ now()->format('l, d F Y') }}</p> -->
+                    <h1 class="text-[22px] sm:text-[24px] font-bold tracking-tight text-[#0B2638] leading-tight">
                         {{ __('messages.Pointage Dashboard') }}
-                    </div>
-
-                    <div class="w-10 h-10"></div>
+                    </h1>
+                    <p class="text-[13.5px] text-slate-500 mt-1">{{ __('messages.Track time per task and project with real-time timers and logs.') }}</p>
                 </div>
             </div>
 
@@ -321,40 +316,41 @@
                 @endif
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ __('messages.Active Projects') }}</p>
-                        <h2 class="text-3xl font-bold text-slate-800">{{ $projects->count() }}</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div class="dt-card dt-card-hover p-4 sm:p-5 flex items-center gap-3.5">
+                    <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 flex-shrink-0">
+                        <i class="fas fa-suitcase text-base"></i>
                     </div>
-                    <div class="bg-red-500 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-md shadow-red-200">
-                        <i class="fas fa-suitcase text-lg"></i>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ __('messages.Tasks') }}</p>
-                        <h2 class="text-3xl font-bold text-slate-800">{{ $employees_tasks->count() }}</h2>
-                    </div>
-                    <div class="bg-teal-500 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-md shadow-teal-200">
-                        <i class="fas fa-check-square text-lg"></i>
+                    <div class="min-w-0">
+                        <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Active Projects') }}</p>
+                        <h2 class="text-[26px] leading-none font-bold text-[#0B2638] tracking-tight mt-1">{{ $projects->count() }}</h2>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ __('messages.Teams') }}</p>
-                        <h2 class="text-3xl font-bold text-slate-800">0</h2>
+                <div class="dt-card dt-card-hover p-4 sm:p-5 flex items-center gap-3.5">
+                    <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 flex-shrink-0">
+                        <i class="fas fa-check-square text-base"></i>
                     </div>
-                    <div class="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-md shadow-orange-200">
-                        <i class="fas fa-users text-lg"></i>
+                    <div class="min-w-0">
+                        <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Tasks') }}</p>
+                        <h2 class="text-[26px] leading-none font-bold text-[#0B2638] tracking-tight mt-1">{{ $employees_tasks->count() }}</h2>
+                    </div>
+                </div>
+
+                <div class="dt-card dt-card-hover p-4 sm:p-5 flex items-center gap-3.5 relative overflow-hidden">
+                    <span class="absolute left-0 top-0 h-full w-1 bg-[#E7B84B]"></span>
+                    <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-[#E7B84B]/20 text-[#0B2638] ring-1 ring-[#E7B84B]/40 flex-shrink-0">
+                        <i class="fas fa-users text-base"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Teams') }}</p>
+                        <h2 class="text-[26px] leading-none font-bold text-[#0B2638] tracking-tight mt-1">0</h2>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 mb-8">
-                <div class="p-6 pb-0">
+            <div class="dt-card mb-6 overflow-hidden">
+                <div class="px-5 sm:px-6 pt-5 pb-1">
                     @php
                         $employee_id = App\Models\employees::where('user_id', Auth::user()->id)->first()->id;
                         $today = \Carbon\Carbon::today()->toDateString();
@@ -370,15 +366,18 @@
                         });
                     @endphp
 
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-base font-bold text-slate-800">{{ __('messages.Employee Tasks Table') }}</h3>
-                        <div class="text-xs font-bold text-slate-500">
-                            {{ __('messages.Today\'s Duration') }}: <span class="text-slate-800">{{ (isset($totalHours) && $totalHours > 0) || (isset($totalMinutes) && $totalMinutes > 0) ? $totalHours . 'h' . sprintf('%02d', $totalMinutes) . 'm' : '00h00m' }}</span>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:justify-between mb-4">
+                        <div class="min-w-0">
+                            <h3 class="dt-section-title">{{ __('messages.Employee Tasks Table') }}</h3>
+                        </div>
+                        <div class="dt-badge dt-badge-neutral flex-shrink-0">
+                            <span class="dt-dot"></span>
+                            {{ __('messages.Today\'s Duration') }}:&nbsp;<span class="text-[#0B2638]">{{ (isset($totalHours) && $totalHours > 0) || (isset($totalMinutes) && $totalMinutes > 0) ? $totalHours . 'h' . sprintf('%02d', $totalMinutes) . 'm' : '00h00m' }}</span>
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <select id="projectFilter" class="block w-96 rounded-lg border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-slate-600 shadow-sm py-2 px-3">
+                        <select id="projectFilter" class="block w-full sm:max-w-md rounded-xl border-slate-200 text-sm focus:border-[#2D7080] focus:ring-[#2D7080]/25 bg-white text-slate-600 shadow-sm py-2 px-3 outline-none">
                             <option value="">{{ __('messages.All Projects') }}</option>
                             @foreach($projects as $project)
                             <option value="{{ $project->name }}">{{ $project->name }}</option>
@@ -387,24 +386,24 @@
                         </div>
                     </div>
 
-                <div class="overflow-x-auto lg:overflow-x-visible custom-scrollbar">
-                    <table id="tasksTable" class="w-full text-left border-collapse table-fixed">
-                        <thead class="bg-slate-50">
-                            <tr>
-                                <th class="px-3 lg:px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-72">{{ __('messages.Task Name') }}</th>
-                                <th class="px-3 lg:px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-28">{{ __('messages.Total Duration') }}</th>
-                                <th class="px-3 lg:px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-28">{{ __('messages.Estimated Hours') }}</th>
-                                <th class="px-3 lg:px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-28">{{ __('messages.Difference') }}</th>
-                                <th class="px-3 lg:px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-32">{{ __('messages.Progress') }}</th>
-                                <th class="px-3 lg:px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Comments') }}</th>
-                                <th class="px-3 lg:px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-28">{{ __('messages.Today\'s Duration') }}</th>
-                                <th class="px-3 lg:px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-80">{{ __('messages.Action') }}</th>
+                <div class="overflow-x-auto custom-scrollbar border-t border-slate-100">
+                    <table id="tasksTable" class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50/80">
+                            <tr class="dt-table-head">
+                                <th class="px-4 py-3 text-left min-w-[220px]">{{ __('messages.Task Name') }}</th>
+                                <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Total Duration') }}</th>
+                                <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Estimated Hours') }}</th>
+                                <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Difference') }}</th>
+                                <th class="px-4 py-3 text-left min-w-[130px]">{{ __('messages.Progress') }}</th>
+                                <th class="px-4 py-3 text-left min-w-[180px]">{{ __('messages.Comments') }}</th>
+                                <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Today\'s Duration') }}</th>
+                                <th class="px-4 py-3 text-right min-w-[210px]">{{ __('messages.Action') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             @foreach($tasksByProject as $projectName => $projectTasks)
                                 <tr class="project-group-row" data-project-name="{{ $projectName }}">
-                                    <td colspan="8" class="px-3 lg:px-4 py-2 bg-slate-200">
+                                    <td colspan="8" class="px-4 py-2 bg-[#0B2638]/[0.05] border-y border-[#0B2638]/10">
                                         <div class="flex items-center justify-between gap-2">
                                             <div class="flex items-center gap-2 min-w-0 overflow-hidden">
                                                 <button type="button" class="pin-btn shrink-0 text-slate-400 hover:text-yellow-400 transition-colors" data-project="{{ $projectName }}" title="{{ __('messages.Pin project') }}">
@@ -412,7 +411,7 @@
                                                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                                                     </svg>
                                                 </button>
-                                                <span class="text-xs font-bold text-slate-800 uppercase tracking-wide truncate">{{ strtoupper($projectName) }}</span>
+                                                <span class="text-xs font-bold text-[#0B2638] uppercase tracking-[0.06em] truncate">{{ strtoupper($projectName) }}</span>
                                             </div>
                                             <button type="button" class="collapse-toggle shrink-0 text-slate-400 hover:text-slate-600 transition-transform duration-200" data-project="{{ $projectName }}" title="{{ __('messages.Toggle tasks') }}">
                                                 <svg class="w-4 h-4 chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -436,10 +435,10 @@
                                                     ? 'Responsable_gestionnaire'
                                                     : 'employee'));
                                     @endphp
-                                    <tr class="task-row hover:bg-slate-50 transition-colors" data-task-row aria-expanded="true" data-project-name="{{ $projectName }}" data-active-timer="{{ $task_timer ? 'true' : 'false' }}">
-                                        <td data-label="{{ __('messages.Task Name') }}" class="px-3 lg:px-4 py-3 task-name-cell">
+                                    <tr class="task-row hover:bg-slate-50/70 transition-colors" data-task-row aria-expanded="true" data-project-name="{{ $projectName }}" data-active-timer="{{ $task_timer ? 'true' : 'false' }}">
+                                        <td data-label="{{ __('messages.Task Name') }}" class="px-4 py-3 task-name-cell">
                                             <div class="flex items-center justify-between gap-3">
-                                                <a href="#" class="min-w-0 truncate text-sm font-medium text-blue-500 hover:text-blue-700" title="{{ $task->task_name }}">{{ $task->task_name }}</a>
+                                                <a href="#" class="min-w-0 truncate text-sm font-medium text-[#2D7080] hover:text-[#0B2638] hover:underline" title="{{ $task->task_name }}">{{ $task->task_name }}</a>
                                                 <button type="button" class="shrink-0 text-slate-400 hover:text-slate-600 sm:hidden" data-task-collapse-toggle aria-label="Toggle task details">
                                                     <svg class="task-chevron w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                                         <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -447,7 +446,7 @@
                                                 </button>
                                             </div>
                                         </td>
-                                        <td data-label="{{ __('messages.Total Duration') }}" class="px-3 lg:px-4 py-3 text-sm text-slate-600 whitespace-nowrap">
+                                        <td data-label="{{ __('messages.Total Duration') }}" class="px-4 py-3 text-sm text-slate-600 whitespace-nowrap">
                                             @php 
                                                 $tasktotalduration = App\Models\tasks_timer::where('task_id', $task_id)->where('employee_id', $employee_id)->sum('duration');
                                                 $taskhours = floor($tasktotalduration / 60);
@@ -455,8 +454,8 @@
                                             @endphp
                                             {{$taskhours}}h{{$taskminutes}}m
                                         </td>
-                                        <td data-label="{{ __('messages.Estimated Hours') }}" class="px-3 lg:px-4 py-3 text-sm text-slate-600 whitespace-nowrap">{{$task_name->estimated_hours ?? '-'}} h</td>
-                                        <td data-label="{{ __('messages.Difference') }}" class="px-3 lg:px-4 py-3 text-sm text-slate-500 whitespace-nowrap">
+                                        <td data-label="{{ __('messages.Estimated Hours') }}" class="px-4 py-3 text-sm text-slate-600 whitespace-nowrap">{{$task_name->estimated_hours ?? '-'}} h</td>
+                                        <td data-label="{{ __('messages.Difference') }}" class="px-4 py-3 text-sm text-slate-500 whitespace-nowrap">
                                             @php
                                                 $taskEstimatedMinutes = ($task_name->estimated_hours ?? 0) * 60;
                                                 $taskConsumedMinutes = ($task_name->consumed_hours ?? 0) * 60;
@@ -469,25 +468,28 @@
                                             @endphp
                                             @if($task_name->estimated_hours !== null)
                                                 @if($taskdifference > 0)
-                                                    <span class="text-green-600 font-medium text-xs">+{{$hours}}h{{$minutes}}m</span>
+                                                    <span class="dt-badge dt-badge-success">+{{$hours}}h{{$minutes}}m</span>
                                                 @elseif($taskdifference < 0)
-                                                    <span class="text-red-600 font-medium text-xs">-{{$hours}}h{{$minutes}}m</span>
+                                                    <span class="dt-badge dt-badge-danger">-{{$hours}}h{{$minutes}}m</span>
                                                 @else
-                                                    <span class="text-blue-600 font-medium text-xs">{{$hours}}h{{$minutes}}m</span>
+                                                    <span class="dt-badge dt-badge-navy">{{$hours}}h{{$minutes}}m</span>
                                                 @endif
                                             @else
                                                 <span class="text-xs text-slate-400">{{ __('messages.No estimated hours inserted') }}</span>
                                             @endif
                                         </td>
-                                        <td data-label="{{ __('messages.Progress') }}" class="px-3 lg:px-4 py-3 align-middle">
-                                            <div class="w-full bg-slate-200 rounded-full h-1.5 flex items-center">
-                                                <div class="h-1.5 rounded-full bg-blue-500" style="width: {{$taskformattedProgressPercentage}}%"></div>
+                                        <td data-label="{{ __('messages.Progress') }}" class="px-4 py-3 align-middle">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-full max-w-[140px] bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                                                    <div class="h-1.5 rounded-full bg-[#2D7080]" style="width: {{ min($taskprogressPercentage, 100) }}%"></div>
+                                                </div>
+                                                <span class="text-[11px] font-semibold text-slate-500 whitespace-nowrap">{{ $taskformattedProgressPercentage }}%</span>
                                             </div>
                                         </td>
-                                        <td data-label="{{ __('messages.Comments') }}" data-span="2" class="px-3 lg:px-4 py-3 text-sm text-slate-600 break-words">
-                                            {{ $task->comment ?? __('messages.No Comment') }}
+                                        <td data-label="{{ __('messages.Comments') }}" data-span="2" class="px-4 py-3 text-sm text-slate-600">
+                                            <span class="block min-w-0 max-w-[280px] break-words leading-snug">{{ $task->comment ?? __('messages.No Comment') }}</span>
                                         </td>
-                                        <td data-label="{{ __('messages.Today\'s Duration') }}" class="px-3 lg:px-4 py-3 text-sm font-bold text-slate-800 whitespace-nowrap">
+                                        <td data-label="{{ __('messages.Today\'s Duration') }}" class="px-4 py-3 text-sm font-bold text-[#0B2638] whitespace-nowrap">
                                             @php
                                                 $today = \Carbon\Carbon::today()->toDateString();
                                                 $totalDurationToday = App\Models\tasks_timer::where('task_employee_id', $task->id)->whereNotNull('duration')->whereDate('start_date', '=', $today)->sum('duration');
@@ -496,13 +498,13 @@
                                             @endphp
                                             <span id="duration-{{$task->id}}">{{ $totalDurationToday ? $hours . 'h' . sprintf('%02d', $minutes).'m' : '00h00m' }}</span>
                                         </td>
-                                        <td data-label="{{ __('messages.Action') }}" class="px-3 lg:px-4 py-3 text-right task-action-cell">
+                                        <td data-label="{{ __('messages.Action') }}" class="px-4 py-3 text-right task-action-cell">
                                             <div class="flex justify-end gap-2 flex-wrap">
                                                 @php $routePrefix = Auth::user()->hasRole('Employee') ? 'employee' : (Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet' : 'Responsable_gestionnaire'); @endphp
 
                                                 @can('Add manual timer')
                                                     <button type="button"
-                                                            class="manual-timer-btn bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm flex items-center justify-center"
+                                                            class="manual-timer-btn bg-[#2D7080] hover:bg-[#245f6d] text-white text-xs font-semibold py-1.5 px-3 rounded-lg shadow-sm flex items-center justify-center transition-colors"
                                                             title="{{ __('messages.Add Manual Time') }}"
                                                             data-task-id="{{ $task_id }}"
                                                             data-employee-id="{{ $employee_id }}">
@@ -511,15 +513,15 @@
                                                         </svg>
                                                     </button>
                                                 @endcan
-                                            
+
                                                 @unless($task_timer)
                                                     <form class="inline-flex items-center gap-2 flex-wrap" action="{{ route($routePrefix.'.tasks.start', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST">
                                                         @csrf
                                                         <input type="text"
                                                                name="comment"
                                                                placeholder="{{ __('messages.Enter comment') }}"
-                                                               class="border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring focus:ring-emerald-200 w-40 max-w-full min-w-0">
-                                                        <button type="submit" class="start-button bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm whitespace-nowrap" id="start-btn" data-task-id="{{$task->id}}">
+                                                               class="border border-slate-300 rounded-lg px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] w-40 max-w-full min-w-0">
+                                                        <button type="submit" class="start-button bg-[#2D7080] hover:bg-[#245f6d] text-white text-xs font-semibold py-1.5 px-3 rounded-lg shadow-sm whitespace-nowrap transition-colors" id="start-btn" data-task-id="{{$task->id}}">
                                                             {{ __('messages.Start') }}
                                                         </button>
                                                     </form>
@@ -529,7 +531,7 @@
                                                     <form class="inline-block stop-form" action="{{ route($routePrefix.'.tasks.stop', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST">
                                                         @csrf
                                                         <input type="hidden" name="stop_comment" class="stop-comment-field">
-                                                        <button type="submit" class="stop-button bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm whitespace-nowrap" data-task-id="{{$task->id}}">
+                                                        <button type="submit" class="stop-button bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-1.5 px-3 rounded-lg shadow-sm whitespace-nowrap transition-colors" data-task-id="{{$task->id}}">
                                                             {{ __('messages.Stop') }}
                                                         </button>
                                                     </form>
@@ -556,16 +558,16 @@
 
                         <div class="text-left">
                             <label for="manualStartDate" class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Start Date and Time') }}</label>
-                            <input type="datetime-local" id="manualStartDate" name="start_date" class="border border-slate-300 rounded-lg px-3 py-2 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            <input type="datetime-local" id="manualStartDate" name="start_date" class="border border-slate-300 rounded-lg px-3 py-2 w-full text-sm focus:outline-none focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080]" required>
                         </div>
                         <div class="text-left">
                             <label for="manualEndDate" class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.End Date and Time') }}</label>
-                            <input type="datetime-local" id="manualEndDate" name="end_date" class="border border-slate-300 rounded-lg px-3 py-2 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            <input type="datetime-local" id="manualEndDate" name="end_date" class="border border-slate-300 rounded-lg px-3 py-2 w-full text-sm focus:outline-none focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080]" required>
                         </div>
 
                         <div class="flex justify-end gap-2 pt-2">
                             <button type="button" id="manualTimerCancelBtn" class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50">{{ __('messages.Close button') }}</button>
-                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700">{{ __('messages.Save Timer') }}</button>
+                            <button type="submit" class="px-4 py-2 text-sm font-semibold text-white bg-[#2D7080] rounded-lg hover:bg-[#245f6d]">{{ __('messages.Save Timer') }}</button>
                         </div>
                     </form>
                 </div>
@@ -594,7 +596,7 @@
                                     </svg>
                                     <span id="stopCommentAiBtnText">{{ __('messages.Correct with AI') }}</span>
                                 </button>
-                                <button type="button" id="stopCommentTranslateBtn" class="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors opacity-50 cursor-not-allowed" title="{{ __('messages.Translate to Dutch') }}" disabled>
+                                <button type="button" id="stopCommentTranslateBtn" class="text-xs font-semibold text-[#2D7080] hover:text-[#0B2638] flex items-center gap-1 transition-colors opacity-50 cursor-not-allowed" title="{{ __('messages.Translate to Dutch') }}" disabled>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5c-.006 3.125-1.026 6.042-2.751 8.498m-1.782-2.5A18.022 18.022 0 014.888 5h7.863z" />
                                     </svg>
@@ -626,7 +628,7 @@
                     <h2 class="text-lg font-semibold text-slate-800 mb-2">{{ __('messages.Check Spelling?') }}</h2>
                     <p class="text-sm text-slate-500 mb-5">{{ __('messages.Would you like to verify the spelling of your comment before submitting?') }}</p>
                     <div class="flex flex-col gap-2">
-                        <button type="button" id="spellCheckVerifyBtn" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-indigo-500 rounded-lg hover:bg-indigo-600 transition-colors flex items-center justify-center gap-2">
+                        <button type="button" id="spellCheckVerifyBtn" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-[#2D7080] rounded-lg hover:bg-[#245f6d] transition-colors flex items-center justify-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -643,8 +645,8 @@
             <div id="translateCheckModal" class="modal" style="z-index: 60;">
                 <div class="modal-content-custom" style="max-width: 420px;">
                     <div class="flex items-center justify-center mb-3">
-                        <div class="bg-blue-100 rounded-full p-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <div class="bg-[#2D7080]/10 rounded-full p-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#2D7080]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5c-.006 3.125-1.026 6.042-2.751 8.498m-1.782-2.5A18.022 18.022 0 014.888 5h7.863z" />
                             </svg>
                         </div>
@@ -652,7 +654,7 @@
                     <h2 class="text-lg font-semibold text-slate-800 mb-2">{{ __('messages.Translate to Dutch?') }}</h2>
                     <p class="text-sm text-slate-500 mb-5">{{ __('messages.Would you like to translate your comment into Dutch before submitting?') }}</p>
                     <div class="flex flex-col gap-2">
-                        <button type="button" id="translateCheckVerifyBtn" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+                        <button type="button" id="translateCheckVerifyBtn" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-[#0B2638] rounded-lg hover:bg-[#14364d] transition-colors flex items-center justify-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -665,20 +667,20 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 mb-8">
-                <div class="p-6">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
-                        <h3 class="text-base font-bold text-slate-800">{{ __('messages.Tasks Timer Table') }}</h3>
-                        <div class="flex space-x-2 mt-4 md:mt-0">
-                            <button id="exportBtn" class="bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors">{{ __('messages.Export to Excel') }}</button>
-                            <button id="exportPDFBtn" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors">{{ __('messages.Export to PDF') }}</button>
+            <div class="dt-card mb-6 overflow-hidden">
+                <div class="px-5 sm:px-6 pt-5 pb-1">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
+                        <h3 class="dt-section-title">{{ __('messages.Tasks Timer Table') }}</h3>
+                        <div class="flex flex-wrap gap-2 mt-1 md:mt-0">
+                            <button id="exportBtn" class="dt-btn dt-btn-ghost">{{ __('messages.Export to Excel') }}</button>
+                            <button id="exportPDFBtn" class="dt-btn dt-btn-primary">{{ __('messages.Export to PDF') }}</button>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <input type="date" id="startDateInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                        <input type="date" id="endDateInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                        <select id="projectFilterExport" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+                        <input type="date" id="startDateInput" class="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none block w-full p-2.5 shadow-sm">
+                        <input type="date" id="endDateInput" class="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none block w-full p-2.5 shadow-sm">
+                        <select id="projectFilterExport" class="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none block w-full p-2.5 shadow-sm">
                             <option value="">{{ __('messages.All Projects') }}</option>
                             @foreach($projects as $project)
                                 <option value="{{ $project->id }}">{{ $project->name }}</option>
@@ -687,16 +689,16 @@
                     </div>
                 </div>
 
-                <div class="overflow-x-auto lg:overflow-x-visible custom-scrollbar border-t border-slate-100">
+                <div class="overflow-x-auto custom-scrollbar border-t border-slate-100">
                     <table id="taskTable" class="w-full text-left border-collapse">
-                        <thead class="bg-slate-50">
-                            <tr>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Project Name') }}</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Task Name') }}</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Start Date') }}</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.End Date') }}</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Comment') }}</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('messages.Duration') }}</th>
+                        <thead class="bg-slate-50/80">
+                            <tr class="dt-table-head">
+                                <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Project Name') }}</th>
+                                <th class="px-4 py-3 text-left min-w-[200px]">{{ __('messages.Task Name') }}</th>
+                                <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Start Date') }}</th>
+                                <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.End Date') }}</th>
+                                <th class="px-4 py-3 text-left min-w-[180px]">{{ __('messages.Comment') }}</th>
+                                <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Duration') }}</th>
                             </tr>
                         </thead>
                         <tbody id="taskTableBody" class="divide-y divide-slate-100">
@@ -705,30 +707,30 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-lg border border-slate-200" style="margin-bottom: 25px;">
-                <div class="p-6 border-b border-slate-100">
-                    <h3 class="text-base font-bold text-slate-800">{{ __('messages.Work Days Reports') }}</h3>
+            <div class="dt-card mb-6 overflow-hidden">
+                <div class="px-5 sm:px-6 py-4 border-b border-slate-100">
+                    <h3 class="dt-section-title">{{ __('messages.Work Days Reports') }}</h3>
                 </div>
-                <div class="overflow-x-auto lg:overflow-x-visible custom-scrollbar">
+                <div class="overflow-x-auto custom-scrollbar">
                     <table id="editableTable" class="w-full text-left border-collapse">
-                        <thead class="bg-slate-50">
-                            <tr>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Number of') }}<br>{{ __('messages.Working Days') }}</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Number of') }}<br>{{ __('messages.Sick Days') }}</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Number of') }}<br>{{ __('messages.Public Holidays') }}</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Remaining') }}<br>{{ __('messages.Paid Leave Days') }}</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Paid Leave') }}<br>{{ __('messages.Days Accrued') }}</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Paid Leave') }}<br>{{ __('messages.Days Taken') }}</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Leave') }}<br>{{ __('messages.Balance') }}</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Days of') }}<br>{{ __('messages.Absence') }}</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Paid Leave') }}<br>{{ __('messages.Dates') }}</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Month') }}</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">{{ __('messages.Year') }}</th>
+                        <thead class="bg-slate-50/80">
+                            <tr class="dt-table-head">
+                                <th class="px-4 py-3 text-left leading-snug min-w-[110px]">{{ __('messages.Number of') }}<br>{{ __('messages.Working Days') }}</th>
+                                <th class="px-4 py-3 text-left leading-snug min-w-[95px]">{{ __('messages.Number of') }}<br>{{ __('messages.Sick Days') }}</th>
+                                <th class="px-4 py-3 text-left leading-snug min-w-[110px]">{{ __('messages.Number of') }}<br>{{ __('messages.Public Holidays') }}</th>
+                                <th class="px-4 py-3 text-left leading-snug min-w-[110px]">{{ __('messages.Remaining') }}<br>{{ __('messages.Paid Leave Days') }}</th>
+                                <th class="px-4 py-3 text-left leading-snug min-w-[110px]">{{ __('messages.Paid Leave') }}<br>{{ __('messages.Days Accrued') }}</th>
+                                <th class="px-4 py-3 text-left leading-snug min-w-[110px]">{{ __('messages.Paid Leave') }}<br>{{ __('messages.Days Taken') }}</th>
+                                <th class="px-4 py-3 text-left leading-snug min-w-[90px]">{{ __('messages.Leave') }}<br>{{ __('messages.Balance') }}</th>
+                                <th class="px-4 py-3 text-left leading-snug min-w-[90px]">{{ __('messages.Days of') }}<br>{{ __('messages.Absence') }}</th>
+                                <th class="px-4 py-3 text-left leading-snug min-w-[110px]">{{ __('messages.Paid Leave') }}<br>{{ __('messages.Dates') }}</th>
+                                <th class="px-4 py-3 text-left leading-snug">{{ __('messages.Month') }}</th>
+                                <th class="px-4 py-3 text-left leading-snug">{{ __('messages.Year') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-slate-600">
                             @isset($work_days_repports)
-                            <tr class="hover:bg-slate-50">
+                            <tr class="hover:bg-slate-50/70 transition-colors">
                                 <td data-label="{{ __('messages.Number of') }} {{ __('messages.Working Days') }}" class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="days_worked">
                                     @php
                                         $firstDay = Carbon\Carbon::create($work_days_repports->year, $work_days_repports->month, 1);
@@ -747,8 +749,8 @@
                                 <td data-label="{{ __('messages.Leave') }} {{ __('messages.Balance') }}" class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="holiday_balance">{{$work_days_repports->holiday_balance}}</td>
                                 <td data-label="{{ __('messages.Days of') }} {{ __('messages.Absence') }}" class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="days_of_unpaid_absence">{{$work_days_repports->days_of_unpaid_absence}}</td>
                                 <td data-label="{{ __('messages.Paid Leave') }} {{ __('messages.Dates') }}" data-span="2" class="px-4 py-4 text-sm editable" data-id="{{$work_days_repports->id}}" data-column="dates_of_holidays">{{$work_days_repports->dates_of_holidays}}</td>
-                                <td data-label="{{ __('messages.Month') }}" class="px-4 py-4 text-sm text-blue-500 editable" data-id="{{$work_days_repports->id}}" data-column="month">{{$work_days_repports->month}}</td>
-                                <td data-label="{{ __('messages.Year') }}" class="px-4 py-4 text-sm text-blue-500 editable" data-id="{{$work_days_repports->id}}" data-column="year">{{$work_days_repports->year}}</td>
+                                <td data-label="{{ __('messages.Month') }}" class="px-4 py-4 text-sm font-medium text-[#2D7080] editable" data-id="{{$work_days_repports->id}}" data-column="month">{{$work_days_repports->month}}</td>
+                                <td data-label="{{ __('messages.Year') }}" class="px-4 py-4 text-sm font-medium text-[#2D7080] editable" data-id="{{$work_days_repports->id}}" data-column="year">{{$work_days_repports->year}}</td>
                             </tr>
                             @endisset
                         </tbody>
@@ -767,6 +769,7 @@
                 </div>
             </div>
 
+            </div>
         </main>
         </div>
     </div>
@@ -776,56 +779,8 @@
     <script src="https://unpkg.com/jspdf-autotable@3.5.17/dist/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
 
-    <script>
-        // Sidebar toggle for employee layout (mobile)
-        function toggleAppSidebar(shouldOpen) {
-            const sidebar = document.getElementById('appSidebar');
-            const backdrop = document.getElementById('appSidebarBackdrop');
-            if (!sidebar || !backdrop) return;
+    {{-- Sidebar toggles + Alpine.js are provided by x-employees.navbar (same as Admin Dashboard) --}}
 
-            const willOpen = shouldOpen === undefined ? sidebar.classList.contains('-translate-x-full') : shouldOpen;
-
-            if (willOpen) {
-                // Show elements first, then trigger transitions next frame
-                sidebar.classList.remove('hidden');
-                sidebar.classList.add('flex');
-                backdrop.classList.remove('hidden');
-
-                // Start from hidden state
-                sidebar.classList.add('-translate-x-full');
-                backdrop.classList.add('opacity-0');
-
-                requestAnimationFrame(() => {
-                    sidebar.classList.remove('-translate-x-full');
-                    sidebar.classList.add('translate-x-0');
-                    backdrop.classList.remove('opacity-0');
-                });
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                sidebar.classList.remove('translate-x-0');
-                backdrop.classList.add('opacity-0');
-
-                // Wait for transition, then fully hide to prevent tab focus
-                window.setTimeout(() => {
-                    if (sidebar.classList.contains('-translate-x-full')) {
-                        sidebar.classList.add('hidden');
-                        sidebar.classList.remove('flex');
-                        backdrop.classList.add('hidden');
-                    }
-                }, 200);
-            }
-        }
-    </script>
-    
-    {{-- Alpine.js for Language Switcher --}}
-    <script>
-        if (!window.Alpine) {
-            const alpineScript = document.createElement('script');
-            alpineScript.src = 'https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js';
-            alpineScript.defer = true;
-            document.head.appendChild(alpineScript);
-        }
-    </script>
 
     
     <script>
@@ -1014,9 +969,9 @@
                 var minutes = Math.round((totalDuration - hours) * 60);
                 var formattedDuration = `${hours.toString().padStart(2, '0')}h:${minutes.toString().padStart(2, '0')}m`;
                 var totalRowHTML = `
-                  <tr class="text-center total-row bg-gray-100 font-bold">
+                  <tr class="text-center total-row bg-slate-50 font-bold border-t border-slate-200">
                     <td colspan="5"></td>
-                    <td class="px-4 py-3 text-sm text-gray-900">${formattedDuration}</td>
+                    <td class="px-4 py-3 text-sm text-[#0B2638]">${formattedDuration}</td>
                   </tr>`;
                 tableBody.insertAdjacentHTML('beforeend', totalRowHTML);
             });
@@ -1111,20 +1066,20 @@
                                                 let formattedD = `${d_h.toString().padStart(2, '0')}h:${d_m.toString().padStart(2, '0')}m:00s`;
 
                                 var row = `
-                                                  <tr id="${rowId}" class="task-timer-row text-center hover:bg-gray-50">
-                                                      <td data-label="${lblProjectName}" data-span="2" class="px-4 py-3 text-sm text-gray-700">${projectData.name.toUpperCase()}</td>                      
-                                                      <td data-label="${lblTaskName}" data-span="2" class="px-4 py-3 text-sm text-gray-700 font-medium">${task.task_name}</td>
-                                                      <td data-label="${lblStartDate}" class="px-4 py-3 text-sm text-gray-700">${task.start_date}</td>
-                                                      <td data-label="${lblEndDate}" class="px-4 py-3 text-sm text-gray-700">${endDateText}</td>
-                                                      <td data-label="${lblComment}" data-span="2" class="px-4 py-3 text-sm text-gray-700">
-                                                          <span class="comment-display cursor-pointer hover:text-blue-600" style="display: block;">${task.comment ? task.comment : {!! json_encode(__('messages.No Comment')) !!}}</span>
-                                                          <input type="text" 
-                                                                 class="comment-input border border-gray-300 rounded px-2 py-1 text-sm text-gray-700 focus:outline-none focus:ring focus:ring-blue-200 w-full" 
-                                                                 value="${task.comment ? task.comment.replace(/"/g, '&quot;') : ''}" 
+                                                  <tr id="${rowId}" class="task-timer-row text-left hover:bg-slate-50/70 transition-colors">
+                                                      <td data-label="${lblProjectName}" data-span="2" class="px-4 py-3 text-sm font-semibold text-[#0B2638] whitespace-nowrap">${projectData.name.toUpperCase()}</td>
+                                                      <td data-label="${lblTaskName}" data-span="2" class="px-4 py-3 text-sm text-slate-700 font-medium">${task.task_name}</td>
+                                                      <td data-label="${lblStartDate}" class="px-4 py-3 text-sm text-slate-600 whitespace-nowrap">${task.start_date}</td>
+                                                      <td data-label="${lblEndDate}" class="px-4 py-3 text-sm text-slate-600 whitespace-nowrap">${endDateText}</td>
+                                                      <td data-label="${lblComment}" data-span="2" class="px-4 py-3 text-sm text-slate-600">
+                                                          <span class="comment-display cursor-pointer hover:text-[#2D7080] break-words" style="display: block;">${task.comment ? task.comment : {!! json_encode(__('messages.No Comment')) !!}}</span>
+                                                          <input type="text"
+                                                                 class="comment-input border border-slate-300 rounded-lg px-2 py-1 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] w-full"
+                                                                 value="${task.comment ? task.comment.replace(/"/g, '&quot;') : ''}"
                                                                  data-timer-id="${task.id}"
                                                                  style="display: none;">
                                                       </td>
-                                                      <td data-label="${lblDuration}" class="px-4 py-3 text-sm text-gray-700 task_duration">${task.end_date ? formattedD : ""}</td>
+                                                      <td data-label="${lblDuration}" class="px-4 py-3 text-sm font-semibold text-[#0B2638] whitespace-nowrap task_duration">${task.end_date ? formattedD : ""}</td>
                                                   </tr>`;
                                                 
                                                 tableBody.insertAdjacentHTML('beforeend', row);
@@ -1282,7 +1237,7 @@
     {{-- 8. Mobile accordion for Employee Tasks table --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const mql = window.matchMedia('(max-width: 640px)');
+            const mql = window.matchMedia('(max-width: 1024px)');
 
             function setTaskRowCollapsed(row, collapsed) {
                 if (!row) return;
@@ -1890,4 +1845,5 @@
     </script>
 </body>
 </html>
+
 

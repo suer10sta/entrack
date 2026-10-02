@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
 
@@ -8,263 +8,399 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{{ __('messages.Generate Invoice - DalyTrac') }}</title> {{-- Updated title --}}
+    <title>{{ __('messages.Generate Invoice - DalyTrac') }}</title>
 
     @vite('resources/css/app.css')
- 
+
     @livewireStyles
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- @include('dashboard_layouts.head') --}}
-
-
-
-    {{-- Custom styles to make <select> match <input> --}}
-
     <style>
 
-        /* 1. Remove native appearance and add custom dropdown arrow */
-
+        /* Custom styles to make <select> match <input> */
         select.form-select-custom {
-
             -webkit-appearance: none;
-
             -moz-appearance: none;
-
             appearance: none;
-
-            /* Tailwind's chevron-down icon as an SVG */
-
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-
             background-position: right 0.5rem center;
-
             background-repeat: no-repeat;
-
             background-size: 1.5em 1.5em;
-
-            padding-right: 2.5rem; /* Make space for the arrow */
-
+            padding-right: 2.5rem;
         }
-
-
-
-        /* 2. Style the placeholder <option> to look like input placeholder text */
-
-        /* This works when the select has 'required' and the value is "" */
 
         select:invalid {
-
-            color: #9ca3af; /* Tailwind's gray-400 */
-
+            color: #9ca3af;
         }
-
-        /* Ensure all other options are the default color */
 
         option {
-
-            color: #111827; /* Tailwind's gray-900 */
-
+            color: #111827;
         }
 
+        /* Native date inputs: match the custom control family */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0.55;
+            cursor: pointer;
+        }
+        input[type="date"]:hover::-webkit-calendar-picker-indicator {
+            opacity: 0.85;
+        }
+
+        /* Ensure section icon circle stays compact on mobile */
+        .dt-invoice-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.75rem;
+        }
     </style>
 
 </head>
 
-<body class="bg-gray-20 flex h-screen overflow-hidden font-sans">
+<body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden font-sans">
 
-    {{-- Sidebar Component (Unchanged) --}}
+    {{-- Sidebar Component --}}
     @if(Auth::user()->hasRole('Admin'))
         <x-dashboard.sidebar />
     @else
         <x-employees.sidebar />
     @endif
-    {{-- Main Wrapper (Navbar + Content) (Unchanged) --}}
 
+    {{-- Main Wrapper (Navbar + Content) --}}
     <div class="flex flex-col flex-1 overflow-y-auto">
-        {{-- Navbar Component (Unchanged) --}}
+
+        {{-- Navbar Component --}}
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
 
-            {{-- Session Message Alert (Moved to top of main area) --}}
-            @if(session('message'))
-            <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                <strong class="font-bold">{{ __('messages.Error!') }}</strong>
-                <span class="block sm:inline">{{ session('message') }}</span>
-                <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+            {{-- Back route computation --}}
+            @php
+                $backRoute = route('admin.index');
+                if (Auth::user()->hasRole('Responsable de projet'))
+                    $backRoute = route('Responsable_de_projet.index');
+                elseif (Auth::user()->hasRole('Employee'))
+                    $backRoute = route('employee.index');
+                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire'))
+                    $backRoute = route('Responsable_gestionnaire.index');
+            @endphp
+
+            {{-- Page Header --}}
+            <div class="flex items-center gap-3 mb-5">
+                <a href="{{ $backRoute }}" title="{{ __('messages.Invoices') }}" aria-label="{{ __('messages.Invoices') }}"
+                   class="dt-btn dt-btn-ghost !px-3 flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                    </svg>
+                </a>
+                <div class="min-w-0">
+                    <p class="dt-overline mb-1">{{ __('messages.Invoices') }}</p>
+                    <h1 class="text-[22px] sm:text-[24px] font-bold tracking-tight text-[#0B2638] leading-tight truncate">{{ __('messages.Generate Invoice - DalyTrac') }}</h1>
+                    <p class="text-[13.5px] text-slate-500 mt-1">{{ __('messages.Generate Invoice subtitle') }}</p>
+                </div>
             </div>
+
+            {{-- Session Message Alert --}}
+            @if(session('message'))
+                <div class="mb-5 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl relative flex items-center gap-2" role="alert">
+                    <strong class="text-[13px] font-bold">{{ __('messages.Error!') }}</strong>
+                    <span class="block sm:inline text-[13px] font-medium">{{ session('message') }}</span>
+                    <button type="button" onclick="this.parentElement.style.display='none';"
+                            class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl text-red-600 hover:text-red-800" aria-label="{{ __('messages.Close') }}">&times;</button>
+                </div>
             @endif
-            {{-- Full Invoice Section (New Card) --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-                <div class="p-6">
-                    <h6 class="text-lg font-semibold text-gray-900 mb-4">{{ __('messages.Full Invoice') }}</h6>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            {{-- Full Invoice Card --}}
+            <div class="dt-card dt-card-hover overflow-hidden mb-5">
+                <div class="px-5 sm:px-6 py-4 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="dt-invoice-icon bg-[#0B2638]/[0.06] ring-1 ring-[#0B2638]/10 !w-9 !h-9 !rounded-xl">
+                            <svg class="w-5 h-5 text-[#0B2638]" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h6 class="dt-section-title">{{ __('messages.Full Invoice') }} </h6>
+                            <p class="dt-section-subtitle mt-0.5">{{ __('messages.Full Invoice description') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-5 sm:px-6 py-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {{-- Project Filter --}}
-                        <div class="md:col-span-1">
-                            <label for="projectFilter1" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Select Project') }}</label>
-                            <select id="projectFilter1" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm form-select-custom py-2 px-3" required>
+                        <div class="lg:col-span-1">
+                            <label for="projectFilter1" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Select Project') }}</label>
+                            <select id="projectFilter1"
+                                    class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm form-select-custom py-2 px-3"
+                                    required>
                                 <option value="">{{ __('messages.Select Project') }}</option>
                                 @foreach($projects as $project)
-                                <option value="{{ $project->id }}"
-                                        data-cost-per-hour="{{ $project->cost_per_hour }}"
-                                        data-tva="{{ $project->tva }}">
-                                    @if(preg_match('/^(\d+)(.*)/', $project->name, $matches))
-                                        {{ $matches[1] }}{{ $matches[2] }}
-                                    @else
-                                        {{ strtoupper($project->name) }}
-                                    @endif
-                                    -
-                                    @if($project->budget)
-                                        @php
-                                            $totalBilled = \App\Models\invoices_history::where('project_id', $project->id)->where('Payment_status', '!=', -1)->sum('total_htva');
-                                            $unbilledBudget = $project->budget - $totalBilled;
-                                        @endphp
-                                        {{ number_format(max($unbilledBudget, 0), 2, '.', '') }}€
-                                    @else
-                                        {{ __('messages.No Budget') }}
-                                    @endif
-                                </option>
+                                    <option value="{{ $project->id }}"
+                                            data-cost-per-hour="{{ $project->cost_per_hour }}"
+                                            data-tva="{{ $project->tva }}">
+                                        @if(preg_match('/^(\d+)(.*)/', $project->name, $matches))
+                                            {{ $matches[1] }}{{ $matches[2] }}
+                                        @else
+                                            {{ strtoupper($project->name) }}
+                                        @endif
+                                        -
+                                        @if($project->budget)
+                                            @php
+                                                $totalBilled = \App\Models\invoices_history::where('project_id', $project->id)->where('Payment_status', '!=', -1)->sum('total_htva');
+                                                $unbilledBudget = $project->budget - $totalBilled;
+                                            @endphp
+                                            {{ number_format(max($unbilledBudget, 0), 2, '.', '') }}€
+                                        @else
+                                            {{ __('messages.No Budget') }}
+                                        @endif
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="md:col-span-1">
-                            <label for="hoursInput" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Hours (h:mm)') }}</label>
-                            <input type="text" id="hoursInput" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="{{ __('messages.Example: 5:30') }}">
+                        {{-- Hours --}}
+                        <div class="lg:col-span-1">
+                            <label for="hoursInput" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Hours (h:mm)') }}</label>
+                            <input type="text" id="hoursInput"
+                                   class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3"
+                                   placeholder="{{ __('messages.Example: 5:30') }}">
                         </div>
-                        <div class="md:col-span-1">
-                            <label for="manualBudgetInput" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Manual Budget (€)') }}</label>
-                            <input type="number" step="0.01" id="manualBudgetInput" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" placeholder="{{ __('messages.Manual budget') }}">
+                        {{-- Manual Budget --}}
+                        <div class="lg:col-span-1">
+                            <label for="manualBudgetInput" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Manual Budget (€)') }}</label>
+                            <input type="number" step="0.01" id="manualBudgetInput"
+                                   class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3"
+                                   placeholder="{{ __('messages.Manual budget') }}">
                         </div>
-                        <div class="md:col-span-1">
-                            <label for="FullInvComment" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Comment') }}</label>
-                            <textarea name="FullInvComment" id="FullInvComment" placeholder="{{ __('messages.Add any additional notes...') }}" rows="3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"></textarea>
+                        {{-- Comment (Full Width) --}}
+                        <div class="lg:col-span-3">
+                            <label for="FullInvComment" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Comment') }}</label>
+                            <textarea name="FullInvComment" id="FullInvComment"
+                                      placeholder="{{ __('messages.Add any additional notes...') }}"
+                                      rows="3"
+                                      class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3"></textarea>
                         </div>
                     </div>
-                    <div class="mt-6">
-                        <a id="downloadInvoiceBtn" href="#" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">{{ __('messages.View Invoice') }}</a>
+                    <div class="mt-5 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+                        <a id="downloadInvoiceBtn" href="#"
+                           class="dt-btn dt-btn-primary w-full sm:w-auto justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                            </svg>
+                            {{ __('messages.View Invoice') }}
+                        </a>
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-                <div class="p-6">
-                    <h6 class="text-lg font-semibold text-gray-900 mb-4">{{ __('messages.Period Invoice') }}</h6>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            {{-- Period Invoice Card --}}
+            <div class="dt-card dt-card-hover overflow-hidden mb-5">
+                <div class="px-5 sm:px-6 py-4 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="dt-invoice-icon bg-[#2D7080]/10 ring-1 ring-[#2D7080]/20 !w-9 !h-9 !rounded-xl">
+                            <svg class="w-5 h-5 text-[#2D7080]" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h6 class="dt-section-title">{{ __('messages.Period Invoice') }}</h6>
+                            <p class="dt-section-subtitle mt-0.5">{{ __('messages.Period Invoice description') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-5 sm:px-6 py-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {{-- Project Filter --}}
-                        <div class="md:col-span-1">
-                            <label for="projectFilter2" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Select Project') }}</label>
-                            {{-- Added py-2 px-3 for height --}}
-                            <select id="projectFilter2" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm form-select-custom py-2 px-3" required>
+                        <div class="lg:col-span-1">
+                            <label for="projectFilter2" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Select Project') }}</label>
+                            <select id="projectFilter2"
+                                    class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm form-select-custom py-2 px-3"
+                                    required>
                                 <option value="">{{ __('messages.Select Project') }}</option>
                                 @foreach($projects as $project)
-                                <option value="{{ $project->id }}">
-                                    {{ strtoupper($project->name) }} -
-                                    @if($project->budget)
-                                        @php
-                                            $totalBilled = \App\Models\invoices_history::where('project_id', $project->id)->where('Payment_status', '!=', -1)->sum('total_htva');
-                                            $unbilledBudget = $project->budget - $totalBilled;
-                                        @endphp
-                                        {{ number_format(max($unbilledBudget, 0), 2, '.', '') }}€
-                                    @else
-                                        no budget
-                                    @endif
-                                </option>
+                                    <option value="{{ $project->id }}">
+                                        {{ strtoupper($project->name) }} -
+                                        @if($project->budget)
+                                            @php
+                                                $totalBilled = \App\Models\invoices_history::where('project_id', $project->id)->where('Payment_status', '!=', -1)->sum('total_htva');
+                                                $unbilledBudget = $project->budget - $totalBilled;
+                                            @endphp
+                                            {{ number_format(max($unbilledBudget, 0), 2, '.', '') }}€
+                                        @else
+                                            {{ __('messages.No Budget') }}
+                                        @endif
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
                         {{-- Start Date --}}
-                        <div class="md:col-span-1">
-                            <label for="startDateInput" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Start Date') }}</label>
-                            {{-- Added py-2 px-3 for height --}}
-                            <input type="date" id="startDateInput" placeholder="{{ __('messages.Start Date placeholder') }}" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                        <div class="lg:col-span-1">
+                            <label for="startDateInput" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Start Date') }}</label>
+                            <input type="date" id="startDateInput"
+                                   placeholder="{{ __('messages.Start Date placeholder') }}"
+                                   class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3">
                         </div>
                         {{-- End Date --}}
-                        <div class="md:col-span-1">
-                            <label for="endDateInput" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.End Date') }}</label>
-                            {{-- Added py-2 px-3 for height --}}
-                            <input type="date" id="endDateInput" placeholder="{{ __('messages.End Date placeholder') }}" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                        <div class="lg:col-span-1">
+                            <label for="endDateInput" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.End Date') }}</label>
+                            <input type="date" id="endDateInput"
+                                   placeholder="{{ __('messages.End Date placeholder') }}"
+                                   class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3">
                         </div>
                         {{-- Comment (Full Width) --}}
-                        <div class="md:col-span-3">
-                            <label for="PeriodInvComment" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Comment') }}</label>
-                            {{-- Added py-2 px-3 for height --}}
-                            <textarea name="PeriodInvComment" id="PeriodInvComment" placeholder="{{ __('messages.Add any additional notes...') }}" rows="3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"></textarea>
+                        <div class="lg:col-span-3">
+                            <label for="PeriodInvComment" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Comment') }}</label>
+                            <textarea name="PeriodInvComment" id="PeriodInvComment"
+                                      placeholder="{{ __('messages.Add any additional notes...') }}"
+                                      rows="3"
+                                      class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3"></textarea>
                         </div>
                     </div>
-                    <div class="mt-6">
-                        <a id="downloadDurationInvoiceBtn" href="#" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">{{ __('messages.View Invoice') }}</a>
+                    <div class="mt-5 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+                        <a id="downloadDurationInvoiceBtn" href="#"
+                           class="dt-btn dt-btn-primary w-full sm:w-auto justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                            </svg>
+                            {{ __('messages.View Invoice') }}
+                        </a>
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-                <div class="p-6">
-                    <h6 class="text-lg font-semibold text-gray-900 mb-4">{{ __('messages.Partial Invoice') }}</h6>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            {{-- Partial Invoice Card --}}
+            <div class="dt-card dt-card-hover overflow-hidden mb-5">
+                <div class="px-5 sm:px-6 py-4 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="dt-invoice-icon bg-[#2D7080]/10 ring-1 ring-[#2D7080]/20 !w-9 !h-9 !rounded-xl">
+                            <svg class="w-5 h-5 text-[#2D7080]" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M7 15l8-8 8 8" />
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h6 class="dt-section-title">{{ __('messages.Partial Invoice') }}</h6>
+                            <p class="dt-section-subtitle mt-0.5">{{ __('messages.Partial Invoice description') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-5 sm:px-6 py-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {{-- Devis Select --}}
-                        <div class="md:col-span-1">
-                            <label for="devisSelect3" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Select Quote') }}</label>
-                            {{-- Added py-2 px-3 for height --}}
-                            <select id="devisSelect3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm form-select-custom py-2 px-3" required>
+                        <div class="lg:col-span-1">
+                            <label for="devisSelect3" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Select Quote') }}</label>
+                            <select id="devisSelect3"
+                                    class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm form-select-custom py-2 px-3"
+                                    required>
                                 <option value="">{{ __('messages.Select Quote') }}</option>
                                 {{-- Options loaded by JS --}}
                             </select>
                         </div>
                         {{-- Amount --}}
-                        <div class="md:col-span-1">
-                            <label for="partialAmountInput" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Amount (€)') }}</label>
-                            {{-- Added py-2 px-3 for height --}}
-                            <input type="number" step="0.0001" id="partialAmountInput" placeholder="{{ __('messages.Amount') }}" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
-
+                        <div class="lg:col-span-1">
+                            <label for="partialAmountInput" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Amount (€)') }}</label>
+                            <input type="number" step="0.0001" id="partialAmountInput"
+                                   placeholder="{{ __('messages.Amount') }}"
+                                   class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3">
                         </div>
-
                         {{-- Comment (Full Width) --}}
-                        <div class="md:col-span-2">
-                            <label for="PartialInvComment" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Comment') }}</label>
-                            {{-- Added py-2 px-3 for height --}}
-                            <textarea name="PartialInvComment" id="PartialInvComment" placeholder="{{ __('messages.Add any additional notes...') }}" rows="3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"></textarea>
+                        <div class="lg:col-span-2">
+                            <label for="PartialInvComment" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Comment') }}</label>
+                            <textarea name="PartialInvComment" id="PartialInvComment"
+                                      placeholder="{{ __('messages.Add any additional notes...') }}"
+                                      rows="3"
+                                      class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3"></textarea>
                         </div>
                     </div>
-                    <div class="mt-6">
-                        <a id="downloadPartialInvoiceBtn" href="#" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">{{ __('messages.View Invoice') }}</a>
+                    <div class="mt-5 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+                        <a id="downloadPartialInvoiceBtn" href="#"
+                           class="dt-btn dt-btn-primary w-full sm:w-auto justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                            </svg>
+                            {{ __('messages.View Invoice') }}
+                        </a>
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div class="p-6">
-                    <h6 class="text-lg font-semibold text-gray-900 mb-4">{{ __('messages.Percentage Invoice') }} </h6>
-                    <div classs="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            {{-- Percentage Invoice Card --}}
+            <div class="dt-card dt-card-hover overflow-hidden">
+                <div class="px-5 sm:px-6 py-4 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="dt-invoice-icon bg-[#E7B84B]/20 ring-1 ring-[#E7B84B]/40 !w-9 !h-9 !rounded-xl">
+                            <span class="text-lg font-bold text-[#0B2638]">%</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h6 class="dt-section-title">{{ __('messages.Percentage Invoice') }}</h6>
+                            <p class="dt-section-subtitle mt-0.5">{{ __('messages.Percentage Invoice description') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-5 sm:px-6 py-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {{-- Devis Select --}}
-                        <div class="md:col-span-1">
-                            <label for="devisSelect4" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Select Quote') }} </label>
-                            <select id="devisSelect4" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm form-select-custom py-2 px-3" required>
+                        <div class="lg:col-span-1">
+                            <label for="devisSelect4" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Select Quote') }}</label>
+                            <select id="devisSelect4"
+                                    class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm form-select-custom py-2 px-3"
+                                    required>
                                 <option value="">{{ __('messages.Select Quote') }}</option>
                                 {{-- Options loaded by JS --}}
                             </select>
                         </div>
                         {{-- Percentage --}}
-                        <div class="md:col-span-1">
-                            <label for="percentageInput" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Percentage (%)') }}</label>
-                            {{-- Added py-2 px-3 for height --}}
-                            <input type="number" step="0.01" id="percentageInput" placeholder="{{ __('messages.Percentage') }}" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                        <div class="lg:col-span-1">
+                            <label for="percentageInput" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Percentage (%)') }}</label>
+                            <input type="number" step="0.01" id="percentageInput"
+                                   placeholder="{{ __('messages.Percentage') }}"
+                                   class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3">
                         </div>
-                        <div class="md:col-span-2">
-                            <label for="PercentageInvComment" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Comment') }}</label>
-                            <textarea name="PercentageInvComment" id="PercentageInvComment" placeholder="{{ __('messages.Add any additional notes...') }}" rows="3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"></textarea>
+                        <div class="lg:col-span-2">
+                            <label for="PercentageInvComment" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Comment') }}</label>
+                            <textarea name="PercentageInvComment" id="PercentageInvComment"
+                                      placeholder="{{ __('messages.Add any additional notes...') }}"
+                                      rows="3"
+                                      class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3"></textarea>
                         </div>
                     </div>
-                    <div class="mt-6">
-                        <a id="downloadPercentageInvoiceBtn" href="#" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">{{ __('messages.View Invoice') }}</a>
+                    <div class="mt-5 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+                        <a id="downloadPercentageInvoiceBtn" href="#"
+                           class="dt-btn dt-btn-primary w-full sm:w-auto justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                            </svg>
+                            {{ __('messages.View Invoice') }}
+                        </a>
                     </div>
                 </div>
             </div>
+
         </main>
-    </div> 
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<script>
+    <script>
 
         $(document).ready(function() {
 
@@ -278,15 +414,15 @@
 
                 } else {
 
-                    $('#hoursInput').prop('disabled', true).val(''); 
+                    $('#hoursInput').prop('disabled', true).val('');
 
-                    $('#manualBudgetInput').prop('disabled', true).val(''); 
+                    $('#manualBudgetInput').prop('disabled', true).val('');
 
                 }
 
-                 $('#hoursInput, #manualBudgetInput').trigger('input'); 
+                 $('#hoursInput, #manualBudgetInput').trigger('input');
 
-            }).trigger('change'); 
+            }).trigger('change');
 
 
 
@@ -296,25 +432,25 @@
 
                     $('#manualBudgetInput').prop('disabled', true);
 
-                } else if ($('#projectFilter1').val()) { 
+                } else if ($('#projectFilter1').val()) {
 
                     $('#manualBudgetInput').prop('disabled', false);
 
                 }
 
-                var value = $(this).val().replace(/[^0-9:]/g, ''); 
+                var value = $(this).val().replace(/[^0-9:]/g, '');
 
                 if (value.length > 0 && !value.includes(':')) {
 
                     if (value.length > 2) value = value.slice(0, -2) + ':' + value.slice(-2);
 
-                    else if (value.length === 2) value = value + ':'; 
+                    else if (value.length === 2) value = value + ':';
 
                 } else if (value.includes(':')) {
 
                     var parts = value.split(':');
 
-                    if (parts[1] && parts[1].length > 2) parts[1] = parts[1].substring(0, 2); 
+                    if (parts[1] && parts[1].length > 2) parts[1] = parts[1].substring(0, 2);
 
                     value = parts[0] + ':' + (parts[1] || '');
 
@@ -332,7 +468,7 @@
 
                      $('#hoursInput').prop('disabled', true);
 
-                 } else if ($('#projectFilter1').val()) { 
+                 } else if ($('#projectFilter1').val()) {
 
                      $('#hoursInput').prop('disabled', false);
 
@@ -342,9 +478,9 @@
 
 
 
-            $('#downloadInvoiceBtn').click(function(e) { 
+            $('#downloadInvoiceBtn').click(function(e) {
                 e.preventDefault();
-            
+
                 var projectId = $('#projectFilter1').val();
                 var hoursInput = $('#hoursInput').val();
                 var manualBudget = $('#manualBudgetInput').val();
@@ -363,11 +499,11 @@
                 if (hoursInput) {
                     // Remove any 'h' or 'm' if present and split on colon
                     var timeParts = hoursInput.replace(/[hm]/g, '').split(':');
-                    
+
                     if (timeParts.length === 2) {
                         var h = parseInt(timeParts[0]);
                         var m = parseInt(timeParts[1]);
-                        
+
                         if (!isNaN(h) && !isNaN(m) && m < 60) {
                             hours = h + (m / 60);
                         } else {
@@ -406,7 +542,7 @@
 
                 // Replace :id with actual project ID
                 var downloadUrl = baseUrl.replace(':id', projectId);
-                
+
                 // Add query parameters
                 var params = new URLSearchParams();
                 if (hours) {
@@ -425,7 +561,7 @@
                 window.location.href = downloadUrl;
             });
 
-            $('#downloadDurationInvoiceBtn').click(function(e) { 
+            $('#downloadDurationInvoiceBtn').click(function(e) {
                 e.preventDefault();
 
                 var projectId = $('#projectFilter2').val();
@@ -464,7 +600,7 @@
                 }
             });
 
-            $('#downloadPartialInvoiceBtn').click(function(e) { 
+            $('#downloadPartialInvoiceBtn').click(function(e) {
                 e.preventDefault();
 
                 var projectId = null;
@@ -514,7 +650,7 @@
                 }
             });
 
-            $('#downloadPercentageInvoiceBtn').click(function(e) { 
+            $('#downloadPercentageInvoiceBtn').click(function(e) {
                 e.preventDefault();
 
                 var projectId = null;
@@ -542,6 +678,7 @@
                     @endif
                     downloadUrl = downloadUrl.replace(':projectId', 0);
                     downloadUrl = downloadUrl.replace(':percentage', percentage);
+
                     var params = new URLSearchParams();
                     if (comment) {
                         params.append('comment', comment);
@@ -603,6 +740,6 @@
 
         });
 
-</script>
+    </script>
 </body>
 </html>

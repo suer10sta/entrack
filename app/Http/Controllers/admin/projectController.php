@@ -303,6 +303,7 @@ class projectController extends Controller
     public function edit($id)
     {
         $project = Project::find($id);
+        abort_if(!$project, 404);
 
         // Prevent edit access if Responsable de projet is not in the team
         if (auth()->user()->hasRole('Responsable de projet') || auth()->user()->hasRole('Responsable de projet et gestionnaire')) {

@@ -4,7 +4,7 @@
     <div class="space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-2xl font-semibold text-gray-900">{{ $title }}</h2>
+                <h2 class="text-[22px] font-bold tracking-tight text-[#0B2638]">{{ $title }}</h2>
                 <p class="mt-1 text-sm text-gray-500">{{ $subtitle }}</p>
             </div>
             <a href="{{ route('manager.dashboard') }}"
@@ -13,10 +13,10 @@
             </a>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="dt-card">
             <div class="manager-table-wrapper p-6 overflow-x-auto">
                 <table class="manager-table min-w-full text-left text-sm">
-                    <thead class="border-b border-gray-200 bg-gray-50">
+                    <thead class="border-b border-slate-100">
                     <tr>
                         <th class="px-4 py-2 font-semibold text-gray-600">{{ __('messages.Name') }}</th>
                         <th class="px-4 py-2 font-semibold text-gray-600">{{ __('messages.Email') }}</th>
@@ -27,7 +27,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                     @forelse($usersList as $user)
-                        <tr class="manager-card-row hover:bg-gray-50" aria-expanded="true">
+                        <tr class="manager-card-row" aria-expanded="true">
                             <td data-label="{{ __('messages.Name') }}" data-span="2" data-manager-card-toggle class="manager-toggle-cell px-4 py-2 text-gray-900">
                                 <div class="flex items-start justify-between gap-3">
                                     <div class="min-w-0">
@@ -44,7 +44,7 @@
                             <td data-label="{{ __('messages.Entreprise name') }}" data-span="2" class="px-4 py-2 text-gray-700">
                                 @if ($user->entreprise)
                                     <a href="{{ route('manager.subscriptions.show', $user->entreprise) }}"
-                                       class="text-blue-600 hover:text-blue-800 hover:underline">
+                                       class="text-[#2D7080] hover:text-[#0B2638] hover:underline">
                                         {{ $user->entreprise->name }}
                                     </a>
                                 @else
@@ -68,7 +68,7 @@
                     @empty
                         <tr>
                             <td colspan="5" class="px-4 py-4 text-center text-sm text-gray-500">
-                                No users found.
+                                {{ __('messages.No users found.') }}
                             </td>
                         </tr>
                     @endforelse
@@ -82,5 +82,6 @@
         </div>
     </div>
 @endsection
+
 
 

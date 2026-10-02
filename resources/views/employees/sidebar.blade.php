@@ -1,413 +1,128 @@
-{{-- Mobile backdrop --}}
-<div id="appSidebarBackdrop" class="fixed inset-0 bg-black/40 z-40 hidden lg:hidden" onclick="toggleAppSidebar(false)"></div>
-
-<aside
-    id="appSidebar"
-    class="hidden fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex-col justify-between h-screen overflow-y-auto custom-scrollbar transform -translate-x-full transition-transform duration-200 ease-out lg:static lg:sticky lg:top-0 lg:translate-x-0 lg:flex"
->
-    <div>
-        <div class="pl-3 pr-4 pt-3 pb-2 flex items-start overflow-hidden">
-            <img
-                src="{{ asset('img/DalytracLogo.png') }}"
-                alt="DalyTrac logo"
-                class="-ml-4 h-20 w-auto object-contain"
-            />
-        </div>
-
-        <nav class="px-4 space-y-1 mt-2 pb-20">
-            
-            @php
-                $dashboardRoute = '#';
-                if(Auth::user()->hasRole('Responsable de projet')) $dashboardRoute = route('Responsable_de_projet.index');
-                elseif(Auth::user()->hasRole('Employee')) $dashboardRoute = route('employee.index');
-                elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $dashboardRoute = route('Responsable_gestionnaire.index');
-            @endphp
-            <a href="{{ $dashboardRoute }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl {{ request()->routeIs('*.index') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50' }} transition-colors font-medium">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                <span>Dashboard</span>
-            </a>
-
-            @canany(['View client', 'View employee', 'View teams', 'View project', 'View task', 'Pointage reports', 'View pointage', 'Manage workDaysReports'])
-            <div>
-                <button type="button" onclick="toggleDropdown('reporting')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
-                    <span class="flex items-center space-x-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        <span>Reporting</span>
-                    </span>
-                    <svg id="reporting-icon" class="w-4 h-4 dropdown-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                </button>
-                
-                <div id="reporting-submenu" class="ml-4 border-l-2 border-gray-100 pl-2 space-y-1 dropdown-menu hidden">
-                    @can('View client')
-                        @php
-                            $clientRoute = '#';
-                            if(Auth::user()->hasRole('Responsable de projet')) $clientRoute = route('Responsable_de_projet.clients.index');
-                            elseif(Auth::user()->hasRole('Employee')) $clientRoute = route('employee.clients.index');
-                            elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $clientRoute = route('Responsable_gestionnaire.clients.index');
-                        @endphp
-                        <a href="{{ $clientRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Clients Reports</a>
-                    @endcan
-
-                    @can('View employee')
-                        @php
-                            $empRoute = '#';
-                            if(Auth::user()->hasRole('Responsable de projet')) $empRoute = route('Responsable_de_projet.employees.index');
-                            elseif(Auth::user()->hasRole('Employee')) $empRoute = route('employee.employees.index');
-                            elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $empRoute = route('Responsable_gestionnaire.employees.index');
-                        @endphp
-                        <a href="{{ $empRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Employees Reports</a>
-                    @endcan
-
-                    @can('View project')
-                        @php
-                            $projRoute = '#';
-                            if(Auth::user()->hasRole('Responsable de projet')) $projRoute = route('Responsable_de_projet.projects.index');
-                            elseif(Auth::user()->hasRole('Employee')) $projRoute = route('employee.projects.index');
-                            elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $projRoute = route('Responsable_gestionnaire.projects.index');
-                        @endphp
-                        <a href="{{ $projRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Projects Reports</a>
-                    @endcan
-
-                    @can('View task')
-                        @php
-                            $taskRoute = '#';
-                            if(Auth::user()->hasRole('Responsable de projet')) $taskRoute = route('Responsable_de_projet.tasks.index');
-                            elseif(Auth::user()->hasRole('Employee')) $taskRoute = route('employee.tasks.index');
-                            elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $taskRoute = route('Responsable_gestionnaire.tasks.index');
-                        @endphp
-                        <a href="{{ $taskRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Tasks Reports</a>
-                    @endcan
-
-                    @can('View team')
-                        @php
-                            $teamRoute = '#';
-                            if(Auth::user()->hasRole('Responsable de projet')) $teamRoute = route('Responsable_de_projet.teams.index');
-                            elseif(Auth::user()->hasRole('Employee')) $teamRoute = route('employee.teams.index');
-                            elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $teamRoute = route('Responsable_gestionnaire.teams.index');
-                        @endphp
-                        <a href="{{ $teamRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Teams Reports</a>
-                    @endcan
-
-                    @canany(['Pointage reports', 'View pointage'])
-                        @php
-                            $pointageRoute = '#';
-                            if(Auth::user()->hasRole('Responsable de projet')) $pointageRoute = route('Responsable_de_projet.tasks.pointage');
-                            elseif(Auth::user()->hasRole('Employee')) $pointageRoute = route('employee.tasks.pointage');
-                            elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $pointageRoute = route('Responsable_gestionnaire.tasks.pointage');
-                        @endphp
-                        <a href="{{ $pointageRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Pointage Reports</a>
-                    @endcanany
-
-                    @can('Manage workDaysReports')
-                        @php
-                            $wdRoute = '#';
-                            if(Auth::user()->hasRole('Responsable de projet')) $wdRoute = route('Responsable_de_projet.workDaysReports.index');
-                            elseif(Auth::user()->hasRole('Employee')) $wdRoute = route('employee.workDaysReports.index');
-                            elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $wdRoute = route('Responsable_gestionnaire.workDaysReports.index');
-                        @endphp
-                        <a href="{{ $wdRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Work Days Reports</a>
-                    @endcan
-                </div>
-            </div>
-            @endcanany
-
-            @can('Create invoice')
-            <div>
-                <button type="button" onclick="toggleDropdown('invoices')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
-                    <span class="flex items-center space-x-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        <span>Invoices</span>
-                    </span>
-                    <svg id="invoices-icon" class="w-4 h-4 dropdown-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                </button>
-                
-                <div id="invoices-submenu" class="ml-4 border-l-2 border-gray-100 pl-2 space-y-1 dropdown-menu hidden">
-                    @php
-                        $genInvRoute = '#';
-                        $histInvRoute = '#';
-                        $paramInvRoute = '#';
-                        $creditInvRoute = '#';
-                        
-                        if(Auth::user()->hasRole('Responsable de projet')) {
-                            $genInvRoute = route('Responsable_de_projet.invoices.fullinvoice');
-                            $histInvRoute = route('Responsable_de_projet.invoices.invoicehistory');
-                            $paramInvRoute = route('Responsable_de_projet.invoices.parameters');
-                            $creditInvRoute = route('Responsable_de_projet.invoice.creditNoteHistory');
-                        } elseif(Auth::user()->hasRole('Employee')) {
-                            $genInvRoute = route('employee.invoices.fullinvoice');
-                            $histInvRoute = route('employee.invoices.invoicehistory');
-                            $paramInvRoute = route('employee.invoices.parameters');
-                            $creditInvRoute = route('employee.invoice.creditNoteHistory');
-                        } elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                            $genInvRoute = route('Responsable_gestionnaire.invoices.fullinvoice');
-                            $histInvRoute = route('Responsable_gestionnaire.invoices.invoicehistory');
-                            $paramInvRoute = route('Responsable_gestionnaire.invoices.parameters');
-                            $creditInvRoute = route('Responsable_gestionnaire.invoice.creditNoteHistory');
-                        }
-                    @endphp
-                    <a href="{{ $genInvRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Generate</a>
-                    <a href="{{ $histInvRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">History</a>
-                    <a href="{{ $paramInvRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Parameters</a>
-                    <a href="{{ $creditInvRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Credit Note History</a>
-                </div>
-            </div>
-            @endcan
-
-            @can('Create devis')
-            <div>
-                <button type="button" onclick="toggleDropdown('devis')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
-                    <span class="flex items-center space-x-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                        <span>Devis</span>
-                    </span>
-                    <svg id="devis-icon" class="w-4 h-4 dropdown-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                </button>
-                
-                <div id="devis-submenu" class="ml-4 border-l-2 border-gray-100 pl-2 space-y-1 dropdown-menu hidden">
-                    @php
-                        $genDevisRoute = '#';
-                        $histDevisRoute = '#';
-                        $paramDevisRoute = '#';
-                        
-                        if(Auth::user()->hasRole('Responsable de projet')) {
-                            $genDevisRoute = route('Responsable_de_projet.devis.generateDevis');
-                            $histDevisRoute = route('Responsable_de_projet.devis.devishistory');
-                            $paramDevisRoute = route('Responsable_de_projet.devis.parameters');
-                        } elseif(Auth::user()->hasRole('Employee')) {
-                            $genDevisRoute = route('employee.devis.generateDevis');
-                            $histDevisRoute = route('employee.devis.devishistory');
-                            $paramDevisRoute = route('employee.devis.parameters');
-                        } elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                            $genDevisRoute = route('Responsable_gestionnaire.devis.generateDevis');
-                            $histDevisRoute = route('Responsable_gestionnaire.devis.devishistory');
-                            $paramDevisRoute = route('Responsable_gestionnaire.devis.parameters');
-                        }
-                    @endphp
-                    <a href="{{ $genDevisRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Generate</a>
-                    <a href="{{ $histDevisRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">History</a>
-                    <a href="{{ $paramDevisRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Parameters</a>
-                </div>
-            </div>
-            @endcan
-
-            @can('Create expense note')
-            <div>
-                <button type="button" onclick="toggleDropdown('expense')" class="flex justify-between items-center w-full px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
-                    <span class="flex items-center space-x-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                        <span>Expense Note</span>
-                    </span>
-                    <svg id="expense-icon" class="w-4 h-4 dropdown-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                </button>
-                
-                <div id="expense-submenu" class="ml-4 border-l-2 border-gray-100 pl-2 space-y-1 dropdown-menu hidden">
-                    @php
-                        $genNoteRoute = '#';
-                        $histNoteRoute = '#';
-                        $paramNoteRoute = '#';
-                        
-                        if(Auth::user()->hasRole('Responsable de projet')) {
-                            $genNoteRoute = route('Responsable_de_projet.notedefrais.generateNoteDeFrais');
-                            $histNoteRoute = route('Responsable_de_projet.notedefrais.notedefraishistory');
-                            $paramNoteRoute = route('Responsable_de_projet.notedefrais.parameters');
-                        } elseif(Auth::user()->hasRole('Employee')) {
-                            $genNoteRoute = route('employee.notedefrais.generateNoteDeFrais');
-                            $histNoteRoute = route('employee.notedefrais.notedefraishistory');
-                            $paramNoteRoute = route('employee.notedefrais.parameters');
-                        } elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                            $genNoteRoute = route('Responsable_gestionnaire.notedefrais.generateNoteDeFrais');
-                            $histNoteRoute = route('Responsable_gestionnaire.notedefrais.notedefraishistory');
-                            $paramNoteRoute = route('Responsable_gestionnaire.notedefrais.parameters');
-                        }
-                    @endphp
-                    <a href="{{ $genNoteRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Generate</a>
-                    <a href="{{ $histNoteRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">History</a>
-                    <a href="{{ $paramNoteRoute }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">Parameters</a>
-                </div>
-            </div>
-            @endcan
-
-            @can('Billings')
-                @php
-                    $billRoute = '#';
-                    if(Auth::user()->hasRole('Responsable de projet')) $billRoute = route('Responsable_de_projet.Enterprise_infos.create');
-                    elseif(Auth::user()->hasRole('Employee')) $billRoute = route('employee.Enterprise_infos.create');
-                    elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $billRoute = route('Responsable_gestionnaire.Enterprise_infos.create');
-                @endphp
-                <a href="{{ $billRoute }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    <span>Billings</span>
-                </a>
-            @endcan
-
-        </nav>
+@php
+    $empProfile = App\Models\Employees::where('user_id', Auth::user()->id)->first();
+    $empName = optional($empProfile)->name ?? Auth::user()->name;
+    $empRole = Auth::user()->hasRole('Responsable de projet') ? 'Project Manager' : (Auth::user()->hasRole('Employee') ? 'Employee' : 'Manager');
+    $dashboardRoute = '#';
+    if (Auth::user()->hasRole('Responsable de projet')) $dashboardRoute = route('Responsable_de_projet.index');
+    elseif (Auth::user()->hasRole('Employee')) $dashboardRoute = route('employee.index');
+    elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $dashboardRoute = route('Responsable_gestionnaire.index');
+    $planningRoute = '#';
+    if (Auth::user()->hasRole('Responsable de projet')) $planningRoute = route('Responsable_de_projet.calendar.index');
+    elseif (Auth::user()->hasRole('Employee')) $planningRoute = route('employee.calendar.index');
+    elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $planningRoute = route('Responsable_gestionnaire.calendar.index');
+    $billRoute = '#';
+    if (Auth::user()->hasRole('Responsable de projet')) $billRoute = route('Responsable_de_projet.Enterprise_infos.create');
+    elseif (Auth::user()->hasRole('Employee')) $billRoute = route('employee.Enterprise_infos.create');
+    elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $billRoute = route('Responsable_gestionnaire.Enterprise_infos.create');
+    $routeFor = function ($base, $suffix = 'index') {
+        $role = Auth::user()->hasRole('Responsable de projet') ? 'Responsable_de_projet' : (Auth::user()->hasRole('Employee') ? 'employee' : 'Responsable_gestionnaire');
+        try { return route($role . '.' . $base . '.' . $suffix); } catch (\Throwable $e) { return '#'; }
+    };
+@endphp
+<aside class="sidenav dt-sidebar" id="sidenav-main" aria-label="Main navigation">
+    <div class="dt-sidebar__brand">
+        <a class="dt-brand" href="{{ $dashboardRoute }}" aria-label="DalyTrac home">
+            <span class="dt-brand__mark">{{ strtoupper(substr($empName ?? 'E', 0, 1)) }}</span>
+            <span class="dt-brand__copy"><strong>{{ $empName }}</strong><small>{{ $empRole }}</small></span>
+        </a>
+        <button class="dt-sidebar__toggle" type="button" data-sidebar-toggle aria-label="Collapse sidebar" title="Collapse sidebar"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
     </div>
+    <div class="dt-sidebar__section-label">Workspace</div>
+    <nav class="dt-sidebar__nav">
+        <a class="dt-nav-link {{ request()->routeIs('*.index') && !request()->routeIs('*.calendar.*') ? 'is-active' : '' }}" href="{{ $dashboardRoute }}" title="Dashboard"><span class="dt-nav-link__icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span><span class="dt-nav-link__label">Dashboard</span></a>
 
-    <div class="p-4 border-t border-gray-200 bg-white relative space-y-3">
-        {{-- Language Switcher --}}
-        <div class="relative" x-data="{ open: false }">
-            <button 
-                @click="open = !open"
-                @click.away="open = false"
-                type="button"
-                class="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-colors text-sm"
-                title="{{ __('messages.Language') }}"
-            >
-                <div class="flex items-center gap-2">
-                    
-                    <span class="text-xs font-medium text-gray-700">{{ __('messages.Language') }}</span>
-                </div>
-                <span class="text-xs font-semibold text-gray-600 uppercase flex items-center gap-1">
-                    @switch(app()->getLocale())
-                        @case('fr')
-                            <img src="https://flagcdn.com/fr.svg" alt="Français" class="w-4 h-3 rounded-sm object-cover">
-                            <span>FR</span>
-                            @break
-                    @case('es')
-                        <img src="https://flagcdn.com/es.svg" alt="Español" class="w-4 h-3 rounded-sm object-cover">
-                        <span>ES</span>
-                        @break
-                    @case('nl')
-                        <img src="https://flagcdn.com/be.svg" alt="Nederlands" class="w-4 h-3 rounded-sm object-cover">
-                        <span>NL</span>
-                        @break
-                    @default
-                        <img src="https://flagcdn.com/gb.svg" alt="English" class="w-4 h-3 rounded-sm object-cover">
-                        <span>EN</span>
-                @endswitch
-                </span>
-            </button>
-            
-            <div 
-                x-show="open"
-                x-cloak
-                x-transition:enter="transition ease-out duration-100"
-                x-transition:enter-start="transform opacity-0 scale-95"
-                x-transition:enter-end="transform opacity-100 scale-100"
-                x-transition:leave="transition ease-in duration-75"
-                x-transition:leave-start="transform opacity-100 scale-100"
-                x-transition:leave-end="transform opacity-0 scale-95"
-                class="absolute bottom-full left-4 right-4 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50"
-            >
-                <div class="py-2">
-                <a 
-                    href="{{ route('changeLang', ['lang' => 'en']) }}"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'en' ? 'bg-blue-50 text-blue-700' : '' }}"
-                >
-                    <img src="https://flagcdn.com/gb.svg" alt="English" class="w-4 h-3 rounded-sm object-cover">
-                    <span>{{ __('messages.English') }}</span>
-                        @if(app()->getLocale() === 'en')
-                            <svg class="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                        @endif
-                    </a>
-                <a 
-                    href="{{ route('changeLang', ['lang' => 'fr']) }}"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'fr' ? 'bg-blue-50 text-blue-700' : '' }}"
-                >
-                    <img src="https://flagcdn.com/fr.svg" alt="Français" class="w-4 h-3 rounded-sm object-cover">
-                    <span>{{ __('messages.Français') }}</span>
-                        @if(app()->getLocale() === 'fr')
-                            <svg class="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                        @endif
-                    </a>
-                <a 
-                    href="{{ route('changeLang', ['lang' => 'es']) }}"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'es' ? 'bg-blue-50 text-blue-700' : '' }}"
-                >
-                    <img src="https://flagcdn.com/es.svg" alt="Español" class="w-4 h-3 rounded-sm object-cover">
-                    <span>{{ __('messages.Español') }}</span>
-                        @if(app()->getLocale() === 'es')
-                            <svg class="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                        @endif
-                    </a>
-                <a 
-                    href="{{ route('changeLang', ['lang' => 'nl']) }}"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'nl' ? 'bg-blue-50 text-blue-700' : '' }}"
-                >
-                    <img src="https://flagcdn.com/be.svg" alt="Nederlands" class="w-4 h-3 rounded-sm object-cover">
-                    <span>{{ __('messages.Nederlands') }}</span>
-                    @if(app()->getLocale() === 'nl')
-                        <svg class="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                        </svg>
-                    @endif
-                </a>
-                </div>
+        @can('Planning')
+        <a class="dt-nav-link {{ request()->routeIs('*.calendar.*') ? 'is-active' : '' }}" href="{{ $planningRoute }}" title="Planning"><span class="dt-nav-link__icon"><i class="fa-regular fa-calendar" aria-hidden="true"></i></span><span class="dt-nav-link__label">Planning</span></a>
+        @endcan
+
+        @canany(['View client', 'View employee', 'View teams', 'View project', 'View task', 'Pointage reports', 'View pointage', 'Manage workDaysReports'])
+        @php($reportingActive = request()->routeIs('*.clients.*') || request()->routeIs('*.employees.*') || request()->routeIs('*.teams.*') || request()->routeIs('*.projects.*') || request()->routeIs('*.tasks.*') || request()->routeIs('*.workDaysReports.*'))
+        <div class="dt-nav-group">
+            <button class="dt-nav-link dt-nav-link--group {{ $reportingActive ? 'is-active' : '' }}" type="button" data-sidebar-group="reporting" aria-expanded="{{ $reportingActive ? 'true' : 'false' }}" title="Reporting"><span class="dt-nav-link__icon"><i class="fa-regular fa-file-lines" aria-hidden="true"></i></span><span class="dt-nav-link__label">Reporting</span><i class="fa-solid fa-chevron-down dt-nav-link__chevron" aria-hidden="true"></i></button>
+            <div class="dt-nav-submenu {{ $reportingActive ? 'is-open' : '' }}" data-sidebar-submenu="reporting">
+                @can('View client')<a href="{{ $routeFor('clients') }}" title="Clients Reports"><span>Clients Reports</span></a>@endcan
+                @can('View employee')<a href="{{ $routeFor('employees') }}" title="Employees Reports"><span>Employees Reports</span></a>@endcan
+                @can('View project')<a href="{{ $routeFor('projects') }}" title="Projects Reports"><span>Projects Reports</span></a>@endcan
+                @can('View task')<a href="{{ $routeFor('tasks') }}" title="Tasks Reports"><span>Tasks Reports</span></a>@endcan
+                @can('View team')<a href="{{ $routeFor('teams') }}" title="Teams Reports"><span>Teams Reports</span></a>@endcan
+                @canany(['Pointage reports', 'View pointage'])
+                    @php
+                        $pointageRoute = '#';
+                        if (Auth::user()->hasRole('Responsable de projet')) $pointageRoute = route('Responsable_de_projet.tasks.pointage');
+                        elseif (Auth::user()->hasRole('Employee')) $pointageRoute = route('employee.tasks.pointage');
+                        elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $pointageRoute = route('Responsable_gestionnaire.tasks.pointage');
+                    @endphp
+                    <a href="{{ $pointageRoute }}" title="Pointage Reports"><span>Pointage Reports</span></a>
+                @endcanany
+                @can('Manage workDaysReports')<a href="{{ $routeFor('workDaysReports') }}" title="Work Days Reports"><span>Work Days Reports</span></a>@endcan
             </div>
         </div>
+        @endcanany
 
-        <div class="flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-xl p-2 -m-2 transition-colors" onclick="toggleDropdown('user')">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
-                    {{ substr(Auth::user()->name ?? 'U', 0, 2) }}
-                </div>
-                <div class="overflow-hidden">
-                    <h4 class="text-sm font-medium text-gray-900 truncate max-w-[100px]">{{ Auth::user()->name }}</h4>
-                    <p class="text-xs text-gray-500">
-                        {{ Auth::user()->roles->pluck('name')->first() ?? 'User' }}
-                    </p>
-                </div>
+        @can('Create invoice')
+        <div class="dt-nav-group">
+            <button class="dt-nav-link dt-nav-link--group {{ request()->routeIs('*.invoices.*') || request()->routeIs('*.invoice.*') ? 'is-active' : '' }}" type="button" data-sidebar-group="invoices" aria-expanded="false" title="Invoices"><span class="dt-nav-link__icon"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span><span class="dt-nav-link__label">Invoices</span><i class="fa-solid fa-chevron-down dt-nav-link__chevron" aria-hidden="true"></i></button>
+            <div class="dt-nav-submenu" data-sidebar-submenu="invoices">
+                <a href="{{ $routeFor('invoices', 'fullinvoice') }}" title="Generate"><span>Generate</span></a>
+                <a href="{{ $routeFor('invoices', 'invoicehistory') }}" title="History"><span>History</span></a>
+                <a href="{{ $routeFor('invoices', 'parameters') }}" title="Parameters"><span>Parameters</span></a>
             </div>
-            <svg id="user-icon" class="w-4 h-4 text-gray-400 user-dropdown-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
         </div>
+        @endcan
 
-        <div id="user-submenu" class="absolute bottom-full mb-2 left-4 right-4 bg-white border border-gray-200 rounded-xl shadow-lg py-2 hidden z-50">
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">Deconnexion</button>
-            </form>
+        @can('Create devis')
+        <div class="dt-nav-group">
+            <button class="dt-nav-link dt-nav-link--group {{ request()->routeIs('*.devis.*') ? 'is-active' : '' }}" type="button" data-sidebar-group="devis" aria-expanded="false" title="Devis"><span class="dt-nav-link__icon"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></span><span class="dt-nav-link__label">Devis</span><i class="fa-solid fa-chevron-down dt-nav-link__chevron" aria-hidden="true"></i></button>
+            <div class="dt-nav-submenu" data-sidebar-submenu="devis">
+                <a href="{{ $routeFor('devis', 'generateDevis') }}" title="Generate"><span>Generate</span></a>
+                <a href="{{ $routeFor('devis', 'devishistory') }}" title="History"><span>History</span></a>
+                <a href="{{ $routeFor('devis', 'parameters') }}" title="Parameters"><span>Parameters</span></a>
+            </div>
         </div>
+        @endcan
+
+        @can('Create expense note')
+        <div class="dt-nav-group">
+            <button class="dt-nav-link dt-nav-link--group {{ request()->routeIs('*.notedefrais.*') ? 'is-active' : '' }}" type="button" data-sidebar-group="expense" aria-expanded="false" title="Expense Note"><span class="dt-nav-link__icon"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span><span class="dt-nav-link__label">Expense Note</span><i class="fa-solid fa-chevron-down dt-nav-link__chevron" aria-hidden="true"></i></button>
+            <div class="dt-nav-submenu" data-sidebar-submenu="expense">
+                <a href="{{ $routeFor('notedefrais', 'generateNoteDeFrais') }}" title="Generate"><span>Generate</span></a>
+                <a href="{{ $routeFor('notedefrais', 'notedefraishistory') }}" title="History"><span>History</span></a>
+                <a href="{{ $routeFor('notedefrais', 'parameters') }}" title="Parameters"><span>Parameters</span></a>
+            </div>
+        </div>
+        @endcan
+
+        @can('Billings')
+        <a class="dt-nav-link" href="{{ $billRoute }}" title="Billings"><span class="dt-nav-link__icon"><i class="fa-solid fa-credit-card" aria-hidden="true"></i></span><span class="dt-nav-link__label">Billings</span></a>
+        @endcan
+    </nav>
+    <div class="dt-sidebar__footer" style="position:static;margin:12px 14px 8px;">
+        <span class="dt-brand__mark" style="width:30px;height:30px;font-size:14px;">{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}</span>
+        <span class="dt-sidebar__label" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ Auth::user()->name }}</span>
+        <form method="POST" action="{{ route('logout') }}" style="margin:0;">
+            @csrf
+            <button type="submit" title="{{ __('messages.Logout') }}" style="background:none;border:0;color:#8fb5bd;cursor:pointer;font-size:13px;"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i></button>
+        </form>
+    </div>
+    <div class="dt-sidebar__footer" style="position:static;margin:0 14px 17px;padding:8px 12px;">
+        <span class="dt-sidebar__label" style="display:flex;gap:8px;align-items:center;">
+            <img src="https://flagcdn.com/gb.svg" alt="EN" style="width:16px;height:12px;border-radius:2px;">
+            <a href="{{ route('changeLang', ['lang' => 'en']) }}" style="color:inherit;text-decoration:none;">EN</a>
+            <a href="{{ route('changeLang', ['lang' => 'fr']) }}" style="color:inherit;text-decoration:none;">FR</a>
+            <a href="{{ route('changeLang', ['lang' => 'es']) }}" style="color:inherit;text-decoration:none;">ES</a>
+            <a href="{{ route('changeLang', ['lang' => 'nl']) }}" style="color:inherit;text-decoration:none;">NL</a>
+        </span>
     </div>
 </aside>
 
 <script>
-    function toggleDropdown(id) {
-        const submenu = document.getElementById(id + '-submenu');
-        const icon = document.getElementById(id + '-icon');
-
-        if (submenu.classList.contains('hidden')) {
-            // Open
-            submenu.classList.remove('hidden');
-            icon.classList.add('rotate-180');
-        } else {
-            // Close
-            submenu.classList.add('hidden');
-            icon.classList.remove('rotate-180');
-        }
+(() => {
+    const body = document.body, toggle = document.querySelector('[data-sidebar-toggle]'), key = 'dalytrac-sidebar-collapsed';
+    if (toggle) {
+        const setCollapsed = (collapsed) => { body.classList.toggle('dt-sidebar-collapsed', collapsed); toggle.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar'); toggle.setAttribute('title', collapsed ? 'Expand sidebar' : 'Collapse sidebar'); };
+        if (window.innerWidth >= 1200) setCollapsed(localStorage.getItem(key) === 'true');
+        toggle.addEventListener('click', () => { const collapsed = !body.classList.contains('dt-sidebar-collapsed'); setCollapsed(collapsed); if (window.innerWidth >= 1200) localStorage.setItem(key, collapsed); });
     }
-
-    // Close user dropdown when clicking outside
-    document.addEventListener('click', function(event) {
-        const userSubmenu = document.getElementById('user-submenu');
-        const userIcon = document.getElementById('user-icon');
-        // We need to find the trigger button element (div with onclick)
-        // This logic assumes the trigger is the immediate sibling before the submenu in the DOM
-        const userTrigger = userSubmenu.previousElementSibling; 
-        
-        if (userSubmenu && !userSubmenu.classList.contains('hidden')) {
-             if (!userTrigger.contains(event.target) && !userSubmenu.contains(event.target)) {
-                userSubmenu.classList.add('hidden');
-                if(userIcon) userIcon.classList.remove('rotate-180');
-            }
-        }
-    });
+    document.querySelectorAll('[data-sidebar-group]').forEach((group) => group.addEventListener('click', () => { const submenu = document.querySelector(`[data-sidebar-submenu="${group.dataset.sidebarGroup}"]`); if (!submenu) return; const open = submenu.classList.toggle('is-open'); group.setAttribute('aria-expanded', open); }));
+})();
 </script>
-
-{{-- Alpine.js for Language Switcher --}}
-<script>
-    if (!window.Alpine) {
-        const alpineScript = document.createElement('script');
-        alpineScript.src = 'https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js';
-        alpineScript.defer = true;
-        document.head.appendChild(alpineScript);
-    }
-</script>
-<style>
-    [x-cloak] { display: none !important; }
-</style>

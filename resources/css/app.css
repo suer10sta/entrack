@@ -18,3 +18,347 @@
 .icon-btn svg {
     @apply w-4 h-4;
 }
+
+/* ============ DalyTrac Dashboard Design System ============ */
+:root {
+    --dt-navy: #0B2638;
+    --dt-teal: #2D7080;
+    --dt-accent: #E7B84B;
+    --dt-bg: #f8fafc;
+    --dt-card-border: #e6ecec;
+}
+
+.dt-app-shell {
+    background: var(--dt-bg);
+}
+
+.dt-card {
+    @apply bg-white rounded-2xl border shadow-sm;
+    border-color: var(--dt-card-border);
+    box-shadow: 0 1px 2px rgba(11, 38, 56, 0.05), 0 8px 24px -12px rgba(11, 38, 56, 0.18);
+}
+
+.dt-card-hover {
+    transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+.dt-card-hover:hover {
+    box-shadow: 0 1px 2px rgba(11, 38, 56, 0.06), 0 16px 32px -16px rgba(11, 38, 56, 0.28);
+    border-color: #d7e0e0;
+}
+
+.dt-section-title {
+    @apply text-[15px] font-semibold tracking-tight;
+    color: var(--dt-navy);
+}
+.dt-section-subtitle {
+    @apply text-[13px];
+    color: #64748b;
+}
+.dt-overline {
+    @apply text-[11px] font-semibold uppercase tracking-[0.08em];
+    color: #64748b;
+}
+
+.dt-btn {
+    @apply inline-flex items-center justify-center gap-1.5 text-[13px] font-semibold rounded-xl px-3.5 py-2 transition-all duration-150 whitespace-nowrap;
+}
+.dt-btn-primary {
+    background: var(--dt-navy);
+    color: #fff;
+}
+.dt-btn-primary:hover {
+    background: #14364d;
+}
+.dt-btn-teal {
+    background: var(--dt-teal);
+    color: #fff;
+}
+.dt-btn-teal:hover {
+    background: #245f6d;
+}
+.dt-btn-accent {
+    background: var(--dt-accent);
+    color: var(--dt-navy);
+}
+.dt-btn-accent:hover {
+    background: #d9a93c;
+}
+.dt-btn-ghost {
+    @apply border border-slate-200 bg-white text-slate-700;
+}
+.dt-btn-ghost:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+}
+
+.dt-badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold leading-none;
+}
+.dt-badge .dt-dot {
+    @apply w-1.5 h-1.5 rounded-full;
+}
+.dt-badge-success {
+    @apply bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20;
+}
+.dt-badge-success .dt-dot { @apply bg-emerald-500; }
+.dt-badge-warning {
+    @apply bg-amber-50 text-amber-800 ring-1 ring-amber-600/20;
+}
+.dt-badge-warning .dt-dot { @apply bg-amber-500; }
+.dt-badge-danger {
+    @apply bg-red-50 text-red-700 ring-1 ring-red-600/20;
+}
+.dt-badge-danger .dt-dot { @apply bg-red-500; }
+.dt-badge-neutral {
+    @apply bg-slate-100 text-slate-700 ring-1 ring-slate-600/10;
+}
+.dt-badge-neutral .dt-dot { @apply bg-slate-400; }
+.dt-badge-navy {
+    background: rgba(11, 38, 56, 0.07);
+    color: var(--dt-navy);
+}
+.dt-badge-navy .dt-dot { background: var(--dt-teal); }
+.dt-badge-accent {
+    background: rgba(231, 184, 75, 0.22);
+    color: #7a5a12;
+}
+.dt-badge-accent .dt-dot { background: #c9971f; }
+
+.dt-table-head th {
+    @apply text-[11px] font-semibold uppercase tracking-[0.07em] text-slate-500;
+}
+
+.dt-empty-icon {
+    @apply inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-slate-100 text-slate-400;
+}
+
+/* Subtle, compact placeholder text across all dashboard forms */
+input::placeholder,
+textarea::placeholder {
+    color: #94a3b8;
+    font-size: 13px;
+    opacity: 1;
+}
+
+/* ---- Sidebar collapse ---- */
+#appSidebar {
+    width: 16.5rem; /* 264px */
+}
+#appSidebar.dt-collapsed {
+    width: 4.75rem; /* 76px */
+}
+@media (min-width: 1024px) {
+    body.dt-sidebar-collapsed #appSidebar {
+        width: 4.75rem;
+    }
+    body.dt-sidebar-collapsed #appSidebar .sidebar-label,
+    body.dt-sidebar-collapsed #appSidebar .sidebar-section,
+    body.dt-sidebar-collapsed #appSidebar .sidebar-chevron,
+    body.dt-sidebar-collapsed #appSidebar .sidebar-user-meta,
+    body.dt-sidebar-collapsed #appSidebar .sidebar-logo-text,
+    body.dt-sidebar-collapsed #appSidebar .sidebar-submenu,
+    body.dt-sidebar-collapsed #appSidebar .sidebar-footer-text {
+        display: none !important;
+    }
+    body.dt-sidebar-collapsed #appSidebar .dt-nav-item {
+        justify-content: center;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    body.dt-sidebar-collapsed #appSidebar .sidebar-logo-wrap {
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+    }
+    body.dt-sidebar-collapsed #appSidebar .sidebar-user-row {
+        justify-content: center;
+    }
+    /* Tooltips only when collapsed */
+    body.dt-sidebar-collapsed #appSidebar .dt-nav-item .sidebar-tip {
+        display: none;
+    }
+    body.dt-sidebar-collapsed #appSidebar .dt-nav-item:hover .sidebar-tip {
+        display: flex;
+    }
+}
+#appSidebar .sidebar-tip {
+    display: none;
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    background: var(--dt-navy);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 8px;
+    z-index: 60;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    pointer-events: none;
+}
+#appSidebar .sidebar-tip::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+    width: 8px;
+    height: 8px;
+    background: var(--dt-navy);
+}
+
+.dt-sidebar-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+.dt-sidebar-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.18);
+    border-radius: 999px;
+}
+.dt-sidebar-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* ============ Cross-dashboard shell unification ============ */
+/* Admin inner pages hardcode bg-gray-50 (body) + bg-[#eaebef] (main). */
+/* Bring them onto the shared DalyTrac canvas without touching markup. */
+body.bg-gray-50 {
+    background-color: var(--dt-bg);
+}
+main.bg-\[\#eaebef\] {
+    background-color: var(--dt-bg) !important;
+}
+
+/* Shared stat card (used by manager + any Tailwind dashboard) */
+.dt-stat {
+    @apply bg-white rounded-2xl border p-5 transition no-underline;
+    border-color: var(--dt-card-border);
+    box-shadow: 0 1px 2px rgba(11, 38, 56, 0.05), 0 8px 24px -12px rgba(11, 38, 56, 0.18);
+}
+a.dt-stat:hover, .dt-stat-hover:hover {
+    box-shadow: 0 1px 2px rgba(11, 38, 56, 0.06), 0 16px 32px -16px rgba(11, 38, 56, 0.28);
+    border-color: #d7e0e0;
+}
+.dt-stat-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.07em] text-slate-500 mb-1;
+}
+.dt-stat-value {
+    @apply text-[26px] leading-none font-bold tracking-tight;
+    color: var(--dt-navy);
+}
+.dt-panel-title {
+    @apply text-[14px] font-semibold tracking-tight;
+    color: var(--dt-navy);
+}
+.dt-panel-sub {
+    @apply text-[12px] text-slate-500 mt-0.5;
+}
+
+/* Shared table language for Tailwind dashboards */
+.dt-table {
+    @apply min-w-full text-left text-sm;
+}
+.dt-table thead th {
+    @apply px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.07em] text-slate-500 bg-slate-50/80;
+}
+.dt-table tbody td {
+    @apply px-4 py-2.5 text-slate-700;
+}
+.dt-table tbody tr {
+    @apply border-t border-slate-100 hover:bg-slate-50/70 transition-colors;
+}
+
+/* ---- Manager sidebar: navy + desktop collapse (mirrors #appSidebar) ---- */
+#managerSidebar {
+    width: 16.5rem;
+    background: var(--dt-navy) !important;
+    border-right: 1px solid rgba(255,255,255,0.1) !important;
+}
+@media (min-width: 1024px) {
+    body.dt-manager-collapsed #managerSidebar {
+        width: 4.75rem;
+    }
+    body.dt-manager-collapsed #managerSidebar .sidebar-label,
+    body.dt-manager-collapsed #managerSidebar .sidebar-section,
+    body.dt-manager-collapsed #managerSidebar .sidebar-user-meta,
+    body.dt-manager-collapsed #managerSidebar .sidebar-logo-text {
+        display: none !important;
+    }
+    body.dt-manager-collapsed #managerSidebar .dt-nav-item {
+        justify-content: center;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    body.dt-manager-collapsed #managerSidebar .sidebar-logo-wrap {
+        justify-content: center;
+    }
+    body.dt-manager-collapsed #managerSidebar .dt-nav-item .sidebar-tip {
+        display: none;
+    }
+    body.dt-manager-collapsed #managerSidebar .dt-nav-item:hover .sidebar-tip {
+        display: flex;
+    }
+}
+#managerSidebar .sidebar-tip {
+    display: none;
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    background: var(--dt-navy);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 8px;
+    z-index: 60;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    pointer-events: none;
+}
+
+@layer components {
+    /* Reusable left-to-right sweep hover for CTA buttons.
+       The button keeps its own background; the overlay animates
+       on top via ::before while text/icons stay above it.
+       Usage: class="btn-sweep btn-sweep-accent ..." (+ Tailwind
+       hover:text-* for readable text over the overlay).
+       Works on both <a> and <button> elements. */
+    .btn-sweep {
+        @apply relative isolate overflow-hidden;
+    }
+
+    .btn-sweep::before {
+        content: "";
+        @apply absolute inset-y-0 left-0 -z-10 w-0;
+        transition: width 500ms ease-out;
+    }
+
+    .btn-sweep:hover::before {
+        @apply w-full;
+    }
+
+    /* Overlay colors (DalyTrac brand) */
+    .btn-sweep-accent::before {
+        background-color: #E7B84B;
+    }
+
+    .btn-sweep-navy::before {
+        background-color: #0B2638;
+    }
+
+    .btn-sweep-teal::before {
+        background-color: #2D7080;
+    }
+
+    .btn-sweep-white::before {
+        background-color: #ffffff;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .btn-sweep::before {
+            transition: none;
+        }
+    }
+}

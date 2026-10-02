@@ -31,8 +31,8 @@
                 display: block;
                 margin: 12px 12px 6px 12px;
                 border-radius: 14px;
-                border: 1px solid rgba(148, 163, 184, 0.55);
-                background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
+                border: 1px solid rgba(11, 38, 56, 0.15);
+                background: linear-gradient(180deg, rgba(11,38,56,0.05), rgba(45,112,128,0.07));
                 box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
             }
 
@@ -79,7 +79,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 flex h-screen overflow-hidden">
+<body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
 
     {{-- Sidebar Component --}}
     @if(Auth::user()->hasRole('Admin'))
@@ -95,64 +95,67 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#eaebef] p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
+
+            {{-- Page heading (same design as other Reports pages) --}}
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
+                <div class="min-w-0">
+                    <p class="dt-overline mb-1">{{ __('messages.Reports') }}</p>
+                    <h1 class="text-[22px] sm:text-[24px] font-bold tracking-tight text-[#0B2638] leading-tight">
+                        {{ __('messages.Tasks Table') }}
+                    </h1>
+                </div>
+
+                {{-- Buttons --}}
+                <div class="flex flex-col sm:flex-row sm:flex-wrap gap-2 w-full sm:w-auto">
+                    @php
+                        $reportRoute = '#';
+                        if (Auth::user()->hasRole('Responsable de projet')) $reportRoute = route('Responsable_de_projet.Tasksrepports.downloadRepports');
+                        elseif (Auth::user()->hasRole('Admin')) $reportRoute = route('admin.Tasksrepports.downloadRepports');
+                        elseif (Auth::user()->hasRole('Employee')) $reportRoute = route('employee.Tasksrepports.downloadRepports');
+                        elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $reportRoute = route('Responsable_gestionnaire.Tasksrepports.downloadRepports');
+                    @endphp
+                    <a href="{{ $reportRoute }}" class="dt-btn dt-btn-ghost w-full sm:w-auto">
+                       <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                        {{ __('messages.Tasks Reports PDF') }}
+                    </a>
+                </div>
+            </div>
 
             {{-- Container for the table --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="dt-card overflow-hidden">
 
-                {{-- Header Section --}}
-                <div class="p-6 border-b border-gray-200">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                        <h6 class="text-lg font-semibold text-gray-900">{{ __('messages.Tasks Table') }}</h6>
-
-                        {{-- Buttons --}}
-                        <div class="flex flex-wrap gap-2">
-                            @php
-                                $reportRoute = '#';
-                                if (Auth::user()->hasRole('Responsable de projet')) $reportRoute = route('Responsable_de_projet.Tasksrepports.downloadRepports');
-                                elseif (Auth::user()->hasRole('Admin')) $reportRoute = route('admin.Tasksrepports.downloadRepports');
-                                elseif (Auth::user()->hasRole('Employee')) $reportRoute = route('employee.Tasksrepports.downloadRepports');
-                                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $reportRoute = route('Responsable_gestionnaire.Tasksrepports.downloadRepports');
-                            @endphp
-                            <a href="{{ $reportRoute }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
-                               <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                                {{ __('messages.Tasks Reports PDF') }}
-                            </a>
-                        </div>
+                {{-- Filters --}}
+                <div class="px-5 sm:px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
+                    <div class="w-full sm:max-w-md">
+                        <label for="taskFilter" class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Filter by Task Name') }}</label>
+                        <select id="taskFilter" class="mt-1 block w-full rounded-xl border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25">
+                            <option value="">{{ __('messages.All Tasks') }}</option>
+                            {{-- Use distinct task titles --}}
+                            @foreach($tasks->unique('title') as $task)
+                                <option value="{{ $task->title }}">{{ $task->title }}</option>
+                            @endforeach
+                        </select>
                     </div>
-
-                    {{-- Filters --}}
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div class="w-full sm:w-auto">
-                            <label for="taskFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Task Name') }}</label>
-                            <select id="taskFilter" class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                                <option value="">{{ __('messages.All Tasks') }}</option>
-                                {{-- Use distinct task titles --}}
-                                @foreach($tasks->unique('title') as $task)
-                                    <option value="{{ $task->title }}">{{ $task->title }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="w-full sm:w-auto">
-                            <label for="taskSearch" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Search Task') }}</label>
-                            <input type="text" id="taskSearch" class="block w-full sm:w-64 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="{{ __('messages.Type to search...') }}">
-                        </div>
+                    <div class="w-full sm:w-auto">
+                        <label for="taskSearch" class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Search Task') }}</label>
+                        <input type="text" id="taskSearch" class="block w-full sm:w-64 rounded-xl border-slate-200 bg-white text-slate-700 px-3 py-2 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm" placeholder="{{ __('messages.Type to search...') }}">
                     </div>
                 </div>
 
                 {{-- Session Message Alerts --}}
                 @if(session('message'))
-                    <div class="m-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative" role="alert">
-                        <span class="block sm:inline">{{ session('message') }}</span>
-                        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-green-700 hover:text-green-900 font-bold text-xl" aria-label="Close">
+                    <div class="m-4 sm:m-5 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl relative flex items-center gap-2" role="alert">
+                        <span class="block sm:inline text-[13px] font-medium">{{ session('message') }}</span>
+                        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-emerald-600 hover:text-emerald-800 font-bold text-xl" aria-label="Close">
                            &times;
                         </button>
                     </div>
                 @endif
                 @if(session('alertmessage'))
-                    <div class="m-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
-                        <span class="block sm:inline">{{ session('alertmessage') }}</span>
-                         <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-red-700 hover:red-900 font-bold text-xl" aria-label="Close">
+                    <div class="m-4 sm:m-5 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl relative flex items-center gap-2" role="alert">
+                        <span class="block sm:inline text-[13px] font-medium">{{ session('alertmessage') }}</span>
+                         <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-red-600 hover:text-red-800 font-bold text-xl" aria-label="Close">
                            &times;
                         </button>
                     </div>
@@ -161,21 +164,21 @@
 
                 {{-- Table Wrapper --}}
                 <div class="p-0"> {{-- No padding for edge-to-edge table --}}
-                    <div class="overflow-x-auto tasks-table-responsive">
+                    <div class="overflow-x-auto tasks-table-responsive custom-scrollbar">
                         <table class="w-full text-left border-collapse" id="tasksTable">
-                            <thead class="border-b border-gray-200 bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left w-1/4">{{ __('messages.Project / Task') }}</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Teams column') }}</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left" >{{ __('messages.Employees column') }}</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Duration') }}</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Est. Hours') }}</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Difference') }}</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Progress') }}</th>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Actions') }}</th>
+                            <thead class="border-b border-slate-100 bg-slate-50/80">
+                                <tr class="dt-table-head">
+                                    <th class="px-4 py-3 text-left whitespace-nowrap min-w-[220px]">{{ __('messages.Project / Task') }}</th>
+                                    <th class="px-4 py-3 text-left whitespace-nowrap min-w-[160px]">{{ __('messages.Teams column') }}</th>
+                                    <th class="px-4 py-3 text-left whitespace-nowrap min-w-[180px]" >{{ __('messages.Employees column') }}</th>
+                                    <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Duration') }}</th>
+                                    <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Est. Hours') }}</th>
+                                    <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Difference') }}</th>
+                                    <th class="px-4 py-3 text-left whitespace-nowrap min-w-[150px]">{{ __('messages.Progress') }}</th>
+                                    <th class="px-4 py-3 text-center whitespace-nowrap min-w-[110px]">{{ __('messages.Actions') }}</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200">
+                            <tbody class="divide-y divide-slate-100">
                                 @php $groupedTasks = $tasks->groupBy('project_id'); @endphp
 
                                 @forelse($groupedTasks as $projectId => $projectTasks)
@@ -185,17 +188,17 @@
                                         $firstTask = $projectTasks->first(); // Use first task to get project name if project not found
                                     @endphp
                                     {{-- Project Header Row --}}
-                                    <tr class="bg-gray-200 project-header cursor-pointer select-none"
+                                    <tr class="bg-[#0B2638]/[0.04] hover:bg-[#0B2638]/[0.07] transition-colors project-header cursor-pointer select-none"
                                         data-project-group="{{ $projectId }}" aria-expanded="true"> {{-- Class for filtering --}}
-                                        <td colspan="8" class="px-2 py-2 font-semibold text-gray-600 text-sm break-words">
+                                        <td colspan="8" class="px-4 py-2.5 font-semibold text-[#0B2638] text-[13px] break-words border-y border-[#0B2638]/10">
                                             @php
                                                 $projectName = $project ? $project->name : ($firstTask ? $firstTask->project_name : 'Unknown Project');
                                             @endphp
                                             <div class="flex items-center justify-between gap-3">
-                                                <a href="{{ route('admin.projects.show', $projectId) }}" class="text-blue-600 hover:underline">
+                                                <a href="{{ route('admin.projects.show', $projectId) }}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline truncate">
                                                     {{ $projectName }}
                                                 </a>
-                                                <svg class="task-project-chevron w-5 h-5 text-slate-500 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                                <svg class="task-project-chevron w-5 h-5 text-slate-400 transition-transform flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6" />
                                                 </svg>
                                             </div>
@@ -204,16 +207,16 @@
 
                                     {{-- Tasks for this project --}}
                                     @foreach($projectTasks as $task)
-                                        <tr class="hover:bg-gray-50 task-row" data-project-parent="{{ $projectId }}"> {{-- Class for filtering --}}
+                                        <tr class="hover:bg-slate-50/70 transition-colors task-row" data-project-parent="{{ $projectId }}"> {{-- Class for filtering --}}
                                             {{-- Task Title --}}
-                                            <td class="px-6 py-4 whitespace-normal break-words text-sm font-medium text-gray-900 task-title"> 
-                                                <a href="{{ route('admin.tasks.show', $task->id) }}" class="text-blue-600 hover:underline">
+                                            <td class="px-4 py-3 whitespace-normal break-words text-[13px] font-medium text-[#0B2638] task-title">
+                                                <a href="{{ route('admin.tasks.show', $task->id) }}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline">
                                                     {{ $task->title }}
                                                 </a>
                                             </td>
                                             {{-- Teams --}}
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                 <div class="flex flex-wrap gap-1">
+                                            <td class="px-4 py-3 text-[13px] text-slate-600">
+                                                 <div class="flex flex-wrap gap-1.5">
                                                      @php
                                                          // Eager load teams for performance
                                                          $task_teams = App\Models\team_tasks::with('team')->where('task_id', $task->id)->get();
@@ -228,7 +231,8 @@
                                                      @endphp
                                                      @forelse($task_teams as $team_task)
                                                         @if($team_task->team) {{-- Check if team exists --}}
-                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                                        <span class="dt-badge dt-badge-navy">
+                                                            <span class="dt-dot"></span>
                                                              @if($canViewTeam)
                                                                  <a href="{{ $teamIndexRoute }}" class="hover:underline">{{ $team_task->team->name }}</a>
                                                              @else
@@ -237,12 +241,12 @@
                                                         </span>
                                                         @endif
                                                      @empty
-                                                        <span class="text-xs text-gray-400">{{ __('messages.No team') }}</span>
+                                                        <span class="text-xs text-slate-400">{{ __('messages.No team') }}</span>
                                                      @endforelse
                                                  </div>
                                             </td>
                                             {{-- Employees --}}
-                                            <td class="px-6 py-4 whitespace-normal break-words text-sm text-gray-500">
+                                            <td class="px-4 py-3 whitespace-normal break-words text-[13px] text-slate-600">
                                                 <div class="flex flex-wrap gap-1.5">
                                                      @php
                                                          // Eager load employees for performance
@@ -292,35 +296,36 @@
                                                 $taskprogressPercentage = $taskestimatedMinutes > 0 ? max(0, min(100, ($tasktotalduration / $taskestimatedMinutes) * 100)) : 0;
                                                 $taskformattedProgressPercentage = number_format($taskprogressPercentage, 2);
 
-                                                $taskProgressBarColor = 'bg-green-500';
+                                                $taskProgressBarColor = 'bg-emerald-500';
                                                 if ($taskprogressPercentage >= 75) $taskProgressBarColor = 'bg-red-500';
-                                                elseif ($taskprogressPercentage >= 50) $taskProgressBarColor = 'bg-yellow-500';
+                                                elseif ($taskprogressPercentage >= 50) $taskProgressBarColor = 'bg-amber-500';
                                             @endphp
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ sprintf('%02d', $taskhours) }}h {{ sprintf('%02d', $taskminutes) }}m</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $task->estimated_hours ?? 0 }}h</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <td class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600">{{ sprintf('%02d', $taskhours) }}h {{ sprintf('%02d', $taskminutes) }}m</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600">{{ $task->estimated_hours ?? 0 }}h</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-[13px] font-medium">
                                                 @if($task->estimated_hours !== null)
                                                     @if($taskdifference > 0)
-                                                        <span class="text-green-600">+{{ sprintf('%02d', $diffhours) }}h {{ sprintf('%02d', $diffminutes) }}m</span>
+                                                        <span class="dt-badge dt-badge-success">+{{ sprintf('%02d', $diffhours) }}h {{ sprintf('%02d', $diffminutes) }}m</span>
                                                     @elseif($taskdifference < 0)
-                                                        <span class="text-red-600">-{{ sprintf('%02d', $diffhours) }}h {{ sprintf('%02d', $diffminutes) }}m</span>
+                                                        <span class="dt-badge dt-badge-danger">-{{ sprintf('%02d', $diffhours) }}h {{ sprintf('%02d', $diffminutes) }}m</span>
                                                     @else
-                                                        <span class="text-blue-600">{{ sprintf('%02d', $diffhours) }}h {{ sprintf('%02d', $diffminutes) }}m</span>
+                                                        <span class="dt-badge dt-badge-navy">{{ sprintf('%02d', $diffhours) }}h {{ sprintf('%02d', $diffminutes) }}m</span>
                                                     @endif
                                                  @else
-                                                    <span class="text-gray-400">-</span>
+                                                    <span class="text-slate-300">-</span>
                                                 @endif
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                            <td class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600">
                                                 <div class="flex items-center gap-2">
-                                                    <div class="w-20 bg-gray-200 rounded-full h-1.5">
+                                                    <div class="w-full max-w-[110px] bg-slate-200 rounded-full h-1.5 overflow-hidden">
                                                         <div class="{{ $taskProgressBarColor }} h-1.5 rounded-full" style="width: {{ $taskformattedProgressPercentage }}%"></div>
                                                     </div>
-                                                    <span class="text-xs font-medium">{{ $taskformattedProgressPercentage }}%</span>
+                                                    <span class="text-[11px] font-semibold text-slate-500 whitespace-nowrap">{{ $taskformattedProgressPercentage }}%</span>
                                                 </div>
                                             </td>
                                             {{-- Actions --}}
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm space-x-1">
+                                            <td class="px-4 py-3 whitespace-nowrap text-[13px]">
+                                                <div class="flex items-center justify-center gap-2">
                                                 @php
                                                     $canEditTask = Auth::user()->can('Update task');
                                                     $canDeleteTask = Auth::user()->can('Delete task');
@@ -343,7 +348,7 @@
 
                                                 @if($canEditTask)
                                                     <a href="{{ $editRoute }}" title="{{ __('messages.Update task') }}"
-                                                       class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-blue-600 hover:bg-blue-700">
+                                                       class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white text-[#2D7080] hover:bg-[#2D7080]/10 hover:border-[#2D7080]/30 transition-colors">
                                                         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                   d="M15.232 5.232l3.536 3.536M4 20h4l9.5-9.5-4-4L4 16v4z" />
@@ -355,8 +360,8 @@
                                                     <form method="post" action="{{ $deleteRoute }}" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit"
-                                                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-red-600 hover:bg-red-700">
+                                                        <button type="submit" title="{{ __('messages.Delete') }}"
+                                                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors">
                                                             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                       d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862A2 2 0 015.995 19.142L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16" />
@@ -364,13 +369,17 @@
                                                         </button>
                                                     </form>
                                                 @endif
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
                                 @empty
                                     <tr>
-                                         <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
-                                             {{ __('messages.No tasks found index') }}
+                                         <td colspan="8" class="px-6 py-10 text-center">
+                                             <div class="dt-empty-icon mx-auto mb-3">
+                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                             </div>
+                                             <p class="text-[13.5px] font-semibold text-[#0B2638]">{{ __('messages.No tasks found index') }}</p>
                                          </td>
                                     </tr>
                                 @endforelse

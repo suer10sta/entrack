@@ -105,19 +105,21 @@
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased">
     <div class="flex min-h-screen overflow-x-hidden">
         {{-- Sidebar (sticky within full-page scroll) --}}
         @include('manager.sidebar')
 
         {{-- Main Wrapper (Navbar + Content) --}}
-        <div class="flex flex-col flex-1">
+        <div class="flex flex-col flex-1 min-w-0">
             {{-- Navbar --}}
             @include('manager.navbar')
 
             {{-- Main Content Area --}}
-            <main class="flex-1 overflow-x-hidden bg-[#eaebef] p-4 sm:p-6 lg:p-8">
-                @yield('content')
+            <main class="flex-1 overflow-x-hidden bg-[#f8fafc] p-4 sm:p-6 lg:p-8">
+                <div class="max-w-[1400px] mx-auto w-full">
+                    @yield('content')
+                </div>
             </main>
         </div>
     </div>

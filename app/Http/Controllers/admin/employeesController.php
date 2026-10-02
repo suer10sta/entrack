@@ -1095,6 +1095,15 @@ public function employeeArchiveIndex(){
         $user_id = $employee->user_id;
         $user = User::find($user_id);
 
+        // Archived employees may no longer have a linked User record
+        // (it is deleted when a new employee reuses the same email),
+        // so fall back to empty roles/permissions instead of failing.
+        if (!$user) {
+            $employee->roles = [];
+            $employee->permissions = [];
+            continue;
+        }
+
         $roles = $user->roles;
         $roleNames = $roles->pluck('name')->toArray(); // Extract role names
 

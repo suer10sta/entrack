@@ -17,6 +17,7 @@
     <title>{{ config('app.name', 'DalyTrac') }}</title>
 
     <link rel="canonical" href="{{ route('welcome') }}">
+    <link rel="stylesheet" href="{{ asset('css/dalytrac-dashboard.css') }}">
 
     <style>
       .async-hide {

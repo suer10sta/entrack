@@ -38,7 +38,7 @@ class AuthenticatedSessionController extends Controller
         // Turnstile Validation
         $turnstileResponse = $request->input('cf-turnstile-response');
         if (!$turnstileResponse) {
-            return back()->withInput()->withErrors(['cf-turnstile-response' => __('Veuillez cocher la case pour prouver que vous n\'êtes pas un robot.')]);
+            return back()->withInput()->withErrors(['cf-turnstile-response' => __('messages.auth_turnstile_required')]);
         }
 
         $verify = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
@@ -49,7 +49,7 @@ class AuthenticatedSessionController extends Controller
 
         if (!$verify->json('success')) {
             Log::warning('Turnstile verification failed for login.', ['response' => $verify->json()]);
-            return back()->withInput()->withErrors(['cf-turnstile-response' => __('La validation de sécurité a échoué. Veuillez réessayer.')]);
+            return back()->withInput()->withErrors(['cf-turnstile-response' => __('messages.auth_turnstile_failed')]);
         }
 
         $request->authenticate();
@@ -109,7 +109,7 @@ class AuthenticatedSessionController extends Controller
                 $request->session()->regenerateToken();
 
                 return back()->withErrors([
-                    'email' => 'Votre compte entreprise est bloqué. Veuillez contacter votre administrateur ou écrire à support@dalytrac.com.',
+                    'email' => __('messages.auth_account_blocked'),
                 ])->onlyInput('email');
             }
 
@@ -122,7 +122,7 @@ class AuthenticatedSessionController extends Controller
                 $request->session()->regenerateToken();
 
                 return back()->withErrors([
-                    'email' => 'Votre compte a été archivé par votre administrateur. Contactez-le pour être réactivé.',
+                    'email' => __('messages.auth_account_archived'),
                 ])->onlyInput('email');
             }
 

@@ -1,292 +1,189 @@
-<!DOCTYPE html> 
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"> 
-    <head> 
-        <meta charset="utf-8"> 
-        <meta name="viewport" content="width=device-width, initial-scale=1"> 
-        <title>{{ __('messages.FAQ') }} | DalyTrac</title>
-        <meta name="description" content="Find quick answers to common questions about DalyTrac features, pricing, security and support so you can get up and running fast.">
-        <meta name="robots" content="index,follow">
-        <link rel="canonical" href="{{ route('faq') }}">
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 
-        <meta property="og:title" content="{{ __('messages.FAQ') }} | DalyTrac">
-        <meta property="og:description" content="Frequently asked questions about using DalyTrac for time tracking, invoicing, projects and more.">
-        <meta property="og:type" content="website">
-        <meta property="og:url" content="{{ route('faq') }}">
-        <meta property="og:image" content="{{ asset('img/background_hero.png') }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="{{ __('messages.FAQ') }} | DalyTrac">
-        <meta name="twitter:description" content="Get answers about DalyTrac’s business management platform, from setup to billing and support.">
+    <title>{{ __('messages.public_faq_page_meta_title') }}</title>
+    <meta name="description" content="{{ __('messages.public_faq_page_meta_desc') }}">
+    <meta name="robots" content="index,follow">
+    <meta name="theme-color" content="#0b2638">
+    <link rel="canonical" href="{{ route('faq') }}">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%230b2638'/%3E%3Cpath d='M18 16h14c11 0 18 6 18 16s-7 16-18 16H18V16Zm12 23c6 0 10-2 10-7s-4-7-10-7h-2v14h2Z' fill='%238ccfd0'/%3E%3C/svg%3E">
 
-        <script type="application/ld+json">
-        {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "mainEntity": [
-            {
-              "@type": "Question",
-              "name": "What is DalyTrac?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "DalyTrac is a business management platform that brings together invoicing, project management, time tracking and team collaboration in one place."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Is my data secure in DalyTrac?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "We encrypt data in transit and at rest and follow industry best practices to keep your business information secure."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Do you offer a free trial?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes, DalyTrac offers a free trial so you can explore invoicing, projects and time tracking before choosing a paid plan."
-              }
-            }
-          ]
-        }
-        </script>
-        <link rel="preconnect" href="https://fonts.bunny.net"> 
-        <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" /> 
-        <link rel="stylesheet" href="welcome/css/bootstrap.min.css"> 
-        <link rel="stylesheet" href="welcome/css/font-awesome.min.css"> 
-        <link rel="stylesheet" href="welcome/css/aos.css"> 
-        <link rel="stylesheet" href="welcome/css/owl.carousel.min.css"> 
-        <link rel="stylesheet" href="welcome/css/owl.theme.default.min.css"> 
-        <link href="{{ asset('css/app.css') }}" rel="stylesheet"> @vite('resources/css/app.css') 
-        <link rel="stylesheet" href="welcome/css/templatemo-digital-trend.css"> 
-        
-    <style> 
-        .faq-item button:focus { outline: none; } 
-        .faq-item-content { 
-            max-height: 0; 
-            overflow: hidden; 
-            transition: max-height 0.3s ease, padding-top 0.3s ease, padding-bottom 0.3s ease; 
-            padding-top: 0; 
-            padding-bottom: 0; 
-        } 
-        .faq-item-content.open { 
-            max-height: 500px; 
-            padding-top: 0.75rem; 
-            padding-bottom: 1rem; 
-        }  
-        .faq-item { 
-            border: 1px solid #e5e7eb; 
-            border-radius: 12px; 
-            overflow: hidden; 
-            transition: box-shadow 0.3s ease, transform 0.2s ease; 
-            background-color: #ffffff; 
-        } 
-        .faq-item:hover { 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
-            transform: translateY(-2px); 
-        } 
-        .faq-item button { 
-            padding: 1rem 1.5rem; 
-            background-color: #ffffff; 
-            width: 100%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            gap: 1rem; 
-        } 
-        .faq-item-content { 
-            padding-left: 1.5rem; 
-            padding-right: 1.5rem; 
-            background-color: #ffffff; 
-        } 
-        .faq-icon { 
-            transition: transform 0.25s ease; 
-        } 
-        .faq-icon.open { 
-            transform: rotate(180deg); 
-        }
-        .support-card { 
-            border-radius: 12px; 
-            padding: 2rem; 
-            background-color: #f0f9ff; 
-            border: 1px solid #bae6fd; 
-            margin-top: 3rem; 
-            transition: transform 0.3s ease, box-shadow 0.3s ease; 
-        } 
-        .support-card:hover { 
-            transform: translateY(-3px); 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08); 
-            }
-        .faq-page-bg {
-            background: radial-gradient(circle at top left, rgba(59,130,246,0.12), transparent 55%),
-                        radial-gradient(circle at bottom right, rgba(14,165,233,0.12), transparent 55%);
-        }
-        .faq-tabs {
-            padding: 0.25rem;
-            border-radius: 9999px;
-            background-color: rgba(255,255,255,0.7);
-            box-shadow: 0 1px 2px rgba(15,23,42,0.04);
-        }
-        .faq-tab {
-            border-radius: 9999px;
-            padding: 0.35rem 0.9rem;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #6b7280;
-            border: none;
-            background-color: transparent;
-            cursor: pointer;
-            transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .faq-tab-active {
-            background-color: #eff6ff;
-            color: #0ea5e9;
-            box-shadow: 0 1px 3px rgba(59,130,246,0.25);
-        }
-    </style> 
+    <meta property="og:title" content="{{ __('messages.public_faq_page_og_title') }}">
+    <meta property="og:description" content="{{ __('messages.public_faq_page_og_desc') }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ route('faq') }}">
 
-</head> 
-<body class="antialiased bg-white text-gray-800"> 
-    {{-- Header --}} 
-    <x-Home_page.header /> 
-    
-    {{-- Main FAQ Section --}} 
-    <main class="min-h-screen pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 faq-page-bg">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 ">
-            <div class="max-w-5xl mx-auto">
-                <div class="text-center">
-                    <span class="inline-flex items-center px-3 py-1 mb-4 text-xs font-semibold tracking-wide text-sky-700 uppercase bg-sky-50 border border-sky-100 rounded-full">
-                        <svg class="w-3.5 h-3.5 mr-1.5 text-sky-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {{ __('messages.Help & Support') }}
-                    </span>
-                    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">{{ __('messages.Frequently Asked Questions') }}</h1>
-                    <p class="text-base text-gray-600 max-w-2xl mx-auto">
-                        {{ __('messages.Everything you need to know about using DalyTrac for your team, projects, and billing.') }}
-                    </p>
-                </div>
-
-                <div class="mt-12 max-w-3xl mx-auto">
-                    {{-- FAQ Items --}}
-                    <div class="inline-flex items-center justify-center mb-6 space-x-2 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        <span class="px-3 py-1 rounded-full bg-sky-50 text-sky-600 border border-sky-100">{{ __('messages.General / Product & Billing') }}</span>
-                    </div>
-
-                    <div class="space-y-4">
-                    @php $faqItems = [
-                    ['id'=>1, 'question'=>__('messages.What is DalyTrac?'),
-                    'answer'=>__('messages.DalyTrac is a comprehensive business management platform designed to help you manage invoices, projects, team members, and finances all in one place. It\'s built for businesses of all sizes.')],
-                    ['id'=>2, 'question'=>__('messages.How do I get started?'),
-                    'answer'=>__('messages.Getting started is easy! Simply sign up for an account, set up your company information, and start adding your clients, projects, and team members. Our onboarding guide will walk you through each step.')],
-                    ['id'=>3, 'question'=>__('messages.Is my data secure?'),
-                    'answer'=>__('messages.Yes, we take security very seriously. All data is encrypted in transit and at rest. We comply with industry standards and regularly perform security audits to ensure your information is protected.')],
-                    ['id'=>4, 'question'=>__('messages.Can I integrate with other tools?'),
-                    'answer'=>__('messages.We focus on built-in time tracking, projects, invoicing, and calendar. If you need a specific integration, contact support and we\'ll discuss options.')],
-                    ['id'=>5, 'question'=>__('messages.What payment methods do you accept?'),
-                    'answer'=>__('messages.We accept all major credit cards, bank transfers, and digital payment methods. You can choose monthly or annual billing, and we offer a 15-day free trial for new users.')],
-                    ['id'=>6, 'question'=>__('messages.Is there customer support available?'),
-                    'answer'=>__('messages.We offer 24/7 customer support via email, chat, and phone. Our support team is dedicated to helping you get the most out of DalyTrac.')],
-                    ['id'=>7, 'question'=>__('messages.Can I export my data?'),
-                    'answer'=>__('messages.Data export isn\'t offered in-app today. If you need an export, contact support and we\'ll review options.')],
-                    ['id'=>8, 'question'=>__('messages.What happens if I cancel my subscription?'),
-                    'answer'=>__('messages.You can cancel your subscription at any time. Your data will be retained for 30 days, giving you time to export it if needed. After 30 days, your account and data will be permanently deleted.')],
-                    ];
-                    @endphp
-                    
-                        @foreach ($faqItems as $item)
-                        <div class="faq-item">
-                            <button 
-                                type="button"
-                                onclick="toggleFAQ({{ $item['id'] }})"
-                                class="rounded-lg transition"
-                                aria-expanded="false"
-                                aria-controls="content-{{ $item['id'] }}"
-                                id="faq-button-{{ $item['id'] }}">
-                                <h3 class="text-base font-semibold text-gray-900">{{ $item['question'] }}</h3>
-                                <!-- Chevron Icon -->
-                                <svg id="icon-{{ $item['id'] }}" class="faq-icon h-5 w-5 text-sky-500 flex-shrink-0"
-                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                </svg>
-                            </button>
-                            <div id="content-{{ $item['id'] }}" class="faq-item-content">
-                                <p class="text-sm text-gray-700 leading-relaxed">{{ $item['answer'] }}</p>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-
-                    {{-- Contact Support Section --}}
-                    <div class="support-card shadow-md shadow-sky-100 max-w-xl mx-auto">
-                        <h2 class="text-xl font-semibold text-gray-900 mb-2 text-center">{{ __('messages.Need a quick answer?') }}</h2>
-                        <p class="text-sm text-gray-700 mb-4 text-center">
-                            {{ __('messages.Talk to our team and get best practices for tracking time, invoices, and projects in DalyTrac.') }}
-                        </p>
-                        <a href="{{ url('/contact') }}" class="inline-flex items-center justify-center w-full px-5 py-2.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm font-medium">
-                            {{ __('messages.Contact support') }}
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-     {{-- Footer --}} 
-     <div class="mt-16">
-     </div> 
-     {{-- space before footer --}} 
-     <x-Home_page.footer /> 
-     {{-- JS Accordion --}} 
-     <script>
-        // Open the first FAQ item by default on load for better guidance
-        document.addEventListener('DOMContentLoaded', function () {
-            const firstContent = document.getElementById('content-1');
-            const firstIcon = document.getElementById('icon-1');
-            const firstButton = document.getElementById('faq-button-1');
-
-            if (firstContent && firstIcon && firstButton) {
-                firstContent.classList.add('open');
-                firstIcon.classList.add('open');
-                firstButton.setAttribute('aria-expanded', 'true');
-            }
-        });
-
-        function toggleFAQ(id) {
-            const content = document.getElementById('content-' + id);
-            const icon = document.getElementById('icon-' + id);
-            const button = document.getElementById('faq-button-' + id);
-
-            if (!content || !icon || !button) {
-                console.error('Could not find elements for ID:', id);
-                return;
-            }
-
-            const isOpen = content.classList.contains('open');
-
-            // Close all other items
-            document.querySelectorAll('.faq-item-content').forEach(c => {
-                c.classList.remove('open');
-            });
-            
-            document.querySelectorAll('.faq-icon').forEach(ic => {
-                ic.classList.remove('open');
-            });
-
-            document.querySelectorAll('[id^="faq-button-"]').forEach(btn => {
-                btn.setAttribute('aria-expanded', 'false');
-            });
-
-            // Open the clicked item if it was closed
-            if (!isOpen) {
-                content.classList.add('open');
-                icon.classList.add('open');
-                button.setAttribute('aria-expanded', 'true');
-            }
-        }
+    @php
+      $faqGroups = [
+        [
+          'id' => 'demarrer', 'index' => '01 / 04', 'title' => __('messages.public_faq_page_group_1_title'), 'nav' => __('messages.public_faq_page_group_1_nav'), 'count' => 3,
+          'items' => [
+            ['q' => __('messages.public_faq_page_q1'), 'a' => __('messages.public_faq_page_a1'), 'link' => [route('produit'), __('messages.public_faq_page_link_1')]],
+            ['q' => __('messages.public_faq_page_q2'), 'a' => __('messages.public_faq_page_a2'), 'link' => [route('register'), __('messages.public_faq_page_link_2')]],
+            ['q' => __('messages.public_faq_page_q3'), 'a' => __('messages.public_faq_page_a3'), 'visual' => [__('messages.public_faq_page_visual_label'), __('messages.public_faq_page_visual_title'), __('messages.public_faq_page_visual_text')], 'link' => [route('demo'), __('messages.public_faq_page_link_3')]],
+          ],
+        ],
+        [
+          'id' => 'projets-equipe', 'index' => '02 / 04', 'title' => __('messages.public_faq_page_group_2_title'), 'nav' => __('messages.public_faq_page_group_2_nav'), 'count' => 4,
+          'items' => [
+            ['q' => __('messages.public_faq_page_q4'), 'a' => __('messages.public_faq_page_a4'), 'link' => [route('produit'), __('messages.public_faq_page_link_4')]],
+            ['q' => __('messages.public_faq_page_q5'), 'a' => __('messages.public_faq_page_a5')],
+            ['q' => __('messages.public_faq_page_q6'), 'a' => __('messages.public_faq_page_a6'), 'link' => [route('produit'), __('messages.public_faq_page_link_5')]],
+            ['q' => __('messages.public_faq_page_q7'), 'a' => __('messages.public_faq_page_a7'), 'link' => [route('tarifs'), __('messages.public_faq_page_link_6')]],
+          ],
+        ],
+        [
+          'id' => 'essai-tarifs', 'index' => '03 / 04', 'title' => __('messages.public_faq_page_group_3_title'), 'nav' => __('messages.public_faq_page_group_3_nav'), 'count' => 4,
+          'items' => [
+            ['q' => __('messages.public_faq_page_q8'), 'a' => __('messages.public_faq_page_a8'), 'link' => [route('register'), __('messages.public_faq_page_link_7')]],
+            ['q' => __('messages.public_faq_page_q9'), 'a' => __('messages.public_faq_page_a9')],
+            ['q' => __('messages.public_faq_page_q10'), 'a' => __('messages.public_faq_page_a10'), 'link' => [route('tarifs'), __('messages.public_faq_page_link_8')]],
+            ['q' => __('messages.public_faq_page_q11'), 'a' => __('messages.public_faq_page_a11'), 'link' => [route('tarifs') . '#offres', __('messages.public_faq_page_link_9')]],
+          ],
+        ],
+        [
+          'id' => 'factures-donnees', 'index' => '04 / 04', 'title' => __('messages.public_faq_page_group_4_title'), 'nav' => __('messages.public_faq_page_group_4_nav'), 'count' => 3,
+          'items' => [
+            ['q' => __('messages.public_faq_page_q12'), 'a' => __('messages.public_faq_page_a12'), 'link' => [route('produit'), __('messages.public_faq_page_link_10')]],
+            ['q' => __('messages.public_faq_page_q13'), 'a' => __('messages.public_faq_page_a13')],
+            ['q' => __('messages.public_faq_page_q14'), 'a' => __('messages.public_faq_page_a14'), 'link' => [route('contact'), __('messages.public_faq_page_link_11')]],
+          ],
+        ],
+      ];
+      $faqLd = [
+        '@context' => 'https://schema.org',
+        '@type' => 'FAQPage',
+        'mainEntity' => collect($faqGroups)->flatMap(fn ($g) => $g['items'])->map(fn ($i) => [
+          '@type' => 'Question',
+          'name' => html_entity_decode(strip_tags(str_replace('&nbsp;', ' ', $i['q']))),
+          'acceptedAnswer' => ['@type' => 'Answer', 'text' => html_entity_decode(strip_tags(str_replace('&nbsp;', ' ', $i['a'])))],
+        ])->values()->all(),
+      ];
+    @endphp
+    <script type="application/ld+json">
+      {!! json_encode($faqLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
     </script>
-</body> 
+
+    <!-- Vite Assets (Tailwind CSS) -->
+    @vite('resources/css/app.css')
+
+    <style>
+      [x-cloak] { display: none !important; }
+      .faq-summary::-webkit-details-marker { display: none; }
+      html, body { overflow-x: clip; }
+      @supports not (overflow: clip) {
+        html, body { overflow-x: hidden; }
+      }
+    </style>
+  </head>
+
+  <body class="bg-white text-[#1b3444] antialiased">
+
+    <x-public.header />
+
+    <main id="main"
+      data-count-all="{{ __('messages.public_faq_search_count') }}"
+      data-found-single="{{ __('messages.public_faq_page_found_single') }}"
+      data-found-plural="{{ __('messages.public_faq_page_found_plural') }}"
+      x-data="{
+      q: '',
+      countAll: '',
+      foundSingle: '',
+      foundPlural: '',
+      norm(v) { return v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); },
+      filter() {
+        const query = this.norm(this.q.trim());
+        let visible = 0;
+        this.$el.querySelectorAll('.help-group').forEach(group => {
+          let found = 0;
+          group.querySelectorAll('.help-item').forEach(item => {
+            const match = this.norm(item.textContent).includes(query);
+            item.hidden = !match;
+            if (match) { found++; visible++; }
+          });
+          group.hidden = found === 0;
+        });
+        this.$refs.noresult.hidden = visible !== 0;
+        this.$refs.count.textContent = query ? `${visible} ${visible > 1 ? this.foundPlural : this.foundSingle}` : this.countAll;
+        this.$refs.clear.hidden = !this.q;
+      },
+      reset() { this.q = ''; this.filter(); }
+    }"
+      x-init="countAll = $el.dataset.countAll; foundSingle = $el.dataset.foundSingle; foundPlural = $el.dataset.foundPlural">
+
+      <div class="border-b border-[#e0e8e4] bg-[#f4f7f5] pb-[61px] pt-[69px] max-md:pb-[49px] max-md:pt-[52px]">
+        <div class="mx-auto max-w-[1200px] px-6 max-md:px-4">
+          <p class="mb-[14px] text-[0.72rem] font-bold uppercase tracking-[0.17em] text-brand-secondary">{{ __('messages.public_faq_page_eyebrow') }}</p>
+          <h1 class="text-[clamp(2.9rem,5vw,4.8rem)] font-semibold leading-[1.02] tracking-[-0.052em] text-brand-primary max-sm:text-[clamp(2.5rem,11vw,3.7rem)]">{{ __('messages.public_faq_page_title') }}</h1>
+          <p class="mt-[17px] max-w-[730px] text-[1.02rem] text-[#5b6b73]">{{ __('messages.public_faq_page_intro') }}</p>
+          <div class="mt-[34px] max-w-[710px]">
+            <label for="help-search" class="mb-[9px] block text-[0.87rem] font-bold text-brand-primary">{{ __('messages.public_faq_search_label') }}</label>
+            <div class="flex min-h-[62px] items-center gap-[11px] rounded-lg border border-[#bbd2cc] bg-white px-4 shadow-[0_9px_22px_rgba(11,38,56,0.045)] focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-brand-secondary">
+              <span aria-hidden="true" class="text-brand-secondary"><i data-lucide="search" class="h-6 w-6"></i></span>
+              <input id="help-search" x-ref="search" x-model="q" @input="filter()" type="search" placeholder="{{ __('messages.public_faq_search_placeholder') }}" autocomplete="off" aria-controls="help-answers" class="h-[57px] min-w-0 flex-1 border-0 bg-transparent text-[0.97rem] text-brand-primary outline-none placeholder:text-[#7d9093]">
+              <button x-ref="clear" @click="reset(); $refs.search.focus()" type="button" hidden class="cursor-pointer border-0 bg-transparent p-[7px] text-[0.79rem] font-bold text-brand-secondary hover:text-[#245f6d]">{{ __('messages.public_faq_search_clear') }}</button>
+            </div>
+            <span x-ref="count" role="status" aria-live="polite" class="mt-[10px] block text-[0.78rem] text-[#54706e]">{{ __('messages.public_faq_search_count') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mx-auto grid max-w-[1200px] items-start gap-[76px] px-6 pb-[110px] pt-[62px] max-md:gap-12 max-md:px-4 max-md:pb-[78px] max-md:pt-[42px] lg:grid-cols-[285px_minmax(0,1fr)]">
+        <aside class="lg:sticky lg:top-[112px]" aria-label="{{ __('messages.public_faq_page_nav_label') }}">
+          <p class="mb-[17px] text-[0.7rem] font-bold uppercase tracking-[0.12em] text-[#6e8584]">{{ __('messages.public_faq_navigate') }}</p>
+          <nav aria-label="{{ __('messages.public_faq_eyebrow') }}" class="grid border-t border-[#dce6e4] max-sm:grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 lg:gap-0 lg:gap-x-0 sm:gap-x-[19px]">
+            @foreach ($faqGroups as $i => $group)
+              <a href="#{{ $group['id'] }}" @click="reset()" class="flex min-h-[64px] items-center gap-[11px] border-b border-[#dce6e4] text-[0.85rem] font-semibold text-brand-primary no-underline transition-colors duration-300 hover:text-brand-secondary max-sm:min-h-[52px]"><span class="text-[0.68rem] font-bold text-brand-secondary">0{{ $i + 1 }}</span> {{ $group['nav'] }} <b class="ml-auto text-[0.72rem] font-semibold text-[#77908d]">{{ $group['count'] }}</b></a>
+            @endforeach
+          </nav>
+          <div class="mt-[35px] border-l-[3px] border-[#7bad9d] bg-[#edf5f1] p-[23px] max-md:mt-[22px]">
+            <span class="text-[0.65rem] font-extrabold uppercase tracking-[0.1em] text-brand-secondary">{{ __('messages.public_faq_contact_prompt') }}</span>
+            <p class="mb-[11px] mt-2 text-[1rem] font-semibold text-brand-primary">{{ __('messages.public_faq_contact_cta') }}</p>
+            <a href="{{ route('contact') }}" class="group text-[0.81rem] font-bold text-brand-secondary transition-colors duration-300 hover:text-[#245f6d]">{{ __('messages.public_faq_contact_link') }} <span aria-hidden="true" class="inline-block transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"><i data-lucide="arrow-up-right" class="inline h-4 w-4"></i></span></a>
+          </div>
+        </aside>
+
+        <div id="help-answers" class="min-w-0">
+          <p x-ref="noresult" hidden class="border border-[#dce6e4] bg-[#f4f7f5] p-7 text-brand-primary">{{ __('messages.public_faq_no_result') }} <a href="{{ route('contact') }}" class="font-bold text-brand-secondary underline underline-offset-4">{{ __('messages.public_faq_no_result_link') }}</a>.</p>
+
+          @foreach ($faqGroups as $group)
+            <section id="{{ $group['id'] }}" aria-labelledby="{{ $group['id'] }}-title" class="help-group mb-[71px] scroll-mt-[110px] last:mb-0 max-md:mb-[52px]">
+              <div class="mb-[18px] flex items-baseline gap-[17px] border-b-2 border-brand-primary pb-5">
+                <span class="whitespace-nowrap text-[0.69rem] font-bold text-brand-secondary">{{ $group['index'] }}</span>
+                <h2 id="{{ $group['id'] }}-title" class="text-[clamp(1.65rem,2.4vw,2.3rem)] font-semibold leading-[1.2] tracking-[-0.037em] text-brand-primary">{{ $group['title'] }}</h2>
+              </div>
+              <div>
+                @foreach ($group['items'] as $item)
+                  <details class="help-item group border-b border-[#dce6e4]">
+                    <summary class="faq-summary flex min-h-[74px] cursor-pointer list-none items-center justify-between gap-[22px] text-[1rem] font-semibold leading-[1.35] text-brand-primary transition-colors duration-300 hover:text-brand-secondary max-sm:text-[0.92rem]">{!! $item['q'] !!}<span class="text-brand-secondary transition-transform duration-200 group-open:rotate-45"><i data-lucide="plus" class="h-6 w-6"></i></span></summary>
+                    <div class="max-w-[710px] pb-[27px] pr-9 max-sm:pr-2">
+                      <div class="[&_p]:m-0 [&_p]:text-[0.93rem] [&_p]:leading-[1.75] [&_p]:text-[#50666c] [&_strong]:text-brand-primary">{!! $item['a'] !!}</div>
+                      @isset($item['visual'])
+                        <div class="mt-[19px] flex min-h-[145px] max-w-[520px] flex-col justify-center rounded-[7px] border border-dashed border-[#8ca9a3] bg-[#eef5f2] p-[22px]">
+                          <span class="text-[0.62rem] font-extrabold uppercase tracking-[0.11em] text-brand-secondary">{{ $item['visual'][0] }}</span>
+                          <strong class="mt-[6px] text-[0.92rem] text-brand-primary">{{ $item['visual'][1] }}</strong>
+                          <small class="mt-[3px] text-[0.74rem] text-[#5b6b73]">{{ $item['visual'][2] }}</small>
+                        </div>
+                      @endisset
+                      @isset($item['link'])
+                        <a href="{{ $item['link'][0] }}" class="group/link mt-[13px] inline-block text-[0.84rem] font-bold text-brand-secondary underline underline-offset-4 transition-colors duration-300 hover:text-[#245f6d]">{{ $item['link'][1] }} <span aria-hidden="true" class="inline-block transition-transform duration-300 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5"><i data-lucide="arrow-up-right" class="inline h-4 w-4"></i></span></a>
+                      @endisset
+                    </div>
+                  </details>
+                @endforeach
+              </div>
+            </section>
+          @endforeach
+        </div>
+      </div>
+    </main>
+
+    <x-public.footer />
+
+  </body>
 
 </html>

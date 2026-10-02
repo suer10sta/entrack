@@ -47,112 +47,134 @@
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 
-<body class="antialiased bg-gradient-to-b from-sky-50 via-sky-100 to-slate-50 text-foreground">
+<body class="overflow-x-hidden bg-[#f4f7f6] font-sans text-[#0B2638] antialiased">
 
-    {{-- Header --}}
-    <x-Home_page.header />
+    <x-public.header />
 
-    {{-- Main Contact Section --}}
-    <main
-        class="relative min-h-screen overflow-hidden px-4 pt-24 pb-12 sm:px-6 sm:pt-28 sm:pb-16 lg:px-8 lg:pt-32 lg:pb-20">
-        <!-- Ambient background glow to match auth pages -->
-        <div class="pointer-events-none absolute inset-0">
-            <div class="absolute -top-32 -left-32 h-72 w-72 rounded-full bg-sky-300/20 blur-3xl"></div>
-            <div class="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-sky-400/20 blur-3xl"></div>
-        </div>
+    <main class="min-h-screen px-4 pt-8 pb-12 sm:px-6 lg:px-8 lg:pb-16">
+        <div class="mx-auto max-w-[720px] ">
+            <div class="overflow-hidden rounded-[28px] border border-[#dfe9e7] bg-white shadow-[0_24px_70px_rgba(11,38,56,0.08)]">
+                <div class="">
+                    
 
-        <div class="relative z-10 container mx-auto">
-            <div
-                class="max-w-xl mx-auto bg-white/95 p-6 sm:p-8 lg:p-10 rounded-2xl shadow-2xl ring-1 ring-border/40 backdrop-blur-md">
+                    <section class="px-5 py-7 sm:px-8 lg:px-10 lg:py-10">
+                        <div class="mx-auto max-w-[560px]">
+                            <div class="mb-7">
+                                <h2 class="text-[2rem] font-bold leading-[1.1] tracking-[-0.05em] text-[#0B2638]">{{ __('messages.Contact Us') }}</h2>
+                                <p class="mt-2 text-[0.95rem] leading-7 text-[#5b6b73]">
+                                    {{ __('messages.Have a question or need assistance? We\'d love to hear from you. Fill out the form below and we\'ll get back to you as soon as possible.') }}
+                                </p>
+                            </div>
 
-                <h1 class="text-3xl sm:text-4xl font-bold text-foreground mb-3 text-center">
-                    {{ __('messages.Contact Us') }}</h1>
-                <p class="text-sm text-muted mb-8 text-center">
-                    {{ __('messages.Have a question or need assistance? We\'d love to hear from you. Fill out the form below and we\'ll get back to you as soon as possible.') }}
-                </p>
+                            @if (session('error'))
+                                <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+                                    {{ session('error') }}
+                                </div>
+                            @endif
 
-                {{-- Mail error message --}}
-                @if (session('error'))
-                    <p class="mb-4 text-sm text-center text-red-600">
-                        {{ session('error') }}
-                    </p>
-                @endif
+                            @if (session('success'))
+                                <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700" role="alert">
+                                    {{ session('success') }}
+                                </div>
+                            @endif
 
-                {{-- Flash message --}}
-                @if (session('success'))
-                    <p class="mb-4 text-sm text-center text-green-600">
-                        {{ session('success') }}
-                    </p>
-                @endif
+                            @if ($errors->any())
+                                <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+                                    <ul class="m-0 list-disc space-y-1 pl-5">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
 
-                @if ($errors->any())
-                    <div class="mb-4 text-sm text-red-600">
-                        <ul class="list-disc list-inside">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+                            <form method="POST" action="{{ route('contact.submit') }}" class="space-y-5" novalidate>
+                                @csrf
 
-                {{-- Contact Form --}}
-                <form method="POST" action="{{ route('contact.submit') }}" class="space-y-5">
-                    @csrf
+                                <div style="display: none;">
+                                    <label for="website">Website</label>
+                                    <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+                                </div>
 
-                    {{-- Honeypot Field --}}
-                    <div style="display: none;">
-                        <label for="website">Website</label>
-                        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div>
-                            <label for="name"
-                                class="block text-xs font-medium text-muted mb-2">{{ __('messages.Name') }}</label>
-                            <input type="text" id="name" name="name" required
-                                class="w-full px-3 py-2.5 text-sm border border-border rounded-md placeholder-muted-foreground bg-card"
-                                placeholder="{{ __('messages.Your name') }}">
+                                <div class="grid gap-4 sm:grid-cols-2">
+                                    <div class="space-y-2 sm:col-span-1">
+                                        <label for="name" class="block text-sm font-medium text-[#0B2638]">{{ __('messages.Name') }} <span class="text-red-500">*</span></label>
+                                        <div class="relative">
+                                            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[#5b6b73]">
+                                                <i data-lucide="user" class="h-4 w-4"></i>
+                                            </span>
+                                            <input type="text" id="name" name="name" required value="{{ old('name') }}" placeholder="{{ __('messages.Your name') }}" class="w-full rounded-full border border-[#dfe9e7] bg-[#f7faf9] py-3 pl-10 pr-4 text-[0.95rem] text-[#0B2638] outline-none transition-all duration-300 placeholder:text-[#6a7c84] focus:border-[#2D7080] focus:bg-white focus:ring-4 focus:ring-[#2D7080]/10 @error('name') border-red-300 bg-red-50 @enderror" />
+                                        </div>
+                                        @error('name')
+                                            <p class="text-xs text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <div class="space-y-2 sm:col-span-1">
+                                        <label for="email" class="block text-sm font-medium text-[#0B2638]">{{ __('messages.Email') }} <span class="text-red-500">*</span></label>
+                                        <div class="relative">
+                                            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[#5b6b73]">
+                                                <i data-lucide="mail" class="h-4 w-4"></i>
+                                            </span>
+                                            <input type="email" id="email" name="email" required value="{{ old('email') }}" placeholder="your@email.com" class="w-full rounded-full border border-[#dfe9e7] bg-[#f7faf9] py-3 pl-10 pr-4 text-[0.95rem] text-[#0B2638] outline-none transition-all duration-300 placeholder:text-[#6a7c84] focus:border-[#2D7080] focus:bg-white focus:ring-4 focus:ring-[#2D7080]/10 @error('email') border-red-300 bg-red-50 @enderror" />
+                                        </div>
+                                        @error('email')
+                                            <p class="text-xs text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="subject" class="block text-sm font-medium text-[#0B2638]">{{ __('messages.Subject') }} <span class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[#5b6b73]">
+                                            <i data-lucide="tag" class="h-4 w-4"></i>
+                                        </span>
+                                        <input type="text" id="subject" name="subject" required value="{{ old('subject') }}" placeholder="{{ __('messages.How can we help?') }}" class="w-full rounded-full border border-[#dfe9e7] bg-[#f7faf9] py-3 pl-10 pr-4 text-[0.95rem] text-[#0B2638] outline-none transition-all duration-300 placeholder:text-[#6a7c84] focus:border-[#2D7080] focus:bg-white focus:ring-4 focus:ring-[#2D7080]/10 @error('subject') border-red-300 bg-red-50 @enderror" />
+                                    </div>
+                                    @error('subject')
+                                        <p class="text-xs text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="message" class="block text-sm font-medium text-[#0B2638]">{{ __('messages.Message') }} <span class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <span class="pointer-events-none absolute left-3 top-3.5 flex items-center text-[#5b6b73]">
+                                            <i data-lucide="message-square-text" class="h-4 w-4"></i>
+                                        </span>
+                                        <textarea id="message" name="message" rows="6" required placeholder="{{ __('messages.Tell us more about your inquiry...') }}" class="w-full resize-none rounded-[22px] border border-[#dfe9e7] bg-[#f7faf9] py-3 pl-10 pr-4 text-[0.95rem] text-[#0B2638] outline-none transition-all duration-300 placeholder:text-[#6a7c84] focus:border-[#2D7080] focus:bg-white focus:ring-4 focus:ring-[#2D7080]/10 @error('message') border-red-300 bg-red-50 @enderror">{{ old('message') }}</textarea>
+                                    </div>
+                                    @error('message')
+                                        <p class="text-xs text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                @if(config('services.turnstile.site_key'))
+                                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"></div>
+                                @endif
+
+                                <button type="submit" class="btn-sweep btn-sweep-navy group inline-flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-full border border-transparent bg-brand-secondary px-[22px] text-[0.95rem] font-semibold text-white no-underline shadow-[0_12px_28px_rgba(45,112,128,0.2)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-[0_16px_34px_rgba(45,112,128,0.3)] cursor-pointer">
+                                    <span>{{ __('messages.Send Message') }}</span>
+                                    <i data-lucide="arrow-right" class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"></i>
+                                </button>
+                            </form>
                         </div>
-
-                        <div>
-                            <label for="email"
-                                class="block text-xs font-medium text-muted mb-2">{{ __('messages.Email') }}</label>
-                            <input type="email" id="email" name="email" required
-                                class="w-full px-3 py-2.5 text-sm border border-border rounded-md placeholder-muted-foreground bg-card"
-                                placeholder="your@email.com">
-                        </div>
-                    </div>
-                    <div>
-                        <label for="subject"
-                            class="block text-xs font-medium text-muted mb-2">{{ __('messages.Subject') }}</label>
-                        <input type="text" id="subject" name="subject" required
-                            class="w-full px-3 py-2.5 text-sm border border-border rounded-md placeholder-muted-foreground bg-card"
-                            placeholder="{{ __('messages.How can we help?') }}">
-                    </div>
-
-                    <div>
-                        <label for="message"
-                            class="block text-xs font-medium text-muted mb-2">{{ __('messages.Message') }}</label>
-                        <textarea id="message" name="message" rows="5" required
-                            class="w-full px-3 py-2.5 text-sm border border-border rounded-md placeholder-muted-foreground resize-none bg-card"
-                            placeholder="{{ __('messages.Tell us more about your inquiry...') }}"></textarea>
-                    </div>
-
-                    {{-- Turnstile Widget --}}
-                    @if(config('services.turnstile.site_key'))
-                        <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"></div>
-                    @endif
-
-                    <button type="submit"
-                        class="w-full text-primary-foreground text-sm font-medium py-3 rounded-md bg-primary hover:bg-primary/90 transition-colors">
-                        {{ __('messages.Send Message') }}
-                    </button>
-                </form>
+                    </section>
+                </div>
             </div>
         </div>
     </main>
 
-    {{-- Footer --}}
-    <x-Home_page.footer />
+    <x-public.footer />
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        });
+    </script>
 
 </body>
 

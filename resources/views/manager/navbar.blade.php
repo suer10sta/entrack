@@ -1,20 +1,32 @@
-<header class="flex items-center justify-between px-4 sm:px-6 py-3 bg-white border-b border-gray-200">
-    <div class="flex items-center gap-3">
+<header class="sticky top-0 z-30 flex items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-white/90 backdrop-blur border-b border-slate-200">
+    <div class="flex items-center gap-2.5 min-w-0">
+        {{-- Desktop collapse toggle --}}
+        <button
+            type="button"
+            class="hidden lg:inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-[#0B2638] hover:bg-slate-50 hover:border-slate-300 transition-colors"
+            onclick="toggleManagerCollapse()"
+            aria-label="Toggle sidebar"
+            title="Collapse / Expand sidebar"
+        >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10" />
+            </svg>
+        </button>
         {{-- Mobile sidebar toggle --}}
         <button
             type="button"
-            class="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm text-slate-700 hover:bg-slate-50"
+            class="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm text-[#0B2638] hover:bg-slate-50"
             onclick="toggleManagerSidebar(true)"
             aria-label="Open sidebar"
         >
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
         </button>
 
-        <div>
-            <h1 class="text-lg font-semibold text-gray-900">Manager area</h1>
-            <p class="text-xs text-gray-500">Monitor subscriptions and entreprises</p>
+        <div class="min-w-0">
+            <h1 class="text-[15px] font-bold tracking-tight text-[#0B2638] leading-tight truncate">Manager area</h1>
+            <p class="text-[12px] text-slate-500 truncate">{{ __('messages.Monitor subscriptions and entreprises') }}</p>
         </div>
     </div>
     
@@ -24,7 +36,7 @@
             @click="open = !open"
             @click.away="open = false"
             type="button"
-            class="relative p-2.5 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+            class="relative p-2.5 border border-slate-200 bg-white rounded-xl shadow-sm hover:bg-gray-50 transition-colors flex items-center gap-2"
             title="{{ __('messages.Language') }}"
         >
             
@@ -66,7 +78,7 @@
             <div class="py-2">
                 <a 
                     href="{{ route('changeLang', ['lang' => 'en']) }}"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'en' ? 'bg-blue-50 text-blue-700' : '' }}"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-slate-50 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'en' ? 'bg-[#2D7080]/10 text-[#2D7080]' : '' }}"
                 >
                     <img src="https://flagcdn.com/gb.svg" alt="English" class="w-4 h-3 rounded-sm object-cover">
                     <span>English</span>
@@ -78,7 +90,7 @@
                 </a>
                 <a 
                     href="{{ route('changeLang', ['lang' => 'fr']) }}"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'fr' ? 'bg-blue-50 text-blue-700' : '' }}"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-slate-50 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'fr' ? 'bg-[#2D7080]/10 text-[#2D7080]' : '' }}"
                 >
                     <img src="https://flagcdn.com/fr.svg" alt="Français" class="w-4 h-3 rounded-sm object-cover">
                     <span>Français</span>
@@ -90,7 +102,7 @@
                 </a>
                 <a 
                     href="{{ route('changeLang', ['lang' => 'es']) }}"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'es' ? 'bg-blue-50 text-blue-700' : '' }}"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-slate-50 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'es' ? 'bg-[#2D7080]/10 text-[#2D7080]' : '' }}"
                 >
                     <img src="https://flagcdn.com/es.svg" alt="Español" class="w-4 h-3 rounded-sm object-cover">
                     <span>Español</span>
@@ -102,7 +114,7 @@
                 </a>
                 <a 
                     href="{{ route('changeLang', ['lang' => 'nl']) }}"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'nl' ? 'bg-blue-50 text-blue-700' : '' }}"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-slate-50 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'nl' ? 'bg-[#2D7080]/10 text-[#2D7080]' : '' }}"
                 >
                     <img src="https://flagcdn.com/be.svg" alt="Nederlands" class="w-4 h-3 rounded-sm object-cover">
                     <span>{{ __('messages.Nederlands') }}</span>
@@ -116,5 +128,7 @@
         </div>
     </div>
 </header>
+
+
 
 

@@ -1,34 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ __('messages.Expense Note Parameters - DalyTrac') }}</title>
-    @vite('resources/css/app.css') 
+    @vite('resources/css/app.css')
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <style>
-        /* Text alignment for inputs/textareas */
-        .entrepriseInfos {
-            text-align: left;
+        /* ── Form input base ── */
+        .dt-input {
+            display: block; width: 100%;
+            border: 1px solid #e2e8f0; border-radius: 8px;
+            background: #f8fafc; color: #1e293b;
+            font-size: 13px; padding: 8px 12px;
+            transition: border-color .15s, background .15s;
+            outline: none;
         }
-        /* Style readonly inputs */
-        input:read-only, textarea:read-only {
-            background-color: #f9fafb; /* bg-gray-50 */
-            cursor: default;
+        .dt-input:focus {
+            border-color: #2D7080;
+            box-shadow: 0 0 0 3px rgba(45,112,128,.12);
+            background: #fff;
+        }
+        .dt-input.is-editing {
+            background: #fff;
+            border-color: #2D7080;
+            box-shadow: 0 0 0 3px rgba(45,112,128,.12);
+            cursor: text;
+        }
+        .dt-input.is-saved   { border-color: #22c55e; }
+        .dt-input.is-error   { border-color: #ef4444; }
+        .dt-input[readonly]  { cursor: default; }
+
+        .dt-label {
+            display: block; font-size: 11.5px; font-weight: 600;
+            color: #475569; margin-bottom: 5px;
         }
     </style>
 </head>
 
-<body class="bg-gray-100 flex h-screen overflow-hidden font-sans">
+<body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
 
-
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-    style="display: none; visibility: hidden"></iframe></noscript>
-
-    {{-- Sidebar Component --}}
+    {{-- Sidebar --}}
     @if(Auth::user()->hasRole('Admin'))
         <x-dashboard.sidebar />
     @else
@@ -36,189 +51,199 @@
     @endif
 
     <div class="flex flex-col flex-1 overflow-y-auto">
-        {{-- Navbar Component --}}
         <x-dashboard.navbar />
-        
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8 space-y-6">
 
-            {{-- 1. Header Section --}}
-            <div class="flex flex-wrap justify-between items-center gap-4">
-                <div>
-                    {{-- Adjusted header style --}}
-                    <h1 class="text-xl font-semibold text-gray-900">{{ __('messages.Expense Note Parameters') }}</h1>
-                    <p class="text-sm text-gray-500">{{ __('messages.Configure expense note settings') }}</p>
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7">
+
+            {{-- ── Page header ── --}}
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-5">
+                <div class="min-w-0">
+                    <p class="text-[10px] font-semibold uppercase tracking-[.08em] text-slate-400 mb-0.5">{{ __('messages.Expense Note History') }}</p>
+                    <h1 class="text-[18px] sm:text-[20px] lg:text-[22px] font-bold tracking-tight text-[#0B2638] leading-tight">
+                        {{ __('messages.Expense Note Parameters') }}
+                    </h1>
+                    <p class="text-[12px] text-slate-500 mt-0.5 hidden sm:block">{{ __('messages.Configure expense note settings') }}</p>
                 </div>
             </div>
 
-            {{-- 2. Expense Note Information Card --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div class="p-6">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-1">{{ __('messages.Expense Note Information') }}</h2>
-                    <p class="text-sm text-gray-500 mb-6">{{ __('messages.Mandatory information expense') }}</p>
+            {{-- ── Save feedback banner ── --}}
+            <div id="saveBanner" class="hidden mb-4 flex items-center gap-3 px-4 py-3 rounded-xl border relative text-sm font-medium"></div>
 
-                    {{-- Expense Note Prefix --}}
-                    {{-- Use grid to allow for potential future fields --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Prefix') }}</label>
-                            <input
-                                class="editable entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 bg-gray-50" {{-- Added bg-gray-50 for readonly state --}}
-                                type="text" name="notedefraisPrefix"
-                                value="{{$entreprise->notedefraisPrefix}}" readonly />
-                            <small class="text-xs text-gray-500 mt-1">{{ __('messages.Prefix help expense') }}</small> {{-- Added help text --}}
-                        </div>
-                         {{-- Placeholder for potential second column if needed later --}}
-                         <div></div>
+            {{-- ── Settings card ── --}}
+            <div class="dt-card overflow-hidden mb-5">
+
+                {{-- Card header --}}
+                <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-[#2D7080]/10 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-[#2D7080]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-[13px] font-semibold text-[#0B2638]">{{ __('messages.Expense Note Information') }}</p>
+                        <p class="text-[11.5px] text-slate-400">{{ __('messages.Mandatory information expense') }}</p>
+                    </div>
+                </div>
+
+                <div class="p-5 sm:p-6">
+
+                    {{-- Hint --}}
+                    <div class="flex items-start gap-2.5 bg-[#2D7080]/[0.06] border border-[#2D7080]/20 rounded-xl px-4 py-3 mb-5">
+                        <svg class="w-4 h-4 text-[#2D7080] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p class="text-[12px] text-[#2D7080]">{{ __('messages.Prefix help expense') }}</p>
                     </div>
 
-                    {{-- Removed other fields as they are not in the provided code --}}
+                    {{-- Prefix field --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="dt-label">{{ __('messages.Prefix') }}</label>
+                            <input
+                                class="editable dt-input"
+                                type="text"
+                                name="notedefraisPrefix"
+                                value="{{ $entreprise->notedefraisPrefix }}"
+                                readonly />
+                            <p class="text-[11px] text-slate-400 mt-1">{{ __('messages.Prefix help expense') }}</p>
+                        </div>
+                        {{-- Placeholder for future fields --}}
+                        <div></div>
+                    </div>
 
                 </div>
             </div>
 
-            {{-- Removed the second card as there's no 'body message' field in the code --}}
+            {{-- ── Action buttons ── --}}
+            <div class="flex flex-col sm:flex-row sm:justify-end items-stretch sm:items-center gap-2">
+                @php
+                    $backRoute = '#';
+                    if(Auth::user()->hasRole('Responsable de projet')) $backRoute = route('Responsable_de_projet.index');
+                    elseif(Auth::user()->hasRole('Admin'))              $backRoute = route('admin.index');
+                    elseif(Auth::user()->hasRole('Employee'))           $backRoute = route('employee.index');
+                    elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $backRoute = route('Responsable_gestionnaire.index');
+                @endphp
 
-            {{-- 3. Action Buttons --}}
-            <div class="flex justify-end items-center gap-3 pt-4">
-                 @php $backRoute = '#'; // Default fallback @endphp
-                 @if(Auth::user()->hasRole('Responsable de projet')) @php $backRoute = route('Responsable_de_projet.index'); @endphp @endif
-                 @if(Auth::user()->hasRole('Admin')) @php $backRoute = route('admin.index'); @endphp @endif
-                 @if(Auth::user()->hasRole('Employee')) @php $backRoute = route('employee.index'); @endphp @endif
-                 @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $backRoute = route('Responsable_gestionnaire.index'); @endphp @endif
+                <a href="{{ url()->previous() ?: $backRoute }}" class="dt-btn dt-btn-ghost justify-center">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    {{ __('messages.Back') }}
+                </a>
 
-                 {{-- Back Button --}}
-                 <a href="{{ url()->previous() ?: $backRoute }}" class="inline-flex items-center bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 shadow-sm">
-                     {{ __('messages.Back') }}
-                 </a>
-                 {{-- Save Changes Button --}}
-                 <button type="button" id="saveChangesBtn" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
-                     {{ __('messages.Save Changes Expense') }}
-                 </button>
+                <button type="button" id="saveChangesBtn" class="dt-btn dt-btn-primary justify-center">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span id="saveBtnLabel">{{ __('messages.Save Changes Expense') }}</span>
+                </button>
             </div>
 
         </main>
-        
     </div>
-    {{-- SCRIPTS --}}
+
     @livewireScripts
-    {{-- Include Bootstrap JS ONLY if needed --}}
-    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script> --}}
-    @include('dashboard_layouts.scripts')
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="//unpkg.com/alpinejs" defer></script>
 
-    {{-- jQuery script for inline editing --}}
-    <script>
-    $(document).ready(function() {
+<script>
+$(document).ready(function () {
 
-        // --- 1. Double-click to make a field editable ---
-        // (This behavior is unchanged)
-        $(".editable").dblclick(function() {
-            $(this).prop('readonly', false)
-                   .removeClass('bg-gray-50 cursor-default')
-                   .addClass('bg-white ring-1 ring-blue-500');
-            $(this).focus();
-        });
-
-        // --- 2. Store original value on focus ---
-        // (This behavior is unchanged)
-        $(".editable").focus(function() {
-            $(this).data('originalValue', $(this).val());
-            $(this).removeClass('border-green-500 border-red-500'); // Clear old status borders
-        });
-
-        // --- 3. Blur (Clicking away) ---
-        // (MODIFIED: All saving logic has been REMOVED from here)
-        $(".editable").blur(function() {
-            var inputElement = $(this);
-            // This now *only* makes the field read-only again. It does NOT save.
-            inputElement.prop('readonly', true)
-                        .addClass('bg-gray-50 cursor-default')
-                        .removeClass('bg-white ring-1 ring-blue-500');
-        });
-
-        // --- 4. Save Changes Button Click ---
-        // (MODIFIED: All saving logic is MOVED here)
-        $('#saveChangesBtn').click(function() {
-            var saveButton = $(this); // Get the button
-            
-            // Get shared info
-            var EntrepriseId = "{{ Auth::user()->entreprise_id }}";
-            var updatedUrl = '';
-            @if(Auth::user()->hasRole('Responsable de projet')) updatedUrl = '/Responsable_de_projet/Enterprise_infos/updateInfos'; @endif
-            @if(Auth::user()->hasRole('Admin')) updatedUrl = '/admin/Enterprise_infos/updateInfos'; @endif
-            @if(Auth::user()->hasRole('Employee')) updatedUrl = '/employee/Enterprise_infos/updateInfos'; @endif
-            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) updatedUrl = '/Responsable_gestionnaire/Enterprise_infos/updateInfos'; @endif
-
-            if (!updatedUrl) {
-                alert(@json(__('messages.Cannot save. No permissions expense')));
-                return; 
-            }
-            
-            // Give user feedback on the button
-            saveButton.prop('disabled', true).removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-yellow-500').text(@json(__('messages.Saving Expense...')));
-
-            var hasErrors = false;
-
-            // Loop through EACH editable field on the page
-            $(".editable").each(function() {
-                var inputElement = $(this);
-                var newContent = inputElement.val();
-                var originalValue = inputElement.data('originalValue');
-
-                // Make it read-only (in case it's still in focus)
-                inputElement.prop('readonly', true)
-                            .addClass('bg-gray-50 cursor-default')
-                            .removeClass('bg-white ring-1 ring-blue-500');
-
-                // Check if value actually changed. If not, skip it.
-                if (newContent === originalValue || originalValue === undefined) {
-                    return; // 'continue' in a .each() loop
-                }
-
-                // --- This is the saving logic ---
-                var columnName = inputElement.attr('name');
-                inputElement.addClass('border-yellow-400'); // Saving indicator
-
-                $.ajax({
-                    url: updatedUrl,
-                    type: 'post',
-                    async: false, // Make calls sequential to avoid race conditions (safer)
-                    data: {
-                        content: newContent,
-                        id: EntrepriseId,
-                        column: columnName,
-                        _token: $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        console.log("Update successful:", columnName);
-                        inputElement.data('originalValue', newContent); // Update original value
-                        inputElement.removeClass('border-yellow-400 border-red-500').addClass('border-green-500');
-                        setTimeout(() => inputElement.removeClass('border-green-500'), 2000);
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        console.error("Update failed:", columnName);
-                        inputElement.removeClass('border-yellow-400 border-green-500').addClass('border-red-500');
-                        inputElement.val(originalValue); // Revert on error
-                        hasErrors = true; // Mark that an error occurred
-                    }
-                });
-            });
-
-            // --- All fields have been processed, update button feedback ---
-            saveButton.prop('disabled', false);
-            if (hasErrors) {
-                saveButton.removeClass('bg-yellow-500').addClass('bg-red-600').text(@json(__('messages.Error Expense!')));
-                alert(@json(__('messages.Some changes failed to save. Please check fields marked in red.')));
-            } else {
-                saveButton.removeClass('bg-yellow-500').addClass('bg-green-600').text(@json(__('messages.Saved Expense!')));
-            }
-            
-            // Reset button text after 2 seconds
-            setTimeout(() => {
-                saveButton.removeClass('bg-green-600 bg-red-600').addClass('bg-blue-600 hover:bg-blue-700').text(@json(__('messages.Save Changes Expense')));
-            }, 2000);
-        });
+    // ── Double-click to edit ──
+    $('.editable').dblclick(function () {
+        $(this).prop('readonly', false)
+               .removeClass('is-saved is-error')
+               .addClass('is-editing')
+               .focus();
     });
+
+    // ── Store value on focus ──
+    $('.editable').focus(function () {
+        $(this).data('originalValue', $(this).val());
+    });
+
+    // ── Blur: make read-only again ──
+    $('.editable').blur(function () {
+        $(this).prop('readonly', true).removeClass('is-editing');
+    });
+
+    // ── Save button ──
+    $('#saveChangesBtn').click(function () {
+        const btn   = $(this);
+        const label = $('#saveBtnLabel');
+        const banner= $('#saveBanner');
+
+        let updatedUrl = '';
+        @if(Auth::user()->hasRole('Responsable de projet'))               updatedUrl = '/Responsable_de_projet/Enterprise_infos/updateInfos'; @endif
+        @if(Auth::user()->hasRole('Admin'))                               updatedUrl = '/admin/Enterprise_infos/updateInfos'; @endif
+        @if(Auth::user()->hasRole('Employee'))                            updatedUrl = '/employee/Enterprise_infos/updateInfos'; @endif
+        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) updatedUrl = '/Responsable_gestionnaire/Enterprise_infos/updateInfos'; @endif
+
+        if (!updatedUrl) {
+            alert(@json(__('messages.Cannot save. No permissions expense')));
+            return;
+        }
+
+        btn.prop('disabled', true);
+        label.text(@json(__('messages.Saving Expense...')));
+        banner.addClass('hidden');
+
+        let hasErrors = false;
+        let hasChanges = false;
+
+        $('.editable').each(function () {
+            const input = $(this);
+            const newVal = input.val();
+            const oldVal = input.data('originalValue');
+
+            input.prop('readonly', true).removeClass('is-editing');
+            if (newVal === oldVal || oldVal === undefined) return;
+
+            hasChanges = true;
+            const col = input.attr('name');
+
+            $.ajax({
+                url: updatedUrl, type: 'post', async: false,
+                data: {
+                    content: newVal,
+                    id: '{{ Auth::user()->entreprise_id }}',
+                    column: col,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function () {
+                    input.data('originalValue', newVal)
+                         .addClass('is-saved')
+                         .removeClass('is-error');
+                    setTimeout(() => input.removeClass('is-saved'), 2500);
+                },
+                error: function () {
+                    input.val(oldVal).addClass('is-error').removeClass('is-saved');
+                    hasErrors = true;
+                }
+            });
+        });
+
+        btn.prop('disabled', false);
+
+        if (!hasChanges) {
+            // Nothing changed
+            banner.html('<svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>' + @json(__('messages.No changes to save!')) + '</span>')
+                         .attr('class', 'mb-4 flex items-center gap-3 px-4 py-3 rounded-xl border relative text-sm font-medium bg-slate-50 border-slate-200 text-slate-600');
+            label.text(@json(__('messages.Save Changes Expense')));
+        } else if (hasErrors) {
+            banner.html('<svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg><span>' + @json(__('messages.Some changes failed to save. Please check fields marked in red.')) + '</span>')
+                         .attr('class', 'mb-4 flex items-center gap-3 px-4 py-3 rounded-xl border relative text-sm font-medium bg-red-50 border-red-200 text-red-800');
+            label.text(@json(__('messages.Error Expense!')));
+            setTimeout(() => { label.text(@json(__('messages.Save Changes Expense'))); }, 3000);
+        } else {
+            banner.html('<svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span>' + @json(__('messages.Saved Expense!')) + '</span>')
+                         .attr('class', 'mb-4 flex items-center gap-3 px-4 py-3 rounded-xl border relative text-sm font-medium bg-emerald-50 border-emerald-200 text-emerald-800');
+            label.text(@json(__('messages.Saved Expense!')));
+            setTimeout(() => { label.text(@json(__('messages.Save Changes Expense'))); banner.addClass('hidden'); }, 3000);
+        }
+
+        banner.removeClass('hidden');
+    });
+});
 </script>
 </body>
+</html>

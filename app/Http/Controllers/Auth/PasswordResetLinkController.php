@@ -36,7 +36,7 @@ class PasswordResetLinkController extends Controller
         // Turnstile Validation
         $turnstileResponse = $request->input('cf-turnstile-response');
         if (!$turnstileResponse) {
-            return back()->withInput()->withErrors(['cf-turnstile-response' => __('Veuillez cocher la case pour prouver que vous n\'êtes pas un robot.')]);
+            return back()->withInput()->withErrors(['cf-turnstile-response' => __('messages.auth_turnstile_required')]);
         }
 
         $verify = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
@@ -47,11 +47,14 @@ class PasswordResetLinkController extends Controller
 
         if (!$verify->json('success')) {
             Log::warning('Turnstile verification failed for password reset link request.', ['response' => $verify->json()]);
-            return back()->withInput()->withErrors(['cf-turnstile-response' => __('La validation de sécurité a échoué. Veuillez réessayer.')]);
+            return back()->withInput()->withErrors(['cf-turnstile-response' => __('messages.auth_turnstile_failed')]);
         }
 
         $request->validate([
             'email' => ['required', 'email'],
+        ], [
+            'email.required' => __('messages.auth_val_email_required'),
+            'email.email' => __('messages.auth_val_email_invalid'),
         ]);
 
         // We will send the password reset link to this user. Once we have attempted

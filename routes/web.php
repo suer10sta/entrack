@@ -48,7 +48,7 @@ use Illuminate\Support\Facades\Http;
 |
 */
 
-Route::get('/', function () {
+$trackPublicVisit = function () {
     try {
         $ip = request()->ip();
         $country = null;
@@ -67,7 +67,7 @@ Route::get('/', function () {
                     $city = $response['city'] ?? null;
                 }
             } catch (\Throwable $e) {
-                // Ignore geo lookup failures to keep homepage responsive.
+                // Ignore geo lookup failures to keep the public pages responsive.
             }
         }
 
@@ -101,11 +101,58 @@ Route::get('/', function () {
             'device_type' => $deviceType,
         ]);
     } catch (\Throwable $e) {
-        // Never block the homepage if tracking fails.
+        // Never block the public pages if tracking fails.
     }
+};
 
-    return view('welcome');
+Route::get('/', function () use ($trackPublicVisit) {
+    $trackPublicVisit();
+
+    return view('home.index');
 })->name("welcome");
+
+Route::get('/produit', function () use ($trackPublicVisit) {
+    $trackPublicVisit();
+
+    return view('product.index');
+})->name("produit");
+
+Route::get('/tarifs', function () use ($trackPublicVisit) {
+    $trackPublicVisit();
+
+    // Guests start with the free trial; authenticated users go straight
+    // to the existing Stripe checkout / upgrade flow (plans solo/premium/pro
+    // handled by SubscriptionController@choosePlan).
+    $isGuest = auth()->guest();
+    $planLinks = [
+        'solo' => $isGuest ? route('register') : route('subscription.choose', ['plan' => 'solo']),
+        'premium' => $isGuest ? route('register') : route('subscription.choose', ['plan' => 'premium']),
+        'pro' => $isGuest ? route('register') : route('subscription.choose', ['plan' => 'pro']),
+    ];
+    $trialLink = $isGuest ? route('register') : route('profile.upgrade');
+
+    return view('pricing.index', compact('planLinks', 'trialLink'));
+})->name("tarifs");
+
+Route::get('/mentions-legales', function () {
+    return view('legal.mentions');
+})->name("mentions-legales");
+
+Route::get('/confidentialite', function () {
+    return view('legal.confidentialite');
+})->name("confidentialite");
+
+Route::get('/cookies', function () {
+    return view('legal.cookies');
+})->name("cookies");
+
+Route::get('/cgu', function () {
+    return view('legal.cgu');
+})->name("cgu");
+
+Route::get('/cgv', function () {
+    return view('legal.cgv');
+})->name("cgv");
 
 Route::get('/contact', function () {
     return view('components.Home_page.contact');

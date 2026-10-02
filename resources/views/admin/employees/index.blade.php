@@ -33,7 +33,7 @@
             }
             #employeesTable tbody tr:hover {
                 transform: translateY(-1px);
-                border-color: rgba(59, 130, 246, 0.45); /* blue-500/45 */
+                border-color: rgba(45, 112, 128, 0.45);
                 box-shadow:
                     0 16px 40px rgba(15, 23, 42, 0.10),
                     0 3px 10px rgba(15, 23, 42, 0.08);
@@ -98,7 +98,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 flex h-screen overflow-hidden">
+<body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
 
     {{-- Sidebar Component --}}
     @if(Auth::user()->hasRole('Admin'))
@@ -114,102 +114,106 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#eaebef] p-4 sm:p-6 lg:p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
+
+            {{-- Page heading (same design as Clients Reports page) --}}
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
+                <div class="min-w-0">
+                    <p class="dt-overline mb-1">{{ __('messages.Reports') }}</p>
+                    <h1 class="text-[22px] sm:text-[24px] font-bold tracking-tight text-[#0B2638] leading-tight">
+                        {{ __('messages.Employees Table') }}
+                    </h1>
+                </div>
+
+                {{-- Buttons --}}
+                @php
+                    $user = Auth::user();
+                    $isSoloPlan = optional(optional($user)->entreprise)->type_compt === 'solo';
+                @endphp
+
+                <div class="flex flex-col sm:flex-row sm:flex-wrap gap-2 w-full sm:w-auto">
+                    {{-- Report Button --}}
+                    @php
+                        $reportRoute = '#';
+                        if (Auth::user()->hasRole('Responsable de projet')) $reportRoute = route('Responsable_de_projet.Employeesrepports.downloadRepports');
+                        elseif (Auth::user()->hasRole('Admin')) $reportRoute = route('admin.Employeesrepports.downloadRepports');
+                        elseif (Auth::user()->hasRole('Employee')) $reportRoute = route('employee.Employeesrepports.downloadRepports');
+                        elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $reportRoute = route('Responsable_gestionnaire.Employeesrepports.downloadRepports');
+                    @endphp
+                    <a href="{{ $reportRoute }}" class="dt-btn dt-btn-ghost w-full sm:w-auto">
+                       <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                        {{ __('messages.Reports PDF') }}
+                    </a>
+
+                    {{-- Add Team Button --}}
+                    @can('Add teams')
+                       <a href="{{ route('admin.teams.create') }}" class="dt-btn dt-btn-teal w-full sm:w-auto">
+                          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                          {{ __('messages.Add Team') }}
+                       </a>
+                    @endcan
+
+                    {{-- Add Employee Button --}}
+                    @unless($isSoloPlan)
+                        @can('Add employee')
+                            <a href="{{ route('admin.employees.create') }}" class="dt-btn dt-btn-teal w-full sm:w-auto">
+                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                                {{ __('messages.Add Employee') }}
+                            </a>
+                        @endcan
+                    @endunless
+
+                     {{-- View Archived Employees Button (opens the archived list) --}}
+                     @if(Auth::user()->hasRole('Admin'))
+                        <a href="{{ route('admin.employeesArchived.archiveIndex') }}" class="dt-btn dt-btn-ghost w-full sm:w-auto" title="{{ __('messages.Archived Employees') }}">
+                           <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
+                            {{ __('messages.Archived Employees') }}
+                        </a>
+                     @endif
+                </div>
+            </div>
 
             {{-- Container for the table --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-
-                {{-- Header Section --}}
-                <div class="p-4 sm:p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <h6 class="text-lg font-semibold text-gray-900">{{ __('messages.Employees Table') }}</h6>
-
-                    {{-- Buttons --}}
-                    @php
-                        $user = Auth::user();
-                        $isSoloPlan = optional(optional($user)->entreprise)->type_compt === 'solo';
-                    @endphp
-
-                    <div class="flex flex-col sm:flex-row sm:flex-wrap gap-2 w-full sm:w-auto">
-                        {{-- Report Button --}}
-                        @php
-                            $reportRoute = '#';
-                            if (Auth::user()->hasRole('Responsable de projet')) $reportRoute = route('Responsable_de_projet.Employeesrepports.downloadRepports');
-                            elseif (Auth::user()->hasRole('Admin')) $reportRoute = route('admin.Employeesrepports.downloadRepports');
-                            elseif (Auth::user()->hasRole('Employee')) $reportRoute = route('employee.Employeesrepports.downloadRepports');
-                            elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $reportRoute = route('Responsable_gestionnaire.Employeesrepports.downloadRepports');
-                        @endphp
-                        <a href="{{ $reportRoute }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 text-sm font-medium px-4 py-2 rounded-lg flex items-center justify-center gap-1.5 w-full sm:w-auto">
-                           <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                           {{ __('messages.Reports PDF') }}
-                        </a>
-
-                        {{-- Add Team Button --}}
-                        @can('Add teams')
-                           <a href="{{ route('admin.teams.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center justify-center gap-1.5 w-full sm:w-auto">
-                              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                              {{ __('messages.Add Team') }}
-                           </a>
-                        @endcan
-
-                        {{-- Add Employee Button --}}
-                        @unless($isSoloPlan)
-                            @can('Add employee')
-                                <a href="{{ route('admin.employees.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center justify-center gap-1.5 w-full sm:w-auto">
-                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                                    {{ __('messages.Add Employee') }}
-                                </a>
-                            @endcan
-                        @endunless
-
-                         {{-- View Archive Button --}}
-                         @if(Auth::user()->hasRole('Admin'))
-                            <a href="{{ route('admin.employeesArchived.archiveIndex') }}" class="bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center justify-center gap-1.5 w-full sm:w-auto">
-                               <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
-                                {{ __('messages.Archive') }}
-                            </a>
-                         @endif
-                    </div>
-                </div>
+            <div class="dt-card overflow-hidden">
 
                 {{-- Session Message Alert --}}
                 @if(session('message'))
-                    <div class="m-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative" role="alert">
-                        <span class="block sm:inline">{{ session('message') }}</span>
-                        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-green-700 hover:text-green-900 font-bold text-xl" aria-label="Close">
+                    <div class="m-4 sm:m-5 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl relative flex items-center gap-2" role="alert">
+                        <span class="block sm:inline text-[13px] font-medium">{{ session('message') }}</span>
+                        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-emerald-600 hover:text-emerald-800 font-bold text-xl" aria-label="Close">
                            &times;
                         </button>
                     </div>
                 @endif
 
                 {{-- Table Wrapper --}}
-                <div class="p-4 sm:p-6">
-                    <div>
+                <div class="overflow-x-auto custom-scrollbar">
                         <table id="employeesTable" class="w-full text-left border-collapse table-auto">
-                            <thead class="border-b border-gray-200 bg-gray-50">
-                                <tr>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left whitespace-nowrap"></th> 
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left whitespace-nowrap">{{ __('messages.Name') }}</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left whitespace-nowrap">{{ __('messages.Email') }}</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left whitespace-nowrap">{{ __('messages.Phone') }}</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Status') }}</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Age') }}</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left whitespace-nowrap">{{ __('messages.CNSS') }}</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left whitespace-nowrap">{{ __('messages.Bank Acc') }}</th> 
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-right whitespace-nowrap">{{ __('messages.Salary') }}</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-right whitespace-nowrap">{{ __('messages.Cost/Hr') }}</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.WorkHour Limit') }}</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-right whitespace-nowrap">{{ __('messages.CNSS Cot') }}</th> 
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-right whitespace-nowrap">{{ __('messages.AMO Cot') }}</th> 
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Release') }}</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-left whitespace-nowrap">{{ __('messages.Role') }}</th>
-                                    <th class="px-2 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Action') }}</th>
+                            <thead class="border-b border-slate-100 bg-slate-50/80">
+                                <tr class="dt-table-head">
+                                    <th class="px-4 py-3 text-left whitespace-nowrap"></th>
+                                    <th class="px-4 py-3 text-left whitespace-nowrap min-w-[150px]">{{ __('messages.Name') }}</th>
+                                    <th class="px-4 py-3 text-left whitespace-nowrap min-w-[140px]">{{ __('messages.Email') }}</th>
+                                    <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Phone') }}</th>
+                                    <th class="px-4 py-3 text-center whitespace-nowrap">{{ __('messages.Status') }}</th>
+                                    <th class="px-4 py-3 text-center whitespace-nowrap">{{ __('messages.Age') }}</th>
+                                    <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.CNSS') }}</th>
+                                    <th class="px-4 py-3 text-left whitespace-nowrap min-w-[130px]">{{ __('messages.Bank Acc') }}</th>
+                                    <th class="px-4 py-3 text-right whitespace-nowrap">{{ __('messages.Salary') }}</th>
+                                    <th class="px-4 py-3 text-right whitespace-nowrap">{{ __('messages.Cost/Hr') }}</th>
+                                    <th class="px-4 py-3 text-center whitespace-nowrap">{{ __('messages.WorkHour Limit') }}</th>
+                                    <th class="px-4 py-3 text-right whitespace-nowrap">{{ __('messages.CNSS Cot') }}</th>
+                                    <th class="px-4 py-3 text-right whitespace-nowrap">{{ __('messages.AMO Cot') }}</th>
+                                    <th class="px-4 py-3 text-center whitespace-nowrap">{{ __('messages.Release') }}</th>
+                                    <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Role') }}</th>
+                                    <th class="px-4 py-3 text-center whitespace-nowrap min-w-[110px]">{{ __('messages.Action') }}</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200">
+                            <tbody class="divide-y divide-slate-100">
                                 @forelse($employees as $employee)
-                                <tr class="employee-row hover:bg-gray-50" data-employee-row aria-expanded="true">
+                                <tr class="employee-row hover:bg-slate-50/70 transition-colors" data-employee-row aria-expanded="true">
                                     {{-- Avatar/Initials --}}
-                                    <td data-label="" data-span="2" class="px-2 py-2 whitespace-nowrap employee-toggle-cell" data-employee-toggle>
+                                    <td data-label="" data-span="2" class="px-4 py-2.5 whitespace-nowrap employee-toggle-cell" data-employee-toggle>
                                         @php
                                             $colors = ['#2ECC71', '#BDC3C7', '#F39C12', '#E74C3C', '#9B59B6', '#2E86C1','#641E16','#2C3E50','#F4D03F','#F4D03F'];
                                             $bgColor = $colors[$loop->index % count($colors)];
@@ -229,7 +233,7 @@
                                             @endif
 
                                             <a href="{{ route('admin.employees.show', $employee->id) }}"
-                                               class="min-w-0 truncate text-sm font-extrabold text-slate-900 hover:underline">
+                                               class="min-w-0 truncate text-[13px] font-bold text-[#0B2638] hover:underline">
                                                 {{ $employee->name }}
                                             </a>
                                             </div>
@@ -255,25 +259,25 @@
                                         </div>
                                     </td>
                                     {{-- Name with Link --}}
-                                    <td data-label="{{ __('messages.Name') }}" class="employee-name-cell px-2 py-2 text-xs text-gray-700 editable whitespace-normal break-words font-medium"
+                                    <td data-label="{{ __('messages.Name') }}" class="employee-name-cell px-4 py-2.5 text-[13px] text-slate-700 editable whitespace-normal break-words font-medium"
                                         data-id="{{$employee->id}}" data-column="name" title="Double-click to edit">
                                         <a href="{{ route('admin.employees.show', $employee->id) }}"
-                                           class="text-blue-600 hover:underline font-medium">
+                                           class="text-[#2D7080] hover:text-[#0B2638] hover:underline font-medium">
                                             {{ $employee->name }}
                                         </a>
                                     </td>
                                     {{-- Email --}}
-                                    <td data-label="{{ __('messages.Email') }}" class="px-2 py-2 text-xs text-gray-700 editable whitespace-normal break-all" data-id="{{$employee->id}}" data-column="email">{{$employee->email}}</td>
+                                    <td data-label="{{ __('messages.Email') }}" class="px-4 py-2.5 text-[13px] text-slate-600 editable whitespace-normal break-all max-w-[220px]" data-id="{{$employee->id}}" data-column="email">{{$employee->email}}</td>
                                     {{-- Phone --}}
-                                    <td data-label="{{ __('messages.Phone') }}" class="px-2 py-2 text-xs text-gray-700 editable whitespace-nowrap" data-id="{{$employee->id}}" data-column="phoneNumber">{{$employee->phoneNumber}}</td>
+                                    <td data-label="{{ __('messages.Phone') }}" class="px-4 py-2.5 text-[13px] text-slate-600 editable whitespace-nowrap" data-id="{{$employee->id}}" data-column="phoneNumber">{{$employee->phoneNumber}}</td>
                                     
                                     {{-- Status Badge/Button --}}
-                                    <td data-label="{{ __('messages.Status') }}" class="px-2 py-2 text-xs text-gray-700">
+                                    <td data-label="{{ __('messages.Status') }}" class="px-4 py-2.5 text-[13px] text-slate-600 text-center whitespace-nowrap">
                                             @php
                                                 $user = \App\Models\User::find($employee->user_id);
                                                 $statusRoute = '#';
                                                 $statusText = $user && $user->is_activate ? __('messages.Active') : __('messages.Inactive');
-                                                $buttonColor = $user && $user->is_activate ? 'green' : 'red';
+                                                $statusBadge = $user && $user->is_activate ? 'dt-badge-success' : 'dt-badge-danger';
 
                                                 if ($user && $user->is_activate) {
                                                     if (Auth::user()->hasRole('Admin')) $statusRoute = route('admin.employee.deactivate', $employee->id);
@@ -291,33 +295,33 @@
                                                   class="inline">
                                                 @csrf
                                                 <button type="submit"
-                                                        class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-{{ $buttonColor }}-100 text-{{ $buttonColor }}-800 border-none cursor-pointer whitespace-nowrap">
-                                                    {{ $statusText }}
+                                                        class="dt-badge {{ $statusBadge }} border-none cursor-pointer whitespace-nowrap">
+                                                    <span class="dt-dot"></span>{{ $statusText }}
                                                 </button>
                                             </form>
                                         </td>
 
                                     {{-- Age --}}
-                                    <td data-label="{{ __('messages.Age') }}" class="px-2 py-2 whitespace-nowrap text-xs text-gray-700 text-center editable" data-id="{{$employee->id}}" data-column="age">{{$employee->age}}</td>
+                                    <td data-label="{{ __('messages.Age') }}" class="px-4 py-2.5 whitespace-nowrap text-[13px] text-slate-600 text-center editable" data-id="{{$employee->id}}" data-column="age">{{$employee->age}}</td>
                                     {{-- CNSS --}}
-                                    <td data-label="{{ __('messages.CNSS') }}" class="px-2 py-2 text-xs text-gray-700 editable whitespace-normal break-words" data-id="{{$employee->id}}" data-column="cnss">{{$employee->cnss}}</td>
+                                    <td data-label="{{ __('messages.CNSS') }}" class="px-4 py-2.5 text-[13px] text-slate-600 editable whitespace-normal break-words" data-id="{{$employee->id}}" data-column="cnss">{{$employee->cnss}}</td>
                                     {{-- Bank Account --}}
-                                    <td data-label="{{ __('messages.Bank Acc') }}" class="px-2 py-2 text-xs text-gray-700 editable whitespace-normal break-words" data-id="{{$employee->id}}" data-column="bankAccountNumber">{{$employee->bankAccountNumber}}</td>
+                                    <td data-label="{{ __('messages.Bank Acc') }}" class="px-4 py-2.5 text-[13px] text-slate-600 editable whitespace-normal break-words" data-id="{{$employee->id}}" data-column="bankAccountNumber">{{$employee->bankAccountNumber}}</td>
                                     {{-- Salary --}}
-                                    <td data-label="{{ __('messages.Salary') }}" class="px-2 py-2 whitespace-nowrap text-xs text-green-600 font-medium text-right editable" data-id="{{$employee->id}}" data-column="salary">{{$employee->salary}} €</td>
+                                    <td data-label="{{ __('messages.Salary') }}" class="px-4 py-2.5 whitespace-nowrap text-[13px] text-emerald-700 font-semibold text-right editable" data-id="{{$employee->id}}" data-column="salary">{{$employee->salary}} €</td>
                                     {{-- Cost per hour --}}
-                                    <td data-label="{{ __('messages.Cost/Hr') }}" class="px-2 py-2 whitespace-nowrap text-xs text-green-600 font-medium text-right editable" data-id="{{$employee->id}}" data-column="cost_per_hour">{{number_format($employee->cost_per_hour, 2, '.', '')}} €</td>
+                                    <td data-label="{{ __('messages.Cost/Hr') }}" class="px-4 py-2.5 whitespace-nowrap text-[13px] text-emerald-700 font-semibold text-right editable" data-id="{{$employee->id}}" data-column="cost_per_hour">{{number_format($employee->cost_per_hour, 2, '.', '')}} €</td>
                                     {{-- Hour Limit --}}
-                                    <td data-label="{{ __('messages.WorkHour Limit') }}" class="px-2 py-2 whitespace-nowrap text-xs text-gray-700 text-center editable" data-id="{{$employee->id}}" data-column="workHours_limit">{{$employee->workHours_limit}} h</td>
+                                    <td data-label="{{ __('messages.WorkHour Limit') }}" class="px-4 py-2.5 whitespace-nowrap text-[13px] text-slate-600 text-center editable" data-id="{{$employee->id}}" data-column="workHours_limit">{{$employee->workHours_limit}} h</td>
                                     {{-- CNSS Cotisation --}}
-                                    <td data-label="{{ __('messages.CNSS Cot') }}" class="px-2 py-2 whitespace-nowrap text-xs text-green-600 font-medium text-right editable" data-id="{{$employee->id}}" data-column="Cotisation_CNSS">{{$employee->Cotisation_CNSS}} €</td>
+                                    <td data-label="{{ __('messages.CNSS Cot') }}" class="px-4 py-2.5 whitespace-nowrap text-[13px] text-emerald-700 font-semibold text-right editable" data-id="{{$employee->id}}" data-column="Cotisation_CNSS">{{$employee->Cotisation_CNSS}} €</td>
                                     {{-- AMO Cotisation --}}
-                                    <td data-label="{{ __('messages.AMO Cot') }}" class="px-2 py-2 whitespace-nowrap text-xs text-green-600 font-medium text-right editable" data-id="{{$employee->id}}" data-column="Cotisation_AMO">{{$employee->Cotisation_AMO}} €</td>
+                                    <td data-label="{{ __('messages.AMO Cot') }}" class="px-4 py-2.5 whitespace-nowrap text-[13px] text-emerald-700 font-semibold text-right editable" data-id="{{$employee->id}}" data-column="Cotisation_AMO">{{$employee->Cotisation_AMO}} €</td>
                                     {{-- Release Date --}}
-                                    <td data-label="{{ __('messages.Release') }}" class="px-2 py-2 text-xs text-gray-700 text-center editable whitespace-normal" data-id="{{$employee->id}}" data-column="Date_Release">{{$employee->Date_Release}}</td>
-                                    
+                                    <td data-label="{{ __('messages.Release') }}" class="px-4 py-2.5 text-[13px] text-slate-600 text-center editable whitespace-normal" data-id="{{$employee->id}}" data-column="Date_Release">{{$employee->Date_Release}}</td>
+
                                     {{-- Role Badges --}}
-                                    <td data-label="{{ __('messages.Role') }}" class="px-1 py-2 text-xs text-gray-700">
+                                    <td data-label="{{ __('messages.Role') }}" class="px-4 py-2.5 text-[13px] text-slate-600">
                                          <div class="flex flex-col gap-0.5 max-h-[60px] overflow-hidden leading-tight">
                                              @forelse($employee->roles as $role)
                                                 <span class="inline-block px-1.5 py-0.5 text-[10px] font-medium rounded {{ $role=='SuperAdmin' || $role=='Admin' ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-purple-100 text-purple-700' }}">
@@ -332,7 +336,7 @@
                                     </td>
 
                                     {{-- Action Buttons (icons) --}}
-                                    <td data-label="{{ __('messages.Action') }}" data-span="2" class="px-2 py-2 text-xs text-gray-700">
+                                    <td data-label="{{ __('messages.Action') }}" data-span="2" class="px-4 py-2.5 text-[13px] text-slate-600">
                                         @php
                                             $canEditRoles = Auth::user()->can('Edit employee roles');
                                             $canDelete = Auth::user()->can('Delete employee');
@@ -368,7 +372,7 @@
                                             <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Archive this employee?') }}');" class="inline">
                                                 @csrf
                                                 <button type="submit" title="{{ __('messages.Archive employee') }}"
-                                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-gray-500 hover:bg-gray-600">
+                                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 hover:border-slate-300 transition-colors">
                                                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                               d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
@@ -382,7 +386,7 @@
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" title="{{ __('messages.Delete employee') }}"
-                                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-red-600 hover:bg-red-700">
+                                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors">
                                                         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                   d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862A2 2 0 015.995 19.142L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16" />
@@ -395,14 +399,16 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                     <td colspan="16" class="px-6 py-4 text-center text-sm text-gray-500">
-                                         {{ __('messages.No employees found.') }}
+                                     <td colspan="16" class="px-6 py-10 text-center">
+                                         <div class="dt-empty-icon mx-auto mb-3">
+                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 21v-2a4 4 0 00-8 0v2m8 0H5a2 2 0 01-2-2V7a2 2 0 012-2h5l2 2h5a2 2 0 012 2v12a2 2 0 01-2 2z"/></svg>
+                                         </div>
+                                         <p class="text-[13.5px] font-semibold text-[#0B2638]">{{ __('messages.No employees found.') }}</p>
                                      </td>
                                 </tr>
                                 @endforelse
                             </tbody>
                         </table>
-                    </div>
                 </div>
             </div>
 
@@ -423,7 +429,7 @@
             var originalContent = $(this).text().trim();
             var cellWidth = $(this).outerWidth();
 
-            $(this).html("<input type='text' value='" + originalContent + "' class='w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-1' style='min-width: " + cellWidth + "px;' />");
+            $(this).html("<input type='text' value='" + originalContent + "' class='w-full border-slate-300 rounded-lg shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080]/25 sm:text-sm p-1 outline-none' style='min-width: " + cellWidth + "px;' />");
 
             var input = $(this).children('input').first();
             input.focus();

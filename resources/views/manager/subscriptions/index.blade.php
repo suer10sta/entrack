@@ -10,34 +10,34 @@
     <div class="space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-2xl font-semibold text-gray-900">{{ __('messages.Subscriptions overview') }}</h2>
+                <h2 class="text-[22px] font-bold tracking-tight text-[#0B2638]">{{ __('messages.Subscriptions overview') }}</h2>
                 <p class="mt-1 text-sm text-gray-500">
                     {{ __('messages.Plans distribution and entreprise subscription status.') }}
                 </p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             <a href="{{ route('manager.subscriptions.index', ['plan' => 'solo']) }}"
-               class="bg-white rounded-lg shadow-sm border p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 {{ $activePlan === 'solo' ? 'border-blue-600 ring-1 ring-blue-600' : 'border-gray-200 hover:border-gray-300' }}">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Solo plans') }}</p>
-                <p class="text-3xl font-semibold text-gray-900">{{ $planCounts['solo'] ?? 0 }}</p>
+               class="dt-stat dt-card-hover {{ $activePlan === 'solo' ? '!border-[#E7B84B] ring-1 ring-[#E7B84B]' : '' }}">
+                <p class="dt-stat-label">{{ __('messages.Solo plans') }}</p>
+                <p class="dt-stat-value">{{ $planCounts['solo'] ?? 0 }}</p>
             </a>
             <a href="{{ route('manager.subscriptions.index', ['plan' => 'premium']) }}"
-               class="bg-white rounded-lg shadow-sm border p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 {{ $activePlan === 'premium' ? 'border-emerald-600 ring-1 ring-emerald-600' : 'border-gray-200 hover:border-gray-300' }}">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Premium plans') }}</p>
-                <p class="text-3xl font-semibold text-emerald-600">{{ $planCounts['premium'] ?? 0 }}</p>
+               class="dt-stat dt-card-hover {{ $activePlan === 'premium' ? '!border-[#E7B84B] ring-1 ring-[#E7B84B]' : '' }}">
+                <p class="dt-stat-label">{{ __('messages.Premium plans') }}</p>
+                <p class="dt-stat-value">{{ $planCounts['premium'] ?? 0 }}</p>
             </a>
             <a href="{{ route('manager.subscriptions.index', ['plan' => 'pro']) }}"
-               class="bg-white rounded-lg shadow-sm border p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 {{ $activePlan === 'pro' ? 'border-sky-600 ring-1 ring-sky-600' : 'border-gray-200 hover:border-gray-300' }}">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Pro plans') }}</p>
-                <p class="text-3xl font-semibold text-sky-600">{{ $planCounts['pro'] ?? 0 }}</p>
+               class="dt-stat dt-card-hover {{ $activePlan === 'pro' ? '!border-[#E7B84B] ring-1 ring-[#E7B84B]' : '' }}">
+                <p class="dt-stat-label">{{ __('messages.Pro plans') }}</p>
+                <p class="dt-stat-value">{{ $planCounts['pro'] ?? 0 }}</p>
             </a>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 class="text-sm font-semibold text-gray-900 mb-1">{{ __('messages.Estimated monthly revenue') }}</h3>
-            <p class="text-2xl font-semibold text-gray-900">
+        <div class="dt-card p-5 sm:p-6">
+            <h3 class="dt-panel-title mb-1">{{ __('messages.Estimated monthly revenue') }}</h3>
+            <p class="text-[22px] font-bold tracking-tight text-[#0B2638]">
                 {{ number_format($estimatedMonthlyRevenue, 2) }} EUR
             </p>
             <p class="mt-1 text-xs text-gray-500">
@@ -45,11 +45,11 @@
             </p>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="dt-card">
             <div class="px-6 py-4 border-b border-gray-200">
                 <div class="flex items-center justify-between gap-4">
                     <div>
-                        <h3 class="text-sm font-semibold text-gray-900">{{ __('messages.Entreprises and subscriptions') }}</h3>
+                        <h3 class="dt-panel-title">{{ __('messages.Entreprises and subscriptions') }}</h3>
                         @if ($activePlan || $activeStatus === 'active')
                             @php
                                 $planLabel = $activePlan ? [
@@ -79,7 +79,7 @@
             </div>
             <div class="manager-table-wrapper p-6 overflow-x-auto">
                 <table class="manager-table min-w-full text-left text-sm">
-                    <thead class="border-b border-gray-200 bg-gray-50">
+                    <thead class="border-b border-slate-100">
                     <tr>
                         <th class="px-4 py-2 font-semibold text-gray-600">{{ __('messages.Name') }}</th>
                         <th class="px-4 py-2 font-semibold text-gray-600">{{ __('messages.Email') }}</th>
@@ -96,7 +96,7 @@
                                 $resolvedPlanEndsAt = $planEndsAtByEntrepriseId[$entreprise->id] ?? null;
                                 $isActive = (bool) ($subscriptionStatusByEntrepriseId[$entreprise->id] ?? false);
                             @endphp
-                            <tr class="manager-card-row hover:bg-gray-50" aria-expanded="true">
+                            <tr class="manager-card-row" aria-expanded="true">
                                 <td data-label="{{ __('messages.Name') }}" data-span="2" data-manager-card-toggle class="manager-toggle-cell px-4 py-2 text-gray-900">
                                     <div class="flex items-start justify-between gap-3">
                                         <div class="min-w-0">
@@ -128,7 +128,7 @@
                                 </td>
                                 <td data-label="{{ __('messages.Actions') }}" data-span="2" class="px-4 py-2 text-right space-x-2">
                                     <a href="{{ route('manager.subscriptions.show', $entreprise) }}"
-                                       class="inline-flex items-center px-3 py-1.5 border border-blue-600 text-xs font-medium rounded text-blue-600 hover:bg-blue-50">
+                                       class="inline-flex items-center px-3 py-1.5 border border-[#2D7080] text-xs font-medium rounded text-[#2D7080] hover:bg-[#2D7080]/10">
                                         {{ __('messages.View') }}
                                     </a>
                                     @if (! method_exists($entreprise, 'isBlockingExempt') || ! $entreprise->isBlockingExempt())
@@ -167,7 +167,7 @@
     >
         <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">
+                <h3 class="text-[15px] font-bold tracking-tight text-[#0B2638]">
                     {{ __('messages.Delete entreprise') }}
                 </h3>
                 <p class="mt-1 text-sm text-gray-500" id="delete-entreprise-step-1">

@@ -1,120 +1,40 @@
-<aside class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-4"
-    id="sidenav-main">
-    <div class="sidenav-header">
-        <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
-            aria-hidden="true" id="iconSidenav"></i>
-        <a class="navbar-brand m-0"
-            href=" https://demos.creative-tim.com/argon-dashboard-pro/pages/dashboards/default.html " target="_blank">
-            <img src="{{asset('img/logo-ct-dark.png')}}" class="navbar-brand-img h-100" alt="main_logo" />
-            <span class="ms-1 font-weight-bold">SuperAdmin Dashboard</span>
+<aside class="sidenav dt-sidebar" id="sidenav-main" aria-label="Main navigation">
+    <div class="dt-sidebar__brand">
+        <a class="dt-brand" href="{{ route('superadmin.index') }}" aria-label="DalyTrac home">
+            <span class="dt-brand__mark">D</span>
+            <span class="dt-brand__copy"><strong>DalyTrac</strong><small>{{ __('messages.Admin console') }}</small></span>
         </a>
+        <button class="dt-sidebar__toggle" type="button" data-sidebar-toggle aria-label="Collapse sidebar" title="Collapse sidebar"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
     </div>
-    <hr class="horizontal dark mt-0" />
-    <div class="collapse navbar-collapse w-auto h-auto" id="sidenav-collapse-main">
-        <ul class="navbar-nav">
-        <li class="nav-item">
-                <a class="nav-link active" href="{{route('superadmin.index')}}">
-                    <span class="sidenav-mini-icon"> U </span>
-                    <i class="fa-solid fa-house" style="color: #B197FC;"></i>
-                    <span class="sidenav-normal "> Dashboard <b class="nav-link-ms-1"></b></span>
-                </a>
-                
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="collapse" aria-expanded="false" href="#usersCollapse">
-                    <span class="sidenav-mini-icon"> U </span>
-                    <i class="fa-regular fa-user" style="color: #18cd5e;"></i>
-                    <span class="sidenav-normal"> Users <b class="nav-link-text ms-1"></b></span>
-                </a>
-                <div class="collapse" id="usersCollapse">
-                <ul class="nav nav-sm flex-column">
-                  <li class="nav-item">
-                    <a class="nav-link" href="{{route('superadmin.users.index')}}">
-                      <span class="sidenav-mini-icon text-sm"> R </span>
-                      <span class="sidenav-normal "><i class="fa-solid fa-chevron-right"></i> Reports </span>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="{{route('superadmin.users.create')}}">
-                      <span class="sidenav-mini-icon text-sm"> N </span>
-                      <span class="sidenav-normal"><i class="fa-solid fa-chevron-right"></i> New User </span>
-                    </a>
-                  </li>
-                </ul>
+    <div class="dt-sidebar__section-label">{{ __('messages.Workspace') }}</div>
+    <nav class="dt-sidebar__nav">
+        <a class="dt-nav-link {{ request()->routeIs('superadmin.index') ? 'is-active' : '' }}" href="{{ route('superadmin.index') }}" title="{{ __('messages.Dashboard') }}"><span class="dt-nav-link__icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span><span class="dt-nav-link__label">{{ __('messages.Dashboard') }}</span></a>
+
+        @php($navGroups = [
+            ['key' => 'users', 'label' => __('messages.Users'), 'icon' => 'fa-regular fa-user', 'active' => request()->routeIs('superadmin.users.*'), 'links' => [['route' => 'superadmin.users.index', 'label' => __('messages.Reports')], ['route' => 'superadmin.users.create', 'label' => __('messages.New user')]]],
+            ['key' => 'enterprises', 'label' => __('messages.Enterprises'), 'icon' => 'fa-solid fa-building', 'active' => request()->routeIs('superadmin.entreprise.*'), 'links' => [['route' => 'superadmin.entreprise.index', 'label' => __('messages.Reports')]]],
+            ['key' => 'roles', 'label' => __('messages.Roles'), 'icon' => 'fa-solid fa-shield-halved', 'active' => request()->routeIs('superadmin.roles.*'), 'links' => [['route' => 'superadmin.roles.index', 'label' => __('messages.Reports')], ['route' => 'superadmin.roles.create', 'label' => __('messages.New role')]]],
+            ['key' => 'permissions', 'label' => __('messages.Permissions'), 'icon' => 'fa-solid fa-key', 'active' => request()->routeIs('superadmin.permissions.*'), 'links' => [['route' => 'superadmin.permissions.index', 'label' => __('messages.Reports')], ['route' => 'superadmin.permissions.create', 'label' => __('messages.New permission')]]],
+        ])
+        @foreach($navGroups as $group)
+            <div class="dt-nav-group">
+                <button class="dt-nav-link dt-nav-link--group {{ $group['active'] ? 'is-active' : '' }}" type="button" data-sidebar-group="{{ $group['key'] }}" aria-expanded="{{ $group['active'] ? 'true' : 'false' }}" title="{{ $group['label'] }}"><span class="dt-nav-link__icon"><i class="{{ $group['icon'] }}" aria-hidden="true"></i></span><span class="dt-nav-link__label">{{ $group['label'] }}</span><i class="fa-solid fa-chevron-down dt-nav-link__chevron" aria-hidden="true"></i></button>
+                <div class="dt-nav-submenu {{ $group['active'] ? 'is-open' : '' }}" data-sidebar-submenu="{{ $group['key'] }}">
+                    @foreach($group['links'] as $link)<a href="{{ route($link['route']) }}" title="{{ $link['label'] }}"><span>{{ $link['label'] }}</span></a>@endforeach
                 </div>
-            </li>
-
-
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="collapse" aria-expanded="false" href="#enterprisesCollapse">
-                    <span class="sidenav-mini-icon"> E </span>
-                    <i class="fa-solid fa-shop" style="color: #00aaff;"></i>
-                    <span class="sidenav-normal "> Enterprises <b class="nav-link-text ms-1"></b></span>
-                </a>
-                <div class="collapse" id="enterprisesCollapse">
-                <ul class="nav nav-sm flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{route('superadmin.entreprise.index')}}">
-                      <span class="sidenav-mini-icon text-sm"> R </span>
-                      <span class="sidenav-normal"><i class="fa-solid fa-chevron-right"></i> Reports </span>
-                    </a>
-                  </li>
-                </ul>
-                </div>
-            </li>
-
-
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="collapse" aria-expanded="false" href="#rolesCollapse">
-                    <span class="sidenav-mini-icon"> R </span>
-                    <i class="fa-solid fa-hand-sparkles" style="color: #ff1f6d;"></i>
-                    <span class="sidenav-normal"> Roles <b class="nav-link-text ms-1"></b></span>
-                </a>
-                <div class="collapse" id="rolesCollapse">
-                <ul class="nav nav-sm flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{route('superadmin.roles.index')}}">
-                      <span class="sidenav-mini-icon text-sm"> R </span>
-                      <span class="sidenav-normal"><i class="fa-solid fa-chevron-right"></i> Reports </span>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="{{route('superadmin.roles.create')}}">
-                      <span class="sidenav-mini-icon text-sm"> N </span>
-                      <span class="sidenav-normal"><i class="fa-solid fa-chevron-right"></i> New Role </span>
-                    </a>
-                  </li>
-                </ul>
-                </div>
-            </li>
-
-
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="collapse" aria-expanded="false" href="#permissionsCollapse">
-                    <span class="sidenav-mini-icon"> P </span>
-                    <i class="fa-solid fa-wand-sparkles" style="color: #ffc21a;"></i>
-                    <span class="sidenav-normal"> Permissions <b class="nav-link-text ms-1"></b></span>
-                </a>
-                <div class="collapse" id="permissionsCollapse">
-                <ul class="nav nav-sm flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{route('superadmin.permissions.index')}}">
-                      <span class="sidenav-mini-icon text-sm"> R </span>
-                      <span class="sidenav-normal"><i class="fa-solid fa-chevron-right"></i>  Reports </span>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="{{route('superadmin.permissions.create')}}">
-                      <span class="sidenav-mini-icon text-sm"> N </span>
-                      <span class="sidenav-normal"> <i class="fa-solid fa-chevron-right"></i> New Permission </span>
-                    </a>
-                  </li>
-                </ul>
-                </div>
-            </li>
-            <!-- ... -->
-        </ul>
-       
-    </div>
-
+            </div>
+        @endforeach
+    </nav>
+    <div class="dt-sidebar__footer"><span class="dt-status-dot"></span><span class="dt-sidebar__label">{{ __('messages.System operational') }}</span></div>
 </aside>
+
+<script>
+(() => {
+    const body = document.body, toggle = document.querySelector('[data-sidebar-toggle]'), key = 'dalytrac-sidebar-collapsed';
+    if (!toggle) return;
+    const setCollapsed = (collapsed) => { body.classList.toggle('dt-sidebar-collapsed', collapsed); toggle.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar'); toggle.setAttribute('title', collapsed ? 'Expand sidebar' : 'Collapse sidebar'); };
+    if (window.innerWidth >= 1200) setCollapsed(localStorage.getItem(key) === 'true');
+    toggle.addEventListener('click', () => { const collapsed = !body.classList.contains('dt-sidebar-collapsed'); setCollapsed(collapsed); if (window.innerWidth >= 1200) localStorage.setItem(key, collapsed); });
+    document.querySelectorAll('[data-sidebar-group]').forEach((group) => group.addEventListener('click', () => { const submenu = document.querySelector(`[data-sidebar-submenu="${group.dataset.sidebarGroup}"]`); const open = submenu.classList.toggle('is-open'); group.setAttribute('aria-expanded', open); }));
+})();
+</script>

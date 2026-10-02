@@ -7,6 +7,7 @@ body {
 table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 th {
@@ -16,6 +17,7 @@ th {
     font-family: Arial, sans-serif;
     font-size: 12px;
     font-weight: bold;
+    word-wrap: break-word;
 }
 
 td {
@@ -25,44 +27,16 @@ td {
     font-family: Arial, sans-serif;
     font-size: 9px;
     font-weight: normal;
+    word-wrap: break-word;
+    page-break-inside: auto;
+}
+
+tr {
+    page-break-inside: auto;
 }
 
 thead {
-    background-color: #f2f2f2;
-}
-
-
-
-.company-logo {
-    width: 80px;
-    /* Adjust the width as needed */
-    margin-right: 20px;
-    /* Add some space between the image and the header info */
-}
-
-.details {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    position: relative;
-}
-
-.details-left {
-    width: 48%;
-    font-size: 12px;
-}
-
-.details-right {
-    width: 48%;
-    font-size: 12px;
-    text-align: right;
-    position: absolute;
-    right: 0;
-    top: 0;
-}
-
-thead {
+    display: table-header-group;
     background-color: #686ce4;
     /* Updated color */
     color: white;
@@ -70,30 +44,36 @@ thead {
 }
 
 
-.footer {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    position: fixed;
-    bottom: 0;
-    /* Ensure footer sticks to the bottom */
-    left: 0;
-    /* Align footer to the left */
+
+.company-logo {
+    width: 80px;
+    /* Adjust the width as needed */
 }
 
-.footer-left {
-    width: 48%;
+.header-table {
+    width: 100%;
+    border: none;
+    margin-bottom: 20px;
+}
+
+.header-table td {
+    border: none;
+    vertical-align: middle;
+    font-size: 12px;
+}
+
+.header-right {
+    text-align: right;
+}
+
+.footer {
+    width: 100%;
+    margin-top: 20px;
     font-size: 12px;
 }
 
 .footer-right {
-    width: 48%;
-    font-size: 12px;
     text-align: right;
-    position: absolute;
-    right: 0;
-    top: 0;
 }
 
 .page-number:before {
@@ -103,29 +83,33 @@ thead {
 
 <div class="containter">
 
-
-    <div class="details">
-        <div class="details-left">
-        <img src="{{ storage_path('app/public/' . $entreprise->image) }}" alt="Company Logo" class="company-logo">
-        </div>
-        <div class="details-right">
-            <div class="header-info">
+    @php
+        $logoPath = ($entreprise && !empty($entreprise->image)) ? storage_path('app/public/' . $entreprise->image) : null;
+        $hasLogo = $logoPath && is_file($logoPath);
+    @endphp
+    <table class="header-table">
+        <tr>
+            <td style="width: 20%;">
+                @if($hasLogo)
+                <img src="{{ $logoPath }}" alt="Company Logo" class="company-logo">
+                @endif
+            </td>
+            <td class="header-right">
                 <h2>{{ __('messages.Tasks Table Reports') }}</h2>
                 <h5>{{ __('messages.Number of Tasks') }}: {{ $tasks->count() }}</h5>
-            </div>
-        </div>
-    </div>
-    <br><br><br>
+            </td>
+        </tr>
+    </table>
     <table>
         <thead>
             <tr>
-                <th>{{ __('messages.Task Name') }}</th>
-                <th>{{ __('messages.Project Name') }}</th>
-                <th>{{ __('messages.Start Date') }}</th>
-                <th>{{ __('messages.End Date') }}</th>
-                <th>{{ __('messages.Employees column') }}</th>
-                <th>{{ __('messages.Teams column header') }}</th>
-                <th>{{ __('messages.Description') }}</th>
+                <th style="width: 18%;">{{ __('messages.Task Name') }}</th>
+                <th style="width: 16%;">{{ __('messages.Project Name') }}</th>
+                <th style="width: 10%;">{{ __('messages.Start Date') }}</th>
+                <th style="width: 10%;">{{ __('messages.End Date') }}</th>
+                <th style="width: 16%;">{{ __('messages.Employees column') }}</th>
+                <th style="width: 14%;">{{ __('messages.Teams column header') }}</th>
+                <th style="width: 16%;">{{ __('messages.Description') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -137,43 +121,25 @@ thead {
                 <td>{{ $task->end }}</td>
                 <td>
                     @php
-                        // Use preloaded collection from controller to avoid N+1 queries
+                        // Use preloaded collection from controller to avoid N+1 queries.
+                        // Plain comma-separated names (no nested markup) so DomPDF can
+                        // lay out large reports without exhausting memory.
                         $taskEmployees = isset($employeesByTask) ? ($employeesByTask[$task->id] ?? collect()) : collect();
+                        $employeeNames = $taskEmployees->map(function ($empTask) {
+                            return optional($empTask->employee)->name ?? ($empTask->employee_name ?? '');
+                        })->filter()->values();
                     @endphp
-                    @forelse($taskEmployees as $empTask)
-                        <span class="badge badge-dot me-4">
-                            <i class="bg-info"></i>
-                            <span class="text-dark text-xs">
-                                {{ optional($empTask->employee)->name ?? $empTask->employee_name ?? '' }}
-                            </span>
-                        </span>
-                        <br>
-                    @empty
-                        <span class="badge badge-dot me-4">
-                            <i class="bg-info"></i>
-                            <span class="text-dark text-xs">{{ __('messages.No employees') }}</span>
-                        </span>
-                    @endforelse
+                    {{ $employeeNames->isNotEmpty() ? $employeeNames->join(', ') : __('messages.No employees') }}
                 </td>
                 <td>
                     @php
-                        // Use preloaded collection from controller to avoid N+1 queries
+                        // Use preloaded collection from controller to avoid N+1 queries.
                         $taskTeams = isset($teamsByTask) ? ($teamsByTask[$task->id] ?? collect()) : collect();
+                        $teamNames = $taskTeams->map(function ($teamTask) {
+                            return optional($teamTask->team)->name ?? '';
+                        })->filter()->values();
                     @endphp
-                    @forelse($taskTeams as $teamTask)
-                        <span class="badge badge-dot me-4">
-                            <i class="bg-info"></i>
-                            <span class="text-dark text-xs">
-                                {{ optional($teamTask->team)->name ?? '' }}
-                            </span>
-                        </span>
-                        <br>
-                    @empty
-                        <span class="badge badge-dot me-4">
-                            <i class="bg-info"></i>
-                            <span class="text-dark text-xs">{{ __('messages.No team') }}</span>
-                        </span>
-                    @endforelse
+                    {{ $teamNames->isNotEmpty() ? $teamNames->join(', ') : __('messages.No team') }}
                 </td>
                 <td>{{ $task->description }}</td>
             </tr>
@@ -183,7 +149,7 @@ thead {
 
     <div class="footer">
         <div class='footer-right'>{{ __('messages.Page Number') }}: <span class="page-number"></span></div>
-        <div class='footer-left'>{{ __('messages.Download Date') }}: {{ date('d-m-Y') }}</div>
+        <div>{{ __('messages.Download Date') }}: {{ date('d-m-Y') }}</div>
     </div>
 
 </div>

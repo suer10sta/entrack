@@ -4,7 +4,7 @@
     <div class="space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-2xl font-semibold text-gray-900">
+                <h2 class="text-[22px] font-bold tracking-tight text-[#0B2638]">
                     {{ __('messages.Subscription detail — :name', ['name' => $entreprise->name]) }}
                 </h2>
                 <p class="mt-1 text-sm text-gray-500">
@@ -18,8 +18,8 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('messages.General information') }}</h3>
+            <div class="dt-card p-5 sm:p-6">
+                <h3 class="dt-panel-title mb-3">{{ __('messages.General information') }}</h3>
                 <dl class="space-y-2 text-sm text-gray-700">
                     <div>
                         <dt class="font-medium text-gray-600">{{ __('messages.Entreprise name') }}</dt>
@@ -68,8 +68,8 @@
                 </dl>
             </div>
 
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('messages.Current subscription') }}</h3>
+            <div class="dt-card p-5 sm:p-6">
+                <h3 class="dt-panel-title mb-3">{{ __('messages.Current subscription') }}</h3>
                 @if ($hasCurrentStripeSubscription ?? false)
                     <dl class="space-y-2 text-sm text-gray-700">
                         <div>
@@ -103,13 +103,13 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="dt-card">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-sm font-semibold text-gray-900">{{ __('messages.Stripe invoices') }}</h3>
+                <h3 class="dt-panel-title">{{ __('messages.Stripe invoices') }}</h3>
             </div>
             <div class="manager-table-wrapper p-6 overflow-x-auto">
                 <table class="manager-table min-w-full text-left text-sm">
-                    <thead class="border-b border-gray-200 bg-gray-50">
+                    <thead class="border-b border-slate-100">
                     <tr>
                         <th class="px-4 py-2 font-semibold text-gray-600">{{ __('messages.Date') }}</th>
                         <th class="px-4 py-2 font-semibold text-gray-600">{{ __('messages.Total') }}</th>
@@ -133,7 +133,7 @@
                                 $displayInvoiceNumber = trim($rawNumber . ' - ' . $seq);
                             }
                         @endphp
-                        <tr class="manager-card-row hover:bg-gray-50" aria-expanded="true">
+                        <tr class="manager-card-row" aria-expanded="true">
                             <td data-label="{{ __('messages.Date') }}" data-manager-card-toggle class="manager-toggle-cell px-4 py-2 text-gray-700">
                                 <div class="flex items-start justify-between gap-3">
                                     <div class="min-w-0">
@@ -155,11 +155,11 @@
                                     {{ __('messages.View in Stripe') }}
                                 </a>
                                 <a href="{{ route('manager.subscriptions.invoices.download', ['entreprise' => $entreprise->id, 'invoiceId' => $stripeInvoice->id]) }}"
-                                   class="inline-flex items-center px-3 py-1.5 border border-blue-600 text-xs font-medium rounded text-blue-600 hover:bg-blue-50">
+                                   class="inline-flex items-center px-3 py-1.5 border border-[#2D7080] text-xs font-medium rounded text-[#2D7080] hover:bg-[#2D7080]/10">
                                     {{ __('messages.Download PDF') }}
                                 </a>
                                 <button type="button"
-                                        class="inline-flex items-center px-3 py-1.5 border border-emerald-600 text-xs font-medium rounded text-emerald-600 hover:bg-emerald-50"
+                                        class="inline-flex items-center px-3 py-1.5 border border-[#2D7080] text-xs font-semibold rounded-lg text-[#2D7080] hover:bg-[#2D7080]/10"
                                         data-open-send-modal
                                         data-invoice-id="{{ $stripeInvoice->id }}">
                                     {{ __('messages.Send') }}
@@ -184,13 +184,13 @@
          class="fixed inset-0 z-40 hidden items-center justify-center bg-black bg-opacity-40">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
             <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-                <h3 class="text-sm font-semibold text-gray-900">
+                <h3 class="dt-panel-title">
                     {{ __('messages.Send') }} {{ __('messages.Subscription invoice') }}
                 </h3>
                 <button type="button"
                         class="text-gray-400 hover:text-gray-600"
                         data-send-modal-close>
-                    <span class="sr-only">Close</span>
+                    <span class="sr-only">{{ __('messages.Close') }}</span>
                     &times;
                 </button>
             </div>
@@ -234,7 +234,7 @@
                         <div class="space-y-2 text-sm text-gray-700">
                             <label class="flex items-start gap-2">
                                 <input type="checkbox"
-                                       class="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                                       class="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#2D7080] focus:ring-[#2D7080]"
                                        data-recipient-checkbox="client"
                                        checked>
                                 <span>
@@ -245,7 +245,7 @@
 
                             <label class="flex items-start gap-2">
                                 <input type="checkbox"
-                                       class="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                                       class="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#2D7080] focus:ring-[#2D7080]"
                                        data-recipient-checkbox="copy"
                                        checked>
                                 <span>
@@ -267,7 +267,7 @@
                             {{ __('messages.Back') ?? 'Back' }}
                         </button>
                         <button type="button"
-                                class="px-3 py-1.5 text-xs font-medium text-white bg-emerald-600 rounded hover:bg-emerald-700"
+                                class="px-3 py-1.5 text-xs font-semibold text-white bg-[#2D7080] rounded-lg hover:bg-[#245f6d]"
                                 data-send-recipients-next>
                             {{ __('messages.Next') ?? 'Next' }}
                         </button>
@@ -286,7 +286,7 @@
                             {{ __('messages.Back') ?? 'Back' }}
                         </button>
                         <button type="button"
-                                class="px-3 py-1.5 text-xs font-medium text-white bg-emerald-600 rounded hover:bg-emerald-700"
+                                class="px-3 py-1.5 text-xs font-semibold text-white bg-[#2D7080] rounded-lg hover:bg-[#245f6d]"
                                 data-send-confirm>
                             {{ __('messages.Confirm') ?? 'Confirm' }}
                         </button>
@@ -502,3 +502,4 @@
         });
     </script>
 @endpush
+

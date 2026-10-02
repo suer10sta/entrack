@@ -3,7 +3,7 @@
 @section('content')
     <div class="space-y-6">
         <div>
-            <h2 class="text-2xl font-semibold text-gray-900">{{ __('messages.Edit Profile') }}</h2>
+            <h2 class="text-[22px] font-bold tracking-tight text-[#0B2638]">{{ __('messages.Edit Profile') }}</h2>
             <p class="mt-1 text-sm text-gray-500">
                 {{ __('messages.Update your personal information and password.') }}
             </p>
@@ -16,8 +16,8 @@
         @endif
 
         {{-- Profile Information Form --}}
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-6">{{ __('messages.Profile Information') }}</h3>
+        <div class="dt-card p-5 sm:p-6">
+            <h3 class="text-[15px] font-bold tracking-tight text-[#0B2638] mb-6">{{ __('messages.Profile Information') }}</h3>
 
             <form method="POST" action="{{ route('manager.profile.update') }}">
                 @csrf
@@ -27,7 +27,7 @@
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Full Name') }}</label>
                         <input type="text" name="name" id="name" value="{{ old('name', $manager->name) }}" required
-                            class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2D7080] focus:border-[#2D7080] sm:text-sm">
                         @error('name')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -36,7 +36,7 @@
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Email Address') }}</label>
                         <input type="email" name="email" id="email" value="{{ old('email', $manager->email) }}" required
-                            class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2D7080] focus:border-[#2D7080] sm:text-sm">
                         @error('email')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -49,7 +49,7 @@
                         {{ __('messages.Cancel') }}
                     </a>
                     <button type="submit" 
-                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#2D7080] hover:bg-[#245f6d]">
                         {{ __('messages.Save Changes') }}
                     </button>
                 </div>
@@ -57,8 +57,8 @@
         </div>
 
         {{-- Password Update Form --}}
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-6">{{ __('messages.Update Password') }}</h3>
+        <div class="dt-card p-5 sm:p-6">
+            <h3 class="text-[15px] font-bold tracking-tight text-[#0B2638] mb-6">{{ __('messages.Update Password') }}</h3>
 
             <form method="POST" action="{{ route('manager.profile.password.update') }}">
                 @csrf
@@ -68,7 +68,7 @@
                     <div>
                         <label for="current_password" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Current Password') }}</label>
                         <input type="password" name="current_password" id="current_password" required
-                            class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2D7080] focus:border-[#2D7080] sm:text-sm">
                         @error('current_password')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -77,7 +77,7 @@
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.New Password') }}</label>
                         <input type="password" name="password" id="password" required
-                            class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2D7080] focus:border-[#2D7080] sm:text-sm">
                         @error('password')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -86,7 +86,7 @@
                     <div>
                         <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Confirm New Password') }}</label>
                         <input type="password" name="password_confirmation" id="password_confirmation" required
-                            class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2D7080] focus:border-[#2D7080] sm:text-sm">
                     </div>
                 </div>
 
@@ -96,7 +96,7 @@
                         {{ __('messages.Cancel') }}
                     </a>
                     <button type="submit" 
-                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#2D7080] hover:bg-[#245f6d]">
                         {{ __('messages.Update Password') }}
                     </button>
                 </div>
@@ -104,4 +104,5 @@
         </div>
     </div>
 @endsection
+
 

@@ -224,12 +224,45 @@
             overflow-y: auto;
         }
         select[multiple] option {
-            padding: 0.5rem;
-            margin: 0.125rem 0;
+            padding: 0.45rem 0.6rem;
+            margin: 0.125rem 0.25rem;
+            border-radius: 0.6rem;
+            font-size: 13px;
+            color: #334155;
+        }
+        select[multiple] option:hover {
+            background-color: rgba(45, 112, 128, 0.08);
         }
         select[multiple] option:checked {
-            background-color: #3b82f6;
-            color: white;
+            background: linear-gradient(#2D7080, #2D7080);
+            background-color: #2D7080 !important;
+            color: #fff;
+        }
+        select[multiple]::-webkit-scrollbar {
+            width: 8px;
+        }
+        select[multiple]::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        select[multiple]::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+        select[multiple]::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        select[multiple]:focus {
+            border-color: #2D7080 !important;
+            box-shadow: 0 0 0 2px rgba(45, 112, 128, 0.25) !important;
+            outline: none;
+        }
+        /* Native date inputs: match the custom dropdown buttons */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0.55;
+            cursor: pointer;
+        }
+        input[type="date"]:hover::-webkit-calendar-picker-indicator {
+            opacity: 0.85;
         }
         /* Green text for projects with tasks in date range */
         #projectFilter option.has-tasks {
@@ -240,13 +273,13 @@
         #taskFilter {
             min-width: 100%;
             width: 100%;
+            border-radius: 0.8rem;
+            padding: 0.35rem;
         }
         #taskFilter option {
             white-space: normal;
             word-wrap: break-word;
             overflow-wrap: break-word;
-            padding: 0.5rem;
-            margin: 0.125rem 0;
         }
 
         /* Table Highlight Styles */
@@ -256,13 +289,13 @@
         /* Clickable Date Styles */
         td[data-field="start_date"],
         td[data-field="end_date"] {
-            color: #2563eb !important; /* blue-600 */
+            color: #2D7080 !important;
             cursor: pointer !important;
             font-weight: 500;
         }
         td[data-field="start_date"]:hover,
         td[data-field="end_date"]:hover {
-            color: #1d4ed8 !important; /* blue-800 */
+            color: #0B2638 !important;
             text-decoration: underline;
         }
 
@@ -288,6 +321,15 @@
         .table-responsive {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+        }
+        /* Sticky header on desktop (thead is hidden on mobile/tablet cards) */
+        @media (min-width: 1025px) {
+            #taskTable thead th {
+                position: sticky;
+                top: 0;
+                z-index: 5;
+                background-color: #f8fafc;
+            }
         }
         .table {
             width: 100%;
@@ -424,7 +466,7 @@
     </style>
 </head>
 
-<body class="bg-gray-50 flex h-screen overflow-hidden font-sans" x-data>
+<body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden font-sans" x-data>
 
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
             style="display: none; visibility: hidden"></iframe></noscript>
@@ -443,34 +485,35 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#eaebef] p-4 sm:p-6 lg:p-8 space-y-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8 space-y-5">
 
-            {{-- 1. Header Section --}}
-            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                <div>
-                    <h1 class="text-2xl font-semibold text-gray-900">{{ __('messages.Tasks Timer') }}</h1>
+            {{-- 1. Header Section (same design as other Reports pages) --}}
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+                <div class="min-w-0">
+                    <p class="dt-overline mb-1">{{ __('messages.Reports') }}</p>
+                    <h1 class="text-[22px] sm:text-[24px] font-bold tracking-tight text-[#0B2638] leading-tight">{{ __('messages.Tasks Timer') }}</h1>
                 </div>
-                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                    <button type="button" id="exportBtn" class="inline-flex justify-center items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm w-full sm:w-auto">
+                <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 w-full sm:w-auto">
+                    <button type="button" id="exportBtn" class="dt-btn dt-btn-ghost w-full sm:w-auto">
                         {{ __('messages.Export to Excel') }}
                     </button>
-                    <button type="button" id="exportPDFBtn" class="inline-flex justify-center items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm w-full sm:w-auto">
+                    <button type="button" id="exportPDFBtn" class="dt-btn dt-btn-primary w-full sm:w-auto">
                         {{ __('messages.Export to PDF') }}
                     </button>
-                    <button type="button" id="exportPDFBtnCustomer" class="inline-flex justify-center items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm w-full sm:w-auto">
+                    <button type="button" id="exportPDFBtnCustomer" class="dt-btn dt-btn-teal w-full sm:w-auto">
                         {{ __('messages.Export to PDF for Customer') }}
                     </button>
-                    @if(Auth::user()->hasRole('Admin'))
+                    @if(Auth::user()->hasRole('Admin') && Route::has('admin.pointage.time-transfer.export'))
                     <form method="POST" action="{{ route('admin.pointage.time-transfer.export') }}" id="timeTransferExportForm" class="inline-flex w-full sm:w-auto">
                         @csrf
                         <input type="hidden" name="start_date" id="timeTransferStartDate">
                         <input type="hidden" name="end_date" id="timeTransferEndDate">
                         <input type="hidden" name="project_id" id="timeTransferProjectId">
-                        <button type="submit" class="inline-flex justify-center items-center bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm w-full sm:w-auto">
+                        <button type="submit" class="dt-btn dt-btn-ghost w-full sm:w-auto">
                             {{ __('messages.Export time transfer') }}
                         </button>
                     </form>
-                    <a href="#" id="timeTransferImportLink" class="inline-flex justify-center items-center bg-emerald-400 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm w-full sm:w-auto">
+                    <a href="#" id="timeTransferImportLink" class="dt-btn dt-btn-ghost w-full sm:w-auto">
                         {{ __('messages.Import time transfer') }}
                     </a>
                     @endif
@@ -479,45 +522,73 @@
             
             {{-- Session Message --}}
             @if(session('alertmessage'))
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                <strong class="font-bold">{{ __('messages.Error!') }}</strong>
-                <span class="block sm:inline">{{ session('alertmessage') }}</span>
-                <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl relative flex items-center gap-2" role="alert">
+                <strong class="text-[13px] font-bold">{{ __('messages.Error!') }}</strong>
+                <span class="block sm:inline text-[13px] font-medium">{{ session('alertmessage') }}</span>
+                <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl text-red-600 hover:text-red-800" aria-label="{{ __('messages.Close') }}">&times;</button>
             </div>
             @endif
 
-            {{-- 2. Totals Section --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <div class="flex flex-wrap items-center justify-center sm:justify-end gap-x-6 gap-y-2">
-                    <div class="text-sm">
-                        <span class="font-medium text-gray-700">{{ __('messages.Total Duration:') }}</span>
-                        <strong class="text-gray-900" id="totalDurationLabel">0h:00m</strong>
+            {{-- 2. KPI summary (same live values, dashboard stat-card style) --}}
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="dt-card dt-card-hover p-4 flex items-center gap-3.5">
+                    <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h3m6 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
-                    <div class="text-sm">
-                        <span class="font-medium text-gray-700">{{ __('messages.Total Operating Cost:') }}</span>
-                        <strong class="text-green-600" id="totalOperatingCostLabel">0.00€</strong>
+                    <div class="min-w-0">
+                        <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Total Duration:') }}</p>
+                        <p class="text-[22px] leading-none font-bold text-[#0B2638] tracking-tight mt-1" id="totalDurationLabel">0h:00m</p>
                     </div>
-                    <div class="text-sm">
-                        <span class="font-medium text-gray-700">{{ __('messages.Total Sales:') }}</span>
-                        <strong class="text-gray-900" id="totalSalesLabel">0.00€</strong>
+                </div>
+                <div class="dt-card dt-card-hover p-4 flex items-center gap-3.5">
+                    <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.598 1M12 8V6m0 10v2m8-8a8 8 0 11-16 0 8 8 0 0116 0z" /></svg>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Total Operating Cost:') }}</p>
+                        <p class="text-[22px] leading-none font-bold text-emerald-700 tracking-tight mt-1" id="totalOperatingCostLabel">0.00€</p>
+                    </div>
+                </div>
+                <div class="dt-card dt-card-hover p-4 flex items-center gap-3.5 relative overflow-hidden">
+                    <span class="absolute left-0 top-0 h-full w-1 bg-[#E7B84B]"></span>
+                    <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-[#E7B84B]/20 text-[#0B2638] ring-1 ring-[#E7B84B]/40 flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6zm3 4h4v4H6v-4zm6 0h4v4h-4v-4z" /></svg>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Total Sales:') }}</p>
+                        <p class="text-[22px] leading-none font-bold text-[#0B2638] tracking-tight mt-1" id="totalSalesLabel">0.00€</p>
                     </div>
                 </div>
             </div>
 
-            {{-- 3. Date Fetch Form --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
-                <h6 class="text-base font-semibold text-gray-800 mb-4">{{ __('messages.Fetch Data') }}</h6>
+            {{-- 3. Guided controls: period, filters, invoicing in one card --}}
+            <div class="dt-card px-5 sm:px-6 py-5">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#0B2638] text-[11px] font-bold text-white">01</span>
+                    <h6 class="dt-section-title">{{ __('messages.Fetch Data') }}</h6>
+                    <span class="h-px flex-1 bg-slate-100"></span>
+                </div>
                 @php $dateFormAction = ''; @endphp
                 @if(Auth::user()->hasRole('Admin')) @php $dateFormAction = route('admin.pointage.filterPointageByDate'); @endphp @endif
                 @if(Auth::user()->hasRole('Responsable de projet')) @php $dateFormAction = route('Responsable_de_projet.pointage.filterPointageByDate'); @endphp @endif
                 @if(Auth::user()->hasRole('Employee')) @php $dateFormAction = route('employee.pointage.filterPointageByDate'); @endphp @endif
                 @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $dateFormAction = route('Responsable_gestionnaire.pointage.filterPointageByDate'); @endphp @endif
                 
-                <form method="GET" action="{{ $dateFormAction }}" id="dateForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
+                <form method="GET" action="{{ $dateFormAction }}" id="dateForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end">
                     @csrf
                     <div>
-                        <label for="monthFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Month') }}</label>
-                        <select id="monthFilter" name="month" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                        <label for="monthFilterBtn" class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Month') }}</label>
+                        <div class="relative" id="monthFilterDropdown" data-filter-dropdown="monthFilter">
+                            <button type="button" id="monthFilterBtn" aria-haspopup="listbox" aria-expanded="false"
+                                class="flex w-full items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none transition hover:border-slate-300 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25">
+                                <span id="monthFilterBtnText" class="min-w-0 flex-1 truncate text-left">{{ __('messages.Select Month') }}</span>
+                                <svg class="h-4 w-4 flex-shrink-0 text-slate-400 transition-transform duration-200" data-chevron fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                            </button>
+                            <div id="monthFilterPanel" class="hidden absolute z-30 mt-2 w-full rounded-xl border border-slate-200 bg-white shadow-xl">
+                                <div id="monthFilterList" role="listbox" class="max-h-56 overflow-y-auto p-1.5"></div>
+                            </div>
+                        </div>
+                        <select id="monthFilter" name="month" class="hidden" tabindex="-1" aria-hidden="true">
                             <option value="">{{ __('messages.Select Month') }}</option>
                             @for($i = 1; $i <= 12; $i++)
                                 <option value="{{ $i }}">{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
@@ -525,60 +596,124 @@
                         </select>
                     </div>
                     <div>
-                        <label for="startDateInput" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Start Date') }}</label>
-                        <input type="date" id="startDateInput" name="start_date" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                        <label for="startDateInput" class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Start Date') }}</label>
+                        <input type="date" id="startDateInput" name="start_date" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm outline-none transition hover:border-slate-300 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3">
                     </div>
                     <div>
-                        <label for="endDateInput" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.End Date') }}</label>
-                        <input type="date" id="endDateInput" name="end_date" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                        <label for="endDateInput" class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.End Date') }}</label>
+                        <input type="date" id="endDateInput" name="end_date" class="block w-full rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm outline-none transition hover:border-slate-300 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3">
                     </div>
-                    <div class="flex items-center gap-3">
-                        <button type="submit" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm w-full">{{ __('messages.Get') }}</button>
+                    <div class="flex items-center gap-2">
+                        <button type="submit"class=" dt-btn-teal px-14 py-1.5 rounded-xl ">{{ __('messages.Get') }}</button>
                         @if(Auth::user()->hasRole('Admin'))
-                        <a id="employeesDailyTotalsBtn" class="inline-flex justify-center bg-white hover:bg-gray-50 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm w-full" target="_blank">{{ __('messages.Employees PDF') }}</a>
+                        <a id="employeesDailyTotalsBtn" class="dt-btn dt-btn-ghost w-full" target="_blank">{{ __('messages.Employees PDF') }}</a>
                         @endif
                     </div>
                 </form>
-            </div>
 
-            {{-- 4. Filter Form --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
-                <h6 class="text-base font-semibold text-gray-800 mb-4">{{ __('messages.Filters') }}</h6>
+                <div class="my-5 border-t border-slate-100"></div>
+
+                {{-- 4. Filter Form --}}
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#0B2638] text-[11px] font-bold text-white">02</span>
+                    <h6 class="dt-section-title">{{ __('messages.Filters') }}</h6>
+                    <span class="h-px flex-1 bg-slate-100"></span>
+                </div>
                 @php $filterFormAction = ''; @endphp
                 @if(Auth::user()->hasRole('Admin')) @php $filterFormAction = route('admin.pointage.filterPointageTable'); @endphp @endif
                 @if(Auth::user()->hasRole('Responsable de projet')) @php $filterFormAction = route('Responsable_de_projet.pointage.filterPointageTable'); @endphp @endif
                 @if(Auth::user()->hasRole('Employee')) @php $filterFormAction = route('employee.pointage.filterPointageTable'); @endphp @endif
                 @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $filterFormAction = route('Responsable_gestionnaire.pointage.filterPointageTable'); @endphp @endif
                 
-                <form method="GET" action="{{ $filterFormAction }}" id="filterForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4 items-end">
+                <form method="GET" action="{{ $filterFormAction }}" id="filterForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 items-end">
                     @csrf
                        <input type="hidden" id="hiddenStartDateInput" name="start_date">
                        <input type="hidden" id="hiddenEndDateInput" name="end_date">
 
                        {{-- Filters --}}
                         <div class="lg:col-span-1">
-                            <label for="clientFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Client') }}</label>
-                            <select id="clientFilter" name="client" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                            <label for="clientFilterBtn" class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Client') }}</label>
+                            <div class="relative" id="clientFilterDropdown" data-filter-dropdown="clientFilter">
+                                <button type="button" id="clientFilterBtn" aria-haspopup="listbox" aria-expanded="false"
+                                    class="flex w-full items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none transition hover:border-slate-300 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25">
+                                    <span id="clientFilterBtnText" class="min-w-0 flex-1 truncate text-left">{{ __('messages.All Clients') }}</span>
+                                    <svg class="h-4 w-4 flex-shrink-0 text-slate-400 transition-transform duration-200" data-chevron fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                </button>
+                                <div id="clientFilterPanel" class="hidden absolute z-30 mt-2 w-full rounded-xl border border-slate-200 bg-white shadow-xl">
+                                    <div class="p-1.5 pb-1">
+                                        <div class="relative">
+                                            <span class="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-slate-400">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+                                            </span>
+                                            <input data-filter-search type="text" autocomplete="off" placeholder="{{ __('messages.search_placeholder') }}"
+                                                class="w-full rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-2 text-[13px] text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#2D7080] focus:bg-white focus:ring-2 focus:ring-[#2D7080]/25">
+                                        </div>
+                                    </div>
+                                    <div id="clientFilterList" role="listbox" class="max-h-56 overflow-y-auto p-1.5 pt-0"></div>
+                                    <div id="clientFilterEmpty" class="hidden px-2.5 pb-3 text-center text-xs text-slate-400" data-no-results="{{ __('messages.No results found for') }}"></div>
+                                </div>
+                            </div>
+                            <select id="clientFilter" name="client" class="hidden" tabindex="-1" aria-hidden="true">
                             <option value="">{{ __('messages.All Clients') }}</option>
                                 @foreach($clients as $client)
                             <option value="{{ $client->id }}" {{ request('client') == $client->id ? 'selected' : '' }}>{{ $client->name }}</option>
                                 @endforeach
                             </select>
                         </div>
-    
+
                         <div class="lg:col-span-1">
-                            <label for="employeeFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Employee') }}</label>
-                                <select id="employeeFilter" name="employee" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                            <label for="employeeFilterBtn" class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Employee') }}</label>
+                            <div class="relative" id="employeeFilterDropdown" data-filter-dropdown="employeeFilter">
+                                <button type="button" id="employeeFilterBtn" aria-haspopup="listbox" aria-expanded="false"
+                                    class="flex w-full items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none transition hover:border-slate-300 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25">
+                                    <span id="employeeFilterBtnText" class="min-w-0 flex-1 truncate text-left">{{ __('messages.All Employees') }}</span>
+                                    <svg class="h-4 w-4 flex-shrink-0 text-slate-400 transition-transform duration-200" data-chevron fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                </button>
+                                <div id="employeeFilterPanel" class="hidden absolute z-30 mt-2 w-full rounded-xl border border-slate-200 bg-white shadow-xl">
+                                    <div class="p-1.5 pb-1">
+                                        <div class="relative">
+                                            <span class="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-slate-400">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+                                            </span>
+                                            <input data-filter-search type="text" autocomplete="off" placeholder="{{ __('messages.search_placeholder') }}"
+                                                class="w-full rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-2 text-[13px] text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#2D7080] focus:bg-white focus:ring-2 focus:ring-[#2D7080]/25">
+                                        </div>
+                                    </div>
+                                    <div id="employeeFilterList" role="listbox" class="max-h-56 overflow-y-auto p-1.5 pt-0"></div>
+                                    <div id="employeeFilterEmpty" class="hidden px-2.5 pb-3 text-center text-xs text-slate-400" data-no-results="{{ __('messages.No results found for') }}"></div>
+                                </div>
+                            </div>
+                                <select id="employeeFilter" name="employee" class="hidden" tabindex="-1" aria-hidden="true">
                                 <option value="">{{ __('messages.All Employees') }}</option>
                                     @foreach($employees as $employee)
                                 <option value="{{ $employee->id }}" {{ request('employee') == $employee->id ? 'selected' : '' }}>{{ $employee->name }}</option>
                                     @endforeach
                                 </select>
                         </div>
-    
+
                         <div class="lg:col-span-1">
-                            <label for="projectFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Project') }}</label>
-                                <select id="projectFilter" name="project" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                            <label for="projectFilterBtn" class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Project') }}</label>
+                            <div class="relative" id="projectFilterDropdown" data-filter-dropdown="projectFilter">
+                                <button type="button" id="projectFilterBtn" aria-haspopup="listbox" aria-expanded="false"
+                                    class="flex w-full items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none transition hover:border-slate-300 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25">
+                                    <span id="projectFilterBtnText" class="min-w-0 flex-1 truncate text-left">{{ __('messages.All Projects') }}</span>
+                                    <svg class="h-4 w-4 flex-shrink-0 text-slate-400 transition-transform duration-200" data-chevron fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                </button>
+                                <div id="projectFilterPanel" class="hidden absolute z-30 mt-2 w-full rounded-xl border border-slate-200 bg-white shadow-xl">
+                                    <div class="p-1.5 pb-1">
+                                        <div class="relative">
+                                            <span class="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-slate-400">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+                                            </span>
+                                            <input data-filter-search type="text" autocomplete="off" placeholder="{{ __('messages.search_placeholder') }}"
+                                                class="w-full rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-2 text-[13px] text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#2D7080] focus:bg-white focus:ring-2 focus:ring-[#2D7080]/25">
+                                        </div>
+                                    </div>
+                                    <div id="projectFilterList" role="listbox" class="max-h-56 overflow-y-auto p-1.5 pt-0"></div>
+                                    <div id="projectFilterEmpty" class="hidden px-2.5 pb-3 text-center text-xs text-slate-400" data-no-results="{{ __('messages.No results found for') }}"></div>
+                                </div>
+                            </div>
+                                <select id="projectFilter" name="project" class="hidden" tabindex="-1" aria-hidden="true">
                                     <option value="">{{ __('messages.All Projects') }}</option>
                                         @foreach($projects as $project)
                                         @php
@@ -603,8 +738,28 @@
                             </div>
     
                             <div class="lg:col-span-2">
-                                <label for="taskFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Task Filter Task') }}</label>
-                                <select id="taskFilter" name="task[]" multiple class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom" style="min-height: 100px; min-width: 100%;">
+                                <label for="taskFilterBtn" class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Task Filter Task') }}</label>
+                                <div class="relative" id="taskFilterDropdown">
+                                    <button type="button" id="taskFilterBtn" aria-haspopup="listbox" aria-expanded="false"
+                                        class="flex w-full items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none transition hover:border-slate-300 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25">
+                                        <span id="taskFilterBtnText" class="min-w-0 flex-1 truncate text-left">{{ __('messages.All Tasks option') }}</span>
+                                        <svg id="taskFilterChevron" class="h-4 w-4 flex-shrink-0 text-slate-400 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                    </button>
+                                    <div id="taskFilterPanel" class="hidden absolute z-30 mt-2 w-full rounded-xl border border-slate-200 bg-white shadow-xl">
+                                        <div class="p-1.5 pb-1">
+                                            <div class="relative">
+                                                <span class="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-slate-400">
+                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+                                                </span>
+                                                <input id="taskFilterSearch" type="text" autocomplete="off" placeholder="{{ __('messages.search_placeholder') }}"
+                                                    class="w-full rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-2 text-[13px] text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#2D7080] focus:bg-white focus:ring-2 focus:ring-[#2D7080]/25">
+                                            </div>
+                                        </div>
+                                        <div id="taskFilterList" role="listbox" aria-multiselectable="true" class="max-h-56 overflow-y-auto p-1.5 pt-0"></div>
+                                        <div id="taskFilterEmpty" class="hidden px-2.5 pb-3 text-center text-xs text-slate-400" data-no-results="{{ __('messages.No results found for') }}"></div>
+                                    </div>
+                                </div>
+                                <select id="taskFilter" name="task[]" multiple class="hidden" tabindex="-1" aria-hidden="true">
                                     <option value="all" {{ in_array('all', (array)request('task', [])) || empty(request('task')) ? 'selected' : '' }}>{{ __('messages.All Tasks option') }}</option>
                                     @foreach($allTasks as $task)
                                     <option value="{{ $task->id }}" {{ in_array($task->id, (array)request('task', [])) ? 'selected' : '' }}>
@@ -612,58 +767,74 @@
                                     </option>
                                     @endforeach
                                 </select>
-                                <p class="mt-1 text-xs text-gray-500">{{ __('messages.Hold Ctrl/Cmd to select multiple tasks') }}</p>
                             </div>
-    
+
                             <div class="lg:col-span-1">
-                                <label for="projectTypeFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Type Filter') }}</label>
-                                    <select id="projectTypeFilter" name="project_type" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                                <label for="projectTypeFilterBtn" class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Type Filter') }}</label>
+                                <div class="relative" id="projectTypeFilterDropdown" data-filter-dropdown="projectTypeFilter">
+                                    <button type="button" id="projectTypeFilterBtn" aria-haspopup="listbox" aria-expanded="false"
+                                        class="flex w-full items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none transition hover:border-slate-300 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25">
+                                        <span id="projectTypeFilterBtnText" class="min-w-0 flex-1 truncate text-left">{{ __('messages.All Types') }}</span>
+                                        <svg class="h-4 w-4 flex-shrink-0 text-slate-400 transition-transform duration-200" data-chevron fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                    </button>
+                                    <div id="projectTypeFilterPanel" class="hidden absolute z-30 mt-2 w-full rounded-xl border border-slate-200 bg-white shadow-xl">
+                                        <div id="projectTypeFilterList" role="listbox" class="max-h-56 overflow-y-auto p-1.5"></div>
+                                    </div>
+                                </div>
+                                    <select id="projectTypeFilter" name="project_type" class="hidden" tabindex="-1" aria-hidden="true">
                                     <option value="">{{ __('messages.All Types') }}</option>
                                     <option value="regie" {{ request('project_type') == 'regie' ? 'selected' : '' }}>{{ __('messages.Regie') }}</option>
                                     <option value="devis" {{ request('project_type') == 'devis' ? 'selected' : '' }}>{{ __('messages.Devis type') }}</option>
                                 </select>
                             </div>
-                            
+
                             {{-- Filter Button --}}
                             <div class="lg:col-span-1 flex items-end">
-                                <button type="submit" id="applyFiltersBtn" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm w-full">{{ __('messages.Apply Filters') }}</button>
+                                <button type="submit" id="applyFiltersBtn" class="dt-btn dt-btn-teal w-full">{{ __('messages.Apply Filters') }}</button>
                             </div>
-    
+
                             {{-- Comment and Button Row --}}
-                            <div class="lg:col-span-2 mt-5">
-                                <label for="periodInvoiceComment" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Invoice Comment') }}</label>
-                                <textarea rows="3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" id="periodInvoiceComment" placeholder="{{ __('messages.Optional comment for the period invoice...') }}"></textarea>
+                            <div class="lg:col-span-7 mt-2 border-t border-slate-100 pt-5">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#E7B84B] text-[11px] font-bold text-[#0B2638]">03</span>
+                                    <h6 class="dt-section-title">{{ __('messages.Invoice Comment') }}</h6>
+                                    <span class="h-px flex-1 bg-slate-100"></span>
+                                </div>
+                                <div class="grid grid-cols-1 lg:grid-cols-7 gap-3 items-end">
+                                    <div class="lg:col-span-3">
+                                        <textarea rows="3" class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm" id="periodInvoiceComment" placeholder="{{ __('messages.Optional comment for the period invoice...') }}"></textarea>
+                                    </div>
+                                    <div class="">
+                                        <button type="button" id="generatePeriodInvoiceBtn" class="dt-btn dt-btn-teal w-full">{{ __('messages.Generate Period Invoice') }}</button>
+                                    </div>
+                                </div>
                             </div>
-                            
-                            <div class="lg:col-span-1 mt-4 flex items-end">
-                                <button type="button" id="generatePeriodInvoiceBtn" class="inline-flex justify-center bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm w-full">{{ __('messages.Generate Period Invoice') }}</button>
-                        </div>
                 </form>
             </div>
 
             {{-- 5. Table Section --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="dt-card overflow-hidden">
                 <div class="table-responsive">
-                    <table id="taskTable" class="w-full divide-y divide-gray-200 table table-auto">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Project') }}</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Task Filter Task') }}</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Employee') }}</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Start Date') }}</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.End Date') }}</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Duration') }}</th>
-                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Op. Cost') }}</th>
-                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Sales column') }}</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">
+                    <table id="taskTable" class="w-full divide-y divide-slate-100 table table-auto">
+                        <thead class="bg-slate-50/80">
+                            <tr class="dt-table-head">
+                                <th class="px-4 py-3 text-left whitespace-nowrap min-w-[170px]">{{ __('messages.Project') }}</th>
+                                <th class="px-4 py-3 text-left whitespace-nowrap min-w-[190px]">{{ __('messages.Task Filter Task') }}</th>
+                                <th class="px-4 py-3 text-left whitespace-nowrap min-w-[150px]">{{ __('messages.Employee') }}</th>
+                                <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Start Date') }}</th>
+                                <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.End Date') }}</th>
+                                <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Duration') }}</th>
+                                <th class="px-4 py-3 text-right whitespace-nowrap">{{ __('messages.Op. Cost') }}</th>
+                                <th class="px-4 py-3 text-right whitespace-nowrap">{{ __('messages.Sales column') }}</th>
+                                <th class="px-4 py-3 text-left whitespace-nowrap min-w-[180px]">
                                     {{ __('messages.Comment column') }}
-                                    <span class="block text-[10px] font-normal text-gray-400 normal-case">{{ __('messages.Double-click to add comment') }}</span>
+                                    <span class="block text-[10px] font-normal text-slate-400 normal-case tracking-normal">{{ __('messages.Double-click to add comment') }}</span>
                                 </th>
-                                <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Actions') }}</th>
+                                <th class="px-4 py-3 text-center whitespace-nowrap min-w-[130px]">{{ __('messages.Actions') }}</th>
                             </tr>
                         </thead>
 
-                        <tbody id="taskTableBody" class="bg-white divide-y divide-gray-200">
+                        <tbody id="taskTableBody" class="bg-white divide-y divide-slate-100">
                             @php
                                 function formatDuration($minutes) {
                                     $hours = floor($minutes / 60);
@@ -697,7 +868,7 @@
 
                                 @if($dateObject)
                                 <tr class="task-group-row">
-                                    <td colspan="10" class="px-4 py-2 bg-gray-100 text-gray-800 font-bold">
+                                    <td colspan="10" class="px-4 py-2 bg-[#0B2638]/[0.05] text-[#0B2638] font-bold text-[13px] border-y border-[#0B2638]/10">
                                         <strong>{{ $displayDate }}</strong>
                                     </td>
                                 </tr>
@@ -723,22 +894,22 @@
                                         $isRegie = $project->regie === 1;
                                     @endphp
                                 
-                                    <tr class="task-data-row {{ $hasInvoice ? 'highlighted-task' : '' }} {{ $isRegie ? 'regie-task' : '' }} hover:bg-gray-50" 
-                                        id="{{ $task->id }}" 
+                                    <tr class="task-data-row {{ $hasInvoice ? 'highlighted-task' : '' }} {{ $isRegie ? 'regie-task' : '' }} hover:bg-slate-50/70 transition-colors"
+                                        id="{{ $task->id }}"
                                         data-employee-id="{{ $task->employee_id }}"
-                                        data-project-id="{{ $task_project_id}}" 
+                                        data-project-id="{{ $task_project_id}}"
                                         data-task-id="{{ $task->task_id }}"
                                         data-task-row
                                         aria-expanded="true">
-                                        
-                                        <td data-label="{{ __('messages.Project') }}" data-span="2" class="px-4 py-3 text-sm text-gray-800 whitespace-normal break-words task-toggle-cell" data-task-toggle>
+
+                                        <td data-label="{{ __('messages.Project') }}" data-span="2" class="px-4 py-3 text-[13px] font-medium text-[#0B2638] whitespace-normal break-words task-toggle-cell" data-task-toggle>
                                             {{-- Desktop: keep original (project link only) --}}
                                             <div class="hidden lg:block">
                                                 @if(Auth::user()->can('View project'))
-                                                    @if(Auth::user()->hasRole('Admin')) <a href="{{route('admin.projects.show',$task_project_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $project->name }}</a> @endif
-                                                    @if(Auth::user()->hasRole('Responsable de projet')) <a href="{{route('Responsable_de_projet.projects.show',$task_project_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $project->name }}</a> @endif
-                                                    @if(Auth::user()->hasRole('Employee')) <a href="{{route('employee.projects.show',$task_project_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $project->name }}</a> @endif
-                                                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.projects.show',$task_project_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $project->name }}</a> @endif
+                                                    @if(Auth::user()->hasRole('Admin')) <a href="{{route('admin.projects.show',$task_project_id)}}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline font-medium" @click.stop>{{ $project->name }}</a> @endif
+                                                    @if(Auth::user()->hasRole('Responsable de projet')) <a href="{{route('Responsable_de_projet.projects.show',$task_project_id)}}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline font-medium" @click.stop>{{ $project->name }}</a> @endif
+                                                    @if(Auth::user()->hasRole('Employee')) <a href="{{route('employee.projects.show',$task_project_id)}}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline font-medium" @click.stop>{{ $project->name }}</a> @endif
+                                                    @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.projects.show',$task_project_id)}}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline font-medium" @click.stop>{{ $project->name }}</a> @endif
                                                 @else
                                                     {{ $project->name }}
                                                 @endif
@@ -767,24 +938,24 @@
                                                 </span>
                                             </div>
                                         </td>
-                                        <td data-label="{{ __('messages.Task Filter Task') }}" data-span="2" class="px-4 py-3 text-sm text-gray-800 whitespace-normal break-words">
-                                            @if(auth()->user()->hasRole('Admin')) <a href="{{route('admin.tasks.show', $task->task_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop title="{{ $task->task_name }}">{{ $task->task_name }}</a> @endif
-                                            @if(auth()->user()->hasRole('Responsable de projet')) <a href="{{route('Responsable_de_projet.tasks.show', $task->task_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop title="{{ $task->task_name }}">{{ $task->task_name }}</a> @endif
-                                            @if(auth()->user()->hasRole('Employee')) <a href="{{route('employee.tasks.show', $task->task_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop title="{{ $task->task_name }}">{{ $task->task_name }}</a> @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.tasks.show', $task->task_id)}}" class="text-blue-600 hover:text-blue-800" @click.stop title="{{ $task->task_name }}">{{ $task->task_name }}</a> @endif
+                                        <td data-label="{{ __('messages.Task Filter Task') }}" data-span="2" class="px-4 py-3 text-[13px] font-medium text-[#0B2638] whitespace-normal break-words">
+                                            @if(auth()->user()->hasRole('Admin')) <a href="{{route('admin.tasks.show', $task->task_id)}}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline" @click.stop title="{{ $task->task_name }}">{{ $task->task_name }}</a> @endif
+                                            @if(auth()->user()->hasRole('Responsable de projet')) <a href="{{route('Responsable_de_projet.tasks.show', $task->task_id)}}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline" @click.stop title="{{ $task->task_name }}">{{ $task->task_name }}</a> @endif
+                                            @if(auth()->user()->hasRole('Employee')) <a href="{{route('employee.tasks.show', $task->task_id)}}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline" @click.stop title="{{ $task->task_name }}">{{ $task->task_name }}</a> @endif
+                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.tasks.show', $task->task_id)}}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline" @click.stop title="{{ $task->task_name }}">{{ $task->task_name }}</a> @endif
                                         </td>
-                                        <td data-label="{{ __('messages.Employee') }}" class="px-4 py-3 text-sm text-gray-800 whitespace-normal break-words">
+                                        <td data-label="{{ __('messages.Employee') }}" class="px-4 py-3 text-[13px] text-slate-600 whitespace-normal break-words">
                                             @if(Auth::user()->can('View employee'))
-                                                @if(Auth::user()->hasRole('Admin')) <a href="{{route('admin.employees.show',$employee->id )}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $employee->name }}</a> @endif
-                                                @if(Auth::user()->hasRole('Responsable de projet')) <a href="{{route('Responsable_de_projet.employees.show',$employee->id )}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $employee->name }}</a> @endif
-                                                @if(Auth::user()->hasRole('Employee')) <a href="{{route('employee.employees.show',$employee->id )}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $employee->name }}</a> @endif
-                                                @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.employees.show',$employee->id )}}" class="text-blue-600 hover:text-blue-800" @click.stop>{{ $employee->name }}</a> @endif
+                                                @if(Auth::user()->hasRole('Admin')) <a href="{{route('admin.employees.show',$employee->id )}}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline font-medium" @click.stop>{{ $employee->name }}</a> @endif
+                                                @if(Auth::user()->hasRole('Responsable de projet')) <a href="{{route('Responsable_de_projet.employees.show',$employee->id )}}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline font-medium" @click.stop>{{ $employee->name }}</a> @endif
+                                                @if(Auth::user()->hasRole('Employee')) <a href="{{route('employee.employees.show',$employee->id )}}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline font-medium" @click.stop>{{ $employee->name }}</a> @endif
+                                                @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.employees.show',$employee->id )}}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline font-medium" @click.stop>{{ $employee->name }}</a> @endif
                                             @else
                                                 {{ $employee->name }}
                                             @endif
                                         </td>
                                         
-                                        <td data-label="{{ __('messages.Start Date') }}" class="px-4 py-3 whitespace-nowrap text-sm" data-field="start_date" 
+                                        <td data-label="{{ __('messages.Start Date') }}" class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600" data-field="start_date"
                                             @click.prevent.stop="$dispatch('open-edit-date-modal', { 
                                                 taskId: {{ $task->id }}, 
                                                 field: 'start_date', 
@@ -792,7 +963,7 @@
                                             })">
                                             {{ \Carbon\Carbon::parse($task->start_date)->format('d-m-Y H:i:s') }}
                                         </td>
-                                        <td data-label="{{ __('messages.End Date') }}" class="px-4 py-3 whitespace-nowrap text-sm" data-field="end_date"
+                                        <td data-label="{{ __('messages.End Date') }}" class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600" data-field="end_date"
                                             @click.prevent.stop="$dispatch('open-edit-date-modal', { 
                                                 taskId: {{ $task->id }}, 
                                                 field: 'end_date', 
@@ -801,7 +972,7 @@
                                             {{ $task->end_date ? \Carbon\Carbon::parse($task->end_date)->format('d-m-Y H:i:s') : 'Still Working' }}
                                         </td>
                                         
-                                        <td data-label="{{ __('messages.Duration') }}" id="duration-{{ $task->id }}" class="px-4 py-3 whitespace-nowrap text-sm text-gray-800" data-task-id="{{ $task->id }}">
+                                        <td data-label="{{ __('messages.Duration') }}" id="duration-{{ $task->id }}" class="px-4 py-3 whitespace-nowrap text-[13px] font-semibold text-[#0B2638]" data-task-id="{{ $task->id }}">
                                             @if (is_null($task->end_date))
                                                 <script>
                                                     document.addEventListener('DOMContentLoaded', function () {
@@ -830,20 +1001,20 @@
                                                 {{ formatDuration($task->duration) }}
                                             @endif
                                         </td>
-                                        <td data-label="{{ __('messages.Op. Cost') }}" class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-right">{{ $task->end_date ? number_format((float)$task->cost, 3, '.', '') : '0.00' }}€</td>
-                                        <td data-label="{{ __('messages.Sales column') }}" class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-right">{{ $task->end_date ? number_format((($task->duration / 60) * $project->cost_per_hour), 3, '.', '') : '0.00' }}€</td>
-                                        
-                                        <td data-label="{{ __('messages.Comment column') }}" data-span="2" class="px-4 py-3 text-sm text-gray-800 whitespace-normal break-words editable-comment" 
+                                        <td data-label="{{ __('messages.Op. Cost') }}" class="px-4 py-3 whitespace-nowrap text-[13px] font-semibold text-emerald-700 text-right">{{ $task->end_date ? number_format((float)$task->cost, 3, '.', '') : '0.00' }}€</td>
+                                        <td data-label="{{ __('messages.Sales column') }}" class="px-4 py-3 whitespace-nowrap text-[13px] font-semibold text-[#0B2638] text-right">{{ $task->end_date ? number_format((($task->duration / 60) * $project->cost_per_hour), 3, '.', '') : '0.00' }}€</td>
+
+                                        <td data-label="{{ __('messages.Comment column') }}" data-span="2" class="px-4 py-3 text-[13px] text-slate-600 whitespace-normal break-words editable-comment"
                                             data-id="{{ $task->id }}" 
                                             data-field="comment" 
                                             data-update-url="{{ route('admin.tasks.updateField', ['field' => 'comment', 'id' => $task->id]) }}">
                                             <span class="comment-text">{{ $task->comment }}</span>
                                         </td>
                                         
-                                        <td data-label="{{ __('messages.Actions') }}" data-span="2" class="px-2 py-3 task-pointage-actions">
-                                            <div class="flex flex-col items-center gap-2">
+                                        <td data-label="{{ __('messages.Actions') }}" data-span="2" class="px-4 py-3 task-pointage-actions">
+                                            <div class="flex flex-col items-stretch gap-2">
                                                 @if($task->end_date)
-                                                <button type="button" class="inline-flex justify-center w-full text-white bg-blue-600 hover:bg-blue-700 font-medium rounded text-xs px-2 py-1 text-center" 
+                                                <button type="button" class="dt-btn dt-btn-ghost !text-[11px] !py-1.5 w-full"
                                                     @click.prevent.stop="$dispatch('open-move-modal', {
                                                         timerId: {{$task->id}}, 
                                                         taskId: {{$task->task_id}}, 
@@ -857,13 +1028,13 @@
                                                 </button>
                                                 @endif
                                             </div>
-                                            <div class="flex flex-col items-center gap-2">
+                                            <div class="flex flex-col items-stretch gap-2">
                                                 @if(Auth::user()->hasRole('Admin'))
                                                     <form action="{{ route('admin.tasks.timer.destroy', $task->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this timer entry?');">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="inline-flex justify-center w-full text-white bg-red-600 hover:bg-red-700 font-medium rounded text-xs px-2 py-1 text-center">
-                                                            Delete
+                                                        <button type="submit" class="inline-flex items-center justify-center gap-1.5 w-full rounded-lg border border-red-200 bg-white px-2 py-1.5 text-[11px] font-semibold text-red-600 hover:bg-red-50 transition-colors">
+                                                            {{ __('messages.Delete') }}
                                                         </button>
                                                     </form>
                                                 @endif
@@ -872,11 +1043,11 @@
                                     </tr>
                                 @endforeach
                                 
-                                <tr class="bg-gray-50 font-bold date-total-row">
-                                    <td colspan="5" class="px-4 py-3 text-sm text-gray-900 text-right">Date Total:</td>
-                                    <td class="px-4 py-3 text-sm text-gray-900 text-left">{{ formatDuration($groupTotalDuration) }}</td>
-                                    <td class="px-4 py-3 text-sm text-gray-900 text-right">{{ number_format($groupTotal, 3, ',', '') }}€</td>
-                                    <td class="px-4 py-3 text-sm text-gray-900 text-right">{{ number_format($groupTotalRecette, 3, ',', '') }}€</td>
+                                <tr class="bg-slate-50 font-bold date-total-row border-t border-slate-200">
+                                    <td colspan="5" class="px-4 py-3 text-[13px] text-[#0B2638] text-right">{{ __('messages.Date Total:') }}</td>
+                                    <td class="px-4 py-3 text-[13px] text-[#0B2638] text-left">{{ formatDuration($groupTotalDuration) }}</td>
+                                    <td class="px-4 py-3 text-[13px] text-emerald-700 text-right">{{ number_format($groupTotal, 3, ',', '') }}€</td>
+                                    <td class="px-4 py-3 text-[13px] text-[#0B2638] text-right">{{ number_format($groupTotalRecette, 3, ',', '') }}€</td>
                                     <td colspan="2"></td>
                                 </tr>
                             @endforeach
@@ -897,25 +1068,25 @@
     {{-- 1. Edit Date/Time Modal --}}
     <div x-data="editDateModal()" x-cloak x-show="show" 
          @open-edit-date-modal.window="open($event.detail)"
-         class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
-        <div @click.outside="show = false" class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+         class="fixed inset-0 z-50 flex items-center justify-center bg-[#0B2638]/50 backdrop-blur-[2px]">
+        <div @click.outside="show = false" class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
             <div class="flex items-center justify-between p-4 border-b">
-                <h5 class="text-lg font-semibold">{{ __('messages.Edit Date and Time') }}</h5>
+                <h5 class="dt-section-title">{{ __('messages.Edit Date and Time') }}</h5>
                 <button @click="show = false" type="button" class="text-gray-400 hover:text-gray-600">&times;</button>
             </div>
             <div class="p-6 space-y-4">
                 <div>
                     <label for="dateInput" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Date label') }}</label>
-                    <input type="date" x-model="date" id="dateInput" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                    <input type="date" x-model="date" id="dateInput" class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3">
                 </div>
                 <div>
                     <label for="timeInput" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Time (HH:MM)') }}</label>
-                    <input type="time" x-model="time" id="timeInput" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                    <input type="time" x-model="time" id="timeInput" class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3">
                 </div>
             </div>
-            <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-                <button @click="show = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">{{ __('messages.Close button') }}</button>
-                <button @click="save()" type="button" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">{{ __('messages.Save changes button') }}</button>
+            <div class="flex items-center justify-end p-4 bg-slate-50/70 border-t border-slate-100 rounded-b-2xl space-x-2">
+                <button @click="show = false" type="button" class="dt-btn dt-btn-ghost">{{ __('messages.Close button') }}</button>
+                <button @click="save()" type="button" class="dt-btn dt-btn-teal">{{ __('messages.Save changes button') }}</button>
             </div>
         </div>
     </div>
@@ -923,16 +1094,16 @@
     {{-- 2. Move Duration Modal --}}
     <div x-data="moveDurationModal()" x-cloak x-show="show"
          @open-move-modal.window="open($event.detail)"
-         class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
-        <div @click.outside="show = false" class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+         class="fixed inset-0 z-50 flex items-center justify-center bg-[#0B2638]/50 backdrop-blur-[2px]">
+        <div @click.outside="show = false" class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
             <div class="flex items-center justify-between p-4 border-b">
-                <h5 class="text-lg font-semibold">{{ __('messages.Move Duration') }}</h5>
+                <h5 class="dt-section-title">{{ __('messages.Move Duration') }}</h5>
                 <button @click="show = false" type="button" class="text-gray-400 hover:text-gray-600">&times;</button>
             </div>
             <div class="p-6 space-y-4">
                 <div>
                     <label for="projectSelect" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Project') }}</label>
-                    <select x-model="projectId" @change="loadTasks()" id="projectSelect" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                    <select x-model="projectId" @change="loadTasks()" id="projectSelect" class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3 form-select-custom">
                         @foreach($projects as $project)
                             <option value="{{ $project->id }}">{{ $project->name }}</option>
                         @endforeach
@@ -940,12 +1111,12 @@
                 </div>
                 <div>
                     <label for="taskSelect" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Task Filter Task') }}</label>
-                    <select x-model="taskId" id="taskSelect" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                    <select x-model="taskId" id="taskSelect" class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3 form-select-custom">
                         </select>
                 </div>
                 <div>
                     <label for="employeeSelect" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Employee') }}</label>
-                    <select x-model="employeeId" id="employeeSelect" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                    <select x-model="employeeId" id="employeeSelect" class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3 form-select-custom">
                         @foreach($employees as $employee)
                             <option value="{{ $employee->id }}">{{ $employee->name }}</option>
                         @endforeach
@@ -953,22 +1124,22 @@
                 </div>
                 <div>
                     <label for="moveStartDate" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Start Date') }}</label>
-                    <input type="datetime-local" x-model="startDate" @input="calculateDuration()" id="moveStartDate" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                    <input type="datetime-local" x-model="startDate" @input="calculateDuration()" id="moveStartDate" class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3">
                 </div>
                 <div>
                     <label for="moveEndDate" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.End Date') }}</label>
-                    <input type="datetime-local" x-model="endDate" @input="calculateDuration()" id="moveEndDate" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                    <input type="datetime-local" x-model="endDate" @input="calculateDuration()" id="moveEndDate" class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3">
                 </div>
                 <div>
                     <label for="moveDuration" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Duration (HH:MM)') }}</label>
                     <input type="text" x-model="duration" id="moveDuration" @input="validateDurationFormat()"
-                           class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+                           class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3"
                            placeholder="00h:00m" pattern="^(\d+)h:(\d{2})m$">
                 </div>
             </div>
-            <div class="flex items-center justify-end p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-                <button @click="show = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100">Close</button>
-                <button @click="saveMove()" type="button" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Save changes</button>
+            <div class="flex items-center justify-end p-4 bg-slate-50/70 border-t border-slate-100 rounded-b-2xl space-x-2">
+                <button @click="show = false" type="button" class="dt-btn dt-btn-ghost">{{ __('messages.Close') }}</button>
+                <button @click="saveMove()" type="button" class="dt-btn dt-btn-teal">{{ __('messages.Save changes button') }}</button>
             </div>
         </div>
     </div>
@@ -1921,9 +2092,9 @@
                     if (errorMessage) {
                         descriptionEl.textContent = errorMessage;
                     } else if (skippedTasks && Array.isArray(skippedTasks) && skippedTasks.length > 0) {
-                        descriptionEl.textContent = 'These tasks were skipped because their data is incomplete or inconsistent (for example: missing project, missing hourly rate, or missing links). You can fix them later; the rest of the worksheet is correct.';
+                        descriptionEl.textContent = {!! json_encode(__('messages.Skipped tasks description')) !!};
                     } else {
-                        descriptionEl.textContent = 'An error occurred while generating the PDF. Please try again. If the problem persists, check your filters and network connection, or contact an administrator.';
+                        descriptionEl.textContent = {!! json_encode(__('messages.An error occurred while generating the PDF. Please try again. If the problem persists, check your filters and network connection, or contact an administrator.')) !!};
                     }
                 }
 
@@ -1993,46 +2164,451 @@
         });
     </script>
 
+    <script>
+    // Collapsible checkbox dropdown for the task multi-filter.
+    // The native #taskFilter select stays the source of truth (form submit,
+    // selectedOptions reads, dynamic repopulation all keep working untouched);
+    // this UI only mirrors it and writes back through it.
+    (function () {
+        var select = document.getElementById('taskFilter');
+        var dropdown = document.getElementById('taskFilterDropdown');
+        var btn = document.getElementById('taskFilterBtn');
+        var btnText = document.getElementById('taskFilterBtnText');
+        var chevron = document.getElementById('taskFilterChevron');
+        var panel = document.getElementById('taskFilterPanel');
+        var list = document.getElementById('taskFilterList');
+        var search = document.getElementById('taskFilterSearch');
+        var emptyNote = document.getElementById('taskFilterEmpty');
+        if (!select || !dropdown || !btn || !panel || !list) return;
+
+        function selectedOptions() {
+            return Array.from(select.options).filter(function (o) { return o.selected; });
+        }
+
+        function refreshButton() {
+            var selected = selectedOptions();
+            var allOpt = Array.from(select.options).find(function (o) { return o.value === 'all'; });
+            if (selected.length === 0 || (allOpt && allOpt.selected)) {
+                btnText.textContent = allOpt ? allOpt.text : '';
+            } else {
+                btnText.textContent = selected.map(function (o) { return o.text; }).join(', ');
+            }
+            btnText.title = btnText.textContent;
+        }
+
+        function rebuildList() {
+            list.innerHTML = '';
+            Array.from(select.options).forEach(function (opt) {
+                var row = document.createElement('label');
+                row.className = 'flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] text-slate-700 transition-colors hover:bg-slate-50';
+                var box = document.createElement('input');
+                box.type = 'checkbox';
+                box.checked = opt.selected;
+                box.className = 'h-4 w-4 flex-shrink-0 rounded border-slate-300 text-[#2D7080] focus:ring-[#2D7080]/25';
+                box.setAttribute('data-value', opt.value);
+                var label = document.createElement('span');
+                label.className = 'min-w-0 flex-1 truncate';
+                label.textContent = opt.text;
+                label.title = opt.text;
+                box.addEventListener('change', function () {
+                    opt.selected = box.checked;
+                    enforceExclusivity(opt.value);
+                    // Let the existing handlers run exactly as before
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                    refreshFromNative();
+                });
+                row.appendChild(box);
+                row.appendChild(label);
+                list.appendChild(row);
+            });
+            refreshButton();
+            applySearch();
+        }
+
+        function findAllOption() {
+            return Array.from(select.options).find(function (o) { return o.value === 'all'; });
+        }
+
+        // Single source of truth for the "All vs specific" rule (mirrors
+        // the server, which drops 'all' and filters by the remaining ids):
+        // - selecting "All" clears every specific task;
+        // - selecting any specific task clears "All";
+        // - with nothing selected, fall back to "All" so the state is defined.
+        function enforceExclusivity(changedValue) {
+            var allOpt = findAllOption();
+            if (!allOpt) return;
+            var specifics = Array.from(select.options).filter(function (o) {
+                return o.value !== 'all' && o.selected;
+            });
+            if (changedValue === 'all') {
+                if (allOpt.selected) {
+                    specifics.forEach(function (o) { o.selected = false; });
+                }
+            } else {
+                if (specifics.length > 0) {
+                    allOpt.selected = false;
+                } else if (!allOpt.selected) {
+                    allOpt.selected = true;
+                }
+            }
+        }
+
+        function refreshFromNative() {
+            enforceExclusivity(null);
+            var boxes = list.querySelectorAll('input[type="checkbox"]');
+            boxes.forEach(function (box) {
+                var opt = Array.from(select.options).find(function (o) { return o.value === box.getAttribute('data-value'); });
+                if (opt) box.checked = opt.selected;
+            });
+            // Rebuild if the option set changed (dynamic repopulation)
+            if (boxes.length !== select.options.length) rebuildList();
+            else refreshButton();
+        }
+
+        function applySearch() {
+            if (!search) return;
+            var q = search.value.trim().toLowerCase();
+            var visible = 0;
+            list.querySelectorAll(':scope > label').forEach(function (row) {
+                var text = (row.querySelector('span:last-child')?.textContent || '').toLowerCase();
+                var show = q === '' || text.includes(q);
+                row.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            if (emptyNote) {
+                var none = visible === 0 && q !== '';
+                emptyNote.classList.toggle('hidden', !none);
+                if (none) emptyNote.textContent = (emptyNote.getAttribute('data-no-results') || '') + ' "' + search.value.trim() + '"';
+            }
+        }
+
+        // Open downward by default; flip upward when there is not enough
+        // room below but more room above, so the panel never gets cut off.
+        function positionPanel() {
+            panel.classList.remove('bottom-full', 'mb-2');
+            panel.classList.add('mt-2');
+            var rect = btn.getBoundingClientRect();
+            var estH = Math.min(320, panel.scrollHeight > 0 ? panel.scrollHeight : 280);
+            var spaceBelow = window.innerHeight - rect.bottom;
+            var spaceAbove = rect.top;
+            if (spaceBelow < estH + 16 && spaceAbove > spaceBelow) {
+                panel.classList.remove('mt-2');
+                panel.classList.add('bottom-full', 'mb-2');
+            }
+        }
+
+        function setOpen(open) {
+            panel.classList.toggle('hidden', !open);
+            if (open) positionPanel();
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (chevron) chevron.style.transform = open ? 'rotate(180deg)' : '';
+            if (!open && search) {
+                search.value = '';
+                applySearch();
+            } else if (open && search) {
+                applySearch();
+                setTimeout(function () { search.focus({ preventScroll: true }); }, 30);
+            }
+        }
+
+        window.addEventListener('resize', function () {
+            if (!panel.classList.contains('hidden')) positionPanel();
+        });
+
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            refreshFromNative();
+            setOpen(panel.classList.contains('hidden'));
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!panel.classList.contains('hidden') && !dropdown.contains(e.target)) {
+                setOpen(false);
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !panel.classList.contains('hidden')) setOpen(false);
+        });
+
+        if (search) search.addEventListener('input', applySearch);
+
+        // Native select changed elsewhere (restore, dynamic reload) -> refresh UI
+        select.addEventListener('change', refreshFromNative);
+        if (window.MutationObserver) {
+            new MutationObserver(refreshFromNative).observe(select, { childList: true });
+        }
+
+        rebuildList();
+        // Refresh after the existing restore logic runs on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', refreshFromNative);
+        if (document.readyState !== 'loading') refreshFromNative();
+    })();
+    </script>
+
+    <script>
+    // Custom searchable dropdowns for the single-value filters
+    // (Client, Employee, Project, Type). The native selects stay the source
+    // of truth: dynamic repopulation, restore, persistence and form submit
+    // all keep talking to them untouched; this UI only mirrors them.
+    (function () {
+        var openInstance = null;
+
+        function closeAllSingle(except) {
+            document.querySelectorAll('[data-filter-dropdown]').forEach(function (dd) {
+                if (dd !== except) {
+                    var p = dd.querySelector('[id$="Panel"]');
+                    var b = dd.querySelector('button[id$="Btn"]');
+                    if (p) p.classList.add('hidden');
+                    if (b) b.setAttribute('aria-expanded', 'false');
+                    var c = dd.querySelector('[data-chevron]');
+                    if (c) c.style.transform = '';
+                }
+            });
+            if (openInstance && openInstance !== except) openInstance = null;
+        }
+
+        function makeSingleFilterDropdown(prefix) {
+            var select = document.getElementById(prefix);
+            var dropdown = document.getElementById(prefix + 'Dropdown');
+            if (!select || !dropdown) return;
+            var btn = document.getElementById(prefix + 'Btn');
+            var btnText = document.getElementById(prefix + 'BtnText');
+            var chevron = dropdown.querySelector('[data-chevron]');
+            var panel = document.getElementById(prefix + 'Panel');
+            var list = document.getElementById(prefix + 'List');
+            var emptyNote = document.getElementById(prefix + 'Empty');
+            var search = dropdown.querySelector('[data-filter-search]');
+            if (!btn || !panel || !list) return;
+
+            function options() { return Array.from(select.options); }
+
+            function refreshButton() {
+                var sel = options().find(function (o) { return o.value === select.value && select.value !== ''; });
+                var allOpt = options().find(function (o) { return o.value === ''; });
+                var text = sel ? sel.text : (allOpt ? allOpt.text : '');
+                if (btnText) {
+                    btnText.textContent = text;
+                    btnText.title = text;
+                }
+            }
+
+            function applySearch() {
+                if (!search) return;
+                var q = search.value.trim().toLowerCase();
+                var visible = 0;
+                list.querySelectorAll(':scope > button').forEach(function (row) {
+                    var text = (row.querySelector('span:first-child')?.textContent || '').toLowerCase();
+                    var show = q === '' || text.includes(q);
+                    row.style.display = show ? '' : 'none';
+                    if (show) visible++;
+                });
+                if (emptyNote) {
+                    var none = visible === 0 && q !== '';
+                    emptyNote.classList.toggle('hidden', !none);
+                    if (none) emptyNote.textContent = (emptyNote.getAttribute('data-no-results') || '') + ' "' + search.value.trim() + '"';
+                }
+            }
+
+            function rebuildList() {
+                list.innerHTML = '';
+                options().forEach(function (opt) {
+                    var row = document.createElement('button');
+                    row.type = 'button';
+                    row.className = 'flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] transition-colors hover:bg-slate-50';
+                    row.setAttribute('role', 'option');
+                    row.setAttribute('aria-selected', opt.selected && opt.value !== '' ? 'true' : 'false');
+                    var label = document.createElement('span');
+                    label.className = 'min-w-0 flex-1 truncate text-slate-700';
+                    label.textContent = opt.text;
+                    label.title = opt.text;
+                    if (opt.style.color) label.style.color = opt.style.color;
+                    if (opt.style.fontWeight) label.style.fontWeight = opt.style.fontWeight;
+                    var check = document.createElement('span');
+                    check.className = 'flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full ' + (opt.selected && opt.value !== '' ? 'bg-[#2D7080] text-white' : 'border border-slate-300 text-transparent');
+                    check.innerHTML = '<svg class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>';
+                    row.appendChild(label);
+                    row.appendChild(check);
+                    row.addEventListener('click', function () {
+                        select.value = opt.value;
+                        select.dispatchEvent(new Event('change', { bubbles: true }));
+                        refreshFromNative();
+                        setOpen(false);
+                    });
+                    list.appendChild(row);
+                });
+                applySearch();
+                refreshButton();
+            }
+
+            function refreshFromNative() {
+                var rows = list.querySelectorAll(':scope > button');
+                if (rows.length !== select.options.length) {
+                    rebuildList();
+                    return;
+                }
+                rows.forEach(function (row, i) {
+                    var opt = select.options[i];
+                    var check = row.querySelector('span:last-child');
+                    var selected = opt && opt.selected && opt.value !== '';
+                    row.setAttribute('aria-selected', selected ? 'true' : 'false');
+                    if (check) {
+                        check.className = 'flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full ' + (selected ? 'bg-[#2D7080] text-white' : 'border border-slate-300 text-transparent');
+                    }
+                    var label = row.querySelector('span:first-child');
+                    if (label && opt) {
+                        if (label.textContent !== opt.text) {
+                            label.textContent = opt.text;
+                            label.title = opt.text;
+                        }
+                        label.style.color = opt.style.color || '';
+                        label.style.fontWeight = opt.style.fontWeight || '';
+                    }
+                });
+                applySearch();
+                refreshButton();
+            }
+
+            function positionPanel() {
+                panel.classList.remove('bottom-full', 'mb-2');
+                panel.classList.add('mt-2');
+                var rect = btn.getBoundingClientRect();
+                var estH = Math.min(340, panel.scrollHeight > 0 ? panel.scrollHeight : 300);
+                var spaceBelow = window.innerHeight - rect.bottom;
+                var spaceAbove = rect.top;
+                if (spaceBelow < estH + 16 && spaceAbove > spaceBelow) {
+                    panel.classList.remove('mt-2');
+                    panel.classList.add('bottom-full', 'mb-2');
+                }
+            }
+
+            function setOpen(open) {
+                if (open) {
+                    closeAllSingle(dropdown);
+                    openInstance = dropdown;
+                } else {
+                    if (openInstance === dropdown) openInstance = null;
+                }
+                panel.classList.toggle('hidden', !open);
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                if (chevron) chevron.style.transform = open ? 'rotate(180deg)' : '';
+                if (open) {
+                    positionPanel();
+                    refreshFromNative();
+                    if (search) setTimeout(function () { search.focus({ preventScroll: true }); }, 30);
+                } else if (search) {
+                    search.value = '';
+                    applySearch();
+                }
+            }
+
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                refreshFromNative();
+                setOpen(panel.classList.contains('hidden'));
+            });
+
+            if (search) search.addEventListener('input', applySearch);
+
+            // Native select changed elsewhere (restore, dynamic reload) -> refresh UI
+            select.addEventListener('change', refreshFromNative);
+            if (window.MutationObserver) {
+                new MutationObserver(refreshFromNative).observe(select, { childList: true, subtree: true, characterData: true });
+            }
+
+            rebuildList();
+            document.addEventListener('DOMContentLoaded', refreshFromNative);
+            if (document.readyState !== 'loading') refreshFromNative();
+        }
+
+        document.addEventListener('click', function (e) {
+            document.querySelectorAll('[data-filter-dropdown]').forEach(function (dd) {
+                var p = dd.querySelector('[id$="Panel"]');
+                if (p && !p.classList.contains('hidden') && !dd.contains(e.target)) {
+                    p.classList.add('hidden');
+                    var b = dd.querySelector('button[id$="Btn"]');
+                    if (b) b.setAttribute('aria-expanded', 'false');
+                    var c = dd.querySelector('[data-chevron]');
+                    if (c) c.style.transform = '';
+                    var s = dd.querySelector('[data-filter-search]');
+                    if (s) { s.value = ''; }
+                    if (openInstance === dd) openInstance = null;
+                }
+            });
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            document.querySelectorAll('[data-filter-dropdown]').forEach(function (dd) {
+                var p = dd.querySelector('[id$="Panel"]');
+                if (p && !p.classList.contains('hidden')) {
+                    p.classList.add('hidden');
+                    if (openInstance === dd) openInstance = null;
+                }
+            });
+        });
+
+        window.addEventListener('resize', function () {
+            if (openInstance) {
+                var p = openInstance.querySelector('[id$="Panel"]');
+                var b = openInstance.querySelector('button[id$="Btn"]');
+                if (p && b && !p.classList.contains('hidden')) {
+                    p.classList.remove('bottom-full', 'mb-2');
+                    p.classList.add('mt-2');
+                    var rect = b.getBoundingClientRect();
+                    var estH = Math.min(340, p.scrollHeight > 0 ? p.scrollHeight : 300);
+                    if (window.innerHeight - rect.bottom < estH + 16 && rect.top > window.innerHeight - rect.bottom) {
+                        p.classList.remove('mt-2');
+                        p.classList.add('bottom-full', 'mb-2');
+                    }
+                }
+            }
+        });
+
+        ['clientFilter', 'employeeFilter', 'projectFilter', 'projectTypeFilter', 'monthFilter'].forEach(makeSingleFilterDropdown);
+    })();
+    </script>
+
     <!-- PDF error modal with skipped tasks table (matches customer-preview.blade.php structure) -->
-    <div id="pdfErrorModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4">
-            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">
-                    Tasks not included in the PDF
+    <div id="pdfErrorModal" class="fixed inset-0 bg-[#0B2638]/50 backdrop-blur-[2px] flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full mx-4 overflow-hidden">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+                <h3 class="dt-section-title">
+                    {{ __('messages.Tasks not included in the PDF') }}
                 </h3>
                 <button type="button"
                         onclick="closePdfErrorModal()"
                         class="text-gray-400 hover:text-gray-600 focus:outline-none">
-                    <span class="sr-only">Close</span>
+                    <span class="sr-only">{{ __('messages.Close') }}</span>
                     &times;
                 </button>
             </div>
             <div class="px-4 py-3 text-sm text-gray-700 border-b border-gray-100">
-                <p id="pdfErrorDescription">
-                    These tasks were skipped because their data is incomplete or inconsistent (for example: missing project, missing hourly rate, or missing links). You can fix them later; the rest of the worksheet is correct.
-                </p>
+                    <p id="pdfErrorDescription">
+                        {{ __('messages.Skipped tasks description') }}
+                    </p>
             </div>
             <div class="px-4 py-3 max-h-96 overflow-y-auto">
                 <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
-                                Task
+                    <thead class="bg-slate-50/80">
+                        <tr class="dt-table-head">
+                            <th class="px-3 py-2 text-left whitespace-nowrap border-b border-slate-100">
+                                {{ __('messages.Task') }}
                             </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
-                                Project
+                            <th class="px-3 py-2 text-left whitespace-nowrap border-b border-slate-100">
+                                {{ __('messages.Project') }}
                             </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
-                                Employee
+                            <th class="px-3 py-2 text-left whitespace-nowrap border-b border-slate-100">
+                                {{ __('messages.Employee') }}
                             </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
-                                Start date
+                            <th class="px-3 py-2 text-left whitespace-nowrap border-b border-slate-100">
+                                {{ __('messages.Start date') }}
                             </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
-                                End date
+                            <th class="px-3 py-2 text-left whitespace-nowrap border-b border-slate-100">
+                                {{ __('messages.End date') }}
                             </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
-                                Duration
+                            <th class="px-3 py-2 text-left whitespace-nowrap border-b border-slate-100">
+                                {{ __('messages.Duration') }}
                             </th>
                         </tr>
                     </thead>
@@ -2042,55 +2618,53 @@
                 </table>
             </div>
             <div class="px-4 py-3 flex justify-end border-t border-gray-200">
-                <button type="button"
+                    <button type="button"
                         onclick="closePdfErrorModal()"
-                        class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                    Close
+                        class="dt-btn dt-btn-ghost">
+                    {{ __('messages.Close') }}
                 </button>
             </div>
         </div>
     </div>
 
     <!-- Skipped tasks modal -->
-    <div id="skippedTasksModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4">
-            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">
-                    Tasks not included in the PDF
+    <div id="skippedTasksModal" class="fixed inset-0 bg-[#0B2638]/50 backdrop-blur-[2px] flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full mx-4 overflow-hidden">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+                <h3 class="dt-section-title">
+                    {{ __('messages.Tasks not included in the PDF') }}
                 </h3>
                 <button type="button"
                         onclick="closeSkippedTasksModal()"
                         class="text-gray-400 hover:text-gray-600 focus:outline-none">
-                    <span class="sr-only">Close</span>
+                    <span class="sr-only">{{ __('messages.Close') }}</span>
                     &times;
                 </button>
             </div>
             <div class="px-4 py-3 text-sm text-gray-700 border-b border-gray-100">
-                Some tasks were skipped because their data is incomplete or inconsistent
-                (for example: missing project, missing hourly rate, or missing links).
-                You can review them below and fix them later; the rest of the PDF has been generated correctly.
+                {{ __('messages.Some tasks were skipped because their data is incomplete or inconsistent (for example: missing project, missing hourly rate, or missing links). You can review them below and fix them later; the rest of the PDF has been generated correctly.') }}
             </div>
             <div class="px-4 py-3 max-h-96 overflow-y-auto">
                 <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
-                                Task
+                    <thead class="bg-slate-50/80">
+                        <tr class="dt-table-head">
+                            <th class="px-3 py-2 text-left whitespace-nowrap border-b border-slate-100">
+                                {{ __('messages.Task') }}
                             </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
-                                Project
+                            <th class="px-3 py-2 text-left whitespace-nowrap border-b border-slate-100">
+                                {{ __('messages.Project') }}
                             </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
-                                Employee
+                            <th class="px-3 py-2 text-left whitespace-nowrap border-b border-slate-100">
+                                {{ __('messages.Employee') }}
                             </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
-                                Start date
+                            <th class="px-3 py-2 text-left whitespace-nowrap border-b border-slate-100">
+                                {{ __('messages.Start date') }}
                             </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
-                                End date
+                            <th class="px-3 py-2 text-left whitespace-nowrap border-b border-slate-100">
+                                {{ __('messages.End date') }}
                             </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
-                                Duration
+                            <th class="px-3 py-2 text-left whitespace-nowrap border-b border-slate-100">
+                                {{ __('messages.Duration') }}
                             </th>
                         </tr>
                     </thead>
@@ -2100,13 +2674,15 @@
                 </table>
             </div>
             <div class="px-4 py-3 flex justify-end border-t border-gray-200">
-                <button type="button"
+                    <button type="button"
                         onclick="closeSkippedTasksModal()"
-                        class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                    Close
+                        class="dt-btn dt-btn-ghost">
+                    {{ __('messages.Close') }}
                 </button>
             </div>
         </div>
     </div>
 </body>
 </html>
+
+

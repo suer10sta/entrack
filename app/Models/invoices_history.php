@@ -23,7 +23,7 @@ class invoices_history extends Model
         'payment_status',
         'sentreminder',
         'sentInvoice',
-        'entrepeise_id',
+        'entreprise_id',
         'duration',
         'total_htva',
         'total_tva',

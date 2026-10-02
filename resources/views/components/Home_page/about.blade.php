@@ -38,7 +38,7 @@
     - text-slate-600 -> text-muted
   -->
   <body class="antialiased bg-card text-muted font-figtree">
-    <x-Home_page.header />
+    <x-public.header />
 
     <main>
 
@@ -358,7 +358,7 @@
 
     </main>
 
-    <x-Home_page.footer />
+    <x-public.footer />
 
     <script src="welcome/js/aos.js"></script>
     <script>

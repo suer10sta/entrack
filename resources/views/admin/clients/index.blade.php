@@ -33,7 +33,7 @@
             }
             #clientsTable tbody tr:hover {
                 transform: translateY(-1px);
-                border-color: rgba(59, 130, 246, 0.45); /* blue-500/45 */
+                border-color: rgba(45, 112, 128, 0.45);
                 box-shadow:
                     0 16px 40px rgba(15, 23, 42, 0.10),
                     0 3px 10px rgba(15, 23, 42, 0.08);
@@ -94,7 +94,7 @@
     </style>
     
 </head>
-<body class="bg-gray-50 flex h-screen overflow-hidden">
+<body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
 
     {{-- Sidebar Component --}}
     @if(Auth::user()->hasRole('Admin'))
@@ -110,88 +110,89 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#eaebef] p-4 sm:p-6 lg:p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
+
+            {{-- Page heading (same design as Admin Dashboard) --}}
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
+                <div class="min-w-0">
+                    <p class="dt-overline mb-1">{{ __('messages.Reports') }}</p>
+                    <h1 class="text-[22px] sm:text-[24px] font-bold tracking-tight text-[#0B2638] leading-tight">
+                        {{ __('messages.Clients Table') }}
+                    </h1>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:flex-wrap gap-2 w-full sm:w-auto">
+                    {{-- Add Client Button --}}
+                    @can('Add client')
+                        @php
+                            $createRoute = '#'; // Default fallback
+                            if (Auth::user()->hasRole('Responsable de projet')) $createRoute = route('Responsable_de_projet.clients.create');
+                            elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $createRoute = route('Responsable_gestionnaire.clients.create');
+                            elseif (Auth::user()->hasRole('Admin')) $createRoute = route('admin.clients.create');
+                        @endphp
+                        <a href="{{ $createRoute }}" class="dt-btn dt-btn-teal w-full sm:w-auto">
+                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                            {{ __('messages.Add Client') }}
+                        </a>
+                    @endcan
+
+                    {{-- Report Button --}}
+                    @php
+                        $reportRoute = '#'; // Default fallback
+                        if (Auth::user()->hasRole('Responsable de projet')) $reportRoute = route('Responsable_de_projet.Clientrepports.downloadRepports');
+                        elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $reportRoute = route('Responsable_gestionnaire.Clientrepports.downloadRepports');
+                        elseif (Auth::user()->hasRole('Admin')) $reportRoute = route('admin.Clientrepports.downloadRepports');
+                    @endphp
+                    <a href="{{ $reportRoute }}" class="dt-btn dt-btn-ghost w-full sm:w-auto">
+                       <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                        {{ __('messages.Client Reports PDF') }}
+                    </a>
+                </div>
+            </div>
 
             {{-- Container for the table --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-
-                {{-- Header Section --}}
-                <div class="p-4 sm:p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <h6 class="text-lg font-semibold text-gray-900">{{ __('messages.Clients Table') }}</h6>
-
-                    <div class="flex flex-col sm:flex-row sm:flex-wrap gap-2 w-full sm:w-auto">
-                        {{-- Add Client Button --}}
-                        @can('Add client')
-                            @php
-                                $createRoute = '#'; // Default fallback
-                                if (Auth::user()->hasRole('Responsable de projet')) $createRoute = route('Responsable_de_projet.clients.create');
-                                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $createRoute = route('Responsable_gestionnaire.clients.create');
-                                elseif (Auth::user()->hasRole('Admin')) $createRoute = route('admin.clients.create');
-                            @endphp
-                            <a href="{{ $createRoute }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center justify-center gap-1.5 w-full sm:w-auto">
-                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                                {{ __('messages.Add Client') }}
-                            </a>
-                        @endcan
-
-                        {{-- Report Button --}}
-                        @php
-                            $reportRoute = '#'; // Default fallback
-                            if (Auth::user()->hasRole('Responsable de projet')) $reportRoute = route('Responsable_de_projet.Clientrepports.downloadRepports');
-                            elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $reportRoute = route('Responsable_gestionnaire.Clientrepports.downloadRepports');
-                            elseif (Auth::user()->hasRole('Admin')) $reportRoute = route('admin.Clientrepports.downloadRepports');
-                        @endphp
-                        <a href="{{ $reportRoute }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 text-sm font-medium px-4 py-2 rounded-lg flex items-center justify-center gap-1.5 w-full sm:w-auto">
-                           <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                           {{ __('messages.Client Reports PDF') }}
-                        </a>
-                    </div>
-                </div>
+            <div class="dt-card overflow-hidden">
 
                 {{-- Session Message Alert --}}
                 @if(session('message'))
-                    <div class="m-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative" role="alert">
-                        <span class="block sm:inline">{{ session('message') }}</span>
-                        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-green-700 hover:text-green-900 font-bold text-xl" aria-label="Close">
-                           &times; {{-- Better looking 'X' --}}
+                    <div class="m-4 sm:m-5 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl relative flex items-center gap-2" role="alert">
+                        <span class="block sm:inline text-[13px] font-medium">{{ session('message') }}</span>
+                        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-emerald-600 hover:text-emerald-800 font-bold text-xl" aria-label="Close">
+                           &times;
                         </button>
                     </div>
                 @endif
 
                 {{-- Table Wrapper --}}
-                <div class="p-4 sm:p-6">
-    <div>
+                <div class="overflow-x-auto custom-scrollbar">
         <table id="clientsTable" class="w-full text-left border-collapse table-auto">
-            <thead class="border-b border-gray-200 bg-gray-50">
-                <tr>
-                    {{-- Optimized column widths to fit all columns on screen --}}
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">N°</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left whitespace-nowrap">{{ __('messages.Name') }}</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left whitespace-nowrap">{{ __('messages.Email') }}</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left whitespace-nowrap">Phone</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left whitespace-nowrap">{{ __('messages.Billing Address') }}</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left whitespace-nowrap">{{ __('messages.VAT') }}</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Due Date') }}</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left whitespace-nowrap">{{ __('messages.Address') }}</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left whitespace-nowrap">{{ __('messages.City') }}</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Zip') }}</th>
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-left whitespace-nowrap">{{ __('messages.Country') }}</th>
+            <thead class="border-b border-slate-100 bg-slate-50/80">
+                <tr class="dt-table-head">
+                    <th class="px-4 py-3 text-center whitespace-nowrap">N°</th>
+                    <th class="px-4 py-3 text-left whitespace-nowrap min-w-[150px]">{{ __('messages.Name') }}</th>
+                    <th class="px-4 py-3 text-left whitespace-nowrap min-w-[140px]">{{ __('messages.Email') }}</th>
+                    <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Phone') }}</th>
+                    <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.VAT') }}</th>
+                    <th class="px-4 py-3 text-center whitespace-nowrap">{{ __('messages.Due Date') }}</th>
+                    <th class="px-4 py-3 text-left whitespace-nowrap min-w-[150px]">{{ __('messages.Address') }}</th>
+                    <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.City') }}</th>
+                    <th class="px-4 py-3 text-center whitespace-nowrap">{{ __('messages.Zip') }}</th>
+                    <th class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Country') }}</th>
                     @can('Delete client')
-                    <th class="px-3 py-3 text-sm font-bold text-gray-600 uppercase tracking-wider text-center whitespace-nowrap">{{ __('messages.Action') }}</th>
+                    <th class="px-4 py-3 text-center whitespace-nowrap min-w-[110px]">{{ __('messages.Action') }}</th>
                     @endcan
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody class="divide-y divide-slate-100">
                 @forelse($clients as $client)
-                <tr class="client-row hover:bg-gray-50" data-client-row aria-expanded="true">
-                    
+                <tr class="client-row hover:bg-slate-50/70 transition-colors" data-client-row aria-expanded="true">
+
                     {{-- ID --}}
-                    <td data-label="N°" class="px-3 py-5 text-sm text-gray-700 font-medium text-center">
+                    <td data-label="N°" class="px-4 py-2.5 text-[13px] text-slate-500 font-medium text-center whitespace-nowrap">
                         {{$client->client_number}}
                     </td>
                     
                     {{-- Name --}}
-                    <td data-label="{{ __('messages.Name') }}" data-span="2" class="px-3 py-5 text-sm text-gray-700 font-medium whitespace-normal break-words client-toggle-cell" data-client-toggle>
+                    <td data-label="{{ __('messages.Name') }}" data-span="2" class="px-4 py-2.5 text-[13px] text-slate-700 font-medium whitespace-normal break-words client-toggle-cell" data-client-toggle>
                          @php
                             // Prefer a concrete route per role; if none, fall back to admin route
                             $roleRouteMap = [
@@ -213,14 +214,14 @@
                             }
                          @endphp
 
-                         {{-- Desktop: keep original simple link layout --}}
-                         @if($showRoute)
-                            <a href="{{ $showRoute }}" class="text-blue-600 hover:underline hidden lg:inline">
-                                {{$client->name}}
-                            </a>
-                         @else
-                            <span class="hidden lg:inline">{{$client->name}}</span>
-                         @endif
+                          {{-- Desktop: keep original simple link layout --}}
+                          @if($showRoute)
+                             <a href="{{ $showRoute }}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline font-medium hidden lg:inline">
+                                 {{$client->name}}
+                             </a>
+                          @else
+                             <span class="hidden lg:inline">{{$client->name}}</span>
+                          @endif
 
                          {{-- Mobile accordion header --}}
                          <div class="flex items-start justify-between gap-3 lg:hidden">
@@ -228,11 +229,11 @@
                                  <span class="client-mobile-label text-[11px] leading-none font-bold tracking-[.06em] uppercase text-slate-500 whitespace-nowrap">
                                      {{ __('messages.Name') }}
                                  </span>
-                                 @if($showRoute)
-                                     <a href="{{ $showRoute }}" class="text-blue-600 hover:underline truncate leading-none">
-                                         {{$client->name}}
-                                     </a>
-                                 @else
+                                  @if($showRoute)
+                                      <a href="{{ $showRoute }}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline font-medium truncate leading-none">
+                                          {{$client->name}}
+                                      </a>
+                                  @else
                                      <span class="truncate leading-none">{{$client->name}}</span>
                                  @endif
                              </div>
@@ -245,59 +246,56 @@
                     </td>
 
                     {{-- Email --}}
-                    <td data-label="{{ __('messages.Email') }}" class="px-3 py-5 text-sm text-gray-700 whitespace-normal break-all">
+                    <td data-label="{{ __('messages.Email') }}" class="px-4 py-2.5 text-[13px] text-slate-600 whitespace-normal break-all max-w-[220px]">
                         {{$client->email}}
                     </td>
 
                     {{-- Phone --}}
-                    <td data-label="Phone" class="px-2 py-2.5 text-sm text-gray-700 whitespace-nowrap">
+                    <td data-label="{{ __('messages.Phone') }}" class="px-4 py-2.5 text-[13px] text-slate-600 whitespace-nowrap">
                         {{$client->phone}}
                     </td>
 
-                    {{-- Billing Address --}}
-                    <td data-label="{{ __('messages.Billing Address') }}" data-span="2" class="px-2 py-2.5 text-sm text-gray-700 whitespace-normal break-words">
-                        {{$client->Billing_address}}
-                    </td>
-
                     {{-- VAT --}}
-                    <td data-label="{{ __('messages.VAT') }}" class="px-2 py-2.5 text-sm text-gray-700 text-center whitespace-nowrap">
+                    <td data-label="{{ __('messages.VAT') }}" class="px-4 py-2.5 text-[13px] text-slate-600 text-center whitespace-nowrap">
                         {{$client->TVA}}
                     </td>
 
                     {{-- Due Date --}}
-                    <td data-label="{{ __('messages.Due Date') }}" class="px-2 py-2.5 text-sm text-gray-700 text-center whitespace-nowrap">
-                        {{$client->due_date}}
+                    <td data-label="{{ __('messages.Due Date') }}" class="px-4 py-2.5 text-[13px] text-slate-600 text-center whitespace-nowrap">
+                        @if($client->due_date)
+                            <span class="dt-badge dt-badge-navy"><span class="dt-dot"></span>{{$client->due_date}}</span>
+                        @else
+                            <span class="text-slate-300">—</span>
+                        @endif
                     </td>
 
                     {{-- Address --}}
-                    <td data-label="{{ __('messages.Address') }}" data-span="2" class="px-2 py-2.5 text-sm text-gray-700 whitespace-normal break-words">
+                    <td data-label="{{ __('messages.Address') }}" data-span="2" class="px-4 py-2.5 text-[13px] text-slate-600 whitespace-normal break-words">
                         {{$client->address}}
                     </td>
 
                     {{-- City --}}
-                    <td data-label="{{ __('messages.City') }}" class="px-2 py-2.5 text-sm text-gray-700 whitespace-normal">
+                    <td data-label="{{ __('messages.City') }}" class="px-4 py-2.5 text-[13px] text-slate-600 whitespace-normal">
                         {{$client->city}}
                     </td>
 
                     {{-- Zip --}}
-                    <td data-label="{{ __('messages.Zip') }}" class="px-2 py-2.5 text-sm text-gray-700 text-center whitespace-nowrap">
+                    <td data-label="{{ __('messages.Zip') }}" class="px-4 py-2.5 text-[13px] text-slate-600 text-center whitespace-nowrap">
                         {{$client->zip}}
                     </td>
 
                     {{-- Country --}}
-                    <td data-label="{{ __('messages.Country') }}" class="px-2 py-2.5 text-sm text-gray-700 whitespace-normal">
+                    <td data-label="{{ __('messages.Country') }}" class="px-4 py-2.5 text-[13px] text-slate-600 whitespace-normal">
                         {{$client->country}}
                     </td>
 
                     @can('Delete client')
-                    <td data-label="{{ __('messages.Action') }}" data-span="2" class="px-2 py-2.5 text-sm text-gray-700 text-center">
+                    <td data-label="{{ __('messages.Action') }}" data-span="2" class="px-4 py-2.5 text-[13px] text-slate-600 text-center">
                         @php
                             $client_has_invoice = \App\Models\invoices_history::where('client_id', $client->id)->exists();
                         @endphp
                         @if($client_has_invoice)
-                           <div class="bg-red-50 border border-red-200 text-red-600 px-2 py-1 rounded text-[10px] font-medium leading-tight">
-                                {{ __('messages.Cannot delete: Has invoices') }}
-                           </div>
+                           <span class="dt-badge dt-badge-danger">{{ __('messages.Cannot delete: Has invoices') }}</span>
                         @else
                             @php
                                 $deleteRoute = '#';
@@ -309,7 +307,7 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" title="{{ __('messages.Delete') }}"
-                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-red-600 hover:bg-red-700">
+                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors">
                                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
@@ -321,15 +319,17 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="12" class="px-6 py-4 text-center text-sm text-gray-500">
-                         {{ __('messages.No clients found.') }}
+                    <td colspan="11" class="px-6 py-10 text-center">
+                        <div class="dt-empty-icon mx-auto mb-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        </div>
+                        <p class="text-[13.5px] font-semibold text-[#0B2638]">{{ __('messages.No clients found.') }}</p>
                     </td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
-    </div>
-</div>
+                </div>
             </div>
 
         </main>
@@ -351,7 +351,7 @@
             var originalContent = $(this).text().trim();
             var cellWidth = $(this).outerWidth();
 
-            $(this).html("<input type='text' value='" + originalContent + "' class='w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-1' style='min-width: " + cellWidth + "px;' />");
+            $(this).html("<input type='text' value='" + originalContent + "' class='w-full border-slate-300 rounded-lg shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080]/25 sm:text-sm p-1 outline-none' style='min-width: " + cellWidth + "px;' />");
 
             var input = $(this).children('input').first();
             input.focus();

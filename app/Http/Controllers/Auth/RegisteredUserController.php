@@ -54,7 +54,7 @@ class RegisteredUserController extends Controller
         if ($turnstileSecret && app()->environment('production')) {
             $turnstileResponse = $request->input('cf-turnstile-response');
             if (!$turnstileResponse) {
-                return back()->withInput()->withErrors(['cf-turnstile-response' => __('Veuillez cocher la case pour prouver que vous n\'êtes pas un robot.')]);
+                return back()->withInput()->withErrors(['cf-turnstile-response' => __('messages.auth_turnstile_required')]);
             }
 
             $verify = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
@@ -65,7 +65,7 @@ class RegisteredUserController extends Controller
 
             if (!$verify->json('success')) {
                 Log::warning('Turnstile verification failed for registration.', ['response' => $verify->json()]);
-                return back()->withInput()->withErrors(['cf-turnstile-response' => __('La validation de sécurité a échoué. Veuillez réessayer.')]);
+                return back()->withInput()->withErrors(['cf-turnstile-response' => __('messages.auth_turnstile_failed')]);
             }
         }
 
@@ -75,6 +75,16 @@ class RegisteredUserController extends Controller
             "entreprise_name" => "required",
             'timezone' => 'required',
             'country' => 'required',
+        ], [
+            'email.required' => __('messages.auth_val_email_required'),
+            'email.email' => __('messages.auth_val_email_invalid'),
+            'email.unique' => __('messages.auth_val_email_taken'),
+            'password.required' => __('messages.auth_val_password_required'),
+            'password.min' => __('messages.auth_val_password_min'),
+            'password.confirmed' => __('messages.auth_val_password_confirmed'),
+            'entreprise_name.required' => __('messages.auth_val_company_required'),
+            'timezone.required' => __('messages.auth_val_timezone_required'),
+            'country.required' => __('messages.auth_val_country_required'),
         ]);
 
         
@@ -264,6 +274,6 @@ class RegisteredUserController extends Controller
         })->afterResponse();
 
         return redirect()->route('verification.notice')
-            ->with('status', 'Votre compte a été créé avec succès. Un email de vérification a été envoyé à votre adresse email. Veuillez vérifier votre boîte de réception pour activer votre compte.');
+            ->with('status', __('messages.auth_register_success'));
     }
 }

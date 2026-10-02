@@ -96,6 +96,8 @@ class adminController extends Controller
             ? min(100, max(0, ($monthlyPaidRevenue / $monthlyRevenue) * 100))
             : 0;
 
+
+
         $enterpriseId = Auth::user()->entreprise_id;
         $employees = Employees::where('entreprise_id', $enterpriseId)
             ->where('archived', 0)
@@ -176,6 +178,7 @@ class adminController extends Controller
             'dayEvents',
             'monthlyRevenue',
             'monthlyRevenueGrowth',
+            'monthlyPaidRevenue',
             'collectionRate',
             'totalProjectsCount'
         ));
@@ -263,35 +266,37 @@ class adminController extends Controller
         $employeeUser = \App\Models\User::find($employee->user_id);
 
         if (!$employeeUser || $employeeUser->is_loggedIn == 0) {
-            return '<span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">Off Work</span>';
+            return '<span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">' . e(__('messages.Off Work')) . '</span>';
         }
 
+        // Any still-open timer counts, regardless of which day it started
         $task_timer = \App\Models\tasks_timer::where('employee_id', $employee->id)
-            ->whereDate('start_date', today())
             ->whereNull('end_date')
             ->first();
 
         if ($task_timer) {
             if ($task_timer->paused == 1) {
-                return '<span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">On Pause</span>';
+                return '<span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">' . e(__('messages.On Pause')) . '</span>';
             }
-            return '<span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">On Work</span>';
+            return '<span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">' . e(__('messages.On Work')) . '</span>';
         }
 
-        return '<span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">Off Work</span>';
+        return '<span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">' . e(__('messages.Off Work')) . '</span>';
     }
 
     private function renderCurrentTask($employee)
     {
-        // Get ALL tasks the employee worked on today (completed + active)
+        // Open timers (any start day) plus everything worked on today (completed + active)
         $today = \Carbon\Carbon::today();
         $currentTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-            ->whereDate('start_date', $today)
+            ->where(function ($q) use ($today) {
+                $q->whereNull('end_date')->orWhereDate('start_date', $today);
+            })
             ->orderBy('start_date', 'desc')
             ->get();
 
         if ($currentTasks->isEmpty()) {
-            return '<span class="text-xs text-gray-400">No Task</span>';
+            return '<span class="text-xs text-gray-400">' . e(__('messages.No Task')) . '</span>';
         }
 
         // Group current tasks by project to keep borders aligned with project/duration/chrono,
@@ -353,15 +358,18 @@ class adminController extends Controller
 
     private function renderCurrentProject($employee)
     {
-        // Use ALL timers for today (completed + active) so we list every project
+        // Open timers (any start day) plus ALL timers for today (completed + active)
+        // so we list every project
         $today = \Carbon\Carbon::today();
         $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-            ->whereDate('start_date', $today)
+            ->where(function ($q) use ($today) {
+                $q->whereNull('end_date')->orWhereDate('start_date', $today);
+            })
             ->orderBy('start_date', 'desc')
             ->get();
 
         if ($activeTasks->isEmpty()) {
-            return '<span class="text-xs text-gray-400">No Project</span>';
+            return '<span class="text-xs text-gray-400">' . e(__('messages.No Project')) . '</span>';
         }
 
         // Group active tasks by project so project lines line up with tasks/duration/chrono
@@ -449,7 +457,7 @@ class adminController extends Controller
         $task = \App\Models\Tasks::where('id', $firstActiveTask->task_id)->first();
 
         if (!$task || $task->estimated_hours === null) {
-            return '<p class="text-xs font-medium text-gray-600">No Estimated Hours Inserted</p>';
+            return '<p class="text-xs font-medium text-gray-600">' . e(__('messages.No Estimated Hours Inserted')) . '</p>';
         }
 
         $tasktotalduration = \App\Models\tasks_timer::where('task_id', $firstActiveTask->task_id)
@@ -559,7 +567,7 @@ class adminController extends Controller
                 $projectTotalMins = $projectTotalMinutes % 60;
 
                 $html .= '<div class="text-xs text-gray-500 mt-1 pt-1 border-t border-gray-200">';
-                $html .= 'Total: ' . $projectTotalHours . 'h:' . sprintf('%02d', $projectTotalMins) . 'm';
+                $html .= e(__('messages.Total')) . ': ' . $projectTotalHours . 'h:' . sprintf('%02d', $projectTotalMins) . 'm';
                 $html .= '</div>';
             }
 
@@ -701,7 +709,7 @@ class adminController extends Controller
             ->sortByDesc('end_date');
 
         if ($completedTasksToday->isEmpty()) {
-            return '<p class="text-sm text-gray-500">No tasks completed today</p>';
+            return '<p class="text-sm text-gray-500">' . e(__('messages.No completed tasks today.')) . '</p>';
         }
 
         $html = '';
@@ -719,8 +727,8 @@ class adminController extends Controller
                 $projectName = optional($taskModel->project)->name ?? null;
             }
 
-            $taskName = $doneTask->task_name ?? ($taskModel->title ?? 'Task');
-            $projectDisplay = $projectName ?? 'No project linked';
+            $taskName = $doneTask->task_name ?? ($taskModel->title ?? __('messages.Task'));
+            $projectDisplay = $projectName ?? __('messages.No project linked');
 
             $html .= '<div class="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2">';
             $html .= '<div class="flex flex-col">';
@@ -728,14 +736,14 @@ class adminController extends Controller
             $html .= '<span class="text-xs text-gray-500">' . e($projectDisplay) . '</span>';
             $html .= '</div>';
             $html .= '<div class="flex items-center gap-3">';
-            $html .= '<span class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700">Completed</span>';
+            $html .= '<span class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700">' . e(__('messages.Completed')) . '</span>';
             $html .= '<span class="text-xs text-gray-700 whitespace-nowrap">' . $h . 'h ' . $m . 'm</span>';
 
             // Start button form
             $html .= '<form action="' . route('admin.tasks.start', ['tasks' => $doneTask->task_employee_id ?? $doneTask->task_id, 'employee_id' => $doneTask->employee_id]) . '" method="POST" class="history-start-form" data-task-id="' . ($doneTask->task_employee_id ?? $doneTask->task_id) . '">';
             $html .= csrf_field();
-            $html .= '<textarea name="comment" placeholder="Enter comment" rows="1" class="border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring focus:ring-emerald-200 resize-y min-h-[32px]"></textarea>';
-            $html .= '<button type="submit" class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500 text-white hover:bg-emerald-600">Start</button>';
+            $html .= '<textarea name="comment" placeholder="' . e(__('messages.Enter comment')) . '" rows="1" class="border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring focus:ring-emerald-200 resize-y min-h-[32px]"></textarea>';
+            $html .= '<button type="submit" class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500 text-white hover:bg-emerald-600">' . e(__('messages.Start')) . '</button>';
             $html .= '</form>';
 
             $html .= '</div></div>';

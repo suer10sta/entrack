@@ -14,7 +14,9 @@ return new class extends Migration
 
     public function down(): void
     {
-        DB::table('users')
-            ->update(['email_verified_at' => null]);
+        // Intentionally a no-op: this is a one-time backfill that grandfathers
+        // accounts created before email verification was introduced.
+        // Reverting must not nullify email_verified_at, otherwise all users
+        // (including legitimately verified ones) would be forced to re-verify.
     }
 };

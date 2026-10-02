@@ -4,7 +4,7 @@
     <div class="space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-2xl font-semibold text-gray-900">{{ $title }}</h2>
+                <h2 class="text-[22px] font-bold tracking-tight text-[#0B2638]">{{ $title }}</h2>
                 <p class="mt-1 text-sm text-gray-500">{{ $subtitle }}</p>
             </div>
             <div class="flex items-center gap-2">
@@ -15,15 +15,15 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="dt-card">
             {{-- Filters --}}
-            <div class="p-4 border-b border-gray-200 bg-gray-50/50">
+            <div class="p-4 border-b border-slate-100/50">
                 <form method="GET" class="flex flex-wrap items-center gap-x-6 gap-y-3">
                     <div class="flex items-center gap-2">
                         <label class="text-sm text-gray-600">{{ __('messages.Country') }}:</label>
                         <select name="country"
-                                class="text-sm border border-gray-300 rounded px-2 py-1 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">All</option>
+                                class="text-sm border border-gray-300 rounded px-2 py-1 focus:ring-[#2D7080] focus:border-[#2D7080]">
+                            <option value="">{{ __('messages.All') }}</option>
                             @if(isset($unknownCountryToken))
                                 <option value="{{ $unknownCountryToken }}" {{ $selectedCountry === $unknownCountryToken ? 'selected' : '' }}>
                                     {{ __('messages.Unknown location') }}
@@ -36,30 +36,30 @@
                     </div>
                     <label class="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
                         <input type="hidden" name="exclude_bots" value="0">
-                        <input type="checkbox" name="exclude_bots" value="1" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" {{ ($filters['exclude_bots'] ?? false) ? 'checked' : '' }}>
+                        <input type="checkbox" name="exclude_bots" value="1" class="rounded border-gray-300 text-[#2D7080] shadow-sm focus:ring-[#2D7080]" {{ ($filters['exclude_bots'] ?? false) ? 'checked' : '' }}>
                         <span>{{ __('messages.Exclude known bots') }}</span>
                     </label>
                     <label class="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
                         <input type="hidden" name="exclude_nojs" value="0">
-                        <input type="checkbox" name="exclude_nojs" value="1" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" {{ ($filters['exclude_nojs'] ?? false) ? 'checked' : '' }}>
+                        <input type="checkbox" name="exclude_nojs" value="1" class="rounded border-gray-300 text-[#2D7080] shadow-sm focus:ring-[#2D7080]" {{ ($filters['exclude_nojs'] ?? false) ? 'checked' : '' }}>
                         <span>{{ __('messages.Exclude no-JS visits') }}</span>
                     </label>
                     <label class="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
                         <input type="hidden" name="exclude_hosting" value="0">
-                        <input type="checkbox" name="exclude_hosting" value="1" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" {{ ($filters['exclude_hosting'] ?? false) ? 'checked' : '' }}>
+                        <input type="checkbox" name="exclude_hosting" value="1" class="rounded border-gray-300 text-[#2D7080] shadow-sm focus:ring-[#2D7080]" {{ ($filters['exclude_hosting'] ?? false) ? 'checked' : '' }}>
                         <span>{{ __('messages.Exclude hosting IPs') }}</span>
                     </label>
                     <label class="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
                         <input type="hidden" name="exclude_vpn" value="0">
-                        <input type="checkbox" name="exclude_vpn" value="1" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" {{ ($filters['exclude_vpn'] ?? false) ? 'checked' : '' }}>
+                        <input type="checkbox" name="exclude_vpn" value="1" class="rounded border-gray-300 text-[#2D7080] shadow-sm focus:ring-[#2D7080]" {{ ($filters['exclude_vpn'] ?? false) ? 'checked' : '' }}>
                         <span>{{ __('messages.Exclude VPN IPs') }}</span>
                     </label>
                     <label class="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
                         <input type="hidden" name="exclude_abnormal" value="0">
-                        <input type="checkbox" name="exclude_abnormal" value="1" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" {{ ($filters['exclude_abnormal'] ?? false) ? 'checked' : '' }}>
+                        <input type="checkbox" name="exclude_abnormal" value="1" class="rounded border-gray-300 text-[#2D7080] shadow-sm focus:ring-[#2D7080]" {{ ($filters['exclude_abnormal'] ?? false) ? 'checked' : '' }}>
                         <span>{{ __('messages.Exclude abnormal traffic') }}</span>
                     </label>
-                    <button type="submit" class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors">
+                    <button type="submit" class="px-3 py-1.5 text-xs font-medium text-white bg-[#2D7080] rounded hover:bg-[#245f6d] transition-colors">
                         {{ __('messages.Apply filters') }}
                     </button>
                     @if($filters['exclude_bots'] ?? $filters['exclude_nojs'] ?? $filters['exclude_hosting'] ?? $filters['exclude_vpn'] ?? $filters['exclude_abnormal'] ?? request()->has('country'))
@@ -71,7 +71,7 @@
             </div>
             <div class="manager-table-wrapper p-6 overflow-x-auto">
                 <table class="manager-table min-w-full text-left text-sm">
-                    <thead class="border-b border-gray-200 bg-gray-50">
+                    <thead class="border-b border-slate-100">
                     <tr>
                         <th class="px-4 py-2 font-semibold text-gray-600">IP</th>
                         <th class="px-4 py-2 font-semibold text-gray-600">{{ __('messages.Country') }}</th>
@@ -100,7 +100,7 @@
                                 $currentCountry = $countryLabel;
                             @endphp
                         @endif
-                        <tr class="manager-card-row hover:bg-gray-50 cursor-pointer"
+                        <tr class="manager-card-row cursor-pointer"
                             @if($ipUrl) onclick="window.location.href='{{ $ipUrl }}'" @endif
                             role="button"
                             tabindex="0"
@@ -138,5 +138,6 @@
         </div>
     </div>
 @endsection
+
 
 

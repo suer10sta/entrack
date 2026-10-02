@@ -32,8 +32,8 @@
     }
 
     #employeesTable_wrapper .dt-search input:focus {
-        border-color: #2563eb;
-        box-shadow: 0 0 0 2px #bfdbfe;
+        border-color: #2D7080;
+        box-shadow: 0 0 0 2px #c3d9dd;
         outline: none;
     }
 
@@ -73,18 +73,18 @@
     }
 
     #employeesTable_wrapper .dataTables_paginate .paginate_button:hover {
-        background-color: #eff6ff;
-        /* blue-50 */
-        border-color: #bfdbfe;
-        /* blue-200 */
-        color: #1d4ed8;
-        /* blue-700 */
+        background-color: #eef4f5;
+        /* teal-50 */
+        border-color: #c3d9dd;
+        /* teal-200 */
+        color: #0B2638;
+        /* brand-primary */
     }
 
     #employeesTable_wrapper .dataTables_paginate .paginate_button.current {
-        background-color: #1d4ed8;
-        /* blue-700 */
-        border-color: #1d4ed8;
+        background-color: #2D7080;
+        /* brand-secondary */
+        border-color: #2D7080;
         color: #ffffff;
     }
 
@@ -105,9 +105,9 @@
 
     #employeesTable_wrapper .dataTables_paginate .paginate_button.previous:not(.disabled):hover,
     #employeesTable_wrapper .dataTables_paginate .paginate_button.next:not(.disabled):hover {
-        background-color: #eff6ff;
-        border-color: #bfdbfe;
-        color: #1d4ed8;
+        background-color: #eef4f5;
+        border-color: #c3d9dd;
+        color: #0B2638;
     }
 
     #employeesTable_wrapper .dataTables_paginate .paginate_button.previous.disabled,
@@ -141,9 +141,9 @@
 
     #employeesTable_wrapper .dt-paging a.current,
     #employeesTable_wrapper .dt-paging button.current {
-        background-color: #1E9FD8;
+        background-color: #2D7080;
         color: #ffffff;
-        border-color: #1E9FD8;
+        border-color: #2D7080;
         font-weight: 600;
     }
 
@@ -175,14 +175,14 @@
     }
 
     .relative.z-0.inline-flex.rtl\:flex-row-reverse.shadow-sm.rounded-md>*:hover {
-        background-color: #eff6ff !important;
-        border-color: #bfdbfe !important;
-        color: #1d4ed8 !important;
+        background-color: #eef4f5 !important;
+        border-color: #c3d9dd !important;
+        color: #0B2638 !important;
     }
 
     .relative.z-0.inline-flex.rtl\:flex-row-reverse.shadow-sm.rounded-md>span[aria-current="page"]>span {
-        background-color: #1d4ed8 !important;
-        border-color: #1d4ed8 !important;
+        background-color: #2D7080 !important;
+        border-color: #2D7080 !important;
         color: #ffffff !important;
     }
 
@@ -395,148 +395,134 @@
 @livewireStyles
 
 
-<div class="flex-1 overflow-auto bg-[#eaebef]">
+<div class="flex-1 overflow-auto bg-[#f8fafc]">
     {{-- Main content --}}
-    <div class="p-4 sm:p-6 lg:p-8">
+    <div class="p-4 sm:p-6 lg:px-20 lg:py-8 mx-auto w-full">
 
-        {{-- Stats Cards --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        {{-- Page heading + Quick actions --}}
+        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
+            <div class="min-w-0">
+                <!-- <p class="dt-overline mb-1">{{ now()->format('l, d F Y') }}</p> -->
+                <h1 class="text-[22px] sm:text-[24px] font-bold tracking-tight text-[#0B2638] leading-tight">
+                    {{ __('messages.Dashboard') }}
+                </h1>
+                <p class="text-[13.5px] text-slate-500 mt-1">{{ __('messages.Track time, projects and revenue at a glance.') }}</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <a href="{{ route('admin.invoices.fullinvoice') }}" class="dt-btn dt-btn-primary">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    {{ __('messages.Generate invoice') }}
+                </a>
+                <a href="{{ route('admin.calendar.index') }}" class="dt-btn dt-btn-ghost">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    {{ __('messages.Planning Menu') }}
+                </a>
+            </div>
+        </div>
+
+        {{-- Stats Cards — consistent DalyTrac design --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 
             {{-- Clients --}}
             <a href="{{ route('admin.clients.index') }}"
-                class="block bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-105 transition-all duration-300 group animate-fadeInSlideUp"
-                style="animation-delay: 100ms;">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex-1">
-                        <div class="flex items-center space-x-2 mb-3">
-                            <div
-                                class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M17 20h5V10H2v10h5m10 0V8a5 5 0 00-10 0v12" />
-                                </svg>
-                            </div>
-                            <h3 class="text-gray-500 text-sm font-medium">{{ __('messages.Clients') }}</h3>
-                        </div>
-                        <p class="text-3xl font-bold text-gray-800">{{ $data['clients']->count() }}</p>
+                class="dt-card dt-card-hover p-4 flex items-center gap-3.5 group no-underline">
+                <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 flex-shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <rect x="4" y="3" width="16" height="18" rx="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M9 21v-4h6v4M8 7h2M8 11h2M14 7h2M14 11h2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Clients') }}</p>
+                    <div class="flex items-baseline gap-1.5 mt-0.5">
+                        <span class="text-[26px] leading-none font-bold text-[#0B2638] tracking-tight">{{ $data['clients']->count() }}</span>
+                        <span class="text-[12px] text-slate-400 font-medium">{{ __('messages.Total') }}</span>
                     </div>
                 </div>
-                <div class="relative">
-                    <div class="h-2 bg-blue-100 rounded-full overflow-hidden">
-                        <div class="w-2/3 h-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full animate-pulse">
-                        </div>
-                    </div>
-                </div>
+                <svg class="w-4 h-4 text-slate-300 group-hover:text-[#2D7080] group-hover:translate-x-0.5 transition-all flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
             </a>
 
             {{-- Employees --}}
             <a href="{{ route('admin.employees.index') }}"
-                class="block bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-105 transition-all duration-300 group animate-fadeInSlideUp"
-                style="animation-delay: 200ms;">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex-1">
-                        <div class="flex items-center space-x-2 mb-3">
-                            <div
-                                class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center group-hover:bg-green-100 transition-colors">
-                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" stroke-width="2"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M17 21v-2a4 4 0 00-8 0v2m8 0H5a2 2 0 01-2-2V7a2 2 0 012-2h5l2 2h5a2 2 0 012 2v12a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                            <h3 class="text-gray-500 text-sm font-medium">{{ __('messages.Employees') }}</h3>
-                        </div>
-                        <p class="text-3xl font-bold text-gray-800">{{ $data['employees']->count()}}</p>
+                class="dt-card dt-card-hover p-4 flex items-center gap-3.5 group no-underline">
+                <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 flex-shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <circle cx="9" cy="8" r="3.5" />
+                        <path d="M3.5 20c0-3.3 2.5-5 5.5-5s5.5 1.7 5.5 5" stroke-linecap="round" />
+                        <path d="M16 5.6a3.5 3.5 0 010 6.5M17.7 15.4c1.9.7 2.8 2 2.8 4.1" stroke-linecap="round" />
+                    </svg>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Employees') }}</p>
+                    <div class="flex items-baseline gap-1.5 mt-0.5">
+                        <span class="text-[26px] leading-none font-bold text-[#0B2638] tracking-tight">{{ $data['employees']->count() }}</span>
+                        <span class="text-[12px] text-slate-400 font-medium">{{ __('messages.Total') }}</span>
                     </div>
                 </div>
-                <div class="relative">
-                    <div class="h-2 bg-green-100 rounded-full overflow-hidden">
-                        <div class="w-1/2 h-2 bg-gradient-to-r from-green-500 to-green-600 rounded-full animate-pulse">
-                        </div>
-                    </div>
-                </div>
+                <svg class="w-4 h-4 text-slate-300 group-hover:text-[#2D7080] group-hover:translate-x-0.5 transition-all flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
             </a>
 
             {{-- Projects --}}
             <a href="{{ route('admin.projects.index') }}"
-                class="block bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-105 transition-all duration-300 group animate-fadeInSlideUp"
-                style="animation-delay: 200ms;">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex-1">
-                        <div class="flex items-center space-x-2 mb-3">
-                            <div
-                                class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center group-hover:bg-orange-100 transition-colors">
-                                <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" stroke-width="2"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0H4m16 0l-2 9H6l-2-9" />
-                                </svg>
-                            </div>
-                            <h3 class="text-gray-500 text-sm font-medium">{{ __('messages.Projects') }}</h3>
-                        </div>
-                        {{-- Show total number of projects for the enterprise, not only ongoing ones --}}
-                        <p class="text-3xl font-bold text-gray-800">
-                            {{ $data['totalProjectsCount'] ?? ($data['projects']->total() ?? $data['projects']->count()) }}
-                        </p>
+                class="dt-card dt-card-hover p-4 flex items-center gap-3.5 group no-underline">
+                <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 flex-shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Projects') }}</p>
+                    <div class="flex items-baseline gap-1.5 mt-0.5">
+                        <span class="text-[26px] leading-none font-bold text-[#0B2638] tracking-tight">{{ $data['totalProjectsCount'] ?? ($data['projects']->total() ?? $data['projects']->count()) }}</span>
+                        <span class="text-[12px] text-slate-400 font-medium">{{ __('messages.Total') }}</span>
                     </div>
                 </div>
-                <div class="relative">
-                    <div class="h-2 bg-orange-100 rounded-full overflow-hidden">
-                        <div
-                            class="w-3/4 h-2 bg-gradient-to-r from-orange-400 to-orange-500 rounded-full animate-pulse">
-                        </div>
-                    </div>
-                </div>
+                <svg class="w-4 h-4 text-slate-300 group-hover:text-[#2D7080] group-hover:translate-x-0.5 transition-all flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
             </a>
 
-            {{-- Revenue --}}
+            {{-- Revenue + paid invoices trend --}}
             <a href="{{ route('admin.invoices.invoicehistory') }}"
-                class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-105 transition-all duration-300 group relative overflow-hidden animate-fadeInSlideUp"
-                style="animation-delay: 200ms;">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-green-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
-                <div class="relative z-10">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-2 mb-3">
-                                <div
-                                    class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center group-hover:bg-green-100 transition-colors">
-                                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor"
-                                        stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M12 8c1.38 0 2.63.56 3.54 1.46M15.54 9.46A5 5 0 1112 8z" />
-                                    </svg>
-                                </div>
-                                <h3 class="text-gray-500 text-sm font-medium">{{ __('messages.Monthly Revenue') }}</h3>
-                            </div>
-                            <p class="text-3xl font-bold text-gray-800">
-                                €{{ number_format($data['monthlyRevenue'], 2, ',', ' ') }}</p>
-                        </div>
+                class="dt-card dt-card-hover p-4 flex items-center gap-3 group no-underline relative overflow-hidden">
+                <span class="absolute left-0 top-0 h-full w-1 bg-[#E7B84B]"></span>
+                <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-[#E7B84B]/20 text-[#0B2638] ring-1 ring-[#E7B84B]/40 flex-shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <rect x="3" y="6" width="18" height="12" rx="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="12" cy="12" r="2.5" />
+                        <path d="M6.5 9.5h.01M17.5 14.5h.01" stroke-linecap="round" />
+                    </svg>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Monthly Revenue') }}</p>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <span class="text-[26px] leading-none font-bold text-[#0B2638] tracking-tight whitespace-nowrap">€{{ number_format($data['monthlyRevenue'], 0, ',', ' ') }}</span>
                         @php
                             $revenueGrowth = $data['monthlyRevenueGrowth'] ?? 0;
                             $growthIsPositive = $revenueGrowth >= 0;
                         @endphp
-                        <span
-                            class="px-3 py-1.5 font-semibold text-sm rounded-full {{ $growthIsPositive ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600' }}">
-                            {{ $growthIsPositive ? '+' : '' }}{{ number_format($revenueGrowth, 0) }}%</span>
+                        <span class="dt-badge {{ $growthIsPositive ? 'dt-badge-success' : 'dt-badge-danger' }} flex-shrink-0">
+                            {{ $growthIsPositive ? '+' : '' }}{{ number_format($revenueGrowth, 0) }}%
+                        </span>
                     </div>
-                    @php
-                        $collectionRate = $data['collectionRate'] ?? 0;
-                        $ringCircumference = 2 * pi() * 24;
-                        $ringOffset = $ringCircumference * (1 - $collectionRate / 100);
-                    @endphp
-                    <div class="flex justify-center mt-4">
-                        <div class="relative w-14 h-14">
-                            <svg class="w-14 h-14 transform -rotate-90">
-                                <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="4" fill="none" />
-                                <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="4" fill="none"
-                                    stroke-dasharray="{{ number_format($ringCircumference, 1, '.', '') }}" stroke-dashoffset="{{ number_format($ringOffset, 1, '.', '') }}"
-                                    class="transition-all duration-1000 ease-out" />
-                            </svg>
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="text-xs font-bold text-green-600">{{ number_format($collectionRate, 0) }}%</span>
-                            </div>
-                        </div>
+                </div>
+                @php
+                    $collectionRate = min(100, max(0, (float) ($data['collectionRate'] ?? 0)));
+                    $collectionDisplay = (int) round($collectionRate);
+                    $donutRadius = 26;
+                    $donutCircumference = 2 * M_PI * $donutRadius;
+                    $donutOffset = $donutCircumference * (1 - $collectionRate / 100);
+                    $monthlyPaid = (float) ($data['monthlyPaidRevenue'] ?? ($data['monthlyRevenue'] ?? 0) * $collectionRate / 100);
+                @endphp
+                <div class="flex-shrink-0"
+                     title="{{ __('messages.Paid invoices') }}: €{{ number_format($monthlyPaid, 0, ',', ' ') }} / €{{ number_format($data['monthlyRevenue'] ?? 0, 0, ',', ' ') }} ({{ $collectionDisplay }}%)">
+                    <div class="relative w-16 h-16" role="img" aria-label="{{ __('messages.Paid invoices') }}: {{ $collectionDisplay }}%">
+                        <svg viewBox="0 0 64 64" class="w-16 h-16">
+                            <circle cx="32" cy="32" r="26" fill="none" stroke="#e2e8f0" stroke-width="8" />
+                            <circle cx="32" cy="32" r="26" fill="none" stroke="#2D7080" stroke-width="8"
+                                    stroke-linecap="round" transform="rotate(-90 32 32)"
+                                    stroke-dasharray="{{ number_format($donutCircumference, 2, '.', '') }}"
+                                    stroke-dashoffset="{{ number_format($donutOffset, 2, '.', '') }}" />
+                        </svg>
+                        <span class="absolute inset-0 flex items-center justify-center text-[13px] font-bold text-[#0B2638]">{{ $collectionDisplay }}%</span>
                     </div>
                 </div>
             </a>
@@ -544,71 +530,75 @@
 
 
         {{-- Team employees Overview --}}
-        <div class="mt-8 rounded-2xl border border-slate-200 bg-white shadow-[0_20px_50px_rgba(15,23,42,0.12),0_4px_12px_rgba(15,23,42,0.08)] overflow-hidden hover:shadow-xl animate-fadeInSlideUp"
+        <div class="dt-card mt-6 overflow-hidden animate-fadeInSlideUp"
             style="animation-delay: 500ms;">
             {{-- Header and action button --}}
-            <div class="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Team employees Overview') }}</h2>
+            <div class="px-5 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between border-b border-slate-100 bg-white">
+                <div class="min-w-0">
+                    <h2 class="dt-section-title">{{ __('messages.Team employees Overview') }}</h2>
+                    <p class="dt-section-subtitle mt-0.5">{{ __('messages.Live status, timers and actions for today.') }}</p>
+                </div>
                 @unless($isSoloPlan)
                     <a href="{{ route('admin.employees.create') }}"
-                        class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg w-full sm:w-auto text-center">
-                        + {{__('messages.Add employee')}}
+                        class="dt-btn dt-btn-teal w-full sm:w-auto">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        {{__('messages.Add employee')}}
                     </a>
                 @endunless
             </div>
 
             {{-- Table --}}
-            <div class="team-employees-overview-table-wrap p-4 sm:p-6 overflow-x-auto">
+            <div class="team-employees-overview-table-wrap px-3 sm:px-4 py-3 overflow-x-auto">
                 <table id="employeesTable" class="w-full text-left" style="width:100%">
-                    <thead class="bg-gray-50">
-                        <tr class="border-b border-gray-200">
-                            <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <thead>
+                        <tr class="border-b border-slate-100 dt-table-head">
+                            <th class="px-4 py-3 text-left">
                                 {{ __('messages.Employee') }}
                             </th>
                             <th
-                                class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
+                                class="px-4 py-3 text-center w-[8.5rem] ">
                                 {{ __('messages.Current Status') }}
                             </th>
                             <th
-                                class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
+                                class="px-4 py-3 text-center">
                                 {{ __('messages.Current Project') }}
                             </th>
                             <th
-                                class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
+                                class="px-4 py-3 text-center">
                                 {{ __('messages.Current Task') }}
                             </th>
                                 
                             {{--<th
-                                class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
+                                class="px-6 py-3 text-xs font-semibold text-[#0B2638] uppercase tracking-wider text-center">
                                 Task Progress</th> --}}
                             <th
-                                class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
+                                class="px-4 py-3 text-center">
                                 {{ __('messages.Duration') }}
                             </th>
                             <th
-                                class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
+                                class="px-4 py-3 text-center">
                                 {{ __('messages.Chrono') }}
                             </th>
                             <th
-                                class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
+                                class="px-4 py-3 text-center">
                                 {{ __('messages.Account Status') }}
                             </th>
                             <th
-                                class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
+                                class="px-4 py-3 text-center">
                                 {{ __('messages.Archive') }}
                             </th>
                             <th
-                                class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
+                                class="px-4 py-3 text-center">
                                 {{ __('messages.Actions') }}
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
+                    <tbody class="divide-y divide-slate-100">
                         @php
                             $avatarColors = ['bg-emerald-500', 'bg-gray-400', 'bg-amber-500', 'bg-red-500', 'bg-purple-500', 'bg-sky-500', 'bg-rose-800', 'bg-slate-700', 'bg-yellow-400', 'bg-indigo-500'];
                         @endphp
                         @foreach($data['employees'] as $employee)
-                            <tr class="employee-overview-row hover:bg-gray-50" data-employee-id="{{ $employee->id }}" aria-expanded="true">
+                            <tr class="employee-overview-row hover:bg-[#f4f7f6]" data-employee-id="{{ $employee->id }}" aria-expanded="true">
                                 {{-- Employee --}}
                                 <td data-label="{{ __('messages.Employee') }}" data-span="2" class="px-6 py-4 employee-overview-toggle-cell" data-employee-overview-toggle>
                                     <div class="flex items-center justify-between gap-3">
@@ -619,7 +609,7 @@
                                         </div>
                                         <div class="flex flex-col">
                                             <a href="{{ route('admin.employees.show', $employee->id) }}"
-                                                class="text-sm font-medium text-gray-900 hover:text-blue-600">
+                                                class="text-sm font-medium text-gray-900 hover:text-brand-secondary">
                                                 {{ $employee->name }}
                                             </a>
                                             <p class="text-xs text-gray-500">{{ $employee->email }}</p>
@@ -653,35 +643,22 @@
                                         $employeeUser = \App\Models\User::find($employee->user_id);
                                     @endphp
                                     @if($employeeUser && $employeeUser->is_loggedIn == 0)
-                                        <span
-                                            class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                                            {{ __('messages.Off Work') }}
-                                        </span>
+                                        <span class="dt-badge dt-badge-neutral"><span class="dt-dot"></span>{{ __('messages.Off Work') }}</span>
                                     @elseif($employeeUser && $employeeUser->is_loggedIn == 1)
                                         @php
-                                            // Align status with other columns: only consider timers started today and still open
+                                            // Align status with other columns: any still-open timer counts, regardless of start day
                                             $task_timer = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereDate('start_date', today())
                                                 ->whereNull('end_date')
                                                 ->first();
                                         @endphp
                                         @if($task_timer)
                                             @if(($task_timer->end_date === null && $task_timer->start_date !== null) && $task_timer->paused == 1)
-                                                <span
-                                                    class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
-                                                    {{ __('messages.On Pause') }}
-                                                </span>
+                                                <span class="dt-badge dt-badge-warning"><span class="dt-dot"></span>{{ __('messages.On Pause') }}</span>
                                             @else
-                                                <span
-                                                    class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
-                                                    {{ __('messages.On Work') }}
-                                                </span>
+                                                <span class="dt-badge dt-badge-success"><span class="dt-dot"></span>{{ __('messages.On Work') }}</span>
                                             @endif
                                         @else
-                                            <span
-                                                class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                                                {{ __('messages.Off Work') }}
-                                            </span>
+                                            <span class="dt-badge dt-badge-neutral"><span class="dt-dot"></span>{{ __('messages.Off Work') }}</span>
                                         @endif
                                     @endif
                                 </td>
@@ -692,15 +669,14 @@
                                         $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
                                         if ($isSuperAdmin) {
                                             // For superadmin, get all active tasks
+                                            // Active = timer still open, regardless of which day it started
                                             $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereDate('start_date', today())
                                                 ->whereNull('end_date')
                                                 ->orderBy('start_date', 'desc')
                                                 ->get();
                                         } else {
                                             // For others, get only the latest active task
                                             $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereDate('start_date', today())
                                                 ->whereNull('end_date')
                                                 ->latest()
                                                 ->take(1)
@@ -763,15 +739,14 @@
                                         $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
                                         if ($isSuperAdmin) {
                                             // For superadmin, get all active tasks
+                                            // Active = timer still open, regardless of which day it started
                                             $currentTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereDate('start_date', today())
                                                 ->whereNull('end_date')
                                                 ->orderBy('start_date', 'desc')
                                                 ->get();
                                         } else {
                                             // For others, get only the latest active task
                                             $currentTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereDate('start_date', today())
                                                 ->whereNull('end_date')
                                                 ->latest()
                                                 ->take(1)
@@ -792,12 +767,12 @@
                                                 @php $currentTask = $taskGroup->first(); @endphp
                                                 @if(auth()->user()->hasRole('Admin') || auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin'))
                                                     <a href="{{ route('admin.tasks.show', $currentTask->task_id) }}"
-                                                        class="text-xs font-semibold text-blue-600 hover:underline block">
+                                                        class="text-xs font-semibold text-brand-secondary hover:underline block">
                                                 @elseif(auth()->user()->hasRole('Responsable de projet'))
                                                         <a href="{{ route('Responsable_de_projet.tasks.show', $currentTask->task_id) }}"
-                                                            class="text-xs font-semibold text-blue-600 hover:underline block">
+                                                            class="text-xs font-semibold text-brand-secondary hover:underline block">
                                                     @else
-                                                            <a href="#" class="text-xs font-semibold text-blue-600 block">
+                                                            <a href="#" class="text-xs font-semibold text-brand-secondary block">
                                                         @endif
                                                             {{ $currentTask->task_name }}
                                                         </a>
@@ -928,7 +903,7 @@
                                                             $projectTotalMins = $projectTotalMinutes % 60;
                                                         @endphp
                                                         <div class="text-xs text-gray-500 mt-1 pt-1 border-t border-gray-200">
-                                                            Total: {{ $projectTotalHours }}h:{{ sprintf('%02d', $projectTotalMins) }}m
+                                                            {{ __('messages.Total') }}: {{ $projectTotalHours }}h:{{ sprintf('%02d', $projectTotalMins) }}m
                                                         </div>
                                                     @endif
                                                 </div>
@@ -1005,7 +980,7 @@
                                 <td data-label="{{ __('messages.Account Status') }}" class="px-6 py-4 text-center align-middle text-sm cell-account-status">
                                     @if($employeeUser && $employeeUser->is_activate == 1)
                                         <form action="{{ route('admin.employee.deactivate', $employee->id) }}" method="post"
-                                            onsubmit="return confirm('Are you sure?');">
+                                            onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
                                             @csrf
                                             <button type="submit"
                                                 class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 hover:bg-emerald-200">
@@ -1037,7 +1012,7 @@
                                 </td>
 
                                 {{-- Actions (view / edit / delete / tasks done today) --}}
-                                <td data-label="{{ __('messages.Actions') }}" data-span="2" class="px-6 py-4 whitespace-nowrap align-top">
+                                <td data-label="{{ __('messages.Actions') }}" data-span="2" class="px-6 py-4 text-center align-middle">
                                     <div class="relative flex items-center justify-start gap-2">
                                         @php
                                             $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
@@ -1076,8 +1051,8 @@
 
                                         {{-- Tasks history toggle (shows tasks done today, excluding current) --}}
                                         <button type="button" onclick="toggleTasksTodayRow('tasks-row-{{ $employee->id }}')"
-                                            title="Show today's completed tasks"
-                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-indigo-500 hover:bg-indigo-600">
+                                            title="{{ __('messages.Task History (Today)') }}"
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-slate-500 hover:bg-slate-600">
                                             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none"
                                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -1087,8 +1062,8 @@
 
                                         {{-- View details --}}
                                         <a href="{{ route('admin.employees.show', $employee->id) }}"
-                                            title="Details Employee"
-                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-purple-600 hover:bg-purple-700">
+                                            title="{{ __('messages.Details') }}"
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-brand-primary hover:bg-[#16394a]">
                                             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none"
                                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -1096,23 +1071,13 @@
                                             </svg>
                                         </a>
 
-                                        {{-- Edit employee --}}
-                                        <a href="{{ route('admin.employees.edit', $employee->id) }}" title="Edit Employee"
-                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-blue-600 hover:bg-blue-700">
-                                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                            </svg>
-                                        </a>
-
                                         {{-- Delete employee --}}
                                         <form action="{{ route('admin.employees.destroy', $employee->id) }}" method="POST"
-                                            onsubmit="return confirm('Are you sure you want to delete this employee?');"
+                                            onsubmit="return confirm('{{ __('messages.Are you sure you want to delete this employee?') }}');"
                                             class="inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" title="Delete Employee"
+                                            <button type="submit" title="{{ __('messages.Delete') }}"
                                                 class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-red-600 hover:bg-red-700">
                                                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -1190,14 +1155,15 @@
         </div>
 
         {{-- Project Overview + Events --}}
-            <div class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div class="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-4">
 
             {{-- Employee Overview (col-span-3) --}}
-            <div class="dashboard-employee-overview lg:col-span-3 rounded-2xl border border-slate-200 bg-white shadow-[0_20px_50px_rgba(15,23,42,0.12),0_4px_12px_rgba(15,23,42,0.08)] hover:shadow-xl animate-fadeInSlideUp"
+            <div class="dashboard-employee-overview lg:col-span-3 dt-card overflow-hidden animate-fadeInSlideUp"
                 style="animation-delay: 600ms;">
-                <h2 class="p-4 sm:p-6 text-lg font-semibold text-gray-900 border-b border-gray-200">
-                    {{ __('messages.Employee Overview - Today\'s Work') }}
-                </h2>
+                <div class="px-5 sm:px-6 py-4 border-b border-slate-100">
+                    <h2 class="dt-section-title">{{ __('messages.Employee Overview - Today\'s Work') }}</h2>
+                    <p class="dt-section-subtitle mt-0.5">{{ __('messages.Who worked on what today.') }}</p>
+                </div>
 
                 <div class="overview-scroll overflow-x-auto" style="-webkit-overflow-scrolling: touch;">
                     <div class="overview-minw" style="min-width: 1100px;">
@@ -1251,40 +1217,29 @@
                 </div>
             </div>
 
-            {{-- Today's Events section remains the same --}}
-            <div class="lg:col-span-1 border-0 shadow-sm bg-white rounded-2xl hover:shadow-xl p-4 sm:p-6 h-fit animate-fadeInSlideUp"
+            {{-- Today's Events --}}
+            <div class="lg:col-span-1 dt-card p-5 h-fit animate-fadeInSlideUp"
                 style="animation-delay: 700ms;">
                 {{-- Header with "Add Event" button --}}
-                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between mb-1">
-                    <div class="flex items-center gap-2">
-                        <div class="w-1.5 h-5 bg-blue-600 rounded"></div>
-                        <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.Today\'s Events') }}</h2>
+                <div class="flex items-start justify-between gap-3 mb-1">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="w-1.5 h-6 bg-[#E7B84B] rounded-full flex-shrink-0"></span>
+                        <h2 class="dt-section-title truncate">{{ __('messages.Today\'s Events') }}</h2>
                     </div>
-
-                    <a href="{{ route('admin.calendar.index') }}"
-                        class="flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-1.5 rounded-lg w-full sm:w-auto">
-                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="2.0" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z" />
-                        </svg>
-                        {{ __('messages.See full calendar') }}
-                    </a>
                 </div>
 
                 {{-- Date --}}
-                <p class="text-sm text-gray-500 mb-6">{{ now()->format('d F Y') }}</p>
+                <p class="text-[12.5px] text-slate-500 mb-4">{{ now()->format('d F Y') }}</p>
 
                 {{-- Events list --}}
-                <ul class="space-y-5">
+                <ul class="space-y-3">
                     @forelse($data['dayEvents'] as $event)
-                        <li class="flex gap-3">
-                            <div class="w-1 flex-shrink-0 bg-blue-500 rounded-full"></div>
-
-                            <div>
-                                <p class="text-sm font-medium text-gray-800">{{ $event->title }}</p>
-                                <p class="text-sm text-gray-500 flex items-center gap-1.5 mt-1">
-                                    <svg class="w-3.5 h-3.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        <li class="flex gap-3 rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
+                            <div class="w-1 flex-shrink-0 bg-[#2D7080] rounded-full"></div>
+                            <div class="min-w-0">
+                                <p class="text-[13px] font-semibold text-[#0B2638] truncate">{{ $event->title }}</p>
+                                <p class="text-[12px] text-slate-500 flex items-center gap-1.5 mt-1">
+                                    <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none"
                                         viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -1297,11 +1252,21 @@
                             </div>
                         </li>
                     @empty
-                        <li class="text-sm text-gray-500">
-                            {{ __('messages.No events scheduled for today.') }}
+                        <li class="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-center">
+                            <div class="dt-empty-icon mx-auto mb-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            </div>
+                            <p class="text-[13px] font-semibold text-[#0B2638]">{{ __('messages.No events scheduled for today.') }}</p>
+                            <p class="text-[12px] text-slate-500 mt-0.5">{{ __('messages.Enjoy a calm day — or plan one.') }}</p>
                         </li>
                     @endforelse
                 </ul>
+
+                <a href="{{ route('admin.calendar.index') }}"
+                    class="dt-btn dt-btn-ghost w-full mt-4">
+                    {{ __('messages.See full calendar') }}
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
 
             </div>
         </div>
@@ -1719,7 +1684,7 @@
                                 </svg>
                                 <span id="stopCommentAiBtnText">{{ __('messages.Correct with AI') }}</span>
                             </button>
-                            <button type="button" id="stopCommentTranslateBtn" class="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors opacity-50 cursor-not-allowed" title="{{ __('messages.Translate to Dutch') }}" disabled>
+                            <button type="button" id="stopCommentTranslateBtn" class="text-xs font-semibold text-brand-secondary hover:text-[#245f6d] flex items-center gap-1 transition-colors opacity-50 cursor-not-allowed" title="{{ __('messages.Translate to Dutch') }}" disabled>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5c-.006 3.125-1.026 6.042-2.751 8.498m-1.782-2.5A18.022 18.022 0 014.888 5h7.863z" />
                                 </svg>
@@ -1751,7 +1716,7 @@
                 <h2 class="text-lg font-semibold text-slate-800 mb-2">{{ __('messages.Check Spelling?') }}</h2>
                 <p class="text-sm text-slate-500 mb-5">{{ __('messages.Would you like to verify the spelling of your comment before submitting?') }}</p>
                 <div class="flex flex-col gap-2">
-                    <button type="button" id="spellCheckVerifyBtn" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-indigo-500 rounded-lg hover:bg-indigo-600 transition-colors flex items-center justify-center gap-2">
+                    <button type="button" id="spellCheckVerifyBtn" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-slate-500 rounded-lg hover:bg-slate-600 transition-colors flex items-center justify-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -1769,7 +1734,7 @@
             <div class="modal-content-custom" style="max-width: 420px;">
                 <div class="flex items-center justify-center mb-3">
                     <div class="bg-blue-100 rounded-full p-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-brand-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5c-.006 3.125-1.026 6.042-2.751 8.498m-1.782-2.5A18.022 18.022 0 014.888 5h7.863z" />
                         </svg>
                     </div>
@@ -1777,7 +1742,7 @@
                 <h2 class="text-lg font-semibold text-slate-800 mb-2">{{ __('messages.Translate to Dutch?') }}</h2>
                 <p class="text-sm text-slate-500 mb-5">{{ __('messages.Would you like to translate your comment into Dutch before submitting?') }}</p>
                 <div class="flex flex-col gap-2">
-                    <button type="button" id="translateCheckVerifyBtn" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+                    <button type="button" id="translateCheckVerifyBtn" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-brand-secondary rounded-lg hover:bg-[#245f6d] transition-colors flex items-center justify-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>

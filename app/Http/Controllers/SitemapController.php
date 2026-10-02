@@ -13,6 +13,13 @@ class SitemapController extends Controller
     {
         $urls = [
             route('welcome'),
+            route('produit'),
+            route('tarifs'),
+            route('mentions-legales'),
+            route('confidentialite'),
+            route('cookies'),
+            route('cgu'),
+            route('cgv'),
             route('about'),
             route('faq'),
             route('demo'),

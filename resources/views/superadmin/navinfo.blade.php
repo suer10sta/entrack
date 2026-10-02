@@ -2,24 +2,24 @@
           <div class="col-lg-12">
             <div class="row">
               <div class="col-lg-3 col-md-6 col-12">
-                <div class="card mb-4">
+                <div class="card mb-4 dt-metric-card">
                   <div class="card-body p-3">
                     <div class="row">
                       <div class="col-8">
                         <div class="numbers">
                           <p class="text-sm mb-0 text-uppercase font-weight-bold">
-                            ENTREPRISES
+                            {{ __(
                           </p>
                           <h5 class="font-weight-bolder">{{count($entreprises)}}</h5>
-                          <p class="mb-0">
+                          <p class="mb-0 metric-note">
                             <span class="text-success text-sm font-weight-bolder">+55%</span>
-                            since yesterday
+                            {{ __('messages.since yesterday') }}
                           </p>
                         </div>
                       </div>
                       <div class="col-4 text-end">
-                        <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
-                        <i class="fa-solid fa-shop" style="color: #ffffff;"></i>
+                        <div class="dt-metric-icon">
+                        <i class="fa-solid fa-shop"></i>
                         </div>
                       </div>
                     </div>
@@ -27,71 +27,71 @@
                 </div>
               </div>
               <div class="col-lg-3 col-md-6 col-12">
-                <div class="card mb-4">
+                <div class="card mb-4 dt-metric-card">
                   <div class="card-body p-3">
                     <div class="row">
                       <div class="col-8">
                         <div class="numbers">
                           <p class="text-sm mb-0 text-uppercase font-weight-bold">
-                            Users
+                            {{ __(
                           </p>
                           <h5 class="font-weight-bolder">{{count($users)}}</h5>
-                          <p class="mb-0">
+                          <p class="mb-0 metric-note">
                             <span class="text-success text-sm font-weight-bolder">+3%</span>
-                            since last week
+                            {{ __('messages.since last week') }}
                           </p>
                         </div>
                       </div>
                       <div class="col-4 text-end">
-                        <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
-                        <i class="fa-solid fa-user" style="color: #ffffff;"></i>                        </div>
+                        <div class="dt-metric-icon">
+                        <i class="fa-solid fa-user"></i>                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
               <div class="col-lg-3 col-md-6 col-12">
-                <div class="card mb-4">
+                <div class="card mb-4 dt-metric-card">
                   <div class="card-body p-3">
                     <div class="row">
                       <div class="col-8">
                         <div class="numbers">
                           <p class="text-sm mb-0 text-uppercase font-weight-bold">
-                            Sales
+                            {{ __(
                           </p>
                           <h5 class="font-weight-bolder">4</h5>
-                          <p class="mb-0">
+                          <p class="mb-0 metric-note">
                             <span class="text-danger text-sm font-weight-bolder">-2%</span>
-                            since last quarter
+                            {{ __('messages.since last quarter') }}
                           </p>
                         </div>
                       </div>
                       <div class="col-4 text-end">
-                        <div class="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
-                        <i class="fa-solid fa-cart-shopping" style="color: #ffffff;"></i>                        </div>
+                        <div class="dt-metric-icon">
+                        <i class="fa-solid fa-cart-shopping"></i>                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
               <div class="col-lg-3 col-md-6 col-12">
-                <div class="card mb-4">
+                <div class="card mb-4 dt-metric-card">
                   <div class="card-body p-3">
                     <div class="row">
                       <div class="col-8">
                         <div class="numbers">
                           <p class="text-sm mb-0 text-uppercase font-weight-bold">
-                          Profits
+                          {{ __('messages.Profits') }}
                           </p>
                           <h5 class="font-weight-bolder">$1,430</h5>
-                          <p class="mb-0">
+                          <p class="mb-0 metric-note">
                             <span class="text-success text-sm font-weight-bolder">+5%</span>
-                            than last month
+                            {{ __('messages.than last month') }}
                           </p>
                         </div>
                       </div>
                       <div class="col-4 text-end">
-                        <div class="icon icon-shape bg-gradient-warning  text-center rounded-circle">
+                        <div class="dt-metric-icon">
                         <i class="fa-solid fa-sack-dollar"></i>                        </div>
                       </div>
                     </div>
@@ -101,3 +101,5 @@
             </div>
           </div>
         </div>
+
+

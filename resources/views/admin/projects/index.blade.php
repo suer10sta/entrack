@@ -24,8 +24,8 @@
         }
         .ts-wrapper.single .ts-control:focus,
         .ts-wrapper.single.focus .ts-control {
-            border-color: #3b82f6 !important;
-            box-shadow: 0 0 0 1px #3b82f6 !important;
+            border-color: #2D7080 !important;
+            box-shadow: 0 0 0 2px rgba(45, 112, 128, 0.25) !important;
         }
         .ts-dropdown {
             border: 1px solid #e2e8f0 !important;
@@ -42,8 +42,8 @@
             white-space: nowrap !important;
         }
         .ts-dropdown .option.active {
-            background-color: #eff6ff !important;
-            color: #1e40af !important;
+            background-color: rgba(45, 112, 128, 0.10) !important;
+            color: #0B2638 !important;
         }
         .ts-dropdown .option:hover {
             background-color: #f8fafc !important;
@@ -106,7 +106,7 @@
             }
             #projectsTable tbody tr.project-row:hover {
                 transform: translateY(-1px);
-                border-color: rgba(59, 130, 246, 0.45); /* blue-500/45 */
+                border-color: rgba(45, 112, 128, 0.45);
                 box-shadow:
                     0 16px 40px rgba(15, 23, 42, 0.10),
                     0 3px 10px rgba(15, 23, 42, 0.08);
@@ -158,7 +158,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 flex h-screen overflow-hidden">
+<body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
 
     {{-- Sidebar Component --}}
     @if(Auth::user()->hasRole('Admin'))
@@ -175,18 +175,19 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#eaebef] p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
 
-            {{-- Container for the table --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            {{-- Page heading (same design as other Reports pages) --}}
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
+                <div class="min-w-0">
+                    <p class="dt-overline mb-1">{{ __('messages.Reports') }}</p>
+                    <h1 class="text-[22px] sm:text-[24px] font-bold tracking-tight text-[#0B2638] leading-tight">
+                        {{ __('messages.Projects Table') }}
+                    </h1>
+                </div>
 
-                {{-- Header Section --}}
-                <div class="p-6 border-b border-gray-200">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                        <h6 class="text-lg font-semibold text-gray-900">{{ __('messages.Projects Table') }}</h6>
-
-                        {{-- Buttons --}}
-                        <div class="flex flex-wrap gap-2">
+                {{-- Buttons --}}
+                <div class="flex flex-col sm:flex-row sm:flex-wrap gap-2 w-full sm:w-auto">
                             @php 
                                 $reportRoute = '#';
                                 $archiveRoute = '#';
@@ -204,22 +205,25 @@
                                     $archiveRoute = route('Responsable_gestionnaire.projectsArchived.archiveIndex');
                                 }
                             @endphp
-                            <a href="{{ $reportRoute }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
+                            <a href="{{ $reportRoute }}" class="dt-btn dt-btn-ghost w-full sm:w-auto">
                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                                 {{ __('messages.Projects Reports PDF') }}
                             </a>
-                             <a href="{{ $archiveRoute }}" class="bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-1.5">
+                             <a href="{{ $archiveRoute }}" class="dt-btn dt-btn-ghost w-full sm:w-auto" title="{{ __('messages.Archived Projects') }}">
                                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
-                                {{ __('messages.View Archive') }}
+                                {{ __('messages.Archived Projects') }}
                             </a>
-                        </div>
-                    </div>
+                </div>
+            </div>
+
+            {{-- Container for the table --}}
+            <div class="dt-card overflow-hidden">
 
                      {{-- Filters --}}
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div class="w-96">
-                            <label for="projectFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Project') }}</label>
-                            <select id="projectFilter" class="mt-1 block w-full rounded-lg border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-slate-600 shadow-sm py-2 px-3">
+                    <div class="px-5 sm:px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
+                        <div class="w-full sm:max-w-md">
+                            <label for="projectFilter" class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Filter by Project') }}</label>
+                            <select id="projectFilter" class="mt-1 block w-full rounded-xl border-slate-200 text-sm focus:border-[#2D7080] focus:ring-[#2D7080]/25 bg-white text-slate-600 shadow-sm py-2 px-3 outline-none">
                                 <option value="">{{ __('messages.All Projects') }}</option>
                                 {{-- Use distinct project names for filter options --}}
                                 @foreach($projects->unique('name') as $project)
@@ -228,17 +232,16 @@
                             </select>
                         </div>
                         <div class="w-full sm:w-auto">
-                            <label for="nameFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Name') }}</label>
-                            <input type="text" id="nameFilter" class="block w-full sm:w-64 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="{{ __('messages.Filter by Name') }}">
+                            <label for="nameFilter" class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Filter by Name') }}</label>
+                            <input type="text" id="nameFilter" class="block w-full sm:w-64 rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080]/25 outline-none text-sm py-2 px-3" placeholder="{{ __('messages.Filter by Name') }}">
                         </div>
                     </div>
-                </div>
 
                 {{-- Session Message Alert --}}
                 @if(session('message'))
-                    <div class="m-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative" role="alert">
-                        <span class="block sm:inline">{{ session('message') }}</span>
-                        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-green-700 hover:text-green-900 font-bold text-xl" aria-label="Close">
+                    <div class="m-4 sm:m-5 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl relative flex items-center gap-2" role="alert">
+                        <span class="block sm:inline text-[13px] font-medium">{{ session('message') }}</span>
+                        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-emerald-600 hover:text-emerald-800 font-bold text-xl" aria-label="Close">
                            &times;
                         </button>
                     </div>
@@ -261,16 +264,16 @@
                                 }
                             @endphp
 
-                            <div class="client-group border-b border-gray-200">
+                            <div class="client-group border-b border-slate-100 last:border-b-0">
                                 <button type="button"
-                                        class="client-toggle w-full text-left p-6 hover:bg-gray-50 transition-colors flex items-center justify-between gap-3"
+                                        class="client-toggle w-full text-left px-5 py-4 hover:bg-slate-50/70 transition-colors flex items-center justify-between gap-3"
                                         data-client-id="{{ $clientId }}"
                                         aria-expanded="false">
                                     <div class="min-w-0">
-                                        <div class="text-sm font-semibold text-gray-900 truncate">
+                                        <div class="text-[13px] font-semibold text-[#0B2638] truncate">
                                             @if($client)
                                                 @if($canViewClient)
-                                                    <a href="{{ $clientShowRoute }}" class="text-blue-600 hover:underline" onclick="event.stopPropagation()">
+                                                    <a href="{{ $clientShowRoute }}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline" onclick="event.stopPropagation()">
                                                         {{ $client->name }}
                                                     </a>
                                                 @else
@@ -280,17 +283,17 @@
                                                 {{ __('messages.Unknown Client') }}
                                             @endif
                                         </div>
-                                        <div class="text-xs text-gray-500">
+                                        <div class="text-xs text-slate-500 mt-0.5">
                                             {{ $clientProjects->where('archived', '!=', 1)->count() }} {{ __('messages.Projects') }}
                                         </div>
                                     </div>
 
-                                    <svg class="client-chevron w-5 h-5 text-gray-400 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <svg class="client-chevron w-5 h-5 text-slate-400 transition-transform duration-200 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9l3.75 3.75L15.75 9" />
                                     </svg>
                                 </button>
 
-                                <div class="client-projects hidden px-6 pb-6" data-client-id="{{ $clientId }}">
+                                <div class="client-projects hidden px-5 pb-5" data-client-id="{{ $clientId }}">
                                     <div class="space-y-2">
                                         @foreach($clientProjects as $project)
                                             @continue($project->archived == 1)
@@ -313,9 +316,9 @@
                                                 }
                                             @endphp
 
-                                            <div class="project-item rounded-xl border border-slate-200 bg-white/90 hover:bg-white transition-colors shadow-sm">
+                                            <div class="project-item rounded-xl border border-slate-200 bg-white hover:border-[#2D7080]/40 hover:bg-slate-50/50 transition-colors shadow-sm">
                                                 <a href="{{ $projectShowRoute ?: '#' }}"
-                                                   class="block px-4 py-3 text-sm font-semibold text-gray-900 hover:text-blue-700">
+                                                   class="block px-4 py-3 text-[13px] font-semibold text-[#0B2638] hover:text-[#2D7080]">
                                                     {{ strtoupper($project->name) }}
                                                 </a>
                                             </div>
@@ -324,8 +327,11 @@
                                 </div>
                             </div>
                         @empty
-                            <div class="p-6 text-center text-sm text-gray-500">
-                                {{ __('messages.No projects found.') }}
+                            <div class="px-6 py-10 text-center">
+                                <div class="dt-empty-icon mx-auto mb-3">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>
+                                </div>
+                                <p class="text-[13.5px] font-semibold text-[#0B2638]">{{ __('messages.No projects found.') }}</p>
                             </div>
                         @endforelse
                     </div>
@@ -333,25 +339,25 @@
 
                 {{-- Desktop/Tablet: keep full table, add dropdown on client headers --}}
                 <div class="hidden sm:block p-0">
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-left border-collapse min-w-full" id="projectsTable">
-                            <thead class="border-b border-gray-200 bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Project column') }}</th>
+                            <thead class="border-b border-slate-100 bg-slate-50/80">
+                                <tr class="dt-table-head">
+                                    <th class="px-4 py-3 text-center whitespace-nowrap min-w-[200px]">{{ __('messages.Project column') }}</th>
                                     @if(Auth::user()->hasRole('Admin'))
-                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Budget column') }}</th>
-                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Duration column') }}</th>
-                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Est. Hours column') }}</th>
-                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Difference column') }}</th>
-                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Progress column') }}</th>
+                                        <th class="px-4 py-3 text-center whitespace-nowrap">{{ __('messages.Budget column') }}</th>
+                                        <th class="px-4 py-3 text-center whitespace-nowrap">{{ __('messages.Duration column') }}</th>
+                                        <th class="px-4 py-3 text-center whitespace-nowrap">{{ __('messages.Est. Hours column') }}</th>
+                                        <th class="px-4 py-3 text-center whitespace-nowrap">{{ __('messages.Difference column') }}</th>
+                                        <th class="px-4 py-3 text-center whitespace-nowrap min-w-[150px]">{{ __('messages.Progress column') }}</th>
                                     @endif
-                                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Teams column header') }}</th>
+                                    <th class="px-4 py-3 text-center whitespace-nowrap min-w-[180px]">{{ __('messages.Teams column header') }}</th>
                                     @can('Delete project')
-                                        <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-left">{{ __('messages.Actions') }}</th>
+                                        <th class="px-4 py-3 text-center whitespace-nowrap min-w-[130px]">{{ __('messages.Actions') }}</th>
                                     @endcan
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200">
+                            <tbody class="divide-y divide-slate-100">
                                 @php $groupedProjects = $projects->groupBy('client_id'); @endphp
                                 @forelse($groupedProjects as $clientId => $clientProjects)
                                     @php $client = App\Models\Client::find($clientId); @endphp
@@ -367,11 +373,11 @@
                                     @endphp
 
                                     {{-- Client Header Row (click to collapse/expand projects) --}}
-                                    <tr class="bg-gray-100 client-header cursor-pointer" data-client-id="{{ $clientId }}" aria-expanded="false">
-                                        <td colspan="{{ Auth::user()->hasRole('Admin') ? 10 : 3 }}" class="px-6 py-3 font-semibold text-gray-800 text-sm">
-                                            <div class="flex items-center justify-between gap-3">
+                                    <tr class="bg-[#0B2638]/[0.04] client-header cursor-pointer hover:bg-[#0B2638]/[0.07] transition-colors" data-client-id="{{ $clientId }}" aria-expanded="false">
+                                        <td colspan="{{ Auth::user()->hasRole('Admin') ? 10 : 3 }}" class="px-4 py-2.5 font-semibold text-[#0B2638] text-[13px] border-y border-[#0B2638]/10">
+                                            <div class="flex items-center justify-between  px-3">
                                                 <div class="flex items-center gap-3 min-w-0">
-                                                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-white border border-gray-200 text-gray-500">
+                                                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-white border border-slate-200 text-slate-500 flex-shrink-0">
                                                         <svg class="client-chevron w-4 h-4 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9l3.75 3.75L15.75 9" />
                                                         </svg>
@@ -379,7 +385,7 @@
                                                     <span class="truncate">
                                                         @if($client)
                                                             @if($canViewClient)
-                                                                <a href="{{ $clientShowRoute }}" class="text-blue-600 hover:underline" onclick="event.stopPropagation()">
+                                                                <a href="{{ $clientShowRoute }}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline" onclick="event.stopPropagation()">
                                                                     {{$client->name}}
                                                                 </a>
                                                             @else
@@ -390,8 +396,8 @@
                                                         @endif
                                                     </span>
                                                 </div>
-                                                <span class="text-xs font-medium text-gray-500 whitespace-nowrap">
-                                                    {{ $clientProjects->where('archived', '!=', 1)->count() }} {{ __('messages.Projects') }}
+                                                <span class="dt-badge dt-badge-neutral flex-shrink-0">
+                                                    <span class="dt-dot"></span>{{ $clientProjects->where('archived', '!=', 1)->count() }} {{ __('messages.Projects') }}
                                                 </span>
                                             </div>
                                         </td>
@@ -400,8 +406,8 @@
                                     {{-- Projects for this client --}}
                                     @foreach($clientProjects as $project)
                                         @continue($project->archived == 1)
-                                        <tr class="hover:bg-gray-50 project-row" data-client-id="{{ $clientId }}">
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 project-name">
+                                        <tr class="hover:bg-slate-50/70 transition-colors project-row" data-client-id="{{ $clientId }}">
+                                            <td class="px-4 py-3 whitespace-nowrap text-[13px] font-medium text-[#0B2638] project-name">
                                                 @php
                                                     $roleRouteMap = [
                                                         'Admin' => 'admin.projects.show',
@@ -421,7 +427,7 @@
                                                     }
                                                 @endphp
                                                 @if($projectShowRoute)
-                                                    <a href="{{ $projectShowRoute }}" class="text-blue-600 hover:underline">
+                                                    <a href="{{ $projectShowRoute }}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline">
                                                         {{ strtoupper($project->name) }}
                                                     </a>
                                                 @else
@@ -430,7 +436,7 @@
                                             </td>
 
                                             @if(Auth::user()->hasRole('Admin'))
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">€{{ number_format($project->budget, 2, ',', ' ') }}</td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-[13px] text-emerald-700 font-semibold">€{{ number_format($project->budget, 2, ',', ' ') }}</td>
                                                 @php
                                                     $projecttasksId = App\Models\Tasks::where('project_id', $project->id)->pluck('id');
                                                     $totalduration = App\Models\tasks_timer::whereIn('task_id', $projecttasksId)->sum('duration');
@@ -445,37 +451,37 @@
                                                     $progressPercentage = $estimatedMinutes > 0 ? max(0, min(100, ($totalduration / $estimatedMinutes) * 100)) : 0;
                                                     $formattedProgressPercentage = number_format($progressPercentage, 2);
 
-                                                    $progressBarColor = 'bg-green-500';
+                                                    $progressBarColor = 'bg-emerald-500';
                                                     if ($progressPercentage >= 75) $progressBarColor = 'bg-red-500';
-                                                    elseif ($progressPercentage >= 50) $progressBarColor = 'bg-yellow-500';
+                                                    elseif ($progressPercentage >= 50) $progressBarColor = 'bg-amber-500';
                                                 @endphp
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ sprintf('%02d', $hours) }}h {{ sprintf('%02d', $minutes) }}m</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ $project->estimated_hours ?? 0 }}h</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <td class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600">{{ sprintf('%02d', $hours) }}h {{ sprintf('%02d', $minutes) }}m</td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-[13px] text-center text-slate-600">{{ $project->estimated_hours ?? 0 }}h</td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-[13px] font-medium">
                                                     @if($project->estimated_hours !== null)
                                                         @if($difference > 0)
-                                                            <span class="text-green-600">+{{ sprintf('%02d', $diffhours) }}h {{ sprintf('%02d', $diffminutes) }}m</span>
+                                                            <span class="dt-badge dt-badge-success">+{{ sprintf('%02d', $diffhours) }}h {{ sprintf('%02d', $diffminutes) }}m</span>
                                                         @elseif($difference < 0)
-                                                            <span class="text-red-600">-{{ sprintf('%02d', $diffhours) }}h {{ sprintf('%02d', $diffminutes) }}m</span>
+                                                            <span class="dt-badge dt-badge-danger">-{{ sprintf('%02d', $diffhours) }}h {{ sprintf('%02d', $diffminutes) }}m</span>
                                                         @else
-                                                            <span class="text-blue-600">{{ sprintf('%02d', $diffhours) }}h {{ sprintf('%02d', $diffminutes) }}m</span>
+                                                            <span class="dt-badge dt-badge-navy">{{ sprintf('%02d', $diffhours) }}h {{ sprintf('%02d', $diffminutes) }}m</span>
                                                         @endif
                                                     @else
-                                                        <span class="text-gray-400">-</span>
+                                                        <span class="text-slate-300">-</span>
                                                     @endif
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                <td class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600">
                                                     <div class="flex items-center gap-2">
-                                                        <div class="w-20 bg-gray-200 rounded-full h-1.5">
+                                                        <div class="w-full max-w-[110px] bg-slate-200 rounded-full h-1.5 overflow-hidden">
                                                             <div class="{{ $progressBarColor }} h-1.5 rounded-full" style="width: {{ $formattedProgressPercentage }}%"></div>
                                                         </div>
-                                                        <span class="text-xs font-medium">{{ $formattedProgressPercentage }}%</span>
+                                                        <span class="text-[11px] font-semibold text-slate-500 whitespace-nowrap">{{ $formattedProgressPercentage }}%</span>
                                                     </div>
                                                 </td>
                                             @endif
 
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
-                                                <div class="flex flex-wrap gap-1">
+                                            <td class="px-4 py-3 whitespace-nowrap text-[13px] text-center text-slate-500">
+                                                <div class="flex flex-wrap justify-center gap-1.5">
                                                     @php
                                                         $teamIndexRoute = '#';
                                                         $canViewTeam = Auth::user()->can('View team');
@@ -488,7 +494,8 @@
                                                         $project_teams_list = App\Models\project_teams::where('project_id', $project->id)->get();
                                                     @endphp
                                                     @forelse($project_teams_list as $project_team)
-                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                                        <span class="dt-badge dt-badge-navy">
+                                                            <span class="dt-dot"></span>
                                                             @if($canViewTeam)
                                                                 <a href="{{ $teamIndexRoute }}" class="hover:underline">{{$project_team->team_name}}</a>
                                                             @else
@@ -496,19 +503,24 @@
                                                             @endif
                                                         </span>
                                                     @empty
-                                                        <span class="text-xs text-gray-400">{{ __('messages.No teams') }}</span>
+                                                        <span class="text-xs text-slate-400">{{ __('messages.No teams') }}</span>
                                                     @endforelse
                                                 </div>
                                             </td>
 
                                             @can('Delete project')
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm space-x-1">
+                                                <td class="px-4 py-3 whitespace-nowrap text-[13px]">
+                                                    <div class="flex items-center justify-center gap-2">
                                                     @php
                                                         $deleteRoute = '#'; $editRoute = '#'; $archiveRoute = '#';
                                                         if (Auth::user()->hasRole('Admin')) {
                                                             $deleteRoute = route('admin.projects.destroy', $project->id);
                                                             $editRoute = route('admin.projects.edit', $project->id);
                                                             $archiveRoute = route('admin.projects.archive', $project->id);
+                                                        } elseif (Auth::user()->hasRole('SuperAdmin')) {
+                                                            $deleteRoute = route('SuperAdmin.projects.destroy', $project->id);
+                                                            $editRoute = route('SuperAdmin.projects.edit', $project->id);
+                                                            $archiveRoute = route('SuperAdmin.projects.archive', $project->id);
                                                         } elseif (Auth::user()->hasRole('Responsable de projet')) {
                                                             $deleteRoute = route('Responsable_de_projet.projects.destroy', $project->id);
                                                             $editRoute = route('Responsable_de_projet.projects.edit', $project->id);
@@ -523,14 +535,14 @@
                                                             $archiveRoute = route('Responsable_gestionnaire.projects.archive', $project->id);
                                                         }
                                                     @endphp
-                                                    <a href="{{ $editRoute }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-blue-600 hover:bg-blue-700">
+                                                    <a href="{{ $editRoute }}" title="{{ __('messages.Edit') }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white text-[#2D7080] hover:bg-[#2D7080]/10 hover:border-[#2D7080]/30 transition-colors">
                                                         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M4 20h4l9.5-9.5-4-4L4 16v4z" />
                                                         </svg>
                                                     </a>
                                                     <form action="{{ $archiveRoute }}" method="post" class="inline" onsubmit="return confirm('{{ __('messages.Archive this project?') }}');">
                                                         @csrf
-                                                        <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-gray-500 hover:bg-gray-600">
+                                                        <button type="submit" title="{{ __('messages.Archive') }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 hover:border-slate-300 transition-colors">
                                                             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
                                                             </svg>
@@ -539,20 +551,24 @@
                                                     <form action="{{ $deleteRoute }}" method="post" class="inline" onsubmit="return confirm('{{ __('messages.Are you sure you want to delete this project?') }}');">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-red-600 hover:bg-red-700">
+                                                        <button type="submit" title="{{ __('messages.Delete') }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors">
                                                             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862A2 2 0 015.995 19.142L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16" />
                                                             </svg>
                                                         </button>
                                                     </form>
+                                                    </div>
                                                 </td>
                                             @endcan
                                         </tr>
                                     @endforeach
                                 @empty
                                     <tr>
-                                        <td colspan="{{ Auth::user()->hasRole('Admin') ? 10 : 3 }}" class="px-6 py-4 text-center text-sm text-gray-500">
-                                            {{ __('messages.No projects found.') }}
+                                        <td colspan="{{ Auth::user()->hasRole('Admin') ? 10 : 3 }}" class="px-6 py-10 text-center">
+                                            <div class="dt-empty-icon mx-auto mb-3">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>
+                                            </div>
+                                            <p class="text-[13.5px] font-semibold text-[#0B2638]">{{ __('messages.No projects found.') }}</p>
                                         </td>
                                     </tr>
                                 @endforelse

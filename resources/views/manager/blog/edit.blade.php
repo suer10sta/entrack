@@ -4,7 +4,7 @@
     <div class="max-w-4xl mx-auto">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">{{ __('messages.Manager Blog edit title') }}</h1>
+                <h1 class="text-[22px] font-bold tracking-tight text-[#0B2638]">{{ __('messages.Manager Blog edit title') }}</h1>
                 <p class="text-sm text-gray-500">
                     {{ __('messages.Manager Blog editing label') }}
                     <span class="font-semibold">{{ $post->title }}</span>
@@ -38,7 +38,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Manager Blog field title') }}</label>
                 <input type="text" name="title" value="{{ old('title', $post->title) }}"
-                       class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                       class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#2D7080] focus:border-[#2D7080] text-sm"
                        required>
             </div>
 
@@ -46,33 +46,33 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Manager Blog field slug') }}</label>
                     <input type="text" name="slug" value="{{ old('slug', $post->slug) }}"
-                           class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                           class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#2D7080] focus:border-[#2D7080] text-sm">
                     <p class="mt-1 text-xs text-gray-500">{{ __('messages.Manager Blog slug helper') }}</p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Manager Blog publish datetime') }}</label>
                     <input type="datetime-local" name="published_at"
                            value="{{ old('published_at', optional($post->published_at)->format('Y-m-d\TH:i')) }}"
-                           class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                           class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#2D7080] focus:border-[#2D7080] text-sm">
                 </div>
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Manager Blog excerpt label') }}</label>
                 <textarea name="excerpt" rows="2"
-                          class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">{{ old('excerpt', $post->excerpt) }}</textarea>
+                          class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#2D7080] focus:border-[#2D7080] text-sm">{{ old('excerpt', $post->excerpt) }}</textarea>
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Manager Blog content label') }}</label>
                 <textarea id="blog-body" name="body" rows="12"
-                          class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">{{ old('body', $post->body) }}</textarea>
+                          class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#2D7080] focus:border-[#2D7080] text-sm">{{ old('body', $post->body) }}</textarea>
                 <p class="mt-1 text-xs text-gray-500">{{ __('messages.Manager Blog content helper') }}</p>
             </div>
 
             <div class="flex items-center justify-between">
                 <label class="inline-flex items-center space-x-2 text-sm text-gray-700">
-                    <input type="checkbox" name="is_published" value="1" class="rounded border-gray-300 text-blue-600"
+                    <input type="checkbox" name="is_published" value="1" class="rounded border-gray-300 text-[#2D7080]"
                         {{ old('is_published', $post->is_published) ? 'checked' : '' }}>
                     <span>{{ __('messages.Manager Blog status published') }}</span>
                 </label>
@@ -83,7 +83,7 @@
                         {{ __('messages.Manager Blog view public page') }}
                     </a>
                     <button type="submit"
-                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                            class="inline-flex items-center px-4 py-2 bg-[#2D7080] text-white text-sm font-medium rounded-lg hover:bg-[#245f6d] transition-colors">
                         {{ __('messages.Manager Blog save changes') }}
                     </button>
                 </div>
@@ -108,3 +108,4 @@
         });
     </script>
 @endpush
+

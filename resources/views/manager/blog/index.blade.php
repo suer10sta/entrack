@@ -4,11 +4,11 @@
     <div class="max-w-6xl mx-auto">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">{{ __('messages.Manager Blog posts title') }}</h1>
+                <h1 class="text-[22px] font-bold tracking-tight text-[#0B2638]">{{ __('messages.Manager Blog posts title') }}</h1>
                 <p class="text-sm text-gray-500">{{ __('messages.Manager Blog posts subtitle') }}</p>
             </div>
             <a href="{{ route('manager.blog.create') }}"
-               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+               class="inline-flex items-center px-4 py-2 bg-[#2D7080] text-white text-sm font-medium rounded-lg hover:bg-[#245f6d] transition-colors">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
@@ -44,7 +44,7 @@
                             <td data-label="{{ __('messages.Manager Blog table title') }}" data-span="2" data-manager-card-toggle class="manager-toggle-cell px-4 py-3 text-gray-900">
                                 <div class="flex items-start justify-between gap-3">
                                     <div class="min-w-0">
-                                        <a href="{{ route('manager.blog.edit', $post) }}" class="font-semibold hover:text-blue-600">
+                                        <a href="{{ route('manager.blog.edit', $post) }}" class="font-semibold hover:text-[#0B2638]">
                                             {{ $post->title }}
                                         </a>
                                     </div>
@@ -74,11 +74,11 @@
                             </td>
                             <td data-label="{{ __('messages.Manager Blog table actions') }}" data-span="2" class="px-4 py-3 text-right space-x-2">
                                 <a href="{{ route('blog.show', $post->slug) }}" target="_blank"
-                                   class="inline-flex items-center px-2 py-1 text-xs text-gray-600 hover:text-blue-600">
+                                   class="inline-flex items-center px-2 py-1 text-xs text-gray-600 hover:text-[#0B2638]">
                                     {{ __('messages.Manager Blog action view') }}
                                 </a>
                                 <a href="{{ route('manager.blog.edit', $post) }}"
-                                   class="inline-flex items-center px-2 py-1 text-xs text-gray-600 hover:text-blue-600">
+                                   class="inline-flex items-center px-2 py-1 text-xs text-gray-600 hover:text-[#0B2638]">
                                     {{ __('messages.Manager Blog action edit') }}
                                 </a>
                                 <form action="{{ route('manager.blog.destroy', $post) }}" method="POST"
@@ -104,5 +104,6 @@
         @endif
     </div>
 @endsection
+
 
 

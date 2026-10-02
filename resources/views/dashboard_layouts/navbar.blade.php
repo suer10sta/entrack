@@ -21,25 +21,14 @@
             @endif
         @endif
 
-           <div class="sidenav-toggler sidenav-toggler-inner d-lg-none d-block">
-          <a href="javascript:;" class="nav-link p-0" onclick="toggleSidebar()">
+           <div class="sidenav-toggler sidenav-toggler-inner d-xl-none d-block">
+          <a href="#" class="nav-link p-0" data-mobile-sidebar-toggle aria-label="Open navigation">
   <div class="sidenav-toggler-inner">
     <i class="sidenav-toggler-line bg-white"></i>
     <i class="sidenav-toggler-line bg-white"></i>
     <i class="sidenav-toggler-line bg-white"></i>
   </div>
 </a>
-<style>
-  .sidebar {
-  width: 250px;
-  transition: width 0.5s;
-}
-
-.sidebar.hidden {
-  width: 0;
-  overflow: hidden;
-}
-</style>
           </div>
           <div
             class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4"
@@ -81,8 +70,8 @@
         </div>
       </nav>
 <script>
-  function toggleSidebar() {
-  var sidebar = document.getElementById("sidenav-main");
-  sidebar.classList.toggle("hidden");
-}
+  document.querySelector('[data-mobile-sidebar-toggle]')?.addEventListener('click', (event) => {
+    event.preventDefault();
+    document.getElementById('sidenav-main')?.classList.toggle('is-open');
+  });
 </script>

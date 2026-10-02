@@ -32,35 +32,45 @@
             $daysLeft = $isOnTrial ? max(0, (int) ceil(now()->floatDiffInDays($entreprise->trial_ends_at))) : null;
         @endphp
         @if($isOnTrial && $daysLeft > 0)
-            <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-center">
-                <span class="text-sm font-semibold text-amber-800">
-                    ⏳ {{ __('messages.days_left_trial', ['days' => $daysLeft]) }}. <a href="{{ route('profile.upgrade') }}" class="ml-2 text-amber-600 underline font-medium hover:text-amber-800">{{ __('messages.upgrade') }}</a>
-                </span>
+            <div class="bg-[#E7B84B]/15 border-b border-[#E7B84B]/40 px-4 py-2">
+                <p class="text-center text-[13px] font-semibold text-[#7a5a12]">
+                    {{ __('messages.days_left_trial', ['days' => $daysLeft]) }} <a href="{{ route('profile.upgrade') }}" class="ml-2 inline-flex items-center gap-1 rounded-lg bg-[#0B2638] px-2.5 py-1 text-[12px] font-semibold text-white hover:bg-[#14364d] no-underline">{{ __('messages.upgrade') }}</a>
+                </p>
             </div>
         @elseif($isExpired)
-            <div class="bg-red-50 border-b border-red-200 px-4 py-2 text-center">
-                <span class="text-sm font-semibold text-red-800">
-                    ⚠️ {{ __('messages.trial_expired') }} <a href="{{ route('profile.upgrade') }}" class="text-red-600 underline font-medium hover:text-red-800">{{ __('messages.upgrade_plan') }}</a>
-                </span>
+            <div class="bg-red-50 border-b border-red-200 px-4 py-2">
+                <p class="text-center text-[13px] font-semibold text-red-800">
+                    {{ __('messages.trial_expired') }} <a href="{{ route('profile.upgrade') }}" class="ml-2 inline-flex items-center gap-1 rounded-lg bg-red-600 px-2.5 py-1 text-[12px] font-semibold text-white hover:bg-red-700 no-underline">{{ __('messages.upgrade_plan') }}</a>
+                </p>
             </div>
         @endif
     @endif
 
-<header class="flex items-center justify-between px-4 sm:px-6 py-3 bg-white border-b border-gray-200">
-    <div class="flex items-center gap-3 flex-1 min-w-0">
+<header class="sticky top-0 z-30 flex items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-white/90 backdrop-blur border-b border-slate-200">
+    <div class="flex items-center gap-2.5 flex-1 min-w-0">
+        {{-- Desktop collapse toggle --}}
+        <button
+            type="button"
+            class="hidden lg:inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-[#0B2638] hover:bg-slate-50 hover:border-slate-300 transition-colors"
+            onclick="toggleDesktopSidebar()"
+            aria-label="Toggle sidebar"
+            title="Collapse / Expand sidebar"
+        >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10" />
+            </svg>
+        </button>
         {{-- Mobile hamburger (shows sidebar) --}}
         <button
             type="button"
-            class="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+            class="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-[#0B2638] hover:bg-slate-50 transition-colors"
             onclick="toggleAppSidebar(true)"
             aria-label="{{ __('messages.Open menu') }}"
         >
             <span class="sr-only">{{ __('messages.Open menu') }}</span>
-            <div class="flex flex-col gap-1">
-                <span class="block h-1 w-5 bg-gray-800"></span>
-                <span class="block h-1 w-5 bg-gray-800"></span>
-                <span class="block h-1 w-5 bg-gray-800"></span>
-            </div>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10" />
+            </svg>
         </button>
 
         <div class="flex items-center w-full max-w-lg min-w-0" x-data="searchDropdown()" x-init="init()">
@@ -80,7 +90,7 @@
                 @keydown.arrow-down.prevent="navigateResults(1)"
                 @keydown.arrow-up.prevent="navigateResults(-1)"
                 @keydown.enter.prevent="selectResult()"
-                class="w-full pl-11 pr-4 py-2.5 border rounded-lg bg-white focus:ring-0 focus:border-blue-500 text-sm border-gray-300" 
+                class="w-full pl-11 pr-4 py-2.5 border rounded-xl bg-slate-50 text-sm border-slate-200 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none transition" 
             />
             
             {{-- Search Results Dropdown --}}
@@ -110,7 +120,7 @@
                             :href="result.url"
                             @click="showResults = false"
                             :class="{
-                                'bg-blue-50': selectedIndex === index,
+                                'bg-[#2D7080]/10': selectedIndex === index,
                                 'hover:bg-gray-50': selectedIndex !== index
                             }"
                             class="block px-4 py-3 border-b border-gray-100 last:border-b-0 transition-colors cursor-pointer"
@@ -157,7 +167,7 @@
                                             x-show="result.archived"
                                             class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-800"
                                         >
-                                            Archived
+                                            {{ __('messages.Archived') }}
                                         </span>
                                     </div>
                                     <p class="text-xs text-gray-500 truncate" x-text="result.subtitle"></p>
@@ -182,14 +192,14 @@
         </div>
     </div>
 
-<div class="flex items-center gap-4 ml-6">
+<div class="flex items-center gap-2.5 ml-4 flex-shrink-0">
         {{-- Language Switcher --}}
         <div class="relative" x-data="{ open: false }">
             <button 
                 @click="open = !open"
                 @click.away="open = false"
                 type="button"
-                class="relative p-2.5 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                class="relative p-2.5 border border-slate-200 bg-white rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center gap-2 shadow-sm"
                 title="{{ __('messages.Language') }}"
             >
                 
@@ -231,7 +241,7 @@
                 <div class="py-2">
                     <a 
                         href="{{ route('changeLang', ['lang' => 'en']) }}"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'en' ? 'bg-blue-50 text-blue-700' : '' }}"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'en' ? 'bg-[#2D7080]/10 text-brand-secondary' : '' }}"
                     >
                         <img src="https://flagcdn.com/gb.svg" alt="English" class="w-4 h-3 rounded-sm object-cover">
                         <span>English</span>
@@ -243,7 +253,7 @@
                     </a>
                     <a 
                         href="{{ route('changeLang', ['lang' => 'fr']) }}"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'fr' ? 'bg-blue-50 text-blue-700' : '' }}"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'fr' ? 'bg-[#2D7080]/10 text-brand-secondary' : '' }}"
                     >
                         <img src="https://flagcdn.com/fr.svg" alt="Français" class="w-4 h-3 rounded-sm object-cover">
                         <span>Français</span>
@@ -255,7 +265,7 @@
                     </a>
                     <a 
                         href="{{ route('changeLang', ['lang' => 'es']) }}"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'es' ? 'bg-blue-50 text-blue-700' : '' }}"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'es' ? 'bg-[#2D7080]/10 text-brand-secondary' : '' }}"
                     >
                         <img src="https://flagcdn.com/es.svg" alt="Español" class="w-4 h-3 rounded-sm object-cover">
                         <span>Español</span>
@@ -267,7 +277,7 @@
                     </a>
                     <a 
                         href="{{ route('changeLang', ['lang' => 'nl']) }}"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'nl' ? 'bg-blue-50 text-blue-700' : '' }}"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'nl' ? 'bg-[#2D7080]/10 text-brand-secondary' : '' }}"
                     >
                         <img src="https://flagcdn.com/be.svg" alt="Nederlands" class="w-4 h-3 rounded-sm object-cover">
                         <span>{{ __('messages.Nederlands') }}</span>
@@ -321,7 +331,7 @@
                             <div class="flex items-start justify-between gap-3">
                                 <div class="flex items-start gap-3">
                                     <div class="flex-shrink-0">
-                                        <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                                        <div class="w-10 h-10 rounded-2xl bg-[#2D7080]/10 text-brand-secondary flex items-center justify-center">
                                             <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h3m6 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
                                             </svg>
@@ -354,7 +364,7 @@
                                 @if(is_null($alert->read_at))
                                     <button 
                                         type="button"
-                                        class="text-blue-600 font-semibold hover:underline"
+                                        class="text-brand-secondary font-semibold hover:underline"
                                         @click.stop.prevent="markAsRead({{ $alert->id }}, '{{ route('alerts.read', $alert) }}')"
                                     >
                                         {{ __('messages.Mark as read') }}
@@ -544,6 +554,20 @@
 @endonce
 
 <script>
+    // Desktop collapse fallback (full implementation lives in sidebar component)
+    if (typeof toggleDesktopSidebar === 'undefined') {
+        function toggleDesktopSidebar(force) {
+            const collapsed = typeof force === 'boolean' ? force : !document.body.classList.contains('dt-sidebar-collapsed');
+            document.body.classList.toggle('dt-sidebar-collapsed', collapsed);
+            try { localStorage.setItem('dalytrac-sidebar-collapsed', collapsed ? '1' : '0'); } catch (e) {}
+        }
+        try {
+            if (localStorage.getItem('dalytrac-sidebar-collapsed') === '1' && window.innerWidth >= 1024) {
+                document.body.classList.add('dt-sidebar-collapsed');
+            }
+        } catch (e) {}
+    }
+
     // Mobile sidebar toggle (shared by admin + employee sidebars)
     function toggleAppSidebar(forceOpen = null) {
         const sidebar = document.getElementById('appSidebar');

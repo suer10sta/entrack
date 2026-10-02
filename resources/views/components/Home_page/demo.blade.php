@@ -6,7 +6,9 @@
     <title>{{ __('messages.Watch Demo') }} | DalyTrac</title>
     <meta name="description" content="Watch DalyTrac demo videos to see how our platform handles dashboards, invoices, projects, time tracking, expenses, clients and more.">
     <meta name="robots" content="index,follow">
+    <meta name="theme-color" content="#0b2638">
     <link rel="canonical" href="{{ route('demo') }}">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%230b2638'/%3E%3Cpath d='M18 16h14c11 0 18 6 18 16s-7 16-18 16H18V16Zm12 23c6 0 10-2 10-7s-4-7-10-7h-2v14h2Z' fill='%238ccfd0'/%3E%3C/svg%3E">
 
     <meta property="og:title" content="{{ __('messages.Watch Demo') }} | DalyTrac">
     <meta property="og:description" content="Explore DalyTrac feature demos and discover how to streamline your business operations end‑to‑end.">
@@ -18,374 +20,339 @@
     <meta name="twitter:title" content="{{ __('messages.Watch Demo') }} | DalyTrac">
     <meta name="twitter:description" content="See DalyTrac in action across invoicing, projects, time tracking, calendar and more.">
 
-    <link rel="preconnect" href="https://fonts.bunny.net" />
-    <link
-      href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap"
-      rel="stylesheet"
-    />
     @vite('resources/css/app.css')
-    <link rel="stylesheet" href="welcome/css/aos.css" />
-    <script
-      src="https://kit.fontawesome.com/a076d05399.js"
-      crossorigin="anonymous"
-    ></script>
+
+    <style>
+      [x-cloak] { display: none !important; }
+      html, body { overflow-x: clip; }
+      @supports not (overflow: clip) {
+        html, body { overflow-x: hidden; }
+      }
+    </style>
   </head>
 
-  <body class="antialiased bg-gradient-to-b from-background to-primary/5 text-muted font-figtree">
-    <x-Home_page.header />
+  <body class="bg-white font-normal text-[#1b3444] antialiased">
+    <x-public.header />
 
-    <main>
+    <main id="main">
       {{-- Hero Section --}}
-      <section class="relative pt-24 pb-8 lg:pt-32 lg:pb-12 overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-cyan-500/5"></div>
-        
-        <div class="relative z-10 container mx-auto px-6 text-center">
-          <div class="inline-block mb-4 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold tracking-wide">
-            {{ __('messages.Feature Demos') }}
-          </div>
-          <h1 class="text-3xl lg:text-5xl font-bold text-foreground mb-4 tracking-tight">
-            {{ __('messages.See DalyTrac in') }} <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-cyan-500">{{ __('messages.Action') }}</span>
+      <section class="bg-[#f8faf9] pb-12 pt-16 max-md:pt-12">
+        <div class="mx-auto max-w-[1200px] px-6 text-center max-md:px-4">
+          <p class="mb-5 flex items-center justify-center gap-2.5 text-[0.75rem] font-bold uppercase tracking-[0.13em] text-brand-secondary"><span class="h-0.5 w-7 bg-brand-accent"></span>{{ __('messages.Feature Demos') }}</p>
+          <h1 class="mx-auto max-w-3xl text-[clamp(2.5rem,4.5vw,4rem)] font-bold leading-[1.05] tracking-[-0.052em] text-brand-primary">
+            {{ __('messages.See DalyTrac in') }} <em class="not-italic text-brand-secondary">{{ __('messages.Action') }}</em>
           </h1>
-          <p class="text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p class="mx-auto mt-5 max-w-3xl text-[1.05rem] leading-[1.7] text-[#5b6b73]">
             {{ __('messages.Click on any feature to watch a detailed demo video and discover how DalyTrac can transform your business operations.') }}
           </p>
         </div>
       </section>
 
-      {{-- YouTube-style Layout: Video on Left, Playlist on Right --}}
-      <section class="py-8 lg:py-12 pb-16" style="margin-top: -35px;">
-        <div class="container mx-auto px-6">
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 max-w-7xl mx-auto">
-            
+      {{-- Video + Playlist --}}
+      <section class="bg-[#f8faf9] pb-20 pt-4 max-md:pb-14">
+        <div class="mx-auto max-w-[1200px] px-6 max-md:px-4">
+          <div class="mx-auto grid max-w-7xl grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
+
             {{-- Left Side: Video Player (2/3 width on large screens) --}}
             <div class="lg:col-span-2">
-              {{-- Video Player --}}
-              <div id="video-player-container" class="bg-card rounded-xl shadow-lg overflow-hidden border border-border">
-                <div class="w-full aspect-video bg-black">
-                  <video 
+              <div id="video-player-container" class="overflow-hidden rounded-2xl border border-[#dce6e4] bg-white shadow-[0_18px_50px_rgba(7,27,50,0.10)]">
+                <div class="aspect-video w-full bg-brand-primary">
+                  <video
                     id="demo-video-player"
                     controls
                     autoplay
-                    class="w-full h-full"
+                    class="h-full w-full"
                   >
                     <source src="{{ asset('videos/DashboardDemo.mp4') }}" type="video/mp4">
                     {{ __('messages.Your browser does not support the video tag.') }}
                   </video>
                 </div>
-                <div class="p-4 bg-background">
-                  <h2 id="current-video-title" class="text-xl font-bold text-foreground mb-2">{{ __('messages.Dashboard Overview') }}</h2>
-                  <div class="flex items-center justify-between flex-wrap gap-3">
+                <div class="bg-white p-4">
+                  <h2 id="current-video-title" class="mb-2 text-xl font-bold text-brand-primary">{{ __('messages.Dashboard Overview') }}</h2>
+                  <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex gap-2">
-                      <button 
-                        onclick="playPreviousVideo()" 
+                      <button
+                        onclick="playPreviousVideo()"
                         id="prev-btn"
-                        class="px-4 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-semibold"
+                        class="inline-flex items-center rounded-lg bg-brand-secondary/10 px-4 py-2 text-sm font-semibold text-brand-secondary transition-colors duration-300 hover:bg-brand-secondary/20 disabled:cursor-not-allowed disabled:opacity-50"
                         disabled
                       >
-                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
+                        <i data-lucide="chevron-left" class="mr-1 h-4 w-4"></i>
                         {{ __('messages.Previous') }}
                       </button>
-                      <button 
-                        onclick="playNextVideo()" 
+                      <button
+                        onclick="playNextVideo()"
                         id="next-btn"
-                        class="px-4 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-semibold"
+                        class="inline-flex items-center rounded-lg bg-brand-secondary/10 px-4 py-2 text-sm font-semibold text-brand-secondary transition-colors duration-300 hover:bg-brand-secondary/20 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {{ __('messages.Next') }}
-                        <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
+                        <i data-lucide="chevron-right" class="ml-1 h-4 w-4"></i>
                       </button>
                     </div>
-                    <div id="video-progress" class="text-xs text-muted-foreground font-medium">
+                    <div id="video-progress" class="text-xs font-medium text-[#5b6b73]">
                       <span id="current-video-number">1</span> / <span id="total-videos">3</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            
+
             {{-- Right Side: Playlist (1/3 width on large screens) --}}
-            <div class="lg:col-span-1" style="height: 562px;">
-              <div class="bg-card rounded-xl border border-border shadow-lg overflow-hidden flex flex-col h-full max-h-[600px]">
-                <div class="p-4 bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border">
-                  <h3 class="text-lg font-bold text-foreground">{{ __('messages.Feature Demos') }}</h3>
-                  <p class="text-xs text-muted-foreground mt-1">{{ __('messages.Select a feature to watch') }}</p>
+            <div class="lg:col-span-1">
+              <div class="flex h-full max-h-[600px] flex-col overflow-hidden rounded-2xl border border-[#dce6e4] bg-white shadow-[0_18px_50px_rgba(7,27,50,0.10)] max-lg:max-h-[520px]">
+                <div class="border-b border-[#dce6e4] bg-[#f2f8f7] p-4">
+                  <h3 class="text-lg font-bold text-brand-primary">{{ __('messages.Feature Demos') }}</h3>
+                  <p class="mt-1 text-xs text-[#5b6b73]">{{ __('messages.Select a feature to watch') }}</p>
                 </div>
-                
-                <div class="flex-1 overflow-y-auto">
-                  {{-- Playlist Items --}}
+
+                <div class="flex-1 overflow-y-auto playlist-scroll">
                   {{-- 0. Dashboard Overview --}}
-                  <div 
-                    onclick="playPlaylistVideo(0)" 
-                    class="playlist-item group flex gap-3 p-3 hover:bg-primary/5 cursor-pointer transition-colors border-b border-border"
+                  <div
+                    onclick="playPlaylistVideo(0)"
+                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
                     data-video-index="0"
                   >
-                    <div class="flex-shrink-0 w-40 h-24 rounded bg-gradient-to-br from-primary/20 to-primary/10 relative overflow-hidden">
-                      <video 
-                        class="w-full h-full object-cover"
+                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
+                      <video
+                        class="h-full w-full object-cover"
                         muted
                         loop
                         playsinline
                       >
                         <source src="{{ asset('videos/DashboardDemo.mp4') }}" type="video/mp4">
                       </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
+                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
+                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
                       </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Dashboard Overview') }}</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.See your business at a glance with real-time metrics and quick access to all modules.') }}</p>
+                    <div class="min-w-0 flex-1">
+                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Dashboard Overview') }}</h4>
+                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.See your business at a glance with real-time metrics and quick access to all modules.') }}</p>
                     </div>
                   </div>
 
                   {{-- 1. Invoice Management --}}
-                  <div 
-                    onclick="playPlaylistVideo(1)" 
-                    class="playlist-item group flex gap-3 p-3 hover:bg-primary/5 cursor-pointer transition-colors border-b border-border"
+                  <div
+                    onclick="playPlaylistVideo(1)"
+                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
                     data-video-index="1"
                   >
-                    <div class="flex-shrink-0 w-40 h-24 rounded bg-gradient-to-br from-blue-500/20 to-cyan-500/10 relative overflow-hidden">
-                      <video 
-                        class="w-full h-full object-cover"
+                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
+                      <video
+                        class="h-full w-full object-cover"
                         muted
                         loop
                         playsinline
                       >
                         <source src="{{ asset('videos/InvoiceDemo.mp4') }}" type="video/mp4">
                       </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
+                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
+                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
                       </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Invoice Management') }}</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Create, send, and track professional invoices with automated reminders.') }}</p>
+                    <div class="min-w-0 flex-1">
+                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Invoice Management') }}</h4>
+                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Create, send, and track professional invoices with automated reminders.') }}</p>
                     </div>
                   </div>
 
                   {{-- 2. Quotes / Devis to Invoice --}}
-                  <div 
-                    onclick="playPlaylistVideo(2)" 
-                    class="playlist-item group flex gap-3 p-3 hover:bg-primary/5 cursor-pointer transition-colors border-b border-border"
+                  <div
+                    onclick="playPlaylistVideo(2)"
+                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
                     data-video-index="2"
                   >
-                    <div class="flex-shrink-0 w-40 h-24 rounded bg-gradient-to-br from-indigo-500/20 to-purple-500/10 relative overflow-hidden">
-                      <video 
-                        class="w-full h-full object-cover"
+                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
+                      <video
+                        class="h-full w-full object-cover"
                         muted
                         loop
                         playsinline
                       >
                         <source src="{{ asset('videos/DevisDemo.mp4') }}" type="video/mp4">
                       </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
+                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
+                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
                       </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Quotes & Devis to Invoice') }}</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Create quotes, get approvals, and convert them into real projects and tasks in one click.') }}</p>
+                    <div class="min-w-0 flex-1">
+                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Quotes & Devis to Invoice') }}</h4>
+                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Create quotes, get approvals, and convert them into real projects and tasks in one click.') }}</p>
                     </div>
                   </div>
 
                   {{-- 3. Project & Task Management --}}
-                  <div 
-                    onclick="playPlaylistVideo(3)" 
-                    class="playlist-item group flex gap-3 p-3 hover:bg-primary/5 cursor-pointer transition-colors border-b border-border"
+                  <div
+                    onclick="playPlaylistVideo(3)"
+                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
                     data-video-index="3"
                   >
-                    <div class="flex-shrink-0 w-40 h-24 rounded bg-gradient-to-br from-emerald-500/20 to-teal-500/10 relative overflow-hidden">
-                      <video 
-                        class="w-full h-full object-cover"
+                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
+                      <video
+                        class="h-full w-full object-cover"
                         muted
                         loop
                         playsinline
                       >
                         <source src="{{ asset('videos/Projects_TasksDemo.mp4') }}" type="video/mp4">
                       </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/>
-                        </svg>
+                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
+                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
                       </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Project & Task Management') }}</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Organize projects, subprojects, and tasks with assignments and deadlines.') }}</p>
+                    <div class="min-w-0 flex-1">
+                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Project & Task Management') }}</h4>
+                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Organize projects, subprojects, and tasks with assignments and deadlines.') }}</p>
                     </div>
                   </div>
 
                   {{-- 4. Time Tracking / Track Timer --}}
-                  <div 
-                    onclick="playPlaylistVideo(4)" 
-                    class="playlist-item group flex gap-3 p-3 hover:bg-primary/5 cursor-pointer transition-colors border-b border-border"
+                  <div
+                    onclick="playPlaylistVideo(4)"
+                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
                     data-video-index="4"
                   >
-                    <div class="flex-shrink-0 w-40 h-24 rounded bg-gradient-to-br from-emerald-500/20 to-teal-500/10 relative overflow-hidden">
-                      <video 
-                        class="w-full h-full object-cover"
+                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
+                      <video
+                        class="h-full w-full object-cover"
                         muted
                         loop
                         playsinline
                       >
                         <source src="{{ asset('videos/TimeTrackerDemo.mp4') }}" type="video/mp4">
                       </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
+                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
+                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
                       </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Time Tracking') }}</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Track time per task and project with real-time timers and logs.') }}</p>
+                    <div class="min-w-0 flex-1">
+                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Time Tracking') }}</h4>
+                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Track time per task and project with real-time timers and logs.') }}</p>
                     </div>
                   </div>
 
                   {{-- 5. Expense Management / Note de frais --}}
-                  <div 
-                    onclick="playPlaylistVideo(5)" 
-                    class="playlist-item group flex gap-3 p-3 hover:bg-primary/5 cursor-pointer transition-colors border-b border-border"
+                  <div
+                    onclick="playPlaylistVideo(5)"
+                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
                     data-video-index="5"
                   >
-                    <div class="flex-shrink-0 w-40 h-24 rounded bg-gradient-to-br from-amber-500/20 to-yellow-500/10 relative overflow-hidden">
-                      <video 
-                        class="w-full h-full object-cover"
+                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-accent/30 to-brand-accent/10">
+                      <video
+                        class="h-full w-full object-cover"
                         muted
                         loop
                         playsinline
                       >
                         <source src="{{ asset('videos/ExpenseDemo.mp4') }}" type="video/mp4">
                       </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1"/>
-                        </svg>
+                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
+                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
                       </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Expense Management') }}</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Record expenses, attach receipts, and categorize note de frais.') }}</p>
+                    <div class="min-w-0 flex-1">
+                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Expense Management') }}</h4>
+                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Record expenses, attach receipts, and categorize note de frais.') }}</p>
                     </div>
                   </div>
 
-
-                  {{-- 7. Client Management --}}
-                  <div 
-                    onclick="playPlaylistVideo(7)" 
-                    class="playlist-item group flex gap-3 p-3 hover:bg-primary/5 cursor-pointer transition-colors border-b border-border"
-                    data-video-index="7"
+                  {{-- 6. Client Management --}}
+                  <div
+                    onclick="playPlaylistVideo(6)"
+                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
+                    data-video-index="6"
                   >
-                    <div class="flex-shrink-0 w-40 h-24 rounded bg-gradient-to-br from-pink-500/20 to-rose-500/10 relative overflow-hidden">
-                      <video 
-                        class="w-full h-full object-cover"
+                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
+                      <video
+                        class="h-full w-full object-cover"
                         muted
                         loop
                         playsinline
                       >
                         <source src="{{ asset('videos/ClientDemo.mp4') }}" type="video/mp4">
                       </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2a3 3 0 00-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857"/>
-                        </svg>
+                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
+                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
                       </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Client Management') }}</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Manage client profiles, history, and documents in one place.') }}</p>
+                    <div class="min-w-0 flex-1">
+                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Client Management') }}</h4>
+                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Manage client profiles, history, and documents in one place.') }}</p>
                     </div>
                   </div>
 
-                  {{-- 8. Team & Employee Management --}}
-                  <div 
-                    onclick="playPlaylistVideo(8)" 
-                    class="playlist-item group flex gap-3 p-3 hover:bg-primary/5 cursor-pointer transition-colors border-b border-border"
-                    data-video-index="8"
+                  {{-- 7. Team & Employee Management --}}
+                  <div
+                    onclick="playPlaylistVideo(7)"
+                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
+                    data-video-index="7"
                   >
-                    <div class="flex-shrink-0 w-40 h-24 rounded bg-gradient-to-br from-amber-500/20 to-orange-500/10 relative overflow-hidden">
-                      <video 
-                        class="w-full h-full object-cover"
+                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
+                      <video
+                        class="h-full w-full object-cover"
                         muted
                         loop
                         playsinline
-                      >   
+                      >
                         <source src="{{ asset('videos/EmployeesDemo.mp4') }}" type="video/mp4">
                       </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197"/>
-                        </svg>
+                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
+                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
                       </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Team & Employee Management') }}</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Create teams, manage employees, and control roles & permissions.') }}</p>
+                    <div class="min-w-0 flex-1">
+                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Team & Employee Management') }}</h4>
+                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Create teams, manage employees, and control roles & permissions.') }}</p>
                     </div>
                   </div>
 
-                  {{-- 9. Calendar & Events --}}
-                  <div 
-                    onclick="playPlaylistVideo(9)" 
-                    class="playlist-item group flex gap-3 p-3 hover:bg-primary/5 cursor-pointer transition-colors border-b border-border"
-                    data-video-index="9"
+                  {{-- 8. Calendar & Events --}}
+                  <div
+                    onclick="playPlaylistVideo(8)"
+                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
+                    data-video-index="8"
                   >
-                    <div class="flex-shrink-0 w-40 h-24 rounded bg-gradient-to-br from-green-500/20 to-emerald-500/10 relative overflow-hidden">
-                      <video 
-                        class="w-full h-full object-cover"
+                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
+                      <video
+                        class="h-full w-full object-cover"
                         muted
                         loop
                         playsinline
                       >
                         <source src="{{ asset('videos/PlanningDemo.mp4') }}" type="video/mp4">
                       </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
+                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
+                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
                       </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Calendar & Events') }}</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Schedule events, deadlines, and meetings with reminders.') }}</p>
+                    <div class="min-w-0 flex-1">
+                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Calendar & Events') }}</h4>
+                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Schedule events, deadlines, and meetings with reminders.') }}</p>
                     </div>
                   </div>
 
-                  {{-- 10. End-to-End Day in the Life --}}
-                  <div 
-                    onclick="playPlaylistVideo(10)" 
-                    class="playlist-item group flex gap-3 p-3 hover:bg-primary/5 cursor-pointer transition-colors"
-                    data-video-index="10"
+                  {{-- 9. End-to-End Day in the Life --}}
+                  <div
+                    onclick="playPlaylistVideo(9)"
+                    class="playlist-item group flex cursor-pointer gap-3 p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
+                    data-video-index="9"
                   >
-                    <div class="flex-shrink-0 w-40 h-24 rounded bg-gradient-to-br from-slate-500/20 to-slate-700/10 relative overflow-hidden">
-                      <video 
-                        class="w-full h-full object-cover"
+                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
+                      <video
+                        class="h-full w-full object-cover"
                         muted
                         loop
                         playsinline
                       >
                         <source src="{{ asset('videos/DayDemo.mp4') }}" type="video/mp4">
                       </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1"/>
-                        </svg>
+                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
+                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
                       </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ __('messages.Day in the Life') }}</h4>
-                      <p class="text-xs text-muted-foreground line-clamp-2">{{ __('messages.Follow a real workflow from client to project to invoice and reporting.') }}</p>
+                    <div class="min-w-0 flex-1">
+                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Day in the Life') }}</h4>
+                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Follow a real workflow from client to project to invoice and reporting.') }}</p>
                     </div>
                   </div>
                 </div>
@@ -394,44 +361,53 @@
           </div>
         </div>
       </section>
+
+      {{-- CTA --}}
+      <section class="bg-brand-primary py-16 max-md:py-12">
+        <div class="mx-auto flex max-w-[1200px] flex-col items-center px-6 text-center max-md:px-4">
+          <h2 class="max-w-2xl text-[clamp(1.8rem,3vw,2.6rem)] font-bold leading-tight tracking-[-0.03em] text-white">{{ __('messages.public_demo_cta_title') }}</h2>
+          <p class="mt-3 max-w-xl text-[0.95rem] text-white/80">{{ __('messages.public_demo_cta_text') }}</p>
+          <a href="{{ route('register') }}" class="group mt-7 inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-full border border-transparent btn-sweep btn-sweep-accent bg-brand-secondary px-8 text-[0.95rem] font-semibold text-white no-underline shadow-[0_12px_28px_rgba(45,112,128,0.25)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.02] hover:text-brand-primary hover:shadow-[0_16px_34px_rgba(45,112,128,0.35)] cursor-pointer max-sm:w-full">{{ __('messages.public_demo_cta_button') }} <span aria-hidden="true" class="inline-block transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"><i data-lucide="arrow-up-right" class="h-4 w-4"></i></span></a>
+        </div>
+      </section>
     </main>
 
-    <x-Home_page.footer />
+    <x-public.footer />
 
     <style>
       .playlist-item {
         transition: all 0.2s ease;
       }
-      
+
       .playlist-item.active {
-        background-color: rgba(14, 165, 233, 0.1);
-        border-left: 3px solid rgb(14, 165, 233);
+        background-color: rgba(45, 112, 128, 0.08);
+        border-left: 3px solid #2D7080;
       }
-      
+
       .playlist-item video {
         transition: transform 0.3s ease;
       }
-      
+
       .playlist-item:hover video {
         transform: scale(1.05);
       }
-      
+
       /* Custom scrollbar for playlist */
-      .max-h-\[600px\]::-webkit-scrollbar {
+      .playlist-scroll::-webkit-scrollbar {
         width: 6px;
       }
-      
-      .max-h-\[600px\]::-webkit-scrollbar-track {
+
+      .playlist-scroll::-webkit-scrollbar-track {
         background: transparent;
       }
-      
-      .max-h-\[600px\]::-webkit-scrollbar-thumb {
-        background: rgba(14, 165, 233, 0.3);
+
+      .playlist-scroll::-webkit-scrollbar-thumb {
+        background: rgba(45, 112, 128, 0.3);
         border-radius: 3px;
       }
-      
-      .max-h-\[600px\]::-webkit-scrollbar-thumb:hover {
-        background: rgba(14, 165, 233, 0.5);
+
+      .playlist-scroll::-webkit-scrollbar-thumb:hover {
+        background: rgba(45, 112, 128, 0.5);
       }
     </style>
 
@@ -450,11 +426,11 @@
         { src: '{{ asset("videos/PlanningDemo.mp4") }}', name: {!! json_encode(__('messages.Calendar & Events')) !!} },
         { src: '{{ asset("videos/DayDemo.mp4") }}', name: {!! json_encode(__('messages.Day in the Life')) !!} }
       ];
-      
+
       // Initialize: Play first video on load
       document.addEventListener('DOMContentLoaded', function() {
         playPlaylistVideo(0);
-        
+
         // Auto-play thumbnail videos on hover
         const playlistItems = document.querySelectorAll('.playlist-item');
         playlistItems.forEach((item, index) => {
@@ -470,23 +446,23 @@
           }
         });
       });
-      
+
       function playPlaylistVideo(index) {
         currentPlaylistIndex = index;
         const video = document.getElementById('demo-video-player');
         const playlistItems = document.querySelectorAll('.playlist-item');
         const videoTitle = document.getElementById('current-video-title');
-        
+
         if (video && playlistVideos[index]) {
           // Update video source
           video.innerHTML = '<source src="' + playlistVideos[index].src + '" type="video/mp4">';
           video.load();
-          
+
           // Update video title
           if (videoTitle) {
             videoTitle.textContent = playlistVideos[index].name;
           }
-          
+
           // Update active state
           playlistItems.forEach((item, i) => {
             if (i === index) {
@@ -495,33 +471,33 @@
               item.classList.remove('active');
             }
           });
-          
+
           // Update navigation buttons
           updatePlaylistNavigation();
-          
+
           // Play video
           video.play();
         }
       }
-      
+
       function playNextVideo() {
         if (currentPlaylistIndex < playlistVideos.length - 1) {
           playPlaylistVideo(currentPlaylistIndex + 1);
         }
       }
-      
+
       function playPreviousVideo() {
         if (currentPlaylistIndex > 0) {
           playPlaylistVideo(currentPlaylistIndex - 1);
         }
       }
-      
+
       function updatePlaylistNavigation() {
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
         const currentNumber = document.getElementById('current-video-number');
         const totalVideos = document.getElementById('total-videos');
-        
+
         if (prevBtn) prevBtn.disabled = currentPlaylistIndex === 0;
         if (nextBtn) nextBtn.disabled = currentPlaylistIndex === playlistVideos.length - 1;
         if (currentNumber) currentNumber.textContent = currentPlaylistIndex + 1;
@@ -530,4 +506,3 @@
     </script>
   </body>
 </html>
-

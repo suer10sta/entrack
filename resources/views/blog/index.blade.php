@@ -22,8 +22,8 @@
     <link rel="stylesheet" href="{{ asset('welcome/css/aos.css') }}" />
   </head>
 
-  <body class="antialiased pt-20 bg-card text-muted font-figtree min-h-screen flex flex-col">
-    <x-Home_page.header />
+  <body class="antialiased bg-card text-muted font-figtree min-h-screen flex flex-col">
+    <x-public.header />
 
     <main class="flex-1">
       <section class="pt-16 pb-16 bg-background" style="padding-top: 30px !important; padding-bottom: 8rem !important;">
@@ -74,7 +74,7 @@
       </section>
     </main>
 
-    <x-Home_page.footer />
+    <x-public.footer />
   </body>
 </html>
 

@@ -1,42 +1,43 @@
 @extends('manager.layouts.app')
 
 @section('content')
-    <div class="space-y-6">
+    <div class="space-y-5">
         <div>
-            <h2 class="text-2xl font-semibold text-gray-900">{{ __('messages.Overview') }}</h2>
-            <p class="mt-1 text-sm text-gray-500">
+            <p class="dt-overline mb-1">{{ __('messages.Manager area') }}</p>
+            <h2 class="text-[22px] sm:text-[24px] font-bold tracking-tight text-[#0B2638] leading-tight">{{ __('messages.Overview') }}</h2>
+            <p class="mt-1 text-[13.5px] text-slate-500">
                 {{ __('messages.High-level metrics about entreprises and subscriptions.') }}
             </p>
         </div>
 
         <div class="grid grid-cols-2 xl:grid-cols-5 gap-4 md:gap-6">
             <a href="{{ route('manager.subscriptions.index') }}"
-               class="flex-1 bg-white rounded-lg shadow-sm border p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-200 hover:border-gray-300">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Total entreprises') }}</p>
-                <p class="text-3xl font-semibold text-gray-900">{{ $totalEntreprises }}</p>
+               class="flex-1 dt-stat dt-card-hover">
+                <p class="dt-stat-label">{{ __('messages.Total entreprises') }}</p>
+                <p class="dt-stat-value">{{ $totalEntreprises }}</p>
             </a>
 
             <a href="{{ route('manager.subscriptions.index', ['status' => 'active']) }}"
-               class="flex-1 bg-white rounded-lg shadow-sm border p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 border-gray-200 hover:border-gray-300">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Active subscriptions') }}</p>
-                <p class="text-3xl font-semibold text-emerald-600">{{ $activeEntreprises }}</p>
+               class="flex-1 dt-stat dt-card-hover">
+                <p class="dt-stat-label">{{ __('messages.Active subscriptions') }}</p>
+                <p class="dt-stat-value">{{ $activeEntreprises }}</p>
             </a>
 
             <a href="{{ route('manager.dashboard.users') }}"
-               class="flex-1 bg-white rounded-lg shadow-sm border p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 border-gray-200 hover:border-gray-300">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Total users') }}</p>
-                <p class="text-3xl font-semibold text-sky-600">{{ $totalUsers }}</p>
+               class="flex-1 dt-stat dt-card-hover">
+                <p class="dt-stat-label">{{ __('messages.Total users') }}</p>
+                <p class="dt-stat-value">{{ $totalUsers }}</p>
             </a>
 
             <a href="{{ route('manager.dashboard.visits.non-client-unique') }}"
-               class="flex-1 bg-white rounded-lg shadow-sm border p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Unique visitors (non client)') }}</p>
-                <p class="text-3xl font-semibold text-purple-600">{{ number_format($uniqueNonClientVisits) }}</p>
+               class="flex-1 dt-stat dt-card-hover">
+                <p class="dt-stat-label">{{ __('messages.Unique visitors (non client)') }}</p>
+                <p class="dt-stat-value">{{ number_format($uniqueNonClientVisits) }}</p>
             </a>
 
-            <div class="col-span-2 xl:col-span-1 bg-white rounded-lg shadow-sm border p-6">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Visit to signup conversion (30d)') }}</p>
-                <p class="text-3xl font-semibold text-emerald-600">
+            <div class="col-span-2 xl:col-span-1 dt-stat">
+                <p class="dt-stat-label">{{ __('messages.Visit to signup conversion (30d)') }}</p>
+                <p class="dt-stat-value">
                     {{ number_format($visitToSignupConversionRate, 1) }}%
                 </p>
             </div>
@@ -45,21 +46,21 @@
         {{-- Engagement summary --}}
         <div class="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-6 mt-6">
             <a href="{{ route('manager.dashboard.users.daily-active') }}"
-               class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+               class="dt-stat dt-card-hover">
+                <p class="dt-stat-label">
                     {{ __('messages.Daily active users (24h)') }}
                 </p>
-                <p class="text-2xl font-semibold text-indigo-600">
+                <p class="dt-stat-value !text-[22px]">
                     {{ number_format($dau) }}
                 </p>
             </a>
 
             <a href="{{ route('manager.dashboard.users.monthly-active') }}"
-               class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+               class="dt-stat dt-card-hover">
+                <p class="dt-stat-label">
                     {{ __('messages.Monthly active users (30d)') }}
                 </p>
-                <p class="text-2xl font-semibold text-indigo-600">
+                <p class="dt-stat-value !text-[22px]">
                     {{ number_format($mau) }}
                 </p>
             </a>
@@ -69,21 +70,21 @@
         <div class="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-6">
 
             <a href="{{ route('manager.dashboard.users.new-signups') }}"
-               class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+               class="dt-stat dt-card-hover">
+                <p class="dt-stat-label">
                     {{ __('messages.New signups (30d)') }}
                 </p>
-                <p class="text-2xl font-semibold text-gray-900">
+                <p class="dt-stat-value !text-[22px]">
                     {{ number_format($newSignupsLast30) }}
                 </p>
             </a>
 
 
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+            <div class="dt-stat">
+                <p class="dt-stat-label">
                     {{ __('messages.Trial to paid conversion') }}
                 </p>
-                <p class="text-2xl font-semibold text-emerald-600">
+                <p class="dt-stat-value !text-[22px]">
                     {{ number_format($trialToPaidConversionRate, 1) }}%
                 </p>
             </div>
@@ -92,23 +93,23 @@
         {{-- Earnings summary cards (from Stripe invoices) --}}
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             <a href="{{ route('manager.dashboard.invoices') }}"
-               class="bg-white rounded-lg shadow-sm border p-6 transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 border-gray-200 hover:border-gray-300">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Total invoiced') }}</p>
-                <p class="text-2xl font-semibold text-gray-900">
+               class="dt-stat dt-card-hover">
+                <p class="dt-stat-label">{{ __('messages.Total invoiced') }}</p>
+                <p class="dt-stat-value !text-[22px]">
                     {{ number_format($totalInvoiced, 2) }} EUR
                 </p>
             </a>
 
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Total paid') }}</p>
-                <p class="text-2xl font-semibold text-rose-600">
+            <div class="dt-stat">
+                <p class="dt-stat-label">{{ __('messages.Total paid') }}</p>
+                <p class="dt-stat-value !text-[22px]">
                     {{ number_format($totalPaid, 2) }} EUR
                 </p>
             </div>
 
-            <div class="col-span-2 md:col-span-1 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ __('messages.Outstanding') }}</p>
-                <p class="text-2xl font-semibold text-emerald-600">
+            <div class="col-span-2 md:col-span-1 dt-stat">
+                <p class="dt-stat-label">{{ __('messages.Outstanding') }}</p>
+                <p class="dt-stat-value !text-[22px]">
                     {{ number_format($totalOutstanding, 2) }} EUR  
                 </p>
             </div>
@@ -116,11 +117,11 @@
 
         {{-- Modern invoiced vs paid chart + Top visitor locations (world map) --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="dt-stat">
                 <div class="flex items-center justify-between mb-4">
                     <div>
-                        <h3 class="text-sm font-semibold text-gray-900">{{ __('messages.Invoiced vs. paid (last 12 months)') }}</h3>
-                        <p class="mt-1 text-xs text-gray-500">
+                        <h3 class="dt-panel-title">{{ __('messages.Invoiced vs. paid (last 12 months)') }}</h3>
+                        <p class="dt-panel-sub">
                             {{ __('messages.Visual overview of Stripe invoice amounts compared to payments.') }}
                         </p>
                     </div>
@@ -130,37 +131,37 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="dt-stat">
                 <div class="flex items-center justify-between mb-4">
                     <div>
-                        <h3 class="text-sm font-semibold text-gray-900">{{ __('messages.Top visitor locations') }}</h3>
-                        <p class="mt-1 text-xs text-gray-500">
+                        <h3 class="dt-panel-title">{{ __('messages.Top visitor locations') }}</h3>
+                        <p class="dt-panel-sub">
                             {{ __('messages.Based on recorded visits to the public website.') }}
                         </p>
                     </div>
                 </div>
 
                 <div class="manager-table-wrapper overflow-x-auto text-sm">
-                    <table class="manager-table min-w-full text-left">
-                        <thead class="border-b border-gray-200 bg-gray-50 text-xs">
+                    <table class="manager-table dt-table min-w-full text-left">
+                        <thead class="border-b border-slate-100">
                         <tr>
-                            <th class="px-4 py-2 font-semibold text-gray-600">{{ __('messages.Country') }}</th>
-                            <th class="px-4 py-2 font-semibold text-gray-600">{{ __('messages.Visits (non client)') }}</th>
-                            <th class="px-4 py-2 font-semibold text-gray-600">{{ __('messages.Unique visitors (non client)') }}</th>
+                            <th class="px-4 py-2.5">{{ __('messages.Country') }}</th>
+                            <th class="px-4 py-2.5">{{ __('messages.Visits (non client)') }}</th>
+                            <th class="px-4 py-2.5">{{ __('messages.Unique visitors (non client)') }}</th>
                         </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y divide-slate-100">
                         @forelse($visitsByCountry as $row)
                             @php
                                 $countryFilter = ($row->country ?? null) !== null && $row->country !== ''
                                     ? $row->country
                                     : '__unknown__';
                             @endphp
-                            <tr class="manager-card-row hover:bg-gray-50" aria-expanded="true">
+                            <tr class="manager-card-row" aria-expanded="true">
                                 <td data-label="{{ __('messages.Country') }}" data-span="2" data-manager-card-toggle class="manager-toggle-cell px-4 py-2 text-gray-900">
                                     <div class="flex items-start justify-between gap-3">
                                         <div class="min-w-0">
-                                            <a href="{{ route('manager.dashboard.visits.non-client-unique', ['country' => $countryFilter]) }}" class="text-blue-600 hover:underline">
+                                            <a href="{{ route('manager.dashboard.visits.non-client-unique', ['country' => $countryFilter]) }}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline font-medium">
                                                 {{ $row->country ?? __('messages.Unknown location') }}
                                             </a>
                                         </div>
@@ -172,12 +173,12 @@
                                     </div>
                                 </td>
                                 <td data-label="{{ __('messages.Visits (non client)') }}" class="px-4 py-2 text-gray-700">
-                                    <a href="{{ route('manager.dashboard.visits.non-client-unique', ['country' => $countryFilter]) }}" class="text-blue-600 hover:underline">
+                                    <a href="{{ route('manager.dashboard.visits.non-client-unique', ['country' => $countryFilter]) }}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline font-medium">
                                         {{ number_format($row->total) }}
                                     </a>
                                 </td>
                                 <td data-label="{{ __('messages.Unique visitors (non client)') }}" class="px-4 py-2 text-gray-700">
-                                    <a href="{{ route('manager.dashboard.visits.non-client-unique', ['country' => $countryFilter]) }}" class="text-blue-600 hover:underline">
+                                    <a href="{{ route('manager.dashboard.visits.non-client-unique', ['country' => $countryFilter]) }}" class="text-[#2D7080] hover:text-[#0B2638] hover:underline font-medium">
                                         {{ number_format($row->unique_total) }}
                                     </a>
                                 </td>
@@ -200,21 +201,21 @@
 
         {{-- Top traffic sources & Visits over time --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="dt-stat">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-semibold text-gray-900">{{ __('messages.Top traffic sources') }}</h3>
+                    <h3 class="dt-panel-title">{{ __('messages.Top traffic sources') }}</h3>
                 </div>
                 <div class="manager-table-wrapper overflow-x-auto">
-                    <table class="manager-table min-w-full text-left text-sm">
-                        <thead class="border-b border-gray-200 bg-gray-50">
+                    <table class="manager-table dt-table min-w-full text-left">
+                        <thead class="border-b border-slate-100">
                         <tr>
-                            <th class="px-4 py-2 font-semibold text-gray-600">{{ __('messages.Source') }}</th>
-                            <th class="px-4 py-2 font-semibold text-gray-600">{{ __('messages.Visits (non client)') }}</th>
+                            <th class="px-4 py-2.5">{{ __('messages.Source') }}</th>
+                            <th class="px-4 py-2.5">{{ __('messages.Visits (non client)') }}</th>
                         </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y divide-slate-100">
                         @forelse($topTrafficSources as $row)
-                            <tr class="manager-card-row hover:bg-gray-50" aria-expanded="true">
+                            <tr class="manager-card-row" aria-expanded="true">
                                 <td data-label="{{ __('messages.Source') }}" data-span="2" data-manager-card-toggle class="manager-toggle-cell px-4 py-2 text-gray-900">
                                     <div class="flex items-start justify-between gap-3">
                                         <div class="min-w-0">
@@ -244,9 +245,9 @@
             </div>
 
             {{-- Visits over time by device (last 30 days) --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="dt-stat">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-semibold text-gray-900">{{ __('messages.Visits over time (30d) by device') }}</h3>
+                    <h3 class="dt-panel-title">{{ __('messages.Visits over time (30d) by device') }}</h3>
                 </div>
                 <div class="h-72">
                     <canvas id="manager-visits-device-chart"></canvas>
@@ -276,12 +277,12 @@
                     const ctx = budgetCanvas.getContext('2d');
 
                     const gradientInvoiced = ctx.createLinearGradient(0, 0, 0, 300);
-                    gradientInvoiced.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
-                    gradientInvoiced.addColorStop(1, 'rgba(59, 130, 246, 0)');
+                    gradientInvoiced.addColorStop(0, 'rgba(45, 112, 128, 0.35)');
+                    gradientInvoiced.addColorStop(1, 'rgba(45, 112, 128, 0)');
 
                     const gradientPaid = ctx.createLinearGradient(0, 0, 0, 300);
-                    gradientPaid.addColorStop(0, 'rgba(34, 197, 94, 0.5)');
-                    gradientPaid.addColorStop(1, 'rgba(34, 197, 94, 0)');
+                    gradientPaid.addColorStop(0, 'rgba(231, 184, 75, 0.45)');
+                    gradientPaid.addColorStop(1, 'rgba(231, 184, 75, 0)');
 
                     new window.Chart(ctx, {
                         type: 'line',
@@ -292,7 +293,7 @@
                                     label: '{{ __('messages.Invoiced') }}',
                                     data: invoiced,
                                     tension: 0.4,
-                                    borderColor: '#3b82f6',
+                                    borderColor: '#2D7080',
                                     backgroundColor: gradientInvoiced,
                                     fill: true,
                                     borderWidth: 2,
@@ -302,7 +303,7 @@
                                     label: '{{ __('messages.Paid') }}',
                                     data: paid,
                                     tension: 0.4,
-                                    borderColor: '#22c55e',
+                                    borderColor: '#C9971F',
                                     backgroundColor: gradientPaid,
                                     fill: true,
                                     borderWidth: 2,
@@ -369,24 +370,24 @@
                                 {
                                     label: 'Desktop',
                                     data: desktop,
-                                    borderColor: '#0f766e',
-                                    backgroundColor: 'rgba(15, 118, 110, 0.15)',
+                                    borderColor: '#2D7080',
+                                    backgroundColor: 'rgba(45, 112, 128, 0.15)',
                                     borderWidth: 2,
                                     borderRadius: 4,
                                 },
                                 {
                                     label: 'Mobile',
                                     data: mobile,
-                                    borderColor: '#2563eb',
-                                    backgroundColor: 'rgba(37, 99, 235, 0.15)',
+                                    borderColor: '#0B2638',
+                                    backgroundColor: 'rgba(11, 38, 56, 0.12)',
                                     borderWidth: 2,
                                     borderRadius: 4,
                                 },
                                 {
                                     label: 'Tablet',
                                     data: tablet,
-                                    borderColor: '#f97316',
-                                    backgroundColor: 'rgba(249, 115, 22, 0.15)',
+                                    borderColor: '#C9971F',
+                                    backgroundColor: 'rgba(231, 184, 75, 0.20)',
                                     borderWidth: 2,
                                     borderRadius: 4,
                                 },
@@ -461,18 +462,18 @@
                                     label: '{{ __('messages.Funnel steps (count)') }}',
                                     data: funnelValues,
                                     backgroundColor: [
-                                        'rgba(59, 130, 246, 0.6)',
-                                        'rgba(34, 197, 94, 0.6)',
-                                        'rgba(234, 179, 8, 0.7)',
-                                        'rgba(249, 115, 22, 0.7)',
-                                        'rgba(239, 68, 68, 0.7)',
+                                        'rgba(11, 38, 56, 0.75)',
+                                        'rgba(45, 112, 128, 0.65)',
+                                        'rgba(45, 112, 128, 0.40)',
+                                        'rgba(231, 184, 75, 0.65)',
+                                        'rgba(231, 184, 75, 0.35)',
                                     ],
                                     borderColor: [
-                                        '#2563eb',
-                                        '#16a34a',
-                                        '#ca8a04',
-                                        '#ea580c',
-                                        '#dc2626',
+                                        '#0B2638',
+                                        '#2D7080',
+                                        '#2D7080',
+                                        '#C9971F',
+                                        '#C9971F',
                                     ],
                                     borderWidth: 1,
                                     borderRadius: 6,
@@ -563,6 +564,9 @@
         });
     </script>
 @endpush
+
+
+
 
 
 
