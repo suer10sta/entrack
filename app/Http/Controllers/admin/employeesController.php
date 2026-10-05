@@ -364,11 +364,20 @@ class employeesController extends Controller
 
     // [FIX 1] Use firstOrNew. 
     // If the report exists, it loads it. If not, it creates a new empty instance so we can save data to it.
+    // NOTE: entreprise_id must always be set, otherwise the row becomes invisible
+    // in workDaysRepports (filtered on entreprise_id) and blocks nextMonthRepports (which skips on existence).
     $work_days_repports = work_days_repports::firstOrNew([
         'employee_id' => $employee->id,
         'month' => date('m'),
         'year' => date('Y')
     ]);
+
+    if (!$work_days_repports->exists) {
+        $work_days_repports->entreprise_id = $employee->entreprise_id;
+    } elseif (empty($work_days_repports->entreprise_id)) {
+        // Auto-repair legacy rows created with entreprise_id = 0/NULL
+        $work_days_repports->entreprise_id = $employee->entreprise_id;
+    }
 
     $currentYear = strval(Carbon::now()->year);
     $currentMonth = str_pad(Carbon::now()->month, 2, '0', STR_PAD_LEFT);
@@ -1093,7 +1102,13 @@ public function employeeArchiveIndex(){
 
     foreach ($employees as $employee) {
         $user_id = $employee->user_id;
-        $user = User::find($user_id);
+        $user = $user_id ? User::find($user_id) : null;
+
+        if (!$user) {
+            $employee->roles = [];
+            $employee->permissions = [];
+            continue;
+        }
 
         // Archived employees may no longer have a linked User record
         // (it is deleted when a new employee reuses the same email),
