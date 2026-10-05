@@ -13,6 +13,36 @@
     @livewireStyles
 
     <style>
+        .enterprise-billing-page label {
+            color: #475569;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .enterprise-billing-page input:not([type="checkbox"]) {
+            border-color: #e2e8f0;
+            border-radius: 8px;
+            background-color: #f8fafc;
+            color: #1e293b;
+            font-size: 13px;
+        }
+
+        .enterprise-billing-page input:not([type="checkbox"]):focus {
+            border-color: #2D7080;
+            background-color: #fff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(45, 112, 128, .12);
+        }
+
+        .enterprise-billing-page input[type="checkbox"] { accent-color: #2D7080; }
+
+        .enterprise-billing-page .billing-inline-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+        }
+
         /* Entreprise expenses: collapse budget cards on mobile/tablet */
         @media (max-width: 1024px) {
             .enterprise-card[data-budget-history-collapsible] [data-collapsible-header] {
@@ -35,7 +65,7 @@
     </style>
 </head>
 
-<body class="bg-gray-50 flex h-screen overflow-hidden font-sans">
+<body class="enterprise-billing-page dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
     {{-- <noscript>...iframe...</noscript> --}}
 
     {{-- Layout powered by Blade components --}}
@@ -49,21 +79,37 @@
         <x-dashboard.navbar />
 
         {{-- Main content area using Tailwind styling --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
-            <div class="max-w-7xl mx-auto">
+        <main class="flex-1 min-w-0 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7">
+            <div class="w-full max-w-7xl mx-auto">
+                @php
+                    $billingFlashKeys = [
+                        'Budget added successfully' => 'Budget added successfully',
+                        'Please add a budget first' => 'Please add a budget first',
+                        'Invalid name or price' => 'Invalid expense name or price',
+                        'Budget remaining is not enough to validate this charge' => 'Insufficient remaining budget',
+                        'Charges created successfully' => 'Expenses created successfully',
+                        'Mismatch between names and prices' => 'Expense name and price mismatch',
+                    ];
+                    $billingFlash = fn ($message) => isset($billingFlashKeys[$message])
+                        ? __('messages.' . $billingFlashKeys[$message])
+                        : $message;
+                @endphp
 
-                <div class="mb-6 sm:mb-8">
-                    <h1 class="text-2xl sm:text-4xl font-bold text-gray-900 mb-2">{{ __('messages.Expenses') }}</h1>
-                    <p class="text-gray-600">{{ __('messages.Expenses subtitle') }}</p>
+                <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-4">
+                    <div>
+                        <p class="dt-overline mb-0.5">{{ __('messages.Billing Menu') }}</p>
+                        <h1 class="text-[18px] sm:text-[20px] lg:text-[22px] font-bold tracking-tight text-[#0B2638] leading-tight">{{ __('messages.Expenses') }}</h1>
+                        <p class="text-[12px] text-slate-500 mt-0.5">{{ __('messages.Expenses subtitle') }}</p>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-4">
                     
-                    <div class="lg:col-span-1 bg-white rounded-lg shadow-sm border border-gray-200">
-                        <div class="p-4 sm:p-6 border-b border-gray-200">
-                            <h2 class="text-xl font-semibold text-gray-900">{{ __('messages.Current Budget') }}</h2>
+                    <div class="lg:col-span-1 dt-card overflow-hidden">
+                        <div class="px-5 py-4 border-b border-slate-100">
+                            <h2 class="text-[13px] font-semibold text-[#0B2638]">{{ __('messages.Current Budget') }}</h2>
                         </div>
-                        <div class="p-4 sm:p-6 space-y-4">
+                        <div class="p-4 sm:p-5 space-y-4">
                             @if($latestBudget)
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Cashbox label') }}</label>
@@ -71,13 +117,13 @@
                                            type="number" name="monthBudget"
                                            value="{{ $latestBudget->budget }}" readonly
                                            ondblclick="enableEditing(this, {{ $latestBudget->id }})"
-                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 cursor-pointer focus:bg-white focus:cursor-text focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                           class="w-full px-3 py-2 border cursor-pointer focus:bg-white focus:cursor-text">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Remaining Balance') }}</label>
                                     <input id="sold-input" type="number" name="sold"
                                            value="{{$latestBudget->budget_remaining}}" readonly
-                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed text-gray-500">
+                                           class="w-full px-3 py-2 border cursor-not-allowed text-slate-500">
                                 </div>
                             @else
                                 <p class="text-sm text-gray-500">{{ __('messages.No budget defined') }}</p>
@@ -85,24 +131,29 @@
                         </div>
                     </div>
 
-                    <div class="lg:col-span-2 space-y-8">
-                        <div x-data="datePicker()" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ __('messages.Export Report') }}</h3>
+                    <div class="lg:col-span-2 space-y-3">
+                        <div x-data="datePicker()" class="dt-card overflow-hidden">
+                            <div class="px-5 py-4 border-b border-slate-100">
+                                <h3 class="text-[13px] font-semibold text-[#0B2638]">{{ __('messages.Export Report') }}</h3>
+                            </div>
+                            <div class="p-4 sm:p-5">
                             <div class="flex flex-col md:flex-row md:items-end gap-4">
                                 <div class="flex-1">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Start Date') }}:</label>
+                                    <label class="block text-[11px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1.5">{{ __('messages.Start Date') }}:</label>
                                     <input id="start-date" type="date" name="startDate" x-model="startDate"
-                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                           class="w-full px-3 py-2 border">
                                 </div>
                                 <div class="flex-1">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.End Date') }}:</label>
+                                    <label class="block text-[11px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1.5">{{ __('messages.End Date') }}:</label>
                                     <input id="end-date" type="date" name="endDate" x-model="endDate"
-                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                           class="w-full px-3 py-2 border">
                                 </div>
                                 <a href="#" @click.prevent="updateHref" id="downloadLink"
-                                   class="flex-shrink-0 text-center px-4 py-2 h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium w-full md:w-auto">
+                                   class="dt-btn dt-btn-primary justify-center flex-shrink-0 w-full md:w-auto">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19z"/></svg>
                                     {{ __('messages.Print PDF') }}
                                 </a>
+                            </div>
                             </div>
                         </div>
 
@@ -113,31 +164,35 @@
                             elseif (Auth::user()->hasRole('Employee')) $addBudgetRoute = route('employee.entreprise.addBudget');
                             elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $addBudgetRoute = route('Responsable_gestionnaire.entreprise.addBudget');
                         @endphp
-                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ __('messages.Add Budget to Cashbox') }}</h3>
+                        <div class="dt-card overflow-hidden">
+                            <div class="px-5 py-4 border-b border-slate-100">
+                                <h3 class="text-[13px] font-semibold text-[#0B2638]">{{ __('messages.Add Budget to Cashbox') }}</h3>
+                            </div>
+                            <div class="p-4 sm:p-5">
                             <form action="{{ $addBudgetRoute }}" method="post" class="flex flex-col md:flex-row md:items-end gap-4">
                                 @csrf
                                 <div class="flex-1">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.New budget') }}</label>
+                                    <label class="block text-[11px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1.5">{{ __('messages.New budget') }}</label>
                                     <input type="number" name="newBudget" step="0.0001"
-                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                           class="w-full px-3 py-2 border"
                                            placeholder="{{ __('messages.Amount to add') }}">
                                 </div>
-                                <button type="submit"
-                                        class="flex-shrink-0 text-center px-4 py-2 h-10 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors text-sm font-medium w-full md:w-auto">
+                                <button type="submit" class="dt-btn dt-btn-teal justify-center flex-shrink-0 w-full md:w-auto">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                                     {{ __('messages.Add') }}
                                 </button>
                             </form>
                             @if(session('successNewBudget'))
                                 <div class="mt-4 bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-lg text-sm">
-                                    {{ session('successNewBudget') }}
+                                    {{ $billingFlash(session('successNewBudget')) }}
                                 </div>
                             @endif
                             @if(session('error'))
                                 <div class="mt-4 bg-red-100 border border-red-300 text-red-800 px-4 py-3 rounded-lg text-sm">
-                                    {{ session('error') }} {{-- Corrected from "erro" to "error" --}}
+                                    {{ $billingFlash(session('error')) }}
                                 </div>
                             @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -161,61 +216,63 @@
                 @endphp
                 <form class="mb-8" method="POST" action="{{ $storeExpenseRoute }}" enctype="multipart/form-data" autocomplete="off">
                     @csrf
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-                        <div class="p-4 sm:p-6 border-b border-gray-200">
-                            <h2 class="text-xl font-semibold text-gray-900">{{ __('messages.New Expense') }}</h2>
+                    <div class="dt-card overflow-hidden">
+                        <div class="px-5 py-4 border-b border-slate-100">
+                            <h2 class="text-[13px] font-semibold text-[#0B2638]">{{ __('messages.New Expense') }}</h2>
                         </div>
-                        <div class="p-4 sm:p-6">
+                        <div class="p-4 sm:p-5">
                             @if(session('successNewDepense'))
                                 <div class="mb-4 bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-lg text-sm">
-                                    {{ session('successNewDepense') }}
+                                    {{ $billingFlash(session('successNewDepense')) }}
                                 </div>
                             @endif
                             @if(session('errorNewDepense'))
                                 <div class="mb-4 bg-red-100 border border-red-300 text-red-800 px-4 py-3 rounded-lg text-sm">
-                                    {{ session('errorNewDepense') }}
+                                    {{ $billingFlash(session('errorNewDepense')) }}
                                 </div>
                             @endif
 
                             <div id="billings" class="space-y-4">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div class="billing-row grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Expense description') }}</label>
-                                        <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" placeholder="{{ __('messages.Expense name placeholder') }}" name="name[]" />
+                                        <label class="block text-[11px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1.5">{{ __('messages.Expense description') }}</label>
+                                        <input class="w-full px-3 py-2 border" type="text" placeholder="{{ __('messages.Expense name placeholder') }}" name="name[]" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Expense price') }}</label>
-                                        <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" type="number" name="price[]" step="0.0001" placeholder="0.00"/>
+                                        <label class="block text-[11px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1.5">{{ __('messages.Expense price') }}</label>
+                                        <input class="w-full px-3 py-2 border" type="number" name="price[]" step="0.0001" placeholder="0.00"/>
                                     </div>
                                 </div>
                             </div>
                             <button type="button" id="add-billing" 
-                                    class="mt-4 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
+                                    class="mt-3 dt-btn dt-btn-ghost text-[12px] text-[#2D7080]">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                                 {{ __('messages.Add another expense line') }}
                             </button>
                         </div>
                         
-                        <div class="p-4 sm:p-6 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 sm:gap-4">
-                            <a href="{{ $cancelRoute }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium w-full sm:w-auto text-center">
+                        <div class="p-4 sm:px-5 sm:py-4 bg-slate-50 border-t border-slate-100 flex flex-col-reverse sm:flex-row sm:justify-end sm:items-center gap-2">
+                            <a href="{{ $cancelRoute }}" class="dt-btn dt-btn-ghost justify-center w-full sm:w-auto">
                                 {{ __('messages.Cancel') }}
                             </a>
-                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium w-full sm:w-auto">
+                            <button type="submit" class="dt-btn dt-btn-primary justify-center w-full sm:w-auto">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                                 {{ __('messages.Submit') }}
                             </button>
                         </div>
                     </div>
                 </form>
 
-                <div class="space-y-8">
+                <div class="space-y-3">
                     @foreach($billings_budget as $billing)
-                        <div class="enterprise-card bg-white rounded-lg shadow-sm border border-gray-200"
+                        <div class="enterprise-card dt-card overflow-hidden"
                              data-budget-history-collapsible
                              aria-expanded="true">
-                            <div class="p-4 sm:p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
+                            <div class="px-5 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
                                  data-collapsible-header>
                                 <div>
-                                    <h3 class="text-xl font-semibold text-gray-900">{{ __('messages.Budget label enterprise') }} {{$billing->budget}}€</h3>
-                                    <p class="text-sm text-gray-500">{{ __('messages.Budget created at') }} {{$billing->created_at->format('d-m-Y')}}</p>
+                                    <h3 class="text-[13px] font-semibold text-[#0B2638]">{{ __('messages.Budget label enterprise') }} {{$billing->budget}}€</h3>
+                                    <p class="text-[11px] text-slate-500 mt-0.5">{{ __('messages.Budget created at') }} {{$billing->created_at->format('d-m-Y')}}</p>
                                 </div>
                                 <div class="flex items-center gap-2 self-start sm:self-auto">
                                     @php
@@ -228,8 +285,9 @@
                                     <form method="post" action="{{ $deleteBudgetRoute }}" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs font-medium">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        <button type="submit" class="dt-btn dt-btn-ghost text-red-700 text-[11px]">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            {{ __('messages.Delete') }}
                                         </button>
                                     </form>
 
@@ -241,7 +299,7 @@
                                 </div>
                             </div>
 
-                            <div class="divide-y divide-gray-200" data-collapsible-body>
+                            <div class="divide-y divide-slate-100" data-collapsible-body>
                                 @php 
                                     $entrepriseCharges = App\Models\entrepriseCharges::where('entreprise_id', $entreprise->id)->where('Billings_budget_id', $billing->id)->orderBy('created_at')->get();
                                 @endphp
@@ -250,26 +308,26 @@
                                     <p class="p-6 text-sm text-gray-500 text-center">{{ __('messages.No expenses for this budget') }}</p>
                                 @else
                                     @foreach($entrepriseCharges as $entrepriseCharge)
-                                        <div class="p-6 space-y-4 md:space-y-0 md:grid md:grid-cols-12 md:gap-4 md:items-center">
+                                        <div class="billing-history-row p-4 sm:p-5 space-y-3 md:space-y-0 md:grid md:grid-cols-12 md:gap-3 md:items-end">
                                             <div class="md:col-span-3">
-                                                <label class="block text-xs font-medium text-gray-500 mb-1">{{ __('messages.Expense Object') }}</label>
-                                                <input id="charge-name-{{ $entrepriseCharge->id }}" type="text" name="chargename" value="{{ $entrepriseCharge->charge_name }}" readonly
-                                                       class="editable w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
+                                                <label class="block text-[10px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1">{{ __('messages.Expense Object') }}</label>
+                                                      <input id="charge-name-{{ $entrepriseCharge->id }}" type="text" name="chargename" value="{{ $entrepriseCharge->charge_name }}" readonly
+                                                          class="editable w-full px-3 py-2 border text-[13px]
                                                               {{ $entrepriseCharge->validated != 1 ? 'bg-gray-50 cursor-pointer focus:bg-white focus:cursor-text' : 'bg-gray-100 text-gray-500 cursor-not-allowed' }}">
                                             </div>
                                             <div class="md:col-span-2">
-                                                <label class="block text-xs font-medium text-gray-500 mb-1">{{ __('messages.Price') }}</label>
-                                                <input id="price-{{ $entrepriseCharge->id }}" type="text" name="price" value="{{ $entrepriseCharge->price }}€" readonly
-                                                       class="editable w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
+                                                <label class="block text-[10px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1">{{ __('messages.Price') }}</label>
+                                                      <input id="price-{{ $entrepriseCharge->id }}" type="text" name="price" value="{{ $entrepriseCharge->price }}€" readonly
+                                                          class="editable w-full px-3 py-2 border text-[13px]
                                                               {{ $entrepriseCharge->validated != 1 ? 'bg-gray-50 cursor-pointer focus:bg-white focus:cursor-text' : 'bg-gray-100 text-gray-500 cursor-not-allowed' }}">
                                             </div>
                                             <div class="md:col-span-3">
-                                                <label class="block text-xs font-medium text-gray-500 mb-1">{{ __('messages.Date') }}</label>
-                                                <input id="created_at-{{ $entrepriseCharge->id }}" type="text" name="created_at" value="{{ $entrepriseCharge->created_at->format('d-m-Y') }}" readonly
-                                                       class="editable w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
+                                                <label class="block text-[10px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1">{{ __('messages.Date') }}</label>
+                                                      <input id="created_at-{{ $entrepriseCharge->id }}" type="text" name="created_at" value="{{ $entrepriseCharge->created_at->format('d-m-Y') }}" readonly
+                                                          class="editable w-full px-3 py-2 border text-[13px]
                                                               {{ $entrepriseCharge->validated != 1 ? 'bg-gray-50 cursor-pointer focus:bg-white focus:cursor-text' : 'bg-gray-100 text-gray-500 cursor-not-allowed' }}">
                                             </div>
-                                            <div class="md:col-span-4 flex items-center justify-end gap-2">
+                                            <div class="md:col-span-4 billing-inline-actions md:justify-end">
                                                 @if($billing->sold_out == 0)
                                                     @if($entrepriseCharge->validated != 1)
                                                         @php
@@ -281,7 +339,7 @@
                                                         @endphp
                                                         <form method="post" action="{{ $validateRoute }}">
                                                             @csrf
-                                                            <button type="submit" class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium">{{ __('messages.Validate') }}</button>
+                                                            <button type="submit" class="dt-btn dt-btn-teal text-[11px]"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>{{ __('messages.Validate') }}</button>
                                                         </form>
                                                         @php
                                                             $deleteExpenseRoute = '#';
@@ -293,7 +351,7 @@
                                                         <form method="post" action="{{ $deleteExpenseRoute }}" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs font-medium">{{ __('messages.Delete') }}</button>
+                                                            <button type="submit" class="dt-btn dt-btn-ghost text-red-700 text-[11px]"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7-3h8m-9 3 1 14h6l1-14"/></svg>{{ __('messages.Delete') }}</button>
                                                         </form>
                                                     @else
                                                         @php
@@ -305,12 +363,12 @@
                                                         @endphp
                                                         <form method="post" action="{{ $unvalidateRoute }}">
                                                             @csrf
-                                                            <button type="submit" class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg hover:bg-yellow-200 transition-colors text-xs font-medium">{{ __('messages.Cancel validation') }}</button>
+                                                            <button type="submit" class="dt-btn dt-btn-accent text-[11px]">{{ __('messages.Cancel validation') }}</button>
                                                         </form>
                                                     @endif
                                                 @else
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
-                                                                {{ $entrepriseCharge->validated == 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
+                                                    <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1
+                                                                {{ $entrepriseCharge->validated == 0 ? 'bg-rose-50 text-rose-700 ring-rose-600/15' : 'bg-emerald-50 text-emerald-700 ring-emerald-600/15' }}">
                                                         {{ $entrepriseCharge->validated == 0 ? __('messages.Not Validated') : __('messages.Validated') }}
                                                     </span>
                                                 @endif
@@ -354,10 +412,10 @@
                 // Ajouter un bouton de suppression au nouveau champ
                 if (billings.children.length >= 0) { // Logique originale autorisait la suppression du premier
                     var deleteButton = document.createElement('button');
-                    deleteButton.textContent = 'Delete';
+                    deleteButton.textContent = @json(__('messages.Delete'));
                     deleteButton.type = 'button';
                     // Ajout des classes Tailwind pour le bouton de suppression
-                    deleteButton.className = 'mt-2 px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs font-medium remove-billing';
+                    deleteButton.className = 'dt-btn dt-btn-ghost text-red-700 text-[11px] remove-billing';
                     deleteButton.addEventListener('click', function() {
                         billings.removeChild(newBilling);
                     });
@@ -467,7 +525,7 @@
                         urlWithParams += `?startDate=${this.startDate}&endDate=${this.endDate}`;
                         window.location.href = urlWithParams; // Redirige seulement si les dates sont valides
                     } else {
-                        alert('Veuillez sélectionner une date de début et une date de fin.');
+                        alert(@json(__('messages.Select both dates')));
                     }
                 }
             }
@@ -533,13 +591,13 @@
                 if (data.success) {
                     location.reload();
                 } else {
-                    alert('Please delete all charges before updating the budget');
+                    alert(@json(__('messages.Budget has expenses')));
                     location.reload();
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while updating the budget. Please try again.');
+                alert(@json(__('messages.Budget update error')));
                 location.reload();
             });
         }

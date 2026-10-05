@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ __('messages.Devis Parameters - DalyTrac') }}</title> {{-- Updated title --}}
     @vite('resources/css/app.css') 
     @livewireStyles
+    @include('admin.devis.partials.dashboardStyles')
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <style>
@@ -26,7 +27,7 @@
     </style>
 </head>
 
-<body class="bg-gray-100 flex h-screen overflow-hidden font-sans">
+<body class="devis-dashboard-page dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
 
     {{-- Sidebar Component --}}
     @if(Auth::user()->hasRole('Admin'))
@@ -39,12 +40,13 @@
         {{-- Navbar Component --}}
         <x-dashboard.navbar />
         
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8 space-y-8"> {{-- Updated spacing --}}
+        <main class="flex-1 min-w-0 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7 space-y-5">
             {{-- 1. Header Section --}}
-            <div class="flex flex-wrap justify-between items-center gap-4">
+            <div class="flex flex-wrap justify-between items-end gap-3">
                 <div>
-                    <h1 class="text-2xl font-semibold text-gray-900">{{ __('messages.Devis Parameters') }}</h1> {{-- Updated heading --}}
-                    <p class="text-sm text-gray-600">{{ __('messages.Configure devis settings and templates') }}</p>
+                    <p class="dt-overline mb-0.5">{{ __('messages.New Devis') }}</p>
+                    <h1 class="text-[18px] sm:text-[20px] lg:text-[22px] font-bold text-[#0B2638] leading-tight">{{ __('messages.Devis Parameters') }}</h1>
+                    <p class="text-[12px] text-slate-500 mt-0.5">{{ __('messages.Configure devis settings and templates') }}</p>
                 </div>
             </div>
             
@@ -61,15 +63,25 @@
             @endphp
 
             {{-- Added "invoiceParamsForm" ID so the JS can target it --}}
-            <form id="invoiceParamsForm" class="space-y-8">
+            <form id="invoiceParamsForm" class="devis-form space-y-5">
                 @csrf
                 <input type="hidden" name="entreprise_id" value="{{ Auth::user()->entreprise_id }}">
 
                 {{-- 2. Devis Information Card --}}
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-5">
+                <div class="dt-card overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-[#2D7080]/10 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-[#2D7080]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317a1.724 1.724 0 012.35 0l.9 1.2a1.724 1.724 0 002.1.55l1.4-.5a1.724 1.724 0 012.05 1.18l.3 1.45a1.724 1.724 0 001.45 1.45l1.45.3a1.724 1.724 0 011.18 2.05l-.5 1.4a1.724 1.724 0 00.55 2.1l1.2.9a1.724 1.724 0 010 2.35l-1.2.9a1.724 1.724 0 00-.55 2.1l.5 1.4a1.724 1.724 0 01-1.18 2.05l-1.45.3a1.724 1.724 0 00-1.45 1.45l-.3 1.45a1.724 1.724 0 01-2.05 1.18l-1.4-.5a1.724 1.724 0 00-2.1.55l-.9 1.2a1.724 1.724 0 01-2.35 0l-.9-1.2a1.724 1.724 0 00-2.1-.55l-1.4.5a1.724 1.724 0 01-2.05-1.18l-.3-1.45a1.724 1.724 0 00-1.45-1.45l-1.45-.3a1.724 1.724 0 01-1.18-2.05l.5-1.4a1.724 1.724 0 00-.55-2.1l-1.2-.9a1.724 1.724 0 010-2.35l1.2-.9a1.724 1.724 0 00.55-2.1l-.5-1.4a1.724 1.724 0 011.18-2.05l1.45-.3a1.724 1.724 0 001.45-1.45l.3-1.45a1.724 1.724 0 012.05-1.18l1.4.5a1.724 1.724 0 002.1-.55z"/><circle cx="11.5" cy="15.5" r="3"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-[13px] font-semibold text-[#0B2638]">{{ __('messages.Devis Information') }}</p>
+                            <p class="text-[11.5px] text-slate-400">{{ __('messages.Mandatory information devis') }}</p>
+                        </div>
+                    </div>
+
+                    <div class="p-5 sm:p-6 space-y-5">
                     <div>
-                        <h5 class="text-lg font-semibold text-gray-900">{{ __('messages.Devis Information') }}</h5>
-                        <p class="text-sm text-gray-500 mt-1">{{ __('messages.Mandatory information devis') }}</p>
+                        <h5 class="sr-only">{{ __('messages.Devis Information') }}</h5>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -99,13 +111,23 @@
                             class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
                             name="general_conditions_Devis" >{{ $entreprise->general_conditions_Devis }}</textarea>
                     </div>
+                    </div>
                 </div>
 
                 {{-- 3. Devis Body Message Card --}}
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-5">
+                <div class="dt-card overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-[#2D7080]/10 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-[#2D7080]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h10M7 16h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-[13px] font-semibold text-[#0B2638]">{{ __('messages.Devis Body Message') }}</p>
+                            <p class="text-[11.5px] text-slate-400">{{ __('messages.Message devis') }}</p>
+                        </div>
+                    </div>
+                    <div class="p-5 sm:p-6 space-y-5">
                     <div>
-                        <h5 class="text-lg font-semibold text-gray-900">{{ __('messages.Devis Body Message') }}</h5>
-                        <p class="text-sm text-gray-500 mt-1">{{ __('messages.Message devis') }}</p>
+                        <h5 class="sr-only">{{ __('messages.Devis Body Message') }}</h5>
                     </div>
                     <div>
                         <textarea id="devis_body" rows="6" {{-- Added ID for clarity --}}
@@ -113,10 +135,11 @@
                             class="entrepriseInfos block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
                             name="devis_body" >{{ $entreprise->devis_body }}</textarea>
                     </div>
+                    </div>
                 </div>
 
                 {{-- 4. Action buttons --}}
-                <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
+                <div class="flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-2 mt-5 pt-5 border-t border-slate-200">
                     @php
                         $backRoute = route('admin.index'); // Fallback
                         if(Auth::user()->hasRole('Responsable de projet')) $backRoute = route('Responsable_de_projet.index');
@@ -125,7 +148,7 @@
                     @endphp
 
                     <a href="{{ url()->previous() ?: $backRoute }}" 
-                       class="inline-flex items-center bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
+                       class="dt-btn dt-btn-ghost justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="UTF-8">
@@ -8,6 +8,7 @@
     
     @vite('resources/css/app.css') 
     @livewireStyles
+    @include('admin.devis.partials.dashboardStyles')
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <script src="//unpkg.com/alpinejs" defer></script>
@@ -127,7 +128,7 @@
     </style>
 </head>
 
-<body class="bg-gray-100 flex h-screen overflow-hidden font-sans" x-data>
+<body class="devis-dashboard-page dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden" x-data>
 
     {{-- Sidebar Component --}}
     @if(Auth::user()->hasRole('Admin'))
@@ -143,12 +144,13 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8 space-y-8">
+        <main class="flex-1 min-w-0 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7 space-y-5">
 
             {{-- 1. Header Section --}}
-            <div class="flex flex-wrap justify-between items-center gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
                 <div>
-                    <h1 class="text-2xl font-semibold text-gray-900">{{ __('messages.Archived Devis') }}</h1>
+                    <p class="dt-overline mb-0.5">{{ __('messages.Devis History') }}</p>
+                    <h1 class="text-[18px] sm:text-[20px] lg:text-[22px] font-bold text-[#0B2638] leading-tight">{{ __('messages.Archived Devis') }}</h1>
                 </div>
                 
                 @php
@@ -159,7 +161,7 @@
                     if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $returnRoute = route('Responsable_gestionnaire.devis.devishistory');
                 @endphp
                 
-                <a href="javascript:history.back()" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm">
+                <a href="javascript:history.back()" class="dt-btn dt-btn-ghost w-full sm:w-auto justify-center">
                     {{ __('messages.Return Back') }}
                 </a>
             </div>
@@ -169,7 +171,7 @@
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
                 <strong class="font-bold">{{ __('messages.Success!') }}</strong>
                 <span class="block sm:inline">{{ session('message') }}</span>
-                <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+                <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="{{ __('messages.Close') }}">&times;</button>
             </div>
             @endif
 
@@ -179,9 +181,9 @@
                 $Total_Declined = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)->where('acceptanceStatus', 2)->where('archived', 1)->sum('budget');
                 $Total_Pending = App\Models\devis_history::where('entreprise_id', Auth::user()->entreprise_id)->where('acceptanceStatus', 0)->where('archived', 1)->sum('budget');
             @endphp
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {{-- Accepted Card --}}
-                <div id="cardAccepted" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer hover:shadow-md transition-shadow">
+                <div id="cardAccepted" class="dt-card p-4 flex items-center gap-3 cursor-pointer hover:border-emerald-200 transition-colors">
                     <div class="flex-shrink-0 bg-green-100 rounded-full p-3">
                         <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
                     </div>
@@ -192,7 +194,7 @@
                 </div>
 
                 {{-- Declined Card --}}
-                <div id="cardDeclined" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer hover:shadow-md transition-shadow">
+                <div id="cardDeclined" class="dt-card p-4 flex items-center gap-3 cursor-pointer hover:border-red-200 transition-colors">
                     <div class="flex-shrink-0 bg-red-100 rounded-full p-3">
                         <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                     </div>
@@ -203,7 +205,7 @@
                 </div>
 
                 {{-- Pending Card --}}
-                <div id="cardPending" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer hover:shadow-md transition-shadow">
+                <div id="cardPending" class="dt-card p-4 flex items-center gap-3 cursor-pointer hover:border-amber-200 transition-colors">
                     <div class="flex-shrink-0 bg-yellow-100 rounded-full p-3">
                          <svg class="h-6 w-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
@@ -215,12 +217,12 @@
             </div>
 
             {{-- 4. Filters Section --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="dt-card p-4 sm:p-5">
                 <h6 class="text-base font-semibold text-gray-800 mb-4">{{ __('messages.Filters') }}</h6>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label for="clientFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Client') }}</label>
-                        <select id="clientFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                        <select id="clientFilter" class="devis-filter-control form-select-custom">
                             <option value="">{{ __('messages.All Clients') }}</option>
                             @foreach($clients as $client)
                             <option value="{{$client->name}}">{{$client->name}}</option>
@@ -229,7 +231,7 @@
                     </div>
                     <div>
                         <label for="acceptanceFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Acceptance') }}</label>
-                        <select id="acceptanceFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                        <select id="acceptanceFilter" class="devis-filter-control form-select-custom">
                             <option value="">{{ __('messages.All Devis') }}</option>
                             <option value="{{ __('messages.Accepted') }}">{{ __('messages.Accepted') }}</option>
                             <option value="{{ __('messages.Declined') }}">{{ __('messages.Declined') }}</option>
@@ -240,8 +242,20 @@
             </div>
 
             {{-- 5. Table Section --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div class="table-responsive">
+            <div class="dt-card overflow-hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 sm:px-5 py-3.5 border-b border-slate-100">
+                    <p class="text-[13px] font-semibold text-[#0B2638]">{{ __('messages.Archived Devis') }}</p>
+                    <label for="archivedDevisPerPage" class="flex items-center gap-2 text-[12px] text-slate-500">
+                        <span>{{ __('messages.Rows per page') }}:</span>
+                        <select id="archivedDevisPerPage" class="devis-filter-control !w-auto !py-1 !pr-7">
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="table-responsive overflow-x-auto custom-scrollbar">
                     <table class="w-full divide-y divide-gray-200 table table-fixed" id="devisTable">
                         <thead class="bg-gray-50">
                             <tr>
@@ -252,8 +266,8 @@
                                 <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Unbilled') }}</th>
                                 <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Created at') }}</th>
                                 <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Status') }}</th>
-                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Acceptance') }}</th>
-                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase">{{ __('messages.Actions') }}</th>
+                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase whitespace-nowrap min-w-[190px]">{{ __('messages.Acceptance') }}</th>
+                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap min-w-[280px]">{{ __('messages.Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -330,7 +344,7 @@
                                     @endif
                                 </td>
                                 <td data-label="{{ __('messages.Acceptance') }}" data-span="2" class="px-4 py-3 text-sm text-center">
-                                    <div class="flex items-center justify-center gap-2 flex-wrap">
+                                    <div class="devis-action-row">
                                         @if(Auth::user()->hasRole('Responsable de projet'))
                                         <form action="{{route('Responsable_de_projet.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Accepted?') }}');" class="inline-block"> @csrf <button type="submit" class="text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-3 py-1 text-center whitespace-nowrap">{{ __('messages.Accept') }}</button> </form>
                                         <form action="{{route('Responsable_de_projet.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Declined?') }}');" class="inline-block"> @csrf <button type="submit" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-3 py-1 text-center whitespace-nowrap">{{ __('messages.Decline') }}</button> </form>
@@ -351,9 +365,9 @@
                                 </td>
                                 
                                 <td data-label="{{ __('messages.Actions') }}" data-span="2" class="px-2 py-3">
-                                    <div class="flex flex-col items-center gap-2">
+                                    <div class="devis-action-row">
                                         {{-- 2x2 Grid for buttons --}}
-                                        <div class="grid grid-cols-2 gap-1.5 w-full">
+                                        <div class="devis-action-row w-full">
                                             
                                             {{-- 1. Download Button --}}
                                             @php $dlRoute = '#'; @endphp
@@ -361,7 +375,7 @@
                                             @if(Auth::user()->hasRole('Responsable de projet')) @php $dlRoute = route('Responsable_de_projet.devis.downloadDevis', $d->devis_number); @endphp @endif
                                             @if(Auth::user()->hasRole('Employee')) @php $dlRoute = route('employee.devis.downloadDevis', $d->devis_number); @endphp @endif
                                             @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $dlRoute = route('Responsable_gestionnaire.devis.downloadDevis', $d->devis_number); @endphp @endif
-                                            <a class="w-full text-center text-white bg-blue-600 hover:bg-blue-700 font-medium rounded text-xs px-2 py-1" href="{{ $dlRoute }}">{{ __('messages.Download') }}</a>
+                                            <a class="devis-action devis-action-primary" href="{{ $dlRoute }}"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M5 17v3h14v-3"/></svg>{{ __('messages.Download') }}</a>
                                             
                                             {{-- 2. Send Button --}}
                                             @can('Send devis')
@@ -371,10 +385,11 @@
                                                 @if(Auth::user()->hasRole('Employee')) @php $sendRoute = route('employee.devis.sendDevis'); @endphp @endif
                                                 @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $sendRoute = route('Responsable_gestionnaire.devis.sendDevis'); @endphp @endif
                                                 <button type="button" 
-                                                        class="w-full text-white bg-gray-700 hover:bg-gray-800 font-medium rounded text-xs px-2 py-1 text-center"
+                                                        class="devis-action devis-action-neutral"
                                                         id="openSendDevisModal"
                                                         data-devis-id="{{ $d->id }}"
                                                         data-action="{{ $sendRoute }}">
+                                                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l9 6 9-6M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
                                                     {{ __('messages.Send') }}
                                                 </button>
                                             @else
@@ -387,7 +402,7 @@
                                                 @if(Auth::user()->hasRole('Responsable de projet')) @php $deleteRoute = route('Responsable_de_projet.devis.destroy', $d->id); @endphp @endif
                                                 @if(Auth::user()->hasRole('Employee')) @php $deleteRoute = route('employee.devis.destroy', $d->id); @endphp @endif
                                                 @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $deleteRoute = route('Responsable_gestionnaire.devis.destroy', $d->id); @endphp @endif
-                                                <form action="{{$deleteRoute}}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block w-full"> @csrf @method('DELETE') <button type="submit" class="w-full text-white bg-red-600 hover:bg-red-700 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Delete') }}</button> </form>
+                                                <form action="{{$deleteRoute}}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block"> @csrf @method('DELETE') <button type="submit" class="devis-action devis-action-danger"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16"/></svg>{{ __('messages.Delete') }}</button> </form>
                                             @else
                                                 <div class="w-full"></div> @endcan
                                             
@@ -397,7 +412,7 @@
                                             @if(Auth::user()->hasRole('Responsable de projet')) @php $unarchiveRoute = route('Responsable_de_projet.devis.unarchive', $d->id); @endphp @endif
                                             @if(Auth::user()->hasRole('Employee')) @php $unarchiveRoute = route('employee.devis.unarchive', $d->id); @endphp @endif
                                             @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $unarchiveRoute = route('Responsable_gestionnaire.devis.unarchive', $d->id); @endphp @endif
-                                            <form action="{{$unarchiveRoute}}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block w-full"> @csrf <button type="submit" class="w-full text-white bg-gray-500 hover:bg-gray-600 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Unarchive') }}</button> </form>
+                                            <form action="{{$unarchiveRoute}}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block"> @csrf <button type="submit" class="devis-action devis-action-muted"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8h18M5 8v11h14V8M3 8l1-4h16l1 4M10 12h4"/></svg>{{ __('messages.Unarchive') }}</button> </form>
                                             
                                         </div>
                                     </div>
@@ -413,6 +428,10 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-3 border-t border-slate-100 bg-[#f8fafc]">
+                    <span id="archivedDevisPaginationInfo" class="text-[12px] text-slate-500 text-center sm:text-left"></span>
+                    <nav id="archivedDevisPaginationControls" class="flex flex-wrap items-center justify-center gap-1" aria-label="{{ __('messages.Pagination Navigation') }}"></nav>
+                </div>
             </div>
             
         </main>
@@ -420,10 +439,10 @@
 
     {{-- Modals --}}
     <div id="devisReportModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
-            <div class="flex justify-between items-center p-4 border-b">
-                <h5 class="text-lg font-semibold text-gray-800" id="devisReportModalLabel">{{ __('messages.Download Devis Reports') }}</h5>
-                <button type="button" id="closeDevisReportModal" class="text-gray-400 hover:text-gray-600">&times;</button>
+        <div class="bg-white w-full max-w-md mx-4 overflow-hidden">
+            <div class="flex justify-between items-center px-5 py-4 border-b border-slate-100">
+                <h5 class="text-[15px] font-bold text-[#0B2638]" id="devisReportModalLabel">{{ __('messages.Download Devis Reports') }}</h5>
+                <button type="button" id="closeDevisReportModal" class="text-slate-400 hover:text-slate-700" aria-label="{{ __('messages.Close') }}"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
             <div class="p-6">
                 <div class="mb-3">
@@ -450,20 +469,20 @@
                 </div>
                 <small class="text-gray-500">{{ __('messages.Date range (optional) will be applied from the fields at the top.') }}</small>
             </div>
-            <div class="flex justify-end items-center p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-                <button type="button" id="cancelDevisReportBtn" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('messages.Cancel') }}</button>
-                <button type="button" id="confirmDevisReport" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700">{{ __('messages.Download PDF') }}</button>
+            <div class="flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-2 p-4 bg-slate-50 border-t border-slate-100">
+                <button type="button" id="cancelDevisReportBtn" class="dt-btn dt-btn-ghost justify-center">{{ __('messages.Cancel') }}</button>
+                <button type="button" id="confirmDevisReport" class="dt-btn dt-btn-primary justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M5 17v3h14v-3"/></svg>{{ __('messages.Download PDF') }}</button>
             </div>
         </div>
     </div>
     <div id="sendDevisModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg mx-4">
-            <div class="flex justify-between items-center p-4 border-b">
-                <h5 class="text-lg font-semibold text-gray-800" id="sendDevisModalLabel">{{ __('messages.Send Devis') }}</h5>
-                <button type="button" id="closeSendDevisModal" class="text-gray-400 hover:text-gray-600">&times;</button>
+        <div class="bg-white w-full max-w-lg mx-4 overflow-hidden">
+            <div class="flex justify-between items-center px-5 py-4 border-b border-slate-100">
+                <h5 class="text-[15px] font-bold text-[#0B2638]" id="sendDevisModalLabel">{{ __('messages.Send Devis') }}</h5>
+                <button type="button" id="closeSendDevisModal" class="text-slate-400 hover:text-slate-700" aria-label="{{ __('messages.Close') }}"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
             <div class="p-6">
-                <form id="sendDevisForm" method="POST" enctype="multipart/form-data">
+                <form id="sendDevisForm" class="devis-form" method="POST" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="devis_id" id="devis_id">
                     
@@ -480,9 +499,9 @@
                     </div>
                 </form>
             </div>
-            <div class="flex justify-end items-center p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-                <button type="button" id="cancelSendDevisModal" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('messages.Close') }}</button>
-                <button type="button" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700" id="confirmSend">{{ __('messages.Send Devis') }}</button>
+            <div class="flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-2 p-4 bg-slate-50 border-t border-slate-100">
+                <button type="button" id="cancelSendDevisModal" class="dt-btn dt-btn-ghost justify-center">{{ __('messages.Close') }}</button>
+                <button type="button" class="dt-btn dt-btn-primary justify-center" id="confirmSend"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4l16 8-16 8 3-8-3-8zm3 8h13"/></svg>{{ __('messages.Send Devis') }}</button>
             </div>
         </div>
     </div>
@@ -498,6 +517,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const acceptanceFilter = document.getElementById('acceptanceFilter');
     const tableBody = document.querySelector('#devisTable tbody');
     const allRows = tableBody.querySelectorAll('tr');
+    const dataRows = Array.from(allRows).filter(row => !row.querySelector('td[colspan="9"]'));
+    const perPageSelect = document.getElementById('archivedDevisPerPage');
+    const paginationInfo = document.getElementById('archivedDevisPaginationInfo');
+    const paginationControls = document.getElementById('archivedDevisPaginationControls');
+    let currentPage = 1;
+    let perPage = parseInt(perPageSelect.value, 10) || 10;
+    let filteredRows = [];
     
     // [NEW] Get the new clickable cards
     const cardAccepted = document.getElementById('cardAccepted');
@@ -529,39 +555,83 @@ document.addEventListener('DOMContentLoaded', function() {
     function filterTable() {
         const clientValue = clientFilter.value.trim();
         const acceptanceValue = acceptanceFilter.value.trim();
-        let hasVisibleRows = false;
-
-        allRows.forEach(row => {
-            if (row.querySelector('td[colspan="9"]')) {
-                return; // Skip the "no results" row
-            }
-
+        filteredRows = dataRows.filter(row => {
             const clientCell = row.querySelector('td:nth-child(3)');
             const statusCell = row.querySelector('td:nth-child(7)'); // 7th column is Status
-
-            if (!clientCell || !statusCell || !statusCell.querySelector('span')) {
-                return; // Skip row if cells are missing
-            }
+            if (!clientCell || !statusCell || !statusCell.querySelector('span')) return false;
 
             const clientName = clientCell.textContent.trim();
             const statusText = statusCell.querySelector('span').textContent.trim();
-
             const clientMatch = clientValue === "" || clientName === clientValue;
             const acceptanceMatch = acceptanceValue === "" || statusText === acceptanceValue;
-
-            if (clientMatch && acceptanceMatch) {
-                row.style.display = ""; // Show row
-                hasVisibleRows = true;
-            } else {
-                row.style.display = "none"; // Hide row
-            }
+            return clientMatch && acceptanceMatch;
         });
 
-        // Toggle the "No results" message
+        currentPage = 1;
+        applyPagination();
+    }
+
+    function applyPagination() {
+        const total = filteredRows.length;
+        const totalPages = Math.max(1, Math.ceil(total / perPage));
+        currentPage = Math.min(currentPage, totalPages);
+        const start = (currentPage - 1) * perPage;
+        const end = Math.min(start + perPage, total);
+        dataRows.forEach(row => row.style.display = 'none');
+        filteredRows.slice(start, end).forEach(row => row.style.display = '');
+
+        if (paginationInfo) paginationInfo.textContent = total ? `${start + 1}–${end} / ${total}` : '';
         const noResultsRow = tableBody.querySelector('td[colspan="9"]');
-        if (noResultsRow) {
-            noResultsRow.parentElement.style.display = hasVisibleRows ? 'none' : 'table-row';
+        if (noResultsRow) noResultsRow.parentElement.style.display = total ? 'none' : '';
+        renderPaginationControls(totalPages);
+    }
+
+    function renderPaginationControls(totalPages) {
+        paginationControls.replaceChildren();
+        const base = 'inline-flex items-center justify-center min-w-[28px] h-[28px] px-1.5 rounded-lg text-[12px] font-medium transition-colors border select-none';
+        const normal = `${base} bg-white border-slate-200 text-slate-600 hover:bg-slate-50`;
+        const active = `${base} bg-[#2D7080] border-[#2D7080] text-white`;
+        const disabled = `${base} bg-slate-50 border-slate-100 text-slate-300 cursor-not-allowed`;
+
+        function addArrow(direction, isDisabled) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = isDisabled ? disabled : normal;
+            button.disabled = isDisabled;
+            button.setAttribute('aria-label', direction === 'previous' ? @json(__('messages.Previous')) : @json(__('messages.Next')));
+            button.innerHTML = direction === 'previous'
+                ? '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>'
+                : '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>';
+            button.addEventListener('click', () => {
+                currentPage += direction === 'previous' ? -1 : 1;
+                applyPagination();
+            });
+            paginationControls.appendChild(button);
         }
+
+        addArrow('previous', currentPage === 1);
+        const range = [];
+        for (let page = 1; page <= totalPages; page++) {
+            if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) range.push(page);
+            else if (range[range.length - 1] !== '…') range.push('…');
+        }
+        range.forEach(page => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            if (page === '…') {
+                button.className = `${base} bg-white border-slate-100 text-slate-400 cursor-default`;
+                button.textContent = '…';
+                button.disabled = true;
+            } else {
+                button.className = page === currentPage ? active : normal;
+                button.textContent = page;
+                button.setAttribute('aria-label', `${@json(__('messages.Page'))} ${page}`);
+                if (page === currentPage) button.setAttribute('aria-current', 'page');
+                button.addEventListener('click', () => { currentPage = page; applyPagination(); });
+            }
+            paginationControls.appendChild(button);
+        });
+        addArrow('next', currentPage === totalPages);
     }
 
     // Mobile accordion per devis row (show only number when collapsed)
@@ -600,6 +670,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (clientFilter) clientFilter.addEventListener('change', filterTable);
     if (acceptanceFilter) acceptanceFilter.addEventListener('change', filterTable);
+    perPageSelect.addEventListener('change', function () {
+        perPage = parseInt(this.value, 10) || 10;
+        currentPage = 1;
+        applyPagination();
+    });
     
     // Initial filter on load
     filterTable();

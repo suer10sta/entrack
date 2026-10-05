@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -125,10 +125,128 @@
                 transform: rotate(180deg);
             }
         }
+
+        #devisTable th {
+            font-size: 11px; font-weight: 700; letter-spacing: .07em;
+            text-transform: uppercase; color: #64748b;
+            padding: 10px 12px; white-space: nowrap;
+            background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+        }
+        #devisTable td {
+            padding: 9px 12px; font-size: 13px;
+            vertical-align: middle; border-bottom: 1px solid #f1f5f9;
+        }
+        #devisTable tbody tr:last-child td { border-bottom: none; }
+        #devisTable tbody tr:hover td { background: #f8fafc; }
+        #devisTable tbody tr.row-sent td { background: rgba(236,253,245,.55); }
+        #devisTable tbody tr.row-sent:hover td { background: rgba(209,250,229,.7); }
+
+        .devis-link-normal { color: #2D7080; font-weight: 600; }
+        .devis-link-normal:hover { color: #0B2638; text-decoration: underline; }
+        .inv-type-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 8px; border-radius: 99px;
+            font-size: 11px; font-weight: 600; white-space: nowrap;
+        }
+        .devis-action {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 4px; height: 26px; padding: 0 10px; border-radius: 6px;
+            flex-shrink: 0; cursor: pointer; font-size: 11.5px; font-weight: 600;
+            white-space: nowrap; transition: background .15s, border-color .15s;
+            outline: none; line-height: 1; text-decoration: none;
+        }
+        .devis-action svg { width: 12px; height: 12px; flex-shrink: 0; }
+        .devis-action-row { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; justify-content: flex-start; }
+        .devis-action-primary { background:#f0f4f8; color:#0B2638; border:1px solid #b0bec5; }
+        .devis-action-primary:hover { background:#e2eaf0; border-color:#78909c; }
+        .devis-action-neutral { background:#f0fafb; color:#2D7080; border:1px solid #99d6de; }
+        .devis-action-neutral:hover { background:#e0f2f1; border-color:#2D7080; }
+        .devis-action-success { background:#f0fdf4; color:#15803d; border:1px solid #86efac; }
+        .devis-action-success:hover { background:#dcfce7; border-color:#4ade80; }
+        .devis-action-danger { background:#fff1f2; color:#b91c1c; border:1px solid #fca5a5; }
+        .devis-action-danger:hover { background:#fee2e2; border-color:#f87171; }
+        .devis-action-muted { background:#fffbeb; color:#92400e; border:1px solid #fcd34d; }
+        .devis-action-muted:hover { background:#fef3c7; border-color:#f59e0b; }
+        .devis-action-delete { background:#dc2626; color:#fff; border:1px solid #dc2626; }
+        .devis-action-delete:hover { background:#b91c1c; border-color:#b91c1c; }
+
+        #devisTable .devis-acceptance-cell .devis-action-row form button {
+            display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+            height: 26px; padding: 0 10px; border-radius: 6px;
+            font-size: 11.5px; font-weight: 600; line-height: 1;
+            white-space: nowrap; box-shadow: none;
+        }
+        #devisTable .devis-acceptance-cell .devis-action-row form:first-child button {
+            background: #f0fdf4; color: #15803d; border: 1px solid #86efac;
+        }
+        #devisTable .devis-acceptance-cell .devis-action-row form:first-child button:hover {
+            background: #dcfce7; border-color: #4ade80;
+        }
+        #devisTable .devis-acceptance-cell .devis-action-row form:nth-child(2) button {
+            background: #fff1f2; color: #b91c1c; border: 1px solid #fca5a5;
+        }
+        #devisTable .devis-acceptance-cell .devis-action-row form:nth-child(2) button:hover {
+            background: #fee2e2; border-color: #f87171;
+        }
+        #devisTable .devis-acceptance-cell .devis-action-row form button::before {
+            width: 12px; height: 12px; flex-shrink: 0; content: ""; background: currentColor;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M5 13l4 4L19 7'/%3E%3C/svg%3E") center / contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M5 13l4 4L19 7'/%3E%3C/svg%3E") center / contain no-repeat;
+        }
+        #devisTable .devis-acceptance-cell .devis-action-row form:nth-child(2) button::before {
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6 18L18 6M6 6l12 12'/%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6 18L18 6M6 6l12 12'/%3E%3C/svg%3E");
+        }
+
+        .dt-filter-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 10px center; background-size: 14px;
+            padding-right: 32px;
+        }
+        .stat-card-clickable { cursor: pointer; transition: box-shadow .18s, border-color .18s; }
+        .stat-card-clickable:hover { box-shadow: 0 4px 24px -4px rgba(11,38,56,.18); border-color: #c9d9da; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0; padding: 0; }
+
+        @media (max-width: 1024px) {
+            .table-responsive { overflow-x: visible !important; }
+            #devisTable thead { display: none; }
+            #devisTable tbody { display: block; width: 100%; }
+            #devisTable tbody tr.devis-row {
+                display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px; margin-bottom: 12px; padding: 12px;
+                border: 1px solid rgba(148, 163, 184, .45); border-radius: 14px;
+                background: linear-gradient(160deg, #fff 0%, #f8fafc 100%);
+                box-shadow: 0 2px 16px -4px rgba(11,38,56,.10);
+            }
+            #devisTable tbody tr.devis-row > td {
+                display: block; width: 100%; padding: 8px 10px !important;
+                border: 1px solid rgba(226,232,240,.85); border-radius: 10px;
+                background: rgba(255,255,255,.82); text-align: left !important;
+                white-space: normal !important; word-break: break-word;
+            }
+            #devisTable tbody tr.devis-row > td[data-span="2"] { grid-column: span 2 / span 2; }
+            #devisTable tbody tr.devis-row > td[data-label]::before {
+                content: attr(data-label); display: block; margin-bottom: 4px;
+                color: #94a3b8; font-size: 10px; font-weight: 700;
+                letter-spacing: .06em; text-transform: uppercase;
+            }
+            #devisTable tbody td.devis-actions-cell .devis-action-row {
+                justify-content: center !important; flex-wrap: wrap !important; gap: 8px !important;
+            }
+            #devisTable tbody td.devis-actions-cell form,
+            #devisTable tbody td.devis-actions-cell button,
+            #devisTable tbody td.devis-actions-cell a { flex: 0 0 auto; }
+            #devisTable tbody tr.devis-row.is-collapsed td:not(.devis-toggle-cell) { display: none !important; }
+            #devisTable tbody tr.devis-row td.devis-toggle-cell { cursor: pointer; user-select: none; }
+            #devisTable tbody tr.devis-row td.devis-toggle-cell[data-label]::before { content: none !important; }
+            #devisTable tbody tr.devis-row td.devis-toggle-cell .devis-chevron { transition: transform 180ms ease; }
+            #devisTable tbody tr.devis-row[aria-expanded="true"] td.devis-toggle-cell .devis-chevron { transform: rotate(180deg); }
+        }
 </style>
 </head>
 
-<body class="bg-gray-100 flex h-screen overflow-hidden font-sans" x-data>
+<body class="devis-dashboard-page dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden" x-data>
     {{-- Sidebar Component --}}
     @if(Auth::user()->hasRole('Admin'))
         <x-dashboard.sidebar />
@@ -139,15 +257,16 @@
     <div class="flex flex-col flex-1 overflow-y-auto">
         {{-- Navbar Component --}}
         <x-dashboard.navbar />
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8 space-y-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7">
         {{-- 1. Header Section --}}
-            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                <div>
-                    <h1 class="text-2xl font-semibold text-gray-900">{{ __('messages.Devis History') }}</h1>
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-4">
+                <div class="min-w-0">
+                    <p class="text-[10px] font-semibold uppercase tracking-[.08em] text-slate-400 mb-0.5">{{ __('messages.Devis') }}</p>
+                    <h1 class="text-[18px] sm:text-[20px] lg:text-[22px] font-bold tracking-tight text-[#0B2638] leading-tight">{{ __('messages.Devis History') }}</h1>
                 </div>
-                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                    <button type="button" id="openDevisReportModal" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm w-full sm:w-auto">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <div class="flex flex-wrap items-center gap-2 flex-shrink-0">
+                    <button type="button" id="openDevisReportModal" class="dt-btn dt-btn-primary text-[12px]">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                         {{ __('messages.Devis Reports PDF') }}
@@ -160,8 +279,8 @@
                     @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $archiveRoute = route('Responsable_gestionnaire.devisArchived.archiveIndex'); @endphp @endif
 
                     @if($archiveRoute)
-                    <a href="{{ $archiveRoute }}" class="inline-flex items-center justify-center bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 shadow-sm w-full sm:w-auto">
-                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <a href="{{ $archiveRoute }}" class="dt-btn dt-btn-ghost text-[12px]">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                          </svg>
                         {{ __('messages.View Archive') }}
@@ -170,30 +289,18 @@
                 </div>
             </div>
 
-            {{-- 2. Date Pickers Section --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                 <div>
-                    <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Start Date') }}</label>
-                    <input type="date" id="startDate" placeholder="jj/mm/aaaa" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
-                 </div>
-                 <div>
-                    <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.End Date') }}</label>
-                    <input type="date" id="endDate" placeholder="jj/mm/aaaa" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
-                 </div>
-            </div>
-
             {{-- JS Message Container --}}
              <div id="messageContainer" style="display: none;" class="px-4 py-3 rounded relative" role="alert">
                 <strong class="font-bold" id="messageTitle"></strong>
                 <span class="block sm:inline" id="messageText"></span>
-                <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+                <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="{{ __('messages.Close') }}">&times;</button>
              </div>
              {{-- Session Message --}}
              @if(session('message'))
-             <div id="sessionMessageContainer" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                 <strong class="font-bold">{{ __('messages.Success!') }}</strong>
-                 <span class="block sm:inline">{{ session('message') }}</span>
-                 <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+             <div id="sessionMessageContainer" class="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl mb-4 relative" role="alert">
+                 <svg class="w-4 h-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                 <span class="text-sm font-medium">{{ session('message') }}</span>
+                 <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-2.5 right-3 text-emerald-500 hover:text-emerald-700 text-lg leading-none" aria-label="{{ __('messages.Close') }}">&times;</button>
              </div>
              @endif
 
@@ -218,56 +325,55 @@
                                                         ->whereYear('created_at', $currentYear)
                                                         ->sum('budget');
              @endphp
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div id="cardAccepted" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer">
-                    <div class="flex-shrink-0 bg-green-100 rounded-full p-3">
-                        <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-4">
+                <div id="cardAccepted" class="dt-card stat-card-clickable p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+                    <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 ring-1 ring-emerald-600/15 flex items-center justify-center">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                     </div>
-                    <div class="flex-1">
-                        <p class="text-xs text-gray-500 uppercase font-medium">{{ __('messages.TOTAL ACCEPTED') }}</p>
-                        <p class="text-xl font-semibold text-green-600">€{{ number_format($Total_Accpeted, 2, ',', ' ') }}</p>
-                        <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($Total_AccpetedCurrentYear, 2, ',', ' ') }}</p>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[9px] sm:text-[10.5px] font-semibold uppercase tracking-[.07em] text-slate-400 truncate">{{ __('messages.TOTAL ACCEPTED') }}</p>
+                        <p class="text-[13px] sm:text-[17px] font-bold text-emerald-600 leading-tight">€{{ number_format($Total_Accpeted, 2, ',', ' ') }}</p>
+                        <p class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 truncate">{{ $currentYear }}: €{{ number_format($Total_AccpetedCurrentYear, 2, ',', ' ') }}</p>
                     </div>
                 </div>
                  {{-- Total Declined Card --}}
                  {{-- [NEW] Added id="cardDeclined" and "cursor-pointer" --}}
-                <div id="cardDeclined" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer">
-                    <div class="flex-shrink-0 bg-red-100 rounded-full p-3">
-                        <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <div id="cardDeclined" class="dt-card stat-card-clickable p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+                    <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-red-50 ring-1 ring-red-600/15 flex items-center justify-center">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     </div>
-                    <div class="flex-1">
-                        <p class="text-xs text-gray-500 uppercase font-medium">{{ __('messages.TOTAL DECLINED') }}</p>
-                        <p class="text-xl font-semibold text-red-600">€{{ number_format($Total_Declined, 2, ',', ' ') }}</p>
-                        <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($Total_DeclinedCurrentYear, 2, ',', ' ') }}</p>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[9px] sm:text-[10.5px] font-semibold uppercase tracking-[.07em] text-slate-400 truncate">{{ __('messages.TOTAL DECLINED') }}</p>
+                        <p class="text-[13px] sm:text-[17px] font-bold text-red-600 leading-tight">€{{ number_format($Total_Declined, 2, ',', ' ') }}</p>
+                        <p class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 truncate">{{ $currentYear }}: €{{ number_format($Total_DeclinedCurrentYear, 2, ',', ' ') }}</p>
                     </div>
                 </div>
                  {{-- Total Pending Card --}}
                  {{-- [NEW] Added id="cardPending" and "cursor-pointer" --}}
-                <div id="cardPending" class="bg-white rounded-lg shadow border border-gray-200 p-5 flex items-center space-x-4 cursor-pointer">
-                    <div class="flex-shrink-0 bg-yellow-100 rounded-full p-3">
-                         <svg class="h-6 w-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <div id="cardPending" class="dt-card stat-card-clickable p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+                    <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#E7B84B]/15 ring-1 ring-[#E7B84B]/30 flex items-center justify-center">
+                         <svg class="w-4 h-4 sm:w-5 sm:h-5 text-[#c9971f]" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                          </svg>
                     </div>
-                    <div class="flex-1">
-                        <p class="text-xs text-gray-500 uppercase font-medium">{{ __('messages.TOTAL PENDING') }}</p>
-                        <p class="text-xl font-semibold text-yellow-600">€{{ number_format($Total_Pending, 2, ',', ' ') }}</p>
-                        <p class="text-s font-semibold text-black-500 mt-1">{{ $currentYear }}: €{{ number_format($Total_PendingCurrentYear, 2, ',', ' ') }}</p>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[9px] sm:text-[10.5px] font-semibold uppercase tracking-[.07em] text-slate-400 truncate">{{ __('messages.TOTAL PENDING') }}</p>
+                        <p class="text-[13px] sm:text-[17px] font-bold text-[#0B2638] leading-tight">€{{ number_format($Total_Pending, 2, ',', ' ') }}</p>
+                        <p class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 truncate">{{ $currentYear }}: €{{ number_format($Total_PendingCurrentYear, 2, ',', ' ') }}</p>
                     </div>
                 </div>
             </div>
 
             {{-- 4. Filters Section --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
-                 <h6 class="text-base font-semibold text-gray-800 mb-4">{{ __('messages.Filters') }}</h6>
-                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div class="dt-card p-3 sm:p-4 mb-4">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
                      <div>
-                        <label for="clientFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Client') }}</label>
-                        <select id="clientFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                        <label for="clientFilter" class="block text-[11px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1.5">{{ __('messages.Filter by Client') }}</label>
+                        <select id="clientFilter" class="dt-filter-select block w-full rounded-lg border border-slate-200 bg-slate-50 text-[13px] text-slate-700 focus:border-[#2D7080] focus:ring-1 focus:ring-[#2D7080] py-2 px-3 transition-all">
                             <option value="">{{ __('messages.All Clients') }}</option>
                             @foreach($clients as $client)
                             <option value="{{$client->name}}">{{$client->name}}</option>
@@ -275,37 +381,60 @@
                         </select>
                     </div>
                     <div>
-                        <label for="acceptanceFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Filter by Acceptance') }}</label>
-                        <select id="acceptanceFilter" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom">
+                        <label for="acceptanceFilter" class="block text-[11px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1.5">{{ __('messages.Filter by Acceptance') }}</label>
+                        <select id="acceptanceFilter" class="dt-filter-select block w-full rounded-lg border border-slate-200 bg-slate-50 text-[13px] text-slate-700 focus:border-[#2D7080] focus:ring-1 focus:ring-[#2D7080] py-2 px-3 transition-all">
                             <option value="">{{ __('messages.All Devis') }}</option>
                             <option value="{{ __('messages.Accepted') }}">{{ __('messages.Accepted') }}</option>
                             <option value="{{ __('messages.Declined') }}">{{ __('messages.Declined') }}</option>
                             <option value="{{ __('messages.Pending') }}">{{ __('messages.Pending') }}</option>
                         </select>
                     </div>
+                    <div>
+                        <label for="startDate" class="block text-[11px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1.5">{{ __('messages.Start Date') }}</label>
+                        <input type="date" id="startDate" placeholder="{{ __('messages.Start Date placeholder') }}" class="block w-full rounded-lg border border-slate-200 bg-slate-50 text-[13px] text-slate-700 focus:border-[#2D7080] focus:ring-1 focus:ring-[#2D7080] py-2 px-3 transition-all">
+                    </div>
+                    <div>
+                        <label for="endDate" class="block text-[11px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1.5">{{ __('messages.End Date') }}</label>
+                        <input type="date" id="endDate" placeholder="{{ __('messages.End Date placeholder') }}" class="block w-full rounded-lg border border-slate-200 bg-slate-50 text-[13px] text-slate-700 focus:border-[#2D7080] focus:ring-1 focus:ring-[#2D7080] py-2 px-3 transition-all">
+                    </div>
                  </div>
             </div>
 
             {{-- 5. Table Section [STYLES UPDATED] --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="dt-card overflow-hidden">
+                <div class="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-slate-100">
+                    <p class="text-[13px] font-semibold text-[#0B2638]">{{ __('messages.Devis History') }}</p>
+                    <div class="flex items-center gap-3 sm:gap-4">
+                        <div class="flex items-center gap-2 text-[12px] text-slate-500">
+                            <span class="hidden sm:inline">{{ __('messages.Rows per page') }}:</span>
+                            <select id="devisPerPage" class="dt-filter-select rounded-lg border border-slate-200 bg-white text-[12px] text-slate-700 py-1 focus:border-[#2D7080] focus:ring-1 focus:ring-[#2D7080] cursor-pointer">
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                        <span class="dt-badge dt-badge-navy text-[11px]"><span class="dt-dot"></span>{{ $devis->count() }} {{ __('messages.Total') }}</span>
+                    </div>
+                </div>
                 <div class="table-responsive overflow-x-auto">
-                    <table class="w-full divide-y divide-gray-200 table table-auto" id="devisTable">
-                        <thead class="bg-gray-50">
+                    <table class="w-full" id="devisTable">
+                        <thead>
                             <tr>
-                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Devis N') }}</th>
-                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Project Name') }}</th>
-                                <th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Client Name / Emails') }}</th>
-                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Budget') }}</th>
-                                <th scope="col" class="px-4 py-3 text-right text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Unbilled Budget') }}</th>
-                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Created at') }}</th>
-                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Status') }}</th>
-                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Acceptance') }}</th>
-                                <th scope="col" class="px-4 py-3 text-center text-sm font-semibold text-gray-600 uppercase whitespace-nowrap">{{ __('messages.Actions') }}</th>
+                                <th class="text-left pl-5">{{ __('messages.Devis N') }}</th>
+                                <th class="text-left">{{ __('messages.Project Name') }}</th>
+                                <th class="text-left">{{ __('messages.Client Name / Emails') }}</th>
+                                <th class="text-left whitespace-nowrap">{{ __('messages.Budget') }}</th>
+                                <th class="text-left whitespace-nowrap">{{ __('messages.Unbilled Budget') }}</th>
+                                <th class="text-left whitespace-nowrap">{{ __('messages.Created at') }}</th>
+                                <th class="text-left whitespace-nowrap">{{ __('messages.Status') }}</th>
+                                <th class="text-left whitespace-nowrap">{{ __('messages.Acceptance') }}</th>
+                                <th class="text-left w-[25rem]">{{ __('messages.Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($devis as $d)
-                            <tr class="devis-row {{ $d->sent == 1 ? 'bg-green-50' : '' }} hover:bg-gray-50" data-devis-row aria-expanded="true">
+                            <tr class="devis-row {{ $d->sent == 1 ? 'row-sent' : '' }}" data-devis-row aria-expanded="true">
                                 <td data-label="{{ __('messages.Devis N') }}" data-span="2" class="px-4 py-3 whitespace-nowrap text-sm devis-toggle-cell" data-devis-toggle>
                                     @if(Auth::user()->hasRole('Responsable de projet'))
                                         <a href="{{ route('Responsable_de_projet.devis.downloadDevis', $d->devis_number) }}" class="devis-link-normal hidden lg:inline">{{$entreprise->devis_prefix}}-{{$d->devis_number}}</a>
@@ -348,10 +477,10 @@
                                     @php $project = \App\Models\Project::where('id', $d->project_id)->first(); @endphp
                                     @if($project)
                                         @if($d->acceptanceStatus == 1 || $d->Existing_project_name != null)
-                                            @if(Auth::user()->hasRole('Admin')) <a href="{{route('admin.projects.show', $project->id)}}" class="text-blue-600 hover:text-blue-700">{{$project->name}}</a> @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet')) <a href="{{route('Responsable_de_projet.projects.show', $project->id)}}" class="text-blue-600 hover:text-blue-700">{{$project->name}}</a> @endif
-                                            @if(Auth::user()->hasRole('Employee')) <a href="{{route('employee.projects.show', $project->id)}}" class="text-blue-600 hover:text-blue-700">{{$project->name}}</a> @endif
-                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.projects.show', $project->id)}}" class="text-blue-600 hover:text-blue-700">{{$project->name}}</a> @endif
+                                            @if(Auth::user()->hasRole('Admin')) <a href="{{route('admin.projects.show', $project->id)}}" class="devis-link-normal">{{$project->name}}</a> @endif
+                                            @if(Auth::user()->hasRole('Responsable de projet')) <a href="{{route('Responsable_de_projet.projects.show', $project->id)}}" class="devis-link-normal">{{$project->name}}</a> @endif
+                                            @if(Auth::user()->hasRole('Employee')) <a href="{{route('employee.projects.show', $project->id)}}" class="devis-link-normal">{{$project->name}}</a> @endif
+                                            @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.projects.show', $project->id)}}" class="devis-link-normal">{{$project->name}}</a> @endif
                                         @else {{$project->name}} @endif
                                     @else {{ __('messages.N/A') }} @endif
                                 </td>
@@ -361,36 +490,36 @@
                                         @php $emailArray = array_map('trim', explode(',', $d->emails)); @endphp
                                         @foreach ($emailArray as $email) <span class="block">{{ $email }}</span> @endforeach
                                     @elseif ($client)
-                                        @if(Auth::user()->hasRole('Admin')) <a href="{{route('admin.clients.show', $client->id)}}" class="text-blue-600 hover:text-blue-700">{{$client->name}}</a> @endif
-                                        @if(Auth::user()->hasRole('Responsable de projet')) <a href="{{route('Responsable_de_projet.clients.show', $client->id)}}" class="text-blue-600 hover:text-blue-700">{{$client->name}}</a> @endif
-                                        @if(Auth::user()->hasRole('Employee')) <a href="{{route('employee.clients.show', $client->id)}}" class="text-blue-600 hover:text-blue-700">{{$client->name}}</a> @endif
-                                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.clients.show', $client->id)}}" class="text-blue-600 hover:text-blue-700">{{$client->name}}</a> @endif
+                                        @if(Auth::user()->hasRole('Admin')) <a href="{{route('admin.clients.show', $client->id)}}" class="devis-link-normal">{{$client->name}}</a> @endif
+                                        @if(Auth::user()->hasRole('Responsable de projet')) <a href="{{route('Responsable_de_projet.clients.show', $client->id)}}" class="devis-link-normal">{{$client->name}}</a> @endif
+                                        @if(Auth::user()->hasRole('Employee')) <a href="{{route('employee.clients.show', $client->id)}}" class="devis-link-normal">{{$client->name}}</a> @endif
+                                        @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) <a href="{{route('Responsable_gestionnaire.clients.show', $client->id)}}" class="devis-link-normal">{{$client->name}}</a> @endif
                                     @else {{ __('messages.N/A') }} @endif
                                 </td>
-                                <td data-label="{{ __('messages.Budget') }}" class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 text-right">
-                                    €{{ number_format($d->budget, 2, ',', ' ') }}
+                                <td data-label="{{ __('messages.Budget') }}" class="whitespace-nowrap">
+                                    <span class="text-[13.5px] font-bold text-emerald-600">€{{ number_format($d->budget, 2, ',', ' ') }}</span>
                                 </td>
-                                <td data-label="{{ __('messages.Unbilled Budget') }}" class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 text-right">
+                                <td data-label="{{ __('messages.Unbilled Budget') }}" class="whitespace-nowrap">
                                     @php
                                         $devisInvoicesTotal = \App\Models\invoices_history::where('devis_id', $d->id)->where('Payment_status', '!=', -1)->sum('total_htva');
                                         $unbilledBudget = ($d->budget ?? 0) - ($devisInvoicesTotal ?? 0);
                                     @endphp
-                                    €{{ number_format(max($unbilledBudget, 0), 2, ',', ' ') }}
+                                    <span class="text-[13px] font-semibold text-[#0B2638]">€{{ number_format(max($unbilledBudget, 0), 2, ',', ' ') }}</span>
                                 </td>
-                                <td data-label="{{ __('messages.Created at') }}" class="px-4 py-3 text-sm text-gray-600 text-center whitespace-nowrap">
+                                <td data-label="{{ __('messages.Created at') }}" class="text-[12px] text-slate-500 whitespace-nowrap">
                                     {{ $d->created_at ? \Carbon\Carbon::parse($d->created_at)->format('Y-m-d') : '' }}
                                 </td>
-                                <td data-label="{{ __('messages.Status') }}" class="px-4 py-3 whitespace-nowrap text-sm text-center">
+                                <td data-label="{{ __('messages.Status') }}" class="whitespace-nowrap">
                                     @if($d->acceptanceStatus == 1)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800"> {{ __('messages.Accepted') }} </span>
+                                    <span class="inv-type-badge bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/15">{{ __('messages.Accepted') }}</span>
                                     @elseif($d->acceptanceStatus == 2 )
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800"> {{ __('messages.Declined') }} </span>
+                                    <span class="inv-type-badge bg-rose-50 text-rose-700 ring-1 ring-rose-600/15">{{ __('messages.Declined') }}</span>
                                     @else
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800"> {{ __('messages.Pending') }} </span>
+                                    <span class="inv-type-badge bg-amber-50 text-amber-700 ring-1 ring-amber-600/15">{{ __('messages.Pending') }}</span>
                                     @endif
                                 </td>
-                                <td data-label="{{ __('messages.Acceptance') }}" data-span="2" class="px-4 py-3 text-sm text-center">
-                                    <div class="flex items-center justify-center gap-2 flex-wrap">
+                                <td data-label="{{ __('messages.Acceptance') }}" data-span="2" class="devis-acceptance-cell">
+                                    <div class="devis-action-row">
                                         @if(Auth::user()->hasRole('Responsable de projet'))
                                         <form action="{{route('Responsable_de_projet.devis.acceptDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Accepted?') }}');" class="inline-block"> @csrf <button type="submit" class="text-white bg-green-500 hover:bg-green-600 font-medium rounded text-xs px-3 py-1 text-center whitespace-nowrap">{{ __('messages.Accept') }}</button> </form>
                                         <form action="{{route('Responsable_de_projet.devis.declineDevis', $d->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Mark as Declined?') }}');" class="inline-block"> @csrf <button type="submit" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded text-xs px-3 py-1 text-center whitespace-nowrap">{{ __('messages.Decline') }}</button> </form>
@@ -410,11 +539,11 @@
                                     </div>
                                 </td>
                                 
-                                <td data-label="{{ __('messages.Actions') }}" data-span="2" class="px-2 py-3">
-                                    <div class="flex flex-col items-center gap-2">
+                                <td data-label="{{ __('messages.Actions') }}" data-span="2" class="devis-actions-cell">
+                                        <div class="devis-action-row">
                                 
                                         {{-- 2x2 Grid for first 4 buttons --}}
-                                        <div class="grid grid-cols-2 gap-1.5 w-full">
+                                        <div class="devis-action-row w-full">
                                             
                                             {{-- 1. Download Button --}}
                                             @php $dlRoute = '#'; @endphp
@@ -422,7 +551,7 @@
                                             @if(Auth::user()->hasRole('Responsable de projet')) @php $dlRoute = route('Responsable_de_projet.devis.downloadDevis', $d->devis_number); @endphp @endif
                                             @if(Auth::user()->hasRole('Employee')) @php $dlRoute = route('employee.devis.downloadDevis', $d->devis_number); @endphp @endif
                                             @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $dlRoute = route('Responsable_gestionnaire.devis.downloadDevis', $d->devis_number); @endphp @endif
-                                            <a class="w-full text-center text-white bg-blue-600 hover:bg-blue-700 font-medium rounded text-xs px-2 py-1" href="{{ $dlRoute }}">{{ __('messages.Download') }}</a>
+                                            <a class="devis-action devis-action-primary" href="{{ $dlRoute }}"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M5 17v3h14v-3"/></svg>{{ __('messages.Download') }}</a>
 
                                             {{-- 2. Send Button --}}
                                             @can('Send devis')
@@ -431,7 +560,7 @@
                                                 @if(Auth::user()->hasRole('Responsable de projet')) @php $sendRoute = route('Responsable_de_projet.devis.sendDevis'); @endphp @endif
                                                 @if(Auth::user()->hasRole('Employee')) @php $sendRoute = route('employee.devis.sendDevis'); @endphp @endif
                                                 @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $sendRoute = route('Responsable_gestionnaire.devis.sendDevis'); @endphp @endif
-                                                <form action="{{ $sendRoute }}" method="post" class="inline-block w-full"> @csrf <input type="hidden" name="devis_id" value="{{ $d->id }}"> <button type="submit" class="w-full text-white bg-gray-700 hover:bg-gray-800 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Send') }}</button> </form>
+                                                <form action="{{ $sendRoute }}" method="post" class="inline-block"> @csrf <input type="hidden" name="devis_id" value="{{ $d->id }}"> <button type="submit" class="devis-action devis-action-neutral"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l9 6 9-6M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>{{ __('messages.Send') }}</button> </form>
                                             @else
                                                 <div class="w-full"></div> @endcan
                                 
@@ -442,7 +571,7 @@
                                                 @if(Auth::user()->hasRole('Responsable de projet')) @php $deleteRoute = route('Responsable_de_projet.devis.destroy', $d->id); @endphp @endif
                                                 @if(Auth::user()->hasRole('Employee')) @php $deleteRoute = route('employee.devis.destroy', $d->id); @endphp @endif
                                                 @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $deleteRoute = route('Responsable_gestionnaire.devis.destroy', $d->id); @endphp @endif
-                                                <form action="{{$deleteRoute}}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block w-full"> @csrf @method('DELETE') <button type="submit" class="w-full text-white bg-red-600 hover:bg-red-700 font-medium rounded text-xs px-2 py-1 text-center">{{ __('messages.Delete') }}</button> </form>
+                                                <form action="{{$deleteRoute}}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block"> @csrf @method('DELETE') <button type="submit" class="devis-action devis-action-delete"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16"/></svg>{{ __('messages.Delete') }}</button> </form>
                                             @else
                                                  <div class="w-full"></div> @endcan
                                 
@@ -452,11 +581,11 @@
                                             @if(Auth::user()->hasRole('Responsable de projet')) @php $archiveFormRoute = route('Responsable_de_projet.devis.archive', $d->id); @endphp @endif
                                             @if(Auth::user()->hasRole('Employee')) @php $archiveFormRoute = route('employee.devis.archive', $d->id); @endphp @endif
                                             @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $archiveFormRoute = route('Responsable_gestionnaire.devis.archive', $d->id); @endphp @endif
-                                            <form action="{{$archiveFormRoute}}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block w-full"> @csrf <button type="submit" title="{{ __('messages.Archive') }}" class="w-full p-1 rounded bg-gray-500 text-white hover:bg-gray-600 font-medium text-xs flex items-center justify-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg> {{ __('messages.Archive') }}</button> </form>
+                                            <form action="{{$archiveFormRoute}}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block"> @csrf <button type="submit" title="{{ __('messages.Archive') }}" class="devis-action devis-action-muted"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8h18M5 8v11h14V8M3 8l1-4h16l1 4M10 12h4"/></svg>{{ __('messages.Archive') }}</button> </form>
                                         </div>
                                 
                                         {{-- Icon buttons below the grid --}}
-                                        <div class="flex items-center justify-center gap-1.5 w-full">
+                                        <div class="devis-action-row w-full">
                                             
                                             {{-- Duplicate Button --}}
                                             @php $duplicateRoute = '#'; @endphp
@@ -464,7 +593,7 @@
                                             @if(Auth::user()->hasRole('Responsable de projet')) @php $duplicateRoute = route('Responsable_de_projet.devis.duplicateDevis', $d->id); @endphp @endif
                                             @if(Auth::user()->hasRole('Employee')) @php $duplicateRoute = route('employee.devis.duplicateDevis', $d->id); @endphp @endif
                                             @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $duplicateRoute = route('Responsable_gestionnaire.devis.duplicateDevis', $d->id); @endphp @endif
-                                            <a href="{{$duplicateRoute}}" title="{{ __('messages.Duplicate') }}" class="p-1.5 rounded-md bg-cyan-500 text-white hover:bg-cyan-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg></a>
+                                            <a href="{{$duplicateRoute}}" class="devis-action devis-action-neutral"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>{{ __('messages.Duplicate') }}</a>
                                 
                                             {{-- Edit Button --}}
                                             @php $editRoute = '#'; @endphp
@@ -472,7 +601,7 @@
                                             @if(Auth::user()->hasRole('Responsable de projet')) @php $editRoute = route('Responsable_de_projet.devis.editDevis', $d->id); @endphp @endif
                                             @if(Auth::user()->hasRole('Employee')) @php $editRoute = route('employee.devis.editDevis', $d->id); @endphp @endif
                                             @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $editRoute = route('Responsable_gestionnaire.devis.editDevis', $d->id); @endphp @endif
-                                            <a href="{{$editRoute}}" title="{{ __('messages.Edit') }}" class="p-1.5 rounded-md bg-cyan-500 text-white hover:bg-cyan-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /> </svg></a>
+                                            <a href="{{$editRoute}}" class="devis-action devis-action-neutral"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M4 20h4l9.5-9.5-4-4L4 16v4z"/></svg>{{ __('messages.Edit') }}</a>
                                         </div>
                                 
                                     </div>
@@ -488,16 +617,22 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="flex flex-wrap items-center justify-end gap-2 px-5 py-3 border-t border-slate-100 bg-[#f8fafc]">
+                    <div class="flex items-center gap-3">
+                        <span id="devisPaginationInfo" class="text-[12px] text-slate-500"></span>
+                        <nav id="devisPaginationControls" class="flex items-center gap-1" aria-label="{{ __('messages.Pagination Navigation') }}"></nav>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
 
 {{-- Modals --}}
 <div id="devisReportModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
-        <div class="flex justify-between items-center p-4 border-b">
-            <h5 class="text-lg font-semibold text-gray-800" id="devisReportModalLabel">{{ __('messages.Download Devis Reports') }}</h5>
-            <button type="button" id="closeDevisReportModal" class="text-gray-400 hover:text-gray-600">&times;</button>
+        <div class="bg-white w-full max-w-md mx-4 overflow-hidden">
+        <div class="flex justify-between items-center px-5 py-4 border-b border-slate-100">
+            <h5 class="text-[15px] font-bold text-[#0B2638]" id="devisReportModalLabel">{{ __('messages.Download Devis Reports') }}</h5>
+            <button type="button" id="closeDevisReportModal" class="text-slate-400 hover:text-slate-700" aria-label="{{ __('messages.Close') }}"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
         </div>
         <div class="p-6">
             <div class="mb-3">
@@ -524,20 +659,20 @@
             </div>
             <small class="text-gray-500">{{ __('messages.Date range (optional) will be applied from the fields at the top.') }}</small>
         </div>
-        <div class="flex justify-end items-center p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-            <button type="button" id="cancelDevisReportBtn" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('messages.Cancel') }}</button>
-            <button type="button" id="confirmDevisReport" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700">{{ __('messages.Download PDF') }}</button>
+        <div class="flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-2 p-4 bg-slate-50 border-t border-slate-100">
+            <button type="button" id="cancelDevisReportBtn" class="dt-btn dt-btn-ghost justify-center">{{ __('messages.Cancel') }}</button>
+            <button type="button" id="confirmDevisReport" class="dt-btn dt-btn-primary justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M5 17v3h14v-3"/></svg>{{ __('messages.Download PDF') }}</button>
         </div>
     </div>
 </div>
 <div id="sendDevisModal" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-lg mx-4">
-        <div class="flex justify-between items-center p-4 border-b">
-            <h5 class="text-lg font-semibold text-gray-800" id="sendDevisModalLabel">{{ __('messages.Send Devis') }}</h5>
-            <button type="button" id="closeSendDevisModal" class="text-gray-400 hover:text-gray-600">&times;</button>
+        <div class="bg-white w-full max-w-lg mx-4 overflow-hidden">
+        <div class="flex justify-between items-center px-5 py-4 border-b border-slate-100">
+            <h5 class="text-[15px] font-bold text-[#0B2638]" id="sendDevisModalLabel">{{ __('messages.Send Devis') }}</h5>
+            <button type="button" id="closeSendDevisModal" class="text-slate-400 hover:text-slate-700" aria-label="{{ __('messages.Close') }}"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
         </div>
         <div class="p-6">
-            <form id="sendDevisForm" method="POST" enctype="multipart/form-data">
+            <form id="sendDevisForm" class="devis-form" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="devis_id" id="devis_id">
                 
@@ -554,9 +689,9 @@
                 </div>
             </form>
         </div>
-        <div class="flex justify-end items-center p-4 bg-gray-50 border-t rounded-b-lg space-x-2">
-            <button type="button" id="cancelSendDevisModal" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('messages.Close') }}</button>
-            <button type="button" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700" id="confirmSend">{{ __('messages.Send Devis') }}</button>
+        <div class="flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-2 p-4 bg-slate-50 border-t border-slate-100">
+            <button type="button" id="cancelSendDevisModal" class="dt-btn dt-btn-ghost justify-center">{{ __('messages.Close') }}</button>
+            <button type="button" class="dt-btn dt-btn-primary justify-center" id="confirmSend"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4l16 8-16 8 3-8-3-8zm3 8h13"/></svg>{{ __('messages.Send Devis') }}</button>
         </div>
     </div>
 </div>
@@ -569,6 +704,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const acceptanceFilter = document.getElementById('acceptanceFilter');
     const tableBody = document.querySelector('#devisTable tbody');
     const allRows = tableBody.querySelectorAll('tr');
+    const dataRows = Array.from(allRows).filter(row => !row.querySelector('td[colspan="9"]'));
+    const perPageSelect = document.getElementById('devisPerPage');
+    const paginationInfo = document.getElementById('devisPaginationInfo');
+    const paginationControls = document.getElementById('devisPaginationControls');
+    let currentPage = 1;
+    let perPage = parseInt(perPageSelect.value, 10) || 10;
+    let filteredRows = [];
     
     // [NEW] Get the new clickable cards
         const cardAccepted = document.getElementById('cardAccepted');
@@ -600,43 +742,95 @@ document.addEventListener('DOMContentLoaded', function() {
     function filterTable() {
         const clientValue = clientFilter.value.trim();
         const acceptanceValue = acceptanceFilter.value.trim();
-        let hasVisibleRows = false;
-
-        allRows.forEach(row => {
-            if (row.querySelector('td[colspan="9"]')) {
-                return; // Skip the "no results" row
-            }
-
+        filteredRows = dataRows.filter(row => {
             const clientCell = row.querySelector('td:nth-child(3)');
             const statusCell = row.querySelector('td:nth-child(7)'); // 7th column is Status
-
-            if (!clientCell || !statusCell || !statusCell.querySelector('span')) {
-                return; // Skip row if cells are missing
-            }
+            if (!clientCell || !statusCell || !statusCell.querySelector('span')) return false;
 
             const clientName = clientCell.textContent.trim();
             const statusText = statusCell.querySelector('span').textContent.trim();
-
             const clientMatch = clientValue === "" || clientName === clientValue;
             const acceptanceMatch = acceptanceValue === "" || statusText === acceptanceValue;
-
-            if (clientMatch && acceptanceMatch) {
-                row.style.display = ""; // Show row
-                hasVisibleRows = true;
-            } else {
-                row.style.display = "none"; // Hide row
-            }
+            return clientMatch && acceptanceMatch;
         });
 
-        // Toggle the "No results" message
+        currentPage = 1;
+        applyPagination();
+    }
+
+    function applyPagination() {
+        const total = filteredRows.length;
+        const totalPages = Math.max(1, Math.ceil(total / perPage));
+        currentPage = Math.min(currentPage, totalPages);
+        const start = (currentPage - 1) * perPage;
+        const end = Math.min(start + perPage, total);
+        dataRows.forEach(row => row.style.display = 'none');
+        filteredRows.slice(start, end).forEach(row => row.style.display = '');
+
+        if (paginationInfo) paginationInfo.textContent = total ? `${start + 1}–${end} / ${total}` : '';
         const noResultsRow = tableBody.querySelector('td[colspan="9"]');
-        if (noResultsRow) {
-            noResultsRow.parentElement.style.display = hasVisibleRows ? 'none' : 'table-row';
+        if (noResultsRow) noResultsRow.parentElement.style.display = total ? 'none' : '';
+        renderPaginationControls(totalPages);
+    }
+
+    function renderPaginationControls(totalPages) {
+        paginationControls.replaceChildren();
+        const base = 'inline-flex items-center justify-center min-w-[28px] h-[28px] px-1.5 rounded-lg text-[12px] font-medium transition-colors cursor-pointer border select-none';
+        const normal = `${base} bg-white border-slate-200 text-slate-600 hover:bg-slate-50`;
+        const active = `${base} bg-[#2D7080] border-[#2D7080] text-white`;
+        const disabled = `${base} bg-slate-50 border-slate-100 text-slate-300 cursor-not-allowed pointer-events-none`;
+
+        function addArrow(direction, isDisabled) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = isDisabled ? disabled : normal;
+            button.disabled = isDisabled;
+            button.setAttribute('aria-label', direction === 'previous' ? @json(__('messages.Previous')) : @json(__('messages.Next')));
+            button.setAttribute('aria-label', direction === 'previous' ? @json(__('messages.Previous')) : @json(__('messages.Next')));
+            button.innerHTML = direction === 'previous'
+                ? '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>'
+                : '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>';
+            button.addEventListener('click', () => {
+                currentPage += direction === 'previous' ? -1 : 1;
+                applyPagination();
+            });
+            paginationControls.appendChild(button);
         }
+
+        addArrow('previous', currentPage === 1);
+        const range = [];
+        for (let page = 1; page <= totalPages; page++) {
+            if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) range.push(page);
+            else if (range[range.length - 1] !== '…') range.push('…');
+        }
+        range.forEach(page => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            if (page === '…') {
+                button.className = `${base} bg-white border-slate-100 text-slate-400 cursor-default pointer-events-none`;
+                button.textContent = '…';
+                button.disabled = true;
+            } else {
+                button.className = page === currentPage ? active : normal;
+                button.textContent = page;
+                button.setAttribute('aria-label', `${@json(__('messages.Page'))} ${page}`);
+                if (page === currentPage) button.setAttribute('aria-current', 'page');
+                button.setAttribute('aria-label', `${@json(__('messages.Page'))} ${page}`);
+                if (page === currentPage) button.setAttribute('aria-current', 'page');
+                button.addEventListener('click', () => { currentPage = page; applyPagination(); });
+            }
+            paginationControls.appendChild(button);
+        });
+        addArrow('next', currentPage === totalPages);
     }
     
     if (clientFilter) clientFilter.addEventListener('change', filterTable);
     if (acceptanceFilter) acceptanceFilter.addEventListener('change', filterTable);
+    perPageSelect.addEventListener('change', function () {
+        perPage = parseInt(this.value, 10) || 10;
+        currentPage = 1;
+        applyPagination();
+    });
     
     // Initial filter on load
     filterTable();

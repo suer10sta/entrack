@@ -18,6 +18,7 @@ use App\Models\project_teams;
 use App\Models\Entreprise;
 use App\Models\work_days_repports;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Http;
 use App\Models\employees_tasks;
 use App\Models\client_contacts_projects;
@@ -159,8 +160,22 @@ class tasksController extends Controller
         $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
         $tasks = Tasks::where('entreprise_id', Auth::user()->entreprise_id)->orderBy('created_at', 'desc')->get();
+        $groupedTasks = $tasks->groupBy('project_id');
+        $projectsPerPageOptions = [5, 10, 25, 50, 100];
+        $requestedProjectsPerPage = (int) request()->query('per_page', 5);
+        $projectsPerPage = in_array($requestedProjectsPerPage, $projectsPerPageOptions, true)
+            ? $requestedProjectsPerPage
+            : 5;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $groupedTasks = new LengthAwarePaginator(
+            $groupedTasks->forPage($currentPage, $projectsPerPage),
+            $groupedTasks->count(),
+            $projectsPerPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
         $tasks_ordered = Tasks::where('user_id', Auth::user()->id)->orderBy('title', 'asc')->get();
-        return view('admin.tasks.index', compact('employees', 'tasks', 'tasks_ordered', 'teams', 'projects'));
+        return view('admin.tasks.index', compact('employees', 'tasks', 'tasks_ordered', 'teams', 'projects', 'groupedTasks', 'projectsPerPage', 'projectsPerPageOptions'));
     }
 
 

@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dupliquer Devis - DalyTrac</title>
+    <title>{{ __('messages.Duplicate a Quote') }} - DalyTrac</title>
     @vite('resources/css/app.css')
+    @include('admin.devis.partials.dashboardStyles')
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- Styles personnalisés de votre fichier --}}
@@ -41,7 +42,7 @@
     </style>
 </head>
 
-<body class="bg-gray-50 flex h-screen overflow-hidden font-sans">
+<body class="devis-dashboard-page dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
 
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
             style="display: none; visibility: hidden"></iframe></noscript>
@@ -60,9 +61,14 @@
         <x-dashboard.navbar />
 
         {{-- Zone de contenu principal --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+        <main class="flex-1 min-w-0 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7">
 
-            <div class="w-full max-w-4xl mx-auto">
+            <div class="w-full max-w-6xl mx-auto space-y-5">
+
+                <div>
+                    <p class="dt-overline mb-0.5">{{ __('messages.Devis History') }}</p>
+                    <h1 class="text-[18px] sm:text-[20px] lg:text-[22px] font-bold text-[#0B2638] leading-tight">{{ __('messages.Duplicate a Quote') }}</h1>
+                </div>
 
                 {{-- Message de session (style Tailwind) --}}
                 @if(session('message'))
@@ -93,16 +99,21 @@
                 @endphp
 
                 {{-- Carte principale (style Tailwind) --}}
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div class="dt-card overflow-hidden">
                     
                     {{-- En-tête de la carte --}}
-                    <div class="p-6 border-b border-gray-200">
-                        <h6 class="text-lg font-semibold text-gray-900">{{ __('messages.Duplicate a Quote') }}</h6>
-                        <p class="text-sm text-gray-600 mt-1">{{ __('messages.Duplicate an existing quote') }}</p>
+                    <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-[#2D7080]/10 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-[#2D7080]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-[13px] font-semibold text-[#0B2638]">{{ __('messages.Duplicate a Quote') }}</p>
+                            <p class="text-[11.5px] text-slate-400">{{ __('messages.Duplicate an existing quote') }}</p>
+                        </div>
                     </div>
 
                     {{-- Corps de la carte --}}
-                    <div class="p-6">
+                    <div class="p-5 sm:p-6">
                         
                         @php
                             $billingType = old('billing_type', $devis->billing_type ?? 'forfait');
@@ -112,7 +123,7 @@
                             $amountValue = old('amount_per_hour', $devis->amount_per_hour ?? $devis->cost_per_hour);
                         @endphp
 
-                        <form id="devisForm" method="POST" action="{{ $saveRoute }}" autocomplete="off">
+                        <form id="devisForm" class="devis-form" method="POST" action="{{ $saveRoute }}" autocomplete="off">
                             @csrf
 
                             {{-- Ligne Type de Projet (Grille Tailwind) --}}
@@ -167,7 +178,7 @@
                                                    name="billing_type"
                                                    id="billingForfait"
                                                    value="forfait"
-                                                   class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                   class="h-4 w-4 text-[#2D7080] border-gray-300 rounded focus:ring-[#2D7080]"
                                                    {{ $billingType === 'forfait' ? 'checked' : '' }}>
                                             <span class="ml-2 text-sm text-gray-700">{{ __('messages.Fixed price') }}</span>
                                         </label>
@@ -176,7 +187,7 @@
                                                    name="billing_type"
                                                    id="billingHoraire"
                                                    value="horaire"
-                                                   class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                   class="h-4 w-4 text-[#2D7080] border-gray-300 rounded focus:ring-[#2D7080]">
                                                    {{ $isHourly ? 'checked' : '' }}>
                                             <span class="ml-2 text-sm text-gray-700">{{ __('messages.Hourly') }}</span>
                                         </label>
@@ -185,7 +196,7 @@
                                                    name="billing_type"
                                                    id="billingDetailedHourly"
                                                    value="detailed_hourly"
-                                                   class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                   class="h-4 w-4 text-[#2D7080] border-gray-300 rounded focus:ring-[#2D7080]">
                                                    {{ $isDetailedHourly ? 'checked' : '' }}>
                                             <span class="ml-2 text-sm text-gray-700">{{ __('messages.Detailed Hourly') }}</span>
                                         </label>
@@ -248,7 +259,7 @@
                                                 <input type="text" class="block w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 sm:text-sm py-2 px-3 taskTotal" readonly value="{{ $isDetailedHourly && isset($detail->hours) && isset($detail->cost_per_hour) ? number_format(($detail->hours ?? 0) * ($detail->cost_per_hour ?? 0), 2) : ($detail->task_budget ?? '0.00') }}" />
                                             </div>
                                             <div class="col-span-12 md:col-span-1 flex items-end">
-                                                <button type="button" class="inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700" style="margin-bottom: 35px;" onclick="deleteDetailRow(this)">
+                                                <button type="button" aria-label="{{ __('messages.Delete') }}" title="{{ __('messages.Delete') }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 text-red-600 hover:bg-red-50" onclick="deleteDetailRow(this)">
                                                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
                                                 </button>
                                             </div>
@@ -285,11 +296,11 @@
                                 </div>
                                 {{-- Boutons Ajouter/Supprimer (style Tailwind) --}}
                                 <div class="flex space-x-2 mt-4">
-                                    <button type="button" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm" onclick="addInput('dynamicInput');">
+                                    <button type="button" class="dt-btn dt-btn-teal text-[12px]" onclick="addInput('dynamicInput');">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>
                                         {{ __('messages.Add') }}
                                     </button>
-                                    <button type="button" class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg text-sm" onclick="removeInput('dynamicInput');">
+                                    <button type="button" class="dt-btn dt-btn-ghost text-[12px] text-red-700" onclick="removeInput('dynamicInput');">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
                                         {{ __('messages.Remove') }}
                                     </button>
@@ -393,11 +404,12 @@
                             </div>
 
                             {{-- Actions du Formulaire (style Tailwind) --}}
-                            <div class="flex justify-end items-center mt-8 pt-6 border-t border-gray-200 space-x-3">
-                                <a href="javascript:history.back()" class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm'>
+                            <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:items-center gap-2 mt-8 pt-5 border-t border-slate-100">
+                                <a href="javascript:history.back()" class="dt-btn dt-btn-ghost justify-center">
                                 {{ __('messages.Cancel') }}
                                 </a>
-                                <button type="submit" name="button" class="inline-flex justify-center bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2.5 rounded-lg text-sm shadow-sm">
+                                <button type="submit" name="button" class="dt-btn dt-btn-primary justify-center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19z"/></svg>
                                     {{ __('messages.Generate quote') }}
                                 </button>
                             </div>

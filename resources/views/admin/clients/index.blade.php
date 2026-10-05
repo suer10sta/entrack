@@ -162,6 +162,18 @@
                     </div>
                 @endif
 
+                <div class="flex justify-end px-5 sm:px-6 py-3 border-b border-slate-100 bg-[#f8fafc]">
+                    <label class="flex items-center gap-2 text-[12px] text-slate-500" for="clientsPerPage">
+                        <span>{{ __('messages.Rows per page') }}:</span>
+                        <select id="clientsPerPage" class="rounded-lg border border-slate-200 bg-white py-1 pl-2 pr-6 text-[12px] text-slate-700 focus:border-[#2D7080] focus:ring-1 focus:ring-[#2D7080]">
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </label>
+                </div>
+
                 {{-- Table Wrapper --}}
                 <div class="overflow-x-auto custom-scrollbar">
         <table id="clientsTable" class="w-full text-left border-collapse table-auto">
@@ -330,6 +342,10 @@
             </tbody>
         </table>
                 </div>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 sm:px-6 py-3 border-t border-slate-100 bg-[#f8fafc]">
+                    <span id="clientsPaginationInfo" class="text-[12px] text-slate-500 text-center sm:text-left"></span>
+                    <nav id="clientsPagination" class="flex flex-wrap items-center justify-center gap-1" aria-label="{{ __('messages.Pagination Navigation') }}"></nav>
+                </div>
             </div>
 
         </main>
@@ -338,6 +354,85 @@
     @livewireScripts
     {{-- Include dashboard_layouts.scripts if needed --}}
     {{-- @include('dashboard_layouts.scripts') --}}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const rows = Array.from(document.querySelectorAll('#clientsTable tbody tr.client-row'));
+            const select = document.getElementById('clientsPerPage');
+            const info = document.getElementById('clientsPaginationInfo');
+            const controls = document.getElementById('clientsPagination');
+            let currentPage = 1;
+            let perPage = parseInt(select.value, 10) || 10;
+
+            function renderPagination() {
+                const total = rows.length;
+                const totalPages = Math.max(1, Math.ceil(total / perPage));
+                currentPage = Math.min(currentPage, totalPages);
+                const start = (currentPage - 1) * perPage;
+                const end = Math.min(start + perPage, total);
+                rows.forEach((row, index) => {
+                    row.style.display = index >= start && index < end ? '' : 'none';
+                });
+                info.textContent = total ? `${start + 1}–${end} / ${total}` : '';
+                controls.replaceChildren();
+
+                const base = 'inline-flex items-center justify-center min-w-[28px] h-[28px] px-1.5 rounded-lg text-[12px] font-medium transition-colors border select-none';
+                const normal = `${base} bg-white border-slate-200 text-slate-600 hover:bg-slate-50`;
+                const active = `${base} bg-[#2D7080] border-[#2D7080] text-white`;
+                const disabled = `${base} bg-slate-50 border-slate-100 text-slate-300 cursor-not-allowed`;
+
+                function addArrow(direction, isDisabled) {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = isDisabled ? disabled : normal;
+                    button.setAttribute('aria-label', direction === 'previous' ? @json(__('messages.Previous')) : @json(__('messages.Next')));
+                    button.disabled = isDisabled;
+                    button.innerHTML = direction === 'previous'
+                        ? '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>'
+                        : '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>';
+                    button.addEventListener('click', () => {
+                        currentPage += direction === 'previous' ? -1 : 1;
+                        renderPagination();
+                    });
+                    controls.appendChild(button);
+                }
+
+                addArrow('previous', currentPage === 1);
+                const pageRange = [];
+                for (let page = 1; page <= totalPages; page++) {
+                    if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) pageRange.push(page);
+                    else if (pageRange[pageRange.length - 1] !== '…') pageRange.push('…');
+                }
+                pageRange.forEach(page => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    if (page === '…') {
+                        button.className = `${base} bg-white border-slate-100 text-slate-400 cursor-default`;
+                        button.textContent = '…';
+                        button.disabled = true;
+                    } else {
+                        button.className = page === currentPage ? active : normal;
+                        button.textContent = page;
+                        button.setAttribute('aria-label', `${@json(__('messages.Page'))} ${page}`);
+                        if (page === currentPage) button.setAttribute('aria-current', 'page');
+                        button.addEventListener('click', () => {
+                            currentPage = page;
+                            renderPagination();
+                        });
+                    }
+                    controls.appendChild(button);
+                });
+                addArrow('next', currentPage === totalPages);
+            }
+
+            select.addEventListener('change', function () {
+                perPage = parseInt(this.value, 10) || 10;
+                currentPage = 1;
+                renderPagination();
+            });
+            renderPagination();
+        });
+    </script>
 
     {{-- Keep jQuery and inline editing script --}}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

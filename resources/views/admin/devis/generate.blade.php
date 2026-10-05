@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="UTF-8">
@@ -7,6 +7,7 @@
     <title>{{ __('messages.New Devis - DalyTrac') }}</title>
     @vite('resources/css/app.css')
     @livewireStyles
+    @include('admin.devis.partials.dashboardStyles')
     <style>
         select.form-select-custom {
             -webkit-appearance: none;
@@ -31,7 +32,7 @@
     </style>
 </head>
 
-<body class="bg-gray-50 flex h-screen overflow-hidden">
+<body class="devis-dashboard-page dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
 
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
             style="display: none; visibility: hidden"></iframe></noscript>
@@ -50,26 +51,36 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8">
+        <main class="flex-1 min-w-0 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7">
 
-            <div class="w-full max-w-4xl mx-auto">
+            <div class="w-full max-w-6xl mx-auto space-y-5">
+
+                <div>
+                    <p class="dt-overline mb-0.5">{{ __('messages.Devis History') }}</p>
+                    <h1 class="text-[18px] sm:text-[20px] lg:text-[22px] font-bold text-[#0B2638] leading-tight">{{ __('messages.New Devis') }}</h1>
+                </div>
 
                 {{-- Session Message --}}
                 @if(session('message'))
                 <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
                     <strong class="font-bold">{{ __('messages.Success!') }}</strong>
                     <span class="block sm:inline">{{ session('message') }}</span>
-                    <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+                    <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="{{ __('messages.Close') }}">&times;</button>
                 </div>
                 @endif
 
                 {{-- Main Card --}}
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div class="dt-card overflow-hidden">
                     
                     {{-- Card Header --}}
-                    <div class="p-6 border-b border-gray-200">
-                        <h6 class="text-lg font-semibold text-gray-900">{{ __('messages.New Devis') }}</h6>
-                        <p class="text-sm text-gray-600 mt-1">{{ __('messages.Create new Offer') }}</p>
+                    <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-[#2D7080]/10 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-[#2D7080]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-[13px] font-semibold text-[#0B2638]">{{ __('messages.New Devis') }}</p>
+                            <p class="text-[11.5px] text-slate-400">{{ __('messages.Create new Offer') }}</p>
+                        </div>
                     </div>
 
                     {{-- Card Body --}}
@@ -77,16 +88,16 @@
                         
                         {{-- Form --}}
                         @if(Auth::user()->hasRole('Responsable de projet'))
-                        <form id="devisForm" method="POST" action="{{route('Responsable_de_projet.devis.saveDevisPdf')}}" autocomplete="off">
+                        <form id="devisForm" class="devis-form" method="POST" action="{{route('Responsable_de_projet.devis.saveDevisPdf')}}" autocomplete="off">
                         @endif
                         @if(Auth::user()->hasRole('Employee'))
-                        <form id="devisForm" method="POST" action="{{route('employee.devis.saveDevisPdf')}}" autocomplete="off">
+                        <form id="devisForm" class="devis-form" method="POST" action="{{route('employee.devis.saveDevisPdf')}}" autocomplete="off">
                         @endif
                         @if(Auth::user()->hasRole('Admin'))
-                        <form id="devisForm" method="POST" action="{{route('admin.devis.saveDevisPdf')}}" autocomplete="off">
+                        <form id="devisForm" class="devis-form" method="POST" action="{{route('admin.devis.saveDevisPdf')}}" autocomplete="off">
                         @endif
                         @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                        <form id="devisForm" method="POST" action="{{route('Responsable_gestionnaire.devis.saveDevisPdf')}}" autocomplete="off">
+                        <form id="devisForm" class="devis-form" method="POST" action="{{route('Responsable_gestionnaire.devis.saveDevisPdf')}}" autocomplete="off">
                         @endif
                             @csrf
 
@@ -220,7 +231,7 @@
                                             <input type="text" class="block w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 sm:text-sm py-2 px-3 taskTotal" readonly />
                                         </div>
                                         <div class="col-span-12 md:col-span-1 flex items-end">
-                                            <button type="button" class="inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700" style="margin-bottom: 35px;" onclick="deleteDetailRow(this)">
+                                            <button type="button" aria-label="{{ __('messages.Delete') }}" title="{{ __('messages.Delete') }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 text-red-600 hover:bg-red-50" onclick="deleteDetailRow(this)">
                                                 <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
                                             </button>
                                         </div>
@@ -228,11 +239,11 @@
                                 </div>
                                 {{-- Add/Delete Buttons --}}
                                 <div class="flex space-x-2 mt-4">
-                                    <button type="button" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm" onclick="addInput('dynamicInput');">
+                                    <button type="button" class="dt-btn dt-btn-teal text-[12px]" onclick="addInput('dynamicInput');">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>
                                         {{ __('messages.Add Row Devis') }}
                                     </button>
-                                    <button type="button" class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg text-sm" onclick="removeInput('dynamicInput');">
+                                    <button type="button" class="dt-btn dt-btn-ghost text-[12px] text-red-700" onclick="removeInput('dynamicInput');">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
                                         {{ __('messages.Delete Row Devis') }}
                                     </button>
@@ -326,20 +337,21 @@
                             </div>
 
                             {{-- Form Actions --}}
-                            <div class="flex justify-end items-center mt-8 pt-6 border-t border-gray-200 space-x-3">
+                            <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:items-center gap-2 mt-8 pt-5 border-t border-slate-100">
                                 @if(Auth::user()->hasRole('Responsable de projet'))
-                                    <a class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300' href="{{route('Responsable_de_projet.index')}}">{{ __('messages.Cancel Devis') }}</a>
+                                    <a class="dt-btn dt-btn-ghost justify-center" href="{{route('Responsable_de_projet.index')}}">{{ __('messages.Cancel Devis') }}</a>
                                 @endif
                                 @if(Auth::user()->hasRole('Admin'))
-                                    <a class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300' href="{{route('admin.index')}}">{{ __('messages.Cancel Devis') }}</a>
+                                    <a class="dt-btn dt-btn-ghost justify-center" href="{{route('admin.index')}}">{{ __('messages.Cancel Devis') }}</a>
                                 @endif
                                 @if(Auth::user()->hasRole('Employee'))
-                                    <a class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300' href="{{route('employee.index')}}">{{ __('messages.Cancel Devis') }}</a>
+                                    <a class="dt-btn dt-btn-ghost justify-center" href="{{route('employee.index')}}">{{ __('messages.Cancel Devis') }}</a>
                                 @endif
                                 @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                                    <a class='bg-white hover:bg-gray-100 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300' href="{{route('Responsable_gestionnaire.index')}}">{{ __('messages.Cancel Devis') }}</a>
+                                    <a class="dt-btn dt-btn-ghost justify-center" href="{{route('Responsable_gestionnaire.index')}}">{{ __('messages.Cancel Devis') }}</a>
                                 @endif
-                                <button type="submit" name="button" class="bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2.5 rounded-lg">
+                                <button type="submit" name="button" class="dt-btn dt-btn-primary justify-center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19z"/></svg>
                                     {{ __('messages.Generate Devis') }}
                                 </button>
                             </div>
@@ -379,23 +391,23 @@
         
         newdiv.innerHTML =
             '<div class="col-span-12 md:col-span-4">' +
-                '<label class="block text-sm font-medium text-gray-700 mb-1">Details <span class="text-red-600">*</span></label>' +
+                '<label class="block text-sm font-medium text-gray-700 mb-1">' + @json(__('messages.Details')) + ' <span class="text-red-600">*</span></label>' +
                 '<textarea class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3" name="task[]" rows="3"></textarea>' +
             '</div>' +
             '<div class="col-span-12 md:col-span-2 task-hours-column" style="display: ' + hoursColumnDisplay + ';">' +
-                '<label class="block text-sm font-medium text-gray-700 mb-1">Number of Hours <span class="text-red-600">*</span></label>' +
+                '<label class="block text-sm font-medium text-gray-700 mb-1">' + @json(__('messages.Number of Hours')) + ' <span class="text-red-600">*</span></label>' +
                 '<input type="number" step="0.01" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskHours" name="taskHours[]" />' +
             '</div>' +
             '<div class="col-span-12 md:col-span-2 task-budget-column" style="display: ' + budgetColumnDisplay + ';">' +
-                '<label class="block text-sm font-medium text-gray-700 mb-1 budget-label">Budget <span class="text-red-600">*</span></label>' +
+                '<label class="block text-sm font-medium text-gray-700 mb-1 budget-label">' + @json(__('messages.Budget')) + ' <span class="text-red-600">*</span></label>' +
                 '<input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskBudget" name="taskBudget[]" />' +
             '</div>' +
             '<div class="col-span-12 md:col-span-2 task-cost-per-hour-column" style="display: ' + costPerHourColumnDisplay + ';">' +
-                '<label class="block text-sm font-medium text-gray-700 mb-1">Cost per Hour <span class="text-red-600">*</span></label>' +
+                '<label class="block text-sm font-medium text-gray-700 mb-1">' + @json(__('messages.Cost per Hour')) + ' <span class="text-red-600">*</span></label>' +
                 '<input type="number" step="0.0001" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 taskCostPerHour" name="taskCostPerHour[]" />' +
             '</div>' +
             '<div class="col-span-12 md:col-span-2 task-total-column" style="display: ' + totalColumnDisplay + ';">' +
-                '<label class="block text-sm font-medium text-gray-700 mb-1">Total</label>' +
+                '<label class="block text-sm font-medium text-gray-700 mb-1">' + @json(__('messages.Total')) + '</label>' +
                 '<input type="text" class="block w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 sm:text-sm py-2 px-3 taskTotal" readonly />' +
             '</div>' +
             '<div class="col-span-12 md:col-span-1 flex items-end">' +

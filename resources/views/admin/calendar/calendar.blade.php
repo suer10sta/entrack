@@ -15,10 +15,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.1/spectrum.min.css" rel="stylesheet">
 
     <style>
-        body {
-            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        }
-
         #calendar {
             background: white;
             padding: 20px;
@@ -155,18 +151,219 @@
                 font-size: 0.85rem !important;
             }
         }
+
+        #calendar {
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        #calendar .fc-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 0 0 16px;
+        }
+
+        #calendar .fc-toolbar h2 {
+            margin: 0;
+            color: #0B2638;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+
+        #calendar .fc-button {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+            background: #fff !important;
+            color: #475569 !important;
+            padding: 6px 10px !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+        }
+
+        #calendar .fc-button:hover {
+            border-color: #cbd5e1 !important;
+            background: #f8fafc !important;
+        }
+
+        #calendar .fc-button.fc-state-active,
+        #calendar .fc-button.fc-state-down {
+            border-color: #2D7080 !important;
+            background: #2D7080 !important;
+            color: #fff !important;
+        }
+
+        #calendar .fc-widget-header,
+        #calendar .fc-widget-content {
+            border-width: 1px !important;
+            border-color: #e2e8f0 !important;
+        }
+
+        #calendar .fc-day-header {
+            padding: 9px 4px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+
+        #calendar .fc-day-number {
+            padding: 7px 8px;
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        #calendar .fc-today {
+            background: rgba(45, 112, 128, .06) !important;
+        }
+
+        #calendar .fc-event {
+            margin: 2px 3px 5px;
+            border: 0;
+            border-radius: 6px;
+            padding: 3px 5px;
+            box-shadow: 0 1px 2px rgba(11, 38, 56, .10);
+            font-size: 11px;
+            line-height: 1.3;
+            white-space: normal;
+            overflow: hidden;
+        }
+
+        #calendar .fc-event .fc-title,
+        #calendar .fc-event .fc-content {
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        #calendar .fc-event .event-project,
+        #calendar .fc-event .event-task,
+        #calendar .fc-event .event-budget,
+        #calendar .fc-event .event-employees,
+        #calendar .fc-event .event-description {
+            max-width: 100%;
+            overflow: hidden;
+            overflow-wrap: anywhere;
+            text-overflow: ellipsis;
+        }
+
+        .planning-modal-panel {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            box-shadow: 0 20px 50px rgba(11, 38, 56, .18);
+        }
+
+        #eventForm :is(input:not([type="checkbox"]), select, textarea) {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f8fafc;
+            color: #1e293b;
+            font-size: 13px;
+            padding: 8px 12px;
+            outline: none;
+        }
+
+        #eventForm :is(input:not([type="checkbox"]), select, textarea):focus {
+            border-color: #2D7080;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(45, 112, 128, .12);
+        }
+
+        #eventForm input[type="checkbox"] { accent-color: #2D7080; }
+        #eventForm label,
+        #eventForm > div > span { color: #475569; font-size: 12px; font-weight: 600; }
+        #eventForm p { color: #94a3b8; }
+        #eventModal .modal-footer,
+        #sendEventsModal .modal-footer { background: #f8fafc; border-color: #e2e8f0; }
+
+        #calendar .fc-button-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            vertical-align: middle;
+        }
+
+        #calendar .fc-button-group > .fc-button {
+            margin: 0 !important;
+            border-radius: 8px !important;
+        }
+
+        #calendar .fc-left > .fc-button-group + .fc-button {
+            margin-left: 8px;
+        }
+
+        @media (max-width: 640px) {
+            #calendar .fc-toolbar {
+                justify-content: center;
+                gap: 6px;
+            }
+
+            #calendar .fc-toolbar .fc-left,
+            #calendar .fc-toolbar .fc-center,
+            #calendar .fc-toolbar .fc-right {
+                display: flex;
+                width: 100%;
+                align-items: center;
+                justify-content: center;
+                flex-wrap: wrap;
+                float: none !important;
+                gap: 6px;
+                margin: 0;
+                text-align: center;
+            }
+
+            #calendar .fc-toolbar h2 {
+                width: 100%;
+                font-size: 16px;
+            }
+
+            #calendar .fc-button {
+                padding: 5px 8px !important;
+                font-size: 11px !important;
+            }
+
+            #calendar .fc-day-header {
+                padding: 7px 1px;
+                font-size: 9px;
+            }
+
+            #calendar .fc-day-number {
+                padding: 5px 4px;
+                font-size: 10px;
+            }
+
+            #calendar .fc-event {
+                margin: 1px 1px 3px;
+                padding: 2px 3px;
+                font-size: 10px;
+            }
+
+            #calendar .fc-button-group {
+                gap: 5px;
+            }
+
+            #calendar .fc-left > .fc-button-group + .fc-button {
+                margin-left: 5px;
+            }
+        }
     </style>
 </head>
 
-<body class="bg-gray-50 flex h-screen overflow-hidden">
+<body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
 
     {{-- Sidebar Component --}}
     @if(Auth::user()->hasRole('Admin'))
-        @if(Auth::user()->hasRole('Admin'))
         <x-dashboard.sidebar />
-    @else
-        <x-employees.sidebar />
-    @endif
     @else
         <x-employees.sidebar />
     @endif
@@ -178,69 +375,52 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+        <main class="flex-1 min-w-0 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7">
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-4">
+                <div class="min-w-0">
+                    <p class="dt-overline mb-0.5">{{ __('messages.Planning') }}</p>
+                    <h1 class="text-[18px] sm:text-[20px] lg:text-[22px] font-bold tracking-tight text-[#0B2638] leading-tight">{{ __('messages.Planning Calendar') }}</h1>
+                    <p class="text-[12px] text-slate-500 mt-0.5 hidden sm:block">{{ __('messages.Planning Calendar subtitle') }}</p>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:flex-wrap gap-2 w-full sm:w-auto">
+                    @can('Create planning')
+                    <button id="openEventModal" type="button" class="dt-btn dt-btn-primary justify-center w-full sm:w-auto">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                        <span>{{ __('messages.Add Event') }}</span>
+                    </button>
+                    @endcan
+                    <button id="openSendEventsModal" type="button" class="dt-btn dt-btn-teal justify-center w-full sm:w-auto">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                        <span>{{ __('messages.Send Events') }}</span>
+                    </button>
+                </div>
+            </div>
 
-            {{-- Container for the calendar --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-
-                {{-- Header Section --}}
-                <div class="px-6 py-5 border-b border-gray-200 flex flex-col gap-4">
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div>
-                            <h1 class="text-xl font-bold text-gray-900">{{ __('messages.Planning Calendar') }}</h1>
-                            <p class="text-sm text-gray-500 mt-1">{{ __('messages.Planning Calendar subtitle') }}</p>
-                        </div>
-                        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                            @can('Create planning')
-                            <button id="openEventModal" type="button"
-                                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 rounded-lg shadow-sm transition-colors duration-200 w-full sm:w-auto">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                </svg>
-                                <span>{{ __('messages.Add Event') }}</span>
-                            </button>
-                            @endcan
-                            <button id="openSendEventsModal" type="button"
-                                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 rounded-lg shadow-sm transition-colors duration-200 w-full sm:w-auto">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                                <span>{{ __('messages.Send Events') }}</span>
-                            </button>
-                        </div>
+            <div class="dt-card p-3 sm:p-4 mb-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                    <div>
+                        <label for="filterClient" class="block text-[11px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1.5">{{ __('messages.Filter by Client') }}</label>
+                        <select id="filterClient" class="dt-filter-select block w-full rounded-lg border border-slate-200 bg-slate-50 text-[13px] text-slate-700 focus:border-[#2D7080] focus:ring-1 focus:ring-[#2D7080] py-2 px-3 transition-all">
+                            <option value="">{{ __('messages.All clients') }}</option>
+                            @foreach($clients as $client)
+                                <option value="{{ $client->id }}">{{ $client->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
-
-                    {{-- Filters Row --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="filterClient" class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-                                {{ __('messages.Filter by Client') }}
-                            </label>
-                            <select id="filterClient"
-                                class="block w-full rounded-md border border-gray-300 bg-white py-2 px-3 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="">{{ __('messages.All clients') }}</option>
-                                @foreach($clients as $client)
-                                    <option value="{{ $client->id }}">{{ $client->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label for="filterEmployee" class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-                                {{ __('messages.Filter by Employee') }}
-                            </label>
-                            <select id="filterEmployee"
-                                class="block w-full rounded-md border border-gray-300 bg-white py-2 px-3 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="">{{ __('messages.All employees') }}</option>
-                                @foreach($employees as $employee)
-                                    <option value="{{ $employee->id }}">{{ $employee->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                    <div>
+                        <label for="filterEmployee" class="block text-[11px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1.5">{{ __('messages.Filter by Employee') }}</label>
+                        <select id="filterEmployee" class="dt-filter-select block w-full rounded-lg border border-slate-200 bg-slate-50 text-[13px] text-slate-700 focus:border-[#2D7080] focus:ring-1 focus:ring-[#2D7080] py-2 px-3 transition-all">
+                            <option value="">{{ __('messages.All employees') }}</option>
+                            @foreach($employees as $employee)
+                                <option value="{{ $employee->id }}">{{ $employee->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
+            </div>
 
-                {{-- Calendar Body --}}
-                <div class="p-4 sm:p-6">
+            <div class="dt-card overflow-hidden">
+                <div class="p-3 sm:p-4 lg:p-5">
                     <div id="calendar"></div>
                 </div>
             </div>
@@ -261,25 +441,25 @@
 
             <!-- Modal Panel -->
             <div
-                class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full border border-gray-100">
+                class="planning-modal-panel inline-block align-bottom bg-white text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
                 <!-- Header -->
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-100">
+                <div class="bg-white px-4 py-4 sm:px-5 border-b border-slate-100">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div
-                                class="mx-auto flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-blue-100 sm:mx-0">
-                                <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24"
+                                class="mx-auto flex-shrink-0 flex items-center justify-center h-9 w-9 rounded-lg bg-[#2D7080]/10 sm:mx-0">
+                                <svg class="h-4 w-4 text-[#2D7080]" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                             </div>
-                            <h3 class="text-lg leading-6 font-semibold text-gray-900 modal-title" id="modal-title">
+                            <h3 class="text-[15px] leading-6 font-bold text-[#0B2638] modal-title" id="modal-title">
                                 {{ __('messages.Add Event') }}
                             </h3>
                         </div>
                         <button type="button"
-                            class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            class="bg-white rounded-lg p-1 text-slate-400 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2D7080]"
                             id="closeEventModal">
                             <span class="sr-only">{{ __('messages.Close') }}</span>
                             <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -292,7 +472,7 @@
                 </div>
 
                 <!-- Body (Form) -->
-                <div class="bg-gray-50 px-4 py-5 sm:p-6">
+                <div class="bg-white px-4 py-4 sm:px-5 sm:py-5 max-h-[70vh] overflow-y-auto">
                     <form id="eventForm" class="space-y-4">
                         <!-- Title -->
                         <div>
@@ -416,10 +596,10 @@
                 </div>
 
                 <!-- Footer -->
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:items-center sm:justify-end sm:flex-row-reverse sm:gap-2 border-t border-gray-200">
+                <div class="modal-footer px-4 py-3 sm:px-5 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 border-t">
                     
                     <button type="button" id="deleteEvent" style="display: none;"
-                        class="w-full inline-flex items-center justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:w-auto sm:text-sm transition-colors duration-200"
+                        class="dt-btn w-full sm:w-auto bg-red-600 text-white hover:bg-red-700 justify-center"
                         title="{{ __('messages.Delete Event') }}">
                         <span class="sr-only">{{ __('messages.Delete Event') }}</span>
                         <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -427,22 +607,22 @@
                         </svg>
                     </button>
                     <button type="button" id="saveEvent"
-                        class="w-full inline-flex items-center justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:w-auto sm:text-sm transition-colors duration-200"
+                        class="dt-btn dt-btn-primary w-full sm:w-auto justify-center"
                         title="{{ __('messages.Save Event') }}">
                         {{ __('messages.Save Event') }}
                     </button>
                     <!-- View Task button (shown only when event has a related project & task) -->
                     <button type="button" id="viewTask"
-                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors duration-200 hidden">
+                        class="dt-btn dt-btn-ghost w-full sm:w-auto justify-center hidden">
                         {{ __('messages.View Task') }}
                     </button>
                     <!-- View Project button (shown only when event has a selected project) -->
                     <button type="button" id="viewProject"
-                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-emerald-600 text-base font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors duration-200 hidden">
+                        class="dt-btn dt-btn-ghost w-full sm:w-auto justify-center hidden">
                         {{ __('messages.View Project') }}
                     </button>
                     <button type="button" id="cancelEvent" onclick="$('#closeEventModal').click()"
-                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors duration-200">
+                        class="dt-btn dt-btn-ghost w-full sm:w-auto justify-center">
                         {{ __('messages.Cancel') }}
                     </button>
                 </div>
@@ -462,25 +642,25 @@
 
             <!-- Modal Panel -->
             <div
-                class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full border border-gray-100">
+                class="planning-modal-panel inline-block align-bottom bg-white text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full">
                 <!-- Header -->
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-100">
+                <div class="bg-white px-4 py-4 sm:px-5 border-b border-slate-100">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div
-                                class="mx-auto flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-green-100 sm:mx-0">
-                                <svg class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24"
+                                class="mx-auto flex-shrink-0 flex items-center justify-center h-9 w-9 rounded-lg bg-[#2D7080]/10 sm:mx-0">
+                                <svg class="h-4 w-4 text-[#2D7080]" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                             </div>
-                            <h3 class="text-lg leading-6 font-semibold text-gray-900" id="send-events-modal-title">
+                            <h3 class="text-[15px] leading-6 font-bold text-[#0B2638]" id="send-events-modal-title">
                                 {{ __('messages.Select Events to Send') }}
                             </h3>
                         </div>
                         <button type="button"
-                            class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                            class="bg-white rounded-lg p-1 text-slate-400 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2D7080]"
                             id="closeSendEventsModal">
                             <span class="sr-only">{{ __('messages.Close') }}</span>
                             <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -493,7 +673,7 @@
                 </div>
 
                 <!-- Body -->
-                <div class="bg-gray-50 px-4 py-5 sm:p-6">
+                <div class="bg-white px-4 py-4 sm:px-5 sm:py-5">
                     <div class="mb-4">
                         <p class="text-sm text-gray-600 mb-3">{{ __('messages.Select events helper') }}</p>
                         <div id="eventsList" class="space-y-2 max-h-96 overflow-y-auto">
@@ -503,13 +683,13 @@
                 </div>
 
                 <!-- Footer -->
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
+                <div class="modal-footer px-4 py-3 sm:px-5 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 border-t">
                     <button type="button" id="proceedToPreview"
-                        class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200">
+                        class="dt-btn dt-btn-primary w-full sm:w-auto justify-center">
                         {{ __('messages.Continue to Preview') }}
                     </button>
                     <button type="button" id="cancelSendEvents" onclick="$('#closeSendEventsModal').click()"
-                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200">
+                        class="dt-btn dt-btn-ghost w-full sm:w-auto justify-center">
                         {{ __('messages.Cancel') }}
                     </button>
                 </div>

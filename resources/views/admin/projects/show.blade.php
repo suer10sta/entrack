@@ -18,6 +18,18 @@
             padding: 9px 12px; font-size: 13px;
             vertical-align: middle; border-bottom: 1px solid #f1f5f9;
         }
+        #taskTable th:nth-child(1), #taskTable td:nth-child(1) { min-width: 140px; }
+        #taskTable th:nth-child(2), #taskTable td:nth-child(2) { min-width: 160px; }
+        #taskTable th:nth-child(3), #taskTable td:nth-child(3) { min-width: 120px; }
+        #taskTable th:nth-child(4), #taskTable td:nth-child(4) { min-width: 90px; }
+        #taskTable th:nth-child(5), #taskTable td:nth-child(5) { min-width: 90px; }
+        #taskTable th:nth-child(6), #taskTable td:nth-child(6) { min-width: 70px; }
+        #taskTable th:nth-child(7), #taskTable td:nth-child(7) { min-width: 90px; }
+        #taskTable th:nth-child(8), #taskTable td:nth-child(8) { min-width: 110px; }
+        #taskTable th:nth-child(9), #taskTable td:nth-child(9) { min-width: 100px; }
+        #taskTable th:nth-child(10), #taskTable td:nth-child(10) { min-width: 100px; }
+        #taskTable th:nth-child(11), #taskTable td:nth-child(11) { min-width: 130px; }
+        #taskTable th:nth-child(12), #taskTable td:nth-child(12) { min-width: 220px; }
         #taskTable tbody tr:last-child td, #invoicesTable tbody tr:last-child td,
         #devisTable tbody tr:last-child td, .project-files-table tbody tr:last-child td { border-bottom: none; }
         #taskTable tbody tr:hover td, #invoicesTable tbody tr:hover td,
@@ -613,7 +625,7 @@
         <x-dashboard.navbar />
 
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7">
-            <div class="mx-auto max-w-[1380px] space-y-4">
+            <div class="mx-auto max-w-[1600px] space-y-4">
 
                 @php
                     // --- Project Header Logic ---
@@ -968,7 +980,7 @@
                                     <th class="text-center whitespace-nowrap">{{ __('messages.Progress column') }}</th>
                                     <th class="text-center whitespace-nowrap">{{ __('messages.Teams column') }}</th>
                                     <th class="text-center whitespace-nowrap">{{ __('messages.Pointage') }}</th>
-                                    <th class="text-center whitespace-nowrap">{{ __('messages.Action column') }}</th>
+                                    <th class="text-center whitespace-nowrap" style="min-width: 220px">{{ __('messages.Action column') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1016,7 +1028,7 @@
                                         @endforeach
                                     </td>
                                     <td data-label="{{ __('messages.Total column') }}" class="text-[12.5px] text-slate-900 whitespace-nowrap">{{ $taskHours }}h:{{ $taskMinutes }}m</td>
-                                    <td data-label="{{ __('messages.Estimated column') }}" class="text-[12.5px] text-slate-900 whitespace-nowrap">{{ $task->estimated_hours }}h</td>
+                                    <td data-label="{{ __('messages.Estimated column') }}" class="text-[12.5px] text-slate-900 whitespace-nowrap">{{ $task->estimated_hours ?? '-' }}</td>
                                     <td data-label="{{ __('messages.Difference column') }}" class="text-[12.5px] whitespace-nowrap">
                                         @if($taskDifference > 0)
                                             <span class="text-emerald-600">+{{ $diffHours }}h:{{ $diffMinutes }}m</span>
@@ -1049,7 +1061,7 @@
                                             @if(!$task_timer)
                                                 <form class="flex flex-col gap-2" action="{{ route($taskRoutePrefix . 'tasks.start', ['tasks' => $employee_task->id, 'employee_id' => $current_employee_id]) }}" method="POST">
                                                     @csrf
-                                                    <textarea name="comment" class="block w-full rounded-lg border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-xs py-1.5 px-2.5" placeholder="{{ __('messages.Comment placeholder') }}" rows="1" style="width: 130px;"></textarea>
+                                                    <textarea name="comment" class="block w-full rounded-lg border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-xs py-1.5 px-2.5" placeholder="{{ __('messages.Comment placeholder') }}" rows="1" style="width: 110px;"></textarea>
                                                     <button class="act-btn act-btn-send" type="submit">
                                                         <svg class="act-btn-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                                                         {{ __('messages.Start') }}
@@ -1074,7 +1086,7 @@
                                                     <svg class="act-btn-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                                     </svg>
-                                                    {{ __('messages.Edit Task') }}
+                                                    {{ __('messages.Edit') }}
                                                 </a>
                                             @endcan
 
@@ -1095,7 +1107,7 @@
                                                     <svg class="act-btn-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                                                     </svg>
-                                                    {{ __('messages.Move Task') }}
+                                                    {{ __('messages.Move') }}
                                                 </button>
                                             @endcan
                                             @can('Delete task')
@@ -1104,7 +1116,7 @@
                                                 @method('DELETE')
                                                 <button type="submit" class="act-btn act-btn-delete" title="{{ __('messages.Delete Task') }}">
                                                     <svg class="act-btn-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                                    {{ __('messages.Delete Task') }}
+                                                    {{ __('messages.Delete') }}
                                                 </button>
                                             </form>
                                             @endcan

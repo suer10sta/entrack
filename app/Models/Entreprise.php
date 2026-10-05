@@ -119,7 +119,20 @@ class Entreprise extends Model
      */
     public function isBillitConfigured(): bool
     {
-        return filled($this->billit_api_key);
+        return filled($this->getRawOriginal('billit_api_key'));
+    }
+
+    /**
+     * Safely get the decrypted Billit API key.
+     * Returns null when the stored value cannot be decrypted with the current APP_KEY.
+     */
+    public function getBillitApiKeyDecrypted(): ?string
+    {
+        try {
+            return $this->billit_api_key;
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            return null;
+        }
     }
 
     public function user()

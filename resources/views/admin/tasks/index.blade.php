@@ -137,9 +137,19 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="w-full sm:w-auto">
-                        <label for="taskSearch" class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Search Task') }}</label>
-                        <input type="text" id="taskSearch" class="block w-full sm:w-64 rounded-xl border-slate-200 bg-white text-slate-700 px-3 py-2 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm" placeholder="{{ __('messages.Type to search...') }}">
+                    <div class="w-full sm:w-auto flex flex-col sm:flex-row gap-3 sm:items-end">
+                        <div class="w-full sm:w-64">
+                            <label for="taskSearch" class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Search Task') }}</label>
+                            <input type="text" id="taskSearch" class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 px-3 py-2 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm" placeholder="{{ __('messages.Type to search...') }}">
+                        </div>
+                        <form method="GET" action="{{ request()->url() }}" class="w-full sm:w-[7rem]">
+                            <label for="projectsPerPage" class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Projects per page') }}</label>
+                            <select id="projectsPerPage" name="per_page" onchange="this.form.submit()" class="block w-full rounded-xl border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25">
+                                @foreach($projectsPerPageOptions as $option)
+                                    <option value="{{ $option }}" @selected($projectsPerPage === $option)>{{ $option }}</option>
+                                @endforeach
+                            </select>
+                        </form>
                     </div>
                 </div>
 
@@ -179,8 +189,6 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
-                                @php $groupedTasks = $tasks->groupBy('project_id'); @endphp
-
                                 @forelse($groupedTasks as $projectId => $projectTasks)
                                     @php
                                         // Eager load project or fetch once
@@ -387,6 +395,36 @@
                         </table>
                     </div>
                 </div>
+                @if($groupedTasks->hasPages())
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 sm:px-6 py-3 border-t border-slate-100 bg-[#f8fafc]">
+                        <p class="text-[12px] text-slate-500 text-center sm:text-left">
+                            {{ $groupedTasks->firstItem() }}–{{ $groupedTasks->lastItem() }} / {{ $groupedTasks->total() }} {{ __('messages.Projects') }}
+                        </p>
+                        <nav class="flex flex-wrap items-center justify-center gap-1" aria-label="{{ __('messages.Pagination Navigation') }}">
+                            @php($pageLinks = $groupedTasks->onEachSide(1)->linkCollection()->slice(1, -1))
+                            <a href="{{ $groupedTasks->previousPageUrl() ?? '#' }}" aria-label="{{ __('messages.Previous') }}" @if(!$groupedTasks->previousPageUrl()) aria-disabled="true" @endif
+                               class="inline-flex h-8 items-center justify-center gap-1 rounded-lg border px-2 text-[12px] font-medium transition-colors {{ $groupedTasks->previousPageUrl() ? 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50' : 'pointer-events-none border-slate-100 bg-slate-50 text-slate-300' }}">
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                                <span class="hidden sm:inline">{{ __('messages.Previous') }}</span>
+                            </a>
+                            @foreach($pageLinks as $pageLink)
+                                @if(!$pageLink['url'])
+                                    <span class="inline-flex h-8 min-w-[28px] items-center justify-center px-1 text-[12px] text-slate-400" aria-hidden="true">…</span>
+                                @else
+                                    <a href="{{ $pageLink['url'] }}" aria-label="{{ __('messages.Page') }} {{ $pageLink['label'] }}" @if($pageLink['active']) aria-current="page" @endif
+                                       class="inline-flex h-8 min-w-[28px] items-center justify-center rounded-lg border px-1.5 text-[12px] font-medium transition-colors {{ $pageLink['active'] ? 'border-[#2D7080] bg-[#2D7080] text-white' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50' }}">
+                                        {{ $pageLink['label'] }}
+                                    </a>
+                                @endif
+                            @endforeach
+                            <a href="{{ $groupedTasks->nextPageUrl() ?? '#' }}" aria-label="{{ __('messages.Next') }}" @if(!$groupedTasks->nextPageUrl()) aria-disabled="true" @endif
+                               class="inline-flex h-8 items-center justify-center gap-1 rounded-lg border px-2 text-[12px] font-medium transition-colors {{ $groupedTasks->nextPageUrl() ? 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50' : 'pointer-events-none border-slate-100 bg-slate-50 text-slate-300' }}">
+                                <span class="hidden sm:inline">{{ __('messages.Next') }}</span>
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                            </a>
+                        </nav>
+                    </div>
+                @endif
             </div>
 
         </main>
