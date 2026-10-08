@@ -8,8 +8,10 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
-        /* Manager: responsive tables -> 2-col cards on mobile/tablet */
-        @media (max-width: 1024px) {
+        [x-cloak] { display: none !important; }
+
+        /* Manager: responsive tables -> 2-col cards below 1366px (same breakpoint as admin) */
+        @media (max-width: 1365.98px) {
             .manager-table-wrapper {
                 overflow-x: visible !important;
             }
@@ -31,8 +33,15 @@
                 padding: 12px;
                 border: 1px solid rgba(148, 163, 184, 0.55);
                 border-radius: 16px;
-                background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
-                box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
+                background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%);
+                box-shadow: 0 12px 30px rgba(15,23,42,0.08), 0 2px 6px rgba(15,23,42,0.06);
+                transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+            }
+
+            .manager-table tbody tr:hover {
+                transform: translateY(-1px);
+                border-color: rgba(45, 112, 128, 0.45);
+                box-shadow: 0 16px 40px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
             }
 
             .manager-table tbody tr.manager-table-group-row {
@@ -42,12 +51,14 @@
                 border-radius: 0;
                 background: transparent;
                 box-shadow: none;
-                margin-bottom: 10px;
+                margin-bottom: 8px;
+                transform: none !important;
             }
 
             .manager-table tbody tr.manager-table-group-row td {
-                grid-column: auto;
                 border-radius: 12px;
+                background: rgba(248, 250, 252, 0.8);
+                border: 1px solid rgba(226, 232, 240, 0.6);
             }
 
             .manager-table tbody tr.manager-table-group-row td[data-label]::before {
@@ -60,7 +71,7 @@
                 padding: 10px 12px !important;
                 border: 1px solid rgba(226, 232, 240, 0.9);
                 border-radius: 12px;
-                background: rgba(255,255,255,0.78);
+                background: rgba(255,255,255,0.75);
                 text-align: left !important;
                 white-space: normal !important;
                 word-break: break-word;
@@ -81,7 +92,7 @@
                 margin-bottom: 6px;
             }
 
-            /* Manager: mobile accordion (collapse table-cards) */
+            /* Manager: mobile accordion */
             .manager-table tbody tr.manager-card-row.is-collapsed td {
                 display: none !important;
             }
@@ -105,68 +116,61 @@
         }
     </style>
 </head>
-<body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased">
-    <div class="flex min-h-screen overflow-x-hidden">
-        {{-- Sidebar (sticky within full-page scroll) --}}
-        @include('manager.sidebar')
+<body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
 
-        {{-- Main Wrapper (Navbar + Content) --}}
-        <div class="flex flex-col flex-1 min-w-0">
-            {{-- Navbar --}}
-            @include('manager.navbar')
+    {{-- Sidebar --}}
+    @include('manager.sidebar')
 
-            {{-- Main Content Area --}}
-            <main class="flex-1 overflow-x-hidden bg-[#f8fafc] p-4 sm:p-6 lg:p-8">
-                <div class="max-w-[1400px] mx-auto w-full">
-                    @yield('content')
-                </div>
-            </main>
-        </div>
+    {{-- Main Wrapper (Navbar + Content) --}}
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        {{-- Navbar --}}
+        @include('manager.navbar')
+
+        {{-- Main Content Area --}}
+        <main class="flex-1 overflow-x-hidden bg-[#f8fafc]">
+            <div class="p-4 sm:p-6 lg:px-8 lg:py-8 2xl:px-16 mx-auto w-full max-w-[1400px]">
+                @yield('content')
+            </div>
+        </main>
     </div>
 
+    {{-- Sidebar mobile toggle script --}}
     <script>
-        // Manager sidebar toggle (mobile)
         function toggleManagerSidebar(shouldOpen) {
             const sidebar = document.getElementById('managerSidebar');
             const backdrop = document.getElementById('managerSidebarBackdrop');
             if (!sidebar || !backdrop) return;
 
-            const willOpen = shouldOpen === undefined ? sidebar.classList.contains('-translate-x-full') : shouldOpen;
+            const willOpen = shouldOpen === undefined
+                ? sidebar.classList.contains('-translate-x-full') || sidebar.classList.contains('hidden')
+                : shouldOpen;
 
             if (willOpen) {
                 sidebar.classList.remove('hidden');
                 sidebar.classList.add('flex');
                 backdrop.classList.remove('hidden');
-
-                // Ensure starting state then animate in
-                sidebar.classList.add('-translate-x-full');
-                backdrop.classList.add('opacity-0');
-
                 requestAnimationFrame(() => {
                     sidebar.classList.remove('-translate-x-full');
                     sidebar.classList.add('translate-x-0');
-                    backdrop.classList.remove('opacity-0');
                 });
             } else {
                 sidebar.classList.add('-translate-x-full');
                 sidebar.classList.remove('translate-x-0');
-                backdrop.classList.add('opacity-0');
-
                 window.setTimeout(() => {
                     if (sidebar.classList.contains('-translate-x-full')) {
                         sidebar.classList.add('hidden');
                         sidebar.classList.remove('flex');
-                        backdrop.classList.add('hidden');
                     }
+                    backdrop.classList.add('hidden');
                 }, 200);
             }
         }
     </script>
 
+    {{-- Mobile accordion for manager tables --}}
     <script>
-        // Manager: collapse/expand mobile table-cards
         (function initManagerCardsAccordion() {
-            const mq = window.matchMedia('(max-width: 1024px)');
+            const mq = window.matchMedia('(max-width: 1365px)');
 
             function setRowCollapsed(row, collapsed) {
                 if (!row) return;
@@ -177,27 +181,19 @@
             function initForViewport() {
                 const rows = Array.from(document.querySelectorAll('tr.manager-card-row'));
                 const isMobile = mq.matches;
-
                 for (const row of rows) {
                     const toggleCell = row.querySelector('td.manager-toggle-cell[data-manager-card-toggle]');
                     if (!toggleCell) continue;
-
                     if (!toggleCell.dataset.managerToggleBound) {
                         toggleCell.dataset.managerToggleBound = '1';
                         toggleCell.addEventListener('click', (e) => {
-                            // Allow normal link clicks inside the toggle header
-                            const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
-                            if (tag === 'a' || tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea' || tag === 'label') return;
-
-                            // Prevent row-level navigation handlers (onclick on <tr>)
+                            const tag = (e.target?.tagName ?? '').toLowerCase();
+                            if (['a','button','input','select','textarea','label'].includes(tag)) return;
                             e.preventDefault();
                             e.stopPropagation();
-
-                            const nowCollapsed = row.classList.contains('is-collapsed');
-                            setRowCollapsed(row, !nowCollapsed);
+                            setRowCollapsed(row, !row.classList.contains('is-collapsed'));
                         });
                     }
-
                     setRowCollapsed(row, isMobile);
                 }
             }
@@ -209,12 +205,21 @@
             }
 
             if (mq.addEventListener) mq.addEventListener('change', initForViewport);
-            else mq.addListener(initForViewport);
+            else if (mq.addListener) mq.addListener(initForViewport);
         })();
     </script>
+
+    @once
+        <script>
+            if (!window.Alpine) {
+                const s = document.createElement('script');
+                s.src = 'https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js';
+                s.defer = true;
+                document.head.appendChild(s);
+            }
+        </script>
+    @endonce
 
     @stack('scripts')
 </body>
 </html>
-
-

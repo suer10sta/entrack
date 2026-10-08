@@ -1222,7 +1222,9 @@
                 .then(response => response.json())
                 .then(data => {
                     recipientsList.innerHTML = '';
-                    if (data.recipients && data.recipients.length > 0) {
+                    if (data.message && (!data.recipients || data.recipients.length === 0)) {
+                        recipientsList.innerHTML = '<p class="text-sm text-red-600">' + data.message + '</p>';
+                    } else if (data.recipients && data.recipients.length > 0) {
                         data.recipients.forEach(recipient => {
                             const div = document.createElement('div');
                             div.className = 'mb-2 flex items-center';
@@ -1487,7 +1489,9 @@
                     .then(response => response.json())
                     .then(data => {
                         combinedRecipientsList.innerHTML = '';
-                        if (data.recipients && data.recipients.length > 0) {
+                        if (data.message && (!data.recipients || data.recipients.length === 0)) {
+                            combinedRecipientsList.innerHTML = '<p class="text-sm text-red-600">' + data.message + '</p>';
+                        } else if (data.recipients && data.recipients.length > 0) {
                             data.recipients.forEach(recipient => {
                                 const div = document.createElement('div');
                                 div.className = 'mb-2 flex items-center';

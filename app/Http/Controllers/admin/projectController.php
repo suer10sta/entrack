@@ -70,16 +70,31 @@ class projectController extends Controller
         return sprintf("%0{$formatLength}d", $nextNumber);
     }
 
+    private function requireProjectClient(?Project $project, string $operation)
+    {
+        if (!$project || !$project->client_id) {
+            return back()->with('error', "You must assign a client to this project before {$operation}.");
+        }
+        return null;
+    }
+
     public function index()
     {
-        $query = Project::where('entreprise_id', auth()->user()->entreprise_id)->where(function ($query) {
-            $query->whereNull('AcceptedDevisProject')
-                ->orWhere('AcceptedDevisProject', '=', 1);
-        })
-            ->where('archived', 0)
-            ->whereNull('parent_id');  // Exclude subprojects
+        $search    = request()->query('search', '');
+        $perPage   = (int) request()->query('per_page', 15);
+        $perPage   = in_array($perPage, [10, 15, 25, 50, 100]) ? $perPage : 15;
+        $clientFilter = request()->query('client', '');
 
-        // Filter projects for Responsable de projet / Responsable de projet et gestionnaire based on their teams
+        $query = Project::with(['client', 'teams'])
+            ->where('entreprise_id', auth()->user()->entreprise_id)
+            ->where(function ($q) {
+                $q->whereNull('AcceptedDevisProject')
+                  ->orWhere('AcceptedDevisProject', '=', 1);
+            })
+            ->where('archived', 0)
+            ->whereNull('parent_id');
+
+        // Role-based team filter
         if (auth()->user()->hasRole('Responsable de projet') || auth()->user()->hasRole('Responsable de projet et gestionnaire')) {
             $employee = auth()->user()->employee;
             if ($employee) {
@@ -90,25 +105,38 @@ class projectController extends Controller
             }
         }
 
-        $projects = $query->orderBy('name')->get();
-        $activeProjectIds = $projects->pluck('id');
-        $employees = Employees::where('entreprise_id', Auth::user()->entreprise_id)->where('archived', 0)->orderBy('name', 'asc')->get();
-        $tasks = Tasks::where('user_id', Auth::user()->id)
-            ->whereIn('project_id', $activeProjectIds)
-            ->get();
-        $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
-        return view('admin.projects.index', compact('projects', 'employees', 'tasks', 'teams'));
+        // Server-side search: by project name OR client name
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('projects.name', 'like', '%' . $search . '%')
+                  ->orWhereHas('client', function ($cq) use ($search) {
+                      $cq->where('name', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        // Client filter: only projects belonging to the selected client
+        if ($clientFilter !== '') {
+            $query->where('client_id', $clientFilter);
+        }
+
+        $projects  = $query->orderBy('name')->paginate($perPage)->withQueryString();
+        $teams     = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
+        $clients   = Client::where('entreprise_id', Auth::user()->entreprise_id)->orderBy('name', 'asc')->get(['id', 'name']);
+
+        return view('admin.projects.index', compact('projects', 'teams', 'search', 'perPage', 'clients', 'clientFilter'));
     }
 
-    public function create($client_id)
+    public function create($client_id = null)
     {
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
         $parent_id = request()->query('parent_id');
+        $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)->orderBy('name', 'asc')->get();
 
-        return view('admin.projects.create', compact('teams', 'client_id', 'parent_id'));
+        return view('admin.projects.create', compact('teams', 'client_id', 'parent_id', 'clients'));
     }
 
-    public function store(Request $request, $client_id)
+    public function store(Request $request, $client_id = null)
     {
         $project = new Project();
         $parentProjectId = $request->input('parent_id');
@@ -116,12 +144,10 @@ class projectController extends Controller
         $project->name = $request->name;
         $project->description = $request->description;
         $project->budget = $request->budget;
-        // Ensure CPH is never null/empty when creating a project
         $project->cost_per_hour = ($request->cost_per_hour === null || $request->cost_per_hour === '') ? 0 : $request->cost_per_hour;
         $project->status = 0;
         $project->regie = $request->has('regie') ? 1 : 0;
         $project->tva = $request->tva;
-        // Optional project color used as default for calendar events linked to this project
         $project->color = $request->input('color') ?: '#FDE68A';
 
         $project->client_id = $client_id;
@@ -144,7 +170,6 @@ class projectController extends Controller
 
             $project_teams->save();
         }
-
 
         foreach ($contacts as $contact_id) {
             $contact = client_contacts::where('id', $contact_id)->first();
@@ -175,17 +200,32 @@ class projectController extends Controller
             }
         }
 
+        if ($client_id) {
+            if (Auth::user()->hasRole('Admin')) {
+                return redirect()->route('admin.clients.show', $client_id);
+            }
+            if (Auth::user()->hasRole('Responsable de projet')) {
+                return redirect()->route('Responsable_de_projet.clients.show', $client_id);
+            }
+            if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                return redirect()->route('Responsable_gestionnaire.clients.show', $client_id);
+            }
+            if (Auth::user()->hasRole('Employee')) {
+                return redirect()->route('employee.clients.show', $client_id);
+            }
+        }
+
         if (Auth::user()->hasRole('Admin')) {
-            return redirect()->route('admin.clients.show', $client_id);
+            return redirect()->route('admin.projects.index');
         }
         if (Auth::user()->hasRole('Responsable de projet')) {
-            return redirect()->route('Responsable_de_projet.clients.show', $client_id);
+            return redirect()->route('Responsable_de_projet.projects.index');
         }
         if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-            return redirect()->route('Responsable_gestionnaire.clients.show', $client_id);
+            return redirect()->route('Responsable_gestionnaire.projects.index');
         }
         if (Auth::user()->hasRole('Employee')) {
-            return redirect()->route('employee.clients.show', $client_id);
+            return redirect()->route('employee.projects.index');
         }
     }
 
@@ -318,15 +358,15 @@ class projectController extends Controller
         }
 
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
-        $client_contacts = client_contacts::where('client_id', $project->client_id)->get();
-        return view('admin.projects.edit', compact('project', 'teams', 'client_contacts'));
+        $client_contacts = $project->client_id ? client_contacts::where('client_id', $project->client_id)->get() : collect();
+        $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)->orderBy('name', 'asc')->get();
+        return view('admin.projects.edit', compact('project', 'teams', 'client_contacts', 'clients'));
     }
-    public function update(Request $request, $id, $client_id)
+    public function update(Request $request, $id, $client_id = null)
     {
         $project = Project::find($id);
         $project->name = $request->name;
         $project->budget = $request->budget;
-        // Normalize empty CPH to 0 when updating as well
         $project->cost_per_hour = ($request->cost_per_hour === null || $request->cost_per_hour === '') ? 0 : $request->cost_per_hour;
         $project->estimated_hours = $request->estimated_hours;
         $project->tva = $request->tva;
@@ -334,7 +374,6 @@ class projectController extends Controller
         $project->client_id = $client_id;
         $project->entreprise_id = auth()->user()->entreprise_id;
         $project->regie = $request->has('regie') ? 1 : 0;
-        // Optional project color used as default for calendar events linked to this project
         $project->color = $request->input('color') ?: $project->color;
         $project->save();
 
@@ -473,6 +512,9 @@ class projectController extends Controller
     public function invoice($id, Request $request)
     {
         $projectinfos = Project::where('id', $id)->first();
+        if ($guard = $this->requireProjectClient($projectinfos, 'creating an invoice')) {
+            return $guard;
+        }
         $client = Client::where('id', $projectinfos->client_id)->first();
         $user_enterprise = Auth::user()->entreprise_id;
         $entreprise = Entreprise::where('id', $user_enterprise)->first();
@@ -520,6 +562,9 @@ class projectController extends Controller
     public function invoicebyduration($name, $duration, $cost)
     {
         $projectinfos = Project::where('name', $name)->first();
+        if ($guard = $this->requireProjectClient($projectinfos, 'creating an invoice')) {
+            return $guard;
+        }
         $client = Client::where('id', $projectinfos->client_id)->first();
         $user_enterprise = Auth::user()->entreprise_id;
         $entreprise = Entreprise::where('id', $user_enterprise)->first();
@@ -529,6 +574,9 @@ class projectController extends Controller
     public function invoicebyduration2(Request $request, $id, $startdate, $enddate)
     {
         $projectinfos = Project::findOrFail($id); // Use findOrFail to handle case when project doesn't exist
+        if ($guard = $this->requireProjectClient($projectinfos, 'creating an invoice')) {
+            return $guard;
+        }
         $client = Client::where('id', $projectinfos->client_id)->first();
         $user_enterprise = Auth::user()->entreprise_id;
         $entreprise = Entreprise::where('id', $user_enterprise)->first();
@@ -856,6 +904,9 @@ class projectController extends Controller
         $invoice = invoices_history::where('id', $id)->first();
         $comment = $invoice->comment;
         $projectinfos = Project::findOrFail($invoice->project_id);
+        if ($guard = $this->requireProjectClient($projectinfos, 'sending a reminder')) {
+            return $guard;
+        }
         $client = Client::where('id', $invoice->client_id)->first();
         $user_enterprise = Auth::user()->entreprise_id;
         $entreprise = Entreprise::where('id', $user_enterprise)->first();
@@ -1119,6 +1170,12 @@ class projectController extends Controller
         try {
             $invoice = invoices_history::where('id', $invoice_id)->first();
             $projectinfos = Project::findOrFail($invoice->project_id);
+            if (!$projectinfos->client_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must assign a client to this project before sending a reminder.'
+                ], 422);
+            }
             $client = Client::where('id', $invoice->client_id)->first();
             $user_enterprise = Auth::user()->entreprise_id;
             $entreprise = Entreprise::where('id', $user_enterprise)->first();
@@ -1220,6 +1277,10 @@ class projectController extends Controller
 
             // Check if the due_date is in the future and more than 7 days away
             if ($current_date > $due_date && $days > 7) {
+                $project = Project::findOrFail($invoice->project_id);
+                if (!$project->client_id) {
+                    continue; // Skip reminders for projects without an assigned client
+                }
                 $subject = 'Invoice Reminder';
                 $body = 'This is a reminder to pay your invoice Number INV-' . $invoice->number . ' for the project ' . $invoice->project_name . '.';
                 $client_email = Client::where('id', $invoice->client_id)->first();
@@ -1251,6 +1312,12 @@ class projectController extends Controller
             $invoice = invoices_history::findOrFail($invoiceId);
             $year = $invoice->created_at->format('Y');
             $projectinfos = Project::findOrFail($invoice->project_id);
+            if (!$projectinfos->client_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must assign a client to this project before sending an invoice.'
+                ], 422);
+            }
             $client = Client::findOrFail($invoice->client_id);
             $entreprise = Entreprise::findOrFail(Auth::user()->entreprise_id);
 
@@ -1393,6 +1460,13 @@ class projectController extends Controller
 
     public function generateDevis()
     {
+        if ($requestProjectId = request('project_id')) {
+            $project = Project::find($requestProjectId);
+            if ($project && ($guard = $this->requireProjectClient($project, 'creating a devis'))) {
+                return $guard;
+            }
+        }
+
         $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)->where(function ($query) {
             $query->whereNull('AcceptedDevisClient')
                 ->orWhere('AcceptedDevisClient', '=', 1);
@@ -1415,6 +1489,14 @@ class projectController extends Controller
 
         $email = Entreprise::where('id', Auth::user()->entreprise_id)->first()->email;
         $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();
+
+        // Block devis creation when attaching to an existing project that has no client
+        if (!$request->Project_name && $request->Existing_project_id) {
+            $existingProject = Project::find($request->Existing_project_id);
+            if ($guard = $this->requireProjectClient($existingProject, 'creating a devis')) {
+                return $guard;
+            }
+        }
 
         $billingType = $request->input('billing_type', 'forfait');
         $hoursInput = $request->input('hours');
@@ -1677,6 +1759,14 @@ class projectController extends Controller
         $email = Entreprise::where('id', Auth::user()->entreprise_id)->first()->email;
         $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();
 
+        // Block devis duplication when attaching to an existing project that has no client
+        if (!$request->Project_name && $request->Existing_project_id) {
+            $existingProject = Project::find($request->Existing_project_id);
+            if ($guard = $this->requireProjectClient($existingProject, 'creating a devis')) {
+                return $guard;
+            }
+        }
+
         // Handle billing type (forfait / horaire) similarly to saveDevisPdf
         $billingType = $request->input('billing_type', 'forfait');
         $hoursInput = $request->input('hours');
@@ -1918,6 +2008,14 @@ class projectController extends Controller
                     'success' => false,
                     'message' => 'Devis not found'
                 ]);
+            }
+
+            $project = Project::find($devis->project_id);
+            if ($project && !$project->client_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must assign a client to this project before sending a devis.'
+                ], 422);
             }
 
             $total_ttc = $devis->budget + ($devis->budget * ($devis->tva / 100));
@@ -2479,8 +2577,13 @@ class projectController extends Controller
         $partial = false;
         $credit_note;
 
+
         $invoice = invoices_history::where('id', $id)->first();
         $projectinfos = Project::findOrFail($invoice->project_id);
+
+        if ($guard = $this->requireProjectClient($projectinfos, 'creating a credit note')) {
+            return $guard;
+        }
         $client = Client::where('id', $invoice->client_id)->first();
         $user_enterprise = Auth::user()->entreprise_id;
         $entreprise = Entreprise::where('id', $user_enterprise)->first();
@@ -2693,6 +2796,10 @@ class projectController extends Controller
 
         $invoice = invoices_history::where('id', $id)->first();
         $projectinfos = Project::findOrFail($invoice->project_id);
+
+        if ($guard = $this->requireProjectClient($projectinfos, 'creating a credit note')) {
+            return $guard;
+        }
         $client = Client::where('id', $invoice->client_id)->first();
         $user_enterprise = Auth::user()->entreprise_id;
         $entreprise = Entreprise::where('id', $user_enterprise)->first();
@@ -3623,26 +3730,67 @@ class projectController extends Controller
 
     public function getProjectTasks($projectId)
     {
-        $tasks = Tasks::where('project_id', $projectId)->get();
-        return response()->json($tasks);
+        $tasks = Tasks::where('project_id', $projectId)
+            ->orderBy('title')
+            ->get(['id', 'title', 'project_id', 'project_name', 'status']);
+        return response()->json(['tasks' => $tasks]);
     }
 
     public function getTaskInfo($taskId)
     {
         $task = Tasks::find($taskId);
-        return response()->json($task);
+
+        // Find the employees_tasks record for the current logged-in user
+        $employee = \App\Models\employees::where('user_id', auth()->id())->first();
+        $employeeTask = null;
+        $employeeTaskId = null;
+        $employeeId = null;
+
+        if ($employee) {
+            $employeeTask = \App\Models\employees_tasks::where('task_id', $taskId)
+                ->where('employee_id', $employee->id)
+                ->first();
+            if ($employeeTask) {
+                $employeeTaskId = $employeeTask->id;
+                $employeeId = $employee->id;
+            }
+        }
+
+        return response()->json([
+            'task'             => $task,
+            'employee_task_id' => $employeeTaskId,
+            'employee_id'      => $employeeId,
+            'id'               => $employeeTaskId,
+        ]);
     }
 
-    public function getAllProjects()
+    public function getAllProjects(Request $request)
     {
-        $projects = Project::where('id', auth()->user()->entreprise_id)->get();
+        $query = Project::where('entreprise_id', auth()->user()->entreprise_id)
+            ->where(function ($q) {
+                $q->whereNull('archived')->orWhere('archived', 0);
+            });
+
+        $search = trim((string) $request->query('q', ''));
+        if ($search !== '') {
+            $query->whereRaw('LOWER(name) LIKE ?', ['%' . mb_strtolower($search) . '%']);
+        }
+
+        $limit = (int) $request->query('limit', 0);
+        if ($limit > 0) {
+            $query->limit(min($limit, 100));
+        }
+
+        $projects = $query->orderBy('name')->get(['id', 'name']);
         return response()->json($projects);
     }
 
     public function getAllTasks()
     {
-        $tasks = Tasks::where('id', auth()->user()->entreprise_id)->get();
-        return response()->json($tasks);
+        $tasks = Tasks::where('entreprise_id', auth()->user()->entreprise_id)
+            ->orderBy('title')
+            ->get(['id', 'title', 'project_id', 'project_name']);
+        return response()->json(['tasks' => $tasks]);
     }
 
     public function PartialInvoice(Request $request, $projectid, $amount)
@@ -3660,6 +3808,9 @@ class projectController extends Controller
         }
         if (!$projectinfos) {
             return back()->with('message', 'Unable to resolve project from selection');
+        }
+        if ($guard = $this->requireProjectClient($projectinfos, 'creating an invoice')) {
+            return $guard;
         }
         $client = Client::where('id', $projectinfos->client_id)->first();
         $user_enterprise = Auth::user()->entreprise_id;
@@ -3740,6 +3891,9 @@ class projectController extends Controller
         if (!$projectinfos) {
             return back()->with('message', 'Unable to resolve project from selection');
         }
+        if ($guard = $this->requireProjectClient($projectinfos, 'creating an invoice')) {
+            return $guard;
+        }
         $client = Client::where('id', $projectinfos->client_id)->first();
         $user_enterprise = Auth::user()->entreprise_id;
         $entreprise = Entreprise::where('id', $user_enterprise)->first();
@@ -3798,6 +3952,9 @@ class projectController extends Controller
     public function confirmFullInvoice(Request $request, $projectID, $budget, $comment = null)
     {
         $projectinfos = Project::where('id', $projectID)->first();
+        if ($guard = $this->requireProjectClient($projectinfos, 'creating an invoice')) {
+            return $guard;
+        }
         $client = Client::where('id', $projectinfos->client_id)->first();
         $user_enterprise = Auth::user()->entreprise_id;
         $entreprise = Entreprise::where('id', $user_enterprise)->first();
@@ -3890,6 +4047,9 @@ class projectController extends Controller
     public function confirmPeriodInvoice($projectID, $startdate, $enddate, $comment = null)
     {
         $projectinfos = Project::findOrFail($projectID); // Use findOrFail to handle case when project doesn't exist
+        if ($guard = $this->requireProjectClient($projectinfos, 'creating an invoice')) {
+            return $guard;
+        }
         $client = Client::where('id', $projectinfos->client_id)->first();
         $user_enterprise = Auth::user()->entreprise_id;
         $entreprise = Entreprise::where('id', $user_enterprise)->first();
@@ -4051,6 +4211,9 @@ class projectController extends Controller
         if (!$projectinfos) {
             return back()->with('message', 'Unable to resolve project from selection');
         }
+        if ($guard = $this->requireProjectClient($projectinfos, 'creating an invoice')) {
+            return $guard;
+        }
         $client = Client::where('id', $projectinfos->client_id)->first();
         $user_enterprise = Auth::user()->entreprise_id;
         $entreprise = Entreprise::where('id', $user_enterprise)->first();
@@ -4166,6 +4329,9 @@ class projectController extends Controller
     {
 
         $projectinfos = Project::where('id', $projectID)->first();
+        if ($guard = $this->requireProjectClient($projectinfos, 'creating an invoice')) {
+            return $guard;
+        }
         $client = Client::where('id', $projectinfos->client_id)->first();
         $user_enterprise = Auth::user()->entreprise_id;
         $entreprise = Entreprise::where('id', $user_enterprise)->first();
@@ -4289,6 +4455,38 @@ class projectController extends Controller
         return view('admin.projects.archive', compact('projects', 'employees', 'tasks', 'teams'));
     }
 
+    /**
+     * Projects report page — grouped by client, accordion table.
+     * Separate from the main projects management page (index).
+     */
+    public function projectReport()
+    {
+        $query = Project::where('entreprise_id', auth()->user()->entreprise_id)
+            ->where(function ($q) {
+                $q->whereNull('AcceptedDevisProject')
+                  ->orWhere('AcceptedDevisProject', '=', 1);
+            })
+            ->where('archived', 0)
+            ->whereNull('parent_id');
+
+        if (auth()->user()->hasRole('Responsable de projet') || auth()->user()->hasRole('Responsable de projet et gestionnaire')) {
+            $employee = auth()->user()->employee;
+            if ($employee) {
+                $myTeamIds = $employee->teams()->pluck('teams.id');
+                $query->whereHas('teams', function ($subQ) use ($myTeamIds) {
+                    $subQ->whereIn('teams.id', $myTeamIds);
+                });
+            }
+        }
+
+        $projects  = $query->with('client')->orderBy('name')->get();
+        $employees = Employees::where('entreprise_id', Auth::user()->entreprise_id)->where('archived', 0)->orderBy('name', 'asc')->get();
+        $tasks     = Tasks::where('user_id', Auth::user()->id)->whereIn('project_id', $projects->pluck('id'))->get();
+        $teams     = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
+
+        return view('admin.projects.report', compact('projects', 'employees', 'tasks', 'teams'));
+    }
+
     public function archiveProject($id)
     {
         $project = Project::find($id);
@@ -4397,6 +4595,10 @@ class projectController extends Controller
     public function editFullInvoice($id)
     {
         $invoice = invoices_history::findOrFail($id);
+        $projectinfos = Project::findOrFail($invoice->project_id);
+        if ($guard = $this->requireProjectClient($projectinfos, 'creating an invoice')) {
+            return $guard;
+        }
         $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();
 
         // Get all projects for the dropdown
@@ -4467,10 +4669,14 @@ class projectController extends Controller
 
     public function updateFullInvoice(Request $request, $id)
     {
-        $invoice = invoices_history::findOrFail($id);
-        $project = Project::findOrFail($request->project_id);
+    $invoice = invoices_history::findOrFail($id);
+    $project = Project::findOrFail($request->project_id);
 
-        // Validate the request
+    if ($guard = $this->requireProjectClient($project, 'updating an invoice')) {
+        return $guard;
+    }
+
+    // Validate the request
         $request->validate([
             'project_id' => 'required|exists:projects,id',
             'comment' => 'nullable|string',
@@ -4556,10 +4762,14 @@ class projectController extends Controller
 
     public function updatePartialInvoice(Request $request, $id)
     {
-        $invoice = invoices_history::findOrFail($id);
-        $project = Project::findOrFail($request->project_id);
+    $invoice = invoices_history::findOrFail($id);
+    $project = Project::findOrFail($request->project_id);
 
-        // Validate the request
+    if ($guard = $this->requireProjectClient($project, 'updating an invoice')) {
+        return $guard;
+    }
+
+    // Validate the request
         $request->validate([
             'project_id' => 'required|exists:projects,id',
             'amount' => 'required|numeric',
@@ -4646,10 +4856,14 @@ class projectController extends Controller
 
     public function updatePercentageInvoice(Request $request, $id)
     {
-        $invoice = invoices_history::findOrFail($id);
-        $project = Project::findOrFail($request->project_id);
+    $invoice = invoices_history::findOrFail($id);
+    $project = Project::findOrFail($request->project_id);
 
-        // Validate the request
+    if ($guard = $this->requireProjectClient($project, 'updating an invoice')) {
+        return $guard;
+    }
+
+    // Validate the request
         $request->validate([
             'project_id' => 'required|exists:projects,id',
             'percentage' => 'required|numeric|min:0|max:100',
@@ -4738,10 +4952,14 @@ class projectController extends Controller
 
     public function updatePeriodInvoice(Request $request, $id)
     {
-        $invoice = invoices_history::findOrFail($id);
-        $project = Project::findOrFail($request->project_id);
+    $invoice = invoices_history::findOrFail($id);
+    $project = Project::findOrFail($request->project_id);
 
-        // Validate the request
+    if ($guard = $this->requireProjectClient($project, 'updating an invoice')) {
+        return $guard;
+    }
+
+    // Validate the request
         $request->validate([
             'project_id' => 'required|exists:projects,id',
             'start_date' => 'required|date',
@@ -4888,6 +5106,14 @@ class projectController extends Controller
         $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();
         $devis = devis_history::findOrFail($devis_id);
 
+        // Block devis update when attaching to an existing project that has no client
+        if (!$request->Project_name && $request->Existing_project_id) {
+            $existingProject = Project::find($request->Existing_project_id);
+            if ($guard = $this->requireProjectClient($existingProject, 'updating a devis')) {
+                return $guard;
+            }
+        }
+
         // Handle billing type (forfait / horaire) similarly to saveDevisPdf
         $billingType = $request->input('billing_type', 'forfait');
         $hoursInput = $request->input('hours');
@@ -4980,7 +5206,6 @@ class projectController extends Controller
                 $devis->Existing_project_name = $newProject->name;
             }
         }
-
 
         $devis->description = $request->description;
         // Note: We don't update entreprise_id or devis_number as these should remain constant
@@ -5174,6 +5399,11 @@ class projectController extends Controller
 
             // Get project and related information
             $projectinfos = Project::findOrFail($request->project_id);
+            if (!$projectinfos->client_id) {
+                return response()->json([
+                    'error' => 'You must assign a client to this project before creating an invoice.'
+                ], 422);
+            }
             $client = Client::findOrFail($projectinfos->client_id);
             $user_enterprise = Auth::user()->entreprise_id;
             $entreprise = Entreprise::where('id', $user_enterprise)->first();
@@ -5253,6 +5483,9 @@ class projectController extends Controller
 
             // Get project and related information
             $projectinfos = Project::findOrFail($projectID);
+            if ($guard = $this->requireProjectClient($projectinfos, 'creating an invoice')) {
+                return $guard;
+            }
             $client = Client::findOrFail($projectinfos->client_id);
             $user_enterprise = Auth::user()->entreprise_id;
             $entreprise = Entreprise::where('id', $user_enterprise)->first();
@@ -5352,16 +5585,23 @@ class projectController extends Controller
     {
         $invoice = invoices_history::findOrFail($id);
         $project = Project::findOrFail($invoice->project_id);
+        if ($guard = $this->requireProjectClient($project, 'creating an invoice')) {
+            return $guard;
+        }
 
         return view('admin.invoices.editDetailedInvoice', compact('invoice', 'project'));
     }
 
     public function updateDetailedInvoice(Request $request, $id)
     {
-        $invoice = invoices_history::findOrFail($id);
-        $project = Project::findOrFail($request->project_id);
+    $invoice = invoices_history::findOrFail($id);
+    $project = Project::findOrFail($request->project_id);
 
-        // Validate the request
+    if ($guard = $this->requireProjectClient($project, 'updating an invoice')) {
+        return $guard;
+    }
+
+    // Validate the request
         $request->validate([
             'project_id' => 'required|exists:projects,id',
             'details' => 'required|array',
@@ -5736,6 +5976,9 @@ class projectController extends Controller
             $credit_note = credit_note::findOrFail($credit_note_id);
             $client = Client::findOrFail($credit_note->client_id);
             $project = Project::findOrFail($credit_note->project_id);
+            if ($guard = $this->requireProjectClient($project, 'sending a credit note')) {
+                return $guard;
+            }
             $entreprise = Entreprise::findOrFail(Auth::user()->entreprise_id);
             $project_contacts = client_contacts_projects::where('project_id', $project->id)->get();
 
@@ -5836,11 +6079,17 @@ class projectController extends Controller
 
     public function getRecipients(invoices_history $invoice)
     {
-        // Get the client associated with the invoice
-        $client = Client::findOrFail($invoice->client_id);
-
         // Get the project associated with the invoice
         $project = Project::findOrFail($invoice->project_id);
+        if (!$project->client_id) {
+            return response()->json([
+                'recipients' => [],
+                'message' => 'You must assign a client to this project before sending emails.'
+            ], 422);
+        }
+
+        // Get the client associated with the invoice
+        $client = Client::findOrFail($invoice->client_id);
 
         // Get recipients
         $recipients = [];

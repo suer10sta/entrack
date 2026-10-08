@@ -179,7 +179,85 @@ class tasksController extends Controller
     }
 
 
-    public function create($projectId)
+    /**
+     * Tasks board: tasks grouped by project card, with project/team/employee
+     * filters. Reuses the same base queries, timer source of truth and
+     * start/stop/archive/delete routes as the other task pages.
+     */
+    public function board()
+    {
+        $enterpriseId = Auth::user()->entreprise_id;
+        $user = Auth::user();
+        $routePrefix = 'admin';
+        if ($user->hasRole('Employee')) {
+            $routePrefix = 'employee';
+        } elseif ($user->hasRole('Responsable de projet')) {
+            $routePrefix = 'Responsable_de_projet';
+        } elseif ($user->hasRole('Responsable de projet et gestionnaire')) {
+            $routePrefix = 'Responsable_gestionnaire';
+        } elseif ($user->hasRole('super_admin') || $user->hasRole('SuperAdmin')) {
+            $routePrefix = 'SuperAdmin';
+        }
+
+        $projects = Project::where('entreprise_id', $enterpriseId)->where(function ($query) {
+            $query->whereNull('AcceptedDevisProject')
+                ->orWhere('AcceptedDevisProject', '=', 1);
+        })
+            ->where('archived', 0)
+            ->orderBy('name', 'asc')
+            ->get();
+        $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
+        $teams = Teams::where('entreprise_id', $enterpriseId)->orderBy('name', 'asc')->get();
+        $tasks = Tasks::where('entreprise_id', $enterpriseId)->orderBy('title', 'asc')->get();
+
+        // Combined filters (all optional, applied together)
+        $fProject = request()->query('project', '');
+        $fTeam = request()->query('team', '');
+        $fEmployee = request()->query('employee', '');
+        if ($fTeam !== '' && $fTeam !== null) {
+            $ids = team_tasks::where('team_id', $fTeam)->pluck('task_id');
+            $tasks = $tasks->whereIn('id', $ids);
+        }
+        if ($fEmployee !== '' && $fEmployee !== null) {
+            $ids = employees_tasks::where('employee_id', $fEmployee)->pluck('task_id');
+            $tasks = $tasks->whereIn('id', $ids);
+        }
+        if ($fProject !== '' && $fProject !== null) {
+            $tasks = $tasks->where('project_id', (int) $fProject);
+        }
+
+        // Group by project; hide projects with no visible tasks
+        $grouped = $tasks->groupBy('project_id');
+        $visibleProjects = $projects->filter(function ($p) use ($grouped) {
+            return $grouped->has($p->id) && $grouped[$p->id]->isNotEmpty();
+        })->values();
+
+        // Viewer chrono context (same rules as everywhere else)
+        $viewer = employees::where('user_id', $user->id)->where('entreprise_id', $enterpriseId)->first();
+        $viewerLinks = $viewer
+            ? employees_tasks::where('employee_id', $viewer->id)->pluck('id', 'task_id')
+            : collect();
+        $viewerOpen = $viewer
+            ? tasks_timer::where('employee_id', $viewer->id)->whereNull('end_date')->get()->keyBy('task_employee_id')
+            : collect();
+        $viewerEmployeeId = $viewer ? $viewer->id : null;
+
+        // Total tracked minutes per visible task (completed timers only;
+        // open timers accrue live on top, ticked client-side from their base)
+        $taskIds = $tasks->pluck('id');
+        $durations = $taskIds->isNotEmpty()
+            ? tasks_timer::whereIn('task_id', $taskIds)->whereNotNull('end_date')->whereNotNull('duration')->selectRaw('task_id, SUM(duration) as total')->groupBy('task_id')->pluck('total', 'task_id')
+            : collect();
+
+        return view('admin.tasks.board', compact(
+            'projects', 'employees', 'teams', 'grouped', 'visibleProjects',
+            'viewerLinks', 'viewerOpen', 'viewerEmployeeId', 'durations',
+            'routePrefix', 'fProject', 'fTeam', 'fEmployee'
+        ));
+    }
+
+
+    public function create($projectId = null)
     {
 
         $superAdminIds = User::whereHas('roles', function ($q) {
@@ -204,8 +282,9 @@ class tasksController extends Controller
         }
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
         $project = Project::where('id', $projectId)->first();
+        $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)->orderBy('name', 'asc')->get();
 
-        return view('admin.tasks.create', compact('employee_users', 'teams', 'project'));
+        return view('admin.tasks.create', compact('employee_users', 'teams', 'project', 'clients'));
     }
 
 
@@ -1155,10 +1234,14 @@ class tasksController extends Controller
     public function get_timer_state()
     {
         $user = Auth::user();
-        $employee = App\Models\employees::where('user_id', $user->id)->first();
-        $tasksTimer = App\Models\tasks_timer::where('employee_id', $employee->id)
+        $employee = \App\Models\employees::where('user_id', $user->id)->first();
+        if (!$employee) {
+            return response()->json(['tasksTimer' => null]);
+        }
+        $tasksTimer = \App\Models\tasks_timer::where('employee_id', $employee->id)
             ->whereDate('start_date', '=', now()->toDateString())
             ->whereNull('end_date')
+            ->orderBy('start_date', 'asc')
             ->first();
 
         if ($tasksTimer) {
@@ -1174,7 +1257,7 @@ class tasksController extends Controller
                     $duration = $start_date->diffInMinutes(now());
                 }
 
-                $today_completed_tasks = App\Models\tasks_timer::where('employee_id', $employee->id)
+                $today_completed_tasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
                     ->whereDate('start_date', \Carbon\Carbon::today())
                     ->whereNotNull('end_date')
                     ->where('id', '!=', $tasksTimer->id)
@@ -1199,7 +1282,20 @@ class tasksController extends Controller
             }
         }
 
-        return response()->json(['tasksTimer' => $tasksTimer]);
+        $response = ['tasksTimer' => $tasksTimer];
+
+        // SuperAdmin employees may run several timers at once: expose all of
+        // their open timers so the navbar can list them. Normal users keep the
+        // exact same response as before (single primary timer only).
+        if ($user->hasRole('SuperAdmin') || $user->hasRole('super_admin')) {
+            $response['allTimers'] = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                ->whereDate('start_date', '=', now()->toDateString())
+                ->whereNull('end_date')
+                ->orderBy('start_date', 'asc')
+                ->get();
+        }
+
+        return response()->json($response);
     }
 
     public function getTasksInfo($startDate)

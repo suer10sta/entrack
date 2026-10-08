@@ -186,8 +186,9 @@
         color: #ffffff !important;
     }
 
-    /* Dashboard: Team employees Overview table -> mobile cards + accordion */
-    @media (max-width: 1024px) {
+    /* Dashboard: Team employees Overview table -> card layout below desktop widths,
+       real table on >= 1366px so columns never get cramped */
+    @media (max-width: 1365.98px) {
         .team-employees-overview-table-wrap {
             overflow-x: visible !important;
         }
@@ -205,12 +206,12 @@
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 10px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             padding: 12px;
-            border: 1px solid rgba(148, 163, 184, 0.55);
-            border-radius: 16px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
-            box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
+            border: 1px solid rgba(148, 163, 184, 0.45);
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(15,23,42,0.07);
         }
 
         #employeesTable tbody td {
@@ -218,8 +219,8 @@
             width: 100%;
             padding: 10px 12px !important;
             border: 1px solid rgba(226, 232, 240, 0.9);
-            border-radius: 12px;
-            background: rgba(255,255,255,0.78);
+            border-radius: 10px;
+            background: rgba(248,250,252,0.7);
             text-align: left !important;
             white-space: normal !important;
             word-break: break-word;
@@ -232,12 +233,12 @@
         #employeesTable tbody td[data-label]::before {
             content: attr(data-label);
             display: block;
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 700;
             letter-spacing: .06em;
             text-transform: uppercase;
             color: #64748b;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
 
         /* Accordion: collapsed shows only employee cell */
@@ -248,7 +249,6 @@
             cursor: pointer;
             user-select: none;
         }
-        /* No pseudo label for the toggle cell */
         #employeesTable tbody tr.employee-overview-row td.employee-overview-toggle-cell[data-label]::before {
             content: none !important;
         }
@@ -260,106 +260,113 @@
         }
     }
 
-    /* Dashboard: modern cards + mobile overview */
-    @media (max-width: 1024px) {
-        /* Employee Overview: remove forced horizontal scrolling on mobile */
-        .dashboard-employee-overview .overview-scroll {
-            overflow-x: visible !important;
-        }
-        .dashboard-employee-overview .overview-minw {
-            min-width: 0 !important;
-        }
-        .dashboard-employee-overview .overview-headers {
-            display: none !important;
-        }
+    /* ---- Stat card (+) quick-add button: same visual system as the card icon ---- */
+    .dt-stat-plus {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 12px; /* matches icon container rounded-xl */
+        background: rgba(11, 38, 56, 0.06); /* matches bg-[#0B2638]/[0.06] */
+        color: #0B2638;
+        box-shadow: inset 0 0 0 1px rgba(11, 38, 56, 0.10); /* matches ring-[#0B2638]/10 */
+        flex-shrink: 0;
+        transition: background-color .15s ease, box-shadow .15s ease, color .15s ease, transform .15s ease;
+    }
+    .dt-stat-plus:hover {
+        background: rgba(45, 112, 128, 0.12);
+        box-shadow: inset 0 0 0 1px rgba(45, 112, 128, 0.35);
+        color: #2D7080;
+        transform: translateY(-1px);
+    }
+    .dt-stat-plus:focus-visible {
+        outline: 2px solid #2D7080;
+        outline-offset: 2px;
+    }
+    .dt-stat-plus svg { width: 16px; height: 16px; }
 
-        /* Employee Overview: convert rows into 2-col card blocks */
-        .dashboard-employee-overview-list .dashboard-emp-row {
-            padding: 0 !important;
-            margin: 0 0 16px 0;
-            border: 1px solid rgba(148, 163, 184, 0.55);
-            border-radius: 16px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
-            box-shadow: 0 18px 45px rgba(15,23,42,0.10), 0 3px 10px rgba(15,23,42,0.08);
-        }
-        .dashboard-employee-overview-list .dashboard-emp-project {
-            display: block !important;
-            padding: 12px;
-        }
+    /* ---- Compact action buttons in the employee table ---- */
+    .dt-tbl-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        height: 30px;
+        padding: 0 12px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        font-size: 11.5px;
+        font-weight: 600;
+        line-height: 1;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
+    }
+    .dt-tbl-action svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .dt-tbl-action-primary { background: #0B2638; color: #fff; }
+    .dt-tbl-action-primary:hover { background: #16394a; color: #fff; box-shadow: 0 4px 10px -4px rgba(11, 38, 56, 0.5); }
+    .dt-tbl-action-ghost { background: #f8fafc; color: #475569; border-color: #e2e8f0; }
+    .dt-tbl-action-ghost:hover { border-color: #2D7080; color: #2D7080; background: #f0f7f8; }
+    .dt-tbl-action-outline { background: #fffbeb; color: #92400e; border-color: #fde68a; }
+    .dt-tbl-action-outline:hover { background: #fef3c7; border-color: #f59e0b; }
 
-        /* Keep EMPLOYEES block as flex (avatar left) */
-        .dashboard-employee-overview-list .dashboard-emp-employee {
-            display: block !important;
-            width: 100% !important;
-            margin-bottom: 10px;
-            padding-right: 0 !important;
-        }
+    /* ---- Icon-only action buttons in the employee table ---- */
+    .dt-icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        color: #475569;
+        flex-shrink: 0;
+        cursor: pointer;
+        transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .15s ease;
+    }
+    .dt-icon-btn:hover { transform: translateY(-1px); }
+    .dt-icon-btn:focus-visible { outline: 2px solid #2D7080; outline-offset: 2px; }
+    .dt-icon-btn:disabled { opacity: .55; cursor: default; transform: none; }
+    .dt-icon-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .dt-icon-btn-edit:hover { border-color: #2D7080; color: #2D7080; background: #f0f7f8; }
+    .dt-icon-btn-archive { color: #b45309; border-color: #fde68a; background: #fffbeb; }
+    .dt-icon-btn-archive:hover { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+    .dt-icon-btn-delete { color: #dc2626; border-color: #fecaca; background: #fef2f2; }
+    .dt-icon-btn-delete:hover { background: #fee2e2; border-color: #f87171; }
 
-        /* Convert detail columns into a 2-col grid */
-        .dashboard-employee-overview-list .dashboard-emp-details {
-            display: grid !important;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px !important;
-            width: 100% !important;
-        }
+    /* ---- Generic action-confirm modal (replaces native confirm()) ---- */
+    #confirmActionOkBtn {
+        display: inline-flex; align-items: center; justify-content: center;
+        padding: 8px 18px; font-size: 13px; font-weight: 600; color: #fff;
+        border-radius: 8px; cursor: pointer;
+        transition: background-color .15s ease;
+    }
+    #confirmActionOkBtn.dt-confirm-danger { background: #dc2626; }
+    #confirmActionOkBtn.dt-confirm-danger:hover { background: #b91c1c; }
+    #confirmActionOkBtn.dt-confirm-warn { background: #d97706; }
+    #confirmActionOkBtn.dt-confirm-warn:hover { background: #b45309; }
+    .dt-confirm-icon-danger { background: #fee2e2; color: #dc2626; }
+    .dt-confirm-icon-warn { background: #fef3c7; color: #d97706; }
 
-        /* Reset Tailwind col-span-* on mobile so grid can flow */
-        .dashboard-employee-overview-list .dashboard-emp-details > div {
-            grid-column: span 1 / span 1 !important;
+    /* ---- Desktop table refinements (>= 1366px) ---- */
+    @media (min-width: 1366px) {
+        #employeesTable { min-width: 960px; }
+        #employeesTable thead tr.dt-table-head th {
+            background: #f8fafc;
+            border-bottom: 1px solid #cbd5e1;
         }
-
-        .dashboard-employee-overview-list .dashboard-emp-employee::before,
-        .dashboard-employee-overview-list .dashboard-emp-details > div[data-label]::before {
-            content: attr(data-label);
-            display: block;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-            color: #64748b;
-            margin-bottom: 6px;
+        #employeesTable thead tr.dt-table-head th + th {
+            border-left: 1px solid #e2e8f0;
         }
-
-        .dashboard-employee-overview-list .dashboard-emp-employee,
-        .dashboard-employee-overview-list .dashboard-emp-details > div {
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            border-radius: 12px;
-            background: rgba(255,255,255,0.78);
-            padding: 10px 12px;
-        }
-
-        /* Ensure avatar + name stay aligned inside EMPLOYEES block */
-        .dashboard-employee-overview-list .dashboard-emp-employee .dashboard-emp-employee-inner {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        /* Mobile accordion for each employee card */
-        .dashboard-employee-overview-list .dashboard-emp-row.is-collapsed .dashboard-emp-details {
-            display: none !important;
-        }
-        .dashboard-employee-overview-list .dashboard-emp-row .emp-overview-chevron {
-            transition: transform 180ms ease;
-        }
-        .dashboard-employee-overview-list .dashboard-emp-row[aria-expanded="true"] .emp-overview-chevron {
-            transform: rotate(180deg);
-        }
-
-        /* Actions: center the eye button nicely */
-        .dashboard-employee-overview-list .dashboard-emp-actions {
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: flex-start !important;
-            align-items: flex-start !important;
-            padding-top: 0 !important;
-            gap: 8px;
-        }
-
-        /* Full-width blocks in the 2-col grid */
-        .dashboard-employee-overview-list .dashboard-emp-details > div[data-span="2"] {
-            grid-column: span 2 / span 2;
-        }
+        #employeesTable tbody td { border-left: 1px solid transparent; }
+        #employeesTable tbody td + td { border-left: 1px solid #e2e8f0; }
+        #employeesTable tbody tr.employee-overview-row:hover td { background: rgba(248, 250, 252, 0.8); }
+    }
+    /* Chevron only exists in card mode */
+    .overview-chevron-toggle { display: inline-flex; }
+    @media (min-width: 1366px) {
+        .overview-chevron-toggle { display: none; }
     }
 
     .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
@@ -397,7 +404,7 @@
 
 <div class="flex-1 overflow-auto bg-[#f8fafc]">
     {{-- Main content --}}
-    <div class="p-4 sm:p-6 lg:px-20 lg:py-8 mx-auto w-full">
+    <div class="p-4 sm:p-6 lg:px-8 lg:py-8 2xl:px-16 mx-auto w-full">
 
         {{-- Page heading + Quick actions --}}
         <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
@@ -409,11 +416,15 @@
                 <p class="text-[13.5px] text-slate-500 mt-1">{{ __('messages.Track time, projects and revenue at a glance.') }}</p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-                <a href="{{ route('admin.invoices.fullinvoice') }}" class="dt-btn dt-btn-primary">
+                <a href="{{ route('admin.tasks.create') }}" class="dt-btn dt-btn-primary text-[#0B2638] ">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                    {{ __('messages.Add Task') }}
+                </a>
+                <a href="{{ route('admin.invoices.fullinvoice') }}" class="dt-btn bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 hover:bg-[#0B2638]/[0.12] hover:ring-[#0B2638]/20">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     {{ __('messages.Generate invoice') }}
                 </a>
-                <a href="{{ route('admin.calendar.index') }}" class="dt-btn dt-btn-ghost">
+                <a href="{{ route('admin.calendar.index') }}" class="dt-btn bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 hover:bg-[#0B2638]/[0.12] hover:ring-[#0B2638]/20">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     {{ __('messages.Planning Menu') }}
                 </a>
@@ -424,61 +435,85 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 
             {{-- Clients --}}
-            <a href="{{ route('admin.clients.index') }}"
-                class="dt-card dt-card-hover p-4 flex items-center gap-3.5 group no-underline">
-                <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 flex-shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <rect x="4" y="3" width="16" height="18" rx="2" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M9 21v-4h6v4M8 7h2M8 11h2M14 7h2M14 11h2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </div>
-                <div class="min-w-0 flex-1">
-                    <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Clients') }}</p>
-                    <div class="flex items-baseline gap-1.5 mt-0.5">
-                        <span class="text-[26px] leading-none font-bold text-[#0B2638] tracking-tight">{{ $data['clients']->count() }}</span>
-                        <span class="text-[12px] text-slate-400 font-medium">{{ __('messages.Total') }}</span>
+            <div class="dt-card dt-card-hover p-4 flex items-center gap-3.5">
+                <a href="{{ route('admin.clients.index') }}" class="flex items-center gap-3.5 flex-1 min-w-0 no-underline">
+                    <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <rect x="4" y="3" width="16" height="18" rx="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M9 21v-4h6v4M8 7h2M8 11h2M14 7h2M14 11h2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
                     </div>
-                </div>
-                <svg class="w-4 h-4 text-slate-300 group-hover:text-[#2D7080] group-hover:translate-x-0.5 transition-all flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-            </a>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Clients') }}</p>
+                        <div class="flex items-baseline gap-1.5 mt-0.5 min-w-0">
+                            <span class="text-[26px] leading-none font-bold text-[#0B2638] tracking-tight">{{ $data['clients']->count() }}</span>
+                            <span class="text-[12px] text-slate-400 font-medium hidden min-[1440px]:inline">{{ __('messages.Total') }}</span>
+                        </div>
+                    </div>
+                </a>
+                <a href="{{ route('admin.clients.create') }}"
+                   class="dt-stat-plus"
+                   title="{{ __('messages.Add Client') }}"
+                   aria-label="{{ __('messages.Add Client') }}">
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                    </svg>
+                </a>
+            </div>
 
             {{-- Employees --}}
-            <a href="{{ route('admin.employees.index') }}"
-                class="dt-card dt-card-hover p-4 flex items-center gap-3.5 group no-underline">
-                <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 flex-shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <circle cx="9" cy="8" r="3.5" />
-                        <path d="M3.5 20c0-3.3 2.5-5 5.5-5s5.5 1.7 5.5 5" stroke-linecap="round" />
-                        <path d="M16 5.6a3.5 3.5 0 010 6.5M17.7 15.4c1.9.7 2.8 2 2.8 4.1" stroke-linecap="round" />
-                    </svg>
-                </div>
-                <div class="min-w-0 flex-1">
-                    <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Employees') }}</p>
-                    <div class="flex items-baseline gap-1.5 mt-0.5">
-                        <span class="text-[26px] leading-none font-bold text-[#0B2638] tracking-tight">{{ $data['employees']->count() }}</span>
-                        <span class="text-[12px] text-slate-400 font-medium">{{ __('messages.Total') }}</span>
+            <div class="dt-card dt-card-hover p-4 flex items-center gap-3.5">
+                <a href="{{ route('admin.employees.index') }}" class="flex items-center gap-3.5 flex-1 min-w-0 no-underline">
+                    <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <circle cx="9" cy="8" r="3.5" />
+                            <path d="M3.5 20c0-3.3 2.5-5 5.5-5s5.5 1.7 5.5 5" stroke-linecap="round" />
+                            <path d="M16 5.6a3.5 3.5 0 010 6.5M17.7 15.4c1.9.7 2.8 2 2.8 4.1" stroke-linecap="round" />
+                        </svg>
                     </div>
-                </div>
-                <svg class="w-4 h-4 text-slate-300 group-hover:text-[#2D7080] group-hover:translate-x-0.5 transition-all flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-            </a>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Employees') }}</p>
+                        <div class="flex items-baseline gap-1.5 mt-0.5 min-w-0">
+                            <span class="text-[26px] leading-none font-bold text-[#0B2638] tracking-tight">{{ $data['employees']->count() }}</span>
+                            <span class="text-[12px] text-slate-400 font-medium hidden min-[1440px]:inline">{{ __('messages.Total') }}</span>
+                        </div>
+                    </div>
+                </a>
+                <a href="{{ route('admin.employees.create') }}"
+                   class="dt-stat-plus"
+                   title="{{ __('messages.Add Employee') }}"
+                   aria-label="{{ __('messages.Add Employee') }}">
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                    </svg>
+                </a>
+            </div>
 
             {{-- Projects --}}
-            <a href="{{ route('admin.projects.index') }}"
-                class="dt-card dt-card-hover p-4 flex items-center gap-3.5 group no-underline">
-                <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 flex-shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </div>
-                <div class="min-w-0 flex-1">
-                    <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Projects') }}</p>
-                    <div class="flex items-baseline gap-1.5 mt-0.5">
-                        <span class="text-[26px] leading-none font-bold text-[#0B2638] tracking-tight">{{ $data['totalProjectsCount'] ?? ($data['projects']->total() ?? $data['projects']->count()) }}</span>
-                        <span class="text-[12px] text-slate-400 font-medium">{{ __('messages.Total') }}</span>
+            <div class="dt-card dt-card-hover p-4 flex items-center gap-3.5">
+                <a href="{{ route('admin.projects.index') }}" class="flex items-center gap-3.5 flex-1 min-w-0 no-underline">
+                    <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
                     </div>
-                </div>
-                <svg class="w-4 h-4 text-slate-300 group-hover:text-[#2D7080] group-hover:translate-x-0.5 transition-all flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-            </a>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Projects') }}</p>
+                        <div class="flex items-baseline gap-1.5 mt-0.5 min-w-0">
+                            <span class="text-[26px] leading-none font-bold text-[#0B2638] tracking-tight">{{ $data['totalProjectsCount'] ?? ($data['projects']->total() ?? $data['projects']->count()) }}</span>
+                            <span class="text-[12px] text-slate-400 font-medium hidden min-[1440px]:inline">{{ __('messages.Total') }}</span>
+                        </div>
+                    </div>
+                </a>
+                <a href="{{ route('admin.projects.create') }}"
+                   class="dt-stat-plus"
+                   title="{{ __('messages.Add Project') }}"
+                   aria-label="{{ __('messages.Add Project') }}">
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                    </svg>
+                </a>
+            </div>
 
             {{-- Revenue + paid invoices trend --}}
             <a href="{{ route('admin.invoices.invoicehistory') }}"
@@ -493,7 +528,7 @@
                 </div>
                 <div class="min-w-0 flex-1">
                     <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.07em] truncate">{{ __('messages.Monthly Revenue') }}</p>
-                    <div class="flex items-center gap-2 mt-0.5">
+                    <div class="flex items-center flex-wrap gap-x-2 gap-y-1 mt-0.5">
                         <span class="text-[26px] leading-none font-bold text-[#0B2638] tracking-tight whitespace-nowrap">€{{ number_format($data['monthlyRevenue'], 0, ',', ' ') }}</span>
                         @php
                             $revenueGrowth = $data['monthlyRevenueGrowth'] ?? 0;
@@ -512,10 +547,10 @@
                     $donutOffset = $donutCircumference * (1 - $collectionRate / 100);
                     $monthlyPaid = (float) ($data['monthlyPaidRevenue'] ?? ($data['monthlyRevenue'] ?? 0) * $collectionRate / 100);
                 @endphp
-                <div class="flex-shrink-0"
+                <div class="flex-shrink-0 hidden 2xl:block"
                      title="{{ __('messages.Paid invoices') }}: €{{ number_format($monthlyPaid, 0, ',', ' ') }} / €{{ number_format($data['monthlyRevenue'] ?? 0, 0, ',', ' ') }} ({{ $collectionDisplay }}%)">
-                    <div class="relative w-16 h-16" role="img" aria-label="{{ __('messages.Paid invoices') }}: {{ $collectionDisplay }}%">
-                        <svg viewBox="0 0 64 64" class="w-16 h-16">
+                    <div class="relative w-14 h-14" role="img" aria-label="{{ __('messages.Paid invoices') }}: {{ $collectionDisplay }}%">
+                        <svg viewBox="0 0 64 64" class="w-14 h-14">
                             <circle cx="32" cy="32" r="26" fill="none" stroke="#e2e8f0" stroke-width="8" />
                             <circle cx="32" cy="32" r="26" fill="none" stroke="#2D7080" stroke-width="8"
                                     stroke-linecap="round" transform="rotate(-90 32 32)"
@@ -528,6 +563,58 @@
             </a>
         </div>
 
+        {{-- Today's Events Section - Moved to top for visibility --}}
+        <div class="mt-5">
+            <div class="dt-card p-5 animate-fadeInSlideUp" style="animation-delay: 200ms;">
+                {{-- Header --}}
+                <div class="flex items-start justify-between gap-3 mb-4">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="w-1.5 h-6 bg-[#E7B84B] rounded-full flex-shrink-0"></span>
+                        <h2 class="dt-section-title truncate">{{ __('messages.Today\'s Events') }}</h2>
+                    </div>
+                    <a href="{{ route('admin.calendar.index') }}" class="dt-btn dt-btn-ghost flex-shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        {{ __('messages.See full calendar') }}
+                    </a>
+                </div>
+
+                {{-- Date --}}
+                <p class="text-[12.5px] text-slate-500 mb-4">{{ now()->format('d F Y') }}</p>
+
+                {{-- Events list in horizontal scrollable cards --}}
+                @if($data['dayEvents']->isNotEmpty())
+                    <div class="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1" style="-webkit-overflow-scrolling: touch;">
+                        @foreach($data['dayEvents'] as $event)
+                            <div class="flex-shrink-0 w-64 sm:w-72 flex gap-3 rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-3 hover:border-[#2D7080] hover:shadow-sm transition-all">
+                                <div class="w-1 flex-shrink-0 bg-[#2D7080] rounded-full"></div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-[13px] font-semibold text-[#0B2638] truncate">{{ $event->title }}</p>
+                                    <p class="text-[12px] text-slate-500 flex items-center gap-1.5 mt-1.5">
+                                        <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        <span>
+                                            {{ \Carbon\Carbon::parse($event->start_date)->format('H:i') }} -
+                                            {{ \Carbon\Carbon::parse($event->end_date)->format('H:i') }}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="rounded-xl border border-dashed border-slate-200 px-6 py-8 text-center">
+                        <div class="dt-empty-icon mx-auto mb-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                        <p class="text-[13.5px] font-semibold text-[#0B2638] mb-1">{{ __('messages.No events scheduled for today.') }}</p>
+                        <p class="text-[12.5px] text-slate-500">{{ __('messages.Enjoy a calm day — or plan one.') }}</p>
+                    </div>
+                @endif
+            </div>
+        </div>
 
         {{-- Team employees Overview --}}
         <div class="dt-card mt-6 overflow-hidden animate-fadeInSlideUp"
@@ -538,600 +625,171 @@
                     <h2 class="dt-section-title">{{ __('messages.Team employees Overview') }}</h2>
                     <p class="dt-section-subtitle mt-0.5">{{ __('messages.Live status, timers and actions for today.') }}</p>
                 </div>
-                @unless($isSoloPlan)
-                    <a href="{{ route('admin.employees.create') }}"
-                        class="dt-btn dt-btn-teal w-full sm:w-auto">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                        {{__('messages.Add employee')}}
-                    </a>
-                @endunless
             </div>
 
             {{-- Table --}}
             <div class="team-employees-overview-table-wrap px-3 sm:px-4 py-3 overflow-x-auto">
                 <table id="employeesTable" class="w-full text-left" style="width:100%">
                     <thead>
-                        <tr class="border-b border-slate-100 dt-table-head">
-                            <th class="px-4 py-3 text-left">
-                                {{ __('messages.Employee') }}
-                            </th>
-                            <th
-                                class="px-4 py-3 text-center w-[8.5rem] ">
-                                {{ __('messages.Current Status') }}
-                            </th>
-                            <th
-                                class="px-4 py-3 text-center">
-                                {{ __('messages.Current Project') }}
-                            </th>
-                            <th
-                                class="px-4 py-3 text-center">
-                                {{ __('messages.Current Task') }}
-                            </th>
-                                
-                            {{--<th
-                                class="px-6 py-3 text-xs font-semibold text-[#0B2638] uppercase tracking-wider text-center">
-                                Task Progress</th> --}}
-                            <th
-                                class="px-4 py-3 text-center">
-                                {{ __('messages.Duration') }}
-                            </th>
-                            <th
-                                class="px-4 py-3 text-center">
-                                {{ __('messages.Chrono') }}
-                            </th>
-                            <th
-                                class="px-4 py-3 text-center">
-                                {{ __('messages.Account Status') }}
-                            </th>
-                            <th
-                                class="px-4 py-3 text-center">
-                                {{ __('messages.Archive') }}
-                            </th>
-                            <th
-                                class="px-4 py-3 text-center">
-                                {{ __('messages.Actions') }}
-                            </th>
+                        <tr class="dt-table-head">
+                            <th class="px-3 py-2.5 text-left w-[200px]">{{ __('messages.Employee') }}</th>
+                            <th class="px-3 py-2.5 text-center w-[120px]">{{ __('messages.Statut') }}</th>
+                            <th class="px-3 py-2.5 text-left w-[190px]">{{ __('messages.Current Project') }}</th>
+                            <th class="px-3 py-2.5 text-left">{{ __('messages.Tâche en cours') }}</th>
+                            <th class="px-3 py-2.5 text-center w-[128px]">{{ __('messages.Actions') }}</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-slate-200">
                         @php
-                            $avatarColors = ['bg-emerald-500', 'bg-gray-400', 'bg-amber-500', 'bg-red-500', 'bg-purple-500', 'bg-sky-500', 'bg-rose-800', 'bg-slate-700', 'bg-yellow-400', 'bg-indigo-500'];
+                            $avatarColors = ['bg-emerald-500','bg-slate-400','bg-amber-500','bg-red-400','bg-purple-500','bg-sky-500','bg-rose-700','bg-slate-600','bg-yellow-500','bg-indigo-500'];
+                            $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
                         @endphp
                         @foreach($data['employees'] as $employee)
-                            <tr class="employee-overview-row hover:bg-[#f4f7f6]" data-employee-id="{{ $employee->id }}" aria-expanded="true">
-                                {{-- Employee --}}
-                                <td data-label="{{ __('messages.Employee') }}" data-span="2" class="px-6 py-4 employee-overview-toggle-cell" data-employee-overview-toggle>
-                                    <div class="flex items-center justify-between gap-3">
-                                        <div class="flex items-center gap-3 min-w-0">
-                                        <div
-                                            class="flex h-10 w-10 items-center justify-center rounded-full text-white font-semibold {{ $avatarColors[$loop->index % count($avatarColors)] }}">
-                                            {{ strtoupper(substr($employee->name, 0, 1)) }}
-                                        </div>
-                                        <div class="flex flex-col">
-                                            <a href="{{ route('admin.employees.show', $employee->id) }}"
-                                                class="text-sm font-medium text-gray-900 hover:text-brand-secondary">
-                                                {{ $employee->name }}
-                                            </a>
-                                            <p class="text-xs text-gray-500">{{ $employee->email }}</p>
-                                            {{-- Roles under email to minimize width --}}
-                                            @php
-                                                $employeeRoles = is_array($employee->roles ?? null) ? $employee->roles : (array) ($employee->roles ?? []);
-                                            @endphp
-                                            <div class="flex flex-wrap gap-1 pt-1">
-                                                @forelse($employeeRoles as $role)
-                                                    <span
-                                                        class="inline-block px-2 py-0.5 text-[10.5px] font-medium rounded {{ $role == 'SuperAdmin' ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-purple-100 text-purple-700'}}">
-                                                        {{ $role }}
-                                                    </span>
-                                                @empty
-                                                    <span class="text-[10px] text-gray-400">{{ __('messages.No Roles') }}</span>
-                                                @endforelse
+                            @php
+                                $employeeUser = \App\Models\User::find($employee->user_id);
+                                $employeeRoles = is_array($employee->roles ?? null) ? $employee->roles : (array)($employee->roles ?? []);
+                                $nowRow = \Carbon\Carbon::now();
+
+                                // Active timers (open end_date), used across all cells
+                                if ($isSuperAdmin) {
+                                    $rowActiveTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                        ->whereNull('end_date')
+                                        ->orderBy('start_date', 'desc')
+                                        ->get();
+                                } else {
+                                    $rowActiveTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                        ->whereNull('end_date')
+                                        ->latest()->take(1)->get();
+                                }
+
+                                // Group open + today's completed timers by task_id so every task
+                                // the employee worked on today shows once in the task column
+                                $rowTodayCompleted = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    ->whereDate('start_date', \Carbon\Carbon::today())
+                                    ->whereNotNull('end_date')
+                                    ->orderBy('start_date', 'desc')
+                                    ->get();
+                                $rowTasksToday = $rowActiveTasks->concat($rowTodayCompleted)->groupBy('task_id');
+
+                                // Completed tasks today (for history panel)
+                                $rowActiveIds = $rowActiveTasks->pluck('task_id')->filter()->unique();
+                                $completedTasksToday = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                                    ->whereDate('start_date', \Carbon\Carbon::today())
+                                    ->whereNotNull('end_date')
+                                    ->when($rowActiveIds->isNotEmpty(), fn($q) => $q->whereNotIn('task_id', $rowActiveIds))
+                                    ->get()
+                                    ->groupBy(fn($t) => $t->task_id ?? 'name:'.$t->task_name)
+                                    ->map(function ($g) { $l=$g->sortByDesc('end_date')->first(); $l->total_duration=$g->sum('duration'); return $l; })
+                                    ->sortByDesc('end_date');
+
+                                // Active tasks for actions php block
+                                $activeTimers = $rowActiveTasks;
+                                $activeTaskIds = $rowActiveIds;
+                            @endphp
+                            <tr class="employee-overview-row hover:bg-slate-50/60 transition-colors" data-employee-id="{{ $employee->id }}" aria-expanded="true">
+
+                                {{-- EMPLOYEE --}}
+                                <td data-label="{{ __('messages.Employee') }}" data-span="2"
+                                    class=" py-2.5 align-middle employee-overview-toggle-cell" data-employee-overview-toggle>
+                                    <div class="flex items-center justify-between gap-2">
+                                        <div class="flex items-center gap-2.5 min-w-0">
+                                            <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-white text-[12px] font-bold
+                                                {{ $avatarColors[$loop->index % count($avatarColors)] }}">
+                                                {{ strtoupper(substr($employee->name, 0, 1)) }}
+                                            </div>
+                                            <div class="flex flex-col min-w-0">
+                                                <a href="{{ route('admin.employees.show', $employee->id) }}"
+                                                    class="text-[13px] font-semibold text-slate-800 hover:text-brand-secondary truncate max-w-[124px] leading-tight">
+                                                    {{ $employee->name }}
+                                                </a>
+                                                <span class="text-[11px] text-slate-400 truncate max-w-[124px] leading-tight">{{ $employee->email }}</span>
+                                                @if(count($employeeRoles))
+                                                    <div class="flex flex-wrap gap-0.5 mt-0.5">
+                                                        @foreach($employeeRoles as $role)
+                                                            <span class="inline-block px-1.5 py-px text-[9.5px] font-semibold rounded
+                                                                {{ $role === 'SuperAdmin' ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-purple-100 text-purple-700' }}">{{ $role }}</span>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
-                                        </div>
-                                        <span class="shrink-0 text-slate-400 lg:hidden">
-                                            <svg class="employee-overview-chevron w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                        <span class="shrink-0 text-slate-300 overview-chevron-toggle">
+                                            <svg class="employee-overview-chevron w-4 h-4" viewBox="0 0 24 24" fill="none">
                                                 <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
                                         </span>
                                     </div>
                                 </td>
 
-                                {{-- Current Status --}}
-                                <td data-label="{{ __('messages.Current Status') }}" class="px-6 py-4 text-center align-middle text-sm cell-current-status">
-                                    @php
-                                        $employeeUser = \App\Models\User::find($employee->user_id);
-                                    @endphp
-                                    @if($employeeUser && $employeeUser->is_loggedIn == 0)
-                                        <span class="dt-badge dt-badge-neutral"><span class="dt-dot"></span>{{ __('messages.Off Work') }}</span>
-                                    @elseif($employeeUser && $employeeUser->is_loggedIn == 1)
-                                        @php
-                                            // Align status with other columns: any still-open timer counts, regardless of start day
-                                            $task_timer = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereNull('end_date')
-                                                ->first();
-                                        @endphp
-                                        @if($task_timer)
-                                            @if(($task_timer->end_date === null && $task_timer->start_date !== null) && $task_timer->paused == 1)
-                                                <span class="dt-badge dt-badge-warning"><span class="dt-dot"></span>{{ __('messages.On Pause') }}</span>
-                                            @else
-                                                <span class="dt-badge dt-badge-success"><span class="dt-dot"></span>{{ __('messages.On Work') }}</span>
-                                            @endif
-                                        @else
-                                            <span class="dt-badge dt-badge-neutral"><span class="dt-dot"></span>{{ __('messages.Off Work') }}</span>
-                                        @endif
-                                    @endif
-                                </td>
+                                @include('components.dashboard.employee-row-cells')
 
-                                {{-- Current Project --}}
-                                <td data-label="{{ __('messages.Current Project') }}" data-span="2" class="px-6 py-4 text-center align-middle text-sm cell-current-project">
-                                    @php
-                                        $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
-                                        if ($isSuperAdmin) {
-                                            // For superadmin, get all active tasks
-                                            // Active = timer still open, regardless of which day it started
-                                            $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereNull('end_date')
-                                                ->orderBy('start_date', 'desc')
-                                                ->get();
-                                        } else {
-                                            // For others, get only the latest active task
-                                            $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereNull('end_date')
-                                                ->latest()
-                                                ->take(1)
-                                                ->get();
-                                        }
-
-                                        // Group active tasks by project so each task line has a matching project line
-                                        $groupedActiveTasksProjects = $activeTasks
-                                            ->map(function ($t) {
-                                                $projectId = \App\Models\Tasks::where('id', $t->task_id)->value('project_id');
-                                                $t->project_for_grouping = $projectId ?? 0;
-                                                return $t;
-                                            })
-                                            ->sortBy('project_for_grouping')
-                                            ->groupBy('project_for_grouping');
-                                    @endphp
-                                    @if($activeTasks->isNotEmpty())
-                                        <div class="space-y-3">
-                                            @foreach($groupedActiveTasksProjects as $projectId => $projectTasks)
-                                                @php
-                                                    $project = $projectId
-                                                        ? \App\Models\Project::find($projectId)
-                                                        : null;
-                                                    $linesCount = $projectTasks->count();
-                                                    // Determine if this project has any active (running) timer
-                                                    $hasActiveTimer = $projectTasks->contains(function ($t) {
-                                                        return $t->end_date === null && (int) ($t->paused ?? 0) === 0;
-                                                    });
-                                                    $projectTextClasses = 'text-xs font-semibold ' . ($hasActiveTimer ? 'text-emerald-600' : 'text-gray-400');
-                                                    $linkClasses = $hasActiveTimer ? 'hover:underline block' : 'block';
-                                                @endphp
-                                                <div class="space-y-1 w-full {{ !$loop->last ? 'pb-2 border-b border-gray-200' : '' }}">
-                                                    {{-- First line: project name aligned with first task of this project --}}
-                                                    <div class="{{ $projectTextClasses }}">
-                                                        @if($project)
-                                                            <a href="{{ route('admin.projects.show', $project->id) }}"
-                                                                class="{{ $linkClasses }}">
-                                                                {{ $project->name }}
-                                                            </a>
-                                                        @else
-                                                            <span class="text-gray-400 block">{{ __('messages.No Project') }}</span>
-                                                        @endif
-                                                    </div>
-
-                                                    {{-- Extra spacer lines so tasks/durations/chrono stay aligned --}}
-                                                    @for($i = 1; $i < $linesCount; $i++)
-                                                        <div class="text-xs">&nbsp;</div>
-                                                    @endfor
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        <span class="text-xs text-gray-400">{{ __('messages.No Project') }}</span>
-                                    @endif
-                                </td>
-
-                                {{-- Current Task --}}
-                                <td data-label="{{ __('messages.Current Task') }}" data-span="2" class="px-6 py-4 text-center align-middle text-sm cell-current-task">
-                                    @php
-                                        $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
-                                        if ($isSuperAdmin) {
-                                            // For superadmin, get all active tasks
-                                            // Active = timer still open, regardless of which day it started
-                                            $currentTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereNull('end_date')
-                                                ->orderBy('start_date', 'desc')
-                                                ->get();
-                                        } else {
-                                            // For others, get only the latest active task
-                                            $currentTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereNull('end_date')
-                                                ->latest()
-                                                ->take(1)
-                                                ->get();
-                                        }
-                                    @endphp
-                                    @if($currentTasks->isNotEmpty())
-                                        @php
-                                            $taskListClasses = 'space-y-1';
-                                            if ($isSuperAdmin && $currentTasks->count() > 1) {
-                                                $taskListClasses .= ' divide-y divide-gray-500';
-                                            }
-                                            // Ensure each task name appears only once, even if there are multiple timers
-                                            $tasksById = $currentTasks->groupBy('task_id');
-                                        @endphp
-                                        <div class="{{ $taskListClasses }}">
-                                            @foreach($tasksById as $taskId => $taskGroup)
-                                                @php $currentTask = $taskGroup->first(); @endphp
-                                                @if(auth()->user()->hasRole('Admin') || auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin'))
-                                                    <a href="{{ route('admin.tasks.show', $currentTask->task_id) }}"
-                                                        class="text-xs font-semibold text-brand-secondary hover:underline block">
-                                                @elseif(auth()->user()->hasRole('Responsable de projet'))
-                                                        <a href="{{ route('Responsable_de_projet.tasks.show', $currentTask->task_id) }}"
-                                                            class="text-xs font-semibold text-brand-secondary hover:underline block">
-                                                    @else
-                                                            <a href="#" class="text-xs font-semibold text-brand-secondary block">
-                                                        @endif
-                                                            {{ $currentTask->task_name }}
-                                                        </a>
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        <span class="text-xs text-gray-400">{{ __('messages.No Task') }}</span>
-                                    @endif
-                                </td>
-
-                                {{-- Task Progress 
-                                <td class="px-6 py-4 text-center align-middle text-sm cell-task-progress">
-                                    @php
-                                        $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
-                                        if ($isSuperAdmin) {
-                                            $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereDate('start_date', today())
-                                                ->whereNull('end_date')
-                                                ->orderBy('start_date', 'desc')
-                                                ->get();
-                                        } else {
-                                            $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereDate('start_date', today())
-                                                ->whereNull('end_date')
-                                                ->latest()
-                                                ->take(1)
-                                                ->get();
-                                        }
-                                        $firstActiveTask = $activeTasks->first();
-                                    @endphp
-                                    @if($firstActiveTask)
-                                        @php
-                                            $task = \App\Models\Tasks::where('id', $firstActiveTask->task_id)->first();
-                                        @endphp
-                                        @if($task && $task->estimated_hours !== null)
-                                            @php
-                                                $tasktotalduration = \App\Models\tasks_timer::where('task_id', $firstActiveTask->task_id)
-                                                    ->where('employee_id', $employee->id)
-                                                    ->sum('duration');
-                                                $taskestimatedMinutes = max(0, (($task->estimated_hours ?? 0) - ($task->consumed_hours ?? 0)) * 60);
-                                                $taskprogressPercentage = $taskestimatedMinutes > 0 ? ($tasktotalduration / $taskestimatedMinutes) * 100 : 0;
-                                                $taskformattedProgressPercentage = number_format($taskprogressPercentage, 2);
-                                            @endphp
-                                            <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                                                <div class="h-2 rounded-full text-[10px] text-white flex items-center justify-center
-                                                                                                                                                                                                                                @if($taskprogressPercentage < 50) bg-emerald-500
-                                                                                                                                                                                                                                @elseif($taskprogressPercentage < 75) bg-amber-500
-                                                                                                                                                                                                                                @else bg-red-500 @endif"
-                                                    style="width: {{ $taskformattedProgressPercentage }}%;">
-                                                </div>
-                                            </div>
-                                            <p class="mt-1 text-xs font-medium text-gray-700">
-                                                {{ $taskformattedProgressPercentage }}%
-                                            </p>
-                                        @else
-                                            <p class="text-xs font-medium text-gray-600">No Estimated Hours Inserted</p>
-                                        @endif
-                                    @else
-                                        <p class="text-xs font-medium text-gray-600">No Task</p>
-                                    @endif
-                                </td> --}}
-
-                                {{-- Duration --}}
-                                <td data-label="{{ __('messages.Duration') }}" class="px-6 py-4 text-center align-middle text-sm cell-duration">
-                                    @php
-                                        // Show TOTAL worked time today per task, grouped by project (initial render)
-                                        $today = \Carbon\Carbon::today();
-                                        $timersToday = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                            ->whereDate('start_date', $today)
-                                            ->orderBy('start_date', 'desc')
-                                            ->get();
-                                    @endphp
-                                    @if($timersToday->isNotEmpty())
-                                        @php
-                                            $now = \Carbon\Carbon::now();
-                                            $groupedActiveTasks = $timersToday
-                                                ->map(function ($t) {
-                                                    $projectId = \App\Models\Tasks::where('id', $t->task_id)->value('project_id');
-                                                    $t->project_for_grouping = $projectId ?? 0;
-                                                    return $t;
-                                                })
-                                                ->sortBy('project_for_grouping')
-                                                ->groupBy('project_for_grouping');
-                                        @endphp
-                                        <div class="space-y-3">
-                                            @foreach($groupedActiveTasks as $projectId => $projectTasks)
-                                                <div class="space-y-1 w-full {{ !$loop->last ? 'pb-2 border-b border-gray-200' : '' }}">
-                                                    @php
-                                                        $tasksById = $projectTasks->groupBy('task_id');
-                                                        $project = $projectId ? \App\Models\Project::find($projectId) : null;
-                                                    @endphp
-                                                    @foreach($tasksById as $taskId => $taskTimers)
-                                                        @php
-                                                            $totalMinutes = 0;
-                                                            foreach ($taskTimers as $timer) {
-                                                                $baseMinutes = (int) ($timer->duration ?? 0);
-                                                                if ($timer->end_date === null) {
-                                                                    $startTime = \Carbon\Carbon::parse($timer->start_date);
-                                                                    if ($timer->paused == 1) {
-                                                                        $totalMinutes += $baseMinutes;
-                                                                    } else {
-                                                                        $elapsedSeconds = $startTime->diffInSeconds($now);
-                                                                        $totalMinutes += $baseMinutes + (int) floor($elapsedSeconds / 60);
-                                                                    }
-                                                                } else {
-                                                                    $totalMinutes += $baseMinutes;
-                                                                }
-                                                            }
-                                                            $hours = floor($totalMinutes / 60);
-                                                            $minutes = $totalMinutes % 60;
-                                                        @endphp
-                                                        <div class="text-xs">
-                                                            <div class="font-semibold text-gray-800">
-                                                                {{ $hours }}h:{{ sprintf('%02d', $minutes) }}m
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-                                                    
-                                                    {{-- Project total (all time) --}}
-                                                    @if($project)
-                                                        @php
-                                                            $projecttasksId = \App\Models\Tasks::where('project_id', $project->id)->pluck('id');
-                                                            $projectTotalMinutes = \App\Models\tasks_timer::where(function ($q) use ($projecttasksId, $project) {
-                                                                $q->whereIn('task_id', $projecttasksId)
-                                                                    ->orWhere('project_id', $project->id);
-                                                            })->where('employee_id', $employee->id)->sum('duration');
-                                                            $projectTotalHours = floor($projectTotalMinutes / 60);
-                                                            $projectTotalMins = $projectTotalMinutes % 60;
-                                                        @endphp
-                                                        <div class="text-xs text-gray-500 mt-1 pt-1 border-t border-gray-200">
-                                                            {{ __('messages.Total') }}: {{ $projectTotalHours }}h:{{ sprintf('%02d', $projectTotalMins) }}m
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        <span class="text-xs font-medium text-gray-700">{{ __('messages.No work today') }}</span>
-                                    @endif
-                                </td>
-
-                                {{-- Chrono (Stop button only, matching legacy behaviour) --}}
-                                <td data-label="{{ __('messages.Chrono') }}" class="px-6 py-4 text-center align-middle text-sm cell-chrono">
-                                    @php
-                                        $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
-                                        if ($isSuperAdmin) {
-                                            $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereDate('start_date', today())
-                                                ->whereNull('end_date')
-                                                ->orderBy('start_date', 'desc')
-                                                ->get();
-                                        } else {
-                                            $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereDate('start_date', today())
-                                                ->whereNull('end_date')
-                                                ->latest()
-                                                ->take(1)
-                                                ->get();
-                                        }
-                                        $firstActiveTask = $activeTasks->first();
-                                    @endphp
-                                    @if($activeTasks->isNotEmpty())
-                                        @if($isSuperAdmin && $activeTasks->count() > 1)
-                                            <button type="button"
-                                                class="inline-flex items-center px-3 py-1 mb-2 rounded-full text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200"
-                                                onclick="stopAllTimersForEmployee({{ $employee->id }})">
-                                                {{ __('messages.Stop all') }}
-                                            </button>
-                                        @endif
-                                        @php
-                                            // Group active tasks by project for visual separation in Chrono
-                                            $groupedActiveTasksChrono = $activeTasks
-                                                ->map(function ($t) {
-                                                    $projectId = \App\Models\Tasks::where('id', $t->task_id)->value('project_id');
-                                                    $t->project_for_grouping = $projectId ?? 0;
-                                                    return $t;
-                                                })
-                                                ->sortBy('project_for_grouping')
-                                                ->groupBy('project_for_grouping');
-                                        @endphp
-                                        <div class="space-y-3 flex flex-col items-center">
-                                            @foreach($groupedActiveTasksChrono as $projectId => $projectTasks)
-                                                <div class="space-y-1 w-full flex flex-col items-center {{ !$loop->last ? 'pb-2 border-b border-gray-200' : '' }}">
-                                                    @foreach($projectTasks as $activeTask)
-                                                        <form
-                                                            class="flex items-center justify-center gap-2 stop-form-{{ $employee->id }}"
-                                                            action="{{ route('admin.tasks.stop', ['tasks' => $activeTask->task_employee_id, 'employee_id' => $employee->id]) }}"
-                                                            method="POST" data-confirm="{{ __('messages.Stop timer for this task?') }}">
-                                                            @csrf
-                                                            <button type="submit"
-                                                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white hover:bg-red-600">
-                                                                {{ __('messages.Stop') }}
-                                                            </button>
-                                                        </form>
-                                                    @endforeach
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        <span class="text-xs text-gray-400">{{ __('messages.No Active Timer') }}</span>
-                                    @endif
-                                </td>
-
-                                {{-- Account Status --}}
-                                <td data-label="{{ __('messages.Account Status') }}" class="px-6 py-4 text-center align-middle text-sm cell-account-status">
-                                    @if($employeeUser && $employeeUser->is_activate == 1)
-                                        <form action="{{ route('admin.employee.deactivate', $employee->id) }}" method="post"
-                                            onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
-                                            @csrf
-                                            <button type="submit"
-                                                class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 hover:bg-emerald-200">
-                                                {{ __('messages.Active') }}
-                                            </button>
-                                        </form>
-                                    @else
-                                        <form action="{{ route('admin.employee.activate', $employee->id) }}" method="post"
-                                            onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
-                                            @csrf
-                                            <button type="submit"
-                                                class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200">
-                                                {{ __('messages.Inactive') }}
-                                            </button>
-                                        </form>
-                                    @endif
-                                </td>
-
-                                {{-- Archive --}}
-                                <td data-label="{{ __('messages.Archive') }}" class="px-6 py-4 text-center align-middle text-sm">
-                                    <form action="{{ route('admin.employees.archive', $employee->id) }}" method="post"
-                                        onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
-                                        @csrf
-                                        <button type="submit"
-                                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300">
-                                            {{ __('messages.Archive') }}
-                                        </button>
-                                    </form>
-                                </td>
-
-                                {{-- Actions (view / edit / delete / tasks done today) --}}
-                                <td data-label="{{ __('messages.Actions') }}" data-span="2" class="px-6 py-4 text-center align-middle">
-                                    <div class="relative flex items-center justify-start gap-2">
-                                        @php
-                                            $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
-                                            // Active timers for the employee today
-                                            if ($isSuperAdmin) {
-                                                $activeTimers = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                    ->whereDate('start_date', \Carbon\Carbon::today())
-                                                    ->whereNull('end_date')
-                                                    ->get();
-                                            } else {
-                                                $activeTimers = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                    ->whereDate('start_date', \Carbon\Carbon::today())
-                                                    ->whereNull('end_date')
-                                                    ->latest()
-                                                    ->take(1)
-                                                    ->get();
-                                            }
-                                            $activeTaskIds = $activeTimers->pluck('task_id')->filter()->unique();
-
-                                            $completedTasksToday = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                                ->whereDate('start_date', \Carbon\Carbon::today())
-                                                ->whereNotNull('end_date')
-                                                // exclude any task currently active (so history shows only stopped tasks)
-                                                ->when($activeTaskIds->isNotEmpty(), fn($q) => $q->whereNotIn('task_id', $activeTaskIds))
-                                                ->get()
-                                                // Group by task (prefer task_id, otherwise fallback to task name)
-                                                ->groupBy(fn($t) => $t->task_id ?? 'name:' . ($t->task_name ?? 'unknown'))
-                                                ->map(function ($group) {
-                                                    // keep latest session info, but sum durations across the day
-                                                    $latest = $group->sortByDesc('end_date')->first();
-                                                    $latest->total_duration = $group->sum('duration');
-                                                    return $latest;
-                                                })
-                                                ->sortByDesc('end_date');
-                                        @endphp
-
-                                        {{-- Tasks history toggle (shows tasks done today, excluding current) --}}
-                                        <button type="button" onclick="toggleTasksTodayRow('tasks-row-{{ $employee->id }}')"
-                                            title="{{ __('messages.Task History (Today)') }}"
-                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-slate-500 hover:bg-slate-600">
-                                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M4 6h16M4 12h16M4 18h16" />
-                                            </svg>
-                                        </button>
-
-                                        {{-- View details --}}
+                                {{-- ACTIONS --}}
+                                <td data-label="{{ __('messages.Actions') }}" data-span="2"
+                                    class="px-3 py-2.5 align-middle">
+                                    <div class="flex items-center justify-center gap-1.5">
                                         <a href="{{ route('admin.employees.show', $employee->id) }}"
-                                            title="{{ __('messages.Details') }}"
-                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-brand-primary hover:bg-[#16394a]">
-                                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            title="{{ __('messages.Edit') }}" aria-label="{{ __('messages.Edit') }}"
+                                            class="dt-icon-btn dt-icon-btn-edit">
+                                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                             </svg>
                                         </a>
-
-                                        {{-- Delete employee --}}
-                                        <form action="{{ route('admin.employees.destroy', $employee->id) }}" method="POST"
-                                            onsubmit="return confirm('{{ __('messages.Are you sure you want to delete this employee?') }}');"
-                                            class="inline">
+                                        <form action="{{ route('admin.employees.archive', $employee->id) }}" method="post"
+                                            data-confirm="{{ __('messages.Are you sure?') }}" data-confirm-kind="archive" class="contents">
+                                            @csrf
+                                            <button type="submit" class="dt-icon-btn dt-icon-btn-archive"
+                                                title="{{ __('messages.Archive') }}" aria-label="{{ __('messages.Archive') }}">
+                                                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('admin.employees.destroy', $employee->id) }}" method="post"
+                                            data-confirm="{{ __('messages.Are you sure?') }}" data-confirm-kind="delete" class="contents">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" title="{{ __('messages.Delete') }}"
-                                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-red-600 hover:bg-red-700">
-                                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            <button type="submit" class="dt-icon-btn dt-icon-btn-delete"
+                                                title="{{ __('messages.Delete') }}" aria-label="{{ __('messages.Delete') }}">
+                                                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                                 </svg>
                                             </button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
-                            {{-- Task history row (hidden by default) --}}
-                            <tr id="tasks-row-{{ $employee->id }}" class="hidden bg-gray-50">
-                                <td colspan="10" class="px-6 py-4">
+
+                            {{-- TASK HISTORY PANEL --}}
+                            <tr id="tasks-row-{{ $employee->id }}" class="hidden bg-slate-50">
+                                <td colspan="5" class="px-4 py-3">
                                     <div class="space-y-3">
                                         <div class="flex items-center justify-between">
-                                            <h4 class="text-sm font-semibold text-gray-800">{{ __('messages.Task History (Today)') }}</h4>
-                                            <button type="button"
-                                                onclick="toggleTasksTodayRow('tasks-row-{{ $employee->id }}')"
-                                                class="text-xs text-gray-500 hover:text-gray-700">{{ __('messages.Close') }}</button>
+                                            <h4 class="text-sm font-semibold text-slate-800">{{ __('messages.Task History (Today)') }}</h4>
+                                            <button type="button" onclick="toggleTasksTodayRow('tasks-row-{{ $employee->id }}')"
+                                                class="text-xs text-slate-500 hover:text-slate-700">{{ __('messages.Close') }}</button>
                                         </div>
                                         @forelse($completedTasksToday as $doneTask)
                                             @php
-                                                $durationMinutes = (int) ($doneTask->total_duration ?? $doneTask->duration);
-                                                $h = floor($durationMinutes / 60);
-                                                $m = $durationMinutes % 60;
+                                                $dMin = (int)($doneTask->total_duration ?? $doneTask->duration);
+                                                $dH = floor($dMin/60); $dM = $dMin%60;
                                                 $taskModel = \App\Models\Tasks::find($doneTask->task_id);
-                                                $projectName = null;
-                                                // Prefer direct project_id on timer if present
-                                                if (!empty($doneTask->project_id)) {
-                                                    $projectName = optional(\App\Models\Project::find($doneTask->project_id))->name;
-                                                }
-                                                // Fallback to task's project
-                                                if (!$projectName && $taskModel) {
-                                                    $projectName = optional($taskModel->project)->name ?? null;
-                                                }
+                                                $projName = null;
+                                                if (!empty($doneTask->project_id)) $projName = optional(\App\Models\Project::find($doneTask->project_id))->name;
+                                                if (!$projName && $taskModel) $projName = optional($taskModel->project)->name ?? null;
                                             @endphp
-                                            <div
-                                                class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2">
+                                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2">
                                                 <div class="flex flex-col">
-                                                    <span
-                                                        class="text-sm font-medium text-gray-900">{{ $doneTask->task_name ?? ($taskModel->title ?? __('messages.Task')) }}</span>
-                                                    <span
-                                                        class="text-xs text-gray-500">{{ $projectName ?? __('messages.No project linked') }}</span>
+                                                    <span class="text-sm font-medium text-slate-900">{{ $doneTask->task_name ?? ($taskModel->title ?? __('messages.Task')) }}</span>
+                                                    <span class="text-xs text-slate-500">{{ $projName ?? __('messages.No project linked') }}</span>
                                                 </div>
                                                 <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                                                    <span
-                                                        class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700">{{ __('messages.Completed') }}</span>
-                                                    <span class="text-xs text-gray-700 whitespace-nowrap">{{ $h }}h
-                                                        {{ $m }}m</span>
-                                                    <form
-                                                        action="{{ route('admin.tasks.start', ['tasks' => $doneTask->task_employee_id ?? $doneTask->task_id, 'employee_id' => $doneTask->employee_id]) }}"
+                                                    <span class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700">{{ __('messages.Completed') }}</span>
+                                                    <span class="text-xs text-slate-700 whitespace-nowrap">{{ $dH }}h {{ $dM }}m</span>
+                                                    <form action="{{ route('admin.tasks.start', ['tasks' => $doneTask->task_employee_id ?? $doneTask->task_id, 'employee_id' => $doneTask->employee_id]) }}"
                                                         method="POST" class="history-start-form"
-                                                        data-task-id="{{ $doneTask->task_employee_id ?? $doneTask->task_id }}">
+                                                        data-task-id="{{ $doneTask->task_employee_id ?? $doneTask->task_id }}"
+                                                        data-chrono-start data-chrono-employee="{{ $doneTask->employee_id }}"
+                                                        data-chrono-emp-task="{{ $doneTask->task_employee_id }}" data-chrono-task="{{ $doneTask->task_id }}">
                                                         @csrf
                                                         <textarea name="comment" placeholder="{{ __('messages.Enter comment') }}" rows="1"
                                                             class="border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring focus:ring-emerald-200 resize-y min-h-[32px] w-full sm:w-56"></textarea>
@@ -1143,7 +801,7 @@
                                                 </div>
                                             </div>
                                         @empty
-                                            <p class="text-xs text-gray-500">{{ __('messages.No completed tasks today.') }}</p>
+                                            <p class="text-xs text-slate-500">{{ __('messages.No completed tasks today.') }}</p>
                                         @endforelse
                                     </div>
                                 </td>
@@ -1151,123 +809,6 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
-        </div>
-
-        {{-- Project Overview + Events --}}
-            <div class="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-4">
-
-            {{-- Employee Overview (col-span-3) --}}
-            <div class="dashboard-employee-overview lg:col-span-3 dt-card overflow-hidden animate-fadeInSlideUp"
-                style="animation-delay: 600ms;">
-                <div class="px-5 sm:px-6 py-4 border-b border-slate-100">
-                    <h2 class="dt-section-title">{{ __('messages.Employee Overview - Today\'s Work') }}</h2>
-                    <p class="dt-section-subtitle mt-0.5">{{ __('messages.Who worked on what today.') }}</p>
-                </div>
-
-                <div class="overview-scroll overflow-x-auto" style="-webkit-overflow-scrolling: touch;">
-                    <div class="overview-minw" style="min-width: 1100px;">
-                        {{-- Column headers --}}
-                        <div class="overview-headers px-4 sm:px-6 py-3 grid grid-cols-12 gap-2 sm:gap-4 border-b border-gray-200">
-                            <span
-                                class="col-span-2 text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap truncate overflow-hidden">{{ __('messages.EMPLOYEES') }}</span>
-                            <span
-                                class="col-span-3 text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap truncate overflow-hidden">{{ __('messages.PROJECTS & CLIENT') }}</span>
-                            <span
-                                class="col-span-2 text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap truncate overflow-hidden">{{ __('messages.TIME TRACKING') }}</span>
-                            <span
-                                class="col-span-3 text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap truncate overflow-hidden">{{ __('messages.TASKS') }}</span>
-                            <span
-                                class="col-span-1 text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap truncate overflow-hidden">{{ __('messages.TASK DURATION') }}</span>
-                            <span
-                                class="col-span-1 text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap truncate overflow-hidden text-right">{{ __('messages.Employee Actions') }}</span>
-                        </div>
-
-                        {{-- Employee list container --}}
-                        <div id="projects-container">
-                    @php
-                        $hasWorkedToday = false;
-                        $todayStart = \Carbon\Carbon::today();
-                        $todayEnd = \Carbon\Carbon::today()->endOfDay();
-                        $avatarColors = ['bg-emerald-500', 'bg-gray-400', 'bg-amber-500', 'bg-red-500', 'bg-purple-500', 'bg-sky-500', 'bg-rose-800', 'bg-slate-700', 'bg-yellow-400', 'bg-indigo-500'];
-
-                        // Collect timers that overlap today
-                        $entrepriseId = optional(Auth::user())->entreprise_id;
-                        $timersToday = \App\Models\tasks_timer::where(function ($q) use ($todayStart, $todayEnd) {
-                            $q->where('start_date', '<=', $todayEnd)
-                                ->where(function ($qq) use ($todayStart) {
-                                    $qq->whereNull('end_date')
-                                        ->orWhere('end_date', '>=', $todayStart);
-                                });
-                        })
-                            ->when($entrepriseId, fn($q) => $q->where('entreprise_id', $entrepriseId))
-                            ->get();
-
-                        // Group timers by employee and collect their projects
-                        $employeeIdsToday = $timersToday->pluck('employee_id')->filter()->unique();
-                        $employeesToday = $employeeIdsToday->isNotEmpty()
-                            ? \App\Models\Employees::whereIn('id', $employeeIdsToday)->get()
-                            : collect();
-                    @endphp
-
-                    @include('components.dashboard.employee-overview-list', ['employeesToday' => $employeesToday, 'timersToday' => $timersToday])
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Today's Events --}}
-            <div class="lg:col-span-1 dt-card p-5 h-fit animate-fadeInSlideUp"
-                style="animation-delay: 700ms;">
-                {{-- Header with "Add Event" button --}}
-                <div class="flex items-start justify-between gap-3 mb-1">
-                    <div class="flex items-center gap-2 min-w-0">
-                        <span class="w-1.5 h-6 bg-[#E7B84B] rounded-full flex-shrink-0"></span>
-                        <h2 class="dt-section-title truncate">{{ __('messages.Today\'s Events') }}</h2>
-                    </div>
-                </div>
-
-                {{-- Date --}}
-                <p class="text-[12.5px] text-slate-500 mb-4">{{ now()->format('d F Y') }}</p>
-
-                {{-- Events list --}}
-                <ul class="space-y-3">
-                    @forelse($data['dayEvents'] as $event)
-                        <li class="flex gap-3 rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
-                            <div class="w-1 flex-shrink-0 bg-[#2D7080] rounded-full"></div>
-                            <div class="min-w-0">
-                                <p class="text-[13px] font-semibold text-[#0B2638] truncate">{{ $event->title }}</p>
-                                <p class="text-[12px] text-slate-500 flex items-center gap-1.5 mt-1">
-                                    <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                    </svg>
-                                    <span>
-                                        {{ \Carbon\Carbon::parse($event->start_date)->format('H:i') }} -
-                                        {{ \Carbon\Carbon::parse($event->end_date)->format('H:i') }}
-                                    </span>
-                                </p>
-                            </div>
-                        </li>
-                    @empty
-                        <li class="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-center">
-                            <div class="dt-empty-icon mx-auto mb-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            </div>
-                            <p class="text-[13px] font-semibold text-[#0B2638]">{{ __('messages.No events scheduled for today.') }}</p>
-                            <p class="text-[12px] text-slate-500 mt-0.5">{{ __('messages.Enjoy a calm day — or plan one.') }}</p>
-                        </li>
-                    @endforelse
-                </ul>
-
-                <a href="{{ route('admin.calendar.index') }}"
-                    class="dt-btn dt-btn-ghost w-full mt-4">
-                    {{ __('messages.See full calendar') }}
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-                </a>
-
             </div>
         </div>
 
@@ -1280,39 +821,6 @@
                 if (!row) return;
                 row.classList.toggle('hidden');
             }
-
-            // Mobile accordion for "Employee Overview - Today's Work" cards
-            (function initEmployeeOverviewCardsAccordion() {
-                const mql = window.matchMedia('(max-width: 1024px)');
-
-                function setCollapsed(row, collapsed) {
-                    if (!row) return;
-                    row.classList.toggle('is-collapsed', collapsed);
-                    row.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-                }
-
-                function initForViewport() {
-                    const rows = document.querySelectorAll('.dashboard-employee-overview-list .dashboard-emp-row');
-                    const isMobile = mql.matches;
-                    rows.forEach(r => setCollapsed(r, isMobile));
-                }
-
-                document.addEventListener('click', function (e) {
-                    const btn = e.target.closest('[data-emp-overview-toggle]');
-                    if (!btn) return;
-
-                    const row = btn.closest('.dashboard-emp-row');
-                    if (!row) return;
-
-                    const collapsed = row.classList.contains('is-collapsed');
-                    setCollapsed(row, !collapsed);
-                });
-
-                if (mql.addEventListener) mql.addEventListener('change', initForViewport);
-                else if (mql.addListener) mql.addListener(initForViewport);
-
-                document.addEventListener('DOMContentLoaded', initForViewport);
-            })();
 
             function stopAllTimersForEmployee(employeeId) {
                 const forms = document.querySelectorAll('.stop-form-' + employeeId);
@@ -1386,6 +894,17 @@
                         updateEmployeeRow(employee);
                     });
 
+                    // Remove rows of employees that are gone (archived/deleted) so no
+                    // stale row with dead action buttons is left behind
+                    const seenIds = new Set(data.employees.map(employee => String(employee.id)));
+                    document.querySelectorAll('#employeesTable tbody tr[data-employee-id]').forEach(tr => {
+                        if (!seenIds.has(tr.dataset.employeeId)) {
+                            const historyRow = document.getElementById(`tasks-row-${tr.dataset.employeeId}`);
+                            if (historyRow) historyRow.remove();
+                            tr.remove();
+                        }
+                    });
+
                     // Update live durations after data refresh
                     refreshLiveDurations();
 
@@ -1401,23 +920,36 @@
                 const row = document.querySelector(`tr[data-employee-id="${employee.id}"]`);
                 if (!row) return;
 
-                // Update only the specific cells
-                const cells = {
-                    '.cell-current-status': employee.currentStatus,
-                    '.cell-current-task': employee.currentTask,
-                    '.cell-current-project': employee.currentProject,
-                    '.cell-task-progress': employee.taskProgress,
-                    '.cell-duration': employee.duration,
-                    '.cell-account-status': employee.accountStatus,
-                    '.cell-chrono': employee.chrono
-                };
+                // Replace the dynamic cells (Status → Project → Task/Timer)
+                // with fresh markup rendered by the shared employee-row-cells Blade
+                // partial — the same partial that produced the initial page markup,
+                // so a refresh can never insert different/older styling.
+                if (employee.rowCells) {
+                    const startCell = row.querySelector('.cell-current-status');
+                    const endCell = row.querySelector('.cell-current-task');
 
-                Object.entries(cells).forEach(([selector, html]) => {
-                    const cell = row.querySelector(selector);
-                    if (cell) {
-                        cell.innerHTML = html;
+                    // Parse in a detached <tr> so <td> tokens keep their table context
+                    const probe = document.createElement('tr');
+                    probe.innerHTML = employee.rowCells;
+
+                    if (startCell && endCell
+                        && startCell.parentNode === endCell.parentNode
+                        && probe.querySelector('.cell-current-status')
+                        && probe.querySelector('.cell-current-task')) {
+                        const frag = document.createDocumentFragment();
+                        while (probe.firstChild) frag.appendChild(probe.firstChild);
+                        startCell.parentNode.insertBefore(frag, startCell);
+
+                        // Remove the old Status..Task cells (inclusive)
+                        let node = startCell;
+                        while (node) {
+                            const next = node.nextSibling;
+                            node.parentNode.removeChild(node);
+                            if (node === endCell) break;
+                            node = next;
+                        }
                     }
-                });
+                }
 
                 // Update task history section (if it exists)
                 const historyRow = document.getElementById(`tasks-row-${employee.id}`);
@@ -1449,39 +981,11 @@
                 }
             }
 
-            // Function to refresh projects data
-            async function refreshProjectsData() {
-                try {
-                    const response = await fetch('{{ route("admin.refresh-projects") }}', {
-                        method: 'GET',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json',
-                        }
-                    });
-
-                    if (!response.ok) throw new Error('Failed to fetch project data');
-
-                    const data = await response.json();
-                    if (data.success) {
-                        const container = document.getElementById('projects-container');
-                        if (container) {
-                            container.innerHTML = data.html;
-                        }
-                    }
-
-                } catch (error) {
-                    console.error('[AUTO-REFRESH] Projects Error:', error);
-                }
-            }
-
             // Start auto-refresh
             function startAutoRefresh() {
                 refreshEmployeeData();
-                refreshProjectsData();
                 refreshTimer = setInterval(() => {
                     refreshEmployeeData();
-                    refreshProjectsData();
                 }, AUTO_REFRESH_INTERVAL);
             }
 
@@ -1519,14 +1023,18 @@
 
                     const originalText = submitButton.textContent.trim();
                     const originalClasses = submitButton.className;
+                    // Icon-only buttons have no text content: the textContent feedback below
+                    // would wipe their SVG, so they only get the disabled state as feedback.
+                    const isIconButton = originalText === '' && submitButton.querySelector('svg');
 
                     // Prevent double submission
                     if (submitButton.disabled) return;
 
-                    // Handle confirmation dialogs
+                    // Handle confirmation dialogs (custom modal, replaces native confirm())
                     const confirmMessage = form.getAttribute('data-confirm');
                     if (confirmMessage) {
-                        if (!confirm(confirmMessage)) {
+                        const confirmed = await requestActionConfirm(form.getAttribute('data-confirm-kind') || 'default', confirmMessage, originalText);
+                        if (!confirmed) {
                             return; // User cancelled
                         }
                     }
@@ -1535,9 +1043,8 @@
                         const onsubmit = form.getAttribute('onsubmit');
                         const confirmMatch = onsubmit.match(/confirm\(['"](.+?)['"]\)/);
                         if (confirmMatch) {
-                            // This path shouldn't be taken for forms where we removed onsubmit
-                            // But keeping it for other forms
-                            if (!confirm(confirmMatch[1])) {
+                            const confirmed = await requestActionConfirm('default', confirmMatch[1], originalText);
+                            if (!confirmed) {
                                 return; // User cancelled
                             }
                         }
@@ -1551,7 +1058,7 @@
                                 originalText === 'Active' ? 'Updating...' :
                                     originalText === 'Inactive' ? 'Updating...' :
                                         originalText === 'Archive' ? 'Archiving...' : 'Processing...';
-                        submitButton.textContent = loadingText;
+                        if (!isIconButton) submitButton.textContent = loadingText;
 
                         const formData = new FormData(form);
                         const response = await fetch(form.action, {
@@ -1570,6 +1077,14 @@
                             // Trigger immediate refresh to show updated data
                             await refreshEmployeeData();
 
+                            // Chrono actions change the GLOBAL timer state: let the navbar
+                            // (single timer owner) re-fetch the source of truth so it, the
+                            // store and all row controls reflect it immediately, no reload.
+                            // Single mechanism: one event (single-flight guard dedupes anyway).
+                            if (/\/(start|stop|pause|resume)(\/|$|[?#])/.test(form.action)) {
+                                try { window.dispatchEvent(new CustomEvent('chrono-revalidate', { detail: { force: true } })); } catch {}
+                            }
+
                             // Show success feedback
                             const successText = originalText === 'Start' ? 'Started!' :
                                 originalText === 'Stop' ? 'Stopped!' :
@@ -1577,8 +1092,10 @@
                                         originalText === 'Inactive' ? 'Activated!' :
                                             originalText === 'Archive' ? 'Archived!' : 'Done!';
 
-                            submitButton.textContent = successText;
-                            submitButton.classList.add('bg-green-600');
+                            if (!isIconButton) {
+                                submitButton.textContent = successText;
+                                submitButton.classList.add('bg-green-600');
+                            }
 
                             setTimeout(() => {
                                 submitButton.textContent = originalText;
@@ -1590,8 +1107,10 @@
                         }
                     } catch (error) {
                         console.error('AJAX form submission error:', error);
-                        submitButton.textContent = 'Error';
-                        submitButton.classList.add('bg-red-600');
+                        if (!isIconButton) {
+                            submitButton.textContent = 'Error';
+                            submitButton.classList.add('bg-red-600');
+                        }
 
                         setTimeout(() => {
                             submitButton.textContent = originalText;
@@ -1627,7 +1146,7 @@
             });
 
             // Mobile accordion for Team employees Overview table
-            const employeeOverviewMql = window.matchMedia('(max-width: 1024px)');
+            const employeeOverviewMql = window.matchMedia('(max-width: 1365px)');
 
             function setEmployeeOverviewRowCollapsed(row, collapsed) {
                 if (!row) return;
@@ -1660,8 +1179,6 @@
 
             initEmployeeOverviewAccordion();
         </script>
-
-        {{-- Stop Comment Modal --}}
         <div id="stopCommentModal" class="modal">
             <div class="modal-content-custom">
                 <span id="stopCommentClose" class="close-button">&times;</span>
@@ -1754,6 +1271,70 @@
                 </div>
             </div>
         </div>
+
+        {{-- Generic action confirmation modal (replaces native confirm()) --}}
+        <div id="confirmActionModal" class="modal" style="z-index: 70;">
+            <div class="modal-content-custom" style="max-width: 400px;">
+                <div class="flex items-center justify-center mb-3">
+                    <div id="confirmActionIconWrap" class="rounded-full p-3 dt-confirm-icon-danger">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <h2 id="confirmActionTitle" class="text-lg font-semibold text-slate-800 mb-2"></h2>
+                <p id="confirmActionMessage" class="text-sm text-slate-500 mb-5"></p>
+                <div class="flex justify-center gap-2">
+                    <button type="button" id="confirmActionCancelBtn" class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">{{ __('messages.Cancel') }}</button>
+                    <button type="button" id="confirmActionOkBtn" class="dt-confirm-danger">OK</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Reusable promise-based confirmation dialog (replaces native confirm()).
+            // Usage: const ok = await requestActionConfirm('stop'|'archive'|'delete'|'default', message, fallbackOkText);
+            let confirmActionResolve = null;
+            const CONFIRM_ACTION_KINDS = {
+                stop: { title: "{{ __('messages.Stop Task') }}", ok: "{{ __('messages.Stop') }}", tone: 'danger' },
+                archive: { title: "{{ __('messages.Archive') }}", ok: "{{ __('messages.Archive') }}", tone: 'warn' },
+                delete: { title: "{{ __('messages.Delete') }}", ok: "{{ __('messages.Delete') }}", tone: 'danger' },
+                default: { title: "{{ __('messages.Are you sure?') }}", ok: "{{ __('messages.Confirm') }}", tone: 'danger' }
+            };
+            function requestActionConfirm(kind, message, fallbackOkText) {
+                const preset = CONFIRM_ACTION_KINDS[kind] || CONFIRM_ACTION_KINDS.default;
+                document.getElementById('confirmActionTitle').textContent = preset.title;
+                document.getElementById('confirmActionMessage').textContent = message;
+                const okBtn = document.getElementById('confirmActionOkBtn');
+                okBtn.textContent = preset.ok || fallbackOkText || 'OK';
+                okBtn.classList.remove('dt-confirm-danger', 'dt-confirm-warn');
+                okBtn.classList.add(preset.tone === 'warn' ? 'dt-confirm-warn' : 'dt-confirm-danger');
+                const iconWrap = document.getElementById('confirmActionIconWrap');
+                iconWrap.classList.remove('dt-confirm-icon-danger', 'dt-confirm-icon-warn');
+                iconWrap.classList.add(preset.tone === 'warn' ? 'dt-confirm-icon-warn' : 'dt-confirm-icon-danger');
+                document.getElementById('confirmActionModal').style.display = 'block';
+                okBtn.focus();
+                return new Promise((resolve) => { confirmActionResolve = resolve; });
+            }
+            function closeConfirmActionDialog(result) {
+                document.getElementById('confirmActionModal').style.display = 'none';
+                if (confirmActionResolve) {
+                    const resolve = confirmActionResolve;
+                    confirmActionResolve = null;
+                    resolve(result);
+                }
+            }
+            document.getElementById('confirmActionOkBtn').addEventListener('click', () => closeConfirmActionDialog(true));
+            document.getElementById('confirmActionCancelBtn').addEventListener('click', () => closeConfirmActionDialog(false));
+            document.getElementById('confirmActionModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('confirmActionModal')) closeConfirmActionDialog(false);
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && document.getElementById('confirmActionModal').style.display === 'block') {
+                    closeConfirmActionDialog(false);
+                }
+            });
+        </script>
 
         <script>
             $(document).ready(function() {
@@ -1967,6 +1548,9 @@
                             // Refresh the dashboard data to reflect the stopped task
                             if (typeof refreshEmployeeData === 'function') refreshEmployeeData();
                             if (typeof startAutoRefresh === 'function') startAutoRefresh();
+                            // Same shared sync as every chrono action: navbar re-fetches
+                            // the source of truth (pill, list, store, row controls).
+                            try { window.dispatchEvent(new CustomEvent('chrono-revalidate', { detail: { force: true } })); } catch {}
                         } else {
                             throw new Error('Request failed');
                         }
@@ -2074,3 +1658,5 @@
                 });
             });
         </script>
+    </div>{{-- /p-4 sm:p-6 main content inner --}}
+</div>{{-- /flex-1 overflow-auto --}}

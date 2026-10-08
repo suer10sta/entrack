@@ -213,6 +213,15 @@
                                     Tasks Reports
                                 </a>
                                 @endcan
+                                @can('View task')
+                                <a href="{{ $routeFor('tasks', 'board') }}"
+                                    class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
+                                    @if(request()->routeIs('*.tasks.board'))
+                                        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
+                                    @endif
+                                    {{ __('messages.Tasks') }}
+                                </a>
+                                @endcan
                                 @can('View team')
                                 <a href="{{ $teamRoute }}"
                                     class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">

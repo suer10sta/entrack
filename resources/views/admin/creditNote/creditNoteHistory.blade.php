@@ -552,7 +552,9 @@
                     fetch(`/admin/invoice/${invoiceId}/recipients`)
                         .then(r => r.json())
                         .then(data => {
-                            if (data.recipients?.length) {
+                            if (data.message && (!data.recipients || data.recipients.length === 0)) {
+                                container.innerHTML = '<p class="text-sm text-red-600">' + data.message + '</p>';
+                            } else if (data.recipients?.length) {
                                 container.innerHTML = data.recipients.map(rec => `
                                     <div class="flex items-center mb-2">
                                         <input class="h-4 w-4 text-[#2D7080] border-slate-300 rounded focus:ring-[#2D7080]"

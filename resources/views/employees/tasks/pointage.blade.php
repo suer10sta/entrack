@@ -515,7 +515,9 @@
                                                 @endcan
 
                                                 @unless($task_timer)
-                                                    <form class="inline-flex items-center gap-2 flex-wrap" action="{{ route($routePrefix.'.tasks.start', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST">
+                                                    <form class="inline-flex items-center gap-2 flex-wrap" action="{{ route($routePrefix.'.tasks.start', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST"
+                                                        data-chrono-start data-chrono-employee="{{ $employee_id }}"
+                                                        data-chrono-emp-task="{{ $task->id }}" data-chrono-task="{{ $task_id }}">
                                                         @csrf
                                                         <input type="text"
                                                                name="comment"
@@ -528,7 +530,9 @@
                                                 @endunless
 
                                                 @if($task_timer)
-                                                    <form class="inline-block stop-form" action="{{ route($routePrefix.'.tasks.stop', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST">
+                                                    <form class="inline-block stop-form" action="{{ route($routePrefix.'.tasks.stop', ['tasks' => $task->id, 'employee_id' => $employee_id]) }}" method="POST"
+                                                        data-chrono-stop data-chrono-employee="{{ $employee_id }}"
+                                                        data-chrono-emp-task="{{ $task->id }}" data-chrono-task="{{ $task_id }}">
                                                         @csrf
                                                         <input type="hidden" name="stop_comment" class="stop-comment-field">
                                                         <button type="submit" class="stop-button bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-1.5 px-3 rounded-lg shadow-sm whitespace-nowrap transition-colors" data-task-id="{{$task->id}}">
@@ -873,7 +877,7 @@
             function hideAlert() { modal.style.display = "none"; }
             function startAlertInterval() { clearInterval(alertInterval); alertInterval = setInterval(showAlert, 300000); }
             function clearAlertInterval() { clearInterval(alertInterval); }
-            function handleTimerStarted() { tasksTimer = { paused: 0, pause_date: null }; hideAlert(); clearAlertInterval(); }
+            function handleTimerStarted() { tasksTimer = { paused: 0, pause_date: null }; hideAlert(); clearAlertInterval(); try { window.dispatchEvent(new CustomEvent('chrono-revalidate', { detail: { force: true } })); } catch {} }
             function handleTimerStopped() { tasksTimer = null; startAlertInterval(); }
 
             var tasksTimer = @json($tasks_timer);

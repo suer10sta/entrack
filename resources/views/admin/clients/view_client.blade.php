@@ -462,7 +462,7 @@
                                     <td data-label="{{ __('messages.VAT') }}" class="px-4 py-2.5 whitespace-nowrap text-sm text-slate-700">%{{$project->tva}}</td>
                                     <td data-label="{{ __('messages.Client column') }}" class="px-4 py-2.5 whitespace-nowrap text-sm text-slate-700">
                                         {{-- Client link logic truncated for brevity, assuming it's the current client --}}
-                                        {{ App\Models\Client::where('id', $project->client_id)->first()->name }}
+                                        {{ $project->client_id ? (App\Models\Client::where('id', $project->client_id)->first()->name ?? 'No client') : 'No client' }}
                                     </td>
                                     <td data-label="{{ __('messages.Teams column') }}" data-span="2" class="px-4 py-2.5 text-sm text-slate-700">
                                         @foreach(App\Models\project_teams::where('project_id', $project->id)->get() as $project_team)

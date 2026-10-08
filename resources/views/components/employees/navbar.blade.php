@@ -372,6 +372,9 @@
     </div>
 </header>
 
+{{-- Global toast notifications (flash messages + AJAX flows) --}}
+<x-app-toast />
+
 @once
     <script>
         if (!window.Alpine) {

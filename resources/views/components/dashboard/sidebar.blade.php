@@ -68,7 +68,7 @@
 
 <aside
     id="appSidebar"
-    class="hidden fixed inset-y-0 left-0 z-50 bg-[#0B2638] border-r border-white/10 flex-col justify-between h-screen overflow-y-auto dt-sidebar-scroll transform -translate-x-full transition-all duration-300 ease-out lg:static lg:sticky lg:top-0 lg:translate-x-0 lg:flex"
+    class="hidden fixed inset-y-0 left-0 z-50 bg-[#0B2638] border-r border-white/10 flex-col justify-between h-screen overflow-y-auto dt-sidebar-scroll transform -translate-x-full transition-all duration-300 ease-out lg:relative lg:inset-auto lg:translate-x-0 lg:flex lg:shrink-0"
 >
         <div class="flex-1 flex flex-col min-h-0">
             {{-- Brand + collapse toggle --}}
@@ -110,6 +110,36 @@
                     <span class="sidebar-label truncate">{{ __('messages.Dashboard') }}</span>
                     <span class="sidebar-tip">{{ __('messages.Dashboard') }}</span>
                 </a>
+                {{-- Projects — directly below Dashboard --}}
+                @can('View project')
+                <a href="{{ route('admin.projects.index') }}" title="{{ __('messages.projects_page_title') }}"
+                    class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] transition-colors {{ request()->routeIs('admin.projects.index') || request()->routeIs('admin.projects.show') || request()->routeIs('admin.projects.edit') || request()->routeIs('admin.projects.create') || request()->routeIs('admin.tasks.create') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                    @if(request()->routeIs('admin.projects.index') || request()->routeIs('admin.projects.show') || request()->routeIs('admin.projects.edit') || request()->routeIs('admin.projects.create') || request()->routeIs('admin.tasks.create'))
+                        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
+                    @endif
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+                    </svg>
+                    <span class="sidebar-label truncate">{{ __('messages.projects_page_title') }}</span>
+                    <span class="sidebar-tip">{{ __('messages.projects_page_title') }}</span>
+                </a>
+                @endcan
+                {{-- Tasks — directly below Projects --}}
+                @can('View task')
+                <a href="{{ route('admin.tasks.board') }}" title="{{ __('messages.Tasks') }}"
+                    class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] transition-colors {{ request()->routeIs('admin.tasks.board') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                    @if(request()->routeIs('admin.tasks.board'))
+                        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
+                    @endif
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="sidebar-label truncate">{{ __('messages.Tasks') }}</span>
+                    <span class="sidebar-tip">{{ __('messages.Tasks') }}</span>
+                </a>
+                @endcan
                     </div>
                 </div>
 
@@ -126,6 +156,7 @@
                                 request()->routeIs('admin.employees.index') ||
                                 request()->routeIs('admin.teams.index') ||
                                 request()->routeIs('admin.projects.index') ||
+                                request()->routeIs('admin.projects.report') ||
                                 request()->routeIs('admin.tasks.index') ||
                                 request()->routeIs('admin.tasks.pointage') ||
                                 request()->routeIs('admin.workDaysReports.*');
@@ -176,9 +207,9 @@
                         </a>
                         @endcan
                         @can('View project')
-                        <a href="{{ route('admin.projects.index') }}"
+                        <a href="{{ route('admin.projects.report') }}"
                             class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
-                            @if(request()->routeIs('admin.projects.index'))
+                            @if(request()->routeIs('admin.projects.report'))
                                 <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                             @endif
                             {{ __('messages.Projects Reports') }}

@@ -38,13 +38,13 @@
                     <div class="border-t border-gray-200 my-5"></div>
 
                     @if(Auth::user()->hasRole('Admin'))
-                    <form method="POST" action="{{route('admin.projects.store', $client_id)}}" autocomplete="off" class="space-y-6">
+                    <form method="POST" action="{{route('admin.projects.store', $client_id ?? '')}}" autocomplete="off" class="space-y-6">
                     @elseif(Auth::user()->hasRole('Responsable de projet'))
-                    <form method="POST" action="{{route('Responsable_de_projet.projects.store', $client_id)}}" autocomplete="off" class="space-y-6">
+                    <form method="POST" action="{{route('Responsable_de_projet.projects.store', $client_id ?? '')}}" autocomplete="off" class="space-y-6">
                     @elseif(Auth::user()->hasRole('Employee'))
-                    <form method="POST" action="{{route('employee.projects.store', $client_id)}}" autocomplete="off" class="space-y-6">
+                    <form method="POST" action="{{route('employee.projects.store', $client_id ?? '')}}" autocomplete="off" class="space-y-6">
                     @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                    <form method="POST" action="{{route('Responsable_gestionnaire.projects.store', $client_id)}}" autocomplete="off" class="space-y-6">
+                    <form method="POST" action="{{route('Responsable_gestionnaire.projects.store', $client_id ?? '')}}" autocomplete="off" class="space-y-6">
                     @endif
                         @csrf
                         @if(!empty($parent_id))
@@ -55,6 +55,15 @@
                             <div class="md:col-span-4">
                                 <label for="projectName" class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Project Name') }} <span class="text-red-500">*</span></label>
                                 <input type="text" id="projectName" name='name' class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                            </div>
+                            <div class="md:col-span-4">
+                                <label for="clientSelect" class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Client') }}</label>
+                                <select id="clientSelect" name="client_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <option value="">{{ __('messages.No client') }}</option>
+                                    @foreach($clients as $client)
+                                    <option value="{{ $client->id }}" {{ ($client_id ?? '') == $client->id ? 'selected' : '' }}>{{ $client->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="md:col-span-2">
                                 <label for="projectBudget" class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Budget label') }}</label>
@@ -111,8 +120,8 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-2">{{ __('messages.Contacts label') }} <span class="text-red-500">*</span></label>
-                                @php 
-                                $client_contacts = App\Models\client_contacts::where('client_id', $client_id)
+                                @php
+                                $client_contacts = App\Models\client_contacts::where('client_id', $client_id ?? null)
                                     ->whereNotNull('name')
                                     ->get();
                                 @endphp

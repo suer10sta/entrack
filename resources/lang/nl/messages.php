@@ -2819,5 +2819,54 @@ return [
     'Billing Information' => 'Facturatiegegevens',
     'Banking Information' => 'Bankgegevens',
     'Contact Information' => 'Contactgegevens',
+    'Perform a task' => 'Taak uitvoeren',
+    'Statut' => 'Status',
+    'Tâche en cours' => 'Lopende taak',
+
+    // Navbar Quick Add & Chrono
+    'quick_add' => 'Snel toevoegen',
+    'quick_add_client' => 'Nieuwe klant',
+    'quick_add_project' => 'Nieuw project',
+    'quick_add_task' => 'Nieuwe taak',
+    'quick_add_employee' => 'Nieuwe medewerker',
+    'quick_add_invoice' => 'Nieuwe factuur',
+    'start_chrono' => 'Chrono starten',
+    'chrono_search_project' => 'Project zoeken...',
+    'chrono_search_task' => 'Taak zoeken...',
+    'chrono_select_project_first' => 'Selecteer eerst een project',
+    'chrono_no_projects' => 'Geen projecten gevonden',
+    'chrono_no_tasks' => 'Geen taken gevonden',
+    'chrono_running' => 'Chrono loopt',
+    'chrono_stop' => 'Stoppen',
+    'chrono_open_task' => 'Taak openen',
+    'chrono_start' => 'Starten',
+    'chrono_select_project' => 'Project selecteren',
+    'chrono_select_task' => 'Taak selecteren',
+
+    // Creation toasts
+    'toast_created_client' => 'Klant succesvol aangemaakt.',
+    'toast_created_project' => 'Project succesvol aangemaakt.',
+    'toast_created_task' => 'Taak succesvol aangemaakt.',
+    'toast_failed_client' => 'Klant aanmaken mislukt.',
+    'toast_failed_project' => 'Project aanmaken mislukt.',
+    'toast_failed_task' => 'Taak aanmaken mislukt.',
+
+    // Pagination
+    'Showing' => 'Weergeven',
+    'of' => 'van',
+
+    // Projects page
+    'projects_page_title'      => 'Projecten',
+    'projects_page_subtitle'   => 'Beheer uw projecten, volg tijd en voortgang.',
+    'projects_search_placeholder' => 'Zoeken op project- of klantnaam...',
+    'projects_per_page'        => 'per pagina',
+    'Add Task to Project'      => 'Taak toevoegen',
+    'No projects found.'       => 'Geen projecten gevonden.',
+    'Status'                   => 'Status',
+    'Status Inactive'          => 'Inactief',
+    'Status Working'           => 'Bezig',
+    'Status Done'              => 'Klaar',
+    'Archive this project?'    => 'Dit project archiveren?',
+    'View project'             => 'Bekijken',
 
 ];

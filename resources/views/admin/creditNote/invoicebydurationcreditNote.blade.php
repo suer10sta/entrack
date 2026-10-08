@@ -15,6 +15,11 @@
         }
 </style>
 <body style='font-family:Tahoma;font-size:12px;color: #333333;background-color:#FFFFFF;'>
+    @if(session('error'))
+    <div role="alert" style="width: 555px; margin: 20px auto; background-color: #fdecea; border: 1px solid #f5c6cb; color: #b91c1c; padding: 10px 14px; border-radius: 6px; font-size: 13px; font-weight: bold;">
+        {{ session('error') }}
+    </div>
+    @endif
     <table align='center' border='0' cellpadding='0' cellspacing='0' style='height:842px; width:595px;font-size:12px;'>
         <tr>
             <td valign='top'>

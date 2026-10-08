@@ -10,51 +10,46 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-gradient-to-b from-sky-50 via-sky-100 to-slate-50 text-foreground font-sans antialiased">
+<body class="bg-[#f8fafc] text-slate-900 antialiased">
 
     <main class="min-h-screen relative flex items-center justify-center px-4 py-10 overflow-hidden">
         <div class="pointer-events-none absolute inset-0">
-            <div class="absolute -top-32 -left-32 h-72 w-72 rounded-full bg-sky-300/20 blur-3xl"></div>
-            <div class="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-sky-400/20 blur-3xl"></div>
+            <div class="absolute -top-32 -left-32 h-72 w-72 rounded-full bg-[#2D7080]/10 blur-3xl"></div>
+            <div class="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-[#E7B84B]/15 blur-3xl"></div>
         </div>
 
         <div class="relative z-10 w-full max-w-3xl">
-            <div
-                class="grid gap-8 rounded-2xl border-4 border-sky-200/60 bg-white/95 shadow-2xl ring-1 ring-border/40 backdrop-blur-md md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+            <div class="grid overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-slate-900/5 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
 
-                <div class="relative hidden flex-col justify-between border-r border-sky-200 bg-gradient-to-br from-sky-200 via-sky-300 to-sky-200 px-8 py-8 text-slate-800 md:flex">
+                <div class="relative hidden flex-col justify-between bg-gradient-to-br from-[#0B2638] via-[#0e2f42] to-[#14505f] px-8 py-8 text-white md:flex">
                     <div class="flex items-center justify-between mb-6">
-                        <div class="inline-flex items-center gap-2">
-                            <img
-                                src="{{ asset('img/dalytraclogo.png') }}"
-                                alt="DalyTrac logo"
-                                class="h-20 w-auto object-contain"
-                                
-                            />
+                        <div class="flex items-center gap-2.5">
+                            <span class="flex-shrink-0 w-9 h-9 rounded-xl bg-[#E7B84B] flex items-center justify-center text-[#0B2638] font-extrabold text-[15px] tracking-tight">DT</span>
+                            <span class="inline-flex items-baseline text-[1.1rem] font-extrabold tracking-[-0.03em] text-white leading-none"><span>Daly</span><strong class="font-extrabold text-[#7fb3bf]">Trac</strong></span>
                         </div>
-                        <span
-                            class="inline-flex h-7 items-center rounded-full border border-sky-200 bg-white/70 px-3 text-[10px] text-sky-700">
+                        <span class="inline-flex h-7 items-center rounded-full bg-[#E7B84B]/15 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#E7B84B] ring-1 ring-[#E7B84B]/40">
                             Manager
                         </span>
                     </div>
 
                     <div class="mt-auto">
-                        <p class="text-sm text-sky-900/80 leading-relaxed">
-                            Manage subscriptions, invoices and entreprise accounts from a dedicated manager area,
-                            without impacting normal users.
+                        <p class="text-[22px] font-bold tracking-tight leading-snug">
+                            Manage subscriptions, invoices and entreprise accounts.
+                        </p>
+                        <p class="mt-2 text-sm text-slate-300/90 leading-relaxed">
+                            A dedicated manager area with high-level metrics and billing oversight, without impacting normal users.
                         </p>
                     </div>
                 </div>
 
                 <div class="px-6 py-8 md:px-8">
                     <div class="mb-6 text-center md:text-left">
-                        <h1 class="text-2xl font-semibold tracking-tight text-slate-900">
+                        <h1 class="text-2xl font-bold tracking-tight text-[#0B2638]">
                             Manager sign in
                         </h1>
                         <p class="mt-1 text-sm text-slate-500">
@@ -63,7 +58,7 @@
                     </div>
 
                     @if ($errors->any())
-                        <div class="mb-4 rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
+                        <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                             @foreach ($errors->all() as $error)
                                 <div>{{ $error }}</div>
                             @endforeach
@@ -78,7 +73,7 @@
                                 Email
                             </label>
                             <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
-                                class="block w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none ring-primary/10 transition placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-2">
+                                class="block w-full rounded-xl border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25">
                         </div>
 
                         <div class="space-y-1">
@@ -86,19 +81,18 @@
                                 Password
                             </label>
                             <input id="password" type="password" name="password" required
-                                class="block w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none ring-primary/10 transition placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-2">
+                                class="block w-full rounded-xl border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25">
                         </div>
 
                         <div class="flex items-center justify-between pt-1">
-                            <label class="inline-flex items-center gap-2">
+                            <label class="inline-flex items-center gap-2 cursor-pointer">
                                 <input id="remember" type="checkbox" name="remember"
-                                    class="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary/40">
+                                    class="h-4 w-4 rounded border-slate-300 text-[#2D7080] focus:ring-[#2D7080]/25">
                                 <span class="text-xs text-slate-600">Remember me</span>
                             </label>
                         </div>
 
-                        <button type="submit"
-                            class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/30 transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                        <button type="submit" class="dt-btn dt-btn-teal w-full py-2.5">
                             Sign in
                         </button>
                     </form>

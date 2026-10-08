@@ -200,14 +200,14 @@
                                 %{{$project->tva}}
                             </td>
                             <td class="px-4 py-3 text-[13px] text-slate-600" data-label="{{ __('messages.Client') }}">
-                                @php $clientName = App\Models\Client::where('id', $project->client_id)->first()->name; $clientRoute = '#'; @endphp
-                                @if(Auth::user()->hasRole('Admin') && Auth::user()->can('View client'))
+                                @php $clientName = $project->client_id ? (App\Models\Client::where('id', $project->client_id)->first()->name ?? 'No client') : 'No client'; $clientRoute = '#'; @endphp
+                                @if($project->client_id && Auth::user()->hasRole('Admin') && Auth::user()->can('View client'))
                                     @php $clientRoute = route('admin.clients.show', $project->client_id); @endphp
-                                @elseif(Auth::user()->hasRole('Responsable de projet') && Auth::user()->can('View client'))
+                                @elseif($project->client_id && Auth::user()->hasRole('Responsable de projet') && Auth::user()->can('View client'))
                                     @php $clientRoute = route('Responsable_de_projet.clients.show', $project->client_id); @endphp
-                                @elseif(Auth::user()->hasRole('Employee') && Auth::user()->can('View client'))
+                                @elseif($project->client_id && Auth::user()->hasRole('Employee') && Auth::user()->can('View client'))
                                     @php $clientRoute = route('employee.clients.show', $project->client_id); @endphp
-                                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire') && Auth::user()->can('View client'))
+                                @elseif($project->client_id && Auth::user()->hasRole('Responsable de projet et gestionnaire') && Auth::user()->can('View client'))
                                     @php $clientRoute = route('Responsable_gestionnaire.clients.show', $project->client_id); @endphp
                                 @endif
 

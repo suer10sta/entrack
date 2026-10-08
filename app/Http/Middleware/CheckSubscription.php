@@ -41,6 +41,14 @@ class CheckSubscription
             if ($user && (method_exists($user, 'hasRole') && $user->hasRole('super_admin'))) {
                 return $next($request);
             }
+
+            // A user without an entreprise has no subscription state to enforce
+            // (e.g. dangling entreprise_id, or manager-area requests carrying an
+            // unrelated web session) — let the request through instead of crashing.
+            if (!$entreprise) {
+                return $next($request);
+            }
+
             // Ensure the user has an 'entreprise' relationship loaded
             // We'll use auth()->user() which is generally available after login.
 

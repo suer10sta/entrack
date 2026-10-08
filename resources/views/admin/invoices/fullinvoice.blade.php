@@ -107,6 +107,16 @@
                 </div>
             </div>
 
+            {{-- Session Error Alert --}}
+            @if(session('error'))
+                <div class="mb-5 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl relative flex items-center gap-2" role="alert">
+                    <strong class="text-[13px] font-bold">{{ __('messages.Error!') }}</strong>
+                    <span class="block sm:inline text-[13px] font-medium">{{ session('error') }}</span>
+                    <button type="button" onclick="this.parentElement.style.display='none';"
+                            class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl text-red-600 hover:text-red-800" aria-label="{{ __('messages.Close') }}">&times;</button>
+                </div>
+            @endif
+
             {{-- Session Message Alert --}}
             @if(session('message'))
                 <div class="mb-5 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl relative flex items-center gap-2" role="alert">

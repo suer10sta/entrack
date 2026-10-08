@@ -84,9 +84,13 @@
                                                 </td>
                                                 <td>
                                                     <p class="text-sm font-weight-bold mb-0">
-                                                        <a href="{{route('admin.clients.show', $project->client_id)}}">
-                                                            {{App\Models\Client::where('id', $project->client_id)->first()->name}}
-                                                        </a>
+                                                        @if($project->client_id)
+                                                            <a href="{{route('admin.clients.show', $project->client_id)}}">
+                                                                {{App\Models\Client::where('id', $project->client_id)->first()->name}}
+                                                            </a>
+                                                        @else
+                                                            No client
+                                                        @endif
                                                     </p>
                                                 </td>
                                                 <td>

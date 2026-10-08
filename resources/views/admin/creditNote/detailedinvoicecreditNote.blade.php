@@ -105,6 +105,11 @@
     <button onclick="document.getElementById('debug-info').style.display = document.getElementById('debug-info').style.display === 'none' ? 'block' : 'none'" style="position: absolute; top: 5px; right: 5px; z-index: 1000; font-size: 10px;">Debug</button>
 
     <div class="container">
+        @if(session('error'))
+        <div role="alert" style="background-color: #fdecea; border: 1px solid #f5c6cb; color: #b91c1c; padding: 10px 14px; border-radius: 6px; font-size: 13px; font-weight: bold; margin-bottom: 20px;">
+            {{ session('error') }}
+        </div>
+        @endif
         <div class="header">
             <div class="header logo-right">
                 @if($entreprise->image)

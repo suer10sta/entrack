@@ -57,13 +57,13 @@
                 @endif
 
                 @if(Auth::user()->hasRole('Admin'))
-                    <form method="POST" action="{{ route('admin.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id]) }}" autocomplete="off">
+                    <form method="POST" action="{{ route('admin.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id ?? '']) }}" autocomplete="off">
                 @elseif(Auth::user()->hasRole('Responsable de projet'))
-                    <form method="POST" action="{{ route('Responsable_de_projet.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id]) }}" autocomplete="off">
+                    <form method="POST" action="{{ route('Responsable_de_projet.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id ?? '']) }}" autocomplete="off">
                 @elseif(Auth::user()->hasRole('Employee'))
-                    <form method="POST" action="{{ route('employee.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id]) }}" autocomplete="off">
+                    <form method="POST" action="{{ route('employee.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id ?? '']) }}" autocomplete="off">
                 @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                    <form method="POST" action="{{ route('Responsable_gestionnaire.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id]) }}" autocomplete="off">
+                    <form method="POST" action="{{ route('Responsable_gestionnaire.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id ?? '']) }}" autocomplete="off">
                 @endif
                     @csrf
 
@@ -85,6 +85,16 @@
                                 <div class="mb-4">
                                     <label for="projectName" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Project Name') }} <span class="text-red-500">*</span></label>
                                     <input type="text" id="projectName" name='name' value="{{ $project->name }}" class="w-full rounded-xl border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25" />
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="clientSelect" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Client') }}</label>
+                                    <select id="clientSelect" name="client_id" class="w-full rounded-xl border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25">
+                                        <option value="">{{ __('messages.No client') }}</option>
+                                        @foreach($clients as $client)
+                                        <option value="{{ $client->id }}" {{ ($project->client_id ?? '') == $client->id ? 'selected' : '' }}>{{ $client->name }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -192,7 +202,7 @@
                                     <span class="dt-badge dt-badge-navy flex-shrink-0"><span class="dt-dot"></span><span data-selected-count="contactsDiv">0</span></span>
                                 </div>
                                 @php
-                                $client_contacts = App\Models\client_contacts::where('client_id', $project->client_id)
+                                $client_contacts = App\Models\client_contacts::where('client_id', $project->client_id ?? null)
                                     ->whereNotNull('name')
                                     ->get();
                                 @endphp

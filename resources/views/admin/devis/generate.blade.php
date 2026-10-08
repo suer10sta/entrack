@@ -60,6 +60,15 @@
                     <h1 class="text-[18px] sm:text-[20px] lg:text-[22px] font-bold text-[#0B2638] leading-tight">{{ __('messages.New Devis') }}</h1>
                 </div>
 
+                {{-- Session Error --}}
+                @if(session('error'))
+                <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">{{ __('messages.Error!') }}</strong>
+                    <span class="block sm:inline">{{ session('error') }}</span>
+                    <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="{{ __('messages.Close') }}">&times;</button>
+                </div>
+                @endif
+
                 {{-- Session Message --}}
                 @if(session('message'))
                 <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
@@ -123,7 +132,7 @@
                                             <option
                                                 value="{{ $project->id }}"
                                                 data-tva="{{ $project->tva }}"
-                                                data-client-id="{{ $project->client_id }}"
+                                                data-client-id="{{ $project->client_id ?? '' }}"
                                             >
                                                 {{ $project->name }}
                                             </option>

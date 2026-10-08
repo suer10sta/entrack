@@ -447,7 +447,9 @@
                             const recipientsList = document.getElementById('recipientsList');
                             if (!recipientsList) return;
                             recipientsList.innerHTML = '';
-                            if (data.recipients && data.recipients.length > 0) {
+                            if (data.message && (!data.recipients || data.recipients.length === 0)) {
+                                recipientsList.innerHTML = '<p class="text-sm text-red-600">' + data.message + '</p>';
+                            } else if (data.recipients && data.recipients.length > 0) {
                                 recipientsList.innerHTML += `
                                     <div class="flex items-center">
                                         <input class="h-4 w-4 rounded border-slate-300 text-[#2D7080] focus:ring-[#2D7080]/30" type="checkbox" id="selectAllRecipients">
@@ -665,6 +667,14 @@
                     $projectIndexRoute = route($taskRoutePrefix . 'projects.index');
                 @endphp
 
+                @if(session('error'))
+                    <div class="flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl mb-4 relative" role="alert">
+                        <svg class="w-4 h-4 flex-shrink-0 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <span class="text-sm font-medium">{{ session('error') }}</span>
+                        <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-2.5 right-3 text-red-500 hover:text-red-700 text-lg leading-none" aria-label="{{ __('messages.Close') }}">&times;</button>
+                    </div>
+                @endif
+
                 @if(session('alertmessage'))
                     <div class="flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl mb-4 relative" role="alert">
                         <svg class="w-4 h-4 flex-shrink-0 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -696,6 +706,13 @@
                             · {{ __('messages.End Date') }}: {{ $projectEndDate }}
                             · {{ __('messages.Created') }}: {{ optional($project->created_at)->format('d-m-Y') ?? '-' }}
                         </p>
+                        @if(!$project->client_id)
+                            <div class="flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl mt-3" role="alert">
+                                <svg class="w-4 h-4 flex-shrink-0 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                                <span class="text-sm font-medium">This project has no client assigned. You must assign a client before creating invoices, devis, or credit notes.</span>
+                                <a href="{{ route($taskRoutePrefix . 'projects.edit', $project->id) }}" class="dt-btn dt-btn-teal text-[12px] ml-auto flex-shrink-0">Assign Client</a>
+                            </div>
+                        @endif
                     </div>
                     <div class="flex flex-wrap items-center gap-2 flex-shrink-0">
                         <a href="{{ $projectIndexRoute }}" class="dt-btn dt-btn-ghost text-[12px]">
@@ -860,7 +877,7 @@
                                         ? 'admin.projects.create'
                                         : 'Responsable_de_projet.projects.create';
                                 @endphp
-                                <a href="{{ route($createRouteName, ['client_id' => $project->client_id, 'parent_id' => $project->id]) }}"
+                                <a href="{{ route($createRouteName, ['client_id' => $project->client_id ?? null, 'parent_id' => $project->id]) }}"
                                    class="dt-btn dt-btn-teal">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                                     {{ __('messages.Create SubProject') }}
@@ -1059,7 +1076,9 @@
                                     <td data-label="{{ __('messages.Pointage') }}" data-span="2" class="text-[12.5px] text-slate-900">
                                         @if($employee_task)
                                             @if(!$task_timer)
-                                                <form class="flex flex-col gap-2" action="{{ route($taskRoutePrefix . 'tasks.start', ['tasks' => $employee_task->id, 'employee_id' => $current_employee_id]) }}" method="POST">
+                                                <form class="flex flex-col gap-2" action="{{ route($taskRoutePrefix . 'tasks.start', ['tasks' => $employee_task->id, 'employee_id' => $current_employee_id]) }}" method="POST"
+                                                    data-chrono-start data-chrono-employee="{{ $current_employee_id }}"
+                                                    data-chrono-emp-task="{{ $employee_task->id }}" data-chrono-task="{{ $task->id }}">
                                                     @csrf
                                                     <textarea name="comment" class="block w-full rounded-lg border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-xs py-1.5 px-2.5" placeholder="{{ __('messages.Comment placeholder') }}" rows="1" style="width: 110px;"></textarea>
                                                     <button class="act-btn act-btn-send" type="submit">
@@ -1068,7 +1087,9 @@
                                                     </button>
                                                 </form>
                                             @else
-                                                <form class="mt-2 stop-form" action="{{ route($taskRoutePrefix . 'tasks.stop', ['tasks' => $employee_task->id, 'employee_id' => $current_employee_id]) }}" method="POST">
+                                                <form class="mt-2 stop-form" action="{{ route($taskRoutePrefix . 'tasks.stop', ['tasks' => $employee_task->id, 'employee_id' => $current_employee_id]) }}" method="POST"
+                                                    data-chrono-stop data-chrono-employee="{{ $current_employee_id }}"
+                                                    data-chrono-emp-task="{{ $employee_task->id }}" data-chrono-task="{{ $task->id }}">
                                                     @csrf
                                                     <input type="hidden" name="stop_comment" class="stop-comment-field">
                                                     <button class="stop-button act-btn act-btn-unpaid" type="submit" data-task-id="{{ $task->id }}">

@@ -28,6 +28,13 @@
                         <div class="card card-body mt-4">
                             <h6 class="mb-0">{{ __('messages.Edit Percentage Invoice') }} {{ $entreprise->invoice_prefix }}-{{ $invoice->number }}</h6>
                             <p class="text-sm mb-0">{{ __('messages.Update the percentage invoice details') }}</p>
+                            @if(session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {{ session('error') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="{{ __('messages.Close') }}">X</button>
+                            </div>
+                            @endif
                             @if(session('message'))
                             <div class="alert alert-success alert-dismissible fade show" role="alert">
                                 {{ session('message') }}

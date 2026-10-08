@@ -239,16 +239,43 @@ class adminController extends Controller
             ->where('archived', 0)
             ->get();
 
-        $employeesData = $employees->map(function ($employee) {
+        $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
+
+        $employeesData = $employees->map(function ($employee) use ($isSuperAdmin) {
+            $employeeUser = \App\Models\User::find($employee->user_id);
+            $nowRow = \Carbon\Carbon::now();
+
+            // Same active-timer queries as the dashboard row @php block in
+            // components/dashboard/content.blade.php, so the shared
+            // employee-row-cells partial renders identical markup on AJAX
+            // refresh as it does on the initial page load (single source of truth).
+            if ($isSuperAdmin) {
+                $rowActiveTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                    ->whereNull('end_date')
+                    ->orderBy('start_date', 'desc')
+                    ->get();
+            } else {
+                $rowActiveTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
+                    ->whereNull('end_date')
+                    ->latest()->take(1)->get();
+            }
+            $rowTasksToday = $rowActiveTasks->concat(
+                \App\Models\tasks_timer::where('employee_id', $employee->id)
+                    ->whereDate('start_date', \Carbon\Carbon::today())
+                    ->whereNotNull('end_date')
+                    ->orderBy('start_date', 'desc')
+                    ->get()
+            )->groupBy('task_id');
+
             return [
                 'id' => $employee->id,
-                'currentStatus' => $this->renderCurrentStatus($employee),
-                'currentTask' => $this->renderCurrentTask($employee),
-                'currentProject' => $this->renderCurrentProject($employee),
-                'taskProgress' => $this->renderTaskProgress($employee),
-                'duration' => $this->renderDuration($employee),
-                'accountStatus' => $this->renderAccountStatus($employee),
-                'chrono' => $this->renderChrono($employee),
+                'rowCells' => view('components.dashboard.employee-row-cells', [
+                    'employee' => $employee,
+                    'employeeUser' => $employeeUser,
+                    'rowActiveTasks' => $rowActiveTasks,
+                    'rowTasksToday' => $rowTasksToday,
+                    'nowRow' => $nowRow,
+                ])->render(),
                 'taskHistory' => $this->renderTaskHistory($employee),
             ];
         });
@@ -260,418 +287,6 @@ class adminController extends Controller
     }
 
     // ===== HELPER METHODS =====
-
-    private function renderCurrentStatus($employee)
-    {
-        $employeeUser = \App\Models\User::find($employee->user_id);
-
-        if (!$employeeUser || $employeeUser->is_loggedIn == 0) {
-            return '<span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">' . e(__('messages.Off Work')) . '</span>';
-        }
-
-        // Any still-open timer counts, regardless of which day it started
-        $task_timer = \App\Models\tasks_timer::where('employee_id', $employee->id)
-            ->whereNull('end_date')
-            ->first();
-
-        if ($task_timer) {
-            if ($task_timer->paused == 1) {
-                return '<span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">' . e(__('messages.On Pause')) . '</span>';
-            }
-            return '<span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">' . e(__('messages.On Work')) . '</span>';
-        }
-
-        return '<span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">' . e(__('messages.Off Work')) . '</span>';
-    }
-
-    private function renderCurrentTask($employee)
-    {
-        // Open timers (any start day) plus everything worked on today (completed + active)
-        $today = \Carbon\Carbon::today();
-        $currentTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-            ->where(function ($q) use ($today) {
-                $q->whereNull('end_date')->orWhereDate('start_date', $today);
-            })
-            ->orderBy('start_date', 'desc')
-            ->get();
-
-        if ($currentTasks->isEmpty()) {
-            return '<span class="text-xs text-gray-400">' . e(__('messages.No Task')) . '</span>';
-        }
-
-        // Group current tasks by project to keep borders aligned with project/duration/chrono,
-        // but still show ALL task names
-        $groupedTasks = $currentTasks
-            ->map(function ($t) {
-                $projectId = \App\Models\Tasks::where('id', $t->task_id)->value('project_id');
-                $t->project_for_grouping = $projectId ?? 0;
-                return $t;
-            })
-            ->sortBy('project_for_grouping')
-            ->groupBy('project_for_grouping');
-
-        $html = '<div class="space-y-3">';
-        $totalGroups = count($groupedTasks);
-        $groupIndex = 0;
-
-        foreach ($groupedTasks as $projectId => $tasks) {
-            $groupIndex++;
-            $hasBorder = $groupIndex < $totalGroups;
-
-            $html .= '<div class="space-y-1' . ($hasBorder ? ' pb-2 border-b border-gray-200' : '') . '">';
-
-            // Show each task name once, even if there are multiple timers for it
-            $tasksById = $tasks->groupBy('task_id');
-
-            foreach ($tasksById as $taskId => $taskGroup) {
-                /** @var \App\Models\tasks_timer $currentTask */
-                $currentTask = $taskGroup->first();
-
-                // Determine if this task is currently active (at least one running timer)
-                $hasActiveTimer = $taskGroup->contains(function ($t) {
-                    return $t->end_date === null && (int) ($t->paused ?? 0) === 0;
-                });
-
-                // Active tasks stay blue; finished tasks are gray
-                $baseClasses = 'text-xs font-semibold ';
-                $colorClasses = $hasActiveTimer
-                    ? 'text-blue-600 hover:underline'
-                    : 'text-gray-400';
-                $classes = trim($baseClasses . $colorClasses) . ' block';
-
-                $route = '#';
-                if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin')) {
-                    $route = route('admin.tasks.show', $currentTask->task_id);
-                } elseif (auth()->user()->hasRole('Responsable de projet')) {
-                    $route = route('Responsable_de_projet.tasks.show', $currentTask->task_id);
-                }
-
-                $html .= '<a href="' . $route . '" class="' . e($classes) . '">' . e($currentTask->task_name) . '</a>';
-            }
-
-            $html .= '</div>';
-        }
-
-        $html .= '</div>';
-        return $html;
-    }
-
-    private function renderCurrentProject($employee)
-    {
-        // Open timers (any start day) plus ALL timers for today (completed + active)
-        // so we list every project
-        $today = \Carbon\Carbon::today();
-        $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-            ->where(function ($q) use ($today) {
-                $q->whereNull('end_date')->orWhereDate('start_date', $today);
-            })
-            ->orderBy('start_date', 'desc')
-            ->get();
-
-        if ($activeTasks->isEmpty()) {
-            return '<span class="text-xs text-gray-400">' . e(__('messages.No Project')) . '</span>';
-        }
-
-        // Group active tasks by project so project lines line up with tasks/duration/chrono
-        $groupedActiveTasks = $activeTasks
-            ->map(function ($t) {
-                $projectId = \App\Models\Tasks::where('id', $t->task_id)->value('project_id');
-                $t->project_for_grouping = $projectId ?? 0;
-                return $t;
-            })
-            ->sortBy('project_for_grouping')
-            ->groupBy('project_for_grouping');
-
-        $html = '<div class="space-y-3">';
-        $totalGroups = count($groupedActiveTasks);
-        $groupIndex = 0;
-
-        foreach ($groupedActiveTasks as $projectId => $projectTasks) {
-            $groupIndex++;
-            $hasBorder = $groupIndex < $totalGroups;
-            $linesCount = count($projectTasks);
-
-            $project = $projectId ? \App\Models\Project::find($projectId) : null;
-
-            // Determine if this project has any active (running) timer
-            $hasActiveTimer = $projectTasks->contains(function ($t) {
-                return $t->end_date === null && (int) ($t->paused ?? 0) === 0;
-            });
-
-            // Active projects stay green; finished projects are gray
-            $baseClasses = 'text-xs font-semibold ';
-            $colorClasses = $hasActiveTimer
-                ? 'text-emerald-600'
-                : 'text-gray-400';
-            $projectTextClasses = trim($baseClasses . $colorClasses);
-            $linkClasses = $hasActiveTimer ? 'hover:underline block' : 'block';
-
-            $html .= '<div class="space-y-1' . ($hasBorder ? ' pb-2 border-b border-gray-200' : '') . '">';
-
-            // First line: project name aligned with first task of this project
-            $html .= '<div class="' . e($projectTextClasses) . '">';
-            if ($project) {
-                $html .= '<a href="' . route('admin.projects.show', $project->id) . '" class="' . e($linkClasses) . '">' . e($project->name) . '</a>';
-            } else {
-                $html .= '<span class="text-gray-400 block">' . e(__('messages.No Project')) . '</span>';
-            }
-            $html .= '</div>';
-
-            // Extra spacer lines so tasks/durations/chrono stay aligned
-            for ($i = 1; $i < $linesCount; $i++) {
-                $html .= '<div class="text-xs">&nbsp;</div>';
-            }
-
-            $html .= '</div>';
-        }
-
-        $html .= '</div>';
-        return $html;
-    }
-
-    private function renderTaskProgress($employee)
-    {
-        $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
-
-        if ($isSuperAdmin) {
-            $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                ->whereDate('start_date', today())
-                ->whereNull('end_date')
-                ->orderBy('start_date', 'desc')
-                ->get();
-        } else {
-            $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                ->whereDate('start_date', today())
-                ->whereNull('end_date')
-                ->latest()
-                ->take(1)
-                ->get();
-        }
-
-        $firstActiveTask = $activeTasks->first();
-
-        if (!$firstActiveTask) {
-            return '<p class="text-xs font-medium text-gray-600">' . e(__('messages.No Task')) . '</p>';
-        }
-
-        $task = \App\Models\Tasks::where('id', $firstActiveTask->task_id)->first();
-
-        if (!$task || $task->estimated_hours === null) {
-            return '<p class="text-xs font-medium text-gray-600">' . e(__('messages.No Estimated Hours Inserted')) . '</p>';
-        }
-
-        $tasktotalduration = \App\Models\tasks_timer::where('task_id', $firstActiveTask->task_id)
-            ->where('employee_id', $employee->id)
-            ->sum('duration');
-
-        $taskestimatedMinutes = $task->estimated_hours * 60;
-        $taskprogressPercentage = $taskestimatedMinutes > 0 ? ($tasktotalduration / $taskestimatedMinutes) * 100 : 0;
-        $taskformattedProgressPercentage = number_format($taskprogressPercentage, 2);
-
-        $colorClass = 'bg-emerald-500';
-        if ($taskprogressPercentage >= 75) {
-            $colorClass = 'bg-red-500';
-        } elseif ($taskprogressPercentage >= 50) {
-            $colorClass = 'bg-amber-500';
-        }
-
-        return '<div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                <div class="h-2 rounded-full text-[10px] text-white flex items-center justify-center ' . $colorClass . '" style="width: ' . $taskformattedProgressPercentage . '%;">
-                </div>
-            </div>
-            <p class="mt-1 text-xs font-medium text-gray-700">' . $taskformattedProgressPercentage . '%</p>';
-    }
-
-    private function renderDuration($employee)
-    {
-        // Show TOTAL worked time today per task, grouped by project
-        $today = \Carbon\Carbon::today();
-
-        // All timers (completed + active) for this employee today
-        $timersToday = \App\Models\tasks_timer::where('employee_id', $employee->id)
-            ->whereDate('start_date', $today)
-            ->orderBy('start_date', 'desc')
-            ->get();
-
-        if ($timersToday->isEmpty()) {
-            return '<span class="text-xs font-medium text-gray-700">' . e(__('messages.No work today')) . '</span>';
-        }
-
-        $now = \Carbon\Carbon::now();
-
-        // Group timers by project first
-        $groupedActiveTasks = $timersToday
-            ->map(function ($t) {
-                $projectId = \App\Models\Tasks::where('id', $t->task_id)->value('project_id');
-                $t->project_for_grouping = $projectId ?? 0;
-                return $t;
-            })
-            ->sortBy('project_for_grouping')
-            ->groupBy('project_for_grouping');
-
-        $html = '<div class="space-y-3">';
-        $totalGroups = count($groupedActiveTasks);
-        $groupIndex = 0;
-
-        foreach ($groupedActiveTasks as $projectId => $projectTasks) {
-            $groupIndex++;
-            $hasBorder = $groupIndex < $totalGroups;
-
-            $html .= '<div class="space-y-1 w-full' . ($hasBorder ? ' pb-2 border-b border-gray-200' : '') . '">';
-
-            // Within this project, group timers by task_id to get a total per task
-            $tasksById = $projectTasks->groupBy('task_id');
-            $project = $projectId ? \App\Models\Project::find($projectId) : null;
-
-            foreach ($tasksById as $taskId => $taskTimers) {
-                // Sum total minutes for this task today (completed + active)
-                $totalMinutes = 0;
-
-                foreach ($taskTimers as $timer) {
-                    $baseMinutes = (int) ($timer->duration ?? 0);
-
-                    if ($timer->end_date === null) {
-                        // Active timer - add live time from start until now (or paused)
-                        $startTime = \Carbon\Carbon::parse($timer->start_date);
-                        if ($timer->paused == 1) {
-                            // Paused: only stored minutes
-                            $totalMinutes += $baseMinutes;
-                        } else {
-                            // Running: stored minutes + elapsed since start
-                            $elapsedSeconds = $startTime->diffInSeconds($now);
-                            $totalMinutes += $baseMinutes + (int) floor($elapsedSeconds / 60);
-                        }
-                    } else {
-                        // Completed timer: stored duration is already in minutes
-                        $totalMinutes += $baseMinutes;
-                    }
-                }
-
-                $hours = floor($totalMinutes / 60);
-                $minutes = $totalMinutes % 60;
-
-                $html .= '<div class="text-xs">';
-                $html .= '<div class="font-semibold text-gray-800">';
-                $html .= $hours . 'h:' . sprintf('%02d', $minutes) . 'm';
-                $html .= '</div></div>';
-            }
-
-            // Project total (all time)
-            if ($project) {
-                $projecttasksId = \App\Models\Tasks::where('project_id', $project->id)->pluck('id');
-                $projectTotalMinutes = \App\Models\tasks_timer::where(function ($q) use ($projecttasksId, $project) {
-                    $q->whereIn('task_id', $projecttasksId)
-                        ->orWhere('project_id', $project->id);
-                })->where('employee_id', $employee->id)->sum('duration');
-                $projectTotalHours = floor($projectTotalMinutes / 60);
-                $projectTotalMins = $projectTotalMinutes % 60;
-
-                $html .= '<div class="text-xs text-gray-500 mt-1 pt-1 border-t border-gray-200">';
-                $html .= e(__('messages.Total')) . ': ' . $projectTotalHours . 'h:' . sprintf('%02d', $projectTotalMins) . 'm';
-                $html .= '</div>';
-            }
-
-            $html .= '</div>';
-        }
-
-        $html .= '</div>';
-        return $html;
-    }
-
-    private function renderAccountStatus($employee)
-    {
-        $employeeUser = \App\Models\User::find($employee->user_id);
-
-        if ($employeeUser && $employeeUser->is_activate == 1) {
-            return '<form action="' . route('admin.employee.deactivate', $employee->id) . '" method="post" data-confirm="' . e(__('messages.Are you sure?')) . '">
-                    ' . csrf_field() . '
-                    <button type="submit" class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 hover:bg-emerald-200">
-                        ' . e(__('messages.Active')) . '
-                    </button>
-                </form>';
-        }
-
-        return '<form action="' . route('admin.employee.activate', $employee->id) . '" method="post" data-confirm="' . e(__('messages.Are you sure?')) . '">
-                ' . csrf_field() . '
-                <button type="submit" class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200">
-                    ' . e(__('messages.Inactive')) . '
-                </button>
-            </form>';
-    }
-
-    private function renderChrono($employee)
-    {
-        $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
-
-        if ($isSuperAdmin) {
-            $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                ->whereDate('start_date', today())
-                ->whereNull('end_date')
-                ->orderBy('start_date', 'desc')
-                ->get();
-        } else {
-            $activeTasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                ->whereDate('start_date', today())
-                ->whereNull('end_date')
-                ->latest()
-                ->take(1)
-                ->get();
-        }
-
-        if ($activeTasks->isEmpty()) {
-            return '<span class="text-xs text-gray-400">' . e(__('messages.No Active Timer')) . '</span>';
-        }
-
-        $html = '';
-
-        if ($isSuperAdmin && $activeTasks->count() > 1) {
-            $html .= '<button type="button" class="inline-flex items-center px-3 py-1 mb-2 rounded-full text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200" onclick="stopAllTimersForEmployee(' . $employee->id . ')">' . e(__('messages.Stop all')) . '</button>';
-        }
-
-        // Group active tasks by project for visual separation in Chrono
-        $groupedActiveTasks = $activeTasks
-            ->map(function ($t) {
-                $projectId = \App\Models\Tasks::where('id', $t->task_id)->value('project_id');
-                $t->project_for_grouping = $projectId ?? 0;
-                return $t;
-            })
-            ->sortBy('project_for_grouping')
-            ->groupBy('project_for_grouping');
-
-        $html .= '<div class="space-y-3 flex flex-col items-center">';
-        $totalGroups = count($groupedActiveTasks);
-        $groupIndex = 0;
-
-        foreach ($groupedActiveTasks as $projectId => $projectTasks) {
-            $groupIndex++;
-            $hasBorder = $groupIndex < $totalGroups;
-
-            $html .= '<div class="space-y-1 w-full flex flex-col items-center' . ($hasBorder ? ' pb-2 border-b border-gray-200' : '') . '">';
-
-            foreach ($projectTasks as $activeTask) {
-                $currentUserEmployeeId = \App\Models\Employees::where('user_id', auth()->user()->id)->first()?->id;
-                $isOwnTask = ($employee->id == $currentUserEmployeeId);
-
-                if ($isOwnTask) {
-                    $html .= '<form class="flex items-center justify-center gap-2 stop-form stop-form-' . $employee->id . '" action="' . route('admin.tasks.stop', ['tasks' => $activeTask->task_employee_id, 'employee_id' => $employee->id]) . '" method="POST">';
-                    $html .= csrf_field();
-                    $html .= '<input type="hidden" name="stop_comment" class="stop-comment-field">';
-                    $html .= '<button type="submit" class="stop-button inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white hover:bg-red-600" data-task-id="' . $activeTask->task_id . '">' . e(__('messages.Stop')) . '</button>';
-                    $html .= '</form>';
-                } else {
-                    $html .= '<form class="flex items-center justify-center gap-2 stop-form-' . $employee->id . '" action="' . route('admin.tasks.stop', ['tasks' => $activeTask->task_employee_id, 'employee_id' => $employee->id]) . '" method="POST" data-confirm="' . e(__('messages.Stop')) . '">';
-                    $html .= csrf_field();
-                    $html .= '<button type="submit" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white hover:bg-red-600">' . e(__('messages.Stop')) . '</button>';
-                    $html .= '</form>';
-                }
-            }
-
-            $html .= '</div>';
-        }
-
-        $html .= '</div>';
-        return $html;
-    }
 
     private function renderTaskHistory($employee)
     {
@@ -709,7 +324,7 @@ class adminController extends Controller
             ->sortByDesc('end_date');
 
         if ($completedTasksToday->isEmpty()) {
-            return '<p class="text-sm text-gray-500">' . e(__('messages.No completed tasks today.')) . '</p>';
+            return '<p class="text-xs text-slate-500">' . e(__('messages.No completed tasks today.')) . '</p>';
         }
 
         $html = '';
@@ -730,20 +345,20 @@ class adminController extends Controller
             $taskName = $doneTask->task_name ?? ($taskModel->title ?? __('messages.Task'));
             $projectDisplay = $projectName ?? __('messages.No project linked');
 
-            $html .= '<div class="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2">';
+            $html .= '<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2">';
             $html .= '<div class="flex flex-col">';
-            $html .= '<span class="text-sm font-medium text-gray-900">' . e($taskName) . '</span>';
-            $html .= '<span class="text-xs text-gray-500">' . e($projectDisplay) . '</span>';
+            $html .= '<span class="text-sm font-medium text-slate-900">' . e($taskName) . '</span>';
+            $html .= '<span class="text-xs text-slate-500">' . e($projectDisplay) . '</span>';
             $html .= '</div>';
-            $html .= '<div class="flex items-center gap-3">';
+            $html .= '<div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">';
             $html .= '<span class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700">' . e(__('messages.Completed')) . '</span>';
-            $html .= '<span class="text-xs text-gray-700 whitespace-nowrap">' . $h . 'h ' . $m . 'm</span>';
+            $html .= '<span class="text-xs text-slate-700 whitespace-nowrap">' . $h . 'h ' . $m . 'm</span>';
 
             // Start button form
             $html .= '<form action="' . route('admin.tasks.start', ['tasks' => $doneTask->task_employee_id ?? $doneTask->task_id, 'employee_id' => $doneTask->employee_id]) . '" method="POST" class="history-start-form" data-task-id="' . ($doneTask->task_employee_id ?? $doneTask->task_id) . '">';
             $html .= csrf_field();
-            $html .= '<textarea name="comment" placeholder="' . e(__('messages.Enter comment')) . '" rows="1" class="border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring focus:ring-emerald-200 resize-y min-h-[32px]"></textarea>';
-            $html .= '<button type="submit" class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500 text-white hover:bg-emerald-600">' . e(__('messages.Start')) . '</button>';
+            $html .= '<textarea name="comment" placeholder="' . e(__('messages.Enter comment')) . '" rows="1" class="border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring focus:ring-emerald-200 resize-y min-h-[32px] w-full sm:w-56"></textarea>';
+            $html .= '<button type="submit" class="inline-flex items-center justify-center px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500 text-white hover:bg-emerald-600 w-full sm:w-auto">' . e(__('messages.Start')) . '</button>';
             $html .= '</form>';
 
             $html .= '</div></div>';

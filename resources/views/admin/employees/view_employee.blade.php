@@ -724,25 +724,25 @@
                                 </thead>
                                 <tbody class="bg-white divide-y divide-slate-100">
                                     @foreach($projectsByClient as $client_id => $clientProjects)
-                                        @php $client = App\Models\Client::find($client_id); @endphp
+                                        @php $client = filled($client_id) ? App\Models\Client::find($client_id) : null; @endphp
                                         <tr class="bg-slate-100/70 emp-group-row employee-client-group cursor-pointer select-none"
                                             data-client-group="{{ $client_id }}" aria-expanded="true">
                                             <td colspan="4" class="px-4 py-2.5">
                                                 <div class="flex items-center justify-between gap-3">
                                                     <h6 class="text-[13px] font-bold text-[#0B2638]">
                                                     @php $clientRoute = '#'; @endphp
-                                                    @if(Auth::user()->hasRole('Admin') && Auth::user()->can('View client'))
+                                                    @if(filled($client_id) && Auth::user()->hasRole('Admin') && Auth::user()->can('View client'))
                                                         @php $clientRoute = route('admin.clients.show', $client_id); @endphp
-                                                    @elseif(Auth::user()->hasRole('Responsable de projet') && Auth::user()->can('View client'))
+                                                    @elseif(filled($client_id) && Auth::user()->hasRole('Responsable de projet') && Auth::user()->can('View client'))
                                                         @php $clientRoute = route('Responsable_de_projet.clients.show', $client_id); @endphp
-                                                    @elseif(Auth::user()->hasRole('Employee') && Auth::user()->can('View client'))
+                                                    @elseif(filled($client_id) && Auth::user()->hasRole('Employee') && Auth::user()->can('View client'))
                                                         @php $clientRoute = route('employee.clients.show', $client_id); @endphp
                                                     @endif
 
                                                     @if($clientRoute != '#')
-                                                        <a href="{{ $clientRoute }}" class="hover:text-[#2D7080]">{{$client->name}}</a>
+                                                        <a href="{{ $clientRoute }}" class="hover:text-[#2D7080]">{{ $client->name ?? __('messages.Unknown Client') }}</a>
                                                     @else
-                                                        {{$client->name}}
+                                                        {{ $client->name ?? __('messages.Unknown Client') }}
                                                     @endif
                                                     </h6>
 
@@ -985,7 +985,9 @@
                                                 <div class="emp-task-actions">
                                                 @if($employeeTask && (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('SuperAdmin') || Auth::user()->hasRole('super_admin')))
                                                     @if(!$taskTimer)
-                                                        <form class="flex flex-col gap-1" action="{{ route($taskRoutePrefix . 'tasks.start', ['tasks' => $employeeTask->id, 'employee_id' => $employee->id]) }}" method="POST">
+                                                        <form class="flex flex-col gap-1" action="{{ route($taskRoutePrefix . 'tasks.start', ['tasks' => $employeeTask->id, 'employee_id' => $employee->id]) }}" method="POST"
+                                                            data-chrono-start data-chrono-employee="{{ $employee->id }}"
+                                                            data-chrono-emp-task="{{ $employeeTask->id }}" data-chrono-task="{{ $task->id }}">
                                                             @csrf
                                                             <textarea
                                                                 name="comment"
@@ -1005,6 +1007,8 @@
                                                             class="flex items-center justify-center @if($is_own_task) stop-form @endif"
                                                             action="{{ route($taskRoutePrefix . 'tasks.stop', ['tasks' => $employeeTask->id, 'employee_id' => $employee->id]) }}"
                                                             method="POST"
+                                                            data-chrono-stop data-chrono-employee="{{ $employee->id }}"
+                                                            data-chrono-emp-task="{{ $employeeTask->id }}" data-chrono-task="{{ $task->id }}"
                                                         >
                                                             @csrf
                                                             @if($is_own_task)

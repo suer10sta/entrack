@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}"> {{-- IMPORTANT pour AJAX --}}
-    <title>DalyTrac Dashboard</title>
+    <title>{{ __('messages.Task Details') }} — DalyTrac</title>
     @vite('resources/css/app.css')
     <style>
-        td.editable-comment { cursor: pointer; background-color: #f9fafb; }
-        td.editable-comment:hover { background-color: #eff6ff; }
+        td.editable-comment { cursor: pointer; }
+        td.editable-comment:hover { background-color: #f0fafb !important; }
         td.editable-comment .comment-text { border-bottom: 1px dashed #9ca3af; }
         td.editable-comment .comment-text:empty::before {
             content: '{{ __('messages.Double-click to add comment') }}';
@@ -16,9 +16,71 @@
             color: #9ca3af;
             font-style: italic;
         }
+        /* Sticky table head on desktop */
+        @media (min-width: 1024px) {
+            #taskDetailsTable thead th { position: sticky; top: 0; z-index: 5; }
+        }
+        /* Mobile: table becomes stacked cards (no side-scroll) */
+        @media (max-width: 1023px) {
+            #taskDetailsTable thead { display: none; }
+            #taskDetailsTable tbody { display: block; width: 100%; }
+            #taskDetailsTable tbody tr.di-day { display: block; margin: 0 0 2px 0; padding: 0; border: none; background: none; box-shadow: none; }
+            #taskDetailsTable tbody tr.di-row {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+                margin-bottom: 10px;
+                padding: 12px;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                background: #fff;
+                box-shadow: 0 2px 10px -4px rgba(11,38,56,.08);
+            }
+            #taskDetailsTable tbody tr.di-total {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                margin-bottom: 10px;
+                padding: 10px 12px;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                background: #f8fafc;
+            }
+            #taskDetailsTable tbody td {
+                display: block;
+                width: 100%;
+                padding: 8px 10px !important;
+                border: 1px solid rgba(226,232,240,.8);
+                border-radius: 10px;
+                background: rgba(248,250,252,.7);
+                text-align: left !important;
+                white-space: normal !important;
+                word-break: break-word;
+            }
+            #taskDetailsTable tbody td[data-span="2"] { grid-column: span 2 / span 2; }
+            #taskDetailsTable tbody td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+                color: #94a3b8;
+                margin-bottom: 4px;
+            }
+            #taskDetailsTable tbody tr.di-total td,
+            #taskDetailsTable tbody tr.di-day td {
+                border: none;
+                background: none;
+                padding: 0 !important;
+            }
+            #taskDetailsTable tbody tr.di-total td[data-label]::before,
+            #taskDetailsTable tbody tr.di-day td[data-label]::before { content: none; }
+        }
     </style>
 </head>
-<body class="bg-gray-50 flex h-screen overflow-hidden">
+<body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
     {{-- Sidebar --}}
     @if(Auth::user()->hasRole('Admin'))
         <x-dashboard.sidebar />
@@ -31,82 +93,158 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-8">
 
-<div class="w-full max-w-7xl mx-auto"> {{-- Utilisation de max-w-7xl pour une page large --}}
+<div class="w-full max-w-7xl mx-auto">
 
-    {{-- Message d'alerte (style Tailwind) --}}
+    @php
+        $diTasks = $tasks ?? collect();
+        $diTotal = (int) $diTasks->sum('duration');
+        $diDays = $diTasks->map(function ($t) { return \Carbon\Carbon::parse($t->start_date)->format('Y-m-d'); })->unique()->count();
+        $diFirst = $diTasks->first();
+    @endphp
+
+    <!-- {{-- Header --}}
+    <div class="flex items-center gap-3 mb-4">
+        <a href="javascript:history.back()" title="{{ __('messages.Cancel') }}" aria-label="{{ __('messages.Cancel') }}"
+            class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-[#0B2638] hover:bg-slate-50 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+        </a>
+        <div class="min-w-0 flex-1">
+            <p class="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400">{{ __('messages.Task Details') }}</p>
+                        <h1 class="text-[19px] sm:text-[22px] font-bold tracking-tight text-[#0B2638] leading-tight truncate" title="{{ $diFirst->task_name ?? '' }}">
+                            {{ $diFirst->task_name ?? __('messages.Task Details') }}
+                        </h1>
+                    </div>
+                    <div class="flex flex-shrink-0 items-center gap-1.5">
+                        @php
+                            $diTaskId = $diFirst->task_id ?? null;
+                            $editRoute = '#';
+                            $deleteRoute = '#';
+                            if (Auth::user()->hasRole('Admin')) {
+                                $editRoute = $diTaskId ? route('admin.tasks.edit', $diTaskId) : '#';
+                                $deleteRoute = $diTaskId ? route('admin.tasks.destroy', $diTaskId) : '#';
+                            } elseif (Auth::user()->hasRole('Responsable de projet')) {
+                                $editRoute = $diTaskId ? route('Responsable_de_projet.tasks.edit', $diTaskId) : '#';
+                                $deleteRoute = $diTaskId ? route('Responsable_de_projet.tasks.destroy', $diTaskId) : '#';
+                            } elseif (Auth::user()->hasRole('Employee')) {
+                                $editRoute = $diTaskId ? route('employee.tasks.edit', $diTaskId) : '#';
+                                $deleteRoute = $diTaskId ? route('employee.tasks.destroy', $diTaskId) : '#';
+                            } elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                                $editRoute = $diTaskId ? route('Responsable_gestionnaire.tasks.edit', $diTaskId) : '#';
+                            }
+                        @endphp
+                        @can('Update task')
+                        <a href="{{ $editRoute }}" title="{{ __('messages.Edit') }}" aria-label="{{ __('messages.Edit') }}"
+                            class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-[#2D7080] hover:bg-slate-50 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M4 20h4l9.5-9.5-4-4L4 16v4z"/></svg>
+                        </a>
+                        @endcan
+                        @can('Delete task')
+                        <form method="post" action="{{ $deleteRoute }}" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" title="{{ __('messages.Delete') }}" aria-label="{{ __('messages.Delete') }}"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862A2 2 0 015.995 19.142L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16"/></svg>
+                            </button>
+                        </form>
+                        @endcan
+        </div>
+        <span class="dt-badge dt-badge-navy flex-shrink-0">
+            <span class="dt-dot"></span>
+            <span class="tabular-nums">{{ floor($diTotal / 60) }}h:{{ str_pad($diTotal % 60, 2, '0', STR_PAD_LEFT) }}m</span>
+        </span>
+    </div> -->
+
+    {{-- Message d'alerte --}}
     @if(session('alertmessage'))
-    <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-        <strong class="font-bold">Erreur !</strong>
-        <span class="block sm:inline">{{ session('alertmessage') }}</span>
-        <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="Close">&times;</button>
+    <div class="mb-3 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl relative" role="alert">
+        <strong class="font-bold text-[13px]">{{ __('messages.Error!') }}</strong>
+        <span class="block sm:inline text-[13px]">{{ session('alertmessage') }}</span>
+        <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-2 right-3 font-bold text-lg leading-none" aria-label="{{ __('messages.Close') }}">&times;</button>
     </div>
     @endif
 
-    {{-- Carte de la Table (style Tailwind) --}}
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    {{-- Summary strip --}}
+    <!-- <div class="grid grid-cols-3 gap-2.5 mb-3">
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm px-3.5 py-2.5">
+            <p class="text-[10px] font-bold uppercase tracking-[0.07em] text-slate-400">{{ __('messages.Duration') }}</p>
+            <p class="text-[17px] font-bold text-[#0B2638] tabular-nums leading-tight mt-0.5">{{ floor($diTotal / 60) }}h:{{ str_pad($diTotal % 60, 2, '0', STR_PAD_LEFT) }}m</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm px-3.5 py-2.5">
+            <p class="text-[10px] font-bold uppercase tracking-[0.07em] text-slate-400">{{ __('messages.Task') }}</p>
+            <p class="text-[17px] font-bold text-[#0B2638] tabular-nums leading-tight mt-0.5">{{ $diTasks->count() }}</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm px-3.5 py-2.5">
+            <p class="text-[10px] font-bold uppercase tracking-[0.07em] text-slate-400">{{ __('messages.End Date') }}</p>
+            <p class="text-[17px] font-bold text-[#0B2638] tabular-nums leading-tight mt-0.5">{{ $diDays }}</p>
+        </div>
+    </div> -->
+
+    {{-- Table card --}}
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+            <table id="taskDetailsTable" class="min-w-full divide-y divide-slate-100">
+                <thead class="bg-white">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tâche</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employé</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Début</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Fin</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durée</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">Tâche</th>
+                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">Employé</th>
+                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">Date Début</th>
+                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">Date Fin</th>
+                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">Durée</th>
+                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">
                             {{ __('messages.Comment column') }}
-                            <span class="block text-[10px] font-normal text-gray-400 normal-case">{{ __('messages.Double-click to add comment') }}</span>
+                            <span class="block text-[10px] font-medium text-slate-400 normal-case tracking-normal">{{ __('messages.Double-click to add comment') }}</span>
                         </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Déplacer Durée</th>
+                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">Déplacer Durée</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white divide-y divide-slate-50">
                     {{-- LOGIQUE PHP D'ORIGINE RESTAURÉE --}}
-                    @php 
+                    @php
                         $total_duration = 0;
                         $grouped_tasks = $tasks->groupBy(function($task) {
                             return \Carbon\Carbon::parse($task->start_date)->format('Y-m-d');
                         })->sortKeys();
                     @endphp
-                    
+
                     @foreach($grouped_tasks as $date => $day_tasks)
                         @php
                             $daily_duration = 0;
                             $formatted_date = \Carbon\Carbon::parse($date)->format('d-m-Y');
                         @endphp
-                        
+
                         {{-- Ligne d'en-tête de Date --}}
-                        <tr>
-                            <td colspan="7" class="px-6 py-3 bg-gray-100">
-                                <h6 class="mb-0 text-sm font-bold text-gray-900">{{ \Carbon\Carbon::parse($date)->format('l') }} : {{ $formatted_date }}</h6>
+                        <tr class="di-day">
+                            <td colspan="7" class="px-4 py-2 bg-slate-200/60">
+                                <h6 class="mb-0 text-[12.5px] font-bold text-[#0B2638]">{{ \Carbon\Carbon::parse($date)->format('l') }} : {{ $formatted_date }}</h6>
                             </td>
                         </tr>
-                        
+
                         @foreach($day_tasks as $task)
-                            <tr>
+                            <tr class="di-row hover:bg-slate-50/70 transition-colors">
                                 {{-- Tâche --}}
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                                <td data-label="{{ __('messages.Task') }}" data-span="2" class="px-4 py-2.5 whitespace-nowrap text-[13px] font-semibold text-[#0B2638]">
                                     {{$task->task_name}}
                                 </td>
                                 {{-- Employé (LOGIQUE D'ORIGINE RESTAURÉE) --}}
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <td data-label="{{ __('messages.Employees') }}" class="px-4 py-2.5 whitespace-nowrap text-[13px] text-slate-600">
                                     @php
                                         $employee_name = App\Models\Employees::where('id', $task->employee_id)->pluck('name')->first();
                                     @endphp
                                     {{$employee_name}}
                                 </td>
                                 {{-- Date Début --}}
-                                <td class="clickable px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-medium cursor-pointer hover:underline" data-field="start_date" data-task-id="{{ $task->id }}">
+                                <td class="clickable px-4 py-2.5 whitespace-nowrap text-[13px] text-[#2D7080] font-medium cursor-pointer hover:underline" data-field="start_date" data-task-id="{{ $task->id }}">
                                     {{ \Carbon\Carbon::parse($task->start_date)->format('d-m-Y H:i:s') }}
                                 </td>
                                 {{-- Date Fin --}}
-                                <td class="clickable px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-medium cursor-pointer hover:underline" data-field="end_date" data-task-id="{{ $task->id }}">
+                                <td class="clickable px-4 py-2.5 whitespace-nowrap text-[13px] text-[#2D7080] font-medium cursor-pointer hover:underline" data-field="end_date" data-task-id="{{ $task->id }}">
                                     {{ $task->end_date ? \Carbon\Carbon::parse($task->end_date)->format('d-m-Y H:i:s') : 'En cours' }}
                                 </td>
                                 {{-- Durée (LOGIQUE D'ORIGINE RESTAURÉE) --}}
-                                <td id="duration-{{ $task->id }}" class="duration clickable px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-bold cursor-pointer hover:underline" data-task-id="{{ $task->id }}">
+                                <td id="duration-{{ $task->id }}" class="duration clickable px-4 py-2.5 whitespace-nowrap text-[13px] text-[#0B2638] font-bold cursor-pointer hover:underline tabular-nums" data-task-id="{{ $task->id }}">
                                     @php
                                         $tasktotalduration = $task->duration;
                                         $taskhours = floor($tasktotalduration / 60);
@@ -117,7 +255,8 @@
                                     {{$taskhours}}h:{{ str_pad($taskminutes, 2, '0', STR_PAD_LEFT) }}m
                                 </td>
                                 {{-- Commentaire --}}
-                                <td class="px-6 py-4 text-sm text-gray-700 whitespace-normal break-words editable-comment"
+                                <td class="px-4 py-2.5 text-[13px] text-slate-600 whitespace-normal break-words editable-comment"
+                                    data-label="{{ __('messages.Comment column') }}"
                                     data-id="{{ $task->id }}"
                                     data-field="comment"
                                     @php
@@ -137,51 +276,52 @@
                                     <span class="comment-text">{{ $task->comment }}</span>
                                 </td>
                                 {{-- Déplacer Durée --}}
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    <button class="move-duration-btn inline-flex items-center bg-gray-600 hover:bg-gray-700 text-white font-medium px-3 py-1.5 rounded-lg text-xs" 
-                                            data-task-id="{{$task->id}}" 
-                                            data-project-id="{{$task->project_id}}" 
+                                <td class="px-4 py-2.5 whitespace-nowrap text-sm">
+                                    <button class="move-duration-btn inline-flex items-center gap-1.5 bg-[#0B2638] hover:bg-[#14364d] text-white font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors"
+                                            data-task-id="{{$task->id}}"
+                                            data-project-id="{{$task->project_id}}"
                                             data-employee-id="{{$task->employee_id}}"
                                             data-start-date="{{$task->start_date}}"
                                             data-end-date="{{$task->end_date}}"
                                             data-duration="{{$task->duration}}">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
                                         Déplacer
                                     </button>
                                 </td>
                             </tr>
                         @endforeach
-                        
+
                         {{-- Ligne Total Quotidien (LOGIQUE D'ORIGINE RESTAURÉE) --}}
-                        <tr>
-                            <td colspan="4" class="px-6 py-4 text-right text-sm font-bold text-gray-800">
+                        <tr class="di-total bg-slate-50/60">
+                            <td colspan="4" class="px-4 py-2.5 text-right text-[12.5px] font-bold text-slate-500">
                                 Total Quotidien
                             </td>
-                            <td class="px-6 py-4 text-sm font-bold text-gray-900">
+                            <td class="px-4 py-2.5 text-[13px] font-bold text-[#0B2638] tabular-nums">
                                 @php
                                     $dailyhours = floor($daily_duration / 60);
                                     $dailyminutes = $daily_duration % 60;
                                 @endphp
                                 {{$dailyhours}}h:{{ str_pad($dailyminutes, 2, '0', STR_PAD_LEFT) }}m
                             </td>
-                            <td class="px-6 py-4"></td>
-                            <td class="px-6 py-4"></td> {{-- Cellule vide pour l'alignement --}}
+                            <td class="px-4 py-2.5 hidden lg:table-cell"></td>
+                            <td class="px-4 py-2.5 hidden lg:table-cell"></td>
                         </tr>
                     @endforeach
-                    
+
                     {{-- Ligne Grand Total (LOGIQUE D'ORIGINE RESTAURÉE) --}}
-                    <tr class="bg-gray-50 border-t-2 border-gray-300">
-                        <td colspan="4" class="px-6 py-4 text-right text-base font-bold text-gray-900">
+                    <tr class="di-total bg-[#0B2638]/[0.04] border-t-2 border-[#0B2638]/10">
+                        <td colspan="4" class="px-4 py-3 text-right text-[13.5px] font-bold text-[#0B2638]">
                             Grand Total
                         </td>
-                        <td class="px-6 py-4 text-base font-bold text-blue-700">
+                        <td class="px-4 py-3 text-[14px] font-bold text-[#2D7080] tabular-nums">
                             @php
                                 $totalhours = floor($total_duration / 60);
                                 $totalminutes = $total_duration % 60;
                             @endphp
                             {{$totalhours}}h:{{ str_pad($totalminutes, 2, '0', STR_PAD_LEFT) }}m
                         </td>
-                        <td class="px-6 py-4"></td>
-                        <td class="px-6 py-4"></td> {{-- Cellule vide pour l'alignement --}}
+                        <td class="px-4 py-3 hidden lg:table-cell"></td>
+                        <td class="px-4 py-3 hidden lg:table-cell"></td>
                     </tr>
                 </tbody>
             </table>
@@ -192,44 +332,44 @@
 </div>
 
 {{-- ====================================================== --}}
-{{-- MODALS (STYLE TAILWIND)                              --}}
+{{-- MODALS                                                 --}}
 {{-- ====================================================== --}}
 
-<div id="editDateModal" 
-     class="fixed inset-0 z-50 flex items-center justify-center hidden bg-gray-900 bg-opacity-50 transition-opacity"
-     aria-labelledby="editDateModalLabel" 
-     role="dialog" 
+<div id="editDateModal"
+     class="fixed inset-0 z-50 flex items-center justify-center hidden bg-[#0B2638]/50 transition-opacity px-4"
+     aria-labelledby="editDateModalLabel"
+     role="dialog"
      aria-modal="true">
-    <div class="relative w-full max-w-md p-4 mx-auto bg-white rounded-lg shadow-xl transform transition-all sm:p-6">
+    <div class="relative w-full max-w-md p-5 mx-auto bg-white rounded-xl shadow-xl transform transition-all sm:p-6">
         <form id="editDateForm">
             {{-- En-tête --}}
-            <div class="flex items-start justify-between pb-4 border-b border-gray-200">
-                <h5 class="text-lg font-semibold text-gray-900" id="editDateModalLabel">Modifier Date et Heure</h5>
-                <button type="button" data-modal-close="editDateModal" class="text-gray-400 bg-transparent rounded-lg hover:bg-gray-200 hover:text-gray-900 text-sm p-1.5 ml-auto inline-flex items-center">
+            <div class="flex items-start justify-between pb-3 border-b border-slate-100">
+                <h5 class="text-[15px] font-bold text-[#0B2638]" id="editDateModalLabel">Modifier Date et Heure</h5>
+                <button type="button" data-modal-close="editDateModal" class="text-slate-400 bg-transparent rounded-lg hover:bg-slate-100 hover:text-slate-600 text-sm p-1.5 ml-auto inline-flex items-center transition-colors">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                 </button>
             </div>
-            {{-- Corps (Champs Date et Heure séparés, comme l'original) --}}
-            <div class="py-6 space-y-4">
+            {{-- Corps --}}
+            <div class="py-4 space-y-3">
                 <div>
-                    <label for="dateInput" class="block text-sm font-medium text-gray-700">Date</label>
-                    <input type="date" id="dateInput" required 
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    <label for="dateInput" class="block text-[12.5px] font-medium text-slate-700 mb-1">Date</label>
+                    <input type="date" id="dateInput" required
+                           class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm">
                 </div>
                 <div>
-                    <label for="timeInput" class="block text-sm font-medium text-gray-700">Heure</label>
-                    <input type="time" id="timeInput" required 
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    <label for="timeInput" class="block text-[12.5px] font-medium text-slate-700 mb-1">Heure</label>
+                    <input type="time" id="timeInput" required
+                           class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm">
                 </div>
                 <input type="hidden" id="taskId" value="">
                 <input type="hidden" id="fieldName" value="">
             </div>
             {{-- Pied de page --}}
-            <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4 border-t border-gray-200">
-                <button type="button" data-modal-close="editDateModal" class="mt-2 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+            <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-3 border-t border-slate-100">
+                <button type="button" data-modal-close="editDateModal" class="mt-2 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors">
                     Fermer
                 </button>
-                <button type="button" id="saveChangesBtn" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700">
+                <button type="button" id="saveChangesBtn" class="w-full sm:w-auto inline-flex justify-center rounded-lg border border-transparent bg-[#0B2638] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#14364d] transition-colors">
                     Enregistrer
                 </button>
             </div>
@@ -237,65 +377,67 @@
     </div>
 </div>
 
-<div id="moveDurationModal" 
-     class="fixed inset-0 z-50 flex items-center justify-center hidden bg-gray-900 bg-opacity-50 transition-opacity"
-     aria-labelledby="moveDurationModalLabel" 
-     role="dialog" 
+<div id="moveDurationModal"
+     class="fixed inset-0 z-50 flex items-center justify-center hidden bg-[#0B2638]/50 transition-opacity px-4"
+     aria-labelledby="moveDurationModalLabel"
+     role="dialog"
      aria-modal="true">
-    <div class="relative w-full max-w-lg p-4 mx-auto bg-white rounded-lg shadow-xl transform transition-all sm:p-6">
+    <div class="relative w-full max-w-lg p-5 mx-auto bg-white rounded-xl shadow-xl transform transition-all sm:p-6 max-h-[90vh] overflow-y-auto">
         <form id="moveDurationForm">
             {{-- En-tête --}}
-            <div class="flex items-start justify-between pb-4 border-b border-gray-200">
-                <h5 class="text-lg font-semibold text-gray-900" id="moveDurationModalLabel">Déplacer la Durée</h5>
-                <button type="button" data-modal-close="moveDurationModal" class="text-gray-400 bg-transparent rounded-lg hover:bg-gray-200 hover:text-gray-900 text-sm p-1.5 ml-auto inline-flex items-center">
+            <div class="flex items-start justify-between pb-3 border-b border-slate-100">
+                <h5 class="text-[15px] font-bold text-[#0B2638]" id="moveDurationModalLabel">Déplacer la Durée</h5>
+                <button type="button" data-modal-close="moveDurationModal" class="text-slate-400 bg-transparent rounded-lg hover:bg-slate-100 hover:text-slate-600 text-sm p-1.5 ml-auto inline-flex items-center transition-colors">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                 </button>
             </div>
             {{-- Corps --}}
-            <div class="py-6 space-y-4">
+            <div class="py-4 space-y-3">
                 <div>
-                    <label for="projectSelect" class="block text-sm font-medium text-gray-700">Projet</label>
-                    <select id="projectSelect" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    <label for="projectSelect" class="block text-[12.5px] font-medium text-slate-700 mb-1">Projet</label>
+                    <select id="projectSelect" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm">
                         @foreach($projects as $project)
                             <option value="{{ $project->id }}">{{ $project->name }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div>
-                    <label for="taskSelect" class="block text-sm font-medium text-gray-700">Tâche</label>
-                    <select id="taskSelect" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"></select>
+                    <label for="taskSelect" class="block text-[12.5px] font-medium text-slate-700 mb-1">Tâche</label>
+                    <select id="taskSelect" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm"></select>
                 </div>
                 <div>
-                    <label for="employeeSelect" class="block text-sm font-medium text-gray-700">Employé</label>
-                    <select id="employeeSelect" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    <label for="employeeSelect" class="block text-[12.5px] font-medium text-slate-700 mb-1">Employé</label>
+                    <select id="employeeSelect" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm">
                         @foreach($employees as $employee)
                             <option value="{{ $employee->id }}">{{ $employee->name }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div>
-                    <label for="moveStartDate" class="block text-sm font-medium text-gray-700">Date de Début</label>
-                    <input type="datetime-local" id="moveStartDate" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label for="moveStartDate" class="block text-[12.5px] font-medium text-slate-700 mb-1">Date de Début</label>
+                        <input type="datetime-local" id="moveStartDate" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="moveEndDate" class="block text-[12.5px] font-medium text-slate-700 mb-1">Date de Fin</label>
+                        <input type="datetime-local" id="moveEndDate" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm">
+                        <p id="moveEndDateError" class="mt-2 text-sm text-red-600 hidden">La date de fin doit être après la date de début.</p>
+                    </div>
                 </div>
                 <div>
-                    <label for="moveEndDate" class="block text-sm font-medium text-gray-700">Date de Fin</label>
-                    <input type="datetime-local" id="moveEndDate" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                    <p id="moveEndDateError" class="mt-2 text-sm text-red-600 hidden">La date de fin doit être après la date de début.</p>
-                </div>
-                <div>
-                    <label for="moveDuration" class="block text-sm font-medium text-gray-700">Durée (HH:MM)</label>
-                    <input type="text" id="moveDuration" required pattern="^([0-9]{2}h:[0-9]{2}m)$" placeholder="00h:00m" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    <label for="moveDuration" class="block text-[12.5px] font-medium text-slate-700 mb-1">Durée (HH:MM)</label>
+                    <input type="text" id="moveDuration" required pattern="^([0-9]{2}h:[0-9]{2}m)$" placeholder="00h:00m" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm">
                     <p id="moveDurationError" class="mt-2 text-sm text-red-600 hidden">Veuillez entrer la durée au format : 00h:00m</p>
                 </div>
                 <input type="hidden" id="moveDurationMinutes">
                 <input type="hidden" id="originalTaskId" value="">
             </div>
             {{-- Pied de page --}}
-            <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4 border-t border-gray-200">
-                <button type="button" data-modal-close="moveDurationModal" class="mt-2 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+            <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-3 border-t border-slate-100">
+                <button type="button" data-modal-close="moveDurationModal" class="mt-2 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors">
                     Fermer
                 </button>
-                <button type="button" id="saveMoveChangesBtn" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700">
+                <button type="button" id="saveMoveChangesBtn" class="w-full sm:w-auto inline-flex justify-center rounded-lg border border-transparent bg-[#0B2638] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#14364d] transition-colors">
                     Enregistrer
                 </button>
             </div>
@@ -305,12 +447,6 @@
 
 {{-- 1. jQuery (requis pour AJAX) --}}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-{{-- 2. Bootstrap JS (PAS NÉCESSAIRE, remplacé par le JS de modal ci-dessous) --}}
-{{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script> --}}
-
-{{-- 3. Vos autres scripts (si @include('dashboard_layouts.scripts') les contient) --}}
-{{-- @include('dashboard_layouts.scripts') --}}
 
 {{-- 4. Scripts de logique de la page (LOGIQUE D'ORIGINE RESTAURÉE AVEC CONTRÔLE DE MODAL TAILWIND) --}}
 <script>
@@ -337,7 +473,7 @@ document.addEventListener('DOMContentLoaded', function() {
             closeModal(modalId);
         });
     });
-    
+
     // Fermer en cliquant sur le fond grisé
     Object.values(modals).forEach(modal => {
         if (modal) {
@@ -356,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const field = this.getAttribute('data-field');
             const taskId = this.getAttribute('data-task-id');
             const currentValue = this.textContent.trim();
-            
+
             // Vérifier si c'est une cellule de durée
             if (this.classList.contains('duration')) {
                 var newValue = prompt("Entrer la nouvelle durée pour la tâche (ex: 1h:30m ou 90m)");
@@ -386,7 +522,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             if (response.status == 'success') {
                                 location.reload();
                             } else {
-                                location.reload(); 
+                                location.reload();
                             }
                         }
                     });
@@ -514,7 +650,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(tasks => {
                 const taskSelect = document.getElementById('taskSelect');
                 taskSelect.innerHTML = '';
-                
+
                 tasks.forEach(task => {
                     const option = new Option(task.name, task.id);
                     if (selectedTaskId && task.id == selectedTaskId) {
@@ -536,7 +672,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function hoursMinutesToMinutes(durationString) {
         const matches = durationString.match(/^(\d{2})h:(\d{2})m$/);
         if (!matches) return null;
-        
+
         const hours = parseInt(matches[1]);
         const minutes = parseInt(matches[2]);
         return (hours * 60) + minutes;
@@ -596,7 +732,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('moveDuration').addEventListener('input', function(e) {
         const input = e.target;
         const minutes = hoursMinutesToMinutes(input.value);
-        
+
         if (minutes !== null) {
             setInputError('moveDuration', 'moveDurationError', '', false);
             document.getElementById('moveDurationMinutes').value = minutes;
@@ -615,7 +751,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setInputError('moveDuration', 'moveDurationError', 'Veuillez entrer la durée au format : 00h:00m', true);
             return;
         }
-        
+
         if (document.getElementById('moveEndDate').classList.contains('border-red-500')) {
              alert('La date de fin ne peut pas être antérieure à la date de début.');
              return;
@@ -661,7 +797,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Erreur lors du déplacement de la durée : ' + error);
             }
         });
-        
+
         closeModal('moveDurationModal');
     });
 

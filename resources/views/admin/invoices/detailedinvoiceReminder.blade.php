@@ -315,7 +315,9 @@
                     const recipientsList = document.getElementById('recipientsList');
                     recipientsList.innerHTML = '';
                     
-                    if (data.recipients && data.recipients.length > 0) {
+                    if (data.message && (!data.recipients || data.recipients.length === 0)) {
+                        recipientsList.innerHTML = '<p class="text-danger">' + data.message + '</p>';
+                    } else if (data.recipients && data.recipients.length > 0) {
                         data.recipients.forEach(recipient => {
                             const recipientDiv = document.createElement('div');
                             recipientDiv.className = 'mb-2';

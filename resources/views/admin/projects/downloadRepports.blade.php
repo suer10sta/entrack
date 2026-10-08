@@ -135,9 +135,9 @@ thead {
                 <td>{{$project->estimated_hours}}h</td>
                 <td>{{$project->TVA}}</td>
                 @php
-                $client = App\Models\Client::where('id', $project->client_id)->first();
+                $client = $project->client_id ? App\Models\Client::where('id', $project->client_id)->first() : null;
                 @endphp
-                <td>{{$client->name}}</td>
+                <td>{{$client ? $client->name : 'No client'}}</td>
                 <td>{{$project->description}}</td>
             </tr>
             @endforeach

@@ -3115,5 +3115,54 @@ return [
     'Billing Information' => 'Informations de facturation',
     'Banking Information' => 'Informations bancaires',
     'Contact Information' => 'Informations de contact',
+    'Perform a task' => 'Effectuer une tâche',
+    'Statut' => 'Statut',
+    'Tâche en cours' => 'Tâche en cours',
+
+    // Navbar Quick Add & Chrono
+    'quick_add' => 'Ajout rapide',
+    'quick_add_client' => 'Nouveau client',
+    'quick_add_project' => 'Nouveau projet',
+    'quick_add_task' => 'Nouvelle tâche',
+    'quick_add_employee' => 'Nouvel employé',
+    'quick_add_invoice' => 'Nouvelle facture',
+    'start_chrono' => 'Démarrer chrono',
+    'chrono_search_project' => 'Chercher un projet...',
+    'chrono_search_task' => 'Chercher une tâche...',
+    'chrono_select_project_first' => 'Sélectionnez un projet d\'abord',
+    'chrono_no_projects' => 'Aucun projet trouvé',
+    'chrono_no_tasks' => 'Aucune tâche trouvée',
+    'chrono_running' => 'Chrono en cours',
+    'chrono_stop' => 'Arrêter',
+    'chrono_open_task' => 'Ouvrir la tâche',
+    'chrono_start' => 'Démarrer',
+    'chrono_select_project' => 'Sélectionner un projet',
+    'chrono_select_task' => 'Sélectionner une tâche',
+
+    // Creation toasts
+    'toast_created_client' => 'Client créé avec succès.',
+    'toast_created_project' => 'Projet créé avec succès.',
+    'toast_created_task' => 'Tâche créée avec succès.',
+    'toast_failed_client' => 'Impossible de créer le client.',
+    'toast_failed_project' => 'Impossible de créer le projet.',
+    'toast_failed_task' => 'Impossible de créer la tâche.',
+
+    // Pagination
+    'Showing' => 'Affichage de',
+    'of' => 'sur',
+
+    // Projects page
+    'projects_page_title'      => 'Projets',
+    'projects_page_subtitle'   => 'Gérez vos projets, suivez le temps et la progression.',
+    'projects_search_placeholder' => 'Rechercher par nom de projet ou client...',
+    'projects_per_page'        => 'par page',
+    'Add Task to Project'      => 'Ajouter une tâche',
+    'No projects found.'       => 'Aucun projet trouvé.',
+    'Status'                   => 'Statut',
+    'Status Inactive'          => 'Inactif',
+    'Status Working'           => 'En cours',
+    'Status Done'              => 'Terminé',
+    'Archive this project?'    => 'Archiver ce projet ?',
+    'View project'             => 'Voir',
 
 ];

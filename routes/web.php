@@ -236,12 +236,14 @@ Route::middleware(['auth', 'verified', 'role:Admin'])->name('admin.')->prefix('a
     Route::get('/tasks/show/{task_id}', [tasksController::class, "show"])->name('tasks.show');
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
     Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
-    Route::get('/tasks/create/{project_id}', [tasksController::class, "create"])->name('tasks.create');
+    Route::get('/tasks/create/{project_id?}', [tasksController::class, "create"])->name('tasks.create');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
+    Route::get('/tasks/board', [tasksController::class, "board"])->name('tasks.board');
     Route::resource('/teams', teamsController::class);
+    Route::get('/projects/create/{client_id?}', [projectController::class, "create"])->name('projects.create');
+    Route::post('/projects/store/{client_id?}', [projectController::class, "store"])->name('projects.store');
+    Route::get('projects/report', [ProjectController::class, 'projectReport'])->name('projects.report');
     Route::resource('/projects', projectController::class)->except(['create', 'store']);
-    Route::get('/projects/create/{client_id}', [projectController::class, "create"])->name('projects.create');
-    Route::post('/projects/store/{client_id}', [projectController::class, "store"])->name('projects.store');
     Route::post('/projects/{project}/status/{status}', [projectController::class, "status"])->name('projects.status');
     Route::post('projects/updateProject', [projectController::class, 'updateProject'])->name('projects.updateProject');
 
@@ -431,7 +433,7 @@ Route::middleware(['auth', 'verified', 'role:Admin'])->name('admin.')->prefix('a
 
     Route::post('/confirm-frais-note', [ProjectController::class, 'confirmFraisNote'])->name('notedefrais.confirmFraisNote');
 
-    Route::post('/projects/updateInfos/{id}/{client_id}', [ProjectController::class, 'update'])->name('projects.updateInfos');
+    Route::post('/projects/updateInfos/{id}/{client_id?}', [ProjectController::class, 'update'])->name('projects.updateInfos');
 
     Route::get('/tasks/{employee}/durationInfos/{task}', [tasksController::class, 'durationInfos'])->name('tasks.durationInfos');
 
@@ -611,14 +613,13 @@ Route::middleware(['auth', 'verified', 'role:Responsable de projet'])->name('Res
     Route::get('/Pointagerepports/downloadRepports/{startDate}/{endDate}/{employeeID}', [EmployeestasksController::class, 'downloadPointageRepports'])->name('Pointagerepports.downloadRepports-employee');
     Route::get('/Pointagerepports/downloadOneDayRepports/{startDate}/{employeeID}', [EmployeestasksController::class, 'downloadOneDayRepports'])->name('Pointagerepports.downloadOneDayRepports-employee');
 
+    Route::get('/tasks/board', [tasksController::class, "board"])->name('tasks.board');
     Route::resource('/tasks', tasksController::class)->except(['create', 'store']);
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
-    Route::get('/tasks/create/{project_id}', [tasksController::class, "create"])->name('tasks.create');
+    Route::get('/tasks/create/{project_id?}', [tasksController::class, "create"])->name('tasks.create');
     Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
     Route::get('/Tasksrepports/downloadRepports', [tasksController::class, 'downloadTasksRepports'])->name('Tasksrepports.downloadRepports');
-
-    Route::resource('/projects', projectController::class)->except(['create', 'store']);
 
     Route::post('workdaysrepports/updateWorkdaysRepport', [employeesController::class, 'updateWorkdaysRepport'])->name('workdaysrepports.updateWorkdaysRepport');
     Route::get('/workDaysReports/index', [employeesController::class, "workDaysReportsIndex"])->name('workDaysReports.index');
@@ -643,13 +644,14 @@ Route::middleware(['auth', 'verified', 'role:Responsable de projet'])->name('Res
 
     Route::resource('/tasks', tasksController::class)->except(['create', 'store']);
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
-    Route::get('/tasks/create/{project_id}', [tasksController::class, "create"])->name('tasks.create');
+    Route::get('/tasks/create/{project_id?}', [tasksController::class, "create"])->name('tasks.create');
     Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
     Route::resource('/teams', teamsController::class);
+    Route::get('/projects/create/{client_id?}', [projectController::class, "create"])->name('projects.create');
+    Route::post('/projects/store/{client_id?}', [projectController::class, "store"])->name('projects.store');
+    Route::get('projects/report', [ProjectController::class, 'projectReport'])->name('projects.report');
     Route::resource('/projects', projectController::class)->except(['create', 'store']);
-    Route::get('/projects/create/{client_id}', [projectController::class, "create"])->name('projects.create');
-    Route::post('/projects/store/{client_id}', [projectController::class, "store"])->name('projects.store');
     Route::post('/projects/{project}/status/{status}', [projectController::class, "status"])->name('projects.status');
     Route::post('projects/updateProject', [projectController::class, 'updateProject'])->name('projects.updateProject');
 
@@ -829,7 +831,7 @@ Route::middleware(['auth', 'verified', 'role:Responsable de projet'])->name('Res
 
     Route::post('/confirm-frais-note', [ProjectController::class, 'confirmFraisNote'])->name('notedefrais.confirmFraisNote');
 
-    Route::post('/projects/updateInfos/{id}/{client_id}', [ProjectController::class, 'update'])->name('projects.updateInfos');
+    Route::post('/projects/updateInfos/{id}/{client_id?}', [ProjectController::class, 'update'])->name('projects.updateInfos');
 
     Route::get('/tasks/{employee}/durationInfos/{task}', [tasksController::class, 'durationInfos'])->name('tasks.durationInfos');
 
@@ -981,14 +983,13 @@ Route::middleware(['auth', 'verified', 'role:Employee'])->name('employee.')->pre
     Route::get('/Pointagerepports/downloadRepports/{startDate}/{endDate}/{employeeID}', [EmployeestasksController::class, 'downloadPointageRepports'])->name('Pointagerepports.downloadRepports-employee');
     Route::get('/Pointagerepports/downloadOneDayRepports/{startDate}/{employeeID}', [EmployeestasksController::class, 'downloadOneDayRepports'])->name('Pointagerepports.downloadOneDayRepports-employee');
 
+    Route::get('/tasks/board', [tasksController::class, "board"])->name('tasks.board');
     Route::resource('/tasks', tasksController::class)->except(['create', 'store']);
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
-    Route::get('/tasks/create/{project_id}', [tasksController::class, "create"])->name('tasks.create');
+    Route::get('/tasks/create/{project_id?}', [tasksController::class, "create"])->name('tasks.create');
     Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
     Route::get('/Tasksrepports/downloadRepports', [tasksController::class, 'downloadTasksRepports'])->name('Tasksrepports.downloadRepports');
-
-    Route::resource('/projects', projectController::class)->except(['create', 'store']);
 
     Route::post('workdaysrepports/updateWorkdaysRepport', [employeesController::class, 'updateWorkdaysRepport'])->name('workdaysrepports.updateWorkdaysRepport');
     Route::get('/workDaysReports/index', [employeesController::class, "workDaysReportsIndex"])->name('workDaysReports.index');
@@ -1013,13 +1014,14 @@ Route::middleware(['auth', 'verified', 'role:Employee'])->name('employee.')->pre
 
     Route::resource('/tasks', tasksController::class)->except(['create', 'store']);
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
-    Route::get('/tasks/create/{project_id}', [tasksController::class, "create"])->name('tasks.create');
+    Route::get('/tasks/create/{project_id?}', [tasksController::class, "create"])->name('tasks.create');
     Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
     Route::resource('/teams', teamsController::class);
+    Route::get('/projects/create/{client_id?}', [projectController::class, "create"])->name('projects.create');
+    Route::post('/projects/store/{client_id?}', [projectController::class, "store"])->name('projects.store');
+    Route::get('projects/report', [ProjectController::class, 'projectReport'])->name('projects.report');
     Route::resource('/projects', projectController::class)->except(['create', 'store']);
-    Route::get('/projects/create/{client_id}', [projectController::class, "create"])->name('projects.create');
-    Route::post('/projects/store/{client_id}', [projectController::class, "store"])->name('projects.store');
     Route::post('/projects/{project}/status/{status}', [projectController::class, "status"])->name('projects.status');
     Route::post('projects/updateProject', [projectController::class, 'updateProject'])->name('projects.updateProject');
 
@@ -1199,7 +1201,7 @@ Route::middleware(['auth', 'verified', 'role:Employee'])->name('employee.')->pre
 
     Route::post('/confirm-frais-note', [ProjectController::class, 'confirmFraisNote'])->name('notedefrais.confirmFraisNote');
 
-    Route::post('/projects/updateInfos/{id}/{client_id}', [ProjectController::class, 'update'])->name('projects.updateInfos');
+    Route::post('/projects/updateInfos/{id}/{client_id?}', [ProjectController::class, 'update'])->name('projects.updateInfos');
 
     Route::get('/tasks/{employee}/durationInfos/{task}', [tasksController::class, 'durationInfos'])->name('tasks.durationInfos');
 
@@ -1328,15 +1330,17 @@ Route::middleware(['auth', 'verified', 'role:SuperAdmin'])->name('SuperAdmin.')-
 
     Route::put('/clients/{client}/addContact', [clientsController::class, 'addContact'])->name('clients.addContact');
 
+    Route::get('/tasks/board', [tasksController::class, "board"])->name('tasks.board');
     Route::resource('/tasks', tasksController::class)->except(['create', 'store']);
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
-    Route::get('/tasks/create/{project_id}', [tasksController::class, "create"])->name('tasks.create');
+    Route::get('/tasks/create/{project_id?}', [tasksController::class, "create"])->name('tasks.create');
     Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
     Route::resource('/teams', teamsController::class);
+    Route::get('/projects/create/{client_id?}', [projectController::class, "create"])->name('projects.create');
+    Route::post('/projects/store/{client_id?}', [projectController::class, "store"])->name('projects.store');
+    Route::get('projects/report', [ProjectController::class, 'projectReport'])->name('projects.report');
     Route::resource('/projects', projectController::class)->except(['create', 'store']);
-    Route::get('/projects/create/{client_id}', [projectController::class, "create"])->name('projects.create');
-    Route::post('/projects/store/{client_id}', [projectController::class, "store"])->name('projects.store');
     Route::post('/projects/{project}/status/{status}', [projectController::class, "status"])->name('projects.status');
     Route::post('projects/updateProject', [projectController::class, 'updateProject'])->name('projects.updateProject');
 
@@ -1511,7 +1515,7 @@ Route::middleware(['auth', 'verified', 'role:SuperAdmin'])->name('SuperAdmin.')-
 
     Route::post('/confirm-frais-note', [ProjectController::class, 'confirmFraisNote'])->name('notedefrais.confirmFraisNote');
 
-    Route::post('/projects/updateInfos/{id}/{client_id}', [ProjectController::class, 'update'])->name('projects.updateInfos');
+    Route::post('/projects/updateInfos/{id}/{client_id?}', [ProjectController::class, 'update'])->name('projects.updateInfos');
 
     Route::get('/tasks/{employee}/durationInfos/{task}', [tasksController::class, 'durationInfos'])->name('tasks.durationInfos');
 
@@ -1594,11 +1598,18 @@ Route::middleware(['auth', 'verified', 'role:SuperAdmin'])->name('SuperAdmin.')-
 
     Route::get('/filter/clients/{client}/projects', [tasksController::class, 'getClientProjects'])->name('filter.client.projects');
 
+    Route::get('filter/employees/{employeeId}/projects', [ProjectController::class, 'getEmployeeProjects'])->name('filter.getEmployeeProjects');
+    Route::get('filter/employees/{employeeId}/tasks', [ProjectController::class, 'getEmployeeTasks'])->name('filter.getEmployeeTasks');
+    Route::get('filter/projects/{projectId}/tasks', [ProjectController::class, 'getProjectTasks'])->name('filter.getProjectTasks');
+    Route::get('filter/tasks/{taskId}', [ProjectController::class, 'getTaskInfo'])->name('filter.getTaskInfo');
+    Route::get('filter/projects', [ProjectController::class, 'getAllProjects'])->name('filter.getAllProjects');
+    Route::get('filter/tasks', [ProjectController::class, 'getAllTasks'])->name('filter.getAllTasks');
+
     Route::get('/invoice/{invoice}/recipients', [ProjectController::class, 'getRecipients']);
 
     Route::get('/Pointagerepports/downloadMultipleTasksRepports/{startDate}/{endDate}', [tasksController::class, 'downloadMultipleTasksRepports'])->name('Pointagerepports.downloadMultipleTasksRepports');
 
-    Route::post('/employees/send-email', [employeesController::class, 'sendEmail'])->name('employees.send-email');
+    Route::post('/employees/send-email', [employeesController::class, 'send-email']);
 
     Route::get('/devis/get-contacts/{devisId}', [projectController::class, 'getDevisContacts'])->name('devis.getContacts');
 });
@@ -1642,14 +1653,13 @@ Route::middleware(['auth', 'verified', 'role:Responsable de projet et gestionnai
     Route::get('/Pointagerepports/downloadRepports/{startDate}/{endDate}/{employeeID}', [EmployeestasksController::class, 'downloadPointageRepports'])->name('Pointagerepports.downloadRepports-employee');
     Route::get('/Pointagerepports/downloadOneDayRepports/{startDate}/{employeeID}', [EmployeestasksController::class, 'downloadOneDayRepports'])->name('Pointagerepports.downloadOneDayRepports-employee');
 
+    Route::get('/tasks/board', [tasksController::class, "board"])->name('tasks.board');
     Route::resource('/tasks', tasksController::class)->except(['create', 'store']);
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
-    Route::get('/tasks/create/{project_id}', [tasksController::class, "create"])->name('tasks.create');
+    Route::get('/tasks/create/{project_id?}', [tasksController::class, "create"])->name('tasks.create');
     Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
     Route::get('/Tasksrepports/downloadRepports', [tasksController::class, 'downloadTasksRepports'])->name('Tasksrepports.downloadRepports');
-
-    Route::resource('/projects', projectController::class)->except(['create', 'store']);
 
 
     Route::get('/workDaysReports/index', [employeesController::class, "workDaysReportsIndex"])->name('workDaysReports.index');
@@ -1674,13 +1684,14 @@ Route::middleware(['auth', 'verified', 'role:Responsable de projet et gestionnai
 
     Route::resource('/tasks', tasksController::class)->except(['create', 'store']);
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
-    Route::get('/tasks/create/{project_id}', [tasksController::class, "create"])->name('tasks.create');
+    Route::get('/tasks/create/{project_id?}', [tasksController::class, "create"])->name('tasks.create');
     Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
     Route::resource('/teams', teamsController::class);
+    Route::get('/projects/create/{client_id?}', [projectController::class, "create"])->name('projects.create');
+    Route::post('/projects/store/{client_id?}', [projectController::class, "store"])->name('projects.store');
+    Route::get('projects/report', [ProjectController::class, 'projectReport'])->name('projects.report');
     Route::resource('/projects', projectController::class)->except(['create', 'store']);
-    Route::get('/projects/create/{client_id}', [projectController::class, "create"])->name('projects.create');
-    Route::post('/projects/store/{client_id}', [projectController::class, "store"])->name('projects.store');
     Route::post('/projects/{project}/status/{status}', [projectController::class, "status"])->name('projects.status');
     Route::post('projects/updateProject', [projectController::class, 'updateProject'])->name('projects.updateProject');
 
@@ -1860,7 +1871,7 @@ Route::middleware(['auth', 'verified', 'role:Responsable de projet et gestionnai
 
     Route::post('/confirm-frais-note', [ProjectController::class, 'confirmFraisNote'])->name('notedefrais.confirmFraisNote');
 
-    Route::post('/projects/updateInfos/{id}/{client_id}', [ProjectController::class, 'update'])->name('projects.updateInfos');
+    Route::post('/projects/updateInfos/{id}/{client_id?}', [ProjectController::class, 'update'])->name('projects.updateInfos');
 
     Route::get('/tasks/{employee}/durationInfos/{task}', [tasksController::class, 'durationInfos'])->name('tasks.durationInfos');
 
@@ -1986,6 +1997,13 @@ Route::prefix('manager')->name('manager.')->group(function () {
         Route::get('subscriptions/{entreprise}', [ManagerSubscriptionController::class, 'show'])->name('subscriptions.show');
         Route::delete('subscriptions/{entreprise}', [ManagerSubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
         
+        // Manager blog routes
+        Route::get('blog', [\App\Http\Controllers\manager\ManagerBlogController::class, 'index'])->name('blog.index');
+        Route::get('blog/create', [\App\Http\Controllers\manager\ManagerBlogController::class, 'create'])->name('blog.create');
+        Route::post('blog', [\App\Http\Controllers\manager\ManagerBlogController::class, 'store'])->name('blog.store');
+        Route::get('blog/{post}/edit', [\App\Http\Controllers\manager\ManagerBlogController::class, 'edit'])->name('blog.edit');
+        Route::patch('blog/{post}', [\App\Http\Controllers\manager\ManagerBlogController::class, 'update'])->name('blog.update');
+        Route::delete('blog/{post}', [\App\Http\Controllers\manager\ManagerBlogController::class, 'destroy'])->name('blog.destroy');
         // Manager profile routes
         Route::get('profile', [\App\Http\Controllers\manager\ManagerProfileController::class, 'index'])->name('profile.index');
         Route::get('profile/edit', [\App\Http\Controllers\manager\ManagerProfileController::class, 'edit'])->name('profile.edit');
