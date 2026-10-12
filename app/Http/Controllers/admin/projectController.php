@@ -185,6 +185,9 @@ class projectController extends Controller
             $contact_projects->save();
         }
 
+        if ($request->input('from') === 'onboarding') {
+            return redirect()->route('admin.onboarding.step2')->with('message', 'Project Created Successfully');
+        }
         if ($parentProjectId) {
             if (Auth::user()->hasRole('Admin')) {
                 return redirect()->route('admin.projects.show', $parentProjectId);

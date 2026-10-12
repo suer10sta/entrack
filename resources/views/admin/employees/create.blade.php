@@ -79,6 +79,7 @@
                             @endif
                         " enctype="multipart/form-data" autocomplete="off" class="space-y-4">
                             @csrf
+                            <input type="hidden" name="from" value="{{ old('from', request()->query('from')) }}" />
 
                             {{-- Name & Email --}}
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

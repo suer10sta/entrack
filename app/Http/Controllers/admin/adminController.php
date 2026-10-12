@@ -24,6 +24,11 @@ class adminController extends Controller
 {
     public function index()
     {
+        // First-time onboarding: brand-new workspaces see the welcome flow once.
+        if (OnboardingController::needsOnboarding(auth()->user()->entreprise ?? null)) {
+            return redirect()->route('admin.onboarding.welcome');
+        }
+
         $todoPage = request('todoPage', 1);
         $projectPage = request('page', 1);
 

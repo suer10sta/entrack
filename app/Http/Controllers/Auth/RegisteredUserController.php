@@ -72,9 +72,7 @@ class RegisteredUserController extends Controller
         $validated = $request->validate([
             "email" => "required|email|unique:users,email",
             "password" => ["required", "min:8", "confirmed"],
-            "entreprise_name" => "required",
-            'timezone' => 'required',
-            'country' => 'required',
+            "full_name" => "required|string|max:255",
         ], [
             'email.required' => __('messages.auth_val_email_required'),
             'email.email' => __('messages.auth_val_email_invalid'),
@@ -82,9 +80,7 @@ class RegisteredUserController extends Controller
             'password.required' => __('messages.auth_val_password_required'),
             'password.min' => __('messages.auth_val_password_min'),
             'password.confirmed' => __('messages.auth_val_password_confirmed'),
-            'entreprise_name.required' => __('messages.auth_val_company_required'),
-            'timezone.required' => __('messages.auth_val_timezone_required'),
-            'country.required' => __('messages.auth_val_country_required'),
+            'full_name.required' => __('messages.auth_val_name_required'),
         ]);
 
         
@@ -100,24 +96,23 @@ class RegisteredUserController extends Controller
             $imageName = 'default.jpg'; // Change 'default.jpg' to your default image filename
         }
 
-        // Create the entreprise
+        // Create the entreprise (company details are completed later in onboarding)
         $entreprise = Entreprise::create([
-            'name' => $validated['entreprise_name'],
+            'name' => '',
             'is_activated' => true, // Set is_activated to true by default
             'duration' => now()->addMonths(6), // Set duration to 6 months by default
             'image' => $imageName,
             'type_compt' => null, // null means no plan selected yet
-            'country' => $validated['country'],
             // 15-day free trial period
             'trial_ends_at' => now()->addDays(15),
         ]);
 
         // Create the user and associate it with the entreprise
+        // (timezone is collected later: onboarding or first chrono start)
         $user = new User([
-            'name' => 'admin',
+            'name' => $validated['full_name'],
             'email' => $validated['email'],
             'password' => $validated['password'],
-            'timezone' => $validated['timezone'],
         ]);
 
         $user->entreprise()->associate($entreprise);
@@ -160,9 +155,9 @@ class RegisteredUserController extends Controller
             // Use a default image if no image is provided
             $imageName = NULL; 
         
-        // Create the associated employee
+        // Create the associated employee (same full name, no duplicate record)
         $employee = new Employees([
-            'name' => $entreprise->name,
+            'name' => $validated['full_name'],
             'age' => null,
             'cnss' => null,
             'phoneNumber' => null,

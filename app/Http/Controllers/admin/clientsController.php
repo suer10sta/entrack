@@ -82,11 +82,17 @@ class clientsController extends Controller
     {
         // Get the authenticated admin's enterprise_id
         $enterpriseId = Auth::user()->entreprise_id;
-        
+
+        // Client number is optional: normalize empty input so uniqueness
+        // only applies when a value is actually provided.
+        if (!$request->filled('client_number')) {
+            $request->merge(['client_number' => null]);
+        }
+
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'client_number' => [
-                'required',
+                'nullable',
                 Rule::unique('clients')->where(function ($query) {
                     return $query->where('entreprise_id', Auth::user()->entreprise_id);
                 }),
@@ -114,7 +120,6 @@ class clientsController extends Controller
             'contact_address' => 'nullable|array',
         ], [
             'name.required' => 'The client name field is required.',
-            'client_number.required' => 'The client number field is required.',
             'client_number.unique' => 'This client number already exists for your enterprise.',
             'address.required' => 'The address field is required.',
             'city.required' => 'The city field is required.',
@@ -154,16 +159,21 @@ class clientsController extends Controller
 
         $client->save();
 
-        $comptable=new client_contacts();
-        $comptable->name = $request->comp_name;
-        $comptable->functionality = "Comptable";
-        $comptable->mobile_fix = $request->comp_phone;
-        $comptable->email = $request->comp_email;
-        $comptable->address = $request->comp_address;
-        $comptable->client_id = $client->id;
-        $comptable->is_comptable = 1;
-        $comptable->entreprise_id = auth()->user()->entreprise_id;
-        $comptable->save();
+        // The accounting section was removed from the Create form: only store
+        // an accountant contact when details were actually provided, so no
+        // empty rows are created anymore.
+        if ($request->filled('comp_name') || $request->filled('comp_email')) {
+            $comptable = new client_contacts();
+            $comptable->name = $request->comp_name;
+            $comptable->functionality = "Comptable";
+            $comptable->mobile_fix = $request->comp_phone;
+            $comptable->email = $request->comp_email;
+            $comptable->address = $request->comp_address;
+            $comptable->client_id = $client->id;
+            $comptable->is_comptable = 1;
+            $comptable->entreprise_id = auth()->user()->entreprise_id;
+            $comptable->save();
+        }
 
 
         $contact_names = $request->contact_name;
@@ -190,6 +200,9 @@ class clientsController extends Controller
 
         
 
+        if ($request->input('from') === 'onboarding') {
+            return redirect()->route('admin.onboarding.step2')->with('message', 'client Added Successfully');
+        }
         if(Auth::user()->hasRole('Responsable de projet')){
             return redirect()->route('Responsable_de_projet.clients.index')->with('message', 'client Added Successfully');
         }

@@ -73,7 +73,7 @@
         <div class="flex-1 flex flex-col min-h-0">
             {{-- Brand + collapse toggle --}}
             <div class=" px-4 pt-5 pb-5 flex items-center">
-                <a href="#top" aria-label="DalyTrac, accueil" class="flex items-center gap-2.5 min-w-0 flex-1">
+                <a href="/" aria-label="DalyTrac, accueil" class="flex items-center gap-2.5 min-w-0 flex-1">
                     <span class="flex-shrink-0 w-9 h-9 rounded-xl bg-[#E7B84B] flex items-center justify-center text-[#0B2638] font-extrabold text-[15px] tracking-tight">D</span>
                     <span class="sidebar-logo-text inline-flex items-baseline text-[1.35rem] font-extrabold tracking-[-0.04em] text-white no-underline leading-none"><span>Daly</span><strong class="font-extrabold text-[#7fb3bf]">Trac</strong></span>
                 </a>

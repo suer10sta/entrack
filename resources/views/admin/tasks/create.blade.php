@@ -151,8 +151,8 @@
                                         <input type="text" name="name" required placeholder="{{ __('messages.Full Name') }}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                                     </div>
                                     <div>
-                                        <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Client Number') }} <span class="text-red-500">*</span></label>
-                                        <input type="text" name="client_number" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
+                                        <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Client Number') }}</label>
+                                        <input type="text" name="client_number" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                                     </div>
                                     <div>
                                         <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Email') }}</label>
@@ -187,7 +187,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.TVA number') }}</label>
-                                        <input type="text" name="TVA" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
+                                        <input type="text" name="TVA" value="0" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                                     </div>
                                 </div>
                                 <div class="flex items-center mt-3">
@@ -367,6 +367,7 @@
                         action="{{ $preselectedProjectId && $taskStoreTemplate ? str_replace('__PID__', $preselectedProjectId, $taskStoreTemplate) : '#' }}"
                         autocomplete="off">
                         @csrf
+                        <input type="hidden" name="from" value="{{ old('from', request()->query('from')) }}" />
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>

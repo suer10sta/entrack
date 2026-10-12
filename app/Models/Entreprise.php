@@ -93,6 +93,7 @@ class Entreprise extends Model
         'billit_api_key',
         'failed_payment_count',
         'last_payment_failed_at',
+        'onboarding_completed_at',
     ];
 
     public function getAddressAttribute($value)

@@ -73,6 +73,7 @@
                     @endif
                 " enctype="multipart/form-data" autocomplete="off">
                     @csrf
+                    <input type="hidden" name="from" value="{{ old('from', request()->query('from')) }}" />
 
                     <div class="space-y-6"> 
 
@@ -92,8 +93,7 @@
                                         @enderror
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Client Number') }} <span
-                                                class="text-red-500">*</span></label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Client Number') }}</label>
                                         <input type="text" name="client_number" value="{{ old('client_number') }}" placeholder="{{ __('messages.Client Number') }}"
                                             class="w-full border @error('client_number') border-red-500 @else border-slate-300 @enderror rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none transition" />
                                         @error('client_number')
@@ -123,7 +123,7 @@
                         </div>
 
                         <div class="dt-card p-5 sm:p-6">
-                            <h2 class="dt-section-title mb-1">{{ __('messages.Address Infos') }}</h2>
+                            <h2 class="dt-section-title mb-1">{{ __('messages.address_workplace_infos') }}</h2>
                             <p class="dt-section-subtitle mb-5">{{ __('messages.Mandatory informations') }}</p>
 
                             <div class="space-y-4">
@@ -172,13 +172,13 @@
                         
                         <div class="dt-card p-5 sm:p-6">
                             <h2 class="dt-section-title mb-1">{{ __('messages.Billing Infos') }}</h2>
-                            <p class="dt-section-subtitle mb-5">{{ __('messages.Mandatory informations') }}</p>
+                            <p class="dt-section-subtitle mb-5">{{ __('messages.billing_infos_desc') }}</p>
 
                             <div class="space-y-4">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.TVA number') }}</label>
-                                        <input type="text" name="TVA" placeholder="{{ __('messages.TVA number') }}"
+                                        <input type="text" name="TVA" value="{{ old('TVA', '0') }}" placeholder="{{ __('messages.TVA number') }}"
                                             class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none transition" />
                                     </div>
                                     <div>
@@ -228,48 +228,23 @@
                         </div>
 
                         <div class="dt-card p-5 sm:p-6">
-                            <h2 class="dt-section-title mb-1">{{ __('messages.Accounting Info') }}</h2>
-                            <p class="dt-section-subtitle mb-5">{{ __('messages.Mandatory informations') }}</p>
-                            
-                            <div class="space-y-4">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Account Manager Name') }} <span class="text-red-500">**</span></label>
-                                        <input type="text" name="comp_name" placeholder="{{ __('messages.Account Manager Name') }}"
-                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none transition" />
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Email') }} <span
-                                                class="text-red-500">**</span></label>
-                                        <input type="text" name="comp_email" placeholder="*****@gmail.com"
-                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none transition" />
-                                    </div>
+                            <div class="flex justify-between">
+                                <div>
+                                <h2 class="dt-section-title mb-1">{{ __('messages.Contacts Infos') }}</h2>
+                                <p class="dt-section-subtitle mb-5">{{ __('messages.Mandatory informations') }}</p>
                                 </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Phone Number') }}</label>
-                                        <input type="number" name="comp_phone" placeholder="{{ __('messages.Phone Number') }}"
-                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none transition" />
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Address') }}</label>
-                                        <input type="text" name="comp_address" placeholder="{{ __('messages.Address') }}"
-                                            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none transition" />
-                                    </div>
-                                </div>
+                                
+                                <button type="button" id="addContact"
+                                    class="mb-4 inline-flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 bg-white px-3 py-2 text-[12.5px] font-semibold text-slate-500 hover:border-[#2D7080] hover:text-[#2D7080] transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                    {{ __('messages.add_contact') }}
+                                </button>
                             </div>
-                        </div>
-
-                        <div class="dt-card p-5 sm:p-6">
-                            <h2 class="dt-section-title mb-1">{{ __('messages.Contacts Infos') }}</h2>
-                            <p class="dt-section-subtitle mb-5">{{ __('messages.Mandatory informations') }}</p>
-
                             <div id="contact_infos" class="space-y-6">
                                 <div class="contact-entry space-y-4">
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Full Name') }}
-                                                <span class="text-red-500">**</span></label>
+                                            <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Full Name') }}</label>
                                             <input type="text" name="contact_name[]" placeholder="{{ __('messages.Full Name') }}"
                                                 class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none transition" />
                                         </div>
@@ -289,9 +264,8 @@
                                                 class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none transition" />
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Email') }}
-                                                <span class="text-red-500">**</span></label>
-                                            <input type="text" name="contact_email[]"
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Email') }}</label>
+                                        <input type="text" name="contact_email[]"
                                                 placeholder="*****@gmail.com"
                                                 class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none transition" />
                                         </div>
@@ -372,7 +346,7 @@
                 });
                 
                 // Add a visual separator (for all new cards)
-                newEntry.prepend('<hr class="my-4 border-t-2 border-slate-200">');
+                newEntry.prepend('<hr class="my-4 border-t-2 border-[#0B2638]/70">');
                 
                 // Add the delete button
                 newEntry.append(deleteButton);

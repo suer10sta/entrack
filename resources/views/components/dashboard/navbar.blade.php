@@ -41,6 +41,19 @@
     $chronoAddTaskTemplate  = '';
     $chronoCreateTaskUrl    = '';
     $chronoInitialProjects  = [];
+    $chronoUserTimezone     = '';
+    $chronoViewerEmployeeId = null;
+    $chronoTzUpdateUrl      = '';
+    try {
+        if (Auth::check()) {
+            $chronoUserTimezone = Auth::user()->timezone ?? '';
+            $ve = \App\Models\employees::where('user_id', Auth::id())->first();
+            if ($ve) {
+                $chronoViewerEmployeeId = $ve->id;
+                $chronoTzUpdateUrl = route($chronoRoutePrefix . '.employees.updateEmployee');
+            }
+        }
+    } catch (\Exception $e) {}
 
     /* Relative paths only: fetch() stays same-origin so session cookies are
        always sent, no matter which host the app is opened with (APP_URL
@@ -151,7 +164,7 @@
         </button>
 
         {{-- ── CHRONO ─────────────────────────────────────────────────── --}}
-        <div x-data="navbarChrono()" x-init="init()" class="relative" @click.away="openPanel = false"
+        <div x-data="navbarChrono()" x-init="init()" class="relative flex items-center gap-1.5 flex-shrink-0" @click.away="openPanel = false"
              @chrono-revalidate.window="checkRunningTimer($event.detail && $event.detail.force === true)">
 
             {{-- IDLE: Start Chrono button (stopwatch icon) — always rendered,
@@ -372,6 +385,33 @@
 
                     <p x-show="chronoError" x-text="chronoError"
                        class="text-[11.5px] text-red-500 text-center"></p>
+                </div>
+            </div>
+
+            {{-- TIMEZONE POPOVER: shown before the first chrono start when unset --}}
+            <div x-show="tzOpen"
+                 @click.away="tzOpen = false"
+                 x-cloak
+                 class="chrono-picker-panel p-4">
+                <p class="text-[10.5px] font-bold uppercase tracking-[0.08em] text-slate-400 mb-1">{{ __('messages.Timezone') }}</p>
+                <p class="text-[12px] text-slate-600 mb-3">{{ __('messages.chrono_tz_required') }}</p>
+                <select x-model="tzValue"
+                        class="w-full px-2.5 py-2 text-[13px] border border-slate-200 rounded-lg bg-white text-[#0B2638] focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none transition mb-2">
+                    <option value="">{{ __('messages.Select your timezone') }}</option>
+                    @foreach(timezone_identifiers_list() as $tzName)
+                        <option value="{{ $tzName }}">{{ $tzName }}</option>
+                    @endforeach
+                </select>
+                <p x-show="tzError" x-text="tzError" class="text-[11.5px] text-red-500 mb-2"></p>
+                <div class="flex justify-end gap-2">
+                    <button type="button" @click="tzOpen = false"
+                            class="h-8 px-3 rounded-lg bg-white border border-slate-300 text-slate-600 text-[12.5px] font-semibold hover:bg-slate-50 transition-colors">
+                        {{ __('messages.Cancel') }}
+                    </button>
+                    <button type="button" @click="saveTimezoneAndStart()" :disabled="tzSaving"
+                            class="h-8 px-3 rounded-lg bg-[#0B2638] text-white text-[12.5px] font-semibold hover:bg-[#14364d] transition-colors disabled:opacity-40">
+                        {{ __('messages.Save') }}
+                    </button>
                 </div>
             </div>
         </div>
@@ -948,6 +988,11 @@
             multiAllowed: @json($chronoMultiAllowed ?? false),
             /* SuperAdmin running-timers list (primary = earliest started) */
             runningTimers: [], timersOpen: false,
+            /* timezone gate: users without a timezone pick one before starting */
+            userTimezone: @json($chronoUserTimezone ?? ''),
+            tzViewerEmployeeId: @json($chronoViewerEmployeeId),
+            tzUpdateUrl: @json($chronoTzUpdateUrl),
+            tzOpen: false, tzValue: '', tzSaving: false, tzError: '',
             /* project picker */
             allProjects: @json($chronoInitialProjects),
             filteredProjects: @json($chronoInitialProjects),
@@ -1204,6 +1249,13 @@
             /* ── start ─────────────────────────────────────────────────── */
             async startChrono() {
                 if (!this.selectedTask || !this.selectedProject || this.starting) return;
+                /* No timezone yet → collect it first (existing save endpoint), then continue */
+                if (!this.userTimezone && this.tzViewerEmployeeId && this.tzUpdateUrl) {
+                    this.tzValue = '';
+                    this.tzError = '';
+                    this.tzOpen = true;
+                    return;
+                }
                 this.starting = true; this.chronoError = '';
                 try {
                     const tok = document.querySelector('meta[name="csrf-token"]')?.content;
@@ -1239,6 +1291,32 @@
                     console.error('Start chrono:', e);
                     this.chronoError = @json(__('messages.chrono_no_tasks'));
                 } finally { this.starting = false; }
+            },
+
+            /* ── timezone gate: save via the existing employee update endpoint,
+               then continue the pending chrono start ── */
+            async saveTimezoneAndStart() {
+                if (!this.tzValue) {
+                    this.tzError = @json(__('messages.Select your timezone'));
+                    return;
+                }
+                if (this.tzSaving) return;
+                this.tzSaving = true; this.tzError = '';
+                try {
+                    const tok = document.querySelector('meta[name="csrf-token"]')?.content;
+                    const r = await fetch(this.tzUpdateUrl, {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': tok, 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: this.tzViewerEmployeeId, column: 'timezone', content: this.tzValue })
+                    });
+                    if (!r.ok) throw new Error('Request failed: ' + r.status);
+                    this.userTimezone = this.tzValue;
+                    this.tzOpen = false;
+                    this.startChrono();
+                } catch (e) {
+                    console.error('Save timezone:', e);
+                    this.tzError = @json(__('messages.chrono_tz_save_failed'));
+                } finally { this.tzSaving = false; }
             },
 
             /* ── stop (primary): open the shared stop-comment popup ──────────

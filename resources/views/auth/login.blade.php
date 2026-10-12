@@ -11,8 +11,7 @@
     <meta property="og:url" content="{{ route('login') }}">
     <title>{{ __('messages.DalyTrac Login - Sign in to your management dashboard') }} | DalyTrac</title>
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -45,8 +44,8 @@
                                 <!-- <a href="{{ route('welcome') }}" class="inline-flex items-center no-underline" aria-label="DalyTrac accueil">
                                     <img src="{{ asset('img/dalytraclogo.png') }}" alt="DalyTrac" class="h-14 w-auto" />
                                 </a> -->
-                                <a href="#top" aria-label="DalyTrac, accueil" class="inline-flex items-baseline text-[2.2rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><span>Daly</span><strong class="font-extrabold text-brand-secondary">Trac</strong></a>
-                                <h2 class="mt-7 text-[2.3rem] font-semibold leading-[1.08] text-[#0B2638]">{{ __('messages.auth_side_title') }}</h2>
+                                <a href="/" aria-label="DalyTrac, accueil" class="inline-flex items-baseline text-[1.65rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><span>Daly</span><strong class="font-extrabold text-brand-secondary">Trac</strong></a>
+                                <h2 class="mt-7 text-[1.6rem] font-medium leading-[1.15] text-[#0B2638]">{{ __('messages.auth_side_title') }}</h2>
                             </div>
 
                             <div class="mt-8 space-y-4">

@@ -237,6 +237,9 @@ class employeesController extends Controller
 
         $work_days_repports->save();
 
+        if ($request->input('from') === 'onboarding') {
+            return redirect()->route('admin.onboarding.step2')->with('message', 'Employee Added Successfully');
+        }
         if(Auth::user()->hasRole('Admin')){
             return redirect()->route('admin.employees.index')->with('message', 'Employee Added Successfully');
         }

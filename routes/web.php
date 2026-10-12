@@ -6,6 +6,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\admin\adminController;
+use App\Http\Controllers\admin\OnboardingController;
 use App\Http\Controllers\admin\tasksController;
 use App\Http\Controllers\admin\teamsController;
 use App\Http\Controllers\admin\clientsController;
@@ -218,6 +219,14 @@ Route::middleware(['auth', 'verified', 'role:super_admin'])->name('superadmin.')
 
 Route::middleware(['auth', 'verified', 'role:Admin'])->name('admin.')->prefix('admin')->group(function () {
     Route::get("/", [adminController::class, "index"])->name("index");
+
+    // First-time onboarding for new workspaces (same auth/role guards as the dashboard)
+    Route::get('/onboarding', [OnboardingController::class, 'welcome'])->name('onboarding.welcome');
+    Route::post('/onboarding/discover', [OnboardingController::class, 'discover'])->name('onboarding.discover');
+    Route::get('/onboarding/step-1', [OnboardingController::class, 'step1'])->name('onboarding.step1');
+    Route::get('/onboarding/step-2', [OnboardingController::class, 'step2'])->name('onboarding.step2');
+    Route::post('/onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
+    Route::get('/onboarding/done', [OnboardingController::class, 'done'])->name('onboarding.done');
     Route::resource('/roles', RoleController::class);
     Route::post('/roles/{role}/assign_permission', [RoleController::class, "assign_permission"])->name("roles.assign_permission");
     Route::post('admin/roles/{role}/delete_permission', [RoleController::class, "delete_permission"])->name('roles.delete_permission');

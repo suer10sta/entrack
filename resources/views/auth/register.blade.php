@@ -11,8 +11,7 @@
     <meta property="og:url" content="{{ route('register') }}">
     <title>{{ __('messages.DalyTrac Create Account - Start your free trial') }} | DalyTrac</title>
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -26,7 +25,7 @@
     </style>
 </head>
 
-<body class="overflow-x-hidden bg-[#f4f7f6] font-sans text-[#0B2638] antialiased">
+<body class="overflow-x-hidden bg-[#f4f7f6]  text-[#0B2638] ">
     <main class="min-h-screen px-4 pt-10 pb-5 sm:px-6 lg:px-8">
         <div class="mx-auto max-w-[1100px]">
             <header class="mb-6 flex items-center justify-end gap-4">
@@ -42,8 +41,8 @@
                                 <!-- <a href="{{ route('welcome') }}" class="inline-flex items-center no-underline" aria-label="DalyTrac accueil">
                                     <img src="{{ asset('img/dalytraclogo.png') }}" alt="DalyTrac" class="h-14 w-auto" />
                                 </a> -->
-                                <a href="#top" aria-label="DalyTrac, accueil" class="inline-flex items-baseline text-[2.2rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><span>Daly</span><strong class="font-extrabold text-brand-secondary">Trac</strong></a>
-                                <h2 class="mt-7 text-[2.3rem] font-semibold leading-[1.08] text-[#0B2638]">{{ __('messages.auth_side_title') }}</h2>
+                                <a href="/" aria-label="DalyTrac, accueil" class="inline-flex items-baseline text-[1.65rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><span>Daly</span><strong class="font-extrabold text-brand-secondary">Trac</strong></a>
+                                <h2 class="mt-7 text-[1.6rem] font-medium leading-[1.15] text-[#0B2638]">{{ __('messages.auth_side_title') }}</h2>
                             </div>
 
                             <div class="mt-8 space-y-4">
@@ -133,8 +132,8 @@
                                     </div>
                                 @endif
 
-                                <div class="grid gap-4 sm:grid-cols-2">
-                                    <div class="space-y-2 sm:col-span-1">
+                                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                                    <div class="space-y-1 sm:col-span-1">
                                         <label for="email" class="block text-sm font-medium text-[#0B2638]">{{ __('messages.Email') }} <span class="text-red-500">*</span></label>
                                         <div class="relative">
                                             <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[#5b6b73]">
@@ -147,140 +146,44 @@
                                         @enderror
                                     </div>
 
-                                    <div class="space-y-2 sm:col-span-1">
-                                        <label for="entreprise_name" class="block text-sm font-medium text-[#0B2638]">{{ __('messages.Company name') }} <span class="text-red-500">*</span></label>
+                                    <div class="space-y-1 sm:col-span-1">
+                                        <label for="full_name" class="block text-sm font-medium text-[#0B2638]">{{ __('messages.Full Name') }} <span class="text-red-500">*</span></label>
                                         <div class="relative">
                                             <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[#5b6b73]">
-                                                <i data-lucide="building-2" class="h-4 w-4"></i>
+                                                <i data-lucide="user" class="h-4 w-4"></i>
                                             </span>
-                                            <input type="text" name="entreprise_name" id="entreprise_name" value="{{ old('entreprise_name') }}" required placeholder="{{ __('messages.auth_company_placeholder') }}" class="w-full rounded-full border border-[#dfe9e7] bg-[#f7faf9] py-3 pl-10 pr-4 text-[0.95rem] text-[#0B2638] outline-none transition-all duration-300 placeholder:text-[#6a7c84] focus:border-[#2D7080] focus:bg-white focus:ring-4 focus:ring-[#2D7080]/10 @error('entreprise_name') border-red-300 bg-red-50 @enderror" />
+                                            <input type="text" name="full_name" id="full_name" value="{{ old('full_name') }}" required autocomplete="name" placeholder="{{ __('messages.Full Name placeholder') }}" class="w-full rounded-full border border-[#dfe9e7] bg-[#f7faf9] py-3 pl-10 pr-4 text-[0.95rem] text-[#0B2638] outline-none transition-all duration-300 placeholder:text-[#6a7c84] focus:border-[#2D7080] focus:bg-white focus:ring-4 focus:ring-[#2D7080]/10 @error('full_name') border-red-300 bg-red-50 @enderror" />
                                         </div>
-                                        @error('entreprise_name')
+                                        @error('full_name')
                                             <p class="text-xs text-red-600">{{ $message }}</p>
                                         @enderror
                                     </div>
-
-                                    <div class="space-y-2 sm:col-span-1">
-                                        <label for="password" class="block text-sm font-medium text-[#0B2638]">{{ __('messages.Password') }} <span class="text-red-500">*</span></label>
-                                        <div class="relative">
+                                    <div class="mt-2 grid gap-4 sm:grid-cols-2">
+                                        <div class="space-y-2 sm:col-span-1">
+                                          <label for="password" class="block text-sm font-medium text-[#0B2638]">{{ __('messages.Password') }} <span class="text-red-500">*</span></label>
+                                          <div class="relative">
                                             <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[#5b6b73]">
                                                 <i data-lucide="lock-keyhole" class="h-4 w-4"></i>
                                             </span>
                                             <input type="password" name="password" id="password" required autocomplete="new-password" placeholder="••••••••" class="w-full rounded-full border border-[#dfe9e7] bg-[#f7faf9] py-3 pl-10 pr-4 text-[0.95rem] text-[#0B2638] outline-none transition-all duration-300 placeholder:text-[#6a7c84] focus:border-[#2D7080] focus:bg-white focus:ring-4 focus:ring-[#2D7080]/10 @error('password') border-red-300 bg-red-50 @enderror" />
-                                        </div>
-                                        @error('password')
+                                          </div>
+                                          @error('password')
                                             <p class="text-xs text-red-600">{{ $message }}</p>
-                                        @enderror
+                                          @enderror
+                                        </div>
+
+                                        <div class="space-y-2 sm:col-span-1">
+                                            <label for="password_confirmation" class="block text-sm font-medium text-[#0B2638]">{{ __('messages.Confirm password') }} <span class="text-red-500">*</span></label>
+                                            <div class="relative">
+                                                <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[#5b6b73]">
+                                                    <i data-lucide="shield-check" class="h-4 w-4"></i>
+                                                </span>
+                                                <input type="password" name="password_confirmation" id="password_confirmation" required autocomplete="new-password" placeholder="••••••••" class="w-full rounded-full border border-[#dfe9e7] bg-[#f7faf9] py-3 pl-10 pr-4 text-[0.95rem] text-[#0B2638] outline-none transition-all duration-300 placeholder:text-[#6a7c84] focus:border-[#2D7080] focus:bg-white focus:ring-4 focus:ring-[#2D7080]/10" />
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div class="space-y-2 sm:col-span-1">
-                                        <label for="password_confirmation" class="block text-sm font-medium text-[#0B2638]">{{ __('messages.Confirm password') }} <span class="text-red-500">*</span></label>
-                                        <div class="relative">
-                                            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[#5b6b73]">
-                                                <i data-lucide="shield-check" class="h-4 w-4"></i>
-                                            </span>
-                                            <input type="password" name="password_confirmation" id="password_confirmation" required autocomplete="new-password" placeholder="••••••••" class="w-full rounded-full border border-[#dfe9e7] bg-[#f7faf9] py-3 pl-10 pr-4 text-[0.95rem] text-[#0B2638] outline-none transition-all duration-300 placeholder:text-[#6a7c84] focus:border-[#2D7080] focus:bg-white focus:ring-4 focus:ring-[#2D7080]/10" />
-                                        </div>
-                                    </div>
-
-                                    <div class="space-y-2 sm:col-span-2">
-                                        <label for="timezone" class="block text-sm font-medium text-[#0B2638]">{{ __('messages.Timezone') }} <span class="text-red-500">*</span></label>
-                                        <div class="relative">
-                                            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[#5b6b73]">
-                                                <i data-lucide="clock-3" class="h-4 w-4"></i>
-                                            </span>
-                                            <select id="timezone" name="timezone" required class="w-full appearance-none rounded-full border border-[#dfe9e7] bg-[#f7faf9] py-3 pl-10 pr-10 text-[0.95rem] text-[#0B2638] outline-none transition-all duration-300 focus:border-[#2D7080] focus:bg-white focus:ring-4 focus:ring-[#2D7080]/10 @error('timezone') border-red-300 bg-red-50 @enderror">
-                                                <option value="">{{ __('messages.Select your timezone') }}</option>
-                                                @foreach (timezone_identifiers_list() as $timezone)
-                                                    <option value="{{ $timezone }}" {{ old('timezone') == $timezone ? 'selected' : '' }}>{{ $timezone }}</option>
-                                                @endforeach
-                                            </select>
-                                            <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-[#5b6b73]">
-                                                <i data-lucide="chevron-down" class="h-4 w-4"></i>
-                                            </span>
-                                        </div>
-                                        @error('timezone')
-                                            <p class="text-xs text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-
-                                    <div class="space-y-2 sm:col-span-2">
-                                        <label for="country" class="block text-sm font-medium text-[#0B2638]">{{ __('messages.Country') }} <span class="text-red-500">*</span></label>
-                                        <div class="relative">
-                                            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[#5b6b73]">
-                                                <i data-lucide="map-pin" class="h-4 w-4"></i>
-                                            </span>
-                                            <select id="country" name="country" required class="w-full appearance-none rounded-full border border-[#dfe9e7] bg-[#f7faf9] py-3 pl-10 pr-10 text-[0.95rem] text-[#0B2638] outline-none transition-all duration-300 focus:border-[#2D7080] focus:bg-white focus:ring-4 focus:ring-[#2D7080]/10 @error('country') border-red-300 bg-red-50 @enderror">
-                                                <option value="">{{ __('messages.Select your country') }}</option>
-                                                @php
-                                                    $countries = [
-                                                        'AF' => 'Afghanistan', 'AL' => 'Albania', 'DZ' => 'Algeria', 'AS' => 'American Samoa', 'AD' => 'Andorra',
-                                                        'AO' => 'Angola', 'AI' => 'Anguilla', 'AQ' => 'Antarctica', 'AG' => 'Antigua and Barbuda', 'AR' => 'Argentina',
-                                                        'AM' => 'Armenia', 'AW' => 'Aruba', 'AU' => 'Australia', 'AT' => 'Austria', 'AZ' => 'Azerbaijan',
-                                                        'BS' => 'Bahamas', 'BH' => 'Bahrain', 'BD' => 'Bangladesh', 'BB' => 'Barbados', 'BY' => 'Belarus',
-                                                        'BE' => 'Belgium', 'BZ' => 'Belize', 'BJ' => 'Benin', 'BM' => 'Bermuda', 'BT' => 'Bhutan',
-                                                        'BO' => 'Bolivia', 'BA' => 'Bosnia and Herzegovina', 'BW' => 'Botswana', 'BV' => 'Bouvet Island', 'BR' => 'Brazil',
-                                                        'IO' => 'British Indian Ocean Territory', 'BN' => 'Brunei Darussalam', 'BG' => 'Bulgaria', 'BF' => 'Burkina Faso',
-                                                        'BI' => 'Burundi', 'KH' => 'Cambodia', 'CM' => 'Cameroon', 'CA' => 'Canada', 'CV' => 'Cape Verde',
-                                                        'KY' => 'Cayman Islands', 'CF' => 'Central African Republic', 'TD' => 'Chad', 'CL' => 'Chile', 'CN' => 'China',
-                                                        'CX' => 'Christmas Island', 'CC' => 'Cocos (Keeling) Islands', 'CO' => 'Colombia', 'KM' => 'Comoros',
-                                                        'CG' => 'Congo', 'CD' => 'Congo, Democratic Republic of the', 'CK' => 'Cook Islands', 'CR' => 'Costa Rica',
-                                                        'HR' => 'Croatia', 'CU' => 'Cuba', 'CY' => 'Cyprus', 'CZ' => 'Czech Republic', 'DK' => 'Denmark',
-                                                        'DJ' => 'Djibouti', 'DM' => 'Dominica', 'DO' => 'Dominican Republic', 'EC' => 'Ecuador', 'EG' => 'Egypt',
-                                                        'SV' => 'El Salvador', 'GQ' => 'Equatorial Guinea', 'ER' => 'Eritrea', 'EE' => 'Estonia', 'ET' => 'Ethiopia',
-                                                        'FK' => 'Falkland Islands (Malvinas)', 'FO' => 'Faroe Islands', 'FJ' => 'Fiji', 'FI' => 'Finland', 'FR' => 'France',
-                                                        'GF' => 'French Guiana', 'PF' => 'French Polynesia', 'TF' => 'French Southern Territories', 'GA' => 'Gabon',
-                                                        'GM' => 'Gambia', 'GE' => 'Georgia', 'DE' => 'Germany', 'GH' => 'Ghana', 'GI' => 'Gibraltar',
-                                                        'GR' => 'Greece', 'GL' => 'Greenland', 'GD' => 'Grenada', 'GP' => 'Guadeloupe', 'GU' => 'Guam',
-                                                        'GT' => 'Guatemala', 'GG' => 'Guernsey', 'GN' => 'Guinea', 'GW' => 'Guinea-Bissau', 'GY' => 'Guyana',
-                                                        'HT' => 'Haiti', 'HM' => 'Heard Island and Mcdonald Islands', 'VA' => 'Holy See (Vatican City State)',
-                                                        'HN' => 'Honduras', 'HK' => 'Hong Kong', 'HU' => 'Hungary', 'IS' => 'Iceland', 'IN' => 'India',
-                                                        'ID' => 'Indonesia', 'IR' => 'Iran, Islamic Republic of', 'IQ' => 'Iraq', 'IE' => 'Ireland', 'IM' => 'Isle of Man',
-                                                        'IL' => 'Israel', 'IT' => 'Italy', 'JM' => 'Jamaica', 'JP' => 'Japan', 'JE' => 'Jersey', 'JO' => 'Jordan',
-                                                        'KZ' => 'Kazakhstan', 'KE' => 'Kenya', 'KI' => 'Kiribati', 'KP' => 'Korea, Democratic People\'s Republic of',
-                                                        'KR' => 'Korea, Republic of', 'KW' => 'Kuwait', 'KG' => 'Kyrgyzstan', 'LA' => 'Lao People\'s Democratic Republic',
-                                                        'LV' => 'Latvia', 'LB' => 'Lebanon', 'LS' => 'Lesotho', 'LR' => 'Liberia', 'LY' => 'Libyan Arab Jamahiriya',
-                                                        'LI' => 'Liechtenstein', 'LT' => 'Lithuania', 'LU' => 'Luxembourg', 'MO' => 'Macau', 'MK' => 'Macedonia',
-                                                        'MG' => 'Madagascar', 'MW' => 'Malawi', 'MY' => 'Malaysia', 'MV' => 'Maldives', 'ML' => 'Mali',
-                                                        'MT' => 'Malta', 'MH' => 'Marshall Islands', 'MQ' => 'Martinique', 'MR' => 'Mauritania', 'MU' => 'Mauritius',
-                                                        'YT' => 'Mayotte', 'MX' => 'Mexico', 'FM' => 'Micronesia, Federated States of', 'MD' => 'Moldova, Republic of',
-                                                        'MC' => 'Monaco', 'MN' => 'Mongolia', 'ME' => 'Montenegro', 'MS' => 'Montserrat', 'MA' => 'Morocco',
-                                                        'MZ' => 'Mozambique', 'MM' => 'Myanmar', 'NA' => 'Namibia', 'NR' => 'Nauru', 'NP' => 'Nepal',
-                                                        'NL' => 'Netherlands', 'AN' => 'Netherlands Antilles', 'NC' => 'New Caledonia', 'NZ' => 'New Zealand',
-                                                        'NI' => 'Nicaragua', 'NE' => 'Niger', 'NG' => 'Nigeria', 'NU' => 'Niue', 'NF' => 'Norfolk Island',
-                                                        'MP' => 'Northern Mariana Islands', 'NO' => 'Norway', 'OM' => 'Oman', 'PK' => 'Pakistan', 'PW' => 'Palau',
-                                                        'PS' => 'Palestinian Territory, Occupied', 'PA' => 'Panama', 'PG' => 'Papua New Guinea', 'PY' => 'Paraguay',
-                                                        'PE' => 'Peru', 'PH' => 'Philippines', 'PN' => 'Pitcairn', 'PL' => 'Poland', 'PT' => 'Portugal',
-                                                        'PR' => 'Puerto Rico', 'QA' => 'Qatar', 'RE' => 'Reunion', 'RO' => 'Romania', 'RU' => 'Russian Federation',
-                                                        'RW' => 'Rwanda', 'BL' => 'Saint Barthelemy', 'SH' => 'Saint Helena', 'KN' => 'Saint Kitts and Nevis',
-                                                        'LC' => 'Saint Lucia', 'MF' => 'Saint Martin', 'PM' => 'Saint Pierre and Miquelon', 'VC' => 'Saint Vincent and the Grenadines',
-                                                        'WS' => 'Samoa', 'SM' => 'San Marino', 'ST' => 'Sao Tome and Principe', 'SA' => 'Saudi Arabia', 'SN' => 'Senegal',
-                                                        'RS' => 'Serbia', 'SC' => 'Seychelles', 'SL' => 'Sierra Leone', 'SG' => 'Singapore', 'SK' => 'Slovakia',
-                                                        'SI' => 'Slovenia', 'SB' => 'Solomon Islands', 'SO' => 'Somalia', 'ZA' => 'South Africa', 'GS' => 'South Georgia and the South Sandwich Islands',
-                                                        'ES' => 'Spain', 'LK' => 'Sri Lanka', 'SD' => 'Sudan', 'SR' => 'Suriname', 'SJ' => 'Svalbard and Jan Mayen',
-                                                        'SZ' => 'Swaziland', 'SE' => 'Sweden', 'CH' => 'Switzerland', 'SY' => 'Syrian Arab Republic', 'TW' => 'Taiwan, Province of China',
-                                                        'TJ' => 'Tajikistan', 'TZ' => 'Tanzania, United Republic of', 'TH' => 'Thailand', 'TL' => 'Timor-Leste', 'TG' => 'Togo',
-                                                        'TK' => 'Tokelau', 'TO' => 'Tonga', 'TT' => 'Trinidad and Tobago', 'TN' => 'Tunisia', 'TR' => 'Turkey',
-                                                        'TM' => 'Turkmenistan', 'TC' => 'Turks and Caicos Islands', 'TV' => 'Tuvalu', 'UG' => 'Uganda', 'UA' => 'Ukraine',
-                                                        'AE' => 'United Arab Emirates', 'GB' => 'United Kingdom', 'US' => 'United States', 'UM' => 'United States Minor Outlying Islands',
-                                                        'UY' => 'Uruguay', 'UZ' => 'Uzbekistan', 'VU' => 'Vanuatu', 'VE' => 'Venezuela', 'VN' => 'Viet Nam',
-                                                        'VG' => 'Virgin Islands, British', 'VI' => 'Virgin Islands, U.S.', 'WF' => 'Wallis and Futuna', 'EH' => 'Western Sahara',
-                                                        'YE' => 'Yemen', 'ZM' => 'Zambia', 'ZW' => 'Zimbabwe',
-                                                    ];
-                                                @endphp
-                                                @foreach ($countries as $name)
-                                                    <option value="{{ $name }}" {{ old('country') == $name ? 'selected' : '' }}>{{ $name }}</option>
-                                                @endforeach
-                                            </select>
-                                            <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-[#5b6b73]">
-                                                <i data-lucide="chevron-down" class="h-4 w-4"></i>
-                                            </span>
-                                        </div>
-                                        @error('country')
-                                            <p class="text-xs text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                </div>
+                                   
 
                                 @if(config('services.turnstile.site_key'))
                                     <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"></div>

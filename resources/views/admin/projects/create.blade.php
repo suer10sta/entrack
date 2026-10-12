@@ -47,6 +47,7 @@
                     <form method="POST" action="{{route('Responsable_gestionnaire.projects.store', $client_id ?? '')}}" autocomplete="off" class="space-y-6">
                     @endif
                         @csrf
+                        <input type="hidden" name="from" value="{{ old('from', request()->query('from')) }}" />
                         @if(!empty($parent_id))
                             <input type="hidden" name="parent_id" value="{{ $parent_id }}">
                         @endif

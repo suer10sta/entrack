@@ -446,6 +446,9 @@ class tasksController extends Controller
         }
 
 
+        if ($request->input('from') === 'onboarding') {
+            return redirect()->route('admin.onboarding.step2')->with('message', 'Task Created Successfully');
+        }
         if (Auth::user()->hasRole('Admin')) {
             return redirect()->route('admin.projects.show', $projectId)->with('message', 'Task Created Successfully');
         }
