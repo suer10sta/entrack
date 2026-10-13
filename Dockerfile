@@ -1,5 +1,26 @@
-FROM php:8.3-fpm-bookworm
+# ==============================
+# Stage 1: Build frontend assets
+# ==============================
+FROM node:22-bookworm-slim AS frontend
 
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm ci
+
+COPY resources ./resources
+COPY vite.config.js ./
+COPY postcss.config.js ./
+COPY tailwind.config.js ./
+
+RUN npm run build
+
+
+# ==============================
+# Stage 2: Laravel / PHP-FPM
+# ==============================
+FROM php:8.3-fpm-bookworm
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
@@ -38,6 +59,9 @@ RUN composer install \
     --no-scripts
 
 COPY . .
+
+# Copy Vite production assets generated in frontend stage
+COPY --from=frontend /app/public/build ./public/build
 
 RUN composer dump-autoload --optimize --no-dev \
     && mkdir -p storage/framework/cache \
