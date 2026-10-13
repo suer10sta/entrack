@@ -30,7 +30,7 @@ class AppServiceProvider extends ServiceProvider
         Cashier::useCustomerModel(Entreprise::class);
 
         Paginator::useBootstrap();
-        if($this->app->environment('production')) {
+        if (app()->environment('production') && str_starts_with(config('app.url'), 'https://')) {
             \URL::forceScheme('https');
             Paginator::useTailwind();
         }
