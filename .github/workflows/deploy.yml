@@ -26,7 +26,7 @@ jobs:
           command_timeout: 20m
           script: |
             set -e
-            cd /var/www/dalytrac
+            cd /var/www/entrack
 
             git fetch origin main
             git checkout main
