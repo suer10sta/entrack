@@ -1,4 +1,4 @@
-name: Deploy DalyTrac
+name: Test DalyTrac VPS Connection
 
 on:
   push:
@@ -7,11 +7,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  test-ssh:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to VPS
+      - name: Test SSH connection
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -19,7 +19,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             set -e
+            echo "SSH connection successful"
             cd /var/www/dalytrac
-            git fetch origin refont
-            git merge --ff-only origin/refont
-            sudo docker compose up -d --build
+            git branch --show-current
+            git status --short
