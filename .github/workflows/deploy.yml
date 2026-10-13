@@ -1,25 +1,35 @@
-name: Test DalyTrac VPS Connection
+name: Deploy DalyTrac to VPS
 
 on:
   push:
     branches:
-      - refont
+      - main
   workflow_dispatch:
 
+concurrency:
+  group: dalytrac-production
+  cancel-in-progress: false
+
 jobs:
-  test-ssh:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test SSH connection
+      - name: Deploy to VPS
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          timeout: 30s
+          command_timeout: 20m
           script: |
             set -e
-            echo "SSH connection successful"
             cd /var/www/dalytrac
-            git branch --show-current
-            git status --short
+
+            git fetch origin main
+            git checkout main
+            git pull --ff-only origin main
+
+            sudo docker compose up -d --build
