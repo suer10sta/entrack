@@ -11,91 +11,97 @@
     <meta property="og:url" content="{{ route('verification.notice') }}">
     <title>{{ __('messages.Verify Your Email') }} | DalyTrac</title>
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <script src="https://unpkg.com/lucide@1.47.0/dist/umd/lucide.min.js" defer></script>
+
+    <style>
+        .async-hide {
+            opacity: 0 !important;
+        }
+    </style>
 </head>
 
-<body class="bg-gradient-to-b from-sky-50 via-sky-100 to-slate-50 text-foreground font-sans antialiased">
+<body class="overflow-x-hidden bg-[#f4f7f6] font-sans text-[#0B2638] antialiased">
+    <main class="min-h-screen px-4 pt-10 pb-5 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-[560px]">
+            <header class="mb-6 flex items-center justify-center">
+                <a href="/" aria-label="DalyTrac, home" class="inline-flex items-baseline text-[1.65rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><span>Daly</span><strong class="font-extrabold text-brand-secondary">Trac</strong></a>
+            </header>
 
-    <main class="min-h-screen relative flex items-center justify-center px-4 py-10 overflow-hidden">
-        <div class="pointer-events-none absolute inset-0">
-            <div class="absolute -top-32 -left-32 h-72 w-72 rounded-full bg-sky-300/20 blur-3xl"></div>
-            <div class="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-sky-400/20 blur-3xl"></div>
-        </div>
-
-        <div class="relative z-10 w-full max-w-lg">
-            <div class="rounded-2xl border-4 border-sky-200/60 bg-white/95 shadow-2xl ring-1 ring-border/40 backdrop-blur-md px-8 py-10 sm:px-10 sm:py-12">
-
-                <div class="flex items-center justify-center mb-6">
-                    <img src="{{ asset('img/dalytraclogo.png') }}" alt="DalyTrac logo" class="h-14 w-auto object-contain" />
-                </div>
-
-                <div class="text-center mb-8">
-                    <div class="mb-4 inline-flex items-center justify-center rounded-xl bg-primary/10 p-1 pr-3 text-xs font-medium text-primary">
-                        <span class="mr-2 flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                            <i class="fa-solid fa-envelope-circle-check text-[11px]"></i>
+            <div class="overflow-hidden rounded-[28px] border border-[#dfe9e7] bg-white shadow-[0_24px_70px_rgba(11,38,56,0.08)]">
+                <div class="px-5 py-7 sm:px-8 lg:px-10 lg:py-9">
+                    <div class="mb-5 text-center">
+                        <span class="inline-flex items-center gap-2 rounded-full border border-[#dfe9e7] bg-[#edf7f5] px-3 py-1.5 text-[0.7rem] font-bold uppercase tracking-[0.08em] text-[#2D7080]">
+                            <i data-lucide="mail-check" class="h-3.5 w-3.5"></i>
+                            {{ __('messages.Email Verification Required') }}
                         </span>
-                        {{ __('messages.Email Verification Required') }}
                     </div>
-                    <h1 class="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{{ __('messages.Verify Your Email') }}</h1>
-                    <p class="mt-2 text-sm text-muted-foreground leading-relaxed">
-                        {{ __('messages.Thank you for registering! A confirmation email has just been sent to you.<br>Please click the link in the email to activate your account.') }}
-                    </p>
-                </div>
 
-                @if(session('status'))
-                <div class="mb-6 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-600 flex items-center gap-2" role="alert">
-                    <i class="fa-solid fa-circle-check"></i>
-                    <span>{{ __('messages.' . session('status')) }}</span>
-                </div>
-                @endif
+                    <div class="mb-7 text-center">
+                        <h1 class="text-[2rem] font-bold leading-[1.1] tracking-[-0.05em] text-[#0B2638]">{{ __('messages.Verify Your Email') }}</h1>
+                        <p class="mt-2 text-[0.95rem] leading-6 text-[#5b6b73]">{!! __('messages.Thank you for registering! A confirmation email has just been sent to you.<br>Please click the link in the email to activate your account.') !!}</p>
+                    </div>
 
-                @if(session('error'))
-                <div class="mb-6 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-600 flex items-center gap-2" role="alert">
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                    <span>{{ session('error') }}</span>
-                </div>
-                @endif
-
-                <div class="mb-6 rounded-xl border border-sky-200/60 bg-sky-50/80 px-5 py-4">
-                    <div class="flex items-start gap-3">
-                        <div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sky-600">
-                            <i class="fa-solid fa-inbox text-sm"></i>
+                    @if(session('status'))
+                        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700" role="alert">
+                            <span class="inline-flex items-center gap-2">
+                                <i data-lucide="circle-check" class="h-4 w-4 shrink-0"></i>
+                                {{ __('messages.' . session('status')) }}
+                            </span>
                         </div>
-                        <div>
-                            <p class="text-sm font-medium text-slate-700">{{ __('messages.You did not receive the email?') }}</p>
-                            <p class="mt-1 text-xs text-slate-500">{{ __('messages.Check your spam folder or request a new verification email below.') }}</p>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+                            <span class="inline-flex items-center gap-2">
+                                <i data-lucide="circle-alert" class="h-4 w-4 shrink-0"></i>
+                                {{ session('error') }}
+                            </span>
+                        </div>
+                    @endif
+
+                    <div class="mb-6 rounded-[20px] border border-[#dfe9e7] bg-[#f4f7f6] p-4">
+                        <div class="flex items-start gap-3">
+                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-[#2D7080] shadow-sm">
+                                <i data-lucide="inbox" class="h-5 w-5"></i>
+                            </span>
+                            <div>
+                                <p class="text-sm font-semibold text-[#0B2638]">{{ __('messages.You did not receive the email?') }}</p>
+                                <p class="mt-1 text-[0.83rem] leading-5 text-[#5b6b73]">{{ __('messages.Check your spam folder or request a new verification email below.') }}</p>
+                            </div>
                         </div>
                     </div>
+
+                    <div class="space-y-3">
+                        <form method="POST" action="{{ route('verification.send') }}">
+                            @csrf
+                            <button type="submit" class="btn-sweep btn-sweep-navy group inline-flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-full border border-transparent bg-brand-secondary px-[22px] text-[0.95rem] font-semibold text-white no-underline shadow-[0_12px_28px_rgba(45,112,128,0.2)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-[0_16px_34px_rgba(45,112,128,0.3)] cursor-pointer">
+                                <i data-lucide="send" class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"></i>
+                                <span>{{ __('messages.Resend verification email') }}</span>
+                            </button>
+                        </form>
+
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full border border-[#dfe9e7] bg-white px-[22px] text-[0.9rem] font-medium text-[#5b6b73] no-underline transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#2D7080] hover:text-[#2D7080] cursor-pointer">
+                                <i data-lucide="log-out" class="h-4 w-4"></i>
+                                <span>{{ __('messages.Logout') }}</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
-
-                <div class="space-y-3">
-                    <form method="POST" action="{{ route('verification.send') }}">
-                        @csrf
-                        <button type="submit"
-                            class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/40 transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2">
-                            <i class="fa-solid fa-paper-plane text-xs"></i>
-                            <span>{{ __('messages.Resend verification email') }}</span>
-                        </button>
-                    </form>
-
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit"
-                            class="flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
-                            <i class="fa-solid fa-right-from-bracket text-xs"></i>
-                            <span>{{ __('messages.Sign out') }}</span>
-                        </button>
-                    </form>
-                </div>
-
             </div>
         </div>
     </main>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        });
+    </script>
 </body>
 
 </html>

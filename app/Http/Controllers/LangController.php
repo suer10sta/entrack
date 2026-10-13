@@ -17,11 +17,11 @@ class LangController extends Controller
      */
     public function change(Request $request)
     {
-        $lang = $request->input('lang', 'en');
+        $lang = $request->input('lang', 'fr');
         
         // Validate language code
         if (!in_array($lang, $this->availableLocales)) {
-            $lang = 'en'; // Fallback to English
+            $lang = 'fr'; // Fallback to French
         }
         
         // Persist on the authenticated account (so it sticks after login).

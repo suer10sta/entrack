@@ -22,7 +22,7 @@ class Language
         }
 
         if (!$locale) {
-            $locale = session('locale', 'en');
+            $locale = session('locale', 'fr');
         }
 
         app()->setLocale($locale);
