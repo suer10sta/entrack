@@ -49,25 +49,26 @@ class RegisteredUserController extends Controller
             return redirect()->route('welcome');
         }
 
-        // Turnstile Validation (skip in local environment)
-        $turnstileSecret = config('services.turnstile.secret_key');
-        if ($turnstileSecret && app()->environment('production')) {
-            $turnstileResponse = $request->input('cf-turnstile-response');
-            if (!$turnstileResponse) {
-                return back()->withInput()->withErrors(['cf-turnstile-response' => __('messages.auth_turnstile_required')]);
-            }
-
-            $verify = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
-                'secret' => $turnstileSecret,
-                'response' => $turnstileResponse,
-                'remoteip' => $request->ip(),
-            ]);
-
-            if (!$verify->json('success')) {
-                Log::warning('Turnstile verification failed for registration.', ['response' => $verify->json()]);
-                return back()->withInput()->withErrors(['cf-turnstile-response' => __('messages.auth_turnstile_failed')]);
-            }
-        }
+        // TEMPORARILY DISABLED: Cloudflare Turnstile verification (restore to re-enable anti-bot check).
+        // // Turnstile Validation (skip in local environment)
+        // $turnstileSecret = config('services.turnstile.secret_key');
+        // if ($turnstileSecret && app()->environment('production')) {
+        //     $turnstileResponse = $request->input('cf-turnstile-response');
+        //     if (!$turnstileResponse) {
+        //         return back()->withInput()->withErrors(['cf-turnstile-response' => __('messages.auth_turnstile_required')]);
+        //     }
+        //
+        //     $verify = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+        //         'secret' => $turnstileSecret,
+        //         'response' => $turnstileResponse,
+        //         'remoteip' => $request->ip(),
+        //     ]);
+        //
+        //     if (!$verify->json('success')) {
+        //         Log::warning('Turnstile verification failed for registration.', ['response' => $verify->json()]);
+        //         return back()->withInput()->withErrors(['cf-turnstile-response' => __('messages.auth_turnstile_failed')]);
+        //     }
+        // }
 
         $validated = $request->validate([
             "email" => "required|email|unique:users,email",

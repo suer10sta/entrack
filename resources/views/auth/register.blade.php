@@ -12,7 +12,9 @@
     <title>{{ __('messages.DalyTrac Create Account - Start your free trial') }} | DalyTrac</title>
 
 
+    {{-- TEMPORARILY DISABLED: Cloudflare Turnstile verification (restore to re-enable anti-bot check).
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    --}}
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -126,11 +128,13 @@
                                     <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
                                 </div>
 
+                                {{-- TEMPORARILY DISABLED: Cloudflare Turnstile verification (restore to re-enable anti-bot check).
                                 @if($errors->has('cf-turnstile-response'))
                                     <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
                                         {{ $errors->first('cf-turnstile-response') }}
                                     </div>
                                 @endif
+                                --}}
 
                                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
                                     <div class="space-y-1 sm:col-span-1">
@@ -185,9 +189,11 @@
 
                                    
 
+                                {{-- TEMPORARILY DISABLED: Cloudflare Turnstile verification (restore to re-enable anti-bot check).
                                 @if(config('services.turnstile.site_key'))
                                     <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"></div>
                                 @endif
+                                --}}
 
                                 <button type="submit" class="btn-sweep btn-sweep-navy group inline-flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-full border border-transparent bg-brand-secondary px-[22px] text-[0.95rem] font-semibold text-white no-underline shadow-[0_12px_28px_rgba(45,112,128,0.2)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-[0_16px_34px_rgba(45,112,128,0.3)] cursor-pointer">
                                     <span>{{ __('messages.Create a free account') }}</span>

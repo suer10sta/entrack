@@ -43,8 +43,10 @@
             border-color: transparent;
         }
     </style>
+    {{-- TEMPORARILY DISABLED: Cloudflare Turnstile verification (restore to re-enable anti-bot check).
     <!-- Cloudflare Turnstile -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    --}}
 </head>
 
 <body class="overflow-x-hidden bg-[#f4f7f6] font-sans text-[#0B2638] antialiased">
@@ -150,9 +152,11 @@
                                     @enderror
                                 </div>
 
+                                {{-- TEMPORARILY DISABLED: Cloudflare Turnstile verification (restore to re-enable anti-bot check).
                                 @if(config('services.turnstile.site_key'))
                                     <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"></div>
                                 @endif
+                                --}}
 
                                 <button type="submit" class="btn-sweep btn-sweep-navy group inline-flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-full border border-transparent bg-brand-secondary px-[22px] text-[0.95rem] font-semibold text-white no-underline shadow-[0_12px_28px_rgba(45,112,128,0.2)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-[0_16px_34px_rgba(45,112,128,0.3)] cursor-pointer">
                                     <span>{{ __('messages.Send Message') }}</span>

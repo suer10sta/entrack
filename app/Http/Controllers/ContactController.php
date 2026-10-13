@@ -30,22 +30,23 @@ class ContactController extends Controller
             'message' => ['required', 'string'],
         ]);
 
-        // Turnstile Validation
-        $turnstileResponse = $request->input('cf-turnstile-response');
-        if (!$turnstileResponse) {
-            return back()->withInput()->withErrors(['cf-turnstile-response' => __('Veuillez cocher la case pour prouver que vous n\'êtes pas un robot.')]);
-        }
-
-        $verify = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
-            'secret' => config('services.turnstile.secret_key'),
-            'response' => $turnstileResponse,
-            'remoteip' => $request->ip(),
-        ]);
-
-        if (!$verify->json('success')) {
-            Log::warning('Turnstile verification failed.', ['response' => $verify->json()]);
-            return back()->withInput()->withErrors(['cf-turnstile-response' => __('La validation de sécurité a échoué. Veuillez réessayer.')]);
-        }
+        // TEMPORARILY DISABLED: Cloudflare Turnstile verification (restore to re-enable anti-bot check).
+        // // Turnstile Validation
+        // $turnstileResponse = $request->input('cf-turnstile-response');
+        // if (!$turnstileResponse) {
+        //     return back()->withInput()->withErrors(['cf-turnstile-response' => __('Veuillez cocher la case pour prouver que vous n\'êtes pas un robot.')]);
+        // }
+        //
+        // $verify = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+        //     'secret' => config('services.turnstile.secret_key'),
+        //     'response' => $turnstileResponse,
+        //     'remoteip' => $request->ip(),
+        // ]);
+        //
+        // if (!$verify->json('success')) {
+        //     Log::warning('Turnstile verification failed.', ['response' => $verify->json()]);
+        //     return back()->withInput()->withErrors(['cf-turnstile-response' => __('La validation de sécurité a échoué. Veuillez réessayer.')]);
+        // }
 
         // Basic debug info before sending
         Log::info('Contact form submission received.', [
