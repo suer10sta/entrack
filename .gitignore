@@ -24,3 +24,5 @@ yarn-error.log
 /public/creditNote
 /public/notedefrais
 /public/videos/*.mp4
+.env.*
+!.env.example

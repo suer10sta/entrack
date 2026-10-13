@@ -1,0 +1,25 @@
+name: Deploy DalyTrac
+
+on:
+  push:
+    branches:
+      - refont
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            cd /var/www/dalytrac
+            git fetch origin refont
+            git merge --ff-only origin/refont
+            sudo docker compose up -d --build
