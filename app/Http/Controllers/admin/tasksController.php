@@ -157,7 +157,7 @@ class tasksController extends Controller
             ->where('archived', 0)
             ->get();
         $enterpriseId = Auth::user()->entreprise_id;
-        $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
+        $employees = Employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
         $tasks = Tasks::where('entreprise_id', Auth::user()->entreprise_id)->orderBy('created_at', 'desc')->get();
         $groupedTasks = $tasks->groupBy('project_id');
@@ -206,7 +206,7 @@ class tasksController extends Controller
             ->where('archived', 0)
             ->orderBy('name', 'asc')
             ->get();
-        $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
+        $employees = Employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
         $teams = Teams::where('entreprise_id', $enterpriseId)->orderBy('name', 'asc')->get();
         $tasks = Tasks::where('entreprise_id', $enterpriseId)->orderBy('title', 'asc')->get();
 
@@ -233,7 +233,7 @@ class tasksController extends Controller
         })->values();
 
         // Viewer chrono context (same rules as everywhere else)
-        $viewer = employees::where('user_id', $user->id)->where('entreprise_id', $enterpriseId)->first();
+        $viewer = Employees::where('user_id', $user->id)->where('entreprise_id', $enterpriseId)->first();
         $viewerLinks = $viewer
             ? employees_tasks::where('employee_id', $viewer->id)->pluck('id', 'task_id')
             : collect();
@@ -268,7 +268,7 @@ class tasksController extends Controller
 
 
         $employee_users = collect();
-        $employees = employees::where('entreprise_id', Auth::user()->entreprise_id)
+        $employees = Employees::where('entreprise_id', Auth::user()->entreprise_id)
             // ->whereNotIn('id', $superAdminIds)
             ->where('archived', 0)
             ->orderBy('name', 'asc')
@@ -304,11 +304,21 @@ class tasksController extends Controller
 
         $user_id = Auth::user()->id;
 
-        $project = Project::where('id', $projectId)->first();
+        $project = Project::where('id', $projectId)->where('entreprise_id', $enterpriseId)->first();
+
+        if (! $project) {
+            // Never attach a task to a missing project or another workspace's project.
+            $message = __('messages.onboarding_invalid_project');
+            if ($request->input('from') === 'onboarding') {
+                return redirect()->route('admin.onboarding.step2')->withErrors(['project' => $message])->withInput();
+            }
+            abort(404);
+        }
+
         // Create the associated task
         $task = new Tasks([
             'title' => $validated['title'],
-            'description' => $validated['description'],
+            'description' => $validated['description'] ?? null,
             'project_name' => $project->name,
             'project_id' => $project->id,
             'entreprise_id' => $enterpriseId, // Associate with the admin's enterprise_id
@@ -365,7 +375,7 @@ class tasksController extends Controller
 
         $employees = $request->input('employees', []);
         foreach ($employees as $emp) {
-            $employee = employees::where('user_id', $emp)->where('entreprise_id', Auth::user()->entreprise_id)->first();
+            $employee = Employees::where('user_id', $emp)->where('entreprise_id', Auth::user()->entreprise_id)->first();
 
             $employee_task = new employees_tasks;
             $employee_task->employee_id = $employee->id;
@@ -447,7 +457,8 @@ class tasksController extends Controller
 
 
         if ($request->input('from') === 'onboarding') {
-            return redirect()->route('admin.onboarding.step2')->with('message', 'Task Created Successfully');
+            // withInput() so Step 2 keeps showing the entered values after reload.
+            return redirect()->route('admin.onboarding.step2')->with('message', 'Task Created Successfully')->withInput();
         }
         if (Auth::user()->hasRole('Admin')) {
             return redirect()->route('admin.projects.show', $projectId)->with('message', 'Task Created Successfully');
@@ -472,8 +483,8 @@ class tasksController extends Controller
         $admins_id = User::where('is_activate', 1)->whereHas('roles', function ($q) {
             $q->where('name', 'admin');
         })->pluck('id');
-        $admiemployee = employees::whereIn('user_id', $admins_id)->get();
-        //$admiemployee = employees::where('user_id',  Auth::user()->id)->first();
+        $admiemployee = Employees::whereIn('user_id', $admins_id)->get();
+        //$admiemployee = Employees::where('user_id',  Auth::user()->id)->first();
         $old_employee_users = collect();
         $old_employees = employees_tasks::where('task_id', $task->id)
             ->whereNotIn('employee_id', $admiemployee->pluck('id')->toArray())
@@ -482,7 +493,7 @@ class tasksController extends Controller
             foreach ($old_employees as $old_emp) {
                 // It is possible that the related employee record was deleted.
                 // In that case, skip to avoid "Attempt to read property 'user_id' on null".
-                $old_employee = employees::where('id', $old_emp->employee_id)->first();
+                $old_employee = Employees::where('id', $old_emp->employee_id)->first();
                 if (!$old_employee) {
                     continue;
                 }
@@ -495,7 +506,7 @@ class tasksController extends Controller
             $employee_users = collect();
             $oldEmployeeIds = employees_tasks::where('task_id', $task->id)
                 ->pluck('employee_id');
-            $employees = employees::where('entreprise_id', Auth::user()->entreprise_id)
+            $employees = Employees::where('entreprise_id', Auth::user()->entreprise_id)
                 ->whereNotIn('id', $oldEmployeeIds)
                 ->where('archived', 0)
                 ->orderBy('name', 'asc')
@@ -519,7 +530,7 @@ class tasksController extends Controller
 
         } else {
             $employee_users = collect();
-            $employees = employees::where('entreprise_id', Auth::user()->entreprise_id)
+            $employees = Employees::where('entreprise_id', Auth::user()->entreprise_id)
                 ->whereNotIn('id', $admiemployee->pluck('id')->toArray())
                 ->where('archived', 0)
                 ->orderBy('name', 'asc')
@@ -612,7 +623,7 @@ class tasksController extends Controller
             $admins_id = User::where('is_activate', 1)->whereHas('roles', function ($q) {
                 $q->where('name', 'admin');
             })->pluck('id');
-            $adminemployee = employees::whereIn('user_id', $admins_id)->get();
+            $adminemployee = Employees::whereIn('user_id', $admins_id)->get();
 
             employees_tasks::where('task_id', $task->id)->whereNotIn('employee_id', $adminemployee->pluck('id')->toArray())->delete();
         }
@@ -1237,7 +1248,7 @@ class tasksController extends Controller
     public function get_timer_state()
     {
         $user = Auth::user();
-        $employee = \App\Models\employees::where('user_id', $user->id)->first();
+        $employee = \App\Models\Employees::where('user_id', $user->id)->first();
         if (!$employee) {
             return response()->json(['tasksTimer' => null]);
         }

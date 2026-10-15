@@ -47,7 +47,7 @@
     try {
         if (Auth::check()) {
             $chronoUserTimezone = Auth::user()->timezone ?? '';
-            $ve = \App\Models\employees::where('user_id', Auth::id())->first();
+            $ve = \App\Models\Employees::where('user_id', Auth::id())->first();
             if ($ve) {
                 $chronoViewerEmployeeId = $ve->id;
                 $chronoTzUpdateUrl = route($chronoRoutePrefix . '.employees.updateEmployee');

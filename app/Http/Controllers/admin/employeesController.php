@@ -26,7 +26,6 @@ use DateTime;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\WorkdaysReportMail;
-use App\Mail\EmployeeSendingMail;
 use Illuminate\Support\Str;
 use App\Mail\EmployeeEmail;
 use Illuminate\Validation\Rule;
@@ -46,7 +45,7 @@ class employeesController extends Controller
         $tasks= Tasks::where('user_id', Auth::user()->id)->get();
         $enterpriseId = Auth::user()->entreprise_id;
 
-        $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
+        $employees = Employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
         $entreprises = Entreprise::all();
 
         foreach ($employees as $employee) {
@@ -560,7 +559,7 @@ class employeesController extends Controller
         $enterpriseId = Auth::user()->entreprise_id;
 
         // Retrieve only employees with the same enterprise_id
-        $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
+        $employees = Employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
         $entreprises = Entreprise::all();
 
         $currentYear = strval(Carbon::now()->year);
@@ -628,7 +627,7 @@ class employeesController extends Controller
     $enterpriseId = Auth::user()->entreprise_id;
 
     // Retrieve only employees with the same enterprise_id
-    $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
+    $employees = Employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
     $entreprises = Entreprise::all();
 
 
@@ -970,7 +969,7 @@ public function nextMonthRepports(Request $request)
 
     // Get the authenticated user's enterprise_id
     $enterpriseId = Auth::user()->entreprise_id;
-    $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
+    $employees = Employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
 
     $year = $request->input('currentYear', $currentYear);
     $month = str_pad($request->input('currentMonth', $currentMonth), 2, '0', STR_PAD_LEFT);
@@ -1058,7 +1057,7 @@ public function nextMonthRepports(Request $request)
 }
 
 public function archiveEmployee($id){
-    $employee = employees::find($id);
+    $employee = Employees::find($id);
     $employee->archived = 1;
     $employee->save();
     if(Auth::user()->hasRole('Admin')){
@@ -1073,7 +1072,7 @@ public function archiveEmployee($id){
 }
 
 public function unarchiveEmployee($id){
-    $employee = employees::find($id);
+    $employee = Employees::find($id);
     $employee->archived = 0;
     $employee->save();
     if(Auth::user()->hasRole('Admin')){
@@ -1100,7 +1099,7 @@ public function employeeArchiveIndex(){
     $enterpriseId = Auth::user()->entreprise_id;
 
     // Retrieve only employees with the same enterprise_id
-    $employees = employees::where('entreprise_id', $enterpriseId)->where('archived', 1)->orderBy('name', 'asc')->get();
+    $employees = Employees::where('entreprise_id', $enterpriseId)->where('archived', 1)->orderBy('name', 'asc')->get();
     $entreprises = Entreprise::all();
 
     foreach ($employees as $employee) {
@@ -1147,7 +1146,7 @@ public function sendEmail(Request $request)
         'attachments.*' => 'nullable|file|max:10240', // Max 10MB per file
     ]);
 
-    $employee = employees::findOrFail($request->employee_id);
+    $employee = Employees::findOrFail($request->employee_id);
     
     // Normalize attachments to always be an array
     $employeeAttachments = $request->file('attachments');

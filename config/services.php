@@ -37,6 +37,22 @@ return [
         'channel' => env('BILLIT_CHANNEL', 'Peppol'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Stripe subscription prices (one per plan, matching the Stripe mode of
+    | the configured keys: test prices with test keys, live prices with
+    | live keys). No hardcoded fallbacks on purpose: a missing price must
+    | fail fast with a clear message instead of a Stripe "No such price" 500.
+    |--------------------------------------------------------------------------
+    */
+    'stripe' => [
+        'prices' => [
+            'solo' => env('STRIPE_PRICE_SOLO'),
+            'premium' => env('STRIPE_PRICE_PREMIUM'),
+            'pro' => env('STRIPE_PRICE_PRO'),
+        ],
+    ],
+
     'turnstile' => [
         'site_key' => env('TURNSTILE_SITE_KEY'),
         'secret_key' => env('TURNSTILE_SECRET_KEY'),

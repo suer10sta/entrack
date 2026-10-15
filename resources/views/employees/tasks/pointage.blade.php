@@ -352,7 +352,7 @@
             <div class="dt-card mb-6 overflow-hidden">
                 <div class="px-5 sm:px-6 pt-5 pb-1">
                     @php
-                        $employee_id = App\Models\employees::where('user_id', Auth::user()->id)->first()->id;
+                        $employee_id = App\Models\Employees::where('user_id', Auth::user()->id)->first()->id;
                         $today = \Carbon\Carbon::today()->toDateString();
                         $totalDurationAllTasks = App\Models\tasks_timer::where('employee_id', $employee_id)
                             ->whereDate('start_date', '=', $today)
@@ -426,7 +426,7 @@
                                         $task_id = $task->task_id;
                                         $task_name = App\Models\Tasks::where('id', $task_id)->first();
                                         $task_timer = App\Models\tasks_timer::where('task_employee_id', $task->id)->whereNull('end_date')->first();
-                                        $employee_id = App\Models\employees::where('user_id', Auth::user()->id)->first()->id;
+                                        $employee_id = App\Models\Employees::where('user_id', Auth::user()->id)->first()->id;
                                         $routePrefix = Auth::user()->hasRole('Employee')
                                             ? 'employee'
                                             : (Auth::user()->hasRole('Responsable de projet')

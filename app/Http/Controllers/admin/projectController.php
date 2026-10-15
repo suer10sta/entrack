@@ -11,12 +11,12 @@ use App\Models\Teams;
 use App\Models\Client;
 use App\Models\Project;
 use App\Mail\DevisEmail;
-use App\Mail\InvoiceMail;
 use App\Models\Employees;
 use App\Models\Entreprise;
 use App\Mail\InvoicesEmail;
 use App\Models\tasks_timer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use App\Models\devis_history;
 use App\Models\employees_tasks;
 use App\Models\team_tasks;
@@ -138,6 +138,28 @@ class projectController extends Controller
 
     public function store(Request $request, $client_id = null)
     {
+        $client_id = $client_id ?: null;
+
+        if ($client_id === null && ! $this->columnAcceptsNull('projects', 'client_id')) {
+            // Older databases still declare projects.client_id NOT NULL
+            // (migration 2026_10_05_... not applied): a client-less project
+            // cannot be stored there. Fail with a clear message instead of 500.
+            $message = __('messages.onboarding_project_needs_client');
+            if ($request->expectsJson()) {
+                return response()->json(['error' => $message, 'errors' => ['client' => [$message]]], 422);
+            }
+            return back()->withInput()->withErrors(['client' => $message]);
+        }
+
+        if ($client_id !== null && ! Client::where('id', $client_id)->where('entreprise_id', Auth::user()->entreprise_id)->exists()) {
+            // Never link a project to another workspace's client.
+            $message = __('messages.onboarding_invalid_client');
+            if ($request->expectsJson()) {
+                return response()->json(['error' => $message, 'errors' => ['client' => [$message]]], 422);
+            }
+            return back()->withInput()->withErrors(['client' => $message]);
+        }
+
         $project = new Project();
         $parentProjectId = $request->input('parent_id');
         $project->parent_id = $parentProjectId;
@@ -146,7 +168,11 @@ class projectController extends Controller
         $project->budget = $request->budget;
         $project->cost_per_hour = ($request->cost_per_hour === null || $request->cost_per_hour === '') ? 0 : $request->cost_per_hour;
         $project->status = 0;
-        $project->regie = $request->has('regie') ? 1 : 0;
+        // `regie` has no migration (only present on older databases): only set
+        // it when the column exists so creation never 500s (SQLSTATE[42703]).
+        if (Schema::hasColumn('projects', 'regie')) {
+            $project->regie = $request->has('regie') ? 1 : 0;
+        }
         $project->tva = $request->tva;
         $project->color = $request->input('color') ?: '#FDE68A';
 
@@ -186,6 +212,12 @@ class projectController extends Controller
         }
 
         if ($request->input('from') === 'onboarding') {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Project Created Successfully',
+                    'project' => ['id' => $project->id, 'name' => $project->name, 'client_id' => $project->client_id],
+                ], 201);
+            }
             return redirect()->route('admin.onboarding.step2')->with('message', 'Project Created Successfully');
         }
         if ($parentProjectId) {
@@ -232,9 +264,21 @@ class projectController extends Controller
         }
     }
 
-    public function updateProject(Request $request)
+    /**
+     * Whether a column accepts NULL. Used to degrade gracefully on older
+     * databases missing nullable migrations instead of returning HTTP 500.
+     */
+    protected function columnAcceptsNull(string $table, string $column): bool
     {
-        $Project = Project::find($request->id);
+        try {
+            return ! Schema::getConnection()->getDoctrineColumn($table, $column)->getNotnull();
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    public function updateProject(Request $request)
+    {        $Project = Project::find($request->id);
         $Project->{$request->column} = $request->content;
         $Project->save();
 
@@ -3744,7 +3788,7 @@ class projectController extends Controller
         $task = Tasks::find($taskId);
 
         // Find the employees_tasks record for the current logged-in user
-        $employee = \App\Models\employees::where('user_id', auth()->id())->first();
+        $employee = \App\Models\Employees::where('user_id', auth()->id())->first();
         $employeeTask = null;
         $employeeTaskId = null;
         $employeeId = null;

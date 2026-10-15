@@ -21,6 +21,11 @@
         <env name="APP_ENV" value="testing"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_DRIVER" value="array"/>
+        <!-- Testing database: dedicated PostgreSQL database, never the dev DB.
+             These values must match .env.testing (DB_DATABASE=entrack_testing).
+             They act as a fallback so tests can NEVER silently fall back to .env's dev database. -->
+        <env name="DB_CONNECTION" value="pgsql"/>
+        <env name="DB_DATABASE" value="entrack_testing"/>
         <!-- <env name="DB_CONNECTION" value="sqlite"/> -->
         <!-- <env name="DB_DATABASE" value=":memory:"/> -->
         <env name="MAIL_MAILER" value="array"/>

@@ -41,7 +41,11 @@
         <h1 class="text-[19px] font-bold tracking-tight text-[#0B2638]">{{ __('messages.onboarding_step2_title') }}</h1>
         <p class="mt-1 text-[12.5px] text-slate-500">{{ __('messages.onboarding_step2_desc') }}</p>
 
-        {{-- ── Section 1: client (collapsed, Create on the right) ── --}}
+        @if(session('message'))
+            <div class="mt-3 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-[12.5px] font-medium text-emerald-800">{{ session('message') }}</div>
+        @endif
+
+        {{-- ── Section 1: client (always open, Create on the right) ── --}}
         <section class="mt-4 rounded-xl border border-slate-200">
             <div class="flex items-center justify-between gap-2 px-4 py-3">
                 <div class="flex items-center gap-2">
@@ -50,16 +54,14 @@
                     </div>
                     <h2 class="text-[13.5px] font-bold text-[#0B2638]">{{ __('messages.onboarding_sec_client') }}</h2>
                 </div>
-                <button type="button" id="ob-client-toggle"
-                        class="inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-[12.5px] font-semibold bg-purple-600 hover:bg-purple-600/90 text-white">
-                    {{ __('messages.Create') }}
-                </button>
+                
             </div>
-            <div id="ob-client-panel" class="expander" aria-hidden="true"><div>
+            <div id="ob-client-panel" class="expander open" aria-hidden="false"><div>
                 <div class="px-4 pb-4">
                     <div id="ob-client-created" class="hidden mb-3 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-[12.5px] font-medium text-emerald-800"></div>
                     <div id="ob-client-errors" class="hidden mb-3 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-[12.5px]"></div>
                     <form id="ob-client-form" autocomplete="off">
+                        <input type="hidden" name="from" value="onboarding" />
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Name') }} <span class="text-red-500">*</span></label>
@@ -77,34 +79,35 @@
                                 <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Phone') }}</label>
                                 <input type="text" name="phone" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                             </div>
-                            <div class="sm:col-span-2">
-                                <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Street') }} <span class="text-red-500">*</span></label>
-                                <input type="text" name="address" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
+                            <div>
+                                <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Street') }}</label>
+                                <input type="text" name="address" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                             </div>
                             <div>
-                                <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.City') }} <span class="text-red-500">*</span></label>
-                                <input type="text" name="city" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
+                                <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.City') }}</label>
+                                <input type="text" name="city" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                             </div>
                             <div>
-                                <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Zip Code') }} <span class="text-red-500">*</span></label>
-                                <input type="text" name="zip" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
+                                <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Zip Code') }}</label>
+                                <input type="text" name="zip" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                             </div>
                             <div>
-                                <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Country') }} <span class="text-red-500">*</span></label>
-                                <input type="text" name="country" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
+                                <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Country') }}</label>
+                                <input type="text" name="country" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                             </div>
                             <div>
-                                <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Due Date (days)') }} <span class="text-red-500">*</span></label>
-                                <input type="text" name="due_date" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
+                                <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Due Date (days)') }}</label>
+                                <input type="text" name="due_date" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                             </div>
-                            <div class="sm:col-span-2">
+                            <div>
                                 <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.TVA number') }}</label>
-                                <input type="text" name="TVA" value="0" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
+                                <input type="text" name="TVA" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                             </div>
                         </div>
                         <div class="mt-3 flex justify-end">
-                            <button type="button" id="ob-client-save" class="inline-flex items-center justify-center h-9 px-5 rounded-xl bg-[#0B2638] text-white text-[13px] font-semibold hover:bg-[#14364d] transition-colors disabled:opacity-40">
-                                {{ __('messages.save') }}
+                            <button type="button" id="ob-client-save"
+                                class="inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-[12.5px] font-semibold bg-purple-600 hover:bg-purple-600/90 text-white">
+                                {{ __('messages.Create') }}
                             </button>
                         </div>
                     </form>
@@ -125,6 +128,7 @@
             <div class="px-4 pb-4">
                 <div id="ob-project-errors" class="hidden mb-3 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-[12.5px]"></div>
                 <form id="ob-project-form" autocomplete="off">
+                    <input type="hidden" name="from" value="onboarding" />
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="sm:col-span-2">
                             <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Project Name') }} <span class="text-red-500">*</span></label>
@@ -135,16 +139,16 @@
                             <input type="number" step="0.01" min="0" name="budget" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                         </div>
                         <div>
-                            <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.CPH') }} <span class="text-red-500">*</span></label>
+                            <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Cost per Hour') }}</label>
                             <input type="number" step="0.01" min="0" name="cost_per_hour" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                         </div>
                         <div>
-                            <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Est. Hours') }}</label>
+                            <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Estimated Hours') }}</label>
                             <input type="number" step="0.01" min="0" name="estimated_hours" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                         </div>
                         <div>
-                            <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.TVA %') }} <span class="text-red-500">*</span></label>
-                            <input type="number" step="0.01" min="0" name="tva" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
+                            <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.TVA %') }}</label>
+                            <input type="number" step="0.01" min="0" name="tva" value="0" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                         </div>
                     </div>
                     <div class="mt-3 flex justify-end">
@@ -168,6 +172,9 @@
                 <p id="ob-task-hint" class="text-[12px] text-slate-500 mt-0.5">{{ __('messages.onboarding_task_locked') }}</p>
             </div>
             <div class="px-4 pb-4">
+                @if($errors->has('project'))
+                    <div class="mb-3 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-[12.5px]">{{ $errors->first('project') }}</div>
+                @endif
                 <form id="ob-task-form" method="POST" action="#" autocomplete="off">
                     @csrf
                     <input type="hidden" name="from" value="onboarding" />
@@ -175,30 +182,30 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div>
                                 <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Task Name') }} <span class="text-red-500">*</span></label>
-                                <input type="text" name="title" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
+                                <input type="text" name="title" value="{{ old('title') }}" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                             </div>
                             <div>
                                 <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Estimated Hours') }}</label>
-                                <input type="number" step="0.01" min="0" name="estimated_hours" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
+                                <input type="number" step="0.01" min="0" name="estimated_hours" value="{{ old('estimated_hours') }}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                             </div>
                             <div>
                                 <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Consumed Hours') }}</label>
-                                <input type="number" step="0.01" min="0" name="consumed_hours" value="0" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
+                                <input type="number" step="0.01" min="0" name="consumed_hours" value="{{ old('consumed_hours', '0') }}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
                             <div>
                                 <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Start Date') }}</label>
-                                <input type="date" name="start" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
+                                <input type="date" name="start" value="{{ old('start') }}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                             </div>
                             <div>
                                 <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.End Date') }}</label>
-                                <input type="date" name="end" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
+                                <input type="date" name="end" value="{{ old('end') }}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" />
                             </div>
                         </div>
                         <div class="mt-3">
                             <label class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Task Description') }}</label>
-                            <textarea name="description" rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none"></textarea>
+                            <textarea name="description" rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none">{{ old('description') }}</textarea>
                         </div>
                         <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
@@ -206,7 +213,7 @@
                                 <div class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto rounded-lg border border-slate-200 p-2">
                                     @foreach($employee_users as $employee)
                                         <label class="tag-pick" title="{{ $employee->name }}">
-                                            <input type="checkbox" name="employees[]" value="{{ $employee->id }}">
+                                            <input type="checkbox" name="employees[]" value="{{ $employee->id }}" {{ in_array($employee->id, old('employees', [])) ? 'checked' : '' }}>
                                             <span class="truncate max-w-[150px]">{{ $employee->name }}</span>
                                         </label>
                                     @endforeach
@@ -217,7 +224,7 @@
                                 <div class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto rounded-lg border border-slate-200 p-2">
                                     @foreach($teams as $team)
                                         <label class="tag-pick" title="{{ $team->name }}">
-                                            <input type="checkbox" name="teams[]" value="{{ $team->id }}">
+                                            <input type="checkbox" name="teams[]" value="{{ $team->id }}" {{ in_array($team->id, old('teams', [])) ? 'checked' : '' }}>
                                             <span class="truncate max-w-[150px]">{{ $team->name }}</span>
                                         </label>
                                     @endforeach
@@ -225,7 +232,7 @@
                             </div>
                         </div>
                         <div class="mt-3 flex items-center">
-                            <input id="ob-planning" name="add_to_planning" type="checkbox" value="1" class="h-4 w-4 rounded border-slate-300 text-[#2D7080] focus:ring-[#2D7080]">
+                            <input id="ob-planning" name="add_to_planning" type="checkbox" value="1" {{ old('add_to_planning') ? 'checked' : '' }} class="h-4 w-4 rounded border-slate-300 text-[#2D7080] focus:ring-[#2D7080]">
                             <label for="ob-planning" class="ml-2 text-[12.5px] text-slate-700">{{ __('messages.Add this task to planning') }}</label>
                         </div>
                     </fieldset>
@@ -298,19 +305,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return null;
     }
 
-    /* Section 1 toggle */
-    var clientToggle = document.getElementById('ob-client-toggle');
-    var clientPanel = document.getElementById('ob-client-panel');
-    if (clientToggle && clientPanel) {
-        clientToggle.addEventListener('click', function () {
-            var open = !clientPanel.classList.contains('open');
-            clientPanel.classList.toggle('open', open);
-            clientPanel.setAttribute('aria-hidden', String(!open));
-            // this.style.display = open ? 'none' : '';
-        });
-    }
-
-    /* Section 1 save → existing client store */
+    /* Section 1: client form is always open; the header Create button saves */
     var clientSave = document.getElementById('ob-client-save');
     if (clientSave) {
         clientSave.addEventListener('click', async function () {
@@ -330,8 +325,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
                 if (!r.ok) throw new Error('Request failed: ' + r.status);
+                var created = await r.json().catch(() => ({}));
                 var name = form.querySelector('[name="name"]').value.trim();
-                var id = await discoverId(name, 'client');
+                // Prefer the persisted ID returned by the backend; fall back to
+                // a name lookup only if the response carries no ID.
+                var id = (created.client && created.client.id) || await discoverId(name, 'client');
                 createdClient = { id: id, name: name };
                 var okBox = document.getElementById('ob-client-created');
                 okBox.textContent = name;
@@ -339,8 +337,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 var boundLine = document.getElementById('ob-project-client');
                 if (boundLine && name) boundLine.textContent = name;
                 toast('success', @json(__('messages.toast_created_client')));
-                form.reset();
-                clientPanel.classList.remove('open');
+                /* Keep the entered values visible: no form.reset() here. A new
+                   record is created only if the user explicitly clicks Create again. */
             } catch (e) {
                 console.error('Create client:', e);
                 showErrors('ob-client-errors', { error: [e.message] });
@@ -372,8 +370,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
                 if (!r.ok) throw new Error('Request failed: ' + r.status);
+                var created = await r.json().catch(() => ({}));
                 var name = form.querySelector('[name="name"]').value.trim();
-                var id = await discoverId(name, 'project');
+                // Prefer the persisted ID returned by the backend; fall back to
+                // a name lookup only if the response carries no ID.
+                var id = (created.project && created.project.id) || await discoverId(name, 'project');
                 createdProject = { id: id, name: name };
                 /* Enable the task form, bound to the new project */
                 var taskForm = document.getElementById('ob-task-form');
@@ -384,7 +385,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('ob-task-submit').disabled = false;
                 document.getElementById('ob-task-hint').textContent = name;
                 toast('success', @json(__('messages.toast_created_project')));
-                form.reset();
+                /* Keep the entered values visible: no form.reset() here. A new
+                   record is created only if the user explicitly clicks Create again. */
             } catch (e) {
                 console.error('Create project:', e);
                 showErrors('ob-project-errors', { error: [e.message] });

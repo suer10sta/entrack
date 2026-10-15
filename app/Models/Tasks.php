@@ -21,4 +21,9 @@ class Tasks extends Model
         'estimated_hours',
         'consumed_hours',
     ];
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
 }

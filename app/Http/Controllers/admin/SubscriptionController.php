@@ -141,17 +141,14 @@ class SubscriptionController extends Controller
                 ->with('error', 'Votre entreprise est déjà abonnée à un plan !');
         }
 
-        $priceId = match ($planName) {
+        $priceId = config('services.stripe.prices.' . $planName);
 
-            //solo plan price 19€/month 
-            'solo'    => env('STRIPE_PRICE_SOLO', 'price_1Sl59xB4LVww0NzzGLakC6gJ'),
-            //solo plan price 1€/day
-            //'solo'    => env('STRIPE_PRICE_SOLO', 'price_1SzeGWB4LVww0NzztR9cOrna'),
-            'premium' => env('STRIPE_PRICE_PREMIUM', 'price_1Sl5B5B4LVww0NzzuRKyJNtf'),
-            'pro'     => env('STRIPE_PRICE_PRO', 'price_1Sl5BcB4LVww0Nzzwstbphvv'),
-            // Pro plan price 99€/month (test mode)
-            //'pro'     => env('STRIPE_PRICE_PRO', 'price_1SVBpSB4LVww0NzzFxjCdtU1'),
-        };
+        if (! $priceId) {
+            Log::error('Stripe price ID not configured for plan: ' . $planName, ['entreprise_id' => $entreprise->id]);
+            return redirect()
+                ->route('profile.upgrade')
+                ->with('error', 'Le paiement est momentanément indisponible pour ce plan. Veuillez réessayer plus tard ou contacter le support.');
+        }
 
         $renewalPreference = $request->query('renewal', 'auto');
         if (!in_array($renewalPreference, ['auto', 'manual'], true)) {
@@ -162,17 +159,24 @@ class SubscriptionController extends Controller
             . '?session_id={CHECKOUT_SESSION_ID}'
             . '&renewal=' . $renewalPreference;
 
-        return $entreprise->newSubscription('default', $priceId)
-            ->checkout([
-                'success_url' => $successUrl,
-                'cancel_url' => url()->previous(),
-                'metadata' => [
-                    'plan_name' => $planName,
-                    'entreprise_id' => $entreprise->id,
-                    'user_id' => Auth::id(),
-                    'renewal_preference' => $renewalPreference,
-                ],
-            ]);
+        try {
+            return $entreprise->newSubscription('default', $priceId)
+                ->checkout([
+                    'success_url' => $successUrl,
+                    'cancel_url' => url()->previous(),
+                    'metadata' => [
+                        'plan_name' => $planName,
+                        'entreprise_id' => $entreprise->id,
+                        'user_id' => Auth::id(),
+                        'renewal_preference' => $renewalPreference,
+                    ],
+                ]);
+        } catch (\Throwable $e) {
+            Log::error('Stripe checkout creation failed: ' . $e->getMessage(), ['entreprise_id' => $entreprise->id, 'plan' => $planName]);
+            return redirect()
+                ->route('profile.upgrade')
+                ->with('error', 'Impossible de démarrer le paiement. Veuillez vérifier votre connexion puis réessayer.');
+        }
     }
 
     /**
@@ -241,11 +245,19 @@ class SubscriptionController extends Controller
                 ->with('error', 'Le paiement n\'a pas été confirmé.');
         }
 
-        $meta = (array) ($session->metadata ?? []);
-        $metaPlan = $meta['plan_name'] ?? null;
-        $metaEntreprise = $meta['entreprise_id'] ?? null;
+        $metaPlan = $this->checkoutMetadataValue($session, 'plan_name');
+        $metaEntreprise = $this->checkoutMetadataValue($session, 'entreprise_id');
 
         if ($metaPlan !== $planName || (int) $metaEntreprise !== (int) $entreprise->id) {
+            Log::warning('Stripe paymentSuccess metadata mismatch.', [
+                'entreprise_id' => $entreprise->id,
+                'user_id' => $user->id,
+                'url_plan' => $planName,
+                'meta_plan' => $metaPlan,
+                'meta_entreprise' => $metaEntreprise,
+                'payment_status' => $session->payment_status ?? null,
+                'session_id' => $sessionId,
+            ]);
             return redirect()
                 ->route('profile.upgrade')
                 ->with('error', 'Session de paiement incohérente. Veuillez recommencer.');
@@ -325,6 +337,28 @@ class SubscriptionController extends Controller
         return redirect()
             ->route('dashboard')
             ->with('success', 'Paiement réussi ! Plan ' . ucfirst($planName) . ' activé.');
+    }
+
+    /**
+     * Read a Stripe Checkout Session metadata value.
+     *
+     * Stripe returns metadata as a StripeObject (ArrayAccess), NOT a plain
+     * array: a plain (array) cast exposes SDK internals (_values, _opts...)
+     * and always yields null, which would reject every legitimate payment.
+     * ArrayAccess reads the real values. The strict caller-side comparison
+     * (anti-fraud) is unchanged.
+     */
+    protected function checkoutMetadataValue($session, string $key): ?string
+    {
+        $metadata = $session->metadata ?? null;
+
+        if ($metadata instanceof \ArrayAccess || is_array($metadata)) {
+            $value = $metadata[$key] ?? null;
+
+            return $value === null || is_array($value) ? null : (string) $value;
+        }
+
+        return null;
     }
 
     /**

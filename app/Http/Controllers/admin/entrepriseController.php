@@ -85,10 +85,19 @@ class entrepriseController extends Controller
 
         $Entreprise = Entreprise::find($request->id);
 
+        if (! $Entreprise) {
+            return response()->json(['error' => 'Company not found'], 404);
+        }
+
         if ($request->column === 'billit_api_key') {
             $trimmed = trim((string) $request->content);
             // Empty string means explicit removal.
             $Entreprise->billit_api_key = ($trimmed === '') ? null : $trimmed;
+        } elseif ($request->column === 'name') {
+            // `entreprises.name` is NOT NULL: an empty company name arrives as
+            // null (ConvertEmptyStringsToNull) and would raise SQLSTATE[23502].
+            // Store '' instead, like registration does for new workspaces.
+            $Entreprise->name = (string) $request->content;
         } else {
             $Entreprise->{$request->column} = $request->content;
         }

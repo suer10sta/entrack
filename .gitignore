@@ -17,6 +17,7 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+/tests
 /public/entreprise_images
 /public/employee_images
 /public/devis

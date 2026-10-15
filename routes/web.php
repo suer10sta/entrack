@@ -2091,6 +2091,7 @@ Route::middleware([
 });
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
+    ->middleware(\Laravel\Cashier\Http\Middleware\VerifyWebhookSignature::class)
     ->name('stripe.webhook');
 
 Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->middleware('guest')->name('password.request');

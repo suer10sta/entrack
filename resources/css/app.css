@@ -119,7 +119,7 @@
 }
 .dt-badge-navy .dt-dot { background: var(--dt-teal); }
 .dt-badge-accent {
-    background: rgba(231, 184, 75, 0.22);
+    background: rgba(231, 184, 75, 0.8);
     color: #7a5a12;
 }
 .dt-badge-accent .dt-dot { background: #c9971f; }

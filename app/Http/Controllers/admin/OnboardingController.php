@@ -5,7 +5,7 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Models\Teams;
 use App\Models\User;
-use App\Models\employees;
+use App\Models\Employees;
 use Illuminate\Support\Facades\Auth;
 
 class OnboardingController extends Controller
@@ -73,7 +73,7 @@ class OnboardingController extends Controller
         }
         // Same people/teams pickers as the Create Task page.
         $employee_users = collect();
-        $employees = employees::where('entreprise_id', Auth::user()->entreprise_id)
+        $employees = Employees::where('entreprise_id', Auth::user()->entreprise_id)
             ->where('archived', 0)
             ->orderBy('name', 'asc')
             ->get();

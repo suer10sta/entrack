@@ -25,4 +25,9 @@ class Client extends Model
         'country',
         'entreprise_id',
     ];
+
+    public function projects()
+    {
+        return $this->hasMany(Project::class);
+    }
 }

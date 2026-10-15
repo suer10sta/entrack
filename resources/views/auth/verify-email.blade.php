@@ -40,7 +40,7 @@
 
                     <div class="mb-7 text-center">
                         <h1 class="text-[2rem] font-bold leading-[1.1] tracking-[-0.05em] text-[#0B2638]">{{ __('messages.Verify Your Email') }}</h1>
-                        <p class="mt-2 text-[0.95rem] leading-6 text-[#5b6b73]">{!! __('messages.Thank you for registering! A confirmation email has just been sent to you.<br>Please click the link in the email to activate your account.') !!}</p>
+                        <p class="mt-4 px-4 text-[15px] leading-6 text-[#5b6b73]">{!! __('messages.Thank you for registering! A confirmation email has just been sent to you.Please click the link in the email to activate your account.') !!}</p>
                     </div>
 
                     @if(session('status'))

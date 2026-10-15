@@ -365,6 +365,26 @@ class Entreprise extends Model
     }
 
     /**
+     * Map a Stripe Price ID back to a DalyTrac plan key (solo/premium/pro).
+     * Used to converge local subscription state from Stripe events when the
+     * user never returns to the success URL. Returns null when unknown.
+     */
+    public static function planForStripePrice(?string $priceId): ?string
+    {
+        if (! $priceId) {
+            return null;
+        }
+
+        foreach ((array) config('services.stripe.prices', []) as $plan => $configuredId) {
+            if ($configuredId && hash_equals((string) $configuredId, $priceId)) {
+                return (string) $plan;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Get the user limit for the company's current plan.
      */
     public function getUserLimit(): int

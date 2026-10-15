@@ -68,7 +68,7 @@
                     }
 
                     /* Viewer chrono context (same rules as navbar/board) */
-                    $viewerEmployee = App\Models\employees::where('user_id', Auth::id())->first();
+                    $viewerEmployee = App\Models\Employees::where('user_id', Auth::id())->first();
                     $viewerLink = $viewerEmployee
                         ? App\Models\employees_tasks::where('employee_id', $viewerEmployee->id)->where('task_id', $task->id)->first()
                         : null;

@@ -44,6 +44,18 @@ class StripeWebhookController extends CashierWebhookController
 
                 $entreprise->resetFailedPaymentCount();
 
+                // Converge local plan state from the paid invoice so a customer
+                // who never returns to the success URL still gets their plan.
+                // Only fills/aligns type_compt, never clears it.
+                $paidPlan = $this->planFromInvoice($invoice);
+                if ($paidPlan && $entreprise->type_compt !== $paidPlan) {
+                    $entreprise->forceFill([
+                        'type_compt' => $paidPlan,
+                        'trial_ends_at' => null,
+                    ])->save();
+                    Log::info('Stripe invoice.succeeded: plan converged to ' . $paidPlan, ['entreprise_id' => $entreprise->id]);
+                }
+
                 if (is_array($invoice)) {
                     try {
                         $relativePath = app(SubscriptionInvoiceService::class)->createFromStripeInvoice($entreprise, $invoice);
@@ -85,6 +97,20 @@ class StripeWebhookController extends CashierWebhookController
 
             return null;
         }
+    }
+
+    /**
+     * Map a Stripe invoice payload back to a DalyTrac plan key via the
+     * subscription line item's Price ID. Null when not determinable.
+     */
+    private function planFromInvoice(?array $invoice): ?string
+    {
+        $price = $invoice['lines']['data'][0]['price'] ?? null;
+        if (is_array($price)) {
+            $price = $price['id'] ?? null;
+        }
+
+        return Entreprise::planForStripePrice(is_string($price) ? $price : null);
     }
 
     /**

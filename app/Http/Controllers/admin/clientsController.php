@@ -89,6 +89,11 @@ class clientsController extends Controller
             $request->merge(['client_number' => null]);
         }
 
+        // Onboarding Step 2 requires only the client name; the regular client
+        // form keeps requiring the full address block.
+        $isOnboarding = $request->input('from') === 'onboarding';
+        $addressRule = $isOnboarding ? 'nullable|string|max:255' : 'required|string|max:255';
+
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'client_number' => [
@@ -97,11 +102,11 @@ class clientsController extends Controller
                     return $query->where('entreprise_id', Auth::user()->entreprise_id);
                 }),
             ],
-            'address' => 'required|string|max:255',
-            'city' => 'required|string|max:255',
-            'zip' => 'required|string|max:255',
-            'country' => 'required|string|max:255',
-            'due_date' => 'required|string|max:255',
+            'address' => $addressRule,
+            'city' => $addressRule,
+            'zip' => $addressRule,
+            'country' => $addressRule,
+            'due_date' => $addressRule,
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:255',
             'TVA' => 'nullable|string|max:255',
@@ -201,6 +206,12 @@ class clientsController extends Controller
         
 
         if ($request->input('from') === 'onboarding') {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'client Added Successfully',
+                    'client' => ['id' => $client->id, 'name' => $client->name],
+                ], 201);
+            }
             return redirect()->route('admin.onboarding.step2')->with('message', 'client Added Successfully');
         }
         if(Auth::user()->hasRole('Responsable de projet')){
