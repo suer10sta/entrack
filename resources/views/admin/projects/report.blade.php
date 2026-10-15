@@ -216,11 +216,15 @@
                 </div>
             </div>
 
-            {{-- Container for the table --}}
-            <div class="dt-card overflow-hidden">
+            {{-- Container for the table (no overflow clipping here: the TomSelect
+                 options panel is absolutely positioned inside the filters row
+                 and must be able to overlay the table; rounding is preserved
+                 on the inner content wrappers below) --}}
+            <div class="dt-card">
 
-                     {{-- Filters --}}
-                    <div class="px-5 sm:px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
+                     {{-- Filters (positioned above the table so the open
+                          TomSelect panel layers correctly over content) --}}
+                    <div class="relative z-20 px-5 sm:px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
                         <div class="w-full sm:max-w-md">
                             <label for="projectFilter" class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Filter by Project') }}</label>
                             <select id="projectFilter" class="mt-1 block w-full rounded-xl border-slate-200 text-sm focus:border-[#2D7080] focus:ring-[#2D7080]/25 bg-white text-slate-600 shadow-sm py-2 px-3 outline-none">
@@ -248,7 +252,7 @@
                 @endif
 
                 {{-- Mobile: Accordion list (clients -> projects) --}}
-                <div class="p-0 sm:hidden">
+                <div class="p-0 sm:hidden overflow-hidden rounded-b-2xl">
                     <div class="projects-accordion">
                         @php $groupedProjects = $projects->groupBy('client_id'); @endphp
                         @forelse($groupedProjects as $clientId => $clientProjects)
@@ -338,12 +342,17 @@
                 </div>
 
                 {{-- Desktop/Tablet: keep full table, add dropdown on client headers --}}
-                <div class="hidden sm:block p-0">
+                {{-- Column count for the grouping/empty rows, matching the headers
+                     actually rendered below (Admin metrics + Teams + Actions). --}}
+                @php
+                    $reportColspan = (Auth::user()->hasRole('Admin') ? 7 : 2) + (Auth::user()->can('Delete project') ? 1 : 0);
+                @endphp
+                <div class="hidden sm:block p-0 overflow-hidden rounded-b-2xl">
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-left border-collapse min-w-full" id="projectsTable">
                             <thead class="border-b border-slate-100 bg-slate-50/80">
                                 <tr class="dt-table-head">
-                                    <th class="px-4 py-3 text-center whitespace-nowrap min-w-[200px]">{{ __('messages.Project column') }}</th>
+                                    <th class="px-4 py-3 text-left whitespace-nowrap min-w-[200px]">{{ __('messages.Project column') }}</th>
                                     @if(Auth::user()->hasRole('Admin'))
                                         <th class="px-4 py-3 text-center whitespace-nowrap">{{ __('messages.Budget column') }}</th>
                                         <th class="px-4 py-3 text-center whitespace-nowrap">{{ __('messages.Duration column') }}</th>
@@ -374,7 +383,7 @@
 
                                     {{-- Client Header Row (click to collapse/expand projects) --}}
                                     <tr class="bg-[#0B2638]/[0.04] client-header cursor-pointer hover:bg-[#0B2638]/[0.07] transition-colors" data-client-id="{{ $clientId }}" aria-expanded="false">
-                                        <td colspan="{{ Auth::user()->hasRole('Admin') ? 10 : 3 }}" class="px-4 py-2.5 font-semibold text-[#0B2638] text-[13px] border-y border-[#0B2638]/10">
+                                        <td colspan="{{ $reportColspan }}" class="px-4 py-2.5 font-semibold text-[#0B2638] text-[13px] border-y border-[#0B2638]/10">
                                             <div class="flex items-center justify-between  px-3">
                                                 <div class="flex items-center gap-3 min-w-0">
                                                     <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-white border border-slate-200 text-slate-500 flex-shrink-0">
@@ -564,7 +573,7 @@
                                     @endforeach
                                 @empty
                                     <tr>
-                                        <td colspan="{{ Auth::user()->hasRole('Admin') ? 10 : 3 }}" class="px-6 py-10 text-center">
+                                        <td colspan="{{ $reportColspan }}" class="px-6 py-10 text-center">
                                             <div class="dt-empty-icon mx-auto mb-3">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>
                                             </div>
@@ -792,7 +801,8 @@
             if (el) {
                 new TomSelect(el, {
                     create: false,
-                    sortField: { field: 'text', direction: 'asc' },
+                    // No client-side sorting: keep the "All" option pinned on top.
+                    sortField: null,
                     maxOptions: null,
                     allowEmptyOption: true,
                     placeholder: el.options[0] ? el.options[0].text : '{{ __("messages.Search for projects placeholder") }}'

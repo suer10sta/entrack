@@ -139,7 +139,35 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // A stale "intended" URL can point at a background JSON endpoint
+        // (e.g. a timer-state poll that fired after the session expired and
+        // was redirected to login). Never send a fresh login there (it shows
+        // raw JSON or a 403) — fall back to the dashboard instead.
+        $intended = $request->session()->get('url.intended');
+        if (is_string($intended) && $this->isJsonEndpointUrl($intended)) {
+            $request->session()->forget('url.intended');
+        }
+
         return redirect()->intended(RouteServiceProvider::HOME);
+    }
+
+    /**
+     * Whether a stored "intended" URL targets a JSON/data endpoint rather
+     * than a navigable page. Such URLs must never become the post-login
+     * destination.
+     */
+    private function isJsonEndpointUrl(string $url): bool
+    {
+        $path = strtolower((string) parse_url($url, PHP_URL_PATH));
+        if ($path === '') {
+            return false;
+        }
+        foreach (['get-timer-state', 'fetch-duration', 'filter-table', 'tasks-info', 'get-project-name', 'get-employee-name', 'correct-comment', 'translate-comment', 'filterpointagebydate'] as $needle) {
+            if (str_contains($path, $needle)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

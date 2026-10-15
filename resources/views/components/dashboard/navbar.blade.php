@@ -109,6 +109,15 @@
     $isSoloPlanNavbar = optional(optional(Auth::user())->entreprise)->type_compt === 'solo';
     $chronoMultiAllowed = Auth::check() && method_exists(Auth::user(), 'hasRole')
         && (Auth::user()->hasRole('SuperAdmin') || Auth::user()->hasRole('super_admin'));
+
+    /* ── Shared-navbar visibility ────────────────────────────────────
+       Admin (+ SuperAdmin) keep the full navbar. Employee / Responsable
+       de projet / Gestionnaire roles get a reduced navbar: sidebar
+       toggles + language selector stay visible, the rest (chrono,
+       search, quick-add, alerts) is hidden. Single implementation,
+       role-based rendering only. */
+    $isReducedNavbar = Auth::check() && method_exists(Auth::user(), 'hasAnyRole')
+        && Auth::user()->hasAnyRole(['Employee', 'Responsable de projet', 'Responsable de projet et gestionnaire', 'Gestionnaire']);
 @endphp
 
 {{-- ── Trial / expiry banner ──────────────────────────────────────── --}}
@@ -163,6 +172,7 @@
             </svg>
         </button>
 
+        @unless($isReducedNavbar)
         {{-- ── CHRONO ─────────────────────────────────────────────────── --}}
         <div x-data="navbarChrono()" x-init="init()" class="relative flex items-center gap-1.5 flex-shrink-0" @click.away="openPanel = false"
              @chrono-revalidate.window="checkRunningTimer($event.detail && $event.detail.force === true)">
@@ -415,9 +425,11 @@
                 </div>
             </div>
         </div>
+        @endunless
     </div>
 
     {{-- ══════════════════════ CENTER: search + quick add ══════════════ --}}
+    @unless($isReducedNavbar)
     <div class="flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 min-w-0">
 
         {{-- Global search --}}
@@ -549,6 +561,7 @@
             </div>
         </div>
     </div>
+    @endunless
 
     {{-- ══════════════════════ RIGHT: language ═════════════════════════ --}}
     <div class="flex-1 flex items-end justify-end px-3 sm:px-4 flex-shrink-0">
@@ -591,6 +604,7 @@
             </div>
         </div>
 
+        @unless($isReducedNavbar)
         {{-- Alerts dropdown (hidden trigger kept for JS compat) --}}
         <div class="relative" x-data="alertDropdown({ initialCount: {{ $navbarAlertCount }} })" x-init="init()">
             <div x-show="open" @click.away="open = false" x-cloak
@@ -641,6 +655,7 @@
                 </div>
             </div>
         </div>
+        @endunless
     </div>
 
 </header>

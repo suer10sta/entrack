@@ -107,6 +107,110 @@ class tasksController extends Controller
     }
 
     /**
+     * Team IDs of the authenticated Responsable de projet or Gestionnaire
+     * ("Responsable de projet et gestionnaire").
+     * Returns null when the restriction does not apply (any other role).
+     * Mirrors the team resolution already used for project scoping
+     * (projectController@index) and the navbar chrono scope:
+     * user -> employee record -> teams -> projects -> tasks.
+     */
+    private function responsableTeamIds()
+    {
+        $user = Auth::user();
+        if (!$user || !$user->hasAnyRole(['Responsable de projet', 'Responsable de projet et gestionnaire'])) {
+            return null;
+        }
+        $employee = $user->employee;
+        if (!$employee) {
+            return collect();
+        }
+        return $employee->teams()->pluck('teams.id');
+    }
+
+    /**
+     * Project IDs of the authenticated Responsable de projet's teams,
+     * as strings. Returns null when the restriction does not apply
+     * (any other role).
+     *
+     * NOTE: production stores tasks.project_id as VARCHAR (the migration
+     * declares bigint), and PostgreSQL has no implicit varchar = bigint
+     * operator. All task comparisons below therefore use string IDs
+     * (varchar = varchar) and never join tasks.project_id to
+     * projects.id in SQL.
+     */
+    private function responsableProjectIds()
+    {
+        $teamIds = $this->responsableTeamIds();
+        if ($teamIds === null) {
+            return null;
+        }
+        if ($teamIds->isEmpty()) {
+            return collect();
+        }
+        return Project::where('entreprise_id', Auth::user()->entreprise_id)
+            ->whereHas('teams', function ($t) use ($teamIds) {
+                $t->whereIn('teams.id', $teamIds);
+            })
+            ->pluck('id')
+            ->map(fn ($id) => (string) $id);
+    }
+
+    /**
+     * Restrict a Tasks query to the Responsable de projet's team projects.
+     * No-op for every other role. Compares tasks.project_id as strings
+     * (see responsableProjectIds() note) — still fully server-side.
+     */
+    private function applyResponsableTaskScope($query)
+    {
+        $projectIds = $this->responsableProjectIds();
+        if ($projectIds === null) {
+            return $query;
+        }
+        if ($projectIds->isEmpty()) {
+            return $query->whereRaw('1 = 0');
+        }
+        return $query->whereIn('project_id', $projectIds->all());
+    }
+
+    /**
+     * Restrict a Project query to the Responsable de projet's teams.
+     * No-op for every other role.
+     */
+    private function applyResponsableProjectScope($query)
+    {
+        $teamIds = $this->responsableTeamIds();
+        if ($teamIds === null) {
+            return $query;
+        }
+        if ($teamIds->isEmpty()) {
+            return $query->whereRaw('1 = 0');
+        }
+        return $query->whereHas('teams', function ($t) use ($teamIds) {
+            $t->whereIn('teams.id', $teamIds);
+        });
+    }
+
+    /**
+     * 404 when a Responsable de projet opens a task outside their scope.
+     * No-op for every other role. Uses 404 (not 403) like the existing
+     * cross-workspace guards, so task existence is not disclosed.
+     */
+    private function abortIfTaskOutsideResponsableScope($task): void
+    {
+        if (!$task) {
+            return;
+        }
+        $projectIds = $this->responsableProjectIds();
+        if ($projectIds === null) {
+            return;
+        }
+        // String comparison: tasks.project_id is VARCHAR on production.
+        if (!$projectIds->containsStrict((string) $task->project_id)) {
+            abort(404);
+        }
+    }
+
+    /**
      * Validate that non-SuperAdmin employees can only have one ongoing/active task
      * If there's no ongoing task timer, employee is "off work" and can be assigned a new task
      */
@@ -150,16 +254,18 @@ class tasksController extends Controller
 
     public function index()
     {
-        $projects = Project::where('entreprise_id', Auth::user()->entreprise_id)->where(function ($query) {
+        // Responsable de projet: hide unrelated projects (role scope).
+        $projects = $this->applyResponsableProjectScope(Project::where('entreprise_id', Auth::user()->entreprise_id)->where(function ($query) {
             $query->whereNull('AcceptedDevisProject')
                 ->orWhere('AcceptedDevisProject', '=', 1);
         })
-            ->where('archived', 0)
+            ->where('archived', 0))
             ->get();
         $enterpriseId = Auth::user()->entreprise_id;
         $employees = Employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
         $teams = Teams::where('entreprise_id', Auth::user()->entreprise_id)->get();
-        $tasks = Tasks::where('entreprise_id', Auth::user()->entreprise_id)->orderBy('created_at', 'desc')->get();
+        // Responsable de projet: role scope first, page has no other filters.
+        $tasks = $this->applyResponsableTaskScope(Tasks::where('entreprise_id', Auth::user()->entreprise_id))->orderBy('created_at', 'desc')->get();
         $groupedTasks = $tasks->groupBy('project_id');
         $projectsPerPageOptions = [5, 10, 25, 50, 100];
         $requestedProjectsPerPage = (int) request()->query('per_page', 5);
@@ -199,16 +305,18 @@ class tasksController extends Controller
             $routePrefix = 'SuperAdmin';
         }
 
-        $projects = Project::where('entreprise_id', $enterpriseId)->where(function ($query) {
+        // Responsable de projet: role scope first (same team rule as Projets).
+        $projects = $this->applyResponsableProjectScope(Project::where('entreprise_id', $enterpriseId)->where(function ($query) {
             $query->whereNull('AcceptedDevisProject')
                 ->orWhere('AcceptedDevisProject', '=', 1);
         })
             ->where('archived', 0)
-            ->orderBy('name', 'asc')
+            ->orderBy('name', 'asc'))
             ->get();
         $employees = Employees::where('entreprise_id', $enterpriseId)->where('archived', 0)->orderBy('name', 'asc')->get();
         $teams = Teams::where('entreprise_id', $enterpriseId)->orderBy('name', 'asc')->get();
-        $tasks = Tasks::where('entreprise_id', $enterpriseId)->orderBy('title', 'asc')->get();
+        // Existing filters below apply inside the already restricted set.
+        $tasks = $this->applyResponsableTaskScope(Tasks::where('entreprise_id', $enterpriseId))->orderBy('title', 'asc')->get();
 
         // Combined filters (all optional, applied together)
         $fProject = request()->query('project', '');
@@ -474,6 +582,7 @@ class tasksController extends Controller
 
     public function edit(Tasks $task)
     {
+        $this->abortIfTaskOutsideResponsableScope($task);
         $tasksTimer = tasks_timer::where('task_id', $task->id)
             ->whereNull('end_date')
             ->get();
@@ -558,6 +667,7 @@ class tasksController extends Controller
 
     public function update(Request $request, Tasks $task)
     {
+        $this->abortIfTaskOutsideResponsableScope($task);
         // Get the authenticated admin's enterprise_id
         $enterpriseId = Auth::user()->entreprise_id;
         $projectId = $task->project_id;
@@ -663,12 +773,14 @@ class tasksController extends Controller
     public function show($task_id)
     {
         $task = Tasks::where('id', $task_id)->first();
+        $this->abortIfTaskOutsideResponsableScope($task);
 
         return view('admin.tasks.show', compact('task'));
     }
 
     public function destroy(Tasks $task)
     {
+        $this->abortIfTaskOutsideResponsableScope($task);
         $team_tasks = team_tasks::where('task_id', $task->id)->get();
         foreach ($team_tasks as $team_task) {
             $team_task->delete();
@@ -702,6 +814,7 @@ class tasksController extends Controller
 
     public function status(Tasks $task, Request $request, $status)
     {
+        $this->abortIfTaskOutsideResponsableScope($task);
 
         //Status = 0 --> Inactive
         if ($status == 0) {

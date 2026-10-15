@@ -427,21 +427,6 @@
                 </div>
                 @endcan
 
-                @canany(['Pointage', 'View pointage'])
-                <a href="{{route('admin.pointage.index')}}" title="{{ __('messages.Time Tracking Menu') }}"
-                    class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] transition-colors {{ request()->routeIs('admin.pointage.*') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
-                    @if(request()->routeIs('admin.pointage.*'))
-                        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
-                    @endif
-                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span class="sidebar-label truncate">{{ __('messages.Time Tracking Menu') }}</span>
-                    <span class="sidebar-tip">{{ __('messages.Time Tracking Menu') }}</span>
-                </a>
-                @endcanany
-
                 @can('Planning')
                 <a href="{{route('admin.calendar.index')}}" title="{{ __('messages.Planning Menu') }}"
                     class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] transition-colors {{ request()->routeIs('admin.calendar.*') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
@@ -464,52 +449,20 @@
                     <p class="sidebar-section px-3 mb-2 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-slate-400/80">{{ __('messages.System') }}</p>
                     <div class="space-y-1">
                 @canany(['Assign Superadmin role', 'Edit employee roles'])
-                <div>
-                    <button type="button" onclick="toggleDropdown('admin')" title="{{ __('messages.Administration Menu') }}"
-                        class="dt-nav-item group relative flex justify-between items-center w-full px-3 py-2.5 rounded-xl text-[13.5px] text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
-                        @php
-                            $isAdminPage = request()->routeIs('admin.roles.index') ||
-                                request()->routeIs('admin.permissions.index');
-                        @endphp
-                        @if($isAdminPage)
-                            <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
-                        @endif
-                        <span class="flex items-center gap-3 min-w-0">
-                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            <span class="sidebar-label truncate">{{ __('messages.Administration Menu') }}</span>
-                        </span>
-                        <svg id="admin-icon" class="sidebar-label sidebar-chevron w-4 h-4 flex-shrink-0 dropdown-icon" fill="none"
-                            stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                        </svg>
-                        <span class="sidebar-tip">{{ __('messages.Administration Menu') }}</span>
-                    </button>
-                    <div id="admin-submenu" class="sidebar-submenu ml-9 space-y-1 dropdown-menu">
-                        @canany(['Assign Superadmin role', 'Edit employee roles'])
-                        <a href="{{route('admin.roles.index')}}"
-                            class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
-                            @if(request()->routeIs('admin.roles.index'))
-                                <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
-                            @endif
-                            {{ __('messages.Roles') }}
-                        </a>
-                        @endcanany
-                        @can('Assign Superadmin role')
-                        <a href="{{route('admin.permissions.index')}}"
-                            class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
-                            @if(request()->routeIs('admin.permissions.index'))
-                                <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
-                            @endif
-                            {{ __('messages.Permissions') }}
-                        </a>
-                        @endcan
-                    </div>
-                </div>
+                <a href="{{route('admin.roles.index')}}" title="{{ __('messages.Role Management Menu') }}"
+                    class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] transition-colors {{ request()->routeIs('admin.roles.index') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                    @if(request()->routeIs('admin.roles.index'))
+                        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
+                    @endif
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span class="sidebar-label truncate">{{ __('messages.Role Management Menu') }}</span>
+                    <span class="sidebar-tip">{{ __('messages.Role Management Menu') }}</span>
+                </a>
                 @endcanany
 
                 <a href="{{route('admin.Enterprise_infos.index')}}" title="{{ __('messages.Company Info') }}"

@@ -7,6 +7,39 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ __('messages.Planning - DalyTrac') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        /* Searchable filter selects (Tom Select, dashboard look) */
+        .ts-wrapper.single .ts-control {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 0.5rem !important;
+            padding: 0.5rem 0.75rem !important;
+            font-size: 13px !important;
+            background-color: #f8fafc !important;
+            min-height: 38px !important;
+            color: #475569 !important;
+            box-shadow: none !important;
+        }
+        .ts-wrapper.single.focus .ts-control {
+            border-color: #2D7080 !important;
+            background-color: #fff !important;
+            box-shadow: 0 0 0 2px rgba(45, 112, 128, 0.20) !important;
+        }
+        .ts-dropdown {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 0.5rem !important;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1) !important;
+            z-index: 60 !important;
+        }
+        .ts-dropdown .option {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 13px !important;
+        }
+        .ts-dropdown .option.active {
+            background-color: rgba(45, 112, 128, 0.10) !important;
+            color: #0B2638 !important;
+        }
+    </style>
 
     <!-- Calendar Specific Styles -->
     <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css' rel='stylesheet' />
@@ -1773,6 +1806,25 @@
                     year: currentYear
                 });
                 window.location.href = calendarRoutePrefix + '/send-events/preview?' + params.toString();
+            });
+        });
+    </script>
+    {{-- Searchable filter selects (Tom Select). Syncs the original selects and
+         fires their change events, so existing filter logic keeps working. --}}
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            ['filterClient', 'filterEmployee'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el && window.TomSelect && !el.tomselect) {
+                    new TomSelect(el, {
+                        create: false,
+                        sortField: null,
+                        maxOptions: null,
+                        allowEmptyOption: true,
+                        placeholder: el.options[0] ? el.options[0].text : ''
+                    });
+                }
             });
         });
     </script>

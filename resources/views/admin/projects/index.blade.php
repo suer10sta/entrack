@@ -5,6 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ __('messages.projects_page_title') }} — DalyTrac</title>
     @vite('resources/css/app.css')
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        /* Searchable filter selects (Tom Select, dashboard look) */
+        .ts-wrapper.single .ts-control {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 0.5rem !important;
+            padding: 0.5rem 0.75rem !important;
+            font-size: 12.5px !important;
+            background-color: #f8fafc !important;
+            min-height: 38px !important;
+            color: #475569 !important;
+            box-shadow: none !important;
+        }
+        .ts-wrapper.single.focus .ts-control {
+            border-color: #2D7080 !important;
+            background-color: #fff !important;
+            box-shadow: 0 0 0 2px rgba(45, 112, 128, 0.20) !important;
+        }
+        .ts-dropdown {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 0.5rem !important;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1) !important;
+        }
+        .ts-dropdown .option {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 12.5px !important;
+        }
+        .ts-dropdown .option.active {
+            background-color: rgba(45, 112, 128, 0.10) !important;
+            color: #0B2638 !important;
+        }
+    </style>
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="//unpkg.com/alpinejs" defer></script>
@@ -89,8 +121,14 @@
 <body class="dt-app-shell bg-[#f8fafc]">
 <div class="flex h-screen overflow-hidden">
 
-    {{-- Sidebar --}}
-    <x-dashboard.sidebar />
+    {{-- Sidebar (same conditional shell as the other dashboard pages:
+         Admin sees the admin sidebar, other roles see the shared
+         role-based sidebar — the sidebar must not switch per page) --}}
+    @if(Auth::user()->hasRole('Admin'))
+        <x-dashboard.sidebar />
+    @else
+        <x-employees.sidebar />
+    @endif
 
     {{-- Main panel --}}
     <div class="flex flex-col flex-1 overflow-y-auto">
@@ -205,7 +243,7 @@
                         <form method="GET" action="{{ route('admin.projects.index') }}" id="clientFilterForm">
                             <input type="hidden" name="search" value="{{ $search }}">
                             <input type="hidden" name="per_page" value="{{ $perPage }}">
-                            <select name="client" onchange="this.form.submit()" aria-label="{{ __('messages.Client') }}"
+                            <select id="clientFilter" name="client" onchange="this.form.submit()" aria-label="{{ __('messages.Client') }}"
                                     class="text-[12.5px] border border-slate-200 rounded-lg bg-slate-50 text-slate-600 py-2 pl-2.5 pr-7 focus:ring-2 focus:ring-[#2D7080]/20 focus:border-[#2D7080] outline-none transition dt-filter-select max-w-[180px]">
                                 <option value="">{{ __('messages.All Clients') }}</option>
                                 @foreach($clients as $client)
@@ -539,5 +577,24 @@
     }
     .dt-page-btn-disabled { opacity: .4; cursor: default; pointer-events: none; }
 </style>
+    {{-- Searchable filter selects (Tom Select). Syncs the original selects and
+         fires their change events, so existing filter logic keeps working. --}}
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            ['clientFilter'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el && window.TomSelect && !el.tomselect) {
+                    new TomSelect(el, {
+                        create: false,
+                        sortField: null,
+                        maxOptions: null,
+                        allowEmptyOption: true,
+                        placeholder: el.options[0] ? el.options[0].text : ''
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>

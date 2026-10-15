@@ -202,16 +202,6 @@
       </li>
       @endcan
 
-      @can('Pointage')
-      <li class="nav-item">
-        <a class="nav-link active"  aria-expanded="false" href="{{route('admin.pointage.index')}}">
-          <span class="sidenav-mini-icon"> P </span>
-          <i class="fa-regular fa-clock"></i>
-          <span class="sidenav-normal"> Pointage <b class="nav-link-text ms-1"></b></span>
-        </a>
-      </li>
-      @endcan 
-
       @php
           $currentUser = Auth::user();
       @endphp
@@ -226,27 +216,11 @@
       @endif
 
       <li class="nav-item">
-        <a class="nav-link active" data-bs-toggle="collapse" aria-expanded="false" href="#administartionCollapse">
-          <span class="sidenav-mini-icon"> P </span>
-          <i class="fa-solid fa-wand-sparkles" style="color: #ee00ff;"></i>
-          <span class="nav-link-text ms-1"> Administration <b class="nav-link-text ms-1"></b></span>
+        <a class="nav-link active" aria-expanded="false" href="{{route('admin.roles.index')}}">
+          <span class="sidenav-mini-icon text-sm"> R </span>
+          <i class="fa-solid fa-users-gear" style="color: #ee00ff;"></i>
+          <span class="sidenav-normal"> Gestion des rôles <b class="nav-link-text ms-1"></b></span>
         </a>
-        <div class="collapse" id="administartionCollapse">
-          <ul class="nav ms-4">
-            <li class="nav-item">
-              <a class="nav-link"  href="{{route('admin.roles.index')}}">
-                <span class="sidenav-mini-icon text-sm"> R </span>
-                <span class="sidenav-normal"> Roles </span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link"  href="{{route('admin.permissions.index')}}">
-                <span class="sidenav-mini-icon text-sm"> P </span>
-                <span class="sidenav-normal"> Permissions </span>
-              </a>
-            </li>
-          </ul>
-        </div>
       </li>
 
       

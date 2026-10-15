@@ -69,7 +69,7 @@
     </style>
 </head>
 
-<body class="bg-gray-50 flex h-screen overflow-hidden">
+<body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
 
     {{-- Sidebar --}}
     @if(Auth::user()->hasRole('Admin'))
@@ -83,25 +83,26 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
 
-            <div class="max-w-7xl mx-auto">
+            <div class="max-w-7xl mx-auto w-full">
 
                 {{-- Header --}}
-                <div class="mb-6 sm:mb-8">
-                    <h1 class="text-2xl sm:text-4xl font-bold text-gray-900 mb-2">{{ __('messages.Roles Management') }}</h1>
-                    <p class="text-gray-600">{{ __('messages.Roles Management subtitle') }}</p>
+                <div class="mb-5">
+                    <p class="dt-overline mb-1">{{ __('messages.System') }}</p>
+                    <h1 class="text-[22px] sm:text-[24px] font-bold tracking-tight text-[#0B2638] leading-tight">{{ __('messages.Roles Management') }}</h1>
+                    <p class="text-[13.5px] text-slate-500 mt-1">{{ __('messages.Roles Management subtitle') }}</p>
                 </div>
 
                 {{-- Controls --}}
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div class="dt-card p-4 sm:p-5 mb-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
 
                         {{-- Entries per page (placeholder UI, optional Livewire binding) --}}
                         <div class="flex items-center gap-2">
-                            <label class="text-sm font-medium text-gray-700">{{ __('messages.Entries per page') }}</label>
+                            <label class="text-[13px] font-medium text-slate-700">{{ __('messages.Entries per page') }}</label>
                             <select
-                                class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto">
+                                class="h-10 px-3 rounded-xl border border-slate-200 bg-white text-[13px] text-slate-700 outline-none transition focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 w-full sm:w-auto cursor-pointer">
                                 <option value="5">5</option>
                                 <option value="10" selected>10</option>
                                 <option value="25">25</option>
@@ -109,7 +110,7 @@
                             </select>
                         </div>
 
-                        {{-- Add Role 
+                        {{-- Add Role
                         <a href="{{ route('admin.roles.create') }}"
                            class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
@@ -118,12 +119,13 @@
                             </svg>
                             Add Role
                         </a>
-                    </div> --}}
+                        --}}
+                    </div>
 
                     {{-- Search Bar --}}
                     <div class="relative">
                         <svg xmlns="http://www.w3.org/2000/svg"
-                             class="absolute left-3 top-3 h-5 w-5 text-gray-400" fill="none"
+                             class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                   d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18.5a7.5 7.5 0 006.15-3.85z"/>
@@ -132,26 +134,26 @@
                             id="searchInput"
                             type="text"
                             placeholder="{{ __('messages.Search roles placeholder') }}"
-                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="w-full h-10 pl-9 pr-4 rounded-xl border border-slate-200 bg-white text-[13px] text-slate-700 placeholder:text-slate-400 shadow-sm outline-none transition focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25"
                             wire:model.live="search"
                         />
                     </div>
                 </div>
 
                 {{-- Table --}}
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="roles-table-wrapper overflow-x-auto" style="-webkit-overflow-scrolling: touch;">
-                        <table class="w-full table-auto" id="rolesTable">
-                            <thead>
-                                <tr class="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-gray-200">
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">{{ __('messages.ROLE header') }}</th>
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">{{ __('messages.PERMISSIONS header') }}</th>
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">{{ __('messages.ACTIONS header') }}</th>
+                <div class="dt-card overflow-hidden">
+                    <div class="roles-table-wrapper overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left border-collapse min-w-full" id="rolesTable">
+                            <thead class="border-b border-slate-100 bg-slate-50/80">
+                                <tr class="dt-table-head">
+                                    <th class="px-4 py-3 text-left whitespace-nowrap min-w-[200px]">{{ __('messages.ROLE header') }}</th>
+                                    <th class="px-4 py-3 text-left whitespace-nowrap min-w-[220px]">{{ __('messages.PERMISSIONS header') }}</th>
+                                    <th class="px-4 py-3 text-left whitespace-nowrap min-w-[130px]">{{ __('messages.ACTIONS header') }}</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="divide-y divide-slate-100">
                                 @foreach ($roles as $role)
-                                    <tr class="{{ $loop->even ? 'bg-gray-50' : 'bg-white' }} border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                    <tr class="hover:bg-slate-50/70 transition-colors">
                                         {{-- Role name --}}
                                         @php
                                             $roleRawName = trim($role->name);
@@ -175,10 +177,10 @@
                                                 }
                                             }
                                         @endphp
-                                        <td data-label="{{ __('messages.ROLE header') }}" data-span="2" class="px-6 py-4 text-sm font-medium text-gray-900">{{ $roleLabel }}</td>
+                                        <td data-label="{{ __('messages.ROLE header') }}" data-span="2" class="px-4 py-3 text-[13px] font-semibold text-[#0B2638]">{{ $roleLabel }}</td>
 
                                         {{-- Permissions --}}
-                                        <td data-label="{{ __('messages.PERMISSIONS header') }}" data-span="2" class="px-6 py-4">
+                                        <td data-label="{{ __('messages.PERMISSIONS header') }}" data-span="2" class="px-4 py-3">
                                             @php
                                                 $enterprisePermissions = \App\Models\EnterpriseRolePermission::where('entreprise_id', Auth::user()->entreprise_id)
                                                     ->where('role_id', $role->id)
@@ -186,7 +188,7 @@
                                                     ->get()
                                                     ->pluck('permission');
                                             @endphp
-                                            <div class="flex flex-wrap gap-2">
+                                            <div class="flex flex-wrap gap-1.5">
                                                 @if ($enterprisePermissions->count() > 0)
                                                     @foreach ($enterprisePermissions->take(5) as $per)
                                                         @php
@@ -211,17 +213,18 @@
                                                                 }
                                                             }
                                                         @endphp
-                                                        <span class="inline-block px-3 py-1 bg-cyan-100 text-cyan-700 text-xs font-semibold rounded-full">
+                                                        <span class="dt-badge dt-badge-navy">
+                                                            <span class="dt-dot"></span>
                                                             {{ $permissionLabel }}
                                                         </span>
                                                     @endforeach
                                                     @if ($enterprisePermissions->count() > 5)
-                                                        <span class="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded-full">
+                                                        <span class="dt-badge dt-badge-neutral">
                                                             +{{ $enterprisePermissions->count() - 5 }} {{ __('messages.more') }}
                                                         </span>
                                                     @endif
                                                 @else
-                                                    <span class="inline-block px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
+                                                    <span class="dt-badge dt-badge-danger">
                                                         {{ __('messages.No permissions') }}
                                                     </span>
                                                 @endif
@@ -229,12 +232,12 @@
                                         </td>
 
                                         {{-- Actions --}}
-                                        <td data-label="{{ __('messages.ACTIONS header') }}" data-span="2" class="px-6 py-4">
+                                        <td data-label="{{ __('messages.ACTIONS header') }}" data-span="2" class="px-4 py-3">
                                             <div class="flex items-center gap-2">
                                                 {{-- Edit --}}
                                                 @if (Auth::user()->hasRole('Admin'))
                                                     <a href="{{ route('admin.roles.edit', $role->id) }}"
-                                                       class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                       class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white text-[#2D7080] hover:bg-[#2D7080]/10 hover:border-[#2D7080]/30 transition-colors"
                                                        title="{{ __('messages.Edit') }}">
                                                         <svg xmlns="http://www.w3.org/2000/svg"
                                                              class="h-4 w-4" fill="none"
@@ -251,17 +254,17 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between bg-gray-50">
-                      <span class="text-sm text-gray-600 mb-2 sm:mb-0">
-                        
+                    <div class="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl flex flex-col sm:flex-row items-center justify-between gap-2">
+                      <span class="text-[12px] font-semibold text-slate-500">
+
                       </span>
-                      
-                      <div class="flex items-center gap-2">
-                        <button class="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-100 transition-colors">
+
+                      <div class="flex items-center gap-1.5">
+                        <button class="inline-flex h-8 px-3 items-center justify-center rounded-lg border border-slate-200 bg-white text-[12px] font-semibold text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors" disabled>
                           {{ __('messages.Previous') }}
                         </button>
-                        <button class="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors">1</button>
-                        <button class="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-100 transition-colors">
+                        <button class="inline-flex h-8 min-w-8 px-2 items-center justify-center rounded-lg bg-[#0B2638] text-white text-[12px] font-bold">1</button>
+                        <button class="inline-flex h-8 px-3 items-center justify-center rounded-lg border border-slate-200 bg-white text-[12px] font-semibold text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors" disabled>
                           {{ __('messages.Next') }}
                         </button>
                       </div>

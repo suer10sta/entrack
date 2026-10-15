@@ -282,8 +282,8 @@
 
 
         <div class="flex flex-col flex-1 overflow-y-auto w-full">
-        {{-- Navbar (same design as Admin Dashboard) --}}
-        <x-employees.navbar />
+        {{-- Navbar (shared dashboard navbar; reduced for Employee roles) --}}
+        <x-dashboard.navbar />
 
         {{-- Main Content --}}
         <main class="flex flex-col flex-1 overflow-y-auto w-full">
@@ -783,7 +783,7 @@
     <script src="https://unpkg.com/jspdf-autotable@3.5.17/dist/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
 
-    {{-- Sidebar toggles + Alpine.js are provided by x-employees.navbar (same as Admin Dashboard) --}}
+    {{-- Sidebar toggles + Alpine.js are provided by the shared x-dashboard.navbar --}}
 
 
     
@@ -906,14 +906,21 @@
 
             var previousTimerId = tasksTimer ? tasksTimer.id : null;
             setInterval(function() {
-                fetch('/employee/pointage/get-timer-state')
-                    .then(function(r) { return r.json(); })
+                // JSON headers: an expired session must yield 401 (no login
+                // redirect), otherwise this background poll would store the
+                // JSON endpoint as the post-login "intended" URL.
+                fetch('/employee/pointage/get-timer-state', {
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(function(r) { if (!r.ok) return null; return r.json(); })
                     .then(function(data) {
+                        if (!data) return;
                         var currentTimerId = data.tasksTimer ? data.tasksTimer.id : null;
                         if (previousTimerId !== null && currentTimerId === null) {
                             location.reload();
                         }
-                    });
+                    })
+                    .catch(function() {});
             }, 60000);
         });
     </script>
@@ -1695,7 +1702,8 @@
                 if (el) {
                     new TomSelect(el, {
                         create: false,
-                        sortField: { field: 'text', direction: 'asc' },
+                        // No client-side sorting: keep the "All" option pinned on top.
+                        sortField: null,
                         maxOptions: null,
                         allowEmptyOption: true,
                         placeholder: el.options[0] ? el.options[0].text : 'Search...'

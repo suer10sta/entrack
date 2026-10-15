@@ -6,7 +6,37 @@
     <title>{{ __('messages.Tasks') }} — DalyTrac</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite('resources/css/app.css')
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <style>
+        /* Tom Select styling for the searchable project filter (same look as reports) */
+        .ts-wrapper.single .ts-control {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 0.5rem !important;
+            padding: 0.5rem 0.75rem !important;
+            font-size: 13px !important;
+            background-color: #f8fafc !important;
+            min-height: 38px !important;
+            color: #334155 !important;
+            box-shadow: none !important;
+        }
+        .ts-wrapper.single.focus .ts-control {
+            border-color: #2D7080 !important;
+            background-color: #fff !important;
+            box-shadow: 0 0 0 2px rgba(45, 112, 128, 0.20) !important;
+        }
+        .ts-dropdown {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 0.5rem !important;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1) !important;
+        }
+        .ts-dropdown .option {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 13px !important;
+        }
+        .ts-dropdown .option.active {
+            background-color: rgba(45, 112, 128, 0.10) !important;
+            color: #0B2638 !important;
+        }
         /* Compact icon buttons (same look as the projects table actions) */
         .b-icon {
             display: inline-flex; align-items: center; justify-content: center;
@@ -75,6 +105,8 @@
                                 @endforeach
                             </select>
                         </div>
+                        {{-- Teams + Employees filters: hidden for Responsable de projet and Gestionnaire --}}
+                        @unless(Auth::user()->hasAnyRole(['Responsable de projet', 'Responsable de projet et gestionnaire']))
                         <div class="min-w-0">
                             <label for="f-team" class="block text-[11px] font-bold uppercase tracking-[0.07em] text-slate-400 mb-1">{{ __('messages.Teams label') }}</label>
                             <select id="f-team" name="team" onchange="this.form.submit()"
@@ -95,10 +127,12 @@
                                 @endforeach
                             </select>
                         </div>
+                        @endunless
                     </div>
                 </form>
 
-                {{-- Employee quick-filter chips (wrap, no horizontal scroll) --}}
+                {{-- Employee quick-filter chips (hidden for Responsable de projet and Gestionnaire) --}}
+                @unless(Auth::user()->hasAnyRole(['Responsable de projet', 'Responsable de projet et gestionnaire']))
                 <div class="flex flex-wrap gap-1.5 mb-4" role="group" aria-label="{{ __('messages.Employees') }}">
                     <a href="{{ route($routePrefix . '.tasks.board', array_filter(['project' => $fProject ?: null, 'team' => $fTeam ?: null])) }}"
                        class="emp-chip {{ $fEmployee === '' || $fEmployee === null ? 'is-active' : '' }}">
@@ -111,6 +145,7 @@
                         </a>
                     @endforeach
                 </div>
+                @endunless
 
                 <div class="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-3">
                 @foreach($visibleProjects as $project)
@@ -237,6 +272,28 @@
         document.addEventListener('DOMContentLoaded', function () {
             boardTick();
             setInterval(boardTick, 1000);
+        });
+    </script>
+    {{-- Searchable project/team/employee filters (Tom Select, same as reports).
+         Tom Select syncs the original selects and fires their change events,
+         so the existing onchange="this.form.submit()" keeps working. --}}
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            ['f-project', 'f-team', 'f-employee'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el && window.TomSelect && !el.tomselect) {
+                    new TomSelect(el, {
+                        create: false,
+                        // No client-side sorting: keep the server order so the
+                        // "All" option stays pinned on top.
+                        sortField: null,
+                        maxOptions: null,
+                        allowEmptyOption: true,
+                        placeholder: el.options[0] ? el.options[0].text : ''
+                    });
+                }
+            });
         });
     </script>
 </body>

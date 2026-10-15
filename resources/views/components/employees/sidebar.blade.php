@@ -30,6 +30,26 @@
     $wdRoute = $routeFor('workDaysReports');
     $pointageRoute = $routeFor('tasks', 'pointage');
 
+    /* ── Responsable de projet fixed menu ───────────────────────────
+       Exact role only: Projets / Tâches / Rapports (projets + tâches) /
+       Planning. Everything else in this sidebar stays hidden for this
+       role. Other roles are unaffected. */
+    $isRespProjet = Auth::check() && method_exists(Auth::user(), 'hasRole') && Auth::user()->hasRole('Responsable de projet');
+    $respProjReportRoute = $routeFor('projects', 'report');
+    $respTaskBoardRoute = $routeFor('tasks', 'board');
+    $isRespReportsPage = request()->routeIs('*.projects.report') || request()->routeIs('*.tasks.index');
+
+    /* ── Employee / Gestionnaire fixed menus ─────────────────────────
+       Exact roles only. Employee: Dashboard + Planning. Gestionnaire
+       ("Responsable de projet et gestionnaire"): Projets / Tâches /
+       Rapports (projets + tâches + jours travaillés) / Planning /
+       Facturation. Other roles are unaffected. */
+    $isEmployeeRole = Auth::check() && method_exists(Auth::user(), 'hasRole') && Auth::user()->hasRole('Employee');
+    $isGestionnaire = Auth::check() && method_exists(Auth::user(), 'hasRole') && Auth::user()->hasRole('Responsable de projet et gestionnaire');
+    $gestWorkDaysRoute = $routeFor('workDaysReports');
+    $gestBillRoute = $routeFor('Enterprise_infos', 'create');
+    $isGestReportsPage = request()->routeIs('*.projects.report') || request()->routeIs('*.tasks.index') || request()->routeIs('*.workDaysReports.*');
+
     $isReportingPage = request()->routeIs('*.clients.*') ||
         request()->routeIs('*.employees.*') ||
         request()->routeIs('*.teams.*') ||
@@ -122,6 +142,7 @@
             </div>
 
             <nav class="px-3 pb-6 space-y-5 overflow-y-auto dt-sidebar-scroll flex-1">
+                @unless($isRespProjet || $isGestionnaire)
                 {{-- OVERVIEW --}}
                 <div>
                     <p class="sidebar-section px-3 mb-2 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-slate-400/80">{{ __('messages.Overview') }}</p>
@@ -138,11 +159,159 @@
                         </a>
                     </div>
                 </div>
+                @endunless
 
                 {{-- WORKSPACE --}}
                 <div>
                     <p class="sidebar-section px-3 mb-2 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-slate-400/80">{{ __('messages.Workspace') }}</p>
                     <div class="space-y-1">
+                        @if($isRespProjet)
+                        {{-- Responsable de projet fixed menu: Projets / Tâches / Rapports / Planning --}}
+                        <a href="{{ $projRoute }}"
+                            title="{{ __('messages.projects_page_title') }}"
+                            class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs('*.projects.index') || request()->routeIs('*.projects.show') || request()->routeIs('*.projects.edit') || request()->routeIs('*.projects.create') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                            @if(request()->routeIs('*.projects.index') || request()->routeIs('*.projects.show') || request()->routeIs('*.projects.edit') || request()->routeIs('*.projects.create'))
+                                <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
+                            @endif
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+                            </svg>
+                            <span class="sidebar-label truncate">{{ __('messages.projects_page_title') }}</span>
+                            <span class="sidebar-tip">{{ __('messages.projects_page_title') }}</span>
+                        </a>
+                        <a href="{{ $respTaskBoardRoute }}"
+                            title="{{ __('messages.Tasks') }}"
+                            class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs('*.tasks.board') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                            @if(request()->routeIs('*.tasks.board'))
+                                <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
+                            @endif
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="sidebar-label truncate">{{ __('messages.Tasks') }}</span>
+                            <span class="sidebar-tip">{{ __('messages.Tasks') }}</span>
+                        </a>
+                        <div>
+                            <button type="button" onclick="toggleDropdown('reporting')" title="{{ __('messages.Reports') }}"
+                                class="dt-nav-item group relative flex justify-between items-center w-full px-3 py-2.5 rounded-xl text-[13.5px] text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
+                                @if($isRespReportsPage)
+                                    <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
+                                @endif
+                                <span class="flex items-center gap-3 min-w-0">
+                                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                    <span class="sidebar-label truncate">{{ __('messages.Reports') }}</span>
+                                </span>
+                                <svg id="reporting-icon" class="sidebar-label sidebar-chevron w-4 h-4 flex-shrink-0 dropdown-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                </svg>
+                                <span class="sidebar-tip">{{ __('messages.Reports') }}</span>
+                            </button>
+                            <div id="reporting-submenu" class="sidebar-submenu ml-9 space-y-1 dropdown-menu">
+                                <a href="{{ $respProjReportRoute }}"
+                                    class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
+                                    @if(request()->routeIs('*.projects.report'))
+                                        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
+                                    @endif
+                                    Rapports des projets
+                                </a>
+                                <a href="{{ $taskRoute }}"
+                                    class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
+                                    @if(request()->routeIs('*.tasks.index'))
+                                        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
+                                    @endif
+                                    Rapports des tâches
+                                </a>
+                            </div>
+                        </div>
+                        <a href="{{ $planningRoute }}"
+                            title="Planning"
+                            class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs('*.calendar.*') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                            @if(request()->routeIs('*.calendar.*'))
+                                <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
+                            @endif
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span class="sidebar-label truncate">{{ __('messages.Planning') }}</span>
+                            <span class="sidebar-tip">{{ __('messages.Planning') }}</span>
+                        </a>
+                        @endif
+                        @if($isGestionnaire)
+                        {{-- Gestionnaire fixed menu: Projets / Tâches / Rapports (3) — Planning
+                             and Facturation follow below with the Employee Planning link --}}
+                        <a href="{{ $projRoute }}"
+                            title="{{ __('messages.projects_page_title') }}"
+                            class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs('*.projects.index') || request()->routeIs('*.projects.show') || request()->routeIs('*.projects.edit') || request()->routeIs('*.projects.create') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                            @if(request()->routeIs('*.projects.index') || request()->routeIs('*.projects.show') || request()->routeIs('*.projects.edit') || request()->routeIs('*.projects.create'))
+                                <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
+                            @endif
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+                            </svg>
+                            <span class="sidebar-label truncate">{{ __('messages.projects_page_title') }}</span>
+                            <span class="sidebar-tip">{{ __('messages.projects_page_title') }}</span>
+                        </a>
+                        <a href="{{ $respTaskBoardRoute }}"
+                            title="{{ __('messages.Tasks') }}"
+                            class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs('*.tasks.board') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                            @if(request()->routeIs('*.tasks.board'))
+                                <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
+                            @endif
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="sidebar-label truncate">{{ __('messages.Tasks') }}</span>
+                            <span class="sidebar-tip">{{ __('messages.Tasks') }}</span>
+                        </a>
+                        <div>
+                            <button type="button" onclick="toggleDropdown('reporting')" title="{{ __('messages.Reports') }}"
+                                class="dt-nav-item group relative flex justify-between items-center w-full px-3 py-2.5 rounded-xl text-[13.5px] text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
+                                @if($isGestReportsPage)
+                                    <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
+                                @endif
+                                <span class="flex items-center gap-3 min-w-0">
+                                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                    <span class="sidebar-label truncate">{{ __('messages.Reports') }}</span>
+                                </span>
+                                <svg id="reporting-icon" class="sidebar-label sidebar-chevron w-4 h-4 flex-shrink-0 dropdown-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                </svg>
+                                <span class="sidebar-tip">{{ __('messages.Reports') }}</span>
+                            </button>
+                            <div id="reporting-submenu" class="sidebar-submenu ml-9 space-y-1 dropdown-menu">
+                                <a href="{{ $respProjReportRoute }}"
+                                    class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
+                                    @if(request()->routeIs('*.projects.report'))
+                                        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
+                                    @endif
+                                    Rapports des projets
+                                </a>
+                                <a href="{{ $taskRoute }}"
+                                    class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
+                                    @if(request()->routeIs('*.tasks.index'))
+                                        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
+                                    @endif
+                                    Rapports des tâches
+                                </a>
+                                <a href="{{ $gestWorkDaysRoute }}"
+                                    class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
+                                    @if(request()->routeIs('*.workDaysReports.*'))
+                                        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
+                                    @endif
+                                    Rapports des jours travaillés
+                                </a>
+                            </div>
+                        </div>
+                        @endif
+                        @unless($isRespProjet || $isGestionnaire || $isEmployeeRole)
                         @can('Planning')
                         <a href="{{ $planningRoute }}"
                             title="Planning"
@@ -385,9 +554,42 @@
                             </div>
                         </div>
                         @endcan
+                        @endunless
+                        @if($isEmployeeRole || $isGestionnaire)
+                        {{-- Employee + Gestionnaire: Planning as a standalone item
+                             (same markup as above; visibility required by role) --}}
+                        <a href="{{ $planningRoute }}"
+                            title="Planning"
+                            class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs('*.calendar.*') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                            @if(request()->routeIs('*.calendar.*'))
+                                <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
+                            @endif
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span class="sidebar-label truncate">{{ __('messages.Planning') }}</span>
+                            <span class="sidebar-tip">{{ __('messages.Planning') }}</span>
+                        </a>
+                        @endif
+                        @if($isGestionnaire)
+                        {{-- Gestionnaire only: Facturation --}}
+                        <a href="{{ $gestBillRoute }}"
+                            title="{{ __('messages.Billing Menu') }}"
+                            class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs('*.Enterprise_infos.create') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                            @if(request()->routeIs('*.Enterprise_infos.create'))
+                                <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
+                            @endif
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                            <span class="sidebar-label truncate">{{ __('messages.Billing Menu') }}</span>
+                            <span class="sidebar-tip">{{ __('messages.Billing Menu') }}</span>
+                        </a>
+                        @endif
                     </div>
                 </div>
 
+                @unless($isRespProjet || $isGestionnaire || $isEmployeeRole)
                 {{-- SYSTEM --}}
                 @can('Billings')
                 <div>
@@ -408,6 +610,7 @@
                     </div>
                 </div>
                 @endcan
+                @endunless
             </nav>
         </div>
 

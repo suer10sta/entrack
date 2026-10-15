@@ -29,14 +29,13 @@
                 .modal.show { display: block; }
                 .modal-backdrop { z-index: 1040; }
 
-                /* Table styles from original */
-                 #editableTable th, #editableTable td { text-align: center; padding: 0.75rem 0.5rem; }
-                 #editableTable th:first-child, #editableTable td:first-child { text-align: left; padding-left: 1rem; }
-                 #editableTable th:last-child, #editableTable td:last-child { padding-right: 1rem; }
-                 #editableTable th { font-weight: 600; font-size: 0.75rem; color: #4a5568; letter-spacing: 0.05em; }
-                 #editableTable td { font-size: 0.875rem; color: #2d3748; }
-                 #editableTable tbody tr:last-child { border-bottom: none; }
-                 #editableTable tbody tr { border-bottom: 1px solid #e2e8f0; }
+                /* Table base (alignment comes from the Tailwind utilities on each
+                   cell so numeric columns can right-align while names stay left) */
+                  #editableTable th, #editableTable td { padding: 0.75rem 1rem; }
+                  #editableTable th { font-weight: 600; font-size: 0.75rem; color: #4a5568; letter-spacing: 0.05em; }
+                  #editableTable td { font-size: 0.875rem; color: #2d3748; }
+                  #editableTable tbody tr:last-child { border-bottom: none; }
+                  #editableTable tbody tr { border-bottom: 1px solid #e2e8f0; }
                  .editable { cursor: pointer; background-color: rgba(45, 112, 128, 0.08) !important; }
                  .editable:hover { background-color: rgba(45, 112, 128, 0.16) !important; }
                  .editable-no-bg,
@@ -155,8 +154,8 @@
                         <div x-data="{{ $alpineComponent }}" class="contents">
                             <form method="GET" action="{{ $filterRoute }}" class="flex flex-col sm:flex-row sm:items-end gap-2 w-full sm:w-auto">
                                 <div class="flex-1 sm:flex-none">
-                                    <label class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Year') }}</label>
-                                    <select name="year" class="w-full sm:w-28 rounded-xl border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25" x-model="year">
+                                    <!-- <label class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Year') }}</label> -->
+                                    <select name="year" class="w-full sm:w-28 h-10 rounded-xl border-slate-200 bg-white px-3 text-sm text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25" x-model="year">
                                         <option value="">{{ __('messages.Year') }}</option>
                                         @for($i = date('Y'); $i >= 2000; $i--)
                                             <option value="{{ $i }}" {{ $i == $currentYear ? 'selected' : ''}}>{{ $i }}</option>
@@ -164,24 +163,24 @@
                                     </select>
                                 </div>
                                 <div class="flex-1 sm:flex-none">
-                                    <label class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Month') }}</label>
-                                    <select name="month" class="w-full sm:w-36 rounded-xl border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25" x-model="month">
+                                    <!-- <label class="block text-[13px] font-medium text-slate-700 mb-1">{{ __('messages.Month') }}</label> -->
+                                    <select name="month" class="w-full sm:w-36 h-10 rounded-xl border-slate-200 bg-white px-3 text-sm text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25" x-model="month">
                                         <option value="">{{ __('messages.Month') }}</option>
                                         @for($i = 1; $i <= 12; $i++)
                                             <option value="{{ $i }}" {{ $i == $monthInt ? 'selected' : ''}}>{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
                                         @endfor
                                     </select>
                                 </div>
-                                <button type="submit" class="dt-btn dt-btn-teal w-full sm:w-auto">{{ __('messages.Filter') }}</button>
+                                <button type="submit" class="dt-btn dt-btn-teal h-10 w-full sm:w-auto">{{ __('messages.Filter') }}</button>
                             </form>
-                            <button type="button" class="dt-btn dt-btn-primary w-full sm:w-auto" data-bs-toggle="modal" data-bs-target="#employeeSelectionModal">
+                            <button type="button" class="dt-btn dt-btn-primary h-10 w-full sm:w-auto" data-bs-toggle="modal" data-bs-target="#employeeSelectionModal">
                                 {{ __('messages.PDF button') }}
                             </button>
                             <form method="POST" action="{{ $nextMonthRoute }}" class="m-0 w-full sm:w-auto">
                                 @csrf
                                 <input type="hidden" name="currentMonth" value="{{ $currentMonth }}">
                                 <input type="hidden" name="currentYear" value="{{ $currentYear }}">
-                                <button type="submit" class="dt-btn dt-btn-ghost w-full sm:w-auto">{{ __('messages.Next Month') }}</button>
+                                <button type="submit" class="dt-btn dt-btn-ghost h-10 w-full sm:w-auto">{{ __('messages.Next Month') }}</button>
                             </form>
                         </div>
                     </div>
@@ -204,25 +203,27 @@
                 <div class="overflow-x-auto workdays-table-responsive custom-scrollbar">
                     {{-- Table --}}
                         <table id="editableTable" class="w-full text-left border-collapse min-w-full">
+                            @unless($workDaysRepports->isEmpty())
                             <thead class="border-b border-slate-100 bg-slate-50/80">
                                 <tr class="dt-table-head">
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap min-w-[170px]">{{ __('messages.Employee Name header') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Gross Days') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Internal Work Days') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Work Days Without Holidays') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap editable-header">{{ __('messages.Unpaid Absence Days') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap editable-header">{{ __('messages.Sick Days') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap editable-header">{{ __('messages.Holidays') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Remaining Paid Leave') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Paid Leave Acquired') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap editable-header">{{ __('messages.Paid Leave Taken') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap">{{ __('messages.Leave Balance') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap editable-header">{{ __('messages.Paid Leave Dates') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap editable-header">{{ __('messages.Days To Recover') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap min-w-[160px] editable-header">{{ __('messages.Remark') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap min-w-[160px] editable-header">{{ __('messages.Internal Remark') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap min-w-[180px] sticky left-0 z-20 bg-slate-50">{{ __('messages.Employee Name header') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ __('messages.Gross Days') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ __('messages.Internal Work Days') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ __('messages.Work Days Without Holidays') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums editable-header">{{ __('messages.Unpaid Absence Days') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums editable-header">{{ __('messages.Sick Days') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums editable-header">{{ __('messages.Holidays') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ __('messages.Remaining Paid Leave') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ __('messages.Paid Leave Acquired') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums editable-header">{{ __('messages.Paid Leave Taken') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ __('messages.Leave Balance') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-left whitespace-normal leading-tight min-w-[140px] max-w-[200px] editable-header">{{ __('messages.Paid Leave Dates') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums editable-header">{{ __('messages.Days To Recover') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-left whitespace-normal leading-tight min-w-[140px] max-w-[200px] editable-header">{{ __('messages.Remark') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-left whitespace-normal leading-tight min-w-[140px] max-w-[200px] editable-header">{{ __('messages.Internal Remark') }}</th>
                                 </tr>
                             </thead>
+                            @endunless
                             <tbody class="divide-y divide-slate-100">
                                 @forelse($workDaysRepports as $workDay)
                                     @php
@@ -258,25 +259,25 @@
                                         }
                                     @endphp
                                 <tr class="hover:bg-slate-50/70 transition-colors">
-                                    <td data-label="{{ __('messages.Employee Name header') }}" data-span="2" class="px-4 py-3 whitespace-nowrap text-[13px] font-semibold text-[#0B2638]">{{ $employee->name }}</td>
-                                    <td data-label="{{ __('messages.Gross Days') }}" class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600">{{ $workDay->work_days_gross ?? 0 }}</td>
-                                    <td data-label="{{ __('messages.Internal Work Days') }}" class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600">{{ $internalHoursFormatted }} - {{ $workDay->days_worked ?? 0 }} {{ __('messages.days') }}</td>
-                                    <td data-label="{{ __('messages.Work Days Without Holidays') }}" class="px-4 py-3 whitespace-nowrap text-[13px] font-semibold text-[#0B2638]">{{ $joursTravail }}</td>
-                                    <td data-label="{{ __('messages.Unpaid Absence Days') }}" class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600 editable" data-column="days_of_unpaid_absence" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->days_of_unpaid_absence ?? 0 }}</p></td>
-                                    <td data-label="{{ __('messages.Sick Days') }}" class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600 editable" data-column="sick_days" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->sick_days ?? 0 }}</p></td>
-                                    <td data-label="{{ __('messages.Holidays') }}" class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600 editable" data-column="holidays" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->holidays ?? 0 }}</p></td>
-                                    <td data-label="{{ __('messages.Remaining Paid Leave') }}" class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600 editable editable-no-bg" data-column="remaining_days_of_paid_leave" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->remaining_days_of_paid_leave ?? 0 }}</p></td>
-                                    <td data-label="{{ __('messages.Paid Leave Acquired') }}" class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600">{{ $workDay->number_of_days_of_paid_leave_acquired ?? 0 }}</td>
-                                    <td data-label="{{ __('messages.Paid Leave Taken') }}" class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600 editable" data-column="number_of_days_of_paid_leave_taken" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->number_of_days_of_paid_leave_taken ?? 0 }}</p></td>
-                                    <td data-label="{{ __('messages.Leave Balance') }}" class="px-4 py-3 whitespace-nowrap text-[13px] font-semibold text-emerald-700 editable editable-no-bg" data-column="holiday_balance" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->holiday_balance ?? 0 }}</p></td>
-                                    <td data-label="{{ __('messages.Paid Leave Dates') }}" data-span="2" class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600 editable" data-column="dates_of_holidays" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->dates_of_holidays ?? '' }}</p></td>
-                                    <td data-label="{{ __('messages.Days To Recover') }}" class="px-4 py-3 whitespace-nowrap text-[13px] text-slate-600 editable" data-column="days_to_recover" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->days_to_recover ?? 0 }}</p></td>
-                                    <td data-label="{{ __('messages.Remark') }}" data-span="2" class="px-4 py-3 text-[13px] text-slate-600 editable" data-column="remarque" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->remarque ?? '' }}</p></td>
-                                    <td data-label="{{ __('messages.Internal Remark') }}" data-span="2" class="px-4 py-3 text-[13px] text-slate-600 editable" data-column="interne_remarque" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->interne_remarque ?? '' }}</p></td>
+                                    <td data-label="{{ __('messages.Employee Name header') }}" data-span="2" class="px-4 py-3 whitespace-nowrap text-[13px] font-semibold text-[#0B2638] sticky left-0 z-10 bg-white border-r border-slate-100">{{ $employee->name }}</td>
+                                    <td data-label="{{ __('messages.Gross Days') }}" class="px-4 py-3 whitespace-nowrap tabular-nums text-right text-[13px] text-slate-600">{{ $workDay->work_days_gross ?? 0 }}</td>
+                                    <td data-label="{{ __('messages.Internal Work Days') }}" class="px-4 py-3 whitespace-nowrap tabular-nums text-right text-[13px] text-slate-600">{{ $internalHoursFormatted }} - {{ $workDay->days_worked ?? 0 }} {{ __('messages.days') }}</td>
+                                    <td data-label="{{ __('messages.Work Days Without Holidays') }}" class="px-4 py-3 whitespace-nowrap tabular-nums text-right text-[13px] font-semibold text-[#0B2638]">{{ $joursTravail }}</td>
+                                    <td data-label="{{ __('messages.Unpaid Absence Days') }}" class="px-4 py-3 whitespace-nowrap tabular-nums text-right text-[13px] text-slate-600 editable" data-column="days_of_unpaid_absence" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->days_of_unpaid_absence ?? 0 }}</p></td>
+                                    <td data-label="{{ __('messages.Sick Days') }}" class="px-4 py-3 whitespace-nowrap tabular-nums text-right text-[13px] text-slate-600 editable" data-column="sick_days" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->sick_days ?? 0 }}</p></td>
+                                    <td data-label="{{ __('messages.Holidays') }}" class="px-4 py-3 whitespace-nowrap tabular-nums text-right text-[13px] text-slate-600 editable" data-column="holidays" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->holidays ?? 0 }}</p></td>
+                                    <td data-label="{{ __('messages.Remaining Paid Leave') }}" class="px-4 py-3 whitespace-nowrap tabular-nums text-right text-[13px] text-slate-600 editable editable-no-bg" data-column="remaining_days_of_paid_leave" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->remaining_days_of_paid_leave ?? 0 }}</p></td>
+                                    <td data-label="{{ __('messages.Paid Leave Acquired') }}" class="px-4 py-3 whitespace-nowrap tabular-nums text-right text-[13px] text-slate-600">{{ $workDay->number_of_days_of_paid_leave_acquired ?? 0 }}</td>
+                                    <td data-label="{{ __('messages.Paid Leave Taken') }}" class="px-4 py-3 whitespace-nowrap tabular-nums text-right text-[13px] text-slate-600 editable" data-column="number_of_days_of_paid_leave_taken" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->number_of_days_of_paid_leave_taken ?? 0 }}</p></td>
+                                    <td data-label="{{ __('messages.Leave Balance') }}" class="px-4 py-3 whitespace-nowrap tabular-nums text-right text-[13px] font-semibold text-emerald-700 editable editable-no-bg" data-column="holiday_balance" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->holiday_balance ?? 0 }}</p></td>
+                                    <td data-label="{{ __('messages.Paid Leave Dates') }}" data-span="2" class="px-4 py-3 whitespace-normal break-words min-w-[140px] max-w-[220px] text-[13px] text-slate-600 editable" data-column="dates_of_holidays" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->dates_of_holidays ?? '' }}</p></td>
+                                    <td data-label="{{ __('messages.Days To Recover') }}" class="px-4 py-3 whitespace-nowrap tabular-nums text-right text-[13px] text-slate-600 editable" data-column="days_to_recover" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->days_to_recover ?? 0 }}</p></td>
+                                    <td data-label="{{ __('messages.Remark') }}" data-span="2" class="px-4 py-3 whitespace-normal break-words min-w-[140px] max-w-[220px] text-[13px] text-slate-600 editable" data-column="remarque" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->remarque ?? '' }}</p></td>
+                                    <td data-label="{{ __('messages.Internal Remark') }}" data-span="2" class="px-4 py-3 whitespace-normal break-words min-w-[140px] max-w-[220px] text-[13px] text-slate-600 editable" data-column="interne_remarque" data-id="{{ $workDay->id }}"><p class="text-[13px] font-medium mb-0">{{ $workDay->interne_remarque ?? '' }}</p></td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="15" class="px-6 py-10 text-center">
+                                    <td colspan="15" class="px-6 py-14 text-center">
                                         <div class="dt-empty-icon mx-auto mb-3">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                         </div>
@@ -289,13 +290,13 @@
                     </div>
 
                     {{-- Pagination Placeholder  --}}
-                    <div class="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/50">
-                        <button class="text-slate-300 disabled:opacity-50" disabled>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" /></svg>
+                    <div class="flex items-center justify-between px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl">
+                        <button class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed" disabled aria-label="Previous page">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" /></svg>
                         </button>
-                        <span class="text-[12px] font-medium text-slate-500">{{ __('messages.Single page label') }}</span>
-                        <button class="text-slate-300 disabled:opacity-50" disabled>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
+                        <span class="text-[12px] font-semibold text-slate-500">{{ __('messages.Single page label') }}</span>
+                        <button class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed" disabled aria-label="Next page">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
                         </button>
                     </div>
 
