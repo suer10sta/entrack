@@ -567,6 +567,7 @@ return [
     'Send Events' => 'Evenementen versturen',
     'All clients' => 'Alle klanten',
     'Filter by Employee' => 'Filteren op medewerker',
+    'Project search could not be updated. Press Enter to retry.' => 'Het zoeken kon niet worden bijgewerkt. Druk op Enter om opnieuw te proberen.',
     'All teams' => 'Alle teams',
     'All employees' => 'Alle medewerkers',
     'Event Title' => 'Titel evenement',

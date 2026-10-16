@@ -120,7 +120,7 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
+        <main class="dt-create-page dt-create-page--invoice flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
 
             {{-- Back route computation --}}
             @php
@@ -133,7 +133,7 @@
                     $backRoute = route('Responsable_gestionnaire.index');
             @endphp
 
-            <div class="w-full">
+            <div class="dt-create-container mx-auto w-full">
 
                 {{-- Page Header --}}
                 <div class="flex items-center gap-3 mb-5">
@@ -163,10 +163,10 @@
                 @endif
 
                 {{-- Invoice + Client information --}}
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+                <div class="grid grid-cols-1 2xl:grid-cols-3 gap-5 mb-5">
 
                     {{-- Invoice Information --}}
-                    <div class="dt-card overflow-hidden lg:col-span-2">
+                    <div class="dt-card dt-create-panel overflow-hidden 2xl:col-span-2">
                         <div class="px-5 sm:px-6 py-4 border-b border-slate-100">
                             <div class="flex items-center gap-3">
                                 <div class="dt-invoice-icon bg-[#0B2638]/[0.06] ring-1 ring-[#0B2638]/10 !w-9 !h-9 !rounded-xl">
@@ -183,8 +183,8 @@
                             </div>
                         </div>
                         <div class="px-5 sm:px-6 py-5">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="md:col-span-1">
+                            <div class="grid grid-cols-1 gap-4">
+                                <div class="min-w-0">
                                     <label for="projectSelect" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Select Project') }}</label>
                                     <select id="projectSelect" class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm form-select-custom py-2 px-3" required>
                                         <option value="">{{ __('messages.Select Project') }}</option>
@@ -205,7 +205,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="md:col-span-2">
+                                <div class="min-w-0">
                                     <label for="comment" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Comment') }}</label>
                                     <textarea id="comment" name="comment" rows="1"
                                               class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3"
@@ -216,7 +216,7 @@
                     </div>
 
                     {{-- Client Information --}}
-                    <div class="dt-card overflow-hidden">
+                    <div class="dt-card dt-create-panel overflow-hidden">
                         <div class="px-5 sm:px-6 py-4 border-b border-slate-100">
                             <div class="flex items-center gap-3">
                                 <div class="dt-invoice-icon bg-[#2D7080]/10 ring-1 ring-[#2D7080]/20 !w-9 !h-9 !rounded-xl">
@@ -266,7 +266,7 @@
                 </div>
 
                 {{-- Main Card: invoice lines --}}
-                <div class="dt-card overflow-hidden">
+                <div class="dt-card dt-create-panel overflow-hidden">
                     <div class="px-5 sm:px-6 py-4 border-b border-slate-100">
                         <div class="flex items-center gap-3">
                             <div class="dt-invoice-icon bg-[#E7B84B]/20 ring-1 ring-[#E7B84B]/40 !w-9 !h-9 !rounded-xl">
@@ -341,7 +341,7 @@
                         </div>
 
                         {{-- Generate Button --}}
-                        <div class="mt-5 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 border-t border-slate-100 pt-5">
+                        <div class="dt-create-actions mt-5 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 border-t border-slate-100 pt-5">
                             <button type="button" id="generateInvoiceBtn" class="dt-btn dt-btn-primary w-full sm:w-auto justify-center !px-5 !py-2.5">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                      stroke="currentColor" stroke-width="2">

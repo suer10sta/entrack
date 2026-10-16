@@ -952,6 +952,7 @@ return [
     'Filter by Client' => 'Filtrar por cliente',
     'All clients' => 'Todos los clientes',
     'Filter by Employee' => 'Filtrar por empleado',
+    'Project search could not be updated. Press Enter to retry.' => 'No se pudo actualizar la búsqueda. Pulsa Intro para reintentarlo.',
     'All teams' => 'Todos los equipos',
     'All employees' => 'Todos los empleados',
     'Event Title' => 'Título del evento',

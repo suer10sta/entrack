@@ -7,7 +7,82 @@
     <title>{{ __('messages.DalyTrac Dashboard - New Task') }}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite('resources/css/app.css')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css">
     <style>
+        /* Compact workflow selectors; retain the existing native change handlers. */
+        #client-select, #project-select {
+            width: 100%;
+            max-width: 32rem;
+            min-height: 44px;
+            padding: 10px 36px 10px 12px;
+            border: 1px solid #8292a6;
+            border-radius: 10px;
+            background-color: #f8fafc;
+            color: #0B2638;
+            font-size: 14px;
+            line-height: 1.5;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .dt-task-selector-row {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+        .dt-task-selector-row :is(#client-select, #project-select) {
+            flex: 0 1 24rem;
+            width: 24rem;
+            max-width: 100%;
+            margin-top: 0;
+        }
+        .dt-task-selector-row > button { min-height: 44px; }
+        #client-select:focus, #project-select:focus {
+            border-color: #2D7080;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgb(45 112 128 / 12%);
+        }
+        /* Bound both OPEN selector lists independently of their closed controls. */
+        .dt-task-selector-row .ts-wrapper {
+            flex: 0 1 24rem;
+            width: 24rem;
+            max-width: 100%;
+            min-width: 0;
+        }
+        .dt-task-selector-row .ts-control {
+            min-height: 44px;
+            padding: 10px 36px 10px 12px;
+            border: 1px solid #8292a6;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: #0B2638;
+            font-size: 14px;
+            line-height: 1.5;
+            box-shadow: none;
+        }
+        .dt-task-selector-row .ts-control .item {
+            max-width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .dt-task-selector-row .ts-dropdown {
+            border: 1px solid #8292a6;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgb(11 38 56 / 12%);
+        }
+        .dt-task-selector-row .ts-dropdown-content {
+            max-height: min(224px, 40vh);
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+        .dt-task-selector-row .ts-dropdown .option {
+            padding: 9px 12px;
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
         /* ── smooth inline expand/collapse ── */
         .expander { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .32s ease, opacity .25s ease, margin-top .32s ease; margin-top: 0; }
         .expander.open { grid-template-rows: 1fr; opacity: 1; margin-top: 12px; }
@@ -51,7 +126,7 @@
         <x-dashboard.navbar />
 
         {{-- Page Content --}}
-        <main class="p-4 sm:p-6 lg:p-8 bg-[#f8fafc] min-h-screen">
+        <main class="dt-create-page p-4 sm:p-6 lg:p-8 bg-[#f8fafc] min-h-screen">
 
             {{-- Role-aware routes + workflow endpoints, resolved ONCE --}}
             @php
@@ -90,7 +165,7 @@
                 $preselectedClientId = $project->client_id ?? null;
             @endphp
 
-            <div class="max-w-3xl mx-auto">
+            <div class="dt-create-container mx-auto w-full">
 
                 {{-- Header --}}
                 <div class="flex items-center gap-3 mb-4">
@@ -117,9 +192,18 @@
                 @endif
 
                 {{-- ── 1 · Client (optional) ─────────────────────────── --}}
-                <section class="bg-white shadow rounded-xl p-4 sm:p-5 mb-3">
-                    <div class="flex items-center justify-between gap-2">
-                        <h2 class="text-[13px] font-bold text-[#0B2638]">1 · {{ __('messages.Client') }}</h2>
+                <section class="dt-card dt-create-panel p-4 sm:p-5 mb-3">
+                    <h2 class="mb-3 text-[13px] font-bold text-[#0B2638]">1 · {{ __('messages.Client') }}</h2>
+                    <div class="dt-task-selector-row">
+                        <select id="client-select"
+                            class="w-full min-w-0 rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] text-sm py-2">
+                        <option value="">{{ __('messages.No client') }}</option>
+                        @foreach($clients as $client)
+                            <option value="{{ $client->id }}" {{ (string)$preselectedClientId === (string)$client->id ? 'selected' : '' }}>
+                                {{ $client->name }}
+                            </option>
+                        @endforeach
+                    </select>
                         @if($clientsStoreUrl)
                         <button type="button" id="toggle-client-form" aria-expanded="false"
                                 class="inline-flex flex-shrink-0 items-center gap-1.5 transition-colors dt-btn bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 hover:bg-[#0B2638]/[0.12] hover:ring-[#0B2638]/20">
@@ -129,15 +213,6 @@
                         </button>
                         @endif
                     </div>
-                    <select id="client-select"
-                            class="mt-2 w-full min-w-0 rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] text-sm py-2">
-                        <option value="">{{ __('messages.No client') }}</option>
-                        @foreach($clients as $client)
-                            <option value="{{ $client->id }}" {{ (string)$preselectedClientId === (string)$client->id ? 'selected' : '' }}>
-                                {{ $client->name }}
-                            </option>
-                        @endforeach
-                    </select>
 
                     {{-- Inline client form: every field of the original Add Client page --}}
                     @if($clientsStoreUrl)
@@ -271,9 +346,17 @@
                 </section>
 
                 {{-- ── 2 · Project (required) ────────────────────────── --}}
-                <section class="bg-white shadow rounded-xl p-4 sm:p-5 mb-3">
-                    <div class="flex items-center justify-between gap-2">
-                        <h2 class="text-[13px] font-bold text-[#0B2638]">2 · {{ __('messages.Project') }} <span class="text-red-500">*</span></h2>
+                <section class="dt-card dt-create-panel p-4 sm:p-5 mb-3">
+                    <h2 class="mb-3 text-[13px] font-bold text-[#0B2638]">2 · {{ __('messages.Project') }} <span class="text-red-500">*</span></h2>
+                    <div class="dt-task-selector-row">
+                        <select id="project-select" required
+                            class="w-full min-w-0 rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] text-sm py-2">
+                        @if($preselectedProjectId)
+                            <option value="{{ $preselectedProjectId }}" selected>{{ $project->name }}</option>
+                        @else
+                            <option value="" disabled selected>{{ __('messages.Select a project') }}</option>
+                        @endif
+                    </select>
                         @if($projectsStoreTemplate)
                         <button type="button" id="toggle-project-form" aria-expanded="false"
                                 class="inline-flex flex-shrink-0 items-center gap-1.5 transition-colors dt-btn bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 hover:bg-[#0B2638]/[0.12] hover:ring-[#0B2638]/20">
@@ -283,14 +366,6 @@
                         </button>
                         @endif
                     </div>
-                    <select id="project-select" required
-                            class="mt-2 w-full min-w-0 rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] text-sm py-2">
-                        @if($preselectedProjectId)
-                            <option value="{{ $preselectedProjectId }}" selected>{{ $project->name }}</option>
-                        @else
-                            <option value="" disabled selected>{{ __('messages.Select a project') }}</option>
-                        @endif
-                    </select>
                     <p id="project-hint" class="mt-1.5 text-[12px] text-slate-400">{{ __('messages.Select a project') }}</p>
 
                     {{-- Inline project form: every field of the original Add Project page --}}
@@ -361,7 +436,7 @@
                 </section>
 
                 {{-- ── 3 · Task (existing form, project comes from §2) ── --}}
-                <section class="bg-white shadow rounded-xl p-4 sm:p-5">
+                <section class="dt-card dt-create-panel p-4 sm:p-5">
                     <h2 class="text-[13px] font-bold text-[#0B2638] mb-3">3 · {{ __('messages.Task') }}</h2>
 
                     <form id="task-form" method="POST"
@@ -370,8 +445,8 @@
                         @csrf
                         <input type="hidden" name="from" value="{{ old('from', request()->query('from')) }}" />
 
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="sm:col-span-2">
                                 <label for="TaskName" class="block text-sm font-medium text-gray-700 mb-1">
                                     {{ __('messages.Task Name') }} <span class="text-red-500">*</span>
                                 </label>
@@ -448,7 +523,7 @@
                             </div>
                         </div>
 
-                        <div class="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-gray-200 pt-4">
+                        <div class="dt-create-actions mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-gray-200 pt-4">
                             <div class="flex items-center">
                                 <input id="add_to_planning" name="add_to_planning" type="checkbox" value="1"
                                     class="h-4 w-4 rounded border-gray-300 text-[#2D7080] focus:ring-[#2D7080]">
@@ -474,6 +549,7 @@
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -506,6 +582,8 @@
 
         const clientSelect = document.getElementById('client-select');
         const projectSelect = document.getElementById('project-select');
+        let projectPicker = null;
+        let clientPicker = null;
         const projectHint = document.getElementById('project-hint');
         const taskForm = document.getElementById('task-form');
         const taskSubmit = document.getElementById('task-submit');
@@ -561,6 +639,14 @@
             } else {
                 projectSelect.value = '';
                 empty.selected = true;
+            }
+            if (projectPicker) {
+                const selected = projectSelect.value;
+                const options = Array.from(projectSelect.options).filter(o => o.value).map(o => ({ value: o.value, text: o.textContent }));
+                projectPicker.clear(true);
+                projectPicker.clearOptions();
+                projectPicker.addOptions(options);
+                projectPicker.setValue(selected, true);
             }
             syncTaskForm();
         }
@@ -707,8 +793,13 @@
                         const o = document.createElement('option');
                         o.value = id;
                         o.textContent = name;
-                        clientSelect.appendChild(o);
-                        clientSelect.value = String(id);
+                        if (clientPicker) {
+                            clientPicker.addOption({ value: String(id), text: name });
+                            clientPicker.setValue(String(id), true);
+                        } else {
+                            clientSelect.appendChild(o);
+                            clientSelect.value = String(id);
+                        }
                     }
                     if (clientExp) clientExp.toggle(false);
                     form.reset();
@@ -802,12 +893,15 @@
                     if (!r.ok) throw new Error('Request failed: ' + r.status);
                     const name = form.querySelector('[name="name"]').value.trim();
                     await loadProjects();
-                    const opts = Array.from(projectSelect.options);
+                    const opts = projectPicker
+                        ? Object.values(projectPicker.options).map(o => ({ value: o.value, textContent: o.text }))
+                        : Array.from(projectSelect.options);
                     const exact = opts.find((o) => o.value && norm(o.textContent) === norm(name));
                     const newest = opts.filter((o) => o.value).reduce((m, o) => (!m || Number(o.value) > Number(m.value) ? o : m), null);
                     const pick = exact || newest;
                     if (pick) {
-                        projectSelect.value = pick.value;
+                        if (projectPicker) projectPicker.setValue(pick.value, true);
+                        else projectSelect.value = pick.value;
                         syncTaskForm();
                     }
                     appToast('success', toastProjectOk);
@@ -824,6 +918,21 @@
         }
 
         /* ── init: project arrives preselected via the entry URL ── */
+        if (window.TomSelect) {
+            clientPicker = new TomSelect(clientSelect, {
+                create: false,
+                maxOptions: null,
+                allowEmptyOption: true,
+                sortField: [{ field: '$order', direction: 'asc' }],
+                placeholder: @json(__('messages.No client')),
+            });
+            projectPicker = new TomSelect(projectSelect, {
+                create: false,
+                maxOptions: null,
+                sortField: [{ field: '$order', direction: 'asc' }],
+                placeholder: @json(__('messages.Select a project')),
+            });
+        }
         syncTaskForm();
         loadProjects();
     });

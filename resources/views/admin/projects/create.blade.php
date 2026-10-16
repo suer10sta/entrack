@@ -65,8 +65,8 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
-            <div class="max-w-5xl mx-auto w-full">
+        <main class="dt-create-page flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
+            <div class="dt-create-container mx-auto w-full">
 
                 <div class="mb-5">
                     <p class="dt-overline mb-1">{{ __('messages.projects_page_title') }}</p>
@@ -97,7 +97,7 @@
                     @endif
 
                     {{-- Section 01 · General information --}}
-                    <section class="dt-card p-5 sm:p-6">
+                    <section class="dt-card dt-create-panel p-5 sm:p-6">
                         <div class="flex items-center gap-3 mb-5">
                             <!-- <span class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-[#0B2638] text-[13px] font-extrabold text-[#E7B84B]">01</span> -->
                             <h2 class="text-[15px] font-bold tracking-tight text-[#0B2638]">{{ __('messages.Project section general') }}</h2>
@@ -136,14 +136,14 @@
                     </section>
 
                     {{-- Section 02 · Budget & billing --}}
-                    <section class="dt-card p-5 sm:p-6">
+                    <section class="dt-card dt-create-panel p-5 sm:p-6">
                         <div class="flex items-center gap-3 mb-5">
                             <!-- <span class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-[#0B2638] text-[13px] font-extrabold text-[#E7B84B]">02</span> -->
                             <h2 class="text-[15px] font-bold tracking-tight text-[#0B2638]">{{ __('messages.Project section budget') }}</h2>
                             <span class="hidden sm:block h-px flex-1 bg-slate-100"></span>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                             <div>
                                 <label for="projectBudget" class="block text-[13px] font-medium text-slate-700 mb-1.5">{{ __('messages.Budget label') }}</label>
                                 <div class="relative">
@@ -200,7 +200,7 @@
                     </section>
 
                     {{-- Section 03 · Team & contacts --}}
-                    <section class="dt-card p-5 sm:p-6">
+                    <section class="dt-card dt-create-panel p-5 sm:p-6">
                         <div class="flex items-center gap-3 mb-5">
                             <!-- <span class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-[#0B2638] text-[13px] font-extrabold text-[#E7B84B]">03</span> -->
                             <h2 class="text-[15px] font-bold tracking-tight text-[#0B2638]">{{ __('messages.Project section team') }}</h2>
@@ -250,7 +250,7 @@
                     </section>
 
                     {{-- Sticky actions --}}
-                    <div class=" bottom-4 z-10 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 rounded-2xl px-4 py-3 ">
+                    <div class="dt-create-actions bottom-4 z-10 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 rounded-2xl px-4 py-3 ">
                         <a href="javascript:history.back()" class="dt-btn dt-btn-ghost w-full sm:w-auto">
                             {{ __('messages.Cancel') }}
                         </a>
@@ -300,7 +300,7 @@
             if (el && window.TomSelect && !el.tomselect) {
                 new TomSelect(el, {
                     create: false,
-                    sortField: null,
+                    sortField: [{ field: '$order', direction: 'asc' }],
                     maxOptions: null,
                     allowEmptyOption: true,
                     placeholder: el.options[0] ? el.options[0].text : ''

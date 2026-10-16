@@ -204,7 +204,7 @@
                 {{-- Card toolbar: search + count + per-page ─────────── --}}
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 py-3.5 border-b border-slate-100">
                     {{-- Left: title + total --}}
-                    <div class="flex items-center gap-3 min-w-0">
+                    <div id="projectResultsSummary" class="flex items-center gap-3 min-w-0">
                         <p class="text-[13.5px] font-semibold text-[#0B2638]">{{ __('messages.projects_page_title') }}</p>
                         <span class="dt-badge dt-badge-navy">
                             <span class="dt-dot"></span>
@@ -243,6 +243,7 @@
                                     class="pl-9 pr-8 py-2 text-[12.5px] border border-slate-200 rounded-lg bg-slate-50 text-slate-700 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-[#2D7080]/20 focus:border-[#2D7080] outline-none transition w-56 sm:w-64"
                                     autocomplete="off"
                                 />
+                                <span id="projectSearchClear">
                                 @if($search)
                                     <a href="{{ route($projectsIndexRoute, array_filter(['per_page' => $perPage, 'client' => $clientFilter ?: null])) }}"
                                        class="absolute inset-y-0 right-2.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
@@ -250,6 +251,7 @@
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                     </a>
                                 @endif
+                                </span>
                             </div>
                             <input type="hidden" name="per_page" value="{{ $perPage }}">
                             <input type="hidden" name="client" value="{{ $clientFilter }}">
@@ -282,6 +284,8 @@
                     </div>
                 </div>
 
+                <p id="projectSearchError" role="status" class="hidden px-4 py-2 text-sm text-red-700">{{ __('messages.Project search could not be updated. Press Enter to retry.') }}</p>
+                <div id="projectResults" aria-live="polite">
                 {{-- Table ───────────────────────────────────────────── --}}
                 <div class="table-wrap overflow-x-auto">
                     <table class="w-full table-fixed text-left border-collapse min-w-[700px] {{ Auth::user()->hasRole('Admin') ? 'projects-table-admin' : '' }}" id="projectsTable">
@@ -559,6 +563,7 @@
                     </div>
                 @endif
 
+                </div>{{-- end projectResults --}}
             </div>{{-- end dt-card --}}
         </main>
     </div>
@@ -566,19 +571,88 @@
 
 @livewireScripts
 
-{{-- Auto-submit search form on input (debounced) --}}
+{{-- Debounce the existing GET search and refresh only its server-rendered results. --}}
 <script>
 (function () {
-    const form  = document.getElementById('projectSearchForm');
+    const form = document.getElementById('projectSearchForm');
     const input = form ? form.querySelector('input[name="search"]') : null;
-    if (!form || !input) return;
+    const results = document.getElementById('projectResults');
+    const error = document.getElementById('projectSearchError');
+    if (!form || !input || !results) return;
 
-    let timer;
-    input.addEventListener('input', function () {
+    let timer, controller, version = 0;
+    function cancelPending() {
         clearTimeout(timer);
-        timer = setTimeout(function () {
-            form.submit();
-        }, 420); // 420ms debounce — feels snappy without hammering the server
+        version++;
+        if (controller) controller.abort();
+        results.removeAttribute('aria-busy');
+    }
+    function syncFilterSearch() {
+        document.querySelectorAll('#clientFilterForm input[name="search"], #perPageForm input[name="search"]').forEach(function (field) {
+            field.value = input.value;
+        });
+    }
+    function searchUrl() {
+        const url = new URL(form.action, window.location.href);
+        url.search = new URLSearchParams(new FormData(form)).toString();
+        return url;
+    }
+    async function updateResults(url) {
+        cancelPending();
+        const current = version;
+        controller = new AbortController();
+        results.setAttribute('aria-busy', 'true');
+        error.classList.add('hidden');
+        try {
+            const response = await fetch(url.toString(), {
+                signal: controller.signal,
+                headers: { 'Accept': 'text/html' }
+            });
+            if (!response.ok || response.redirected) throw new Error('Search request failed');
+            const html = await response.text();
+            if (current !== version) return;
+            const page = new DOMParser().parseFromString(html, 'text/html');
+            const next = page.getElementById('projectResults');
+            if (!next) throw new Error('Search results missing');
+            results.innerHTML = next.innerHTML;
+            ['projectResultsSummary', 'projectSearchClear'].forEach(function (id) {
+                const target = document.getElementById(id);
+                const replacement = page.getElementById(id);
+                if (target && replacement) target.innerHTML = replacement.innerHTML;
+            });
+            window.history.replaceState(null, '', url.toString());
+        } catch (err) {
+            if (err.name !== 'AbortError' && current === version) error.classList.remove('hidden');
+        } finally {
+            if (current === version) results.removeAttribute('aria-busy');
+        }
+    }
+    function scheduleSearch(event) {
+        cancelPending();
+        syncFilterSearch();
+        if (event && event.isComposing) return;
+        timer = setTimeout(function () { updateResults(searchUrl()); }, 700);
+    }
+    input.addEventListener('input', scheduleSearch);
+    input.addEventListener('compositionend', scheduleSearch);
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        syncFilterSearch();
+        updateResults(searchUrl());
+    });
+    results.addEventListener('click', function (event) {
+        const link = event.target.closest('a.dt-page-btn');
+        if (!link || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        updateResults(new URL(link.href));
+    });
+    document.getElementById('projectSearchClear').addEventListener('click', function (event) {
+        if (!event.target.closest('a') || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        input.value = '';
+        syncFilterSearch();
+        updateResults(searchUrl());
+        input.focus();
     });
 })();
 </script>

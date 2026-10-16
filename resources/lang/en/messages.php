@@ -992,6 +992,7 @@ return [
     'Filter by Client' => 'Filter by Client',
     'All clients' => 'All clients',
     'Filter by Employee' => 'Filter by Employee',
+    'Project search could not be updated. Press Enter to retry.' => 'Project search could not be updated. Press Enter to retry.',
     'All teams' => 'All teams',
     'All employees' => 'All employees',
     'Event Title' => 'Event Title',

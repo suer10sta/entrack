@@ -23,8 +23,8 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <main class="flex-1 overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
-            <div class="max-w-4xl mx-auto w-full">
+        <main class="dt-create-page flex-1 overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
+            <div class="dt-create-container mx-auto w-full">
 
                 {{-- Header with back navigation (same design as Admin Dashboard) --}}
                 @php
@@ -78,7 +78,7 @@
 
                     <div class="space-y-6"> 
 
-                        <div class="dt-card p-5 sm:p-6">
+                        <div class="dt-card dt-create-panel p-5 sm:p-6">
                             <h2 class="dt-section-title mb-1">{{ __('messages.Personal Infos') }}</h2>
                             <p class="dt-section-subtitle mb-5">{{ __('messages.Mandatory informations') }}</p>
                             
@@ -123,7 +123,7 @@
                             </div>
                         </div>
 
-                        <div class="dt-card p-5 sm:p-6">
+                        <div class="dt-card dt-create-panel p-5 sm:p-6">
                             <h2 class="dt-section-title mb-1">{{ __('messages.address_workplace_infos') }}</h2>
                             <p class="dt-section-subtitle mb-5">{{ __('messages.Mandatory informations') }}</p>
 
@@ -171,7 +171,7 @@
                             </div>
                         </div>
                         
-                        <div class="dt-card p-5 sm:p-6">
+                        <div class="dt-card dt-create-panel p-5 sm:p-6">
                             <h2 class="dt-section-title mb-1">{{ __('messages.Billing Infos') }}</h2>
                             <p class="dt-section-subtitle mb-5">{{ __('messages.billing_infos_desc') }}</p>
 
@@ -228,7 +228,7 @@
                             </div>
                         </div>
 
-                        <div class="dt-card p-5 sm:p-6">
+                        <div class="dt-card dt-create-panel p-5 sm:p-6">
                             <div class="flex justify-between">
                                 <div>
                                 <h2 class="dt-section-title mb-1">{{ __('messages.Contacts Infos') }}</h2>
@@ -283,7 +283,7 @@
                         
                     </div>
 
-                    <div class="flex flex-col-reverse sm:flex-row sm:justify-end mt-8 gap-2 sm:gap-3">
+                    <div class="dt-create-actions flex flex-col-reverse sm:flex-row sm:justify-end mt-6 gap-2 sm:gap-3">
                         {{-- Cancel Button Logic --}}
                             <a href="javascript:history.back()"
                                 class="dt-btn dt-btn-ghost w-full sm:w-auto">{{ __('messages.Cancel') }}</a>

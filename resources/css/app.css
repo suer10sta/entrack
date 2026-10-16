@@ -552,3 +552,57 @@ a.dt-stat:hover, .dt-stat-hover:hover {
 @media (min-width: 1024px) {
     #appSidebar, #managerSidebar { flex-shrink: 0; }
 }
+
+/* Create workflows use a readable column instead of the wide dashboard canvas.
+   Keep this more specific than the shared page-wrapper growth rules above. */
+.dt-app-navbar ~ main.dt-create-page {
+    padding-inline: clamp(16px, 3vw, 40px);
+    padding-block: 28px 40px;
+}
+.dt-app-navbar ~ main.dt-create-page > .dt-create-container {
+    width: 100%;
+    max-width: 56rem;
+    min-width: 0;
+    margin-inline: auto;
+}
+.dt-app-navbar ~ main.dt-create-page--invoice > .dt-create-container {
+    max-width: 64rem;
+}
+.dt-create-container .dt-create-panel {
+    border: 1px solid var(--dt-card-border);
+    border-radius: 16px;
+    box-shadow: 0 2px 4px rgb(11 38 56 / 3%), 0 12px 28px -20px rgb(11 38 56 / 18%);
+}
+.dt-create-container > section.dt-create-panel {
+    padding: 24px;
+    margin-bottom: 20px;
+}
+.dt-create-container label { line-height: 1.5; }
+.dt-create-container :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="hidden"]):not([type="file"]) {
+    min-width: 0;
+    max-width: 100%;
+    min-height: 42px;
+    border-radius: 10px;
+}
+.dt-create-container .ts-wrapper { min-width: 0; width: 100%; }
+.dt-create-container .dt-create-actions {
+    border-top: 1px solid var(--dt-card-border);
+    padding: 20px 0 0;
+    gap: 12px;
+}
+.dt-create-container .dt-create-actions :is(button, a) {
+    min-height: 42px;
+    border-radius: 10px;
+}
+@media (max-width: 639.98px) {
+    .dt-app-navbar ~ main.dt-create-page { padding-block: 20px 28px; }
+    .dt-create-container > section.dt-create-panel { padding: 18px; }
+    .dt-create-container .dt-create-actions > .flex.justify-end {
+        width: 100%;
+    }
+    .dt-create-container .dt-create-actions > .flex.justify-end > :is(a, button) {
+        flex: 1;
+        justify-content: center;
+        text-align: center;
+    }
+}
