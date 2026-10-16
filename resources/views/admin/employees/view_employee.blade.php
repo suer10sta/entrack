@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
+    <x-favicon />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ __('messages.Employee Profile') }} - DalyTrac</title>
@@ -1548,6 +1549,7 @@ Pour Stabel</textarea>
             stopCommentAiBtn.addEventListener('click', function() {
                 var comment = stopCommentText.value.trim();
                 if (!comment) return;
+                stopConfirmBtn.disabled = true;
 
                 stopCommentAiBtn.disabled = true;
                 stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -1594,6 +1596,7 @@ Pour Stabel</textarea>
                     stopCommentAiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                     stopCommentText.disabled = false;
                     stopCommentAiBtnText.textContent = oldBtnText;
+                    stopConfirmBtn.disabled = stopCommentText.value.trim().length === 0;
                 });
             });
 
@@ -1685,7 +1688,6 @@ Pour Stabel</textarea>
             // Spell-check popup: verify spelling (trigger AI correction then return to comment modal)
             spellCheckVerifyBtn.addEventListener('click', function() {
                 spellCheckModal.style.display = 'none';
-                hasSpelledChecked = true;
                 if (!stopCommentAiBtn.disabled) {
                     stopCommentAiBtn.click();
                 }

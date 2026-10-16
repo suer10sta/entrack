@@ -1,4 +1,4 @@
-<header class="sticky top-0 z-30 flex items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-white/90 backdrop-blur border-b border-slate-200">
+<header class="dt-app-navbar sticky top-0 z-30 flex items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-white/90 backdrop-blur border-b border-slate-200">
     <div class="flex items-center gap-2.5 flex-1 min-w-0">
         {{-- Desktop collapse toggle --}}
         <button

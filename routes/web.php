@@ -2004,6 +2004,8 @@ Route::prefix('manager')->name('manager.')->group(function () {
         Route::get('dashboard/invoices', [ManagerDashboardController::class, 'invoices'])->name('dashboard.invoices');
         Route::get('subscriptions', [ManagerSubscriptionController::class, 'index'])->name('subscriptions.index');
         Route::get('subscriptions/{entreprise}', [ManagerSubscriptionController::class, 'show'])->name('subscriptions.show');
+        Route::get('subscriptions/{entreprise}/invoices/{invoiceId}/download', [ManagerSubscriptionController::class, 'downloadInvoice'])->name('subscriptions.invoices.download');
+        Route::post('subscriptions/{entreprise}/invoices/{invoiceId}/send', [ManagerSubscriptionController::class, 'sendInvoice'])->name('subscriptions.invoices.send');
         Route::delete('subscriptions/{entreprise}', [ManagerSubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
         
         // Manager blog routes
@@ -2095,5 +2097,10 @@ Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']
     ->name('stripe.webhook');
 
 Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->middleware('guest')->name('password.request');
+
+Route::middleware(['auth', 'throttle:30,1'])->group(function () {
+    Route::post('/tasks/correct-comment', [tasksController::class, 'correctComment'])->name('tasks.correct-comment');
+    Route::post('/tasks/translate-comment', [tasksController::class, 'translateComment'])->name('tasks.translate-comment');
+});
 
 require __DIR__ . '/auth.php';

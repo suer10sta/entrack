@@ -2933,4 +2933,14 @@ return [
     'Archive this project?'    => 'Dit project archiveren?',
     'View project'             => 'Bekijken',
 
+
+    // Shared email copy; preserve the existing verification translation keys.
+    'All rights reserved.' => 'Alle rechten voorbehouden.',
+    'Hello' => 'Hallo',
+    'Thank you for registering on :app' => 'Bedankt voor uw registratie bij :app',
+    'Click the button below to activate your account.' => 'Klik op de knop hieronder om uw account te activeren.',
+    'Verify my email' => 'Mijn e-mailadres verifiëren',
+    'This link expires in :time' => 'Deze link verloopt over :time',
+    'If you did not create an account, ignore this email.' => 'Als u geen account hebt aangemaakt, kunt u deze e-mail negeren.',
+    'If the button does not work, copy this link:' => 'Als de knop niet werkt, kopieer deze link:',
 ];

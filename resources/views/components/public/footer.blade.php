@@ -3,7 +3,7 @@
 <footer class="bg-[#041425] pb-6 pt-[78px] text-[#a9bdcf]">
   <div class="mx-auto grid max-w-[1200px] gap-[62px] px-6 max-md:px-4 max-sm:grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.7fr_1fr_1fr_1fr] lg:gap-8">
     <div>
-      <a href="#top" class="inline-flex items-baseline text-[1.65rem] font-extrabold tracking-[-0.065em] text-white no-underline"><span>Daly</span><strong class="font-extrabold text-brand-secondary">Trac</strong></a>
+      <a href="#top" class="inline-flex items-baseline text-[1.65rem] font-extrabold tracking-[-0.065em] text-white no-underline"><x-application-logo style="background:#F4F7F6;border-radius:8px;padding:7px 10px;display:inline-flex;align-items:baseline;white-space:nowrap;font-family:Figtree,sans-serif;font-weight:800;letter-spacing:-0.065em;line-height:1.15" /></a>
       <p class="mt-5 max-w-[330px] text-[0.88rem]">{{ __('messages.public_footer_brand_desc') }}</p>
     </div>
     <div class="flex flex-col items-start">

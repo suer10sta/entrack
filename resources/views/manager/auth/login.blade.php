@@ -2,10 +2,11 @@
 <html lang="en">
 
 <head>
+    <x-favicon />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('img/dalytraclogo.png') }}" />
-    <link rel="icon" type="image/png" href="{{ asset('img/dalytraclogo.png') }}" />
+
+
     <title>DalyTrac - Manager Login</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,7 +31,7 @@
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center gap-2.5">
                             <span class="flex-shrink-0 w-9 h-9 rounded-xl bg-[#E7B84B] flex items-center justify-center text-[#0B2638] font-extrabold text-[15px] tracking-tight">DT</span>
-                            <span class="inline-flex items-baseline text-[1.1rem] font-extrabold tracking-[-0.03em] text-white leading-none"><span>Daly</span><strong class="font-extrabold text-[#7fb3bf]">Trac</strong></span>
+                            <x-application-logo style="background:#F4F7F6;border-radius:8px;padding:7px 10px;display:inline-flex;align-items:baseline;white-space:nowrap;font-family:Figtree,sans-serif;font-weight:800;letter-spacing:-0.065em;line-height:1.15" class="inline-flex items-baseline text-[1.1rem] font-extrabold tracking-[-0.03em] text-white leading-none" />
                         </div>
                         <span class="inline-flex h-7 items-center rounded-full bg-[#E7B84B]/15 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#E7B84B] ring-1 ring-[#E7B84B]/40">
                             Manager

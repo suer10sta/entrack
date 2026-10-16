@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <x-favicon />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -127,8 +128,8 @@
         @include('manager.navbar')
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden bg-[#f8fafc]">
-            <div class="p-4 sm:p-6 lg:px-8 lg:py-8 2xl:px-16 mx-auto w-full max-w-[1400px]">
+        <main class="dt-workspace-canvas flex-1 overflow-x-hidden bg-[#f8fafc]">
+            <div class="dt-dashboard-content mx-auto w-full">
                 @yield('content')
             </div>
         </main>

@@ -1,6 +1,7 @@
 <html xmlns='https://www.w3.org/1999/xhtml' lang="{{ app()->getLocale() }}">
 
 <head>
+    <x-favicon />
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>

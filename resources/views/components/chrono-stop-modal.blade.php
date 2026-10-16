@@ -165,6 +165,7 @@
     aiBtn.addEventListener('click', function () {
         var comment = text.value.trim();
         if (!comment) return;
+        setEnabled(confirmBtn, false);
         aiBtn.disabled = true;
         aiBtn.classList.add('opacity-50', 'cursor-not-allowed');
         trBtn.disabled = true;
@@ -207,6 +208,7 @@
             trBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             text.disabled = false;
             aiBtnText.textContent = oldBtnText;
+            setEnabled(confirmBtn, text.value.trim().length > 0);
         });
     });
 
@@ -305,7 +307,6 @@
 
     spellVerifyBtn.addEventListener('click', function () {
         spellModal.style.display = 'none';
-        spelled = true;
         if (!aiBtn.disabled) aiBtn.click();
     });
     spellSkipBtn.addEventListener('click', function () {

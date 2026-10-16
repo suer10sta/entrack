@@ -27,3 +27,25 @@ body.g-sidenav-show { background:var(--dt-bg)!important; color:var(--dt-ink); fo
 .dt-chart-card .card-body { min-height:286px; }.dt-chart-card .chart { height:240px; }.dt-chart-card .chart canvas { max-height:100%; }.dt-table-card { margin-top:18px; }.dt-table-card .table-responsive { padding:0 21px 16px!important; }
 @media (max-width:1199.98px) { .dt-sidebar { transform:translateX(-110%); margin:0!important; height:100vh; border-radius:0!important; }.g-sidenav-pinned .dt-sidebar,.dt-sidebar.is-open { transform:translateX(0); }.main-content,.dt-sidebar-collapsed .main-content { margin-left:0!important; }.min-height-300.bg-primary { height:165px; } #navbarBlur { margin:10px 12px 0!important; }.dt-sidebar__toggle { display:none; } }
 @media (max-width:767.98px) { #navbarBlur { margin:8px 8px 0!important; }.main-content > .navbar + .container-fluid { padding:10px 12px!important; }.dt-chart-card .card-body { min-height:240px; }.dt-chart-card .chart { height:195px; }.dt-table-card .table-responsive { padding-inline:12px!important; } }
+
+/* Shared light sidebar branding, scoped away from navbar and content. */
+.dt-sidebar { background:linear-gradient(180deg,#FFFFFF 0%,#F6FAFA 42%,#EAF2F2 100%)!important; border:1px solid #D5E3E4!important; box-shadow:0 4px 10px -4px rgba(11,38,56,.10),0 14px 30px -10px rgba(11,38,56,.16),inset -1px 0 0 rgba(255,255,255,.8); }
+.dt-sidebar__brand { border-bottom-color:#DCE6E4; }
+.dt-sidebar .dt-brand { color:#0B2638!important; }
+.dt-sidebar .dt-brand__copy small, .dt-sidebar__section-label, .dt-sidebar__footer { color:#526D76; }
+.dt-sidebar__toggle { color:#355460; background:#fff; border-color:#DCE6E4; }
+.dt-sidebar__toggle:hover { color:#0B2638; background:#E2EDEA; }
+.dt-sidebar .dt-nav-link { color:#355460!important; }
+.dt-sidebar .dt-nav-link:hover, .dt-sidebar .dt-nav-link[aria-expanded="true"]:not(.is-active) { color:#0B2638!important; background:#E2EDEA; }
+.dt-sidebar .dt-nav-link.is-active { color:#fff!important; background:#2D7080; box-shadow:inset 3px 0 #E7B84B; }
+.dt-sidebar .dt-nav-link__icon { color:#2D7080; }
+.dt-sidebar .dt-nav-link.is-active .dt-nav-link__icon { color:#E7B84B; }
+.dt-sidebar .dt-nav-submenu a { color:#526D76; border-color:#CDDCD8; }
+.dt-sidebar .dt-nav-submenu a:hover, .dt-sidebar .dt-nav-submenu a.is-active { color:#0B2638; background:#E2EDEA; border-color:#E7B84B; }
+.dt-sidebar__footer { border-color:#D5E3E4; background:rgba(255,255,255,.45); }
+.dt-sidebar :is(a,button):focus-visible { outline:2px solid #2D7080; outline-offset:2px; }
+.dt-sidebar :is([aria-disabled="true"],:disabled) { color:#647781!important; opacity:.6; cursor:not-allowed; }
+.dt-sidebar .dt-brand__copy .dt-logo { font-size:20px; }
+
+/* Override the legacy shadow-none utility on the application navbar. */
+#navbarBlur { box-shadow:0 2px 5px -2px rgba(11,38,56,.10),0 8px 20px -8px rgba(11,38,56,.14)!important; }

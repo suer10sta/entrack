@@ -68,14 +68,14 @@
 
 <aside
     id="appSidebar"
-    class="hidden fixed inset-y-0 left-0 z-50 bg-[#0B2638] border-r border-white/10 flex-col justify-between h-screen overflow-y-auto dt-sidebar-scroll transform -translate-x-full transition-all duration-300 ease-out lg:relative lg:inset-auto lg:translate-x-0 lg:flex lg:shrink-0"
+    class="hidden fixed inset-y-0 left-0 z-50 bg-[#0B2638] flex-col justify-between h-screen overflow-visible dt-sidebar-scroll transform -translate-x-full transition-all duration-300 ease-out lg:relative lg:inset-auto lg:translate-x-0 lg:flex lg:shrink-0"
 >
-        <div class="flex-1 flex flex-col min-h-0">
+        <div class="flex-1 flex flex-col min-h-0 overflow-y-auto">
             {{-- Brand + collapse toggle --}}
-            <div class=" px-4 pt-5 pb-5 flex items-center">
+            <div class="dt-sidebar-brand sidebar-logo-wrap px-4 flex items-center">
                 <a href="/" aria-label="DalyTrac, accueil" class="flex items-center gap-2.5 min-w-0 flex-1">
-                    <span class="flex-shrink-0 w-9 h-9 rounded-xl bg-[#E7B84B] flex items-center justify-center text-[#0B2638] font-extrabold text-[15px] tracking-tight">D</span>
-                    <span class="sidebar-logo-text inline-flex items-baseline text-[1.35rem] font-extrabold tracking-[-0.04em] text-white no-underline leading-none"><span>Daly</span><strong class="font-extrabold text-[#7fb3bf]">Trac</strong></span>
+                    <span class="flex-shrink-0 w-9 h-9 rounded-xl bg-[#0B2638] flex items-center justify-center text-[#2D7080] font-extrabold text-[20px] tracking-tight">D</span>
+                    <x-application-logo class="sidebar-logo-text inline-flex items-baseline text-[1.35rem] font-extrabold tracking-[-0.04em] text-white no-underline leading-none" />
                 </a>
                 {{-- Desktop collapse toggle --}}
                 <!-- <button

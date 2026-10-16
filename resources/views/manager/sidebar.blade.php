@@ -54,11 +54,11 @@
 >
     <div class="flex-1 flex flex-col min-h-0">
         {{-- Brand --}}
-        <div class="sidebar-logo-wrap px-4 pt-5 pb-5 flex items-center">
+        <div class="dt-sidebar-brand sidebar-logo-wrap px-4 flex items-center">
             <a href="{{ route('manager.dashboard') }}" aria-label="DalyTrac Manager" class="flex items-center gap-2.5 min-w-0 flex-1 no-underline">
                 <span class="flex-shrink-0 w-9 h-9 rounded-xl bg-[#E7B84B] flex items-center justify-center text-[#0B2638] font-extrabold text-[15px] tracking-tight">DT</span>
                 <span class="sidebar-logo-text inline-flex flex-col leading-tight">
-                    <span class="inline-flex items-baseline text-[1.1rem] font-extrabold tracking-[-0.03em] text-white leading-none"><span>Daly</span><strong class="font-extrabold text-[#7fb3bf]">Trac</strong></span>
+                    <x-application-logo class="inline-flex items-baseline text-[1.1rem] font-extrabold tracking-[-0.03em] text-white leading-none" />
                     <span class="text-[10px] uppercase tracking-[0.12em] text-slate-400 font-semibold mt-1">{{ __('messages.Manager') }}</span>
                 </span>
             </a>

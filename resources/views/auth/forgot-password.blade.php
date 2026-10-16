@@ -2,6 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
+    <x-favicon />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="{{ __('messages.auth_fp_meta_desc') }}">
@@ -41,7 +42,7 @@
                         <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(45,112,128,0.18),_transparent_40%),radial-gradient(circle_at_bottom_right,_rgba(231,184,75,0.18),_transparent_32%)]"></div>
                         <div class="relative z-10 flex w-full flex-col justify-between">
                             <div class="pb-8">
-                                <a href="#top" aria-label="DalyTrac, accueil" class="inline-flex items-baseline text-[2.2rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><span>Daly</span><strong class="font-extrabold text-brand-secondary">Trac</strong></a>
+                                <a href="#top" aria-label="DalyTrac, accueil" class="inline-flex items-baseline text-[2.2rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><x-application-logo /></a>
                                 <h2 class="mt-7 text-[2.3rem] font-semibold leading-[1.08] text-[#0B2638]">{{ __('messages.auth_side_title') }}</h2>
                             </div>
 

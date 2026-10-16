@@ -21,6 +21,7 @@
 
 /* ============ DalyTrac Dashboard Design System ============ */
 :root {
+    --dt-sidebar-surface: linear-gradient(180deg, #F6FAFA 0%, #EDF4F4 100%);
     --dt-navy: #0B2638;
     --dt-teal: #2D7080;
     --dt-accent: #E7B84B;
@@ -269,11 +270,9 @@ a.dt-stat:hover, .dt-stat-hover:hover {
     @apply border-t border-slate-100 hover:bg-slate-50/70 transition-colors;
 }
 
-/* ---- Manager sidebar: navy + desktop collapse (mirrors #appSidebar) ---- */
+/* ---- Manager sidebar: desktop collapse (mirrors #appSidebar) ---- */
 #managerSidebar {
     width: 16.5rem;
-    background: var(--dt-navy) !important;
-    border-right: 1px solid rgba(255,255,255,0.1) !important;
 }
 @media (min-width: 1024px) {
     body.dt-manager-collapsed #managerSidebar {
@@ -361,4 +360,193 @@ a.dt-stat:hover, .dt-stat-hover:hover {
             transition: none;
         }
     }
+}
+
+/* Independent sidebar surface with a visible boundary along its full height. */
+#appSidebar, #managerSidebar {
+    background: var(--dt-sidebar-surface);
+    border-right: 1px solid #D5E1E5;
+    box-shadow: 4px 0 10px -4px rgba(11,38,56,.10), 12px 0 28px -12px rgba(11,38,56,.18);
+    color: #0B2638;
+}
+:is(#appSidebar, #managerSidebar) .dt-nav-item,
+:is(#appSidebar, #managerSidebar) .submenu-item {
+    color: #355460;
+}
+:is(#appSidebar, #managerSidebar) .dt-nav-item:hover,
+:is(#appSidebar, #managerSidebar) .submenu-item:hover,
+:is(#appSidebar, #managerSidebar) .sidebar-user-row:hover {
+    color: #0B2638;
+    background: #E2EDEA;
+}
+:is(#appSidebar, #managerSidebar) .dt-nav-item.is-active {
+    background: #2D7080;
+    color: #fff;
+    box-shadow: inset 3px 0 #E7B84B, 0 4px 12px -8px #2D7080;
+}
+:is(#appSidebar, #managerSidebar) .dt-nav-item.is-active svg { color: #fff; }
+:is(#appSidebar, #managerSidebar) .dt-nav-item[aria-expanded="true"]:not(.is-active) { background: #E2EDEA; color: #0B2638; }
+:is(#appSidebar, #managerSidebar) .submenu-item.text-white { color: #0B2638; background: #E2EDEA; box-shadow: inset 2px 0 #E7B84B; }
+:is(#appSidebar, #managerSidebar) :is(.sidebar-section, .text-slate-400, .text-gray-400) { color: #526D76; }
+:is(#appSidebar, #managerSidebar) .sidebar-user-meta h4 { color: #0B2638; }
+:is(#appSidebar, #managerSidebar) .border-t { border-color: #D5E3E4; background: rgb(255 255 255 / 45%); }
+:is(#appSidebar, #managerSidebar) :is(a, button, [role="button"]):focus-visible { outline: 2px solid #2D7080; outline-offset: 2px; }
+:is(#appSidebar, #managerSidebar) :is([aria-disabled="true"], :disabled) { color: #647781; opacity: .6; cursor: not-allowed; }
+:is(#appSidebar, #managerSidebar) #sidebarCollapseBtn { color: #355460; border-color: #DCE6E4; background: #fff; }
+.dt-sidebar-scroll { scrollbar-color: #A2B8B8 transparent; }
+.dt-sidebar-scroll::-webkit-scrollbar-thumb { background: #A2B8B8; }
+
+:is(#appSidebar, #managerSidebar) .submenu-item:has(> span.bg-\[\#E7B84B\]) { color:#0B2638; background:#E2EDEA; }
+
+/* A separate white top bar above the dashboard content. */
+.dt-app-navbar {
+    background: #FFFFFF;
+    border-bottom: 1px solid #DFE7EB;
+    backdrop-filter: none;
+    box-shadow: 0 6px 16px -10px rgba(11,38,56,.18);
+}
+/* Preserve the sidebar edge against both the navbar and page content.
+   Mobile keeps its existing z-50 drawer and backdrop ordering. */
+@media (min-width: 1024px) {
+    #appSidebar, #managerSidebar { z-index: 20; }
+}
+/* Keep stronger depth while the mobile drawer overlays page content. */
+@media (max-width: 1023.98px) {
+    #appSidebar, #managerSidebar {
+        box-shadow: 12px 0 32px -12px rgba(11,38,56,.22);
+    }
+}
+
+/* Three distinct areas: vertical navigation, horizontal toolbar, content canvas. */
+.dt-app-shell { --dt-shell-height: 72px; background: #F3F6F8; }
+.dt-app-shell > :is(div, main):has(> .dt-app-navbar) { min-width: 0; background: #F3F6F8; }
+.dt-app-navbar {
+    min-height: var(--dt-shell-height, 72px);
+    flex-shrink: 0;
+    padding: 12px 24px;
+    gap: 20px;
+    box-shadow: 0 5px 16px -12px rgba(11,38,56,.22);
+}
+:is(#appSidebar, #managerSidebar) .dt-sidebar-brand {
+    height: var(--dt-shell-height, 72px);
+    min-height: var(--dt-shell-height, 72px);
+    margin: 4px 0 16px;
+    padding-block: 0;
+    /* border-bottom: 1px solid #DCE6E8; */
+    flex-shrink: 0;
+}
+:is(#appSidebar, #managerSidebar) > .flex-1 { min-height: 0; }
+:is(#appSidebar, #managerSidebar) nav { padding-top: 8px; }
+:is(#appSidebar, #managerSidebar) .sidebar-section { font-size: 10px; letter-spacing: .12em; margin-bottom: 10px; }
+:is(#appSidebar, #managerSidebar) .dt-nav-item { min-height: 42px; border-radius: 10px; }
+:is(#appSidebar, #managerSidebar) .dt-nav-item.is-active { box-shadow: inset 3px 0 #E7B84B, 0 3px 8px -4px rgba(45,112,128,.5); }
+:is(#appSidebar, #managerSidebar) .sidebar-submenu { border-left: 1px solid #D5E3E4; padding-left: 8px; }
+.dt-navbar-tools { flex: 0 1 auto; }
+.dt-navbar-search { flex: 1 1 480px; padding-inline: 16px; }
+.dt-navbar-search > [x-data="searchDropdown()"] { max-width: 480px; }
+.dt-navbar-search input { height: 40px; background: #EDF3F4; border-color: #E2EBED; border-radius: 10px; }
+.dt-navbar-account { flex: 0 0 auto; align-items: center; padding: 0 0 0 16px; border-left: 1px solid #DCE6E8; gap: 12px; }
+.dt-dashboard-canvas, .dt-workspace-canvas {
+    min-width: 0;
+    min-height: calc(100vh - var(--dt-shell-height, 72px));
+    background: #F3F6F8;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+.dt-dashboard-content { max-width: none; min-width: 0; padding: 30px ; }
+.dt-dashboard-heading { margin-bottom: 24px; align-items: flex-start; }
+.dt-dashboard-heading h1 { font-size: 26px; line-height: 1.25; letter-spacing: -.035em; }
+.dt-dashboard-heading p { max-width: 520px; line-height: 1.6; }
+.dt-dashboard-actions { padding-top: 4px; }
+.dt-dashboard-actions .dt-btn { min-height: 38px; border-radius: 10px; }
+.dt-dashboard-metrics > .dt-card { min-height: 104px; padding: 20px; }
+.dt-dashboard-content .dt-card { border-color: #DFE7EB; box-shadow: 0 2px 3px rgba(11,38,56,.025), 0 6px 16px -10px rgba(11,38,56,.14); }
+.dt-dashboard-content .dt-card-hover:hover { border-color: #BCD3D8; box-shadow: 0 6px 20px -10px rgba(11,38,56,.20); }
+.dt-dashboard-events, .dt-dashboard-team { margin-top: 24px; }
+.dt-dashboard-events > .dt-card { padding: 24px; }
+.dt-dashboard-empty { padding: 24px 16px; background: #F8FAFB; border-color: #E0E9EC; }
+.dt-dashboard-team > :first-child { padding: 20px 24px; }
+.dt-dashboard-team .dt-table-head th { background: #F3F7F8; color: #526D76; }
+@media (min-width: 1024px) {
+    .dt-dashboard-heading { align-items: center; }
+}
+@media (max-width: 1279.98px) {
+    .dt-navbar-search { padding-inline: 0; }
+    .dt-app-navbar { gap: 12px; }
+    .dt-dashboard-content { padding: 24px; }
+}
+@media (max-width: 767.98px) {
+    .dt-app-shell { --dt-shell-height: 64px; }
+    .dt-app-navbar { padding-inline: 16px; gap: 8px; }
+    .dt-navbar-account { padding-left: 8px; gap: 8px; }
+    .dt-navbar-search { flex-basis: 160px; gap: 6px; }
+    .dt-dashboard-canvas, .dt-workspace-canvas { border-radius: 0; border-left: 0; }
+    .dt-dashboard-content { padding: 24px 16px; }
+    .dt-dashboard-heading h1 { font-size: 24px; }
+    .dt-dashboard-metrics > .dt-card { min-height: 92px; padding: 16px; }
+    .dt-dashboard-events > .dt-card { padding: 16px; }
+    .dt-events-heading { align-items: flex-start; flex-wrap: wrap; }
+    .dt-dashboard-team > :first-child { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .dt-dashboard-content .animate-fadeInSlideUp { animation: none; opacity: 1; }
+}
+
+/* Center the compact brand mark inside the full collapsed sidebar width. */
+@media (min-width: 1024px) {
+    body.dt-sidebar-collapsed #appSidebar .sidebar-logo-wrap,
+    body.dt-manager-collapsed #managerSidebar .sidebar-logo-wrap { padding-inline: 0; }
+    body.dt-sidebar-collapsed #appSidebar .sidebar-logo-wrap > a,
+    body.dt-manager-collapsed #managerSidebar .sidebar-logo-wrap > a {
+        width: 100%;
+        justify-content: center;
+        gap: 0;
+    }
+}
+
+/* Let the main column grow with the space released by either desktop sidebar.
+   Target page-level wrappers only, preserving component/modal width constraints. */
+:is(div, main):has(> .dt-app-navbar) {
+    --dt-page-gutter: clamp(16px, 2vw, 24px);
+    flex: 1 1 0%;
+    min-width: 0;
+    max-width: none;
+    width: auto;
+}
+.dt-app-navbar ~ main,
+.dt-dashboard-canvas,
+.dt-workspace-canvas {
+    min-width: 0;
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+}
+.dt-dashboard-content,
+.dt-app-navbar ~ main > .mx-auto,
+.dt-dashboard-content > .mx-auto {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    margin-inline: auto;
+}
+/* Replace oversized utility gutters only on the outer page container. */
+.dt-dashboard-content,
+.dt-app-navbar ~ main:is([class*="p-"], [class*="px-"]),
+.dt-app-navbar ~ main > .mx-auto:is([class*="p-"], [class*="px-"]) {
+    padding-inline: var(--dt-page-gutter, clamp(16px, 2vw, 24px));
+}
+
+/* Add breathing room on the content edge facing the desktop sidebar only. */
+@media (min-width: 1024px) {
+    .dt-dashboard-content,
+    .dt-app-navbar ~ main:is([class*="p-"], [class*="px-"]),
+    .dt-app-navbar ~ main > .mx-auto:is([class*="p-"], [class*="px-"]) {
+        padding-left: calc(var(--dt-page-gutter, 24px) + 8px);
+    }
+}
+
+/* Flex reflow follows the sidebar's existing 300ms width transition. */
+@media (min-width: 1024px) {
+    #appSidebar, #managerSidebar { flex-shrink: 0; }
 }

@@ -1,4 +1,5 @@
 <head>
+    <x-favicon />
     <meta charset="utf-8" />
     <meta
       name="viewport"
@@ -8,8 +9,8 @@
     <meta property="og:title" content="{{ config('app.name', 'DalyTrac') }}">
     <meta property="og:description" content="{{ __('messages.DalyTrac - E-invoicing, Project Management & Time Tracking') }}">
     <meta property="og:type" content="website">
-    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('img/dalytraclogo.png') }}" />
-    <link rel="icon" type="image/png" href="{{ asset('img/dalytraclogo.png') }}" />
+
+
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Figtree:400,500,600,700&display=swap" rel="stylesheet">

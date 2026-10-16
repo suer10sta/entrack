@@ -1,26 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Credit Note</title>
-</head>
-<body>
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Credit Note</h2>
-        <p>Dear {{ $client->name }},</p>
-        
-        <p>Please find attached our credit note NC-{{$credit_note->created_at->format('y')}}{{$credit_note->created_at->format('m')}}{{$credit_note->credit_note_number}} for the project {{ $credit_note->project_name }}.</p>
-        
-        <p>Credit Note Details:</p>
-        <ul>
-            <li>Credit Note Number: NC-{{$credit_note->created_at->format('y')}}{{$credit_note->created_at->format('m')}}{{$credit_note->credit_note_number}}</li>
-            <li>Project: {{ $credit_note->project_name }}</li>
-            <li>Amount: -€{{number_format($credit_note->total_ttc, 2, ',', '')}}</li>
-        </ul>
-
-        <p>If you have any questions, please do not hesitate to contact us.</p>
-
-        <p>Best regards,<br>
-        {{ $entreprise->name }}</p>
-    </div>
-</body>
-</html> 
+<x-email.layout :title="__('emails.credit_title')">
+    <x-email.text>{{ __('emails.hello') }} {{ $client->name }},</x-email.text>
+    <x-email.text>{{ __('emails.credit_intro', ['number' => 'NC-'.$credit_note->created_at->format('y').$credit_note->created_at->format('m').$credit_note->credit_note_number, 'project' => $credit_note->project_name]) }}</x-email.text>
+    <x-email.text><strong>{{ __('emails.details') }}</strong></x-email.text>
+    <x-email.details>
+        <x-email.detail :label="__('emails.credit_number')">NC-{{$credit_note->created_at->format('y')}}{{$credit_note->created_at->format('m')}}{{$credit_note->credit_note_number}}</x-email.detail>
+        <x-email.detail :label="__('emails.project')">{{ $credit_note->project_name }}</x-email.detail>
+        <x-email.detail :label="__('emails.amount')">-€{{number_format($credit_note->total_ttc, 2, ',', '')}}</x-email.detail>
+    </x-email.details>
+    <x-email.text>{{ __('emails.questions') }}</x-email.text>
+    <x-email.text>{{ __('emails.regards') }}<br>{{ $entreprise->name }}</x-email.text>
+</x-email.layout>

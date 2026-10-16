@@ -402,12 +402,12 @@
 @livewireStyles
 
 
-<div class="flex-1 overflow-auto bg-[#f8fafc]">
+<div class="dt-dashboard-canvas flex-1 bg-[#f8fafc]">
     {{-- Main content --}}
-    <div class="p-4 sm:p-6 lg:px-8 lg:py-8 2xl:px-16 mx-auto w-full">
+    <div class="dt-dashboard-content mx-auto w-full">
 
         {{-- Page heading + Quick actions --}}
-        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
+        <div class="dt-dashboard-heading flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
             <div class="min-w-0">
                 <!-- <p class="dt-overline mb-1">{{ now()->format('l, d F Y') }}</p> -->
                 <h1 class="text-[22px] sm:text-[24px] font-bold tracking-tight text-[#0B2638] leading-tight">
@@ -415,8 +415,8 @@
                 </h1>
                 <p class="text-[13.5px] text-slate-500 mt-1">{{ __('messages.Track time, projects and revenue at a glance.') }}</p>
             </div>
-            <div class="flex flex-wrap items-center gap-2">
-                <a href="{{ route('admin.tasks.create') }}" class="dt-btn dt-btn-primary text-[#0B2638] ">
+            <div class="dt-dashboard-actions flex flex-wrap items-center gap-2">
+                <a href="{{ route('admin.tasks.create') }}" class="dt-btn dt-btn-primary">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                     {{ __('messages.Add Task') }}
                 </a>
@@ -432,7 +432,7 @@
         </div>
 
         {{-- Stats Cards — consistent DalyTrac design --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="dt-dashboard-metrics grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 
             {{-- Clients --}}
             <div class="dt-card dt-card-hover p-4 flex items-center gap-3.5">
@@ -564,10 +564,10 @@
         </div>
 
         {{-- Today's Events Section - Moved to top for visibility --}}
-        <div class="mt-5">
+        <div class="dt-dashboard-events">
             <div class="dt-card p-5 animate-fadeInSlideUp" style="animation-delay: 200ms;">
                 {{-- Header --}}
-                <div class="flex items-start justify-between gap-3 mb-4">
+                <div class="dt-events-heading flex items-center justify-between gap-3 mb-4">
                     <div class="flex items-center gap-2 min-w-0">
                         <span class="w-1.5 h-6 bg-[#E7B84B] rounded-full flex-shrink-0"></span>
                         <h2 class="dt-section-title truncate">{{ __('messages.Today\'s Events') }}</h2>
@@ -605,7 +605,7 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="rounded-xl border border-dashed border-slate-200 px-6 py-8 text-center">
+                    <div class="dt-dashboard-empty rounded-xl border border-dashed border-slate-200 px-6 py-8 text-center">
                         <div class="dt-empty-icon mx-auto mb-3">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         </div>
@@ -617,7 +617,7 @@
         </div>
 
         {{-- Team employees Overview --}}
-        <div class="dt-card mt-6 overflow-hidden animate-fadeInSlideUp"
+        <div class="dt-dashboard-team dt-card overflow-hidden animate-fadeInSlideUp"
             style="animation-delay: 500ms;">
             {{-- Header and action button --}}
             <div class="px-5 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between border-b border-slate-100 bg-white">
@@ -1416,6 +1416,7 @@
                 stopCommentAiBtn.addEventListener('click', function() {
                     var comment = stopCommentText.value.trim();
                     if (!comment) return;
+                    stopConfirmBtn.disabled = true;
 
                     stopCommentAiBtn.disabled = true;
                     stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -1462,6 +1463,7 @@
                         stopCommentAiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                         stopCommentText.disabled = false;
                         stopCommentAiBtnText.textContent = oldBtnText;
+                        stopConfirmBtn.disabled = stopCommentText.value.trim().length === 0;
                     });
                 });
 
@@ -1586,7 +1588,7 @@
                 // Spell-check popup: verify spelling (trigger AI correction then return to comment modal)
                 spellCheckVerifyBtn.addEventListener('click', function() {
                     spellCheckModal.style.display = 'none';
-                    hasSpelledChecked = true;
+
                     // Trigger the AI correction button click
                     if (!stopCommentAiBtn.disabled) {
                         stopCommentAiBtn.click();

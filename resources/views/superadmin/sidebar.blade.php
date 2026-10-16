@@ -2,7 +2,7 @@
     <div class="dt-sidebar__brand">
         <a class="dt-brand" href="{{ route('superadmin.index') }}" aria-label="DalyTrac home">
             <span class="dt-brand__mark">D</span>
-            <span class="dt-brand__copy"><strong>DalyTrac</strong><small>{{ __('messages.Admin console') }}</small></span>
+            <span class="dt-brand__copy"><x-application-logo /><small>{{ __('messages.Admin console') }}</small></span>
         </a>
         <button class="dt-sidebar__toggle" type="button" data-sidebar-toggle aria-label="Collapse sidebar" title="Collapse sidebar"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
     </div>

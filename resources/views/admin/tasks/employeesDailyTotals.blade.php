@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <x-favicon />
     <meta charset="utf-8">
     <style>
         @page { size: A4 landscape; margin: 10mm; }

@@ -2,6 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 
   <head>
+    <x-favicon />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -10,7 +11,7 @@
     <meta name="robots" content="index,follow">
     <meta name="theme-color" content="#0b2638">
     <link rel="canonical" href="{{ route('welcome') }}">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%230b2638'/%3E%3Cpath d='M18 16h14c11 0 18 6 18 16s-7 16-18 16H18V16Zm12 23c6 0 10-2 10-7s-4-7-10-7h-2v14h2Z' fill='%238ccfd0'/%3E%3C/svg%3E">
+
 
     <meta property="og:title" content="Logiciel de gestion de projets, temps et facturation | Dalytrac">
     <meta property="og:description" content="Dalytrac centralise projets, suivi du temps et facturation pour aider les entreprises de services à détecter les dérapages et protéger leurs marges.">

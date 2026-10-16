@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <x-favicon />
     <meta charset="UTF-8">
     <title>Facture abonnement {{ $invoiceNumber }}</title>
     <style>

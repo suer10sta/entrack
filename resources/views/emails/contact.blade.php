@@ -1,23 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>New contact message</title>
-</head>
-<body>
-    <h2>New message from the contact form</h2>
-
-    <p><strong>Name:</strong> {{ $name }}</p>
-    <p><strong>Email:</strong> {{ $email }}</p>
-    <p><strong>Subject:</strong> {{ $subjectLine }}</p>
-
-    <hr>
-
-    <p><strong>Message:</strong></p>
-    <p style="white-space: pre-line;">
-        {{ $messageBody }}
-    </p>
-</body>
-</html>
-
-
+<x-email.layout :title="__('emails.contact_title')">
+    <x-email.details>
+        <x-email.detail :label="__('emails.name')">{{ $name }}</x-email.detail>
+        <x-email.detail :label="__('emails.email')">{{ $email }}</x-email.detail>
+        <x-email.detail :label="__('emails.subject')">{{ $subjectLine }}</x-email.detail>
+    </x-email.details>
+    <x-email.text><strong>{{ __('emails.message') }}</strong></x-email.text>
+    <x-email.panel>{!! nl2br(e($messageBody)) !!}</x-email.panel>
+</x-email.layout>

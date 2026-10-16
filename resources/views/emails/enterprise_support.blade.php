@@ -1,48 +1,17 @@
-@php
-    /** @var \App\Models\Entreprise|null $entreprise */
-    /** @var \App\Models\User $user */
-    /** @var array $data */
-@endphp
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Enterprise Support Ticket</title>
-</head>
-<body>
-    <h2>New Enterprise Support Ticket</h2>
-
-    <p><strong>Enterprise:</strong>
-        {{ optional($entreprise)->name ?? 'N/A' }}
-    </p>
-
-    @if(!empty($data['ticket_id']))
-        <p><strong>Ticket ID:</strong> #{{ $data['ticket_id'] }}</p>
-    @endif
-
-    <p><strong>Submitted by:</strong> {{ $user->name }} ({{ $user->email }})</p>
-
-    @if(!empty($data['category']))
-        <p><strong>Category:</strong> {{ $data['category'] }}</p>
-    @endif
-
-    <p><strong>Priority:</strong> {{ ucfirst($data['priority'] ?? 'medium') }}</p>
-
-    <hr>
-
-    <p><strong>Subject:</strong> {{ $data['subject'] ?? '' }}</p>
-
-    <p><strong>Message:</strong></p>
-    <p>{!! nl2br(e($data['message'] ?? '')) !!}</p>
-
-    <hr>
-
-    <p style="font-size: 12px; color: #555;">
-        When replying, your response will go to: {{ $user->email }}
-    </p>
-
-</body>
-</html>
-
-
+<x-email.layout :title="__('emails.support_title')">
+    <x-email.details>
+        <x-email.detail :label="__('emails.enterprise')">{{ optional($entreprise)->name ?? 'N/A' }}</x-email.detail>
+        @if(!empty($data['ticket_id']))
+            <x-email.detail :label="__('emails.ticket_id')">#{{ $data['ticket_id'] }}</x-email.detail>
+        @endif
+        <x-email.detail :label="__('emails.submitted_by')">{{ $user->name }} ({{ $user->email }})</x-email.detail>
+        @if(!empty($data['category']))
+            <x-email.detail :label="__('emails.category')">{{ $data['category'] }}</x-email.detail>
+        @endif
+        <x-email.detail :label="__('emails.priority')">{{ ucfirst($data['priority'] ?? 'medium') }}</x-email.detail>
+        <x-email.detail :label="__('emails.subject')">{{ $data['subject'] ?? '' }}</x-email.detail>
+    </x-email.details>
+    <x-email.text><strong>{{ __('emails.message') }}</strong></x-email.text>
+    <x-email.panel>{!! nl2br(e($data['message'] ?? '')) !!}</x-email.panel>
+    <x-slot:footer><p style="margin:0 0 20px;">{{ __('emails.reply_to', ['email' => $user->email]) }}</p></x-slot:footer>
+</x-email.layout>

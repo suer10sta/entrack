@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
+    <x-favicon />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -1363,6 +1364,7 @@
             stopCommentAiBtn.addEventListener('click', function() {
                 var comment = stopCommentText.value.trim();
                 if (!comment) return;
+                stopConfirmBtn.disabled = true;
 
                 // Set loading state
                 stopCommentAiBtn.disabled = true;
@@ -1410,6 +1412,7 @@
                     stopCommentAiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                     stopCommentText.disabled = false;
                     stopCommentAiBtnText.textContent = oldBtnText;
+                    stopConfirmBtn.disabled = stopCommentText.value.trim().length === 0;
                 });
             });
 
@@ -1508,7 +1511,6 @@
             // Spell-check popup: verify spelling (trigger AI correction then return to comment modal)
             spellCheckVerifyBtn.addEventListener('click', function() {
                 spellCheckModal.style.display = 'none';
-                hasSpelledChecked = true;
                 if (!stopCommentAiBtn.disabled) {
                     stopCommentAiBtn.click();
                 }

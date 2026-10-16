@@ -145,8 +145,8 @@
     @endif
 @endif
 
-<header class="sticky top-0 z-30 flex items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-white/90 backdrop-blur border-b border-slate-200">
-    <div class="flex-1 flex items-center gap-2.5 min-w-0">
+<header class="dt-app-navbar sticky top-0 z-30 flex items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-white/90 backdrop-blur border-b border-slate-200">
+    <div class="dt-navbar-tools flex-1 flex items-center gap-2.5 min-w-0">
         {{-- Desktop collapse toggle --}}
         <button
             type="button"
@@ -174,7 +174,7 @@
 
         @unless($isReducedNavbar)
         {{-- ── CHRONO ─────────────────────────────────────────────────── --}}
-        <div x-data="navbarChrono()" x-init="init()" class="relative flex items-center gap-1.5 flex-shrink-0" @click.away="openPanel = false"
+        <div x-data="navbarChrono()" x-init="init()" class="relative flex justify-end items-center gap-1.5 flex-shrink-0" @click.away="openPanel = false"
              @chrono-revalidate.window="checkRunningTimer($event.detail && $event.detail.force === true)">
 
             {{-- IDLE: Start Chrono button (stopwatch icon) — always rendered,
@@ -430,7 +430,7 @@
 
     {{-- ══════════════════════ CENTER: search + quick add ══════════════ --}}
     @unless($isReducedNavbar)
-    <div class="flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 min-w-0">
+    <div class="dt-navbar-search flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 min-w-0">
 
         {{-- Global search --}}
         <div class="relative w-full max-w-xs sm:max-w-sm lg:max-w-md min-w-0" x-data="searchDropdown()" x-init="init()">            
@@ -564,7 +564,7 @@
     @endunless
 
     {{-- ══════════════════════ RIGHT: language ═════════════════════════ --}}
-    <div class="flex-1 flex items-end justify-end px-3 sm:px-4 flex-shrink-0">
+    <div class="dt-navbar-account flex-1 flex items-end justify-end px-3 sm:px-4 flex-shrink-0">
         <div class="relative" x-data="{ open: false }">
             <button @click="open = !open" @click.away="open = false" type="button"
                     class="flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-slate-200 bg-white

@@ -10,7 +10,7 @@
 
 <header id="top" x-data="{ open: false }" class="sticky top-0 z-50 border-b border-[#d9e6ed]/90 bg-white/95 backdrop-blur-md">
   <div class="mx-auto flex min-h-[82px] max-w-[1200px] items-center gap-9 px-6 max-md:min-h-[72px] max-md:px-4">
-    <a href="/" aria-label="DalyTrac, accueil" class="inline-flex items-baseline text-[1.65rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><span>Daly</span><strong class="font-extrabold text-brand-secondary">Trac</strong></a>
+    <a href="/" aria-label="DalyTrac, accueil" class="inline-flex items-baseline text-[1.65rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><x-application-logo /></a>
 
     <button type="button" @click="open = !open" :aria-expanded="open.toString()" aria-controls="main-nav" class="hidden border-0 bg-transparent p-2 text-brand-primary max-md:block" aria-label="{{ __('messages.public_nav_mobile_menu') }}">
       <span class="sr-only">{{ __('messages.public_nav_mobile_menu') }}</span>

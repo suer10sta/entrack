@@ -3079,4 +3079,14 @@ return [
     'Archive this project?'    => '¿Archivar este proyecto?',
     'View project'             => 'Ver',
 
+
+    // Shared email copy; preserve the existing verification translation keys.
+    'All rights reserved.' => 'Todos los derechos reservados.',
+    'Hello' => 'Hola',
+    'Thank you for registering on :app' => 'Gracias por registrarse en :app',
+    'Click the button below to activate your account.' => 'Haga clic en el botón para activar su cuenta.',
+    'Verify my email' => 'Verificar mi correo',
+    'This link expires in :time' => 'Este enlace caduca en :time',
+    'If you did not create an account, ignore this email.' => 'Si no ha creado una cuenta, ignore este correo.',
+    'If the button does not work, copy this link:' => 'Si el botón no funciona, copie este enlace:',
 ];

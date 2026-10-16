@@ -1,6 +1,7 @@
 <html xmlns='https://www.w3.org/1999/xhtml' lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
+    <x-favicon />
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
     <style>
     .logo-right {

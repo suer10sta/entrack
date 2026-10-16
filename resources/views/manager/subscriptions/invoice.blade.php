@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <x-favicon />
     <meta charset="UTF-8">
     <title>Subscription Invoice {{ $displayInvoiceNumber ?? $invoiceNumber }}</title>
     <style>
@@ -232,7 +233,7 @@
         <div class="invoice-header">
             <div class="logo-block">
                 {{-- Replace with your logo image if desired --}}
-                <img src="{{ public_path('img/dalytraclogo.png') }}" alt="Dalytrac logo" >
+                <x-application-logo style="font-family:sans-serif;font-weight:800;font-size:28px;letter-spacing:-0.065em;line-height:1.15" />
             </div>
             <div class="invoice-title">INVOICE</div>
         </div>
