@@ -1,5 +1,5 @@
 @php
-    $appName = config('app.name', 'DalyTrac');
+    $appName = 'DalyTrac';
     $locale = app()->getLocale();
 @endphp
 <x-email.layout :title="__('messages.Verify Your Email')" :app-name="$appName">

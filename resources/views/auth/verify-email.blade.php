@@ -40,14 +40,14 @@
 
                     <div class="mb-7 text-center">
                         <h1 class="text-[2rem] font-bold leading-[1.1] tracking-[-0.05em] text-[#0B2638]">{{ __('messages.Verify Your Email') }}</h1>
-                        <p class="mt-4 px-4 text-[15px] leading-6 text-[#5b6b73]">{!! __('messages.Thank you for registering! A confirmation email has just been sent to you.Please click the link in the email to activate your account.') !!}</p>
+                        <p class="mt-4 px-4 text-[15px] leading-6 text-[#5b6b73]">{!! __('messages.Thank you for registering! A confirmation email has just been sent to you.<br>Please click the link in the email to activate your account.') !!}</p>
                     </div>
 
                     @if(session('status'))
                         <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700" role="alert">
                             <span class="inline-flex items-center gap-2">
                                 <i data-lucide="circle-check" class="h-4 w-4 shrink-0"></i>
-                                {{ __('messages.' . session('status')) }}
+                                {{ \Illuminate\Support\Facades\Lang::has('messages.' . session('status')) ? __('messages.' . session('status')) : session('status') }}
                             </span>
                         </div>
                     @endif

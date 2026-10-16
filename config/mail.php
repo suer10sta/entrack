@@ -1,5 +1,11 @@
 <?php
 
+// Keep generic framework/example sender labels out of DalyTrac emails.
+$fromName = trim((string) env('MAIL_FROM_NAME', 'DalyTrac'));
+if (in_array(strtolower($fromName), ['', 'laravel', 'example'], true)) {
+    $fromName = 'DalyTrac';
+}
+
 return [
 
     /*
@@ -110,7 +116,7 @@ return [
         // Note: env() can return an empty string if the variable is set but blank (MAIL_FROM_ADDRESS=).
         // Symfony Mailer rejects messages with an empty "From"/"Sender", so we force sensible fallbacks.
         'address' => env('MAIL_FROM_ADDRESS') ?: 'hello@example.com',
-        'name' => env('MAIL_FROM_NAME') ?: 'Example',
+        'name' => $fromName,
     ],
 
     /*
