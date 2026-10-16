@@ -10,3 +10,5 @@ storage/framework/sessions/*
 storage/framework/views/*
 old_app_backup_2026-02-24_17-00-01.sql
 stripe.exe
+public/build
+public/build.old
