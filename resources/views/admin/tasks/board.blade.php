@@ -11,7 +11,7 @@
     <style>
         /* Tom Select styling for the searchable project filter (same look as reports) */
         .ts-wrapper.single .ts-control {
-            border: 1px solid #e2e8f0 !important;
+            border: 1px solid #8292a6 !important;
             border-radius: 0.5rem !important;
             padding: 0.5rem 0.75rem !important;
             font-size: 13px !important;
@@ -26,7 +26,7 @@
             box-shadow: 0 0 0 2px rgba(45, 112, 128, 0.20) !important;
         }
         .ts-dropdown {
-            border: 1px solid #e2e8f0 !important;
+            border: 1px solid #8292a6 !important;
             border-radius: 0.5rem !important;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1) !important;
         }
@@ -99,7 +99,7 @@
                         <div class="min-w-0">
                             <label for="f-project" class="block text-[11px] font-bold uppercase tracking-[0.07em] text-slate-400 mb-1">{{ __('messages.Project') }}</label>
                             <select id="f-project" name="project" onchange="this.form.submit()"
-                                    class="w-full rounded-lg border-slate-200 bg-slate-50 text-[13px] text-slate-700 py-2 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/20 outline-none transition">
+                                    class="w-full rounded-lg border-slate-400 bg-slate-50 text-[13px] text-slate-700 py-2 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/20 outline-none transition">
                                 <option value="">{{ __('messages.All Projects') }}</option>
                                 @foreach($projects as $p)
                                     <option value="{{ $p->id }}" {{ (string)$fProject === (string)$p->id ? 'selected' : '' }}>{{ $p->name }}</option>
@@ -111,8 +111,8 @@
                         <div class="min-w-0">
                             <label for="f-team" class="block text-[11px] font-bold uppercase tracking-[0.07em] text-slate-400 mb-1">{{ __('messages.Teams label') }}</label>
                             <select id="f-team" name="team" onchange="this.form.submit()"
-                                    class="w-full rounded-lg border-slate-200 bg-slate-50 text-[13px] text-slate-700 py-2 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/20 outline-none transition">
-                                <option value="">{{ __('messages.All') }}</option>
+                                    class="w-full rounded-lg border-slate-400 bg-slate-50 text-[13px] text-slate-700 py-2 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/20 outline-none transition">
+                                <option value="">{{ __('messages.All teams') }}</option>
                                 @foreach($teams as $t)
                                     <option value="{{ $t->id }}" {{ (string)$fTeam === (string)$t->id ? 'selected' : '' }}>{{ $t->name }}</option>
                                 @endforeach
@@ -121,7 +121,7 @@
                         <div class="min-w-0">
                             <label for="f-employee" class="block text-[11px] font-bold uppercase tracking-[0.07em] text-slate-400 mb-1">{{ __('messages.Employees') }}</label>
                             <select id="f-employee" name="employee" onchange="this.form.submit()"
-                                    class="w-full rounded-lg border-slate-200 bg-slate-50 text-[13px] text-slate-700 py-2 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/20 outline-none transition">
+                                    class="w-full rounded-lg border-slate-400 bg-slate-50 text-[13px] text-slate-700 py-2 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/20 outline-none transition">
                                 <option value="">{{ __('messages.All employees') }}</option>
                                 @foreach($employees as $e)
                                     <option value="{{ $e->id }}" {{ (string)$fEmployee === (string)$e->id ? 'selected' : '' }}>{{ $e->name }}</option>
@@ -150,16 +150,31 @@
 
                 <div class="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-3">
                 @foreach($visibleProjects as $project)
-                    @php $projectTasks = $grouped[$project->id]; @endphp
+                    @php
+                        $projectTasks = $grouped[$project->id];
+                        $projectExpanded = $projectsWithOpenTasks->contains((string) $project->id);
+                    @endphp
                     <section class="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden break-inside-avoid mb-3 hover:shadow-xl transition-shadow">
                         {{-- Card header: name + delete/archive icons --}}
                         <div class="flex items-center gap-2 px-3 py-2 border-b border-slate-100">
                             <span class="w-2.5 h-2.5 rounded-full flex-shrink-0 ring-1 ring-black/10"
                                   style="background-color:{{ $project->color ?: '#FDE68A' }}"></span>
-                            <h2 class="flex-1 min-w-0 truncate text-[14px] font-bold text-[#0B2638]" title="{{ $project->name }}">
-                                {{ $project->name }}
+                            <h2 class="flex-1 min-w-0 text-[14px] font-bold text-[#0B2638]">
+                                <button type="button" data-project-toggle aria-controls="project-tasks-{{ $project->id }}"
+                                        aria-expanded="{{ $projectExpanded ? 'true' : 'false' }}"
+                                        class="flex items-center gap-1.5 w-full min-w-0 text-left rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2D7080]"
+                                        title="{{ $project->name }}">
+                                    <svg class="w-4 h-4 flex-shrink-0 transition-transform {{ $projectExpanded ? 'rotate-90' : '' }}" data-project-chevron fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7"/></svg>
+                                    <span class="truncate">{{ $project->name }}</span>
+                                </button>
                             </h2>
                             <span class="flex-shrink-0 text-[11px] font-semibold text-slate-400 tabular-nums">{{ $projectTasks->count() }}</span>
+                            @can('Add task')
+                                <a href="{{ route($routePrefix . '.tasks.create', ['project_id' => $project->id]) }}"
+                                   class="b-icon" title="{{ __('messages.Add Task') }}" aria-label="{{ __('messages.Add Task') }} — {{ $project->name }}">
+                                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
+                                </a>
+                            @endcan
                             @can('Delete project')
                                 <form action="{{ route($routePrefix . '.projects.archive', $project->id) }}" method="POST" class="inline flex-shrink-0"
                                       onsubmit="return confirm('{{ __('messages.Archive this project?') }}')">
@@ -179,7 +194,7 @@
                             @endcan
                         </div>
                         {{-- Task rows: name | duration | start/stop --}}
-                        <div class="divide-y divide-slate-50">
+                        <div id="project-tasks-{{ $project->id }}" class="divide-y divide-slate-50" @if(!$projectExpanded) hidden @endif>
                             @foreach($projectTasks as $task)
                                 @php
                                     $etId = $viewerLinks[$task->id] ?? null;
@@ -271,6 +286,15 @@
             });
         }
         document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('[data-project-toggle]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var panel = document.getElementById(button.getAttribute('aria-controls'));
+                    var expanded = button.getAttribute('aria-expanded') !== 'true';
+                    button.setAttribute('aria-expanded', String(expanded));
+                    panel.hidden = !expanded;
+                    button.querySelector('[data-project-chevron]').classList.toggle('rotate-90', expanded);
+                });
+            });
             boardTick();
             setInterval(boardTick, 1000);
         });
@@ -288,7 +312,7 @@
                         create: false,
                         // No client-side sorting: keep the server order so the
                         // "All" option stays pinned on top.
-                        sortField: null,
+                        sortField: [{ field: '$order', direction: 'asc' }],
                         maxOptions: null,
                         allowEmptyOption: true,
                         placeholder: el.options[0] ? el.options[0].text : ''

@@ -168,16 +168,6 @@
                                                 </div>
                                             @endforeach
                                         </div>
-                                        {{-- Today's history toggle --}}
-                                        <button type="button"
-                                            onclick="toggleTasksTodayRow('tasks-row-{{ $employee->id }}')"
-                                            title="{{ __('messages.Task History (Today)') }}"
-                                            class="mt-1.5 inline-flex items-center gap-1 text-[11px] font-medium text-slate-400 hover:text-brand-secondary transition-colors">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            </svg>
-                                            {{ __('messages.Task History (Today)') }}
-                                        </button>
                                     @else
                                         <div class="flex items-center gap-2">
                                             <span class="flex-shrink-0 inline-flex items-center justify-center w-5 h-5 rounded-md bg-slate-100 text-slate-300">

@@ -137,7 +137,7 @@
                 content: attr(data-label);
                 display: block; font-size: 10px; font-weight: 700;
                 letter-spacing: .06em; text-transform: uppercase;
-                color: #94a3b8; margin-bottom: 4px;
+                color: var(--dt-text-muted, #5b6b7e); margin-bottom: 4px;
             }
             #archiveTable tbody tr.archive-row > td.archive-toggle-cell[data-label]::before { content: none !important; }
             #archiveTable tbody tr.archive-row.is-collapsed > td:not(.archive-toggle-cell) { display: none !important; }

@@ -261,7 +261,7 @@
             #devisTable tbody tr.devis-row > td[data-span="2"] { grid-column: span 2 / span 2; }
             #devisTable tbody tr.devis-row > td[data-label]::before {
                 content: attr(data-label); display: block; margin-bottom: 4px;
-                color: #94a3b8; font-size: 10px; font-weight: 700;
+                color: var(--dt-text-muted, #5b6b7e); font-size: 10px; font-weight: 700;
                 letter-spacing: .06em; text-transform: uppercase;
             }
             #devisTable tbody td.devis-actions-cell .devis-action-row {

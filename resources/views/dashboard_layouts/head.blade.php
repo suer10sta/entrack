@@ -19,6 +19,7 @@
 
     <link rel="canonical" href="{{ route('welcome') }}">
     <link rel="stylesheet" href="{{ asset('css/dalytrac-dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dalytrac-readability.css') }}">
 
     <style>
       .async-hide {

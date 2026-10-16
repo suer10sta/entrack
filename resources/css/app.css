@@ -1,3 +1,5 @@
+@import '../../public/css/dalytrac-readability.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -26,7 +28,7 @@
     --dt-teal: #2D7080;
     --dt-accent: #E7B84B;
     --dt-bg: #f8fafc;
-    --dt-card-border: #e6ecec;
+    --dt-card-border: #cbd5e1;
 }
 
 .dt-app-shell {
@@ -53,11 +55,11 @@
 }
 .dt-section-subtitle {
     @apply text-[13px];
-    color: #64748b;
+    color: var(--dt-text-secondary);
 }
 .dt-overline {
     @apply text-[11px] font-semibold uppercase tracking-[0.08em];
-    color: #64748b;
+    color: var(--dt-text-secondary);
 }
 
 .dt-btn {
@@ -136,7 +138,7 @@
 /* Subtle, compact placeholder text across all dashboard forms */
 input::placeholder,
 textarea::placeholder {
-    color: #94a3b8;
+    color: var(--dt-text-muted);
     font-size: 13px;
     opacity: 1;
 }
@@ -258,13 +260,13 @@ a.dt-stat:hover, .dt-stat-hover:hover {
 
 /* Shared table language for Tailwind dashboards */
 .dt-table {
-    @apply min-w-full text-left text-sm;
+    @apply min-w-full text-left text-sm text-slate-700;
 }
 .dt-table thead th {
     @apply px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.07em] text-slate-500 bg-slate-50/80;
 }
 .dt-table tbody td {
-    @apply px-4 py-2.5 text-slate-700;
+    @apply px-4 py-2.5;
 }
 .dt-table tbody tr {
     @apply border-t border-slate-100 hover:bg-slate-50/70 transition-colors;
@@ -461,7 +463,7 @@ a.dt-stat:hover, .dt-stat-hover:hover {
 .dt-dashboard-actions { padding-top: 4px; }
 .dt-dashboard-actions .dt-btn { min-height: 38px; border-radius: 10px; }
 .dt-dashboard-metrics > .dt-card { min-height: 104px; padding: 20px; }
-.dt-dashboard-content .dt-card { border-color: #DFE7EB; box-shadow: 0 2px 3px rgba(11,38,56,.025), 0 6px 16px -10px rgba(11,38,56,.14); }
+.dt-dashboard-content .dt-card { border-color: var(--dt-card-border); box-shadow: 0 2px 3px rgba(11,38,56,.025), 0 6px 16px -10px rgba(11,38,56,.14); }
 .dt-dashboard-content .dt-card-hover:hover { border-color: #BCD3D8; box-shadow: 0 6px 20px -10px rgba(11,38,56,.20); }
 .dt-dashboard-events, .dt-dashboard-team { margin-top: 24px; }
 .dt-dashboard-events > .dt-card { padding: 24px; }

@@ -10,7 +10,7 @@
     <style>
         /* Searchable filter selects (Tom Select, dashboard look) */
         .ts-wrapper.single .ts-control {
-            border: 1px solid #e2e8f0 !important;
+            border: 1px solid #8292a6 !important;
             border-radius: 0.5rem !important;
             padding: 0.5rem 0.75rem !important;
             font-size: 12.5px !important;
@@ -25,7 +25,7 @@
             box-shadow: 0 0 0 2px rgba(45, 112, 128, 0.20) !important;
         }
         .ts-dropdown {
-            border: 1px solid #e2e8f0 !important;
+            border: 1px solid #8292a6 !important;
             border-radius: 0.5rem !important;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1) !important;
         }
@@ -46,16 +46,30 @@
         /* ── Projects table ─────────────────────────────────────────── */
         #projectsTable th {
             font-size: 11px; font-weight: 700; letter-spacing: .07em;
-            text-transform: uppercase; color: #64748b;
-            padding: 10px 14px; white-space: nowrap;
-            background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+            text-transform: uppercase; color: #334155;
+            padding: 10px 10px; white-space: normal;
+            background: #eaf0f4; border-bottom: 1px solid #b6c4d2;
+            font-size: 12px;
         }
         #projectsTable td {
-            padding: 10px 14px; font-size: 13px;
-            vertical-align: middle; border-bottom: 1px solid #f1f5f9;
+            padding: 10px 10px; font-size: 14px; color: #111827;
+            vertical-align: middle; border-bottom: 1px solid #cbd5e1;
         }
         #projectsTable tbody tr:last-child td { border-bottom: none; }
         #projectsTable tbody tr:hover td     { background: #f8fafc; }
+        #projectsTable :is(.text-slate-400, .text-slate-500, .text-gray-400, .text-gray-500) { color: #475569; }
+        #projectsTable .project-name { font-size: 15.5px; color: #111827; line-height: 1.4; }
+        #projectsTable .project-name:hover { color: #2D7080; }
+        #clientFilterForm { width: clamp(230px, 22vw, 300px); max-width: 100%; }
+        #clientFilterForm .ts-wrapper { width: 100%; min-width: 0; }
+        #clientFilterForm .ts-control { padding-right: 2.25rem !important; }
+        #clientFilterForm .ts-control > .item { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        #clientFilterForm .ts-control > input { min-width: 0; }
+        @media (min-width: 1024px) {
+            #projectsTable.projects-table-admin { min-width: 1040px; }
+            #projectsTable th { overflow-wrap: anywhere; }
+            #projectsTable .act-row { justify-content: center; }
+        }
 
         /* ── Progress bar ───────────────────────────────────────────── */
         .prog-bar-wrap { width: 70px; height: 6px; background: #e2e8f0; border-radius: 99px; overflow: hidden; flex-shrink: 0; }
@@ -119,6 +133,7 @@
     </style>
 </head>
 
+@php $projectsIndexRoute = request()->route()?->getName() ?? 'admin.projects.index'; @endphp
 <body class="dt-app-shell bg-[#f8fafc]">
 <div class="flex h-screen overflow-hidden">
 
@@ -201,7 +216,7 @@
                             </span>
                         @endif
                         @if($clientFilter && ($clientFilterName = optional($clients->firstWhere('id', (int) $clientFilter))->name))
-                            <a href="{{ route('admin.projects.index', array_filter(['search' => $search ?: null, 'per_page' => $perPage])) }}"
+                            <a href="{{ route($projectsIndexRoute, array_filter(['search' => $search ?: null, 'per_page' => $perPage])) }}"
                                class="text-[11.5px] text-[#0B2638] font-medium bg-[#E7B84B]/20 hover:bg-[#E7B84B]/30 px-2 py-0.5 rounded-full transition-colors"
                                title="{{ __('messages.All Clients') }}">
                                 {{ $clientFilterName }} &times;
@@ -212,7 +227,7 @@
                     {{-- Right: search input + client filter + per-page ── --}}
                     <div class="flex flex-wrap items-center gap-2 flex-shrink-0">
                         {{-- Search ─────────────────────────────────── --}}
-                        <form method="GET" action="{{ route('admin.projects.index') }}" class="flex items-center gap-2" id="projectSearchForm">
+                        <form method="GET" action="{{ route($projectsIndexRoute) }}" class="flex items-center gap-2" id="projectSearchForm">
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -229,7 +244,7 @@
                                     autocomplete="off"
                                 />
                                 @if($search)
-                                    <a href="{{ route('admin.projects.index', array_filter(['per_page' => $perPage, 'client' => $clientFilter ?: null])) }}"
+                                    <a href="{{ route($projectsIndexRoute, array_filter(['per_page' => $perPage, 'client' => $clientFilter ?: null])) }}"
                                        class="absolute inset-y-0 right-2.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
                                        aria-label="Clear search">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -241,11 +256,11 @@
                         </form>
 
                         {{-- Client filter ────────────────────────────── --}}
-                        <form method="GET" action="{{ route('admin.projects.index') }}" id="clientFilterForm">
+                        <form method="GET" action="{{ route($projectsIndexRoute) }}" id="clientFilterForm">
                             <input type="hidden" name="search" value="{{ $search }}">
                             <input type="hidden" name="per_page" value="{{ $perPage }}">
                             <select id="clientFilter" name="client" onchange="this.form.submit()" aria-label="{{ __('messages.Client') }}"
-                                    class="text-[12.5px] border border-slate-200 rounded-lg bg-slate-50 text-slate-600 py-2 pl-2.5 pr-7 focus:ring-2 focus:ring-[#2D7080]/20 focus:border-[#2D7080] outline-none transition dt-filter-select max-w-[180px]">
+                                    class="text-[12.5px] border border-slate-400 rounded-lg bg-slate-50 text-slate-600 py-2 pl-2.5 pr-7 focus:ring-2 focus:ring-[#2D7080]/20 focus:border-[#2D7080] outline-none transition dt-filter-select w-full">
                                 <option value="">{{ __('messages.All Clients') }}</option>
                                 @foreach($clients as $client)
                                     <option value="{{ $client->id }}" {{ (string)$clientFilter === (string)$client->id ? 'selected' : '' }}>{{ $client->name }}</option>
@@ -254,11 +269,11 @@
                         </form>
 
                         {{-- Per-page ─────────────────────────────────── --}}
-                        <form method="GET" action="{{ route('admin.projects.index') }}" id="perPageForm">
+                        <form method="GET" action="{{ route($projectsIndexRoute) }}" id="perPageForm">
                             <input type="hidden" name="search" value="{{ $search }}">
                             <input type="hidden" name="client" value="{{ $clientFilter }}">
                             <select name="per_page" onchange="this.form.submit()"
-                                    class="text-[12.5px] border border-slate-200 rounded-lg bg-slate-50 text-slate-600 py-2 pl-2.5 pr-7 focus:ring-2 focus:ring-[#2D7080]/20 focus:border-[#2D7080] outline-none transition dt-filter-select">
+                                    class="text-[12.5px] border border-slate-400 rounded-lg bg-slate-50 text-slate-600 py-2 pl-2.5 pr-7 focus:ring-2 focus:ring-[#2D7080]/20 focus:border-[#2D7080] outline-none transition dt-filter-select">
                                 @foreach([10, 15, 25, 50, 100] as $pp)
                                     <option value="{{ $pp }}" {{ $perPage == $pp ? 'selected' : '' }}>{{ $pp }} {{ __('messages.projects_per_page') }}</option>
                                 @endforeach
@@ -269,19 +284,27 @@
 
                 {{-- Table ───────────────────────────────────────────── --}}
                 <div class="table-wrap overflow-x-auto">
-                    <table class="w-full table-fixed text-left border-collapse min-w-[700px]" id="projectsTable">
+                    <table class="w-full table-fixed text-left border-collapse min-w-[700px] {{ Auth::user()->hasRole('Admin') ? 'projects-table-admin' : '' }}" id="projectsTable">
+                        <colgroup>
+                            <col style="width:{{ Auth::user()->hasRole('Admin') ? '30%' : '48%' }}">
+                            @if(Auth::user()->hasRole('Admin'))
+                                <col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:10%">
+                            @endif
+                            <col style="width:{{ Auth::user()->hasRole('Admin') ? '7%' : '18%' }}">
+                            <col style="width:{{ Auth::user()->hasRole('Admin') ? '25%' : '34%' }}">
+                        </colgroup>
                         <thead>
                             <tr class="dt-table-head">
-                                <th class="px-3.5 py-2.5 text-left xl:w-[170px] 2xl:w-[300px] max-w-[430px]">{{ __('messages.Project column') }}</th>
+                                <th class="px-3.5 py-2.5 text-left ">{{ __('messages.Project column') }}</th>
                                 @if(Auth::user()->hasRole('Admin'))
-                                    <th class="px-3.5 py-2.5 text-right whitespace-nowrap ">{{ __('messages.Budget column') }}</th>
-                                    <th class="px-3.5 py-2.5 text-center whitespace-nowrap ">{{ __('messages.Duration column') }}</th>
-                                    <th class="px-3.5 py-2.5 text-center whitespace-nowrap">{{ __('messages.Est. Hours column') }}</th>
-                                    <th class="px-3.5 py-2.5 text-center whitespace-nowrap">{{ __('messages.Difference column') }}</th>
-                                    <th class="px-3.5 py-2.5 text-center min-w-[160px] whitespace-nowrap">{{ __('messages.Progress column') }}</th>
+                                    <th class="px-3.5 py-2.5 text-right  ">{{ __('messages.Budget column') }}</th>
+                                    <th class="px-3.5 py-2.5 text-center  ">{{ __('messages.Duration column') }}</th>
+                                    <th class="px-3.5 py-2.5 text-center ">{{ __('messages.Est. Hours column') }}</th>
+                                    <th class="px-3.5 py-2.5 text-center ">{{ __('messages.Difference column') }}</th>
+                                    <th class="px-3.5 py-2.5 text-center  ">{{ __('messages.Progress column') }}</th>
                                 @endif
                                 <th class="px-3.5 py-2.5 text-center">{{ __('messages.Teams column header') }}</th>
-                                <th class="px-3.5 py-2.5 text-center xl:w-[170px] 2xl:w-[320px] max-w-[320px]">{{ __('messages.Actions') }}</th>
+                                <th class="px-3.5 py-2.5 text-center ">{{ __('messages.Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50">
@@ -322,7 +345,8 @@
                                                   style="background-color:{{ $project->color ?: '#FDE68A' }}"></span>
                                             <div class="min-w-0">
                                                 <a href="{{ $showRoute }}"
-                                                   class="text-[13.5px] font-semibold text-[#2D7080] hover:text-[#0B2638] hover:underline block truncate leading-tight">
+                                                   title="{{ $project->name }}"
+                                                   class="project-name font-semibold hover:underline block truncate">
                                                     {{ $project->name }}
                                                 </a>
                                                 @if($project->client)
@@ -480,7 +504,7 @@
                                             <p class="text-[12.5px] text-slate-400">
                                                 {{ __('messages.No results found for') }} "{{ $search }}"
                                             </p>
-                                            <a href="{{ route('admin.projects.index') }}" class="mt-3 inline-flex items-center text-[12.5px] font-semibold text-[#2D7080] hover:underline">
+                                            <a href="{{ route($projectsIndexRoute) }}" class="mt-3 inline-flex items-center text-[12.5px] font-semibold text-[#2D7080] hover:underline">
                                                 ← {{ __('messages.All Projects') }}
                                             </a>
                                         @endif
@@ -546,7 +570,7 @@
 <script>
 (function () {
     const form  = document.getElementById('projectSearchForm');
-    const input = document.getElementById('searchInput');
+    const input = form ? form.querySelector('input[name="search"]') : null;
     if (!form || !input) return;
 
     let timer;
@@ -588,7 +612,7 @@
                 if (el && window.TomSelect && !el.tomselect) {
                     new TomSelect(el, {
                         create: false,
-                        sortField: null,
+                        sortField: [{ field: '$order', direction: 'asc' }],
                         maxOptions: null,
                         allowEmptyOption: true,
                         placeholder: el.options[0] ? el.options[0].text : ''

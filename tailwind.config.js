@@ -31,7 +31,7 @@ export default {
                      background: '#f9fafb', 
                      foreground: '#111827', 
                      muted: '#6b7280', 
-                     'muted-foreground': '#9ca3af', 
+                     'muted-foreground': '#5b6b7e',
                      border: '#e5e7eb', 
                      card: '#ffffff', 
                      secondary: '#f3f4f6',

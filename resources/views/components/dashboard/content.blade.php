@@ -385,7 +385,7 @@
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
     .close-button {
-        color: #94a3b8;
+        color: var(--dt-text-muted, #5b6b7e);
         position: absolute;
         top: 10px;
         right: 15px;
@@ -671,16 +671,7 @@
                                     ->get();
                                 $rowTasksToday = $rowActiveTasks->concat($rowTodayCompleted)->groupBy('task_id');
 
-                                // Completed tasks today (for history panel)
                                 $rowActiveIds = $rowActiveTasks->pluck('task_id')->filter()->unique();
-                                $completedTasksToday = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                                    ->whereDate('start_date', \Carbon\Carbon::today())
-                                    ->whereNotNull('end_date')
-                                    ->when($rowActiveIds->isNotEmpty(), fn($q) => $q->whereNotIn('task_id', $rowActiveIds))
-                                    ->get()
-                                    ->groupBy(fn($t) => $t->task_id ?? 'name:'.$t->task_name)
-                                    ->map(function ($g) { $l=$g->sortByDesc('end_date')->first(); $l->total_duration=$g->sum('duration'); return $l; })
-                                    ->sortByDesc('end_date');
 
                                 // Active tasks for actions php block
                                 $activeTimers = $rowActiveTasks;
@@ -759,53 +750,6 @@
                                 </td>
                             </tr>
 
-                            {{-- TASK HISTORY PANEL --}}
-                            <tr id="tasks-row-{{ $employee->id }}" class="hidden bg-slate-50">
-                                <td colspan="5" class="px-4 py-3">
-                                    <div class="space-y-3">
-                                        <div class="flex items-center justify-between">
-                                            <h4 class="text-sm font-semibold text-slate-800">{{ __('messages.Task History (Today)') }}</h4>
-                                            <button type="button" onclick="toggleTasksTodayRow('tasks-row-{{ $employee->id }}')"
-                                                class="text-xs text-slate-500 hover:text-slate-700">{{ __('messages.Close') }}</button>
-                                        </div>
-                                        @forelse($completedTasksToday as $doneTask)
-                                            @php
-                                                $dMin = (int)($doneTask->total_duration ?? $doneTask->duration);
-                                                $dH = floor($dMin/60); $dM = $dMin%60;
-                                                $taskModel = \App\Models\Tasks::find($doneTask->task_id);
-                                                $projName = null;
-                                                if (!empty($doneTask->project_id)) $projName = optional(\App\Models\Project::find($doneTask->project_id))->name;
-                                                if (!$projName && $taskModel) $projName = optional($taskModel->project)->name ?? null;
-                                            @endphp
-                                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2">
-                                                <div class="flex flex-col">
-                                                    <span class="text-sm font-medium text-slate-900">{{ $doneTask->task_name ?? ($taskModel->title ?? __('messages.Task')) }}</span>
-                                                    <span class="text-xs text-slate-500">{{ $projName ?? __('messages.No project linked') }}</span>
-                                                </div>
-                                                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                                                    <span class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700">{{ __('messages.Completed') }}</span>
-                                                    <span class="text-xs text-slate-700 whitespace-nowrap">{{ $dH }}h {{ $dM }}m</span>
-                                                    <form action="{{ route('admin.tasks.start', ['tasks' => $doneTask->task_employee_id ?? $doneTask->task_id, 'employee_id' => $doneTask->employee_id]) }}"
-                                                        method="POST" class="history-start-form"
-                                                        data-task-id="{{ $doneTask->task_employee_id ?? $doneTask->task_id }}"
-                                                        data-chrono-start data-chrono-employee="{{ $doneTask->employee_id }}"
-                                                        data-chrono-emp-task="{{ $doneTask->task_employee_id }}" data-chrono-task="{{ $doneTask->task_id }}">
-                                                        @csrf
-                                                        <textarea name="comment" placeholder="{{ __('messages.Enter comment') }}" rows="1"
-                                                            class="border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring focus:ring-emerald-200 resize-y min-h-[32px] w-full sm:w-56"></textarea>
-                                                        <button type="submit"
-                                                            class="inline-flex items-center justify-center px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500 text-white hover:bg-emerald-600 w-full sm:w-auto">
-                                                            {{ __('messages.Start') }}
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        @empty
-                                            <p class="text-xs text-slate-500">{{ __('messages.No completed tasks today.') }}</p>
-                                        @endforelse
-                                    </div>
-                                </td>
-                            </tr>
                         @endforeach
                     </tbody>
                 </table>
@@ -816,12 +760,6 @@
         @livewireScripts
 
         <script>
-            function toggleTasksTodayRow(id) {
-                const row = document.getElementById(id);
-                if (!row) return;
-                row.classList.toggle('hidden');
-            }
-
             function stopAllTimersForEmployee(employeeId) {
                 const forms = document.querySelectorAll('.stop-form-' + employeeId);
                 if (!forms.length) return;
@@ -899,8 +837,6 @@
                     const seenIds = new Set(data.employees.map(employee => String(employee.id)));
                     document.querySelectorAll('#employeesTable tbody tr[data-employee-id]').forEach(tr => {
                         if (!seenIds.has(tr.dataset.employeeId)) {
-                            const historyRow = document.getElementById(`tasks-row-${tr.dataset.employeeId}`);
-                            if (historyRow) historyRow.remove();
                             tr.remove();
                         }
                     });
@@ -951,34 +887,6 @@
                     }
                 }
 
-                // Update task history section (if it exists)
-                const historyRow = document.getElementById(`tasks-row-${employee.id}`);
-                if (historyRow && employee.taskHistory) {
-                    // Check if user is typing in this row (prevent overwriting input)
-                    if (historyRow.contains(document.activeElement)) {
-                        // console.log(`[AUTO-REFRESH] Skipping history update for employee ${employee.id} due to user focus`);
-                        return;
-                    }
-
-                    const historyContent = historyRow.querySelector('.space-y-3');
-                    if (historyContent) {
-                        // Keep the header, update only the task list
-                        // The structure is: <div><h4>Header</h4><button>Close</button></div> ... tasks ...
-                        // We want to keep the first div (header) and replace the rest
-
-                        // Simple way: Find the header div
-                        const headerDiv = historyContent.querySelector('.flex.items-center.justify-between');
-                        if (headerDiv) {
-                            // Rebuild content: Header + New History HTML
-                            historyContent.innerHTML = '';
-                            historyContent.appendChild(headerDiv);
-
-                            // Insert the new history HTML after header
-                            // Since employee.taskHistory is a string of HTML, we need to parse it or insert adjacent
-                            headerDiv.insertAdjacentHTML('afterend', employee.taskHistory);
-                        }
-                    }
-                }
             }
 
             // Start auto-refresh
@@ -1008,8 +916,8 @@
                 document.addEventListener('submit', async (e) => {
                     const form = e.target;
 
-                    // Check if this form is inside the employees table or task history
-                    const isEmployeeTableForm = form.closest('#employeesTable') || form.classList.contains('history-start-form');
+                    // Check if this form is inside the employees table
+                    const isEmployeeTableForm = form.closest('#employeesTable');
 
                     if (!isEmployeeTableForm) {
                         return; // Not a dashboard form, let it submit normally

@@ -273,7 +273,7 @@
         }
 
         .devis-dashboard-page #devisTable tbody tr.devis-row td[data-label]::before {
-            color: #94a3b8;
+            color: var(--dt-text-muted, #5b6b7e);
             font-size: 10px;
         }
     }

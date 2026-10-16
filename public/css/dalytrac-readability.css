@@ -1,0 +1,122 @@
+/* Shared screen-only readability palette. Email and PDF templates do not load it.
+   Only neutral foregrounds change: status/brand colors and layout stay intact. */
+:root {
+    --dt-text-secondary: #475569;
+    --dt-text-muted: #5b6b7e;
+    --dt-control-border: #8292a6;
+    --dt-table-border: #cbd5e1;
+    --dt-table-heading: #eaf0f4;
+}
+
+/* Explicit light surfaces reset inherited inverse text tokens (e.g. popovers). */
+:is(.bg-white, .bg-gray-50, .bg-slate-50, .dt-card, .dt-stat, .card, #appSidebar, #managerSidebar) {
+    --dt-text-secondary: #475569;
+    --dt-text-muted: #5b6b7e;
+}
+/* Keep secondary text light on existing dark panels, footers and tooltips. */
+:is(.bg-slate-800, .bg-slate-900, .bg-slate-950, .bg-gray-800, .bg-gray-900,
+    .bg-gray-950, .bg-brand-primary, .bg-brand-secondary,
+    [class~="bg-[#0B2638]"], [class~="bg-[#0b2638]"], [class~="bg-[#2D7080]"],
+    .dark .dark\:bg-gray-900, .dark .dark\:bg-slate-900, .sidebar-tip) {
+    --dt-text-secondary: #e2e8f0;
+    --dt-text-muted: #cbd5e1;
+}
+
+/* Existing neutral utility usage represents metadata, help, empty states and
+   icons. Scope to UI surfaces; do not redefine Tailwind's background palette. */
+:is(main, aside, header, footer, nav, form, [role="dialog"], .modal, .bg-white, .dt-card, .card)
+    :is(.text-slate-300, .text-slate-400, .text-gray-300, .text-gray-400,
+        .text-zinc-300, .text-zinc-400, .text-neutral-300, .text-neutral-400,
+        .text-muted-foreground) {
+    color: var(--dt-text-muted);
+}
+:is(main, aside, header, footer, nav, form, [role="dialog"], .modal, .bg-white, .dt-card, .card)
+    :is(.text-slate-500, .text-gray-500, .text-zinc-500, .text-neutral-500, .text-muted) {
+    color: var(--dt-text-secondary);
+}
+body :is(.dt-section-subtitle, .dt-overline, .dt-stat-label, .dt-panel-sub, .dt-empty) {
+    color: var(--dt-text-secondary);
+}
+
+/* All screen tables, including reports and tables without dt-table classes. */
+body table thead th,
+body .dt-table thead th,
+body .dt-table-head th,
+body .dt-dashboard-team .dt-table-head th {
+    color: #334155;
+    background-color: var(--dt-table-heading);
+    border-bottom: 1px solid #b6c4d2;
+}
+table tbody { color: #334155; }
+table tbody :is(td, th) { border-color: var(--dt-table-border); }
+table tbody tr + tr { border-top-color: var(--dt-table-border); }
+body .dt-table tbody tr { border-top-color: var(--dt-table-border); }
+@media (hover: hover) {
+    table tbody tr:not([aria-selected="true"]):not(.selected):hover > :is(td, th) {
+        background-color: #eef4f6;
+    }
+}
+/* Responsive table labels retain their current sizing and card positioning. */
+body table td[data-label]::before { color: var(--dt-text-secondary); }
+:is(.dt-container, .dt-paging, .dataTables_wrapper, .dt-info, .dataTables_info,
+    nav[aria-label*="Pagination"], nav[role="navigation"]) {
+    --dt-text-muted: #5b6b7e;
+}
+
+/* Strengthen neutral field borders without overriding validation/focus colors.
+   Checkboxes, radio buttons, file/range/color inputs retain their own styling. */
+:is(input, select, textarea):is(.border-gray-100, .border-gray-200, .border-gray-300,
+    .border-slate-100, .border-slate-200, .border-slate-300, .form-control, .form-select):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not(:focus):not([aria-invalid="true"]):not(.is-invalid):not([class*="border-red-"]):not([class*="border-rose-"]):not([class*="border-emerald-"]) {
+    border-color: var(--dt-control-border);
+}
+input[class]::placeholder, textarea[class]::placeholder {
+    color: var(--dt-text-muted);
+    opacity: 1;
+}
+:is(input, select, textarea):disabled {
+    -webkit-text-fill-color: var(--dt-text-muted);
+    color: var(--dt-text-muted);
+}
+body .dt-empty-icon { color: var(--dt-text-muted); }
+
+/* A modest reading scale, shared by screen layouts. Keep large headings,
+   numeric metrics and icon dimensions at their existing sizes. */
+:root {
+    --dt-font-caption: 12px;
+    --dt-font-small: 13px;
+    --dt-font-body: 14px;
+}
+body :is(main, aside, header, footer, nav, form, [role="dialog"], .modal, .bg-white, .dt-card, .card)
+    :is([class~="text-[10px]"], [class~="text-[10.5px]"], [class~="text-[11px]"], [class~="text-[11.5px]"]):not(svg):not(i) {
+    font-size: var(--dt-font-caption);
+}
+body :is(main, aside, header, footer, nav, form, [role="dialog"], .modal, .bg-white, .dt-card, .card)
+    :is(.text-xs, [class~="text-[12px]"], [class~="text-[12.5px]"]):not(svg):not(i) {
+    font-size: var(--dt-font-small);
+}
+body :is(main, aside, header, footer, nav, form, [role="dialog"], .modal, .bg-white, .dt-card, .card)
+    :is([class~="text-[13px]"], [class~="text-[13.5px]"]):not(svg):not(i) {
+    font-size: var(--dt-font-body);
+}
+body :is(main, aside, header, footer, nav, form, [role="dialog"], .modal, .bg-white, .dt-card, .card)
+    :is(.text-sm, [class~="text-[14px]"]):not(svg):not(i) {
+    font-size: 15px;
+}
+body :is(.dt-section-subtitle, .dt-panel-sub, .dt-empty, .dt-btn) {
+    font-size: var(--dt-font-body);
+}
+body :is(.dt-overline, .dt-stat-label, .dt-badge) {
+    font-size: var(--dt-font-caption);
+}
+body table thead th,
+body .dt-table thead th,
+body .dt-table-head th {
+    font-size: var(--dt-font-caption);
+    line-height: 1.5;
+}
+body table tbody :is(td, th) {
+    font-size: var(--dt-font-body);
+    line-height: 1.5;
+}
+body table td[data-label]::before { font-size: var(--dt-font-caption); }
+input[class]::placeholder, textarea[class]::placeholder { font-size: var(--dt-font-body); }

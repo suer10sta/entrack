@@ -353,6 +353,13 @@ class tasksController extends Controller
         // Total tracked minutes per visible task (completed timers only;
         // open timers accrue live on top, ticked client-side from their base)
         $taskIds = $tasks->pluck('id');
+        // Presentation only: include open timers for any employee, but only
+        // within the tasks left visible by the existing role scope and filters.
+        $openTaskIds = $taskIds->isNotEmpty()
+            ? tasks_timer::whereIn('task_id', $taskIds)->whereNull('end_date')->pluck('task_id')
+            : collect();
+        $projectsWithOpenTasks = $tasks->whereIn('id', $openTaskIds)
+            ->pluck('project_id')->map(fn ($id) => (string) $id)->unique();
         $durations = $taskIds->isNotEmpty()
             ? tasks_timer::whereIn('task_id', $taskIds)->whereNotNull('end_date')->whereNotNull('duration')->selectRaw('task_id, SUM(duration) as total')->groupBy('task_id')->pluck('total', 'task_id')
             : collect();
@@ -360,7 +367,7 @@ class tasksController extends Controller
         return view('admin.tasks.board', compact(
             'projects', 'employees', 'teams', 'grouped', 'visibleProjects',
             'viewerLinks', 'viewerOpen', 'viewerEmployeeId', 'durations',
-            'routePrefix', 'fProject', 'fTeam', 'fEmployee'
+            'routePrefix', 'fProject', 'fTeam', 'fEmployee', 'projectsWithOpenTasks'
         ));
     }
 

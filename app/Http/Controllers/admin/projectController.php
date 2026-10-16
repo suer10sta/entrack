@@ -80,10 +80,11 @@ class projectController extends Controller
 
     public function index()
     {
-        $search    = request()->query('search', '');
+        $search    = trim((string) request()->query('search', ''));
         $perPage   = (int) request()->query('per_page', 15);
         $perPage   = in_array($perPage, [10, 15, 25, 50, 100]) ? $perPage : 15;
-        $clientFilter = request()->query('client', '');
+        // The web middleware converts the "All clients" empty value to null.
+        $clientFilter = (string) request()->query('client', '');
 
         $query = Project::with(['client', 'teams'])
             ->where('entreprise_id', auth()->user()->entreprise_id)
@@ -107,10 +108,11 @@ class projectController extends Controller
 
         // Server-side search: by project name OR client name
         if ($search !== '') {
-            $query->where(function ($q) use ($search) {
-                $q->where('projects.name', 'like', '%' . $search . '%')
-                  ->orWhereHas('client', function ($cq) use ($search) {
-                      $cq->where('name', 'like', '%' . $search . '%');
+            $searchPattern = '%' . mb_strtolower($search, 'UTF-8') . '%';
+            $query->where(function ($q) use ($searchPattern) {
+                $q->whereRaw('LOWER(projects.name) LIKE ?', [$searchPattern])
+                  ->orWhereHas('client', function ($cq) use ($searchPattern) {
+                      $cq->whereRaw('LOWER(name) LIKE ?', [$searchPattern]);
                   });
             });
         }

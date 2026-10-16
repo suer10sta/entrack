@@ -687,7 +687,7 @@
     }
     @keyframes chronoModalIn { from { transform: translateY(-40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .chrono-close-button {
-        color: #94a3b8; position: absolute; top: 10px; right: 15px;
+        color: var(--dt-text-muted, #5b6b7e); position: absolute; top: 10px; right: 15px;
         font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1;
     }
     .chrono-close-button:hover { color: #475569; }

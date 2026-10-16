@@ -992,6 +992,7 @@ return [
     'Filter by Client' => 'Filter by Client',
     'All clients' => 'All clients',
     'Filter by Employee' => 'Filter by Employee',
+    'All teams' => 'All teams',
     'All employees' => 'All employees',
     'Event Title' => 'Event Title',
     'Event Title placeholder' => 'e.g., Project Meeting',
@@ -3213,7 +3214,7 @@ return [
     // Projects page
     'projects_page_title'      => 'Projects',
     'projects_page_subtitle'   => 'Manage your projects, track time and progress.',
-    'projects_search_placeholder' => 'Search by project or client name...',
+    'projects_search_placeholder' => 'Search by project or client ',
     'projects_per_page'        => 'per page',
     'Add Task to Project'      => 'Add Task',
     'No projects found.'       => 'No projects found.',

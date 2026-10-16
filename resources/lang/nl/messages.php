@@ -567,6 +567,7 @@ return [
     'Send Events' => 'Evenementen versturen',
     'All clients' => 'Alle klanten',
     'Filter by Employee' => 'Filteren op medewerker',
+    'All teams' => 'Alle teams',
     'All employees' => 'Alle medewerkers',
     'Event Title' => 'Titel evenement',
     'Event Title placeholder' => 'Bijv.: Projectvergadering',
@@ -2922,7 +2923,7 @@ return [
     // Projects page
     'projects_page_title'      => 'Projecten',
     'projects_page_subtitle'   => 'Beheer uw projecten, volg tijd en voortgang.',
-    'projects_search_placeholder' => 'Zoeken op project- of klantnaam...',
+    'projects_search_placeholder' => 'Zoeken op project of klant ',
     'projects_per_page'        => 'per pagina',
     'Add Task to Project'      => 'Taak toevoegen',
     'No projects found.'       => 'Geen projecten gevonden.',

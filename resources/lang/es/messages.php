@@ -952,6 +952,7 @@ return [
     'Filter by Client' => 'Filtrar por cliente',
     'All clients' => 'Todos los clientes',
     'Filter by Employee' => 'Filtrar por empleado',
+    'All teams' => 'Todos los equipos',
     'All employees' => 'Todos los empleados',
     'Event Title' => 'Título del evento',
     'Event Title placeholder' => 'Ej.: Reunión de proyecto',
@@ -3068,7 +3069,7 @@ return [
     // Projects page
     'projects_page_title'      => 'Proyectos',
     'projects_page_subtitle'   => 'Gestiona tus proyectos, tiempo y progreso.',
-    'projects_search_placeholder' => 'Buscar por nombre de proyecto o cliente...',
+    'projects_search_placeholder' => 'Buscar por proyecto o cliente ',
     'projects_per_page'        => 'por página',
     'Add Task to Project'      => 'Añadir tarea',
     'No projects found.'       => 'No se encontraron proyectos.',
