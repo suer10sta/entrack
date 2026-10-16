@@ -7,7 +7,6 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
 class VerifyEmailController extends Controller
@@ -35,10 +34,10 @@ class VerifyEmailController extends Controller
     {
         $user = User::findOrFail($id);
 
-        if (!Auth::check()) {
-            if (!hash_equals((string) $hash, (string) md5($user->getEmailForVerification()))) {
-                abort(403, 'Invalid verification link.');
-            }
+        // Match the SHA-1 email hash used by VerifyEmailNotification and
+        // validate it regardless of the current browser's login session.
+        if (!hash_equals(sha1($user->getEmailForVerification()), $hash)) {
+            abort(403, 'Invalid verification link.');
         }
 
         if ($user->hasVerifiedEmail()) {
