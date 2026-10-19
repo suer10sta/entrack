@@ -13,19 +13,9 @@
     </style>
 </head>
 <body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
-    {{-- Sidebar --}}
-    @if(Auth::user()->hasRole('Admin'))
-        <x-dashboard.sidebar />
-    @else
-        <x-employees.sidebar />
-    @endif
-    <div class="flex flex-col flex-1 overflow-y-auto">
-        {{-- Navbar --}}
-        <x-dashboard.navbar />
-
-        {{-- Main Content --}}
+    <x-dashboard.shell>
         <x-dashboard.content :data="$__data" />
-    </div>
+    </x-dashboard.shell>
     <livewire:full-calendar-modal />
     @livewireScripts
 </body>

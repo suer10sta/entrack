@@ -72,25 +72,7 @@
 >
         <div class="flex-1 flex flex-col min-h-0 overflow-y-auto">
             {{-- Brand + collapse toggle --}}
-            <div class="dt-sidebar-brand sidebar-logo-wrap px-4 flex items-center">
-                <a href="/" aria-label="DalyTrac, accueil" class="flex items-center gap-2.5 min-w-0 flex-1">
-                    <span class="flex-shrink-0 w-9 h-9 rounded-xl bg-[#0B2638] flex items-center justify-center text-[#2D7080] font-extrabold text-[20px] tracking-tight">D</span>
-                    <x-application-logo class="sidebar-logo-text inline-flex items-baseline text-[1.35rem] font-extrabold tracking-[-0.04em] text-white no-underline leading-none" />
-                </a>
-                {{-- Desktop collapse toggle --}}
-                <!-- <button
-                    type="button"
-                    id="sidebarCollapseBtn"
-                    onclick="toggleDesktopSidebar()"
-                    aria-label="Collapse sidebar"
-                    title="Collapse / Expand"
-                    class="hidden lg:inline-flex flex-shrink-0 w-8 h-8 items-center justify-center rounded-lg border border-white/15 text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
-                >
-                    <svg id="sidebarCollapseIcon" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </button> -->
-            </div>
+            <x-dashboard.brand />
 
             <nav class="px-3 pb-6 space-y-5 overflow-y-auto dt-sidebar-scroll flex-1">
                 {{-- OVERVIEW --}}

@@ -273,22 +273,14 @@
         }
     </style>
 </head>
-<body class="bg-[#f8fafc] flex h-screen overflow-hidden font-sans antialiased text-slate-600">
+<body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
     
     <audio id="alertSound" src="{{ asset('audio/alert_sound.mp3') }}" preload="auto"></audio>
 
-    <div class="flex flex-1 h-full overflow-hidden">
-        {{-- Sidebar --}}
-        <x-employees.sidebar />
-
-
-        <div class="flex flex-col flex-1 overflow-y-auto w-full">
-        {{-- Navbar (shared dashboard navbar; reduced for Employee roles) --}}
-        <x-dashboard.navbar />
-
+    <x-dashboard.shell>
         {{-- Main Content --}}
-        <main class="flex flex-col flex-1 overflow-y-auto w-full">
-            <div class="p-4 sm:p-6 lg:px-20 lg:py-8 mx-auto w-full flex flex-col flex-1">
+        <main class="dt-dashboard-canvas flex flex-col flex-1 overflow-y-auto w-full">
+            <div class="dt-dashboard-content mx-auto w-full flex flex-col flex-1">
 
             {{-- Page heading (same design as Admin Dashboard) --}}
             <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
@@ -776,8 +768,7 @@
 
             </div>
         </main>
-        </div>
-    </div>
+    </x-dashboard.shell>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
