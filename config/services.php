@@ -46,6 +46,8 @@ return [
     |--------------------------------------------------------------------------
     */
     'stripe' => [
+        'public_key' => env('STRIPE_KEY'),
+        'secret_key' => env('STRIPE_SECRET'),
         'prices' => [
             'solo' => env('STRIPE_PRICE_SOLO'),
             'premium' => env('STRIPE_PRICE_PREMIUM'),
