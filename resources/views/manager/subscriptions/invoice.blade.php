@@ -233,7 +233,7 @@
         <div class="invoice-header">
             <div class="logo-block">
                 {{-- Replace with your logo image if desired --}}
-                <x-application-logo style="font-family:sans-serif;font-weight:800;font-size:28px;letter-spacing:-0.065em;line-height:1.15" />
+                <x-application-logo style="font-size:28px;" />
             </div>
             <div class="invoice-title">INVOICE</div>
         </div>

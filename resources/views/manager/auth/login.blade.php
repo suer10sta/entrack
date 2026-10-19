@@ -30,8 +30,8 @@
                 <div class="relative hidden flex-col justify-between bg-gradient-to-br from-[#0B2638] via-[#0e2f42] to-[#14505f] px-8 py-8 text-white md:flex">
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center gap-2.5">
-                            <span class="flex-shrink-0 w-9 h-9 rounded-xl bg-[#E7B84B] flex items-center justify-center text-[#0B2638] font-extrabold text-[15px] tracking-tight">DT</span>
-                            <x-application-logo style="background:#F4F7F6;border-radius:8px;padding:7px 10px;display:inline-flex;align-items:baseline;white-space:nowrap;font-family:Figtree,sans-serif;font-weight:800;letter-spacing:-0.065em;line-height:1.15" class="inline-flex items-baseline text-[1.1rem] font-extrabold tracking-[-0.03em] text-white leading-none" />
+                            <x-application-mark />
+                            <x-application-logo style="background:#F4F7F6;border-radius:8px;padding:7px 10px;" class="inline-flex items-baseline text-[1.1rem] font-extrabold tracking-[-0.03em] text-white leading-none" />
                         </div>
                         <span class="inline-flex h-7 items-center rounded-full bg-[#E7B84B]/15 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#E7B84B] ring-1 ring-[#E7B84B]/40">
                             Manager

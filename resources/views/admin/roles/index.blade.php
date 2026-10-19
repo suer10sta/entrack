@@ -96,14 +96,14 @@
                 </div>
 
                 {{-- Controls --}}
-                <div class="dt-card p-4 sm:p-5 mb-5">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div class="dt-card p-4 sm:p-5 mb-5 flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div class="flex items-center gap-3 shrink-0">
 
                         {{-- Entries per page (placeholder UI, optional Livewire binding) --}}
                         <div class="flex items-center gap-2">
-                            <label class="text-[13px] font-medium text-slate-700">{{ __('messages.Entries per page') }}</label>
-                            <select
-                                class="h-10 px-3 rounded-xl border border-slate-200 bg-white text-[13px] text-slate-700 outline-none transition focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 w-full sm:w-auto cursor-pointer">
+                            <label for="rolesPageSize" class="text-[13px] font-medium text-slate-700">{{ __('messages.Entries per page') }}</label>
+                            <select id="rolesPageSize"
+                                class="h-10 pl-3 pr-10 rounded-xl border border-slate-200 bg-white text-[13px] text-slate-700 outline-none transition focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 w-[88px] min-w-[88px] shrink-0 cursor-pointer">
                                 <option value="5">5</option>
                                 <option value="10" selected>10</option>
                                 <option value="25">25</option>
@@ -124,7 +124,7 @@
                     </div>
 
                     {{-- Search Bar --}}
-                    <div class="relative">
+                    <div class="relative flex-1 min-w-0 w-full sm:ml-auto sm:max-w-md">
                         <svg xmlns="http://www.w3.org/2000/svg"
                              class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -133,6 +133,7 @@
                         </svg>
                         <input
                             id="searchInput"
+                            aria-label="{{ __('messages.Search roles placeholder') }}"
                             type="text"
                             placeholder="{{ __('messages.Search roles placeholder') }}"
                             class="w-full h-10 pl-9 pr-4 rounded-xl border border-slate-200 bg-white text-[13px] text-slate-700 placeholder:text-slate-400 shadow-sm outline-none transition focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25"

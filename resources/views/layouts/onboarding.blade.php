@@ -13,8 +13,8 @@
     <div class="min-h-screen flex flex-col">
         <header class="w-full">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-6 flex items-center gap-2.5">
-                <span class="flex-shrink-0 w-9 h-9 rounded-xl bg-[#0B2638] flex items-center justify-center text-[#E7B84B] font-extrabold text-[15px]">D</span>
-                <span class="text-[1.15rem] font-extrabold tracking-tight text-[#0B2638]">Daly<span class="text-[#2D7080]">Trac</span></span>
+                <x-application-mark />
+                <x-application-logo class="text-[1.15rem]" />
             </div>
         </header>
 

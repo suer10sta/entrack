@@ -22,7 +22,7 @@
 <aside class="sidenav dt-sidebar" id="sidenav-main" aria-label="Main navigation">
     <div class="dt-sidebar__brand">
         <a class="dt-brand" href="{{ $dashboardRoute }}" aria-label="DalyTrac home">
-            <span class="dt-brand__mark">{{ strtoupper(substr($empName ?? 'E', 0, 1)) }}</span>
+            <x-application-mark />
             <span class="dt-brand__copy"><x-application-logo /><strong style="font-size:11px;margin-top:4px">{{ $empName }}</strong><small>{{ $empRole }}</small></span>
         </a>
         <button class="dt-sidebar__toggle" type="button" data-sidebar-toggle aria-label="Collapse sidebar" title="Collapse sidebar"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
