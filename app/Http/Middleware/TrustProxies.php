@@ -8,14 +8,8 @@ use Illuminate\Http\Request;
 class TrustProxies extends Middleware
 {
     /**
-     * The trusted proxies for this application.
-     *
-     * @var array<int, string>|string|null
-     */
-    /**
-     * Make the framework trust every upstream proxy (OVH load balancers,
-     * nginx reverse proxies, etc.) so HTTPS detection works and asset()
-     * generates secure URLs in production.
+     * The framework reads config('trustedproxy.proxies') when this is null.
+     * Trust only our ingress addresses, never arbitrary client headers.
      *
      * @var array<int, string>|string|null
      */
@@ -28,8 +22,5 @@ class TrustProxies extends Middleware
      */
     protected $headers =
         Request::HEADER_X_FORWARDED_FOR |
-        Request::HEADER_X_FORWARDED_HOST |
-        Request::HEADER_X_FORWARDED_PORT |
-        Request::HEADER_X_FORWARDED_PROTO |
-        Request::HEADER_X_FORWARDED_AWS_ELB;
+        Request::HEADER_X_FORWARDED_PROTO;
 }
