@@ -19,9 +19,9 @@
             padding: 9px 12px; font-size: 13px;
             vertical-align: middle; border-bottom: 1px solid #f1f5f9;
         }
-        #taskTable th:nth-child(1), #taskTable td:nth-child(1) { min-width: 140px; }
-        #taskTable th:nth-child(2), #taskTable td:nth-child(2) { min-width: 160px; }
-        #taskTable th:nth-child(3), #taskTable td:nth-child(3) { min-width: 120px; }
+        #taskTable th:nth-child(1), #taskTable td:nth-child(1) { min-width: 120px; }
+        #taskTable th:nth-child(2), #taskTable td:nth-child(2) { min-width: 140px; }
+        #taskTable th:nth-child(3), #taskTable td:nth-child(3) { min-width: 240px; width: 20%; text-align: left; }
         #taskTable th:nth-child(4), #taskTable td:nth-child(4) { min-width: 90px; }
         #taskTable th:nth-child(5), #taskTable td:nth-child(5) { min-width: 90px; }
         #taskTable th:nth-child(6), #taskTable td:nth-child(6) { min-width: 70px; }
@@ -30,7 +30,28 @@
         #taskTable th:nth-child(9), #taskTable td:nth-child(9) { min-width: 100px; }
         #taskTable th:nth-child(10), #taskTable td:nth-child(10) { min-width: 100px; }
         #taskTable th:nth-child(11), #taskTable td:nth-child(11) { min-width: 130px; }
-        #taskTable th:nth-child(12), #taskTable td:nth-child(12) { min-width: 220px; }
+        #taskTable th:nth-child(12), #taskTable td:nth-child(12) { width: 1%; text-align: left; }
+        #taskTable td { padding-top: 14px; padding-bottom: 14px; }
+        #taskTable th:nth-child(1), #taskTable th:nth-child(2) { text-align: left; }
+        #taskTable .task-employees { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px; }
+        #taskTable .task-employee-name {
+            display: inline-block; flex: 0 0 auto; max-width: 100%; padding: 4px 9px;
+            border-radius: 8px; background: #edf4f4; color: #2D7080;
+            font-size: 12px; font-weight: 500; line-height: 1.5;
+            overflow-wrap: anywhere; text-transform: none; letter-spacing: normal;
+        }
+        #taskTable .task-actions {
+            display: grid; grid-template-columns: repeat(2, max-content);
+            gap: 6px; width: max-content; align-items: stretch;
+            justify-content: start; text-align: left;
+        }
+        #taskTable .task-actions > form { display: flex; min-width: 0; margin: 0; }
+        #taskTable .task-actions .act-btn {
+            width: 100%; min-width: max-content; height: 32px;
+            justify-content: flex-center; padding: 6px 8px;
+            white-space: nowrap; word-break: normal; overflow-wrap: normal; line-height: 1.3; text-align: left;
+        }
+        #taskTable .task-actions .act-btn:focus-visible { outline: 2px solid #2D7080; outline-offset: 2px; }
         #taskTable tbody tr:last-child td, #invoicesTable tbody tr:last-child td,
         #devisTable tbody tr:last-child td, .project-files-table tbody tr:last-child td { border-bottom: none; }
         #taskTable tbody tr:hover td, #invoicesTable tbody tr:hover td,
@@ -138,6 +159,8 @@
 
         /* ── Mobile card layout (≤ 1024px) ── */
         @media (max-width: 1024px) {
+            #taskTable tbody tr > td:nth-child(n) { min-width: 0; width: auto; }
+            #taskTable .task-actions .act-btn { min-height: 40px; }
             #taskTable thead, #invoicesTable thead, #devisTable thead, .project-files-table thead { display: none; }
             #taskTable tbody, #invoicesTable tbody, #devisTable tbody, .project-files-table tbody {
                 display: flex; flex-direction: column; gap: 12px;
@@ -168,12 +191,15 @@
             #taskTable tbody tr > td[data-label] .task-actions,
             #invoicesTable tbody tr > td[data-label] .invoice-actions,
             #devisTable tbody tr > td[data-label] .devis-actions { justify-content: flex-start !important; flex-wrap: wrap; }
+            #taskTable tbody tr { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
 
         [x-cloak] { display: none !important; }
 
         /* ── Modal base ── */
         .dt-modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+        /* Alpine's x-show supplies display:none while these dialogs are closed. */
+        .dt-modal.dt-task-action-modal { display: block; }
         .dt-modal-content { animation: slideDown 0.3s ease-out; }
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .dt-modal-content-custom {
@@ -564,11 +590,11 @@
                 },
                 moveTask() {
                     if (!this.selectedProjectId) {
-                        alert('{{ __('messages.Please select a project to move the task to.') }}');
+                        alert(@js(__('messages.Please select a project to move the task to.')));
                         return;
                     }
                     if (this.selectedProjectId == this.currentProjectId) {
-                        alert('{{ __('messages.Please select a different project.') }}');
+                        alert(@js(__('messages.Please select a different project.')));
                         return;
                     }
 
@@ -598,7 +624,7 @@
                             }
                         },
                         error: (xhr) => {
-                            let msg = '{{ __('messages.Failed to move task.') }}';
+                            let msg = @js(__('messages.Failed to move task.'));
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 msg = xhr.responseJSON.message;
                             }
@@ -998,7 +1024,7 @@
                                     <th class="text-center whitespace-nowrap">{{ __('messages.Progress column') }}</th>
                                     <th class="text-center whitespace-nowrap">{{ __('messages.Teams column') }}</th>
                                     <th class="text-center whitespace-nowrap">{{ __('messages.Pointage') }}</th>
-                                    <th class="text-center whitespace-nowrap" style="min-width: 220px">{{ __('messages.Action column') }}</th>
+                                    <th class="text-left whitespace-nowrap">{{ __('messages.Action column') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1028,10 +1054,12 @@
                                         </a>
                                     </td>
                                     <td data-label="{{ __('messages.Description column') }}" data-span="2" class="text-[12.5px] text-slate-600 max-w-xs truncate whitespace-normal break-words">{{ $task->description }}</td>
-                                    <td data-label="{{ __('messages.Employees column') }}" class="text-[12.5px] text-slate-900 whitespace-normal break-words">
+                                    <td data-label="{{ __('messages.Employees column') }}" data-span="2" class="text-[12.5px] text-slate-900 whitespace-normal break-words">
+                                        <div class="task-employees">
                                         @foreach($taskEmployeeDetails as $employee)
-                                            <span class="inline-block bg-[#2D7080]/10 text-[#2D7080] ring-1 ring-[#2D7080]/20 px-2 py-0.5 rounded-full text-[11px] font-semibold mb-1">{{ $employee->name }}</span><br>
+                                            <span class="task-employee-name">{{ \Illuminate\Support\Str::title(mb_strtolower($employee->name ?? '', 'UTF-8')) }}</span>
                                         @endforeach
+                                        </div>
                                     </td>
                                     <td data-label="{{ __('messages.Duration') }}" class="text-[12.5px] text-slate-900 whitespace-normal break-words">
                                         @foreach($taskEmployeeDetails as $employee)
@@ -1102,7 +1130,7 @@
                                         @endif
                                     </td>
                                     <td data-label="{{ __('messages.Action column') }}" data-span="2">
-                                        <div class="task-actions flex flex-wrap items-center justify-center gap-1.5">
+                                        <div class="task-actions">
                                             @can('Update task')
                                                 <a href="{{ route($taskRoutePrefix . 'tasks.edit', $task->id) }}" class="act-btn act-btn-edit" title="{{ __('messages.Edit Task') }}">
                                                     <svg class="act-btn-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -1768,7 +1796,8 @@
 
     <div x-data="manualTimerModal()" x-cloak x-show="show"
          @open-manual-timer-modal.window="open($event.detail)"
-         class="dt-modal">
+         @keydown.escape.window="show = false"
+         class="dt-modal dt-task-action-modal">
         <div @click.outside="show = false" class="dt-modal-content dt-modal-content-custom bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
             <div class="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-100">
                 <h5 class="text-[15px] font-bold text-[#0B2638]">{{ __('messages.Add Manual Time') }}</h5>
@@ -1870,7 +1899,8 @@
 
     <div x-data="moveTaskModal()" x-cloak x-show="show"
          @open-move-task-modal.window="open($event.detail.taskId, $event.detail.currentProjectId)"
-         class="dt-modal">
+         @keydown.escape.window="show = false"
+         class="dt-modal dt-task-action-modal">
         <div @click.outside="show = false" class="dt-modal-content dt-modal-content-custom bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
             <div class="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-100">
                 <h5 class="text-[15px] font-bold text-[#0B2638]">{{ __('messages.Move Task') }}</h5>
@@ -2211,373 +2241,23 @@
         });
     </script>
 
-    <div id="stopCommentModal" class="dt-modal">
-        <div class="dt-modal-content dt-modal-content-custom">
-            <span id="stopCommentClose" class="dt-close-button">&times;</span>
-            <div class="flex items-center justify-center mb-3">
-                <div class="bg-red-100 rounded-full p-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                    </svg>
-                </div>
-            </div>
-            <h2 class="text-[15px] font-bold text-[#0B2638] mb-2">{{ __('messages.Stop Task') }}</h2>
-            <p class="text-sm text-slate-500 mb-4">{{ __('messages.Please leave a comment describing the work done before stopping the task.') }}</p>
-            <div class="text-left mb-4">
-                <div class="flex justify-between items-center mb-1">
-                    <label for="stopCommentText" class="block text-[13px] font-semibold text-slate-700">{{ __('messages.Comment') }} <span class="text-red-500">*</span></label>
-                    <div class="flex gap-3 items-center">
-                        <button type="button" id="stopCommentAiBtn" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors opacity-50 cursor-not-allowed" title="{{ __('messages.Correct with AI') }}" disabled>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                            </svg>
-                            <span id="stopCommentAiBtnText">{{ __('messages.Correct with AI') }}</span>
-                        </button>
-                        <button type="button" id="stopCommentTranslateBtn" class="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors opacity-50 cursor-not-allowed" title="{{ __('messages.Translate to Dutch') }}" disabled>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5c-.006 3.125-1.026 6.042-2.751 8.498m-1.782-2.5A18.022 18.022 0 014.888 5h7.863z" />
-                            </svg>
-                            <span id="stopCommentTranslateBtnText">{{ __('messages.Translate to Dutch') }}</span>
-                        </button>
-                    </div>
-                </div>
-                <textarea id="stopCommentText" rows="3" maxlength="500" placeholder="{{ __('messages.Describe what you worked on...') }}" spellcheck="true" class="border border-slate-200 rounded-xl px-3 py-2 w-full text-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none transition-colors"></textarea>
-                <p id="stopCommentError" class="text-xs text-red-500 mt-1 hidden">{{ __('messages.Comment is required to stop the task.') }}</p>
-                <p id="stopCommentAiFeedback" class="text-xs mt-1 hidden"></p>
-            </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button type="button" id="stopCommentCancelBtn" class="dt-btn dt-btn-ghost">{{ __('messages.Cancel') }}</button>
-                <button type="button" id="stopCommentConfirmBtn" class="dt-btn dt-btn-primary opacity-50 cursor-not-allowed" disabled>{{ __('messages.Confirm Stop') }}</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="spellCheckModal" class="dt-modal" style="z-index: 60;">
-        <div class="dt-modal-content dt-modal-content-custom" style="max-width: 420px;">
-            <div class="flex items-center justify-center mb-3">
-                <div class="bg-amber-100 rounded-full p-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-            </div>
-            <h2 class="text-[15px] font-bold text-[#0B2638] mb-2">{{ __('messages.Check Spelling?') }}</h2>
-            <p class="text-sm text-slate-500 mb-5">{{ __('messages.Would you like to verify the spelling of your comment before submitting?') }}</p>
-            <div class="flex flex-col gap-2">
-                <button type="button" id="spellCheckVerifyBtn" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-indigo-500 rounded-lg hover:bg-indigo-600 transition-colors flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {{ __('messages.Yes, verify spelling') }}
-                </button>
-                <button type="button" id="spellCheckSkipBtn" class="w-full px-4 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
-                    {{ __('messages.No, submit as is') }}
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="translateCheckModal" class="dt-modal" style="z-index: 60;">
-        <div class="dt-modal-content dt-modal-content-custom" style="max-width: 420px;">
-            <div class="flex items-center justify-center mb-3">
-                <div class="bg-blue-100 rounded-full p-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5c-.006 3.125-1.026 6.042-2.751 8.498m-1.782-2.5A18.022 18.022 0 014.888 5h7.863z" />
-                    </svg>
-                </div>
-            </div>
-            <h2 class="text-[15px] font-bold text-[#0B2638] mb-2">{{ __('messages.Translate to Dutch?') }}</h2>
-            <p class="text-sm text-slate-500 mb-5">{{ __('messages.Would you like to translate your comment into Dutch before submitting?') }}</p>
-            <div class="flex flex-col gap-2">
-                <button type="button" id="translateCheckVerifyBtn" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {{ __('messages.Yes, translate to Dutch') }}
-                </button>
-                <button type="button" id="translateCheckSkipBtn" class="w-full px-4 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
-                    {{ __('messages.No, submit as is') }}
-                </button>
-            </div>
-        </div>
-    </div>
+    <x-chrono-stop-modal />
 
     <script>
-        $(document).ready(function() {
-            var activeStopForm = null;
-            var stopModal = document.getElementById('stopCommentModal');
-            var stopCommentText = document.getElementById('stopCommentText');
-            var stopCommentError = document.getElementById('stopCommentError');
-            var stopConfirmBtn = document.getElementById('stopCommentConfirmBtn');
-            var stopCancelBtn = document.getElementById('stopCommentCancelBtn');
-            var stopCloseBtn = document.getElementById('stopCommentClose');
-            var stopCommentAiBtn = document.getElementById('stopCommentAiBtn');
-            var stopCommentAiBtnText = document.getElementById('stopCommentAiBtnText');
-            var stopCommentTranslateBtn = document.getElementById('stopCommentTranslateBtn');
-            var stopCommentTranslateBtnText = document.getElementById('stopCommentTranslateBtnText');
-            var stopCommentAiFeedback = document.getElementById('stopCommentAiFeedback');
-            var spellCheckModal = document.getElementById('spellCheckModal');
-            var spellCheckVerifyBtn = document.getElementById('spellCheckVerifyBtn');
-            var spellCheckSkipBtn = document.getElementById('spellCheckSkipBtn');
-            var translateCheckModal = document.getElementById('translateCheckModal');
-            var translateCheckVerifyBtn = document.getElementById('translateCheckVerifyBtn');
-            var translateCheckSkipBtn = document.getElementById('translateCheckSkipBtn');
-
-            // State flags to avoid repetitive popups
-            var hasSpelledChecked = false;
-            var hasTranslated = false;
-
-            // Intercept stop button clicks to show modal
-            $(document).on('click', '.stop-button', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                activeStopForm = $(this).closest('.stop-form')[0];
-
-                // Reset modal state
-                stopCommentText.value = '';
-                stopCommentError.classList.add('hidden');
-                stopCommentAiFeedback.classList.add('hidden');
-                stopCommentAiFeedback.textContent = '';
-                stopConfirmBtn.disabled = true;
-                stopConfirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                stopCommentAiBtn.disabled = true;
-                stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                stopCommentTranslateBtn.disabled = true;
-                stopCommentTranslateBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                hasSpelledChecked = false;
-                hasTranslated = false;
-                stopModal.style.display = 'block';
-                stopCommentText.focus();
-            });
-
-            // Enable/disable confirm, AI and Translate button based on comment content
-            stopCommentText.addEventListener('input', function() {
-                var hasContent = this.value.trim().length > 0;
-                stopConfirmBtn.disabled = !hasContent;
-                stopCommentAiBtn.disabled = !hasContent;
-                stopCommentTranslateBtn.disabled = !hasContent;
-                if (hasContent) {
-                    stopConfirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    stopCommentAiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    stopCommentTranslateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    stopCommentError.classList.add('hidden');
-                } else {
-                    stopConfirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    stopCommentTranslateBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                }
-            });
-
-            // AI correction request
-            stopCommentAiBtn.addEventListener('click', function() {
-                var comment = stopCommentText.value.trim();
-                if (!comment) return;
-                stopConfirmBtn.disabled = true;
-
-                stopCommentAiBtn.disabled = true;
-                stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                stopCommentText.disabled = true;
-                var oldBtnText = stopCommentAiBtnText.textContent;
-                stopCommentAiBtnText.textContent = "{{ __('messages.Correcting...') }}";
-                stopCommentAiFeedback.classList.add('hidden');
-
-                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-                fetch('/tasks/correct-comment', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    body: JSON.stringify({ comment: comment })
-                })
-                .then(function(res) {
-                    if (!res.ok) {
-                        return res.json().then(function(err) {
-                            throw new Error(err.error || 'Failed to correct comment.');
-                        });
-                    }
-                    return res.json();
-                })
-                .then(function(data) {
-                    if (data.corrected) {
-                        stopCommentText.value = data.corrected;
-                        stopCommentAiFeedback.textContent = "{{ __('messages.Spelling and grammar corrected!') }}";
-                        stopCommentAiFeedback.className = "text-xs mt-1 text-emerald-600 font-medium";
-                        stopCommentAiFeedback.classList.remove('hidden');
-                        hasSpelledChecked = true;
-                    }
-                })
-                .catch(function(err) {
-                    console.error(err);
-                    stopCommentAiFeedback.textContent = "{{ __('messages.Failed to correct comment. Please check API configuration.') }}";
-                    stopCommentAiFeedback.className = "text-xs mt-1 text-red-500 font-medium";
-                    stopCommentAiFeedback.classList.remove('hidden');
-                })
-                .finally(function() {
-                    stopCommentAiBtn.disabled = false;
-                    stopCommentAiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    stopCommentText.disabled = false;
-                    stopCommentAiBtnText.textContent = oldBtnText;
-                    stopConfirmBtn.disabled = stopCommentText.value.trim().length === 0;
+$(document).ready(function() {
+$(document).on('click', '.stop-button', function(event) {
+                event.preventDefault(); event.stopPropagation();
+                const form = this.closest('.stop-form');
+                if (!form) return;
+                const action = form.getAttribute('action');
+                const token = form.querySelector('input[name="_token"]')?.value;
+                window.ChronoStopModal.open(action, async function(comment) {
+                    form.querySelector('.stop-comment-field').value = comment;
+                    HTMLFormElement.prototype.submit.call(form);
                 });
             });
-
-            // Translate request
-            stopCommentTranslateBtn.addEventListener('click', function() {
-                var comment = stopCommentText.value.trim();
-                if (!comment) return;
-
-                stopCommentTranslateBtn.disabled = true;
-                stopCommentTranslateBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                stopCommentAiBtn.disabled = true;
-                stopCommentAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                stopCommentText.disabled = true;
-                var oldBtnText = stopCommentTranslateBtnText.textContent;
-                stopCommentTranslateBtnText.textContent = "{{ __('messages.Translating...') }}";
-                stopCommentAiFeedback.classList.add('hidden');
-
-                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-                fetch('/tasks/translate-comment', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    body: JSON.stringify({ comment: comment })
-                })
-                .then(function(res) {
-                    if (!res.ok) {
-                        return res.json().then(function(err) {
-                            throw new Error(err.error || 'Failed to translate comment.');
-                        });
-                    }
-                    return res.json();
-                })
-                .then(function(data) {
-                    if (data.translated) {
-                        stopCommentText.value = data.translated;
-                        stopCommentAiFeedback.textContent = "{{ __('messages.Translated to Dutch!') }}";
-                        stopCommentAiFeedback.className = "text-xs mt-1 text-emerald-600 font-medium";
-                        stopCommentAiFeedback.classList.remove('hidden');
-                        hasTranslated = true;
-                    }
-                })
-                .catch(function(err) {
-                    console.error(err);
-                    stopCommentAiFeedback.textContent = "{{ __('messages.Failed to translate comment. Please check API configuration.') }}";
-                    stopCommentAiFeedback.className = "text-xs mt-1 text-red-500 font-medium";
-                    stopCommentAiFeedback.classList.remove('hidden');
-                })
-                .finally(function() {
-                    stopCommentTranslateBtn.disabled = false;
-                    stopCommentTranslateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    stopCommentAiBtn.disabled = false;
-                    stopCommentAiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    stopCommentText.disabled = false;
-                    stopCommentTranslateBtnText.textContent = oldBtnText;
-                });
-            });
-
-            // Function to actually submit the stop task
-            function doSubmitStop() {
-                var comment = stopCommentText.value.trim();
-                if (activeStopForm) {
-                    activeStopForm.querySelector('.stop-comment-field').value = comment;
-                    stopModal.style.display = 'none';
-                    activeStopForm.submit();
-                }
-            }
-
-            // Confirm stop: show spell-check or translate popups if they haven't been completed yet
-            stopConfirmBtn.addEventListener('click', function() {
-                var comment = stopCommentText.value.trim();
-                if (!comment) {
-                    stopCommentError.classList.remove('hidden');
-                    stopCommentText.focus();
-                    return;
-                }
-
-                if (!hasSpelledChecked) {
-                    spellCheckModal.style.display = 'block';
-                } else if (!hasTranslated) {
-                    translateCheckModal.style.display = 'block';
-                } else {
-                    doSubmitStop();
-                }
-            });
-
-            // Spell-check popup: verify spelling (trigger AI correction then return to comment modal)
-            spellCheckVerifyBtn.addEventListener('click', function() {
-                spellCheckModal.style.display = 'none';
-                if (!stopCommentAiBtn.disabled) {
-                    stopCommentAiBtn.click();
-                }
-            });
-
-            // Spell-check popup: skip and open translate confirmation popup
-            spellCheckSkipBtn.addEventListener('click', function() {
-                spellCheckModal.style.display = 'none';
-                hasSpelledChecked = true;
-                if (!hasTranslated) {
-                    translateCheckModal.style.display = 'block';
-                } else {
-                    doSubmitStop();
-                }
-            });
-
-            // Close spell-check modal on outside click
-            spellCheckModal.addEventListener('click', function(e) {
-                if (e.target === spellCheckModal) {
-                    spellCheckModal.style.display = 'none';
-                }
-            });
-
-            // Translate popup: verify spelling (trigger translation then return to comment modal)
-            translateCheckVerifyBtn.addEventListener('click', function() {
-                translateCheckModal.style.display = 'none';
-                hasTranslated = true;
-                if (!stopCommentTranslateBtn.disabled) {
-                    stopCommentTranslateBtn.click();
-                }
-            });
-
-            // Translate popup: skip and submit directly
-            translateCheckSkipBtn.addEventListener('click', function() {
-                translateCheckModal.style.display = 'none';
-                hasTranslated = true;
-                doSubmitStop();
-            });
-
-            // Close translate modal on outside click
-            translateCheckModal.addEventListener('click', function(e) {
-                if (e.target === translateCheckModal) {
-                    translateCheckModal.style.display = 'none';
-                }
-            });
-
-            // Cancel / Close modal
-            function closeStopModal() {
-                stopModal.style.display = 'none';
-                activeStopForm = null;
-            }
-            stopCancelBtn.addEventListener('click', closeStopModal);
-            stopCloseBtn.addEventListener('click', closeStopModal);
-            stopModal.addEventListener('click', function(e) {
-                if (e.target === stopModal) closeStopModal();
-            });
-
-            stopCommentText.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    if (!stopConfirmBtn.disabled) {
-                        stopConfirmBtn.click();
-                    }
-                }
-            });
-        });
-    </script>
+});
+</script>
     @livewireScripts
 </body>
 </html>

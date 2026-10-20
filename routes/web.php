@@ -245,6 +245,8 @@ Route::middleware(['auth', 'verified', 'role:Admin'])->name('admin.')->prefix('a
     Route::get('/tasks/show/{task_id}', [tasksController::class, "show"])->name('tasks.show');
     Route::post('/tasks/{task}/status/{status}', [tasksController::class, "status"])->name('tasks.status');
     Route::post('/tasks/move-task', [tasksController::class, "moveTask"])->name('tasks.moveTask');
+    Route::post('/tasks/manual-timer', [tasksController::class, 'createManualTimer'])
+        ->middleware('can:Add manual timer')->name('tasks.manualTimer');
     Route::get('/tasks/create/{project_id?}', [tasksController::class, "create"])->name('tasks.create');
     Route::post('/tasks/store/{project_id}', [tasksController::class, "store"])->name('tasks.store');
     Route::get('/tasks/board', [tasksController::class, "board"])->name('tasks.board');
@@ -2099,6 +2101,7 @@ Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']
 Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->middleware('guest')->name('password.request');
 
 Route::middleware(['auth', 'throttle:30,1'])->group(function () {
+    Route::post('/tasks/prepare-stop-comment', [tasksController::class, 'prepareStopComment'])->name('tasks.prepare-stop-comment');
     Route::post('/tasks/correct-comment', [tasksController::class, 'correctComment'])->name('tasks.correct-comment');
     Route::post('/tasks/translate-comment', [tasksController::class, 'translateComment'])->name('tasks.translate-comment');
 });

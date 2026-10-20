@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'chrono_stop_auto_description' => 'Je beschrijving wordt automatisch gecorrigeerd en vertaald naar de taal van je dashboard.',
+    'chrono_stop_processing' => 'Beschrijving verwerken en timer stoppen…',
+    'chrono_stop_processing_failed' => 'De beschrijving of het stoppen is mislukt. Je tekst is bewaard; probeer het opnieuw.',
+    'chrono_tz_search' => 'Zoek stad of tijdzone…',
+    'chrono_tz_confirm' => 'Bevestig je tijdzone voordat je de timer start. Hieronder kun je een andere kiezen.',
+    'upgrade_country_saved' => 'Je land is opgeslagen bij je bedrijfsgegevens.',
     'search_placeholder' => 'Zoeken...',
     'Clients' => 'Klanten',
     'Employees' => 'Medewerkers',

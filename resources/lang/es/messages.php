@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'chrono_stop_auto_description' => 'Tu descripción se corregirá y traducirá automáticamente al idioma del panel.',
+    'chrono_stop_processing' => 'Preparando la descripción y deteniendo el cronómetro…',
+    'chrono_stop_processing_failed' => 'No se pudo preparar la descripción o detener el cronómetro. Tu texto se conserva; inténtalo de nuevo.',
+    'chrono_tz_search' => 'Buscar ciudad o zona horaria…',
+    'chrono_tz_confirm' => 'Confirma tu zona horaria antes de iniciar el cronómetro. Puedes elegir otra a continuación.',
+    'upgrade_country_saved' => 'Tu país se ha guardado correctamente en la información de tu empresa.',
     'search_placeholder' => 'Buscar...',
     'Clients' => 'Clientes',
     'Employees' => 'Empleados',

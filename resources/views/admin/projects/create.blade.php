@@ -152,7 +152,7 @@
                                 </div>
                             </div>
                             <div>
-                                <label for="costPerHour" class="block text-[13px] font-medium text-slate-700 mb-1.5">{{ __('messages.CPH') }} <span class="text-red-500">*</span></label>
+                                <label for="costPerHour" class="block text-[13px] font-medium text-slate-700 mb-1.5">{{ __('messages.CPH') }}</label>
                                 <div class="relative">
                                     <span class="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-slate-400">
                                         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
@@ -170,7 +170,7 @@
                                 </div>
                             </div>
                             <div>
-                                <label for="tva" class="block text-[13px] font-medium text-slate-700 mb-1.5">{{ __('messages.TVA %') }} <span class="text-red-500">*</span></label>
+                                <label for="tva" class="block text-[13px] font-medium text-slate-700 mb-1.5">{{ __('messages.TVA %') }}</label>
                                 <div class="relative">
                                     <span class="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-slate-400 text-sm font-semibold">%</span>
                                     <input type="number" step="0.0001" id="tva" name='tva' class="w-full rounded-xl border-slate-200 bg-white pl-8 pr-3.5 py-3 text-sm text-slate-800 shadow-sm outline-none transition focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25" />
@@ -227,7 +227,7 @@
 
                             <div>
                                 <div class="mb-2 flex items-center justify-between gap-2">
-                                    <label class="block text-[13px] font-medium text-slate-700">{{ __('messages.Contacts label') }} <span class="text-red-500">*</span></label>
+                                    <label class="block text-[13px] font-medium text-slate-700">{{ __('messages.Contacts label') }}</label>
                                     @php
                                     $client_contacts = App\Models\client_contacts::where('client_id', $client_id ?? null)
                                         ->whereNotNull('name')

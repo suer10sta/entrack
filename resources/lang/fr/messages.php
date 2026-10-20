@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'chrono_stop_auto_description' => 'Votre description sera automatiquement corrigée et traduite dans la langue du tableau de bord.',
+    'chrono_stop_processing' => 'Préparation de la description et arrêt du chronomètre…',
+    'chrono_stop_processing_failed' => 'Impossible de préparer la description ou d’arrêter le chronomètre. Votre texte est conservé ; veuillez réessayer.',
+    'chrono_tz_search' => 'Rechercher une ville ou un fuseau…',
+    'chrono_tz_confirm' => 'Confirmez votre fuseau horaire avant de démarrer le chronomètre. Vous pouvez en choisir un autre ci-dessous.',
+    'upgrade_country_saved' => 'Votre pays a bien été enregistré dans les informations de votre entreprise.',
     'search_placeholder' => 'Rechercher...',
     'Clients' => 'Clients',
     'Employees' => 'Employés',

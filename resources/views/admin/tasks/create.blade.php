@@ -169,10 +169,7 @@
 
                 {{-- Header --}}
                 <div class="flex items-center gap-3 mb-4">
-                    <a href="{{ $cancelRoute }}" title="{{ __('messages.Cancel') }}" aria-label="{{ __('messages.Cancel') }}"
-                        class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-[#0B2638] hover:bg-slate-50 transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
-                    </a>
+
                     <div class="min-w-0">
                         <h1 class="text-[19px] sm:text-[21px] font-bold tracking-tight text-[#0B2638] leading-tight truncate">{{ __('messages.New Task') }}</h1>
                         <p class="text-[12px] text-slate-500 truncate">{{ __('messages.Create a new task for the project') }}: {{ $project->name ?? '' }}</p>

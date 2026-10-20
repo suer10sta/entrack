@@ -93,14 +93,7 @@
 
             {{-- Page Header --}}
             <div class="flex items-center gap-3 mb-5">
-                <a href="{{ $backRoute }}" title="{{ __('messages.Invoices') }}" aria-label="{{ __('messages.Invoices') }}"
-                   class="dt-btn dt-btn-ghost !px-3 flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                         stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-                    </svg>
-                </a>
+
                 <div class="min-w-0">
                     <p class="dt-overline mb-1">{{ __('messages.Invoices') }}</p>
                     <h1 class="text-[22px] sm:text-[24px] font-bold tracking-tight text-[#0B2638] leading-tight truncate">{{ __('messages.Generate Invoice - DalyTrac') }}</h1>
@@ -436,7 +429,6 @@
             }).trigger('change');
 
 
-
             $('#hoursInput').on('input', function() {
 
                 if ($(this).val()) {
@@ -472,7 +464,6 @@
             });
 
 
-
              $('#manualBudgetInput').on('input', function() {
 
                  if ($(this).val()) {
@@ -486,7 +477,6 @@
                  }
 
             });
-
 
 
             $('#downloadInvoiceBtn').click(function(e) {
@@ -703,7 +693,6 @@
             });
 
 
-
             function loadAllDevis(selectId) {
                 $.ajax({
                     url: '/admin/get-all-devis',
@@ -746,7 +735,6 @@
             $('#devisSelect3').change(function() { loadDevisComment($(this).val(), '#PartialInvComment'); });
 
             $('#devisSelect4').change(function() { loadDevisComment($(this).val(), '#PercentageInvComment'); });
-
 
 
         });

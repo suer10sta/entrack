@@ -54,14 +54,6 @@
                 @endphp
 
                 <div class="flex items-center gap-2">
-                     <div class="flex-shrink-0">
-                        <a href="{{ $backRoute }}" class="dt-btn dt-btn-ghost text-[12px]">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                            </svg>
-                            <!-- {{ __('messages.Back') }} -->
-                        </a>
-                    </div>
                     <div class="min-w-0">
                         <p class="text-[10px] font-semibold uppercase tracking-[.08em] text-slate-400 mb-0.5">{{ __('messages.Settings') }}</p>
                         <h1 class="text-[18px] sm:text-[20px] lg:text-[22px] font-bold tracking-tight text-[#0B2638] leading-tight">

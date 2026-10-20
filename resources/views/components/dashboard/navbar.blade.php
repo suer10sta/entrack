@@ -400,25 +400,48 @@
 
             {{-- TIMEZONE POPOVER: shown before the first chrono start when unset --}}
             <div x-show="tzOpen"
-                 @click.away="tzOpen = false"
+                 @click.away="if (!tzSaving) { tzOpen = false; tzSelectOpen = false; }"
                  x-cloak
                  class="chrono-picker-panel p-4">
                 <p class="text-[10.5px] font-bold uppercase tracking-[0.08em] text-slate-400 mb-1">{{ __('messages.Timezone') }}</p>
-                <p class="text-[12px] text-slate-600 mb-3">{{ __('messages.chrono_tz_required') }}</p>
-                <select x-model="tzValue"
-                        class="w-full px-2.5 py-2 text-[13px] border border-slate-200 rounded-lg bg-white text-[#0B2638] focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none transition mb-2">
-                    <option value="">{{ __('messages.Select your timezone') }}</option>
-                    @foreach(timezone_identifiers_list() as $tzName)
-                        <option value="{{ $tzName }}">{{ $tzName }}</option>
-                    @endforeach
-                </select>
+                <p class="text-[12px] text-slate-600 mb-3">{{ __('messages.chrono_tz_confirm') }}</p>
+                <div class="chrono-tz-selector mb-3" @keydown.escape.stop="tzSelectOpen = false" @click.outside="tzSelectOpen = false">
+                    <button type="button" @click="toggleTimezoneSelector()" :disabled="tzSaving"
+                            :aria-expanded="tzSelectOpen" aria-controls="chronoTimezoneOptions" aria-haspopup="listbox"
+                            class="chrono-tz-trigger">
+                        <span class="min-w-0 truncate" x-text="tzValue || @js(__('messages.Select your timezone'))"></span>
+                        <svg class="w-4 h-4 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+                    </button>
+                    <div x-show="tzSelectOpen" x-cloak class="chrono-tz-dropdown">
+                        <div class="chrono-tz-search">
+                            <input type="search" x-ref="timezoneSearch" x-model="tzSearch" :disabled="tzSaving"
+                                   @input="tzActiveIndex = 0"
+                                   @keydown.arrow-down.prevent="focusTimezoneOption(0)"
+                                   @keydown.enter.prevent="if (filteredTimezones.length) selectTimezone(filteredTimezones[tzActiveIndex] || filteredTimezones[0])"
+                                   aria-controls="chronoTimezoneOptions" aria-label="{{ __('messages.chrono_tz_search') }}"
+                                   placeholder="{{ __('messages.chrono_tz_search') }}" autocomplete="off">
+                        </div>
+                        <div id="chronoTimezoneOptions" x-ref="timezoneOptions" role="listbox" aria-label="{{ __('messages.Timezone') }}" class="chrono-tz-options" :aria-busy="tzSaving">
+                            <template x-for="(zone, index) in filteredTimezones" :key="zone">
+                                <button type="button" role="option" :aria-selected="tzValue === zone" :disabled="tzSaving"
+                                        @click="selectTimezone(zone)" @focus="tzActiveIndex = index"
+                                        @keydown.arrow-down.prevent="focusTimezoneOption(index + 1)"
+                                        @keydown.arrow-up.prevent="focusTimezoneOption(index - 1)"
+                                        class="chrono-tz-option" :class="{ 'is-selected': tzValue === zone }">
+                                    <span x-text="zone"></span><span x-show="tzValue === zone" aria-hidden="true">✓</span>
+                                </button>
+                            </template>
+                            <p x-show="!filteredTimezones.length" class="px-3 py-3 text-xs text-slate-500" role="status">{{ __('messages.No results found') }}</p>
+                        </div>
+                    </div>
+                </div>
                 <p x-show="tzError" x-text="tzError" class="text-[11.5px] text-red-500 mb-2"></p>
                 <div class="flex justify-end gap-2">
                     <button type="button" @click="tzOpen = false"
                             class="h-8 px-3 rounded-lg bg-white border border-slate-300 text-slate-600 text-[12.5px] font-semibold hover:bg-slate-50 transition-colors">
                         {{ __('messages.Cancel') }}
                     </button>
-                    <button type="button" @click="saveTimezoneAndStart()" :disabled="tzSaving"
+                    <button type="button" @click="saveTimezoneAndStart()" :disabled="tzSaving || !tzValue"
                             class="h-8 px-3 rounded-lg bg-[#0B2638] text-white text-[12.5px] font-semibold hover:bg-[#14364d] transition-colors disabled:opacity-40">
                         {{ __('messages.Save') }}
                     </button>
@@ -790,6 +813,19 @@
         .chrono-idle-btn span { display: none; }
         .chrono-skeleton { width: 32px; }
     }
+
+    /* First-start timezone confirmation: search stays above the bounded list. */
+    .chrono-tz-trigger { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 40px; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; color: #0B2638; font-size: 13px; text-align: left; }
+    .chrono-tz-trigger:focus-visible, .chrono-tz-search input:focus { outline: 2px solid #2D7080; outline-offset: 2px; }
+    .chrono-tz-dropdown { margin-top: 6px; border: 1px solid #cbd5e1; border-radius: 10px; overflow: hidden; background: white; }
+    .chrono-tz-search { padding: 8px; border-bottom: 1px solid #e2e8f0; }
+    .chrono-tz-search input { width: 100%; min-width: 0; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px; font-size: 12px; background: #f8fafc; color: #0B2638; }
+    .chrono-tz-options { max-height: min(200px, 30vh); overflow-y: auto; overscroll-behavior: contain; }
+    .chrono-tz-option { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; padding: 9px 10px; text-align: left; font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; color: #475569; }
+    .chrono-tz-option:hover, .chrono-tz-option:focus-visible { background: #edf4f4; color: #0B2638; outline: none; }
+    .chrono-tz-option.is-selected { background: #edf4f4; color: #2D7080; font-weight: 600; }
+    .chrono-picker-panel:has(.chrono-tz-selector) { max-height: calc(100dvh - 100px); overflow-y: auto; }
+
 </style>
 
 @php
@@ -1008,6 +1044,56 @@
             tzViewerEmployeeId: @json($chronoViewerEmployeeId),
             tzUpdateUrl: @json($chronoTzUpdateUrl),
             tzOpen: false, tzValue: '', tzSaving: false, tzError: '',
+            tzManuallySelected: false,
+            tzSelectOpen: false, tzSearch: '', tzActiveIndex: 0,
+            timezones: @json(timezone_identifiers_list()),
+            get filteredTimezones() {
+                const query = this.norm(this.tzSearch).replace(/_/g, ' ');
+                return this.timezones.filter(zone => this.norm(zone).replace(/_/g, ' ').includes(query));
+            },
+            isValidTimezone(zone) {
+                if (typeof zone !== 'string' || (zone !== 'UTC' && !/^[A-Za-z_]+\/[A-Za-z0-9_+\-/]+$/.test(zone))) return false;
+                try {
+                    new Intl.DateTimeFormat('en', { timeZone: zone });
+                    return true;
+                } catch (_) { return false; }
+            },
+            initializeTimezoneSelection() {
+                if (this.isValidTimezone(this.userTimezone)) {
+                    this.tzValue = this.userTimezone;
+                } else if (!this.tzManuallySelected || !this.isValidTimezone(this.tzValue)) {
+                    let detected = '';
+                    try {
+                        detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    } catch (_) { /* UTC is only the fallback when detection is unavailable. */ }
+                    this.tzValue = this.isValidTimezone(detected) ? detected : 'UTC';
+                }
+                // Preserve valid saved identifiers and browser IANA aliases in the list.
+                if (!this.timezones.includes(this.tzValue)) this.timezones.push(this.tzValue);
+            },
+            prepareTimezoneSelection() {
+                this.tzError = ''; this.tzSearch = ''; this.tzSelectOpen = false; this.tzActiveIndex = 0;
+                this.initializeTimezoneSelection();
+                this.openPanel = false;
+                this.tzOpen = true;
+            },
+            toggleTimezoneSelector() {
+                this.tzSelectOpen = !this.tzSelectOpen;
+                if (this.tzSelectOpen) {
+                    this.tzSearch = ''; this.tzActiveIndex = 0;
+                    this.$nextTick(() => this.$refs.timezoneSearch.focus());
+                }
+            },
+            selectTimezone(zone) {
+                if (this.tzSaving || !this.timezones.includes(zone) || !this.isValidTimezone(zone)) return;
+                this.tzManuallySelected = true;
+                this.tzValue = zone; this.tzError = ''; this.tzSelectOpen = false;
+            },
+            focusTimezoneOption(index) {
+                const options = this.$refs.timezoneOptions.querySelectorAll('[role="option"]');
+                if (index < 0) { this.$refs.timezoneSearch.focus(); return; }
+                if (options.length) options[Math.min(index, options.length - 1)].focus();
+            },
             /* project picker */
             allProjects: @json($chronoInitialProjects),
             filteredProjects: @json($chronoInitialProjects),
@@ -1019,6 +1105,7 @@
             selectedTask: null, tasksLoading: false,
             taskSelectOpen: false,
             async init() {
+                this.initializeTimezoneSelection();
                 await this.checkRunningTimer();
                 /* Safety net: converge even if every event mechanism fails (no refresh needed) */
                 try { setInterval(() => { this.checkRunningTimer(); }, 30000); } catch {}
@@ -1265,10 +1352,8 @@
             async startChrono() {
                 if (!this.selectedTask || !this.selectedProject || this.starting) return;
                 /* No timezone yet → collect it first (existing save endpoint), then continue */
-                if (!this.userTimezone && this.tzViewerEmployeeId && this.tzUpdateUrl) {
-                    this.tzValue = '';
-                    this.tzError = '';
-                    this.tzOpen = true;
+                if (!this.isValidTimezone(this.userTimezone) && this.tzViewerEmployeeId && this.tzUpdateUrl) {
+                    this.prepareTimezoneSelection();
                     return;
                 }
                 this.starting = true; this.chronoError = '';
@@ -1311,7 +1396,7 @@
             /* ── timezone gate: save via the existing employee update endpoint,
                then continue the pending chrono start ── */
             async saveTimezoneAndStart() {
-                if (!this.tzValue) {
+                if (!this.isValidTimezone(this.tzValue) || !this.timezones.includes(this.tzValue)) {
                     this.tzError = @json(__('messages.Select your timezone'));
                     return;
                 }
@@ -1325,9 +1410,11 @@
                         body: JSON.stringify({ id: this.tzViewerEmployeeId, column: 'timezone', content: this.tzValue })
                     });
                     if (!r.ok) throw new Error('Request failed: ' + r.status);
+                    const result = await r.json();
+                    if (!result.success) throw new Error('Timezone was not saved');
                     this.userTimezone = this.tzValue;
-                    this.tzOpen = false;
-                    this.startChrono();
+                    this.tzOpen = false; this.tzSelectOpen = false;
+                    await this.startChrono();
                 } catch (e) {
                     console.error('Save timezone:', e);
                     this.tzError = @json(__('messages.chrono_tz_save_failed'));

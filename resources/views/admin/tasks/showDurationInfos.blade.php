@@ -107,10 +107,7 @@
 
     <!-- {{-- Header --}}
     <div class="flex items-center gap-3 mb-4">
-        <a href="javascript:history.back()" title="{{ __('messages.Cancel') }}" aria-label="{{ __('messages.Cancel') }}"
-            class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-[#0B2638] hover:bg-slate-50 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
-        </a>
+
         <div class="min-w-0 flex-1">
             <p class="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400">{{ __('messages.Task Details') }}</p>
                         <h1 class="text-[19px] sm:text-[22px] font-bold tracking-tight text-[#0B2638] leading-tight truncate" title="{{ $diFirst->task_name ?? '' }}">
@@ -485,7 +482,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     // --- Fin des fonctions de contrôle des Modals ---
 
-
     // Gérer les clics sur les cellules date/heure
     const cells = document.querySelectorAll('.clickable');
     cells.forEach(cell => {
@@ -801,7 +797,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         closeModal('moveDurationModal');
     });
-
 
     document.querySelectorAll('.editable-comment').forEach(function(cell) {
         cell.addEventListener('dblclick', function() {

@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'chrono_stop_auto_description' => 'Your description will be corrected and translated into your dashboard language automatically.',
+    'chrono_stop_processing' => 'Preparing your description and stopping the timer…',
+    'chrono_stop_processing_failed' => 'Unable to prepare the description or stop the timer. Your text is preserved; please try again.',
+    'chrono_tz_search' => 'Search city or time zone…',
+    'chrono_tz_confirm' => 'Confirm your time zone before starting the timer. You can choose another one below.',
+    'upgrade_country_saved' => 'Your country has been saved successfully with your company information.',
     'search_placeholder' => 'Search...',
     'Clients' => 'Clients',
     'Employees' => 'Employees',

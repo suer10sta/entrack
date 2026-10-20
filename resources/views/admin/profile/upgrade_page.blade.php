@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ __('messages.Upgrade Your Plan Page Title') }}</title>
     @vite('resources/css/app.css')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.default.min.css">
+    <style>
+        .upgrade-page .ts-control { border: 1px solid #cbd5e1; border-radius: .75rem; padding: .75rem; font-size: .875rem; min-height: 46px; box-shadow: none; }
+        .upgrade-page .ts-wrapper.focus .ts-control { border-color: #2D7080; box-shadow: 0 0 0 3px rgb(45 112 128 / .15); }
+        .upgrade-page .ts-dropdown { border-radius: .75rem; border-color: #cbd5e1; overflow: hidden; font-size: .875rem; }
+        .upgrade-page .ts-dropdown .option { padding: .65rem .75rem; }
+        .upgrade-page .ts-dropdown .active { background: #edf4f4; color: #0B2638; }
+        .upgrade-page .ts-dropdown .selected { background: #2D7080; color: white; }
+        .upgrade-page [data-plan-link]:focus-visible { outline: 3px solid #2D7080; outline-offset: 3px; }
+    </style>
 </head>
 <body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
     {{-- Sidebar --}}
@@ -19,7 +29,7 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <div class="mx-auto w-full max-w-6xl p-4 sm:p-6 lg:p-8">
+        <div class="upgrade-page mx-auto w-full max-w-6xl p-4 sm:p-6 lg:p-8">
 
         {{-- Flash Messages --}}
         @if(session('error'))
@@ -56,17 +66,17 @@
             </div>
         @endif
 
-        <div class="text-center mb-6 sm:mb-8">
+        <div class="mb-8 border-b border-slate-200 pb-6 sm:mb-10">
             <h1 class="mt-1 text-2xl sm:text-[32px] font-bold tracking-tight text-[#0B2638]">
                 {{ __('messages.Upgrade Your Plan') }}
             </h1>
-            <p class="dt-section-subtitle mt-1.5 max-w-xl mx-auto">
+            <p class="dt-section-subtitle mt-2 max-w-2xl">
                 {{ __('messages.Upgrade Your Plan subtitle') }}
             </p>
         </div>
 
-        <div class="max-w-4xl mx-auto mb-4 dt-card p-5 sm:p-6">
-            <div class="flex items-center gap-3 mb-4">
+        <div class="mb-8 dt-card p-5 sm:p-6 lg:flex lg:items-center lg:justify-between lg:gap-8">
+            <div class="flex items-center gap-3 mb-5 lg:mb-0 lg:max-w-md">
                 <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-[#E7B84B]/20 text-[#7a5a12] flex items-center justify-center">
                     <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 21a4.622 4.622 0 01-1.341-8.753c0-1.051.26-1.784.608-2.487A4.997 4.997 0 018 6h8a4.997 4.997 0 013.733 1.76c.348.703.608 1.436.608 2.487A4.622 4.622 0 0121 21H3z" />
@@ -77,120 +87,48 @@
                     <p class="dt-section-subtitle">{{ __('messages.Your company country is required before subscribing.') }}</p>
                 </div>
             </div>
-            <div class="flex flex-col sm:flex-row gap-2.5">
+            <div class="flex flex-col sm:flex-row gap-3 lg:w-96 lg:shrink-0">
                 <div class="flex-1 min-w-0">
                     <label for="companyCountry" class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Country') }}</label>
-                    <input type="text" id="companyCountry" name="country" value="{{ Auth::user()->entreprise?->country ?? '' }}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none" placeholder="{{ __('messages.Enter your country') }}">
+                    @php
+                        $countriesList = json_decode(file_get_contents(base_path('countries.json')), true) ?? [];
+                        $selectedCountry = Auth::user()->entreprise?->country ?? '';
+                        $companyInfoRoutePrefix = collect([
+                            'Admin' => 'admin',
+                            'Responsable de projet' => 'Responsable_de_projet',
+                            'Employee' => 'employee',
+                            'SuperAdmin' => 'SuperAdmin',
+                            'Responsable de projet et gestionnaire' => 'Responsable_gestionnaire',
+                        ])->first(fn ($prefix, $role) => Auth::user()->hasRole($role));
+                        $companyInfoUpdateUrl = $companyInfoRoutePrefix
+                            ? route($companyInfoRoutePrefix . '.Enterprise_infos.updateInfos')
+                            : null;
+                    @endphp
+                    <select id="companyCountry" name="country" aria-describedby="countryValidationMsg" class="w-full rounded-xl border-slate-300 text-sm focus:border-[#2D7080] focus:ring-[#2D7080]">
+                        <option value="">{{ __('messages.Enter your country') }}</option>
+                        @if($selectedCountry && !in_array($selectedCountry, array_column($countriesList, 'name'), true))
+                            <option value="{{ $selectedCountry }}" selected>{{ $selectedCountry }}</option>
+                        @endif
+                        @foreach($countriesList as $country)
+                            <option value="{{ $country['name'] }}" data-code="{{ $country['code'] }}" @selected($selectedCountry === $country['name'])>{{ $country['name'] }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="flex items-end flex-shrink-0">
-                    <button type="button" id="validateCountryBtn" class="dt-btn dt-btn-teal min-h-[42px] w-full sm:w-auto">
+                    <button type="button" id="validateCountryBtn" class="dt-btn dt-btn-teal min-h-[46px] w-full sm:w-auto">
                         {{ __('messages.Validate') }}
                     </button>
                 </div>
             </div>
-            <div id="countryValidationMsg" class="mt-2 text-[12.5px] hidden"></div>
         </div>
+        <div id="countryValidationMsg" role="status" aria-live="polite" class="-mt-6 mb-8 text-sm hidden"></div>
 
-        {{-- Renewal preference + Stripe sync status in a single card --}}
-        <div class="max-w-4xl mx-auto mb-6 sm:mb-8 dt-card p-5 sm:p-6">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                <div class="min-w-0">
-                    <p class="text-[13.5px] font-semibold text-[#0B2638]">{{ __('messages.Renewal preference') }}</p>
-                    <p class="dt-section-subtitle">{{ __('messages.Renewal preference description') }}</p>
-                </div>
-                @php
-                    $currentRenewalPreference = optional(Auth::user()->entreprise)->auto_renew === false ? 'manual' : 'auto';
-                @endphp
-                <div class="inline-flex items-center self-start md:self-auto bg-slate-100 rounded-xl p-1 flex-shrink-0">
-                    <button type="button"
-                            class="renewal-option px-3.5 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap {{ $currentRenewalPreference === 'auto' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600' }}"
-                            data-renewal-value="auto">
-                        {{ __('messages.Auto renew') }}
-                    </button>
-                    <button type="button"
-                            class="renewal-option px-3.5 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap {{ $currentRenewalPreference === 'manual' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600' }}"
-                            data-renewal-value="manual">
-                        {{ __('messages.Manual renew') }}
-                    </button>
-                </div>
-            </div>
-            <input type="hidden" id="renewalPreference" value="{{ $currentRenewalPreference }}">
-            @php
-                $renewalSync = $renewalSync ?? [
-                    'state' => 'unknown',
-                    'is_synced' => false,
-                    'label' => __('messages.Renewal status unavailable'),
-                ];
-            @endphp
-            <hr class="my-4 border-slate-200">
-            <div id="stripeSyncStatus"
-                 class="flex flex-wrap items-center gap-x-2.5 gap-y-1.5"
-                 data-state="{{ $renewalSync['state'] ?? 'unknown' }}"
-                 data-is-synced="{{ !empty($renewalSync['is_synced']) ? '1' : '0' }}"
-                 data-label="{{ $renewalSync['label'] ?? __('messages.Renewal status unavailable') }}">
-                <span id="stripeSyncBadge" class="dt-badge dt-badge-neutral"><span class="dt-dot"></span>{{ __('messages.Unknown') }}</span>
-                <span class="text-xs text-slate-600">
-                    <span id="stripeSyncText">{{ $renewalSync['label'] ?? __('messages.Renewal status unavailable') }}</span>
-                </span>
-            </div>
-        </div>
-
-        <div class="mb-6 sm:mb-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
-
-            <div class="dt-card dt-card-hover p-5">
-                <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-[#2D7080]/10 text-[#2D7080] flex items-center justify-center">
-                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <h3 class="text-[15px] font-semibold tracking-tight text-[#0B2638] mt-3">
-                    @if($trialDaysRemaining !== null && $trialDaysRemaining > 0)
-                        {{ $trialDaysRemaining }} {{ __('messages.days left') }}
-                    @elseif($trialDaysRemaining === null)
-                        Essai en cours
-                    @else
-                        Trial Expiré
-                    @endif
-                </h3>
-                <p class="dt-section-subtitle mt-1">
-                    @if($trialDaysRemaining !== null && $trialDaysRemaining > 0)
-                        {{ __('messages.0-Day Trial description') }}
-                    @elseif($trialDaysRemaining === null)
-                        Essai en cours
-                    @else
-                        Votre période d'essai est terminée
-                    @endif
-                </p>
-            </div>
-
-            <div class="dt-card dt-card-hover p-5">
-                <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-[#2D7080]/10 text-[#2D7080] flex items-center justify-center">
-                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c.139.132.28.255.424.372M9.75 3.104A2.25 2.25 0 0112 5.25v13.5A2.25 2.25 0 019.75 21v-5.714A2.25 2.25 0 0112 13.688v-5.714a2.25 2.25 0 012.25-2.162M14.25 3.104c.139.132.28.255.424.372M14.25 3.104A2.25 2.25 0 0012 5.25v13.5A2.25 2.25 0 0014.25 21v-5.714a2.25 2.25 0 00-2.25-2.612v-5.714a2.25 2.25 0 002.25-2.162M12 2.25c-.14.118-.277.243-.41.372M12 2.25c.14.118.277.243.41.372" /></svg>
-                </div>
-                <h3 class="text-[15px] font-semibold tracking-tight text-[#0B2638] mt-3">{{ __('messages.Advanced Features') }}</h3>
-                <p class="dt-section-subtitle mt-1">{{ __('messages.Advanced Features description') }}</p>
-            </div>
-
-            <div class="dt-card dt-card-hover p-5">
-                <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-[#2D7080]/10 text-[#2D7080] flex items-center justify-center">
-                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-2.144M9 13a4 4 0 100-8 4 4 0 000 8zm0 0v1.5a2.5 2.5 0 005 0V13m-5 0v0a5 5 0 00-5 0v0m5 0v0a5 5 0 015 0v0m-5 0v0a5 5 0 01-5 0v0" /></svg>
-                </div>
-                <h3 class="text-[15px] font-semibold tracking-tight text-[#0B2638] mt-3">{{ __('messages.Team Collaboration') }}</h3>
-                <p class="dt-section-subtitle mt-1">{{ __('messages.Team Collaboration description') }}</p>
-            </div>
-
-            <div class="dt-card dt-card-hover p-5">
-                <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-[#2D7080]/10 text-[#2D7080] flex items-center justify-center">
-                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
-                </div>
-                <h3 class="text-[15px] font-semibold tracking-tight text-[#0B2638] mt-3">{{ __('messages.Expert Support') }}</h3>
-                <p class="dt-section-subtitle mt-1">{{ __('messages.Expert Support description') }}</p>
-            </div>
-        </div>
         {{-- Pricing Cards --}}
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch">
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-stretch mb-8">
 
                     {{-- Solo Plan --}}
                     <div class="dt-card dt-card-hover p-6 sm:p-7 flex flex-col">
-                        <div class="mb-4">
+                        <div class="mb-4 min-h-[68px]">
                             <h2 class="text-xl font-bold tracking-tight text-[#0B2638]">{{ __('messages.Solo Plan label') }}</h2>
                             <p class="dt-section-subtitle mt-1">{{ __('messages.Solo Plan subtitle') }}</p>
                         </div>
@@ -217,7 +155,7 @@
                         <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                             <span class="dt-badge dt-badge-accent !text-[11px] !font-bold uppercase tracking-wide shadow-sm"><span class="dt-dot"></span>{{ __('messages.Most Popular') }}</span>
                         </div>
-                        <div class="mb-4">
+                        <div class="mb-4 min-h-[68px]">
                             <h2 class="text-xl font-bold tracking-tight text-[#0B2638]">{{ __('messages.Premium Plan label') }}</h2>
                             <p class="dt-section-subtitle mt-1">{{ __('messages.Premium Plan subtitle') }}</p>
                         </div>
@@ -243,7 +181,7 @@
 
                     {{-- Pro Plan --}}
                     <div class="dt-card dt-card-hover p-6 sm:p-7 flex flex-col">
-                        <div class="mb-4">
+                        <div class="mb-4 min-h-[68px]">
                             <h2 class="text-xl font-bold tracking-tight text-[#0B2638]">{{ __('messages.Pro Plan label') }}</h2>
                             <p class="dt-section-subtitle mt-1">{{ __('messages.Pro Plan subtitle') }}</p>
                         </div>
@@ -269,10 +207,60 @@
                         </ul>
                     </div>
                 </div>
+
+        <div class="mb-6 sm:mb-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
+
+            <div class="dt-card p-5 sm:p-6">
+                <div class="flex-shrink-0 w-11 h-11 rounded-xl bg-[#2D7080]/10 text-[#2D7080] flex items-center justify-center">
+                    <svg class="h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                </div>
+                <h3 class="text-[15px] font-semibold tracking-tight text-[#0B2638] mt-4">
+                    @if($trialDaysRemaining !== null && $trialDaysRemaining > 0)
+                        {{ $trialDaysRemaining }} {{ __('messages.days left') }}
+                    @elseif($trialDaysRemaining === null)
+                        Essai en cours
+                    @else
+                        Trial Expiré
+                    @endif
+                </h3>
+                <p class="dt-section-subtitle mt-2 leading-relaxed">
+                    @if($trialDaysRemaining !== null && $trialDaysRemaining > 0)
+                        {{ __('messages.0-Day Trial description') }}
+                    @elseif($trialDaysRemaining === null)
+                        Essai en cours
+                    @else
+                        Votre période d'essai est terminée
+                    @endif
+                </p>
             </div>
 
-                {{-- Trust & Guarantee Section --}}
-        <div class="max-w-4xl mx-auto mb-4">
+            <div class="dt-card p-5 sm:p-6">
+                <div class="flex-shrink-0 w-11 h-11 rounded-xl bg-[#2D7080]/10 text-[#2D7080] flex items-center justify-center">
+                    <svg class="h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9m4 0h3M4 17h3m4 0h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+                </div>
+                <h3 class="text-[15px] font-semibold tracking-tight text-[#0B2638] mt-4">{{ __('messages.Advanced Features') }}</h3>
+                <p class="dt-section-subtitle mt-2 leading-relaxed">{{ __('messages.Advanced Features description') }}</p>
+            </div>
+
+            <div class="dt-card p-5 sm:p-6">
+                <div class="flex-shrink-0 w-11 h-11 rounded-xl bg-[#2D7080]/10 text-[#2D7080] flex items-center justify-center">
+                    <svg class="h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/><circle cx="9" cy="7" r="4"/></svg>
+                </div>
+                <h3 class="text-[15px] font-semibold tracking-tight text-[#0B2638] mt-4">{{ __('messages.Team Collaboration') }}</h3>
+                <p class="dt-section-subtitle mt-2 leading-relaxed">{{ __('messages.Team Collaboration description') }}</p>
+            </div>
+
+            <div class="dt-card p-5 sm:p-6">
+                <div class="flex-shrink-0 w-11 h-11 rounded-xl bg-[#2D7080]/10 text-[#2D7080] flex items-center justify-center">
+                    <svg class="h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v-3a9 9 0 0 1 18 0v3m0 3v1a3 3 0 0 1-3 3h-3"/><rect x="2" y="11" width="4" height="7" rx="2"/><rect x="18" y="11" width="4" height="7" rx="2"/></svg>
+                </div>
+                <h3 class="text-[15px] font-semibold tracking-tight text-[#0B2638] mt-4">{{ __('messages.Expert Support') }}</h3>
+                <p class="dt-section-subtitle mt-2 leading-relaxed">{{ __('messages.Expert Support description') }}</p>
+            </div>
+        </div>
+
+        {{-- Trust & Guarantee Section --}}
+        <div class="mb-4">
             <div class="grid grid-cols-1 gap-4">
                 {{-- Secure Payments --}}
                 <div class="dt-card p-6 sm:p-7 text-center">
@@ -289,192 +277,101 @@
         </div>
     </div>
 
+        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                const renewalInput = document.getElementById('renewalPreference');
-                const planLinks = document.querySelectorAll('[data-plan-link]');
-                const renewalButtons = document.querySelectorAll('.renewal-option');
-                const saveEndpoint = '{{ route('subscription.renewal-preference.update') }}';
-                const csrfToken = '{{ csrf_token() }}';
-
-                function setActiveButton(value) {
-                    renewalButtons.forEach(btn => {
-                        btn.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
-                        btn.classList.add('text-gray-600');
-                    });
-
-                    const activeButton = document.querySelector('.renewal-option[data-renewal-value="' + value + '"]');
-                    if (activeButton) {
-                        activeButton.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
-                        activeButton.classList.remove('text-gray-600');
-                    }
-                }
-
-                async function savePreference(value) {
-                    const response = await fetch(saveEndpoint, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                        },
-                        body: JSON.stringify({ renewal: value }),
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('{{ __('messages.Unable to save renewal preference') }}');
-                    }
-
-                    return response.json();
-                }
-
-                function renderSyncStatus(sync) {
-                    const statusRoot = document.getElementById('stripeSyncStatus');
-                    const badge = document.getElementById('stripeSyncBadge');
-                    const text = document.getElementById('stripeSyncText');
-                    if (!statusRoot || !badge || !text || !sync) return;
-
-                    const state = sync.state || 'unknown';
-                    const isSynced = Boolean(sync.is_synced);
-                    const label = sync.label || '{{ __('messages.Renewal status unavailable') }}';
-
-                    badge.classList.remove('bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700', 'bg-gray-100', 'text-gray-700');
-                    if (state === 'synced' && isSynced) {
-                        badge.textContent = '{{ __('messages.Synced') }}';
-                        badge.classList.add('bg-green-100', 'text-green-700');
-                    } else if (state === 'out_of_sync') {
-                        badge.textContent = '{{ __('messages.Not synced') }}';
-                        badge.classList.add('bg-red-100', 'text-red-700');
-                    } else {
-                        badge.textContent = '{{ __('messages.Unknown') }}';
-                        badge.classList.add('bg-gray-100', 'text-gray-700');
-                    }
-
-                    text.textContent = label;
-                }
-
-                function updateLinks() {
-                    const renewal = renewalInput.value || 'auto';
-                    // Carry the currently typed country into every plan link so
-                    // the backend can save it (when missing) and start checkout.
-                    const country = countryInput ? countryInput.value.trim() : '';
-                    planLinks.forEach(link => {
-                        const baseHref = link.getAttribute('data-base-href');
-                        if (!baseHref) return;
-                        try {
-                            const url = new URL(baseHref, window.location.origin);
-                            url.searchParams.set('renewal', renewal);
-                            if (country) {
-                                url.searchParams.set('country', country);
-                            } else {
-                                url.searchParams.delete('country');
-                            }
-                            link.href = url.toString();
-                        } catch (e) {
-                            const separator = baseHref.includes('?') ? '&' : '?';
-                            link.href = baseHref + separator + 'renewal=' + encodeURIComponent(renewal);
-                        }
-                    });
-                }
-
-                renewalButtons.forEach(button => {
-                    button.addEventListener('click', async function () {
-                        const value = this.getAttribute('data-renewal-value') || 'auto';
-                        const previousValue = renewalInput.value || 'auto';
-                        if (value === previousValue) {
-                            return;
-                        }
-
-                        renewalInput.value = value;
-                        setActiveButton(value);
-                        updateLinks();
-
-                        try {
-                            const result = await savePreference(value);
-                            if (result && result.stripe_sync) {
-                                renderSyncStatus(result.stripe_sync);
-                            }
-                        } catch (error) {
-                            renewalInput.value = previousValue;
-                            setActiveButton(previousValue);
-                            updateLinks();
-                            window.alert('{{ __('messages.Failed to save renewal preference') }}');
-                        }
-                    });
-                });
-
-                // Initialize links on first load
-                setActiveButton(renewalInput.value || 'auto');
-                updateLinks();
-                // Exposed so the country field can refresh plan links as you type.
-                window.dalytracUpdatePlanLinks = updateLinks;
-                renderSyncStatus({
-                    state: document.getElementById('stripeSyncStatus')?.dataset.state || 'unknown',
-                    is_synced: (document.getElementById('stripeSyncStatus')?.dataset.isSynced || '0') === '1',
-                    label: document.getElementById('stripeSyncStatus')?.dataset.label || '{{ __('messages.Renewal status unavailable') }}',
-                });
-
-                // Country validation before subscription
-                const planLinks = document.querySelectorAll('[data-plan-link]');
                 const countryInput = document.getElementById('companyCountry');
                 const validateBtn = document.getElementById('validateCountryBtn');
                 const validationMsg = document.getElementById('countryValidationMsg');
+                const planLinks = document.querySelectorAll('[data-plan-link]');
+                let savedCountry = countryInput.value;
+                let saving = null;
 
-                function validateCountry() {
-                    const country = countryInput.value.trim();
+                // Supplement the shared company list with every ISO 3166-1 territory.
+                // Existing names remain the values expected by company information.
+                const codes = 'AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW'.split(' ');
+                const existingCodes = new Set(Array.from(countryInput.options, option => option.dataset.code));
+                const names = new Intl.DisplayNames(['fr'], { type: 'region' });
+                codes.filter(code => !existingCodes.has(code)).forEach(code => {
+                    const name = names.of(code);
+                    if (!Array.from(countryInput.options).some(option => option.value === name)) {
+                        countryInput.add(new Option(name, name));
+                    }
+                });
+                const selector = typeof TomSelect === 'function' ? new TomSelect(countryInput, {
+                    create: false,
+                    maxOptions: null,
+                    render: {
+                        no_results() { const message = document.createElement('div'); message.className = 'no-results'; message.textContent = @json(__('messages.No results found')); return message; },
+                    },
+                    sortField: { field: 'text', direction: 'asc' },
+                    onChange() { validationMsg.classList.add('hidden'); updateLinks(); },
+                }) : null;
+
+                function updateLinks() {
+                    planLinks.forEach(link => {
+                        const url = new URL(link.dataset.baseHref, window.location.origin);
+                        if (countryInput.value) url.searchParams.set('country', countryInput.value);
+                        else url.searchParams.delete('country');
+                        link.href = url.toString();
+                    });
+                }
+                function showMessage(message, error = false) {
+                    validationMsg.textContent = message;
+                    validationMsg.className = '-mt-6 mb-8 rounded-xl border px-4 py-3 text-sm font-medium ' + (error ? 'border-red-200 bg-red-50 text-red-700' : 'border-emerald-200 bg-emerald-50 text-emerald-800');
+                }
+                async function saveCountry() {
+                    if (saving) return saving;
+                    const country = countryInput.value;
                     if (!country) {
-                        validationMsg.textContent = '{{ __('messages.Please enter your country before subscribing.') }}';
-                        validationMsg.className = 'mt-2 text-[12.5px] text-red-600';
-                        validationMsg.classList.remove('hidden');
+                        showMessage(@json(__('messages.Please enter your country before subscribing.')), true);
+                        selector ? selector.focus() : countryInput.focus();
                         return false;
                     }
-                    validationMsg.textContent = '{{ __('messages.Country validated! You can now subscribe.') }}';
-                    validationMsg.className = 'mt-2 text-[12.5px] text-emerald-600';
-                    validationMsg.classList.remove('hidden');
-                    return true;
-                }
-
-                if (validateBtn) {
-                    validateBtn.addEventListener('click', function () {
-                        if (validateCountry()) {
-                            // Country validated: refresh plan links so the typed
-                            // value is carried to checkout (backend saves it).
+                    validateBtn.disabled = true;
+                    selector ? selector.lock() : countryInput.disabled = true;
+                    saving = (async () => {
+                        try {
+                            if (country !== savedCountry) {
+                                const updateUrl = @json($companyInfoUpdateUrl);
+                                if (!updateUrl) throw new Error('Company information update unavailable for this role');
+                                const response = await fetch(updateUrl, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': @json(csrf_token()) },
+                                    body: JSON.stringify({ id: @json(Auth::user()->entreprise_id), column: 'country', content: country }),
+                                });
+                                if (!response.ok) throw new Error('Country save failed');
+                                const result = await response.json();
+                                if (!result.success) throw new Error('Country save failed');
+                                savedCountry = country;
+                            }
                             updateLinks();
+                            showMessage(@json(__('messages.upgrade_country_saved')));
+                            return true;
+                        } catch (error) {
+                            showMessage(@json(__('messages.Failed to save changes. Please try again.')), true);
+                            return false;
+                        } finally {
+                            validateBtn.disabled = false;
+                            selector ? selector.unlock() : countryInput.disabled = false;
+                            saving = null;
                         }
-                    });
+                    })();
+                    return saving;
                 }
-
-                planLinks.forEach(link => {
-                    link.addEventListener('click', function (e) {
-                        updateLinks();
-                        if (!countryInput.value.trim()) {
-                            e.preventDefault();
-                            validationMsg.textContent = '{{ __('messages.Please enter your country before subscribing.') }}';
-                            validationMsg.className = 'mt-2 text-[12.5px] text-red-600';
-                            validationMsg.classList.remove('hidden');
-                            countryInput.focus();
-                        }
-                    });
-                });
+                validateBtn.addEventListener('click', saveCountry);
+                countryInput.addEventListener('change', () => { validationMsg.classList.add('hidden'); updateLinks(); });
+                let checkingOut = false;
+                planLinks.forEach(link => link.addEventListener('click', async event => {
+                    event.preventDefault();
+                    if (checkingOut) return;
+                    checkingOut = true;
+                    if (await saveCountry()) window.location.assign(link.href);
+                    else checkingOut = false;
+                }));
+                updateLinks();
             });
         </script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const countryInput = document.getElementById('companyCountry');
-                if (countryInput) {
-                    countryInput.addEventListener('input', function () {
-                        const msg = document.getElementById('countryValidationMsg');
-                        if (msg && !msg.classList.contains('hidden')) {
-                            msg.classList.add('hidden');
-                        }
-                        // Keep plan links in sync while typing so checkout
-                        // always carries the current country value.
-                        if (window.dalytracUpdatePlanLinks) {
-                            window.dalytracUpdatePlanLinks();
-                        }
-                    });
-                }
-            });
-        </script>
-    </body>
+    </div>
+</body>
 </html>
