@@ -481,21 +481,24 @@
                     $currentUser = Auth::user();
                 @endphp
                 @if($currentUser && (int) ($currentUser->entreprise_id ?? 0) === 43)
-                <a href="{{ route('manager.direct-dashboard') }}" title="Manager Dashboard"
+                <a href="{{ route('manager.direct-dashboard') }}" title="{{ __('messages.Manager Dashboard') }}"
                     class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] text-white bg-white/10 hover:bg-white/20 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke-width="1.8" stroke="currentColor" class="w-5 h-5 flex-shrink-0">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
                     </svg>
-                    <span class="sidebar-label truncate">Manager Dashboard</span>
-                    <span class="sidebar-tip">Manager Dashboard</span>
+                    <span class="sidebar-label truncate">{{ __('messages.Manager Dashboard') }}</span>
+                    <span class="sidebar-tip">{{ __('messages.Manager Dashboard') }}</span>
                 </a>
                 @endif
 
                 {{-- Help / Support --}}
-                <a href="{{ route('admin.support.create') }}" title="Help & Support"
-                    class="dt-nav-item group relative mt-2 flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[#E7B84B] text-[#0B2638] hover:bg-[#d9a93c] transition-colors text-[13.5px] font-semibold">
+                <a href="{{ route('admin.support.create') }}" title="{{ __('messages.Help & Support') }}"
+                    class="dt-nav-item group relative mt-2 flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] transition-colors {{ request()->routeIs('admin.support.*') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                    @if(request()->routeIs('admin.support.*'))
+                        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
+                    @endif
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
                         stroke="currentColor" class="w-5 h-5 flex-shrink-0">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -503,8 +506,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span class="sidebar-label truncate">Help &amp; Support</span>
-                    <span class="sidebar-tip">Help &amp; Support</span>
+                    <span class="sidebar-label truncate">{{ __('messages.Help & Support') }}</span>
+                    <span class="sidebar-tip">{{ __('messages.Help & Support') }}</span>
                 </a>
                     </div>
                 </div>

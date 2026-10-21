@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 @include('dashboard_layouts.head')
 <style>
@@ -38,25 +38,25 @@ th {
                                 <thead>
                                     <tr>
                                         <th class="text-uppercase text-dark text-sm font-weight-bolder opacity-10">
-                                            Task
+                                            {{ __('messages.Task column') }}
                                         </th>
                                         <th class="text-uppercase text-dark text-sm font-weight-bolder opacity-10 ps-2">
-                                            Project Name
+                                            {{ __('messages.Project Name') }}
                                         </th>
                                         <th class="text-uppercase text-dark text-sm font-weight-bolder opacity-10 ps-2">
-                                            Teams
+                                            {{ __('messages.Teams column header') }}
                                         </th>
                                         <th class="text-uppercase text-dark text-sm font-weight-bolder opacity-10 ps-2">
-                                            Employees
+                                            {{ __('messages.Employees') }}
                                         </th>
                                         <th class="text-uppercase text-dark text-sm font-weight-bolder opacity-10 ps-2">
-                                            Estimated Hours
+                                            {{ __('messages.Estimated Hours') }}
                                         </th>
                                         <th class="text-uppercase text-dark text-sm font-weight-bolder opacity-10 ps-2">
-                                            Difference
+                                            {{ __('messages.Difference column') }}
                                         </th>
                                         <th class="text-uppercase text-dark text-sm font-weight-bolder opacity-10 ps-2">
-                                            Status
+                                            {{ __('messages.Status') }}
                                         </th>
                                         <th></th>
                                     </tr>
@@ -94,7 +94,7 @@ th {
                                             @else
                                             <span class="badge badge-dot me-4">
                                                 <i class="bg-info"></i>
-                                                <span class="text-dark text-sm">No team</span>
+                                                <span class="text-dark text-sm">{{ __('messages.No team') }}</span>
                                             @endif
                                             @endforeach
                                         </td>
@@ -146,11 +146,11 @@ th {
                                         <td>
                                             <p class="text-sm font-weight-bold mb-0">
                                                 @if($task->status==1)
-                                                <span class="badge badge-sm badge-warning">Working on it</span>
+                                                <span class="badge badge-sm badge-warning">{{ __('messages.Working on it') }}</span>
                                                 @elseif($task->status==2)
-                                                <span class="badge badge-sm badge-success">Done</span>
+                                                <span class="badge badge-sm badge-success">{{ __('messages.Status Done') }}</span>
                                                 @else
-                                                <span class="badge badge-sm badge-danger">Inactive</span>
+                                                <span class="badge badge-sm badge-danger">{{ __('messages.Inactive') }}</span>
                                                 @endif
                                             </p>
                                         </td>
@@ -177,7 +177,7 @@ th {
                                 @if(session('message'))
                                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                                         {{ session('message') }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('messages.Close') }}">X</button>
                                     </div>
                                 @endif
                                 <div class="d-flex align-items-center">
@@ -187,7 +187,7 @@ th {
 
                                     <div class="ms-3">
                                         <p class="text-sm mb-0 text-capitalize font-weight-bold">
-                                            Tasks
+                                            {{ __('messages.Tasks column') }}
                                         </p>
                                         <h5 class="font-weight-bolder mb-0">{{count($tasks)}}</h5>
                                     </div>
@@ -217,7 +217,7 @@ th {
                             <div class="card-header p-3">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <h6 class="mb-0">Tasks list</h6>
+                                        <h6 class="mb-0">{{ __('messages.Tasks list') }}</h6>
                                     </div>
                                     <div class="col-md-6 d-flex justify-content-end align-items-center">
                                         <small>{{ date('d - M Y') }}</small>
@@ -248,7 +248,7 @@ th {
                                                         aria-labelledby="dropdownTable2" style>
                                                         <li>
                                                             <a class="dropdown-item border-radius-md"
-                                                                href="javascript:;">Edit</a>
+                                                                href="javascript:;">{{ __('messages.Edit') }}</a>
                                                         </li>
                                                         <li>
                                                             @php
@@ -257,7 +257,7 @@ th {
                                                             <form
                                                                 action="{{ route('employee.tasks.status', ['task' => $task->id, 'status' => $status])}}"
                                                                 method="post"
-                                                                onsubmit="return confirm('Are you sure?');"
+                                                                onsubmit="return confirm(@js(__('messages.Are you sure?')));"
                                                                 class="d-inline">
                                                                 @csrf
                                                                 <button type="submit"
@@ -273,7 +273,7 @@ th {
                                                             <form
                                                                 action="{{ route('employee.tasks.status', ['task' => $task->id, 'status' => $status])}}"
                                                                 method="post"
-                                                                onsubmit="return confirm('Are you sure?');"
+                                                                onsubmit="return confirm(@js(__('messages.Are you sure?')));"
                                                                 class="d-inline">
                                                                 @csrf
                                                                 <button type="submit"
@@ -287,19 +287,19 @@ th {
                                             <div class="d-flex align-items-center ms-4 mt-3 ps-1">
                                                 <div>
                                                     <p class="text-sm mb-0 text-secondary font-weight-bold">
-                                                        Start Date
+                                                        {{ __('messages.Start Date') }}
                                                     </p>
                                                     <span class="text-sm font-weight-bolder">{{$task->start}}</span>
                                                 </div>
                                                 <div class="ms-auto">
                                                     <p class="text-sm mb-0 text-secondary font-weight-bold">
-                                                        End Date
+                                                        {{ __('messages.End Date') }}
                                                     </p>
                                                     <span class="text-sm font-weight-bolder">{{$task->end}}</span>
                                                 </div>
                                                 <div class="mx-auto">
                                                     <p class="text-sm mb-0 text-secondary font-weight-bold">
-                                                        Project Name
+                                                        {{ __('messages.Project Name') }}
                                                     </p>
                                                     <span
                                                         class="text-sm font-weight-bolder">{{$task->project_name}}</span>
@@ -320,7 +320,7 @@ th {
                     <div class="col-lg-6 mt-4 mt-lg-0">
                         <div class="card bg-gradient-dark">
                             <div class="card-header bg-transparent pb-0">
-                                <h6 class="text-white">Tasks Timeline </h6>
+                                <h6 class="text-white">{{ __('messages.Tasks Timeline') }} </h6>
                             </div>
                             <div class="card-body p-3">
                                 <div class="timeline timeline-one-side" data-timeline-axis-style="dashed">
@@ -335,21 +335,21 @@ th {
                                                     {{$task->title}}
                                                 </h6>
                                                 @if($task->status==1)
-                                                <span class="badge badge-sm badge-warning">Working on it</span>
+                                                <span class="badge badge-sm badge-warning">{{ __('messages.Working on it') }}</span>
                                                 @elseif($task->status==2)
-                                                <span class="badge badge-sm badge-success">Done</span>
+                                                <span class="badge badge-sm badge-success">{{ __('messages.Status Done') }}</span>
                                                 @else
-                                                <span class="badge badge-sm badge-danger">Inactive</span>
+                                                <span class="badge badge-sm badge-danger">{{ __('messages.Inactive') }}</span>
                                                 @endif
                                             </div>
                                             <p class="text-secondary text-sm mt-3 mb-2">
                                                 {{$task->description}}
                                             </p>
                                             <form method="post" action="{{route('admin.tasks.destroy', $task->id)}}"
-                                                onsubmit="return confirm('Are you sure?');">
+                                                onsubmit="return confirm(@js(__('messages.Are you sure?')));">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm bg-gradient-danger">delete
+                                                <button type="submit" class="btn btn-sm bg-gradient-danger">{{ __('messages.delete') }}
                                                 </button>
                                             </form>
                                         </div>

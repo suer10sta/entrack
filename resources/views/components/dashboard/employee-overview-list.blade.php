@@ -142,7 +142,7 @@
                                         type="button"
                                         class="shrink-0 text-slate-400 hover:text-slate-600 lg:hidden"
                                         data-emp-overview-toggle
-                                        aria-label="Toggle employee overview details"
+                                        aria-label="{{ __('messages.Toggle employee overview details') }}"
                                     >
                                         <svg class="emp-overview-chevron w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                             <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -168,7 +168,7 @@
                                             {{ $project->client->name }}
                                         </a>
                                     @else
-                                        <span class="text-gray-500">N/A</span>
+                                        <span class="text-gray-500">{{ __('messages.N/A') }}</span>
                                     @endif
                                 </p>
                             </div>
@@ -248,7 +248,7 @@
                                 @if($projectIndex === 0)
                                     <a href="{{ route('admin.employees.show', $employee->id) }}"
                                         class="p-1 rounded-md bg-brand-primary text-white hover:bg-[#16394a]"
-                                        title="View Employee">
+                                        title="{{ __('messages.View Employee') }}">
                                         <svg class="h-5 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

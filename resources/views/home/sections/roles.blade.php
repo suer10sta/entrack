@@ -1,4 +1,4 @@
-<section class="bg-[#edf5f4] py-28 max-md:py-20" aria-labelledby="roles-title">
+<section data-home-section="roles" class="bg-[#edf5f4] py-28 max-md:py-20" aria-labelledby="roles-title">
   <div class="mx-auto max-w-[1200px] px-6 max-md:px-4">
     <div class="mb-[62px] max-w-[790px] text-start lg:mx-auto lg:text-center">
       <p class="mb-5 flex items-center justify-start gap-2.5 text-[0.75rem] font-bold uppercase tracking-[0.13em] text-brand-secondary lg:justify-center"><span class="h-0.5 w-7 bg-brand-accent"></span>{{ __('messages.public_roles_eyebrow') }}</p>

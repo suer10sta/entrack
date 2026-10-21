@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <x-favicon />
@@ -179,7 +179,9 @@
         <div class="details">
             <div class="details-left">
                 @if(Auth::user()->entreprise && Auth::user()->entreprise->image)
-                    <img src="{{ storage_path('app/public/' . Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                    @if(filled(Auth::user()->entreprise?->image) && Storage::disk('public')->exists(Auth::user()->entreprise->image))
+<img src="{{ storage_path('app/public/' . Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+@endif
                 @endif
             </div>
             <div class="details-right">
@@ -288,26 +290,14 @@
     <div class="footer">
         <div class="footer-content">
             <div class="footer-left footer-text">
-                @if(Auth::user()->entreprise)
-                    <b>{{ Auth::user()->entreprise->name }}</b><br>
-                    <b>Numéro TVA:</b> {{ Auth::user()->entreprise->tva}}
-                @endif
-            </div>
+@include('partials.invoice-company-details', ['section' => 'identity'])
+</div>
             <div class="footer-center footer-text">
-                @if(Auth::user()->entreprise)
-                    {{ Auth::user()->entreprise->Address }}<br>
-                    Tél: 0{{ Auth::user()->entreprise->phone }}
-                @endif
-            </div>
+@include('partials.invoice-company-details', ['section' => 'contact'])
+</div>
             <div class="footer-right footer-text">
-                @if(Auth::user()->entreprise)
-                    <b>BANK</b> : {{ Auth::user()->entreprise->bank_name }}<br>
-                    <b>IBAN</b> : {{ Auth::user()->entreprise->iban }}<br>
-                    <b>SWIFT/BIC</b> : {{ Auth::user()->entreprise->swift }} / {{ Auth::user()->entreprise->bic }}
-                @endif
-                <br>
-                <span style="font-size: 9px; color: #666;">Printed: {{ date('d-m-Y') }}</span>
-            </div>
+@include('partials.invoice-company-details', ['section' => 'bank'])
+</div>
         </div>
     </div>
 </body>

@@ -83,7 +83,7 @@ class BillitController extends Controller
             if (! $billit->isConfigured()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Billit is not configured. Add your Billit API key under Enterprise Information for this company.',
+                    'message' => __('messages.Billit is not configured. Add your Billit API key under Enterprise Information for this company.'),
                 ], 422);
             }
             $response = $billit->sendInvoice($invoiceData);
@@ -94,7 +94,7 @@ class BillitController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => \App\Support\LocalizedError::message($e)
             ], 500);
         }
     }
@@ -126,13 +126,13 @@ class BillitController extends Controller
             }
         } catch (\Exception $e) {
             \Log::error('Error fetching invoice/client:', ['error' => $e->getMessage()]);
-            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => \App\Support\LocalizedError::message($e)], 500);
         }
        
         if (!$client) {
             return response()->json([
                 'success' => false, 
-                'message' => 'Client not found for invoice',
+                'message' => __('messages.Client not found for invoice'),
                 'debug' => [
                     'invoice_id' => $invoice->id,
                     'client_id_in_invoice' => $invoice->client_id ?? null,
@@ -150,18 +150,18 @@ class BillitController extends Controller
         // Get the enterprise/company info
         $entreprise = \App\Models\Entreprise::find($invoice->entreprise_id);
         if (!$entreprise) {
-            return response()->json(['success' => false, 'message' => 'Enterprise not found for invoice'], 404);
+            return response()->json(['success' => false, 'message' => __('messages.Enterprise not found for invoice')], 404);
         }
 
         if (! auth()->user() || (int) $invoice->entreprise_id !== (int) auth()->user()->entreprise_id) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            return response()->json(['success' => false, 'message' => __('messages.Unauthorized')], 403);
         }
 
         $billit = BillitService::forEntreprise($entreprise);
         if (! $billit->isConfigured()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Billit is not configured for this enterprise. Add your Billit API key under Enterprise Information.',
+                'message' => __('messages.Billit is not configured for this enterprise. Add your Billit API key under Enterprise Information.'),
             ], 422);
         }
 
@@ -224,7 +224,7 @@ class BillitController extends Controller
 
             return response()->json(['success' => true, 'billit_response' => $response]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => \App\Support\LocalizedError::message($e)], 500);
         }
     }
 
@@ -247,11 +247,11 @@ class BillitController extends Controller
         }
     } catch (\Exception $e) {
         \Log::error('Error fetching invoice/client:', ['error' => $e->getMessage()]);
-        return back()->with('error', 'Erreur : ' . $e->getMessage());
+        return back()->with('error', \App\Support\LocalizedError::message($e));
     }
 
     if (!$client) {
-        return back()->with('error', 'Client introuvable pour cette facture.');
+        return back()->with('error', __('messages.Client introuvable pour cette facture.'));
     }
 
     $project = null;
@@ -261,16 +261,16 @@ class BillitController extends Controller
 
     $entreprise = \App\Models\Entreprise::find($invoice->entreprise_id);
     if (!$entreprise) {
-        return back()->with('error', 'Entreprise introuvable pour cette facture.');
+        return back()->with('error', __('messages.Entreprise introuvable pour cette facture.'));
     }
 
     if (! auth()->user() || (int) $invoice->entreprise_id !== (int) auth()->user()->entreprise_id) {
-        return back()->with('error', 'Non autorisé.');
+        return back()->with('error', __('messages.Non autorisé.'));
     }
 
     $billit = BillitService::forEntreprise($entreprise);
     if (! $billit->isConfigured()) {
-        return back()->with('error', 'Billit n’est pas configuré. Ajoutez votre clé API Billit dans les informations entreprise.');
+        return back()->with('error', __('messages.Billit n’est pas configuré. Ajoutez votre clé API Billit dans les informations entreprise.'));
     }
 
     // Build payload to create the invoice/order in Billit only.
@@ -334,7 +334,7 @@ class BillitController extends Controller
         return back()->with('success', $successMsg);
 
     } catch (\Exception $e) {
-        return back()->with('error', 'Échec d’envoi : ' . $e->getMessage());
+        return back()->with('error', \App\Support\LocalizedError::message($e));
     }
 }
 
@@ -344,7 +344,7 @@ class BillitController extends Controller
         $type = strtolower((string) $type);
         $enterpriseId = auth()->user() ? auth()->user()->entreprise_id : null;
         if (!$enterpriseId) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+            return response()->json(['success' => false, 'message' => __('messages.Unauthorized')], 401);
         }
 
         $query = \App\Models\invoices_history::query()

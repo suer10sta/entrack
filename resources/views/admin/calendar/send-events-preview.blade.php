@@ -138,7 +138,7 @@
                     processData: false,
                     contentType: false,
                     success: function(response) {
-                        alert('Email sent successfully!');
+                        alert(@js(__('messages.Email sent successfully!')));
                         window.location.href = '{{ route("admin.calendar.index") }}';
                     },
                     error: function(xhr) {

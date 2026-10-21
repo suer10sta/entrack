@@ -5,19 +5,19 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ __('messages.About Us') }} | DalyTrac</title>
-    <meta name="description" content="Learn about DalyTrac, the all‑in‑one business management platform that unifies invoices, projects, teams and finances into one calm, powerful workspace.">
+    <meta name="description" content="{{ __('messages.Learn about DalyTrac, the all‑in‑one business management platform that unifies invoices, projects, teams and finances into one calm, powerful workspace.') }}">
     <meta name="robots" content="index,follow">
     <link rel="canonical" href="{{ route('about') }}">
 
     <meta property="og:title" content="{{ __('messages.About Us') }} | DalyTrac">
-    <meta property="og:description" content="Discover the story, mission and values behind DalyTrac and how we help teams simplify operations, invoicing and time tracking.">
+    <meta property="og:description" content="{{ __('messages.Discover the story, mission and values behind DalyTrac and how we help teams simplify operations, invoicing and time tracking.') }}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ route('about') }}">
     <meta property="og:image" content="{{ asset('img/background_hero.png') }}">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ __('messages.About Us') }} | DalyTrac">
-    <meta name="twitter:description" content="DalyTrac connects your invoices, projects and people in a single, unified platform.">
+    <meta name="twitter:description" content="{{ __('messages.DalyTrac connects your invoices, projects and people in a single, unified platform.') }}">
 
     <link rel="preconnect" href="https://fonts.bunny.net" />
     <link
@@ -80,11 +80,11 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-card p-6 rounded-2xl shadow-sm border-t-4 border-primary">
                             <h3 class="text-4xl font-bold text-foreground mb-1">99%</h3>
-                            <p class="text-sm text-muted-foreground">Uptime Reliability</p>
+                            <p class="text-sm text-muted-foreground">{{ __('messages.Uptime Reliability') }}</p>
                         </div>
                         <div class="bg-primary p-6 rounded-2xl shadow-sm text-primary-foreground mt-8">
                             <h3 class="text-4xl font-bold mb-1">24/7</h3>
-                            <p class="text-sm opacity-90">Dedicated Support</p>
+                            <p class="text-sm opacity-90">{{ __('messages.Dedicated Support') }}</p>
                         </div>
                     </div>
                 </div>
@@ -230,7 +230,7 @@
           <ol class="space-y-8">
             <li class="relative pl-10">
               <span class="absolute left-0 top-1.5 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shadow-md">
-                1
+                {{ __('messages.public_pricing_users_solo') }}
               </span>
               <h3 class="text-lg font-semibold text-foreground mb-1">{{ __('messages.About Step 1 Title') }}</h3>
               <p class="text-sm text-muted-foreground leading-relaxed">

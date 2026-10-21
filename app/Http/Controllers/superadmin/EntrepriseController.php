@@ -24,7 +24,7 @@ class EntrepriseController extends Controller
         $entreprise->is_activated = false;
         $entreprise->save();
 
-        return redirect()->back()->with('message', 'Entreprise deactivated successfully');
+        return redirect()->back()->with('message', __('messages.Entreprise deactivated successfully'));
     }
 
     public function activate(Entreprise $entreprise)
@@ -32,6 +32,6 @@ class EntrepriseController extends Controller
         $entreprise->is_activated = true;
         $entreprise->save();
 
-        return redirect()->back()->with('message', 'Entreprise activated successfully');
+        return redirect()->back()->with('message', __('messages.Entreprise activated successfully'));
     }
 }

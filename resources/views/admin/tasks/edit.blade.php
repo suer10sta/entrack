@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <x-favicon />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ __('messages.DalyTrac Dashboard - Update Task') }}</title>
     @vite('resources/css/app.css')
+@include('partials.edit-layout-styles')
 </head>
 <body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
     {{-- Sidebar --}}
@@ -22,7 +23,7 @@
         <x-dashboard.navbar />
 
         {{-- Page Content --}}
-        <main class="flex-1 overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
+        <main class="dt-edit-page flex-1 overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
 
             @php
                 $user = Auth::user();
@@ -49,7 +50,7 @@
                 }
             @endphp
 
-            <div class="max-w-6xl mx-auto w-full">
+            <div class="dt-edit-container max-w-6xl mx-auto w-full">
                 {{-- Header with back navigation --}}
                 <div class="flex items-center gap-3 mb-5">
 

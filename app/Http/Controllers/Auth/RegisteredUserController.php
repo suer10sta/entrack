@@ -19,10 +19,10 @@ use App\Models\Role;
 use App\Models\Permission;
 use App\Models\EnterpriseRolePermission;
 use App\Mail\AdminActivityAlertMail;
-use App\Notifications\WelcomeNotification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use DateTime;
 
 
@@ -70,19 +70,26 @@ class RegisteredUserController extends Controller
         //     }
         // }
 
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             "email" => "required|email|unique:users,email",
             "password" => ["required", "min:8", "confirmed"],
             "full_name" => "required|string|max:255",
+            'terms_accepted' => ['required', 'accepted'],
         ], [
             'email.required' => __('messages.auth_val_email_required'),
             'email.email' => __('messages.auth_val_email_invalid'),
-            'email.unique' => __('messages.auth_val_email_taken'),
+            'email.unique' => __('messages.auth_register_email_exists'),
             'password.required' => __('messages.auth_val_password_required'),
             'password.min' => __('messages.auth_val_password_min'),
             'password.confirmed' => __('messages.auth_val_password_confirmed'),
             'full_name.required' => __('messages.auth_val_name_required'),
+            'terms_accepted.required' => __('messages.auth_register_consent_required'),
+            'terms_accepted.accepted' => __('messages.auth_register_consent_required'),
         ]);
+        if ($validator->fails() && isset($validator->failed()['email']['Unique'])) {
+            $request->session()->flash('registration_email_exists', true);
+        }
+        $validated = $validator->validate();
 
         
 
@@ -114,6 +121,7 @@ class RegisteredUserController extends Controller
             'name' => $validated['full_name'],
             'email' => $validated['email'],
             'password' => $validated['password'],
+            'locale' => app()->getLocale(),
         ]);
 
         $user->entreprise()->associate($entreprise);
@@ -239,13 +247,6 @@ class RegisteredUserController extends Controller
                     'email' => $user->email,
                     'error' => $e->getMessage(),
                 ]);
-            }
-
-            // Send welcome notification to the user
-            try {
-                $user->notify(new WelcomeNotification($entreprise));
-            } catch (\Throwable $e) {
-                Log::warning('Failed to send welcome notification', ['error' => $e->getMessage()]);
             }
 
             // Notify admin that a new enterprise has registered

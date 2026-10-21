@@ -2107,3 +2107,5 @@ Route::middleware(['auth', 'throttle:30,1'])->group(function () {
 });
 
 require __DIR__ . '/auth.php';
+
+

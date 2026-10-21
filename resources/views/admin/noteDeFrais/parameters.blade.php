@@ -40,6 +40,7 @@
             color: #475569; margin-bottom: 5px;
         }
     </style>
+    @include('partials.edit-layout-styles')
 </head>
 
 <body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
@@ -54,7 +55,8 @@
     <div class="flex flex-col flex-1 overflow-y-auto">
         <x-dashboard.navbar />
 
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7">
+        <main class="dt-edit-page flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7">
+            <div class="dt-edit-container mx-auto">
 
             {{-- ── Page header ── --}}
             <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-5">
@@ -141,6 +143,7 @@
                 </button>
             </div>
 
+            </div>
         </main>
     </div>
 

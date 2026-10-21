@@ -26,6 +26,7 @@
             opacity: 0 !important;
         }
     </style>
+    @include('auth.partials.feature-strip-styles')
 </head>
 
 <body class="overflow-x-hidden bg-[#f4f7f6] font-sans text-[#0B2638] antialiased">
@@ -47,7 +48,7 @@
                                 <!-- <a href="{{ route('welcome') }}" class="inline-flex items-center no-underline" aria-label="DalyTrac accueil">
                                     <img src="{{ asset('img/dalytraclogo.png') }}" alt="DalyTrac" class="h-14 w-auto" />
                                 </a> -->
-                                <a href="/" aria-label="DalyTrac, accueil" class="inline-flex items-baseline text-[1.65rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><x-application-logo /></a>
+                                <a href="/" aria-label="{{ __('messages.DalyTrac, accueil') }}" class="inline-flex items-baseline text-[1.65rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><x-application-logo /></a>
                                 <h2 class="mt-7 text-[1.6rem] font-medium leading-[1.15] text-[#0B2638]">{{ __('messages.auth_side_title') }}</h2>
                             </div>
 
@@ -69,26 +70,7 @@
                                     </div>
                                 </div>
 
-                                <div class="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
-                                    <div class="rounded-[18px] flex flex-col justify-center items-center border border-[#dfe9e7] bg-white/85 p-3">
-                                        <div class="flex items-center gap-2 text-[#2D7080]">
-                                            <span class="text-[0.7rem] font-bold uppercase tracking-[0.08em]">{{ __('messages.auth_side_projects') }}</span>
-                                        </div>
-                                        <p class="mt-2 text-[1.25rem] font-bold text-[#0B2638]">24</p>
-                                    </div>
-                                    <div class="rounded-[18px] flex flex-col justify-center items-center border border-[#dfe9e7] bg-white/85 p-3">
-                                        <div class="flex items-center gap-2 text-[#2D7080]">
-                                            <span class="text-[0.7rem] font-bold uppercase tracking-[0.08em]">{{ __('messages.auth_side_time') }}</span>
-                                        </div>
-                                        <p class="mt-2 text-[1.25rem] font-bold text-[#0B2638]">1 240h</p>
-                                    </div>
-                                    <div class="rounded-[18px] flex flex-col justify-center items-center border border-[#dfe9e7] bg-white/85 p-3">
-                                        <div class="flex items-center gap-2 text-[#2D7080]">
-                                            <span class="text-[0.7rem] font-bold uppercase tracking-[0.08em]">{{ __('messages.auth_side_invoices') }}</span>
-                                        </div>
-                                        <p class="mt-2 text-[1.25rem] font-bold text-[#0B2638]">€48k</p>
-                                    </div>
-                                </div>
+                                @include('auth.partials.feature-strip')
                             </div>
                         </div>
                     </section>
@@ -123,7 +105,7 @@
                                 @csrf
 
                                 <div style="display: none;">
-                                    <label for="website">Website</label>
+                                    <label for="website">{{ __('messages.Website') }}</label>
                                     <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
                                 </div>
 

@@ -23,7 +23,7 @@ class AlertController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'message' => 'Alert marked as read.',
+            'message' => __('messages.Alert marked as read.'),
         ]);
     }
 
@@ -37,7 +37,7 @@ class AlertController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'message' => 'Alert dismissed.',
+            'message' => __('messages.Alert dismissed.'),
         ]);
     }
 

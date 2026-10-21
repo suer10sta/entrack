@@ -677,7 +677,7 @@
                     existingClientSection.style.display = 'none';
                     selectedClientIdInput.value = '';
                     document.getElementById('contactsDiv').innerHTML = '';
-                    dropdownButtonText.textContent = '{{ __('messages.Choose Client') }}';
+                    dropdownButtonText.textContent = @js(__('messages.Choose Client'));
                     dropdownButtonText.classList.add('text-gray-500');
                     newClientInputs.forEach(input => {
                         input.disabled = false; // Activer les champs nouveau client
@@ -704,7 +704,7 @@
                     const clientName = event.currentTarget.textContent.trim(); 
 
                     if (clientId === 'none') {
-                        dropdownButtonText.textContent = '{{ __('messages.Choose Client') }}';
+                        dropdownButtonText.textContent = @js(__('messages.Choose Client'));
                         dropdownButtonText.classList.add('text-gray-500');
                         selectedClientIdInput.value = '';
                         document.getElementById('contactsDiv').innerHTML = '';

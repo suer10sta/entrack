@@ -21,7 +21,9 @@
                     <tr>
                         <td valign='bottom'>
                         <div class="header logo-right">
-                                <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" style="width:130px" class="company-logo">
+                                @if(filled(Auth::user()->entreprise?->image) && Storage::disk('public')->exists(Auth::user()->entreprise->image))
+<img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" style="width:130px" class="company-logo">
+@endif
                             </div><br />
                         </td>
 
@@ -34,17 +36,15 @@
                                 {{ __('messages.Due Date') }}:
                                 {{ \Carbon\Carbon::now()->addDays(abs((int)filter_var($client->due_date, FILTER_SANITIZE_NUMBER_INT)))->format('d-m-Y') }}
                                 <br>
+@if(filled($client->client_number))
                                 {{ __('messages.Client Number') }} : {{ $client->client_number }} <br>
-                                {{ __('messages.Invoice Number') }} : {{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif
+@endif
+                                {{ __('messages.Invoice Number') }} : {{ $invoice->number ?? $invoice_id }}
                             </td>
                             <td valign='top' width='35%'>
                             </td>
                             <td valign='top' width='35%' style='font-size:12px;'>
-                                <strong>{{ $client->name }}</strong><br />
-                                {{ $client->billing_street }} <br />
-                                {{ $client->billing_zip }}-{{ $client->billing_city }} <br />
-                                {{ $client->billing_country }}<br />
-                                {{ __('messages.Client VAT') }}: {{ $client->TVA }}
+                                @include('partials.invoice-client-details')
                             </td>
                         </tr>
                     </table>
@@ -58,7 +58,7 @@
                                 $invoicenumber = request()->input('invoice_number');
                                 }
                                 @endphp
-                                <div align='center' style='font-size: 14px;font-weight: bold;'>{{ __('messages.Invoice') }} : {{$entreprise->invoice_prefix}}-{{date('ym')}}@if($invoicenumber){{$invoicenumber}} @else{{$invoice_id}} @endif</div>
+                                <div align='center' style='font-size: 14px;font-weight: bold;'>{{ __('messages.Invoice') }} : {{$entreprise->invoice_prefix}}-{{ $invoice->number ?? $invoice_id }}</div>
                             </td>
                         </tr>
                     </table>
@@ -141,10 +141,14 @@
     <table width='100%' height='50'>
         <tr>
             <td style=' font-size:12px;text-align:justify ;border-top:double;border-bottom:double'>
+@if(filled($projectinfos->description))
                 <strong> - {{ __('messages.Information') }} :</strong> <br>
                 {!! nl2br(e($projectinfos->description)) !!} <br>
+@endif
+@if(filled($comment ?? null))
                 <strong> - {{ __('messages.Comment') }} : </strong> <br>
                <p style="white-space: pre-wrap;">{!! nl2br(e($comment)) !!}</p>   
+@endif
             </td>
         </tr>
     </table>
@@ -199,9 +203,11 @@
                 - {{ __('messages.Please pay the amount of') }}
                 <strong>{{number_format($prixtotal + ($prixtotal*($projectinfos->tva/100)), 2, ',', '')}}€</strong> {{ __('messages.on the account mentioned below before') }}
                 {{ \Carbon\Carbon::now()->addDays(abs((int)filter_var($client->due_date, FILTER_SANITIZE_NUMBER_INT)))->format('d-m-Y') }}
-                {{ __('messages.mentioning the invoice number') }} <strong>{{date('ym')}}@if($invoicenumber){{$invoicenumber}} @else{{$invoice_id}} @endif</strong>
+                {{ __('messages.mentioning the invoice number') }} <strong>{{ $invoice->number ?? $invoice_id }}</strong>
                 <br>
+@if(\App\Support\InvoicePresentation::showReverseChargeNotice($entreprise))
                 - {{ __('messages.Intracommunity delivery services note') }}
+@endif
                 <br>
                 - {{ __('messages.See tasks table in annex') }}
                 <br>
@@ -211,7 +217,7 @@
             </td>
         </tr>
     </table>
-    <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+    <div style="display: flex; justify-content: center; align-items: center; flex-direction: row; gap: 12px;">
         @php
             $taskIdsParam = request()->query('taskIds');
             $devisIdParam = request()->query('devis_id');
@@ -285,19 +291,15 @@
     <table width='100%' cellspacing='0' cellpadding='2'>
         <tr>
             <td width='33%' style='border-top:double medium #CCCCCC;font-size:12px;' valign='top'>
-                <b>{{$entreprise->name}}</b><br />
-                <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}<br />
-
-            </td>
+@include('partials.invoice-company-details', ['section' => 'identity'])
+</td>
             <td width='33%' style='border-top:double medium #CCCCCC; font-size:12px;' align='center' valign='top'>
-                {{$entreprise->Address}}<br />
-                {{ __('messages.Phone') }}: 0{{$entreprise->phone}}<br />
-            </td>
+@include('partials.invoice-company-details', ['section' => 'contact'])
+</td>
 
             <td valign='top' width='34%' style='border-top:double medium #CCCCCC;font-size:12px;' align='right'>
-                {{ __('messages.BANK') }} : {{$entreprise->bank_name}}<br /> {{ __('messages.IBAN') }} : {{$entreprise->iban}} <br />{{ __('messages.SWIFT/BIC') }}:
-                {{$entreprise->swift}} / {{$entreprise->bic}} <br />
-            </td>
+@include('partials.invoice-company-details', ['section' => 'bank'])
+</td>
         </tr>
     </table>
     </td>

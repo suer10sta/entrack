@@ -28,7 +28,7 @@ class EmailVerificationNotificationController extends Controller
                 'error' => $e->getMessage(),
             ]);
 
-            return back()->with('error', 'Impossible d\'envoyer l\'email de vérification pour le moment. Veuillez réessayer plus tard.');
+            return back()->with('error', __('messages.Impossible d\'envoyer l\'email de vérification pour le moment. Veuillez réessayer plus tard.'));
         }
 
         return back()->with('status', 'verification-link-sent');

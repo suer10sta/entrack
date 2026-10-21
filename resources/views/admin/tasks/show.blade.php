@@ -259,7 +259,7 @@
                                 </a>
                                 @endcan
                                 @can('Delete task')
-                                <form method="post" action="{{ $deleteRoute }}" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
+                                <form method="post" action="{{ $deleteRoute }}" onsubmit="return confirm(@js(__('messages.Are you sure?')));">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="w-full inline-flex items-center justify-center gap-1.5 h-9 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 text-[13px] font-semibold transition-colors">

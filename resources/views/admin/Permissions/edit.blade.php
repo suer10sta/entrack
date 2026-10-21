@@ -7,6 +7,7 @@
     <title>{{ __('messages.Edit Permission - DalyTrac') }}</title>
     @vite('resources/css/app.css')
     @livewireStyles {{-- Ajouté pour la cohérence --}}
+@include('partials.edit-layout-styles')
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden font-sans">
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
@@ -24,9 +25,9 @@
         <x-dashboard.navbar />
 
         {{-- Contenu Principal --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+        <main class="dt-edit-page flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
 
-            <div class="w-full max-w-3xl mx-auto"> {{-- Centrer le formulaire --}}
+            <div class="dt-edit-container dt-edit-container--compact w-full max-w-3xl mx-auto"> {{-- Centrer le formulaire --}}
 
                 {{-- Déterminer les routes en premier --}}
                 @php

@@ -20,9 +20,7 @@ class VerifyEmailController extends Controller
             return redirect()->intended(RouteServiceProvider::HOME.'?verified=1');
         }
 
-        if ($request->user()->markEmailAsVerified()) {
-            event(new Verified($request->user()));
-        }
+        $this->verifyOnce($request->user());
 
         return redirect()->intended(RouteServiceProvider::HOME.'?verified=1');
     }
@@ -37,17 +35,29 @@ class VerifyEmailController extends Controller
         // Match the SHA-1 email hash used by VerifyEmailNotification and
         // validate it regardless of the current browser's login session.
         if (!hash_equals(sha1($user->getEmailForVerification()), $hash)) {
-            abort(403, 'Invalid verification link.');
+            abort(403, __('messages.Invalid verification link.'));
         }
 
         if ($user->hasVerifiedEmail()) {
             return redirect()->intended(RouteServiceProvider::HOME.'?verified=1');
         }
 
-        if ($user->markEmailAsVerified()) {
-            event(new Verified($user));
-        }
+        $this->verifyOnce($user);
 
         return redirect()->intended(RouteServiceProvider::HOME.'?verified=1');
+    }
+
+    private function verifyOnce(User $user): void
+    {
+        $verified = $user->getConnection()->transaction(function () use ($user) {
+            $lockedUser = User::on($user->getConnectionName())->whereKey($user->getKey())
+                ->lockForUpdate()->firstOrFail();
+            if ($lockedUser->hasVerifiedEmail()) return false;
+            if (!$lockedUser->markEmailAsVerified()) return false;
+            $user->setRawAttributes($lockedUser->getAttributes(), true);
+            return true;
+        });
+
+        if ($verified) event(new Verified($user));
     }
 }

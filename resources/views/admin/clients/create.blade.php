@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <x-favicon />
@@ -337,7 +337,7 @@
                 newEntry.find('input').val('');
 
                 // Create and add a delete button
-                var deleteButton = $('<button type="button" class="w-full px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-xl text-[13px] font-semibold mt-4 remove-contact transition-colors">{{ __('messages.Delete Contact') }}</button>');
+                var deleteButton = $(('<button type="button" class="w-full px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-xl text-[13px] font-semibold mt-4 remove-contact transition-colors">' + @js(__('messages.Delete Contact')) + '</button>'));
                 
                 deleteButton.click(function() {
                     $(this).closest('.contact-entry').remove();

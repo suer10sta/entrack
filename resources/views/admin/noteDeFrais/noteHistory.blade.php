@@ -292,7 +292,7 @@
             @can('Delete expense note')
                 @if($delRoute !== '#')
                     <form action="{{ $delRoute }}" method="post"
-                          onsubmit="return confirm('{{ __('messages.Are you sure you want to delete this expense note?') }}');">
+                          onsubmit="return confirm(@js(__('messages.Are you sure you want to delete this expense note?')));">
                         @csrf @method('DELETE')
                         <button type="submit" class="act-btn act-btn-delete">
                             <svg class="act-btn-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

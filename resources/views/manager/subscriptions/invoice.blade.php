@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <x-favicon />
     <meta charset="UTF-8">
@@ -235,24 +235,24 @@
                 {{-- Replace with your logo image if desired --}}
                 <x-application-logo style="font-size:28px;" />
             </div>
-            <div class="invoice-title">INVOICE</div>
+            <div class="invoice-title">{{ __('messages.INVOICE') }}</div>
         </div>
 
         <div class="invoice-meta">
             <div class="meta-left">
                 <div class="meta-row">
-                    <span class="label">Invoice #:</span>
+                    <span class="label">{{ __('messages.Invoice #:') }}</span>
                     <span class="value">{{ $displayInvoiceNumber ?? $invoiceNumber }}</span>
                 </div>
                 <div class="meta-row">
-                    <span class="label">Date:</span>
+                    <span class="label">{{ __('messages.Date:') }}</span>
                     <span class="value">{{ $createdAt->format('d/m/Y') }}</span>
                 </div>
             </div>
             <div class="meta-right text-right">
                 @if($periodStart && $periodEnd)
                     <div class="meta-row">
-                        <span class="label">Period:</span>
+                        <span class="label">{{ __('messages.Period:') }}</span>
                         <span class="value">
                             {{ $periodStart->format('d/m/Y') }} 
                             To 
@@ -266,7 +266,7 @@
         <table style="width: 100%; margin-bottom: 28px;">
             <tr>
                 <td style="vertical-align: top; width: 50%;">
-                    <div class="section-title">Bill To :</div>
+                    <div class="section-title">{{ __('messages.Bill To :') }}</div>
                     <div class="bill-to-name">{{ $entreprise->name }}</div>
                     <div class="muted">
                         {{ $entreprise->Address }}<br>
@@ -278,7 +278,7 @@
                     </div>
                 </td>
                 <td style="vertical-align: top; width: 23%;">
-                    <div class="section-title">Billed Entreprise :</div>
+                    <div class="section-title">{{ __('messages.Billed Entreprise :') }}</div>
                     <div class="bill-to-name">BMe</div>
                     <div class="muted">
                         Rue Colonel Bourg 127-129<br>
@@ -293,16 +293,16 @@
         <table>
             <thead>
                 <tr>
-                    <th>Description</th>
-                    <th class="text-right">Qty</th>
-                    <th class="text-right">Unit</th>
-                    <th class="text-right">Total</th>
+                    <th>{{ __('messages.Description column') }}</th>
+                    <th class="text-right">{{ __('messages.Qty') }}</th>
+                    <th class="text-right">{{ __('messages.Unit') }}</th>
+                    <th class="text-right">{{ __('messages.Total column') }}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>Pro Subscription</td>
-                    <td class="text-right">1</td>
+                    <td>{{ __('messages.Pro Subscription') }}</td>
+                    <td class="text-right">{{ __('messages.public_pricing_users_solo') }}</td>
                     <td class="text-right">
                         {{ number_format($amountHt, 2, ',', ' ') }} {{ strtoupper($currency) }}
                     </td>
@@ -316,7 +316,7 @@
         <table class="totals">
             <tbody>
                 <tr>
-                    <td class="totals-label">Subtotal:</td>
+                    <td class="totals-label">{{ __('messages.Subtotal:') }}</td>
                     <td class="totals-value">
                         {{ number_format($amountHt, 2, ',', ' ') }} {{ strtoupper($currency) }}
                     </td>
@@ -340,7 +340,7 @@
                     </td>
                 </tr>
                 <tr class="totals-strong">
-                    <td class="totals-label">Total:</td>
+                    <td class="totals-label">{{ __('messages.Invoices Total') }}</td>
                     <td class="totals-value">
                         <span class="total-pill">
                             {{ number_format($amountTtc, 2, ',', ' ') }} {{ strtoupper($currency) }}
@@ -351,19 +351,19 @@
         </table>
 
         <div class="payment-note">
-            <strong>Payment already received.</strong> This invoice is for your records only — you don’t need to pay again, as the payment has already been processed via <strong>Stripe</strong>.
+            <strong>{{ __('messages.Payment already received.') }}</strong> {{ __('messages.This invoice is for your records only — you don’t need to pay again, as the payment has already been processed via') }} <strong>Stripe</strong>.
         </div>
 
 
         <br>
 
         <div class="invoice-footer">
-            <div class="footer-line">Autoliquidation – Art. 21 § 2 du Code TVA belge</div>
+            <div class="footer-line">{{ __('messages.Autoliquidation – Art. 21 § 2 du Code TVA belge') }}</div>
             <div class="footer-line">DalyTrac- BMe - 127-129 rue Colonel Bourg, 1140 Bruxelles, Belgique</div>
             <div class="footer-line">support@dalytrac.com - www.dalytrac.com</div>
         </div>
         <div class="invoice-footer">
-            <div class="footer-line">Thank you for your trust.</div>
+            <div class="footer-line">{{ __('messages.Thank you for your trust.') }}</div>
             <div class="footer-email">support@dalytrac.com</div>
         </div>
     </div>

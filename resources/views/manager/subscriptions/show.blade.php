@@ -238,7 +238,7 @@
                     @endphp
                     @unless($peppolAllowed)
                         <p class="text-[12px] text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
-                            Peppol is only supported for entreprises with a Belgian TVA number.
+                            {{ __('messages.Peppol is only supported for entreprises with a Belgian TVA number.') }}
                         </p>
                     @endunless
                 </div>
@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function () {
     modal.querySelectorAll('[data-send-channel-choice]').forEach(btn => {
         btn.addEventListener('click', function () {
             const ch = this.dataset.sendChannelChoice;
-            if (ch === 'peppol' && !peppolAllowed) { alert('Peppol not supported for this entreprise.'); return; }
+            if (ch === 'peppol' && !peppolAllowed) { alert(@js(__('messages.Peppol not supported for this entreprise.'))); return; }
             selectedChannel = ch;
             if (ch === 'email') { showStep(stepRecipients); return; }
             confirmTextEl.textContent = 'Send this invoice via Peppol?';
@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function () {
     modal.querySelector('[data-send-recipients-back]').addEventListener('click', () => { selectedChannel = null; showStep(stepSelect); });
     modal.querySelector('[data-send-recipients-next]').addEventListener('click', () => {
         selectedRecipients = [clientCheckbox?.checked && recipientEmail, copyCheckbox?.checked && copyRecipientEmail].filter(Boolean);
-        if (!selectedRecipients.length) { alert('Select at least one recipient.'); return; }
+        if (!selectedRecipients.length) { alert(@js(__('messages.Select at least one recipient.'))); return; }
         confirmTextEl.textContent = `Send via Email to: ${selectedRecipients.join(', ')}?`;
         showStep(stepConfirm);
     });
@@ -361,7 +361,7 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch(url, { method:'POST', headers:{ 'Content-Type':'application/json', 'Accept':'application/json', 'X-CSRF-TOKEN': csrf }, body: JSON.stringify(payload) })
             .then(r => r.json().catch(() => ({})))
             .then(d => alert(d.message || 'Done.'))
-            .catch(() => alert('Error sending invoice.'))
+            .catch(() => alert(@js(__('messages.Error sending invoice'))))
             .finally(closeModal);
     });
 });

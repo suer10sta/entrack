@@ -6,7 +6,7 @@
       <div class="card-header pb-0 pt-3 bg-transparent">
         <div class="float-start">
           <h5 class="mt-3 mb-0">Argon Configurator</h5>
-          <p>See our dashboard options.</p>
+          <p>{{ __('messages.See our dashboard options.') }}</p>
         </div>
         <div class="float-end mt-4">
           <button class="btn btn-link text-dark p-0 fixed-plugin-close-button">
@@ -17,7 +17,7 @@
       <hr class="horizontal dark my-1" />
       <div class="card-body pt-sm-3 pt-0 overflow-auto">
         <div>
-          <h6 class="mb-0">Sidebar Colors</h6>
+          <h6 class="mb-0">{{ __('messages.Sidebar Colors') }}</h6>
         </div>
         <a href="javascript:void(0)" class="switch-trigger background-color">
           <div class="badge-colors my-2 text-start">
@@ -32,31 +32,31 @@
         </a>
 
         <div class="mt-3">
-          <h6 class="mb-0">Sidenav Type</h6>
-          <p class="text-sm">Choose between 2 different sidenav types.</p>
+          <h6 class="mb-0">{{ __('messages.Sidenav Type') }}</h6>
+          <p class="text-sm">{{ __('messages.Choose between 2 different sidenav types.') }}</p>
         </div>
         <div class="d-flex">
           <button class="btn bg-gradient-primary w-100 px-3 mb-2 active me-2" data-class="bg-white"
             onclick="sidebarType(this)">
-            White
+            {{ __('messages.White') }}
           </button>
           <button class="btn bg-gradient-primary w-100 px-3 mb-2" data-class="bg-default" onclick="sidebarType(this)">
-            Dark
+            {{ __('messages.Dark') }}
           </button>
         </div>
         <p class="text-sm d-xl-none d-block mt-2">
-          You can change the sidenav type just on desktop view.
+          {{ __('messages.You can change the sidenav type just on desktop view.') }}
         </p>
 
         <div class="d-flex my-3">
-          <h6 class="mb-0">Navbar Fixed</h6>
+          <h6 class="mb-0">{{ __('messages.Navbar Fixed') }}</h6>
           <div class="form-check form-switch ps-0 ms-auto my-auto">
             <input class="form-check-input mt-1 ms-auto" type="checkbox" id="navbarFixed" onclick="navbarFixed(this)" />
           </div>
         </div>
         <hr class="horizontal dark mb-1" />
         <div class="d-flex my-4">
-          <h6 class="mb-0">Sidenav Mini</h6>
+          <h6 class="mb-0">{{ __('messages.Sidenav Mini') }}</h6>
           <div class="form-check form-switch ps-0 ms-auto my-auto">
             <input class="form-check-input mt-1 ms-auto" type="checkbox" id="navbarMinimize"
               onclick="navbarMinimize(this)" />
@@ -64,28 +64,28 @@
         </div>
         <hr class="horizontal dark my-sm-4" />
         <div class="mt-2 mb-5 d-flex">
-          <h6 class="mb-0">Light / Dark</h6>
+          <h6 class="mb-0">{{ __('messages.Light / Dark') }}</h6>
           <div class="form-check form-switch ps-0 ms-auto my-auto">
             <input class="form-check-input mt-1 ms-auto" type="checkbox" id="dark-version" onclick="darkMode(this)" />
           </div>
         </div>
-        <a class="btn btn-primary w-100" href="https://www.creative-tim.com/product/argon-dashboard-pro">Buy now</a>
-        <a class="btn btn-dark w-100" href="https://www.creative-tim.com/product/argon-dashboard">Free demo</a>
+        <a class="btn btn-primary w-100" href="https://www.creative-tim.com/product/argon-dashboard-pro">{{ __('messages.Buy now') }}</a>
+        <a class="btn btn-dark w-100" href="https://www.creative-tim.com/product/argon-dashboard">{{ __('messages.Free demo') }}</a>
         <a class="btn btn-outline-dark w-100"
-          href="https://www.creative-tim.com/learning-lab/bootstrap/overview/argon-dashboard">View documentation</a>
+          href="https://www.creative-tim.com/learning-lab/bootstrap/overview/argon-dashboard">{{ __('messages.View documentation') }}</a>
         <div class="w-100 text-center">
           <a class="github-button" href="https://github.com/creativetimofficial/ct-argon-dashboard-pro"
             data-icon="octicon-star" data-size="large" data-show-count="true"
-            aria-label="Star creativetimofficial/argon-dashboard on GitHub">Star</a>
-          <h6 class="mt-3">Thank you for sharing!</h6>
+            aria-label="{{ __('messages.Star creativetimofficial/argon-dashboard on GitHub') }}">{{ __('messages.Star') }}</a>
+          <h6 class="mt-3">{{ __('messages.Thank you for sharing!') }}</h6>
           <a href="https://twitter.com/intent/tweet?text=Check%20Argon%20Dashboard%20PRO%20made%20by%20%40CreativeTim%20%23webdesign%20%23dashboard%20%23bootstrap5&amp;url=https%3A%2F%2Fwww.creative-tim.com%2Fproduct%2Fargon-dashboard-pro"
             class="btn btn-dark mb-0 me-2" target="_blank">
-            <i class="fab fa-twitter me-1" aria-hidden="true"></i> Tweet
+            <i class="fab fa-twitter me-1" aria-hidden="true"></i> {{ __('messages.Tweet') }}
           </a>
           <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.creative-tim.com/product/argon-dashboard-pro"
             class="btn btn-dark mb-0 me-2" target="_blank">
             <i class="fab fa-facebook-square me-1" aria-hidden="true"></i>
-            Share
+            {{ __('messages.product_module_clients_feat3_title') }}
           </a>
         </div>
       </div>

@@ -14,16 +14,16 @@
                             </svg>
                         </div>
 
-                        <h2 class="mt-4 text-xl font-semibold text-gray-900">Compte bloqué</h2>
+                        <h2 class="mt-4 text-xl font-semibold text-gray-900">{{ __('messages.Compte bloqué') }}</h2>
 
                         <p class="mt-2 text-sm text-gray-600">
-                            Votre compte entreprise est actuellement restreint.
+                            {{ __('messages.Votre compte entreprise est actuellement restreint.') }}
                         </p>
 
                         <p class="mt-1 text-sm text-gray-500">
-                            Contactez l'administrateur de votre entreprise ou écrivez à
+                            {{ __('messages.Contactez l\'administrateur de votre entreprise ou écrivez à') }}
                             <a href="mailto:support@dalytrac.com" class="text-blue-600 hover:underline font-medium">support@dalytrac.com</a>
-                            pour obtenir de l'aide.
+                            {{ __('messages.pour obtenir de l\'aide.') }}
                         </p>
                     </div>
 
@@ -32,7 +32,7 @@
                             @csrf
                             <button type="submit"
                                 class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition">
-                                Se déconnecter
+                                {{ __('messages.Sign out') }}
                             </button>
                         </form>
                     </div>

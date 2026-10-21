@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <x-favicon />
     <meta charset="UTF-8">
@@ -256,13 +256,13 @@
                                     }
                                 @endphp
                                 
-                                <form action="{{ $unarchiveRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline">
+                                <form action="{{ $unarchiveRoute }}" method="post" onsubmit="return confirm(@js(__('messages.Are you sure?')));" class="inline">
                                     @csrf
                                     <button type="submit" title="{{ __('messages.Unarchive') }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 hover:border-slate-300 transition-colors">
                                         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
                                     </button>
                                 </form>
-                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline">
+                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm(@js(__('messages.Are you sure?')));" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" title="{{ __('messages.Delete') }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors">

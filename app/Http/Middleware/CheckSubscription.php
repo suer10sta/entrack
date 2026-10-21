@@ -108,13 +108,13 @@ class CheckSubscription
                     // Set appropriate message based on the reason
                     if ($entreprise->isBlockedByFailedPayments()) {
                         return redirect()->route('profile.upgrade')
-                            ->with('error', 'Votre paiement a échoué 3 fois consécutives. Veuillez mettre à jour votre moyen de paiement pour continuer.');
+                            ->with('error', __('messages.Votre paiement a échoué 3 fois consécutives. Veuillez mettre à jour votre moyen de paiement pour continuer.'));
                     } elseif ($hasCanceledSubscription) {
                         return redirect()->route('profile.upgrade')
-                            ->with('error', 'Your subscription has been canceled. Please reactivate your plan to continue using the application.');
+                            ->with('error', __('messages.Your subscription has been canceled. Please reactivate your plan to continue using the application.'));
                     } else {
                         return redirect()->route('profile.upgrade')
-                            ->with('error', 'Votre période d\'essai est terminée. Choisissez un plan pour continuer à utiliser l\'application.');
+                            ->with('error', __('messages.Votre période d\'essai est terminée. Choisissez un plan pour continuer à utiliser l\'application.'));
                     }
                 }
             }

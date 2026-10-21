@@ -114,21 +114,19 @@
                 <p>
                     {{ __('messages.Invoice Date') }}: {{ $invoice_date }}<br />
                     {{ __('messages.Due Date') }}: {{ $due_date }}<br>
+@if(filled($client->client_number))
                     {{ __('messages.Client Number') }} : {{ $client->client_number }} <br>
-                    {{ __('messages.Invoice Number') }} : {{date('ym')}}{{$number}}
+@endif
+                    {{ __('messages.Invoice Number') }} : {{$number}}
                 </p>
             </div>
             <div class="details-right">
-                <strong>{{ $client->name }}</strong><br />
-                {{ $client->billing_street }} <br />
-                {{ $client->billing_zip }}-{{ $client->billing_city }} <br />
-                {{ $client->billing_country }}<br />
-                {{ __('messages.Client TVA') }}: {{ $client->TVA }}
+                @include('partials.invoice-client-details')
             </div>
         </div>
 
         <div style="text-align: center; margin: 20px 0;">
-            <h2>{{ __('messages.Invoice') }} : {{$entreprise->invoice_prefix}}-{{date('ym')}}{{$number}}</h2>
+            <h2>{{ __('messages.Invoice') }} : {{$entreprise->invoice_prefix}}-{{$number}}</h2>
         </div>
 
         <table>
@@ -174,8 +172,10 @@
         @if($comment || $projectinfos->description)
         <div style="margin: 20px 0; padding: 10px; border-top: 1px solid #CCCCCC; border-bottom: 1px solid #CCCCCC;">
             @if($projectinfos->description)
+@if(filled($projectinfos->description))
             <strong> - {{ __('messages.Information') }} :</strong> <br>
             {!! nl2br(e($projectinfos->description)) !!} <br>
+@endif
             @endif
             @if($comment)
             <strong>{{ __('messages.Comment') }}:</strong><br>
@@ -187,9 +187,11 @@
         <div class="payment">
             - {{ __('messages.Please pay the amount of') }} <strong>{{number_format($total_ttc, 2, ',', '')}}€</strong> 
             {{ __('messages.on the account mentioned below before') }} {{ $due_date }}
-            {{ __('messages.mentioning the invoice number') }} <strong>{{date('ym')}}{{$number}}</strong>
+            {{ __('messages.mentioning the invoice number') }} <strong>{{$number}}</strong>
             <br>
+@if(\App\Support\InvoicePresentation::showReverseChargeNotice($entreprise))
             - {{ __('messages.In case of intra-community delivery for services') }}:  "Autoliquidation Art 21 § 2 du code TVA belge"
+@endif
                 <br>
             - {{ __('messages.See general conditions in annex') }}
             <br>
@@ -224,20 +226,14 @@
 
     <div class="footer">
         <div style="float: left; width: 30%; height: 80%;text-align: center;">
-            <b>{{ $entreprise->name }}</b>
-            <br>
-            <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
-        </div>
+@include('partials.invoice-company-details', ['section' => 'identity'])
+</div>
         <div style="float: left; margin-left: 5%; width: 30%; height: 80%; text-align: center;">
-            {{ $entreprise->Address }}
-            <br>
-            {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
-        </div>
+@include('partials.invoice-company-details', ['section' => 'contact'])
+</div>
         <div style="float: left; margin-left: 5%; width: 30%; height: 80%; text-align: center;">
-            <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }} <br>
-            <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }} <br>
-            <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
-        </div>
+@include('partials.invoice-company-details', ['section' => 'bank'])
+</div>
     </div>
 </body>
 </html>

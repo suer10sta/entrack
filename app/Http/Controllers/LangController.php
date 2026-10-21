@@ -25,7 +25,12 @@ class LangController extends Controller
         }
         
         // Persist on the authenticated account (so it sticks after login).
-        if (auth()->check()) {
+        if ($request->input('context') === 'manager' && auth('manager')->check()) {
+            $manager = auth('manager')->user();
+            if (($manager->locale ?? null) !== $lang) {
+                $manager->forceFill(['locale' => $lang])->save();
+            }
+        } elseif (auth()->check()) {
             $user = auth()->user();
             if (($user->locale ?? null) !== $lang) {
                 $user->forceFill(['locale' => $lang])->save();

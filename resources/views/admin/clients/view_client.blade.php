@@ -489,12 +489,12 @@
                                         <div class="client-project-actions flex flex-wrap items-center justify-center gap-2">
                                         <a href="{{ $editRoute }}" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold text-[#2D7080] border border-[#2D7080]/30 hover:bg-[#2D7080]/5 transition-colors">{{ __('messages.Edit') }}</a>
 
-                                <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
+                                <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm(@js(__('messages.Are you sure?')));" class="inline-block">
                                             @csrf
                                             <button type="submit" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors">{{ __('messages.Archive') }}</button>
                                         </form>
 
-                                        <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
+                                        <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm(@js(__('messages.Are you sure?')));" class="inline-block">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors">{{ __('messages.Delete') }}</button>
@@ -725,7 +725,7 @@
                                     <span class="text-[14px] font-bold text-[#0B2638] truncate">{{ ucfirst($contact->name) }}</span>
                                 </span>
                                 <div class="flex items-center gap-3 flex-shrink-0">
-                                    <form action="{{route('admin.clients.destroyContact',$contact->id) }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="d-inline">
+                                    <form action="{{route('admin.clients.destroyContact',$contact->id) }}" method="post" onsubmit="return confirm(@js(__('messages.Are you sure?')));" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-colors">{{ __('messages.Delete') }}</button>

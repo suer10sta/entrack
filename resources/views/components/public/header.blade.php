@@ -1,5 +1,6 @@
 {{-- Shared public Header (single source of truth for all public marketing pages).
      Design: Home page header, preserved as-is. Reused via <x-public.header />. --}}
+@props(['compactMobile' => false])
 @php
   $navBase = 'relative text-[0.92rem] font-semibold no-underline transition-colors duration-300 after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:rounded-full after:bg-brand-secondary after:transition-all after:duration-300';
   $navActive = 'text-brand-secondary after:w-full';
@@ -9,15 +10,15 @@
 <a href="#main" class="fixed left-3 top-[-80px] z-[100] rounded-lg bg-brand-primary px-3.5 py-2.5 text-white focus:top-3">{{ __('messages.public_nav_skip') }}</a>
 
 <header id="top" x-data="{ open: false }" class="sticky top-0 z-50 border-b border-[#d9e6ed]/90 bg-white/95 backdrop-blur-md">
-  <div class="mx-auto flex min-h-[82px] max-w-[1200px] items-center gap-9 px-6 max-md:min-h-[72px] max-md:px-4">
-    <a href="/" aria-label="DalyTrac, accueil" class="inline-flex items-baseline text-[1.65rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><x-application-logo /></a>
+  <div class="dt-public-header-row mx-auto flex min-h-[82px] max-w-[1200px] items-center gap-9 px-6 max-md:min-h-[72px] max-md:px-4">
+    <a href="/" aria-label="{{ __('messages.DalyTrac, accueil') }}" class="inline-flex items-baseline text-[1.65rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><x-application-logo /></a>
 
-    <button type="button" @click="open = !open" :aria-expanded="open.toString()" aria-controls="main-nav" class="hidden border-0 bg-transparent p-2 text-brand-primary max-md:block" aria-label="{{ __('messages.public_nav_mobile_menu') }}">
+    <button type="button" @click="open = !open" :aria-expanded="open.toString()" aria-controls="{{ $compactMobile ? 'home-mobile-nav' : 'main-nav' }}" class="dt-public-menu-toggle hidden border-0 bg-transparent p-2 text-brand-primary max-md:block" aria-label="{{ __('messages.public_nav_mobile_menu') }}">
       <span class="sr-only">{{ __('messages.public_nav_mobile_menu') }}</span>
       <i data-lucide="menu" class="h-6 w-6"></i>
     </button>
 
-    <nav id="main-nav" aria-label="Navigation principale" class="ml-auto flex items-center gap-[34px] max-md:hidden">
+    <nav id="main-nav" aria-label="{{ __('messages.Navigation principale') }}" class="ml-auto flex items-center gap-[34px] max-md:hidden">
       <a href="{{ route('produit') }}" @class([$navBase, $navActive => request()->routeIs('produit'), $navIdle => !request()->routeIs('produit')]) @if(request()->routeIs('produit')) aria-current="page" @endif>{{ __('messages.public_nav_product') }}</a>
       <a href="{{ route('tarifs') }}" @class([$navBase, $navActive => request()->routeIs('tarifs'), $navIdle => !request()->routeIs('tarifs')]) @if(request()->routeIs('tarifs')) aria-current="page" @endif>{{ __('messages.public_nav_pricing') }}</a>
       <a href="{{ route('demo') }}" @class([$navBase, $navActive => request()->routeIs('demo'), $navIdle => !request()->routeIs('demo')]) @if(request()->routeIs('demo')) aria-current="page" @endif>{{ __('messages.public_nav_demo') }}</a>
@@ -25,8 +26,8 @@
       <a href="{{ route('contact') }}" @class([$navBase, $navActive => request()->routeIs('contact'), $navIdle => !request()->routeIs('contact')]) @if(request()->routeIs('contact')) aria-current="page" @endif>{{ __('messages.public_nav_contact') }}</a>
     </nav>
 
-    <div class="flex items-center gap-[18px]">
-      <div class="relative" x-data="{ localeOpen: false }">
+    <div class="dt-public-header-actions flex items-center gap-[18px]">
+      <div class="dt-public-header-language relative" x-data="{ localeOpen: false }">
         <button type="button" @click="localeOpen = !localeOpen" @click.away="localeOpen = false" class="flex items-center gap-2 rounded-full border border-[#dce6e4] bg-white px-2.5 py-1.5 text-[0.72rem] font-semibold text-brand-primary shadow-sm transition hover:border-brand-secondary hover:text-brand-secondary">
           @switch(app()->getLocale())
             @case('fr')
@@ -50,19 +51,19 @@
 
         <div x-show="localeOpen" x-cloak x-transition class="absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl border border-[#dce6e4] bg-white shadow-[0_16px_36px_rgba(7,27,50,0.12)]">
           <a href="{{ route('changeLang', ['lang' => 'en']) }}" class="flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-[#3d5866] transition hover:bg-[#f3f7f6] {{ app()->getLocale() === 'en' ? 'bg-[#edf5f4] text-brand-primary' : '' }}">
-            <span class="flex items-center gap-2"><img src="https://flagcdn.com/gb.svg" alt="English" class="h-3.5 w-5 rounded-sm object-cover"> English</span>
+            <span class="flex items-center gap-2"><img src="https://flagcdn.com/gb.svg" alt="English" class="h-3.5 w-5 rounded-sm object-cover"> {{ __('messages.English') }}</span>
             @if(app()->getLocale() === 'en')<i data-lucide="check" class="h-4 w-4"></i>@endif
           </a>
           <a href="{{ route('changeLang', ['lang' => 'fr']) }}" class="flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-[#3d5866] transition hover:bg-[#f3f7f6] {{ app()->getLocale() === 'fr' ? 'bg-[#edf5f4] text-brand-primary' : '' }}">
-            <span class="flex items-center gap-2"><img src="https://flagcdn.com/fr.svg" alt="Français" class="h-3.5 w-5 rounded-sm object-cover"> Français</span>
+            <span class="flex items-center gap-2"><img src="https://flagcdn.com/fr.svg" alt="Français" class="h-3.5 w-5 rounded-sm object-cover"> {{ __('messages.Français') }}</span>
             @if(app()->getLocale() === 'fr')<i data-lucide="check" class="h-4 w-4"></i>@endif
           </a>
           <a href="{{ route('changeLang', ['lang' => 'es']) }}" class="flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-[#3d5866] transition hover:bg-[#f3f7f6] {{ app()->getLocale() === 'es' ? 'bg-[#edf5f4] text-brand-primary' : '' }}">
-            <span class="flex items-center gap-2"><img src="https://flagcdn.com/es.svg" alt="Español" class="h-3.5 w-5 rounded-sm object-cover"> Español</span>
+            <span class="flex items-center gap-2"><img src="https://flagcdn.com/es.svg" alt="Español" class="h-3.5 w-5 rounded-sm object-cover"> {{ __('messages.Español') }}</span>
             @if(app()->getLocale() === 'es')<i data-lucide="check" class="h-4 w-4"></i>@endif
           </a>
           <a href="{{ route('changeLang', ['lang' => 'nl']) }}" class="flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-[#3d5866] transition hover:bg-[#f3f7f6] {{ app()->getLocale() === 'nl' ? 'bg-[#edf5f4] text-brand-primary' : '' }}">
-            <span class="flex items-center gap-2"><img src="https://flagcdn.com/be.svg" alt="Nederlands" class="h-3.5 w-5 rounded-sm object-cover"> Nederlands</span>
+            <span class="flex items-center gap-2"><img src="https://flagcdn.com/be.svg" alt="Nederlands" class="h-3.5 w-5 rounded-sm object-cover"> {{ __('messages.Nederlands') }}</span>
             @if(app()->getLocale() === 'nl')<i data-lucide="check" class="h-4 w-4"></i>@endif
           </a>
         </div>
@@ -73,13 +74,23 @@
     </div>
   </div>
 
-  <nav x-show="open" x-cloak x-transition aria-label="Navigation mobile" class="absolute inset-x-0 top-full flex-col items-start gap-[18px] border-b border-[#dce6e4] bg-white px-6 py-5 shadow-[0_16px_28px_rgba(7,27,50,0.08)] max-md:flex lg:hidden">
+  <nav @if($compactMobile) id="home-mobile-nav" @keydown.escape.window="open = false" @endif x-show="open" x-cloak x-transition aria-label="{{ __('messages.Navigation mobile') }}" class="absolute inset-x-0 top-full flex-col items-start gap-[18px] border-b border-[#dce6e4] bg-white px-6 py-5 shadow-[0_16px_28px_rgba(7,27,50,0.08)] max-md:flex lg:hidden">
     <a href="{{ route('produit') }}" @click="open = false" @class([$mobileBase, 'text-brand-secondary' => request()->routeIs('produit'), 'text-[#3e5368]' => !request()->routeIs('produit')])>{{ __('messages.public_nav_product') }}</a>
     <a href="{{ route('tarifs') }}" @click="open = false" @class([$mobileBase, 'text-brand-secondary' => request()->routeIs('tarifs'), 'text-[#3e5368]' => !request()->routeIs('tarifs')])>{{ __('messages.public_nav_pricing') }}</a>
     <a href="{{ route('demo') }}" @click="open = false" @class([$mobileBase, 'text-brand-secondary' => request()->routeIs('demo'), 'text-[#3e5368]' => !request()->routeIs('demo')])>{{ __('messages.public_nav_demo') }}</a>
     <a href="{{ route('faq') }}" @click="open = false" @class([$mobileBase, 'text-brand-secondary' => request()->routeIs('faq'), 'text-[#3e5368]' => !request()->routeIs('faq')])>{{ __('messages.public_nav_faq') }}</a>
     <a href="{{ route('contact') }}" @click="open = false" @class([$mobileBase, 'text-brand-secondary' => request()->routeIs('contact'), 'text-[#3e5368]' => !request()->routeIs('contact')])>{{ __('messages.public_nav_contact') }}</a>
     <a href="{{ route('login') }}" class="{{ $mobileBase }} text-[#3e5368]">{{ __('messages.public_nav_login') }}</a>
+    @if($compactMobile)
+      <div class="dt-home-mobile-languages" aria-label="{{ __('messages.Language') }}">
+        @foreach(['en' => ['gb', 'English'], 'fr' => ['fr', 'Français'], 'nl' => ['be', 'Nederlands'], 'es' => ['es', 'Español']] as $locale => [$flag, $label])
+          <a href="{{ route('changeLang', ['lang' => $locale]) }}" @if(app()->getLocale() === $locale) aria-current="true" @endif>
+            <img src="https://flagcdn.com/{{ $flag }}.svg" alt="" width="20" height="14">
+            {{ __('messages.' . $label) }}
+          </a>
+        @endforeach
+      </div>
+    @endif
   </nav>
 </header>
 

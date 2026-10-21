@@ -1,4 +1,4 @@
-<section class="bg-white py-28 max-md:py-20" aria-labelledby="audience-title">
+<section data-home-section="audience" class="bg-white py-28 max-md:py-20" aria-labelledby="audience-title">
   <div class="mx-auto max-w-[1200px] px-6 max-md:px-4">
     <div class="mb-14 grid items-end gap-20 max-md:grid-cols-1 max-md:gap-6 lg:grid-cols-[1.35fr_0.65fr]">
       <div>

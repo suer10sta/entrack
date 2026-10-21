@@ -194,7 +194,7 @@
                 @if(session('message'))
                 <div class="m-4 sm:m-5 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl relative flex items-center gap-2" role="alert">
                     <span class="block sm:inline text-[13px] font-medium">{{ session('message') }}</span>
-                    <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-emerald-600 hover:text-emerald-800 font-bold text-xl" aria-label="Close">
+                    <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-emerald-600 hover:text-emerald-800 font-bold text-xl" aria-label="{{ __('messages.Close') }}">
                         &times;
                     </button>
                 </div>
@@ -292,11 +292,11 @@
 
                     {{-- Pagination Placeholder  --}}
                     <div class="flex items-center justify-between px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl">
-                        <button class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed" disabled aria-label="Previous page">
+                        <button class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed" disabled aria-label="{{ __('messages.Previous page') }}">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" /></svg>
                         </button>
                         <span class="text-[12px] font-semibold text-slate-500">{{ __('messages.Single page label') }}</span>
-                        <button class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed" disabled aria-label="Next page">
+                        <button class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed" disabled aria-label="{{ __('messages.Next page') }}">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
                         </button>
                     </div>

@@ -73,7 +73,7 @@ class teamsController extends Controller
             
         }
 
-        return to_route('admin.teams.index')->with('message', 'team Added Successfully');
+        return to_route('admin.teams.index')->with('message', __('messages.team Added Successfully'));
 
     }
 
@@ -85,6 +85,6 @@ class teamsController extends Controller
         }
         $team->delete();
 
-        return back()->with('message', 'teams Deleted Successfully');
+        return back()->with('message', __('messages.teams Deleted Successfully'));
     }
 }

@@ -6,15 +6,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Logiciel de gestion de projets, temps et facturation | Dalytrac</title>
-    <meta name="description" content="Dalytrac centralise projets, suivi du temps et facturation pour aider les entreprises de services à détecter les dérapages et protéger leurs marges.">
+    <title>{{ __('messages.Logiciel de gestion de projets, temps et facturation | Dalytrac') }}</title>
+    <meta name="description" content="{{ __('messages.Dalytrac centralise projets, suivi du temps et facturation pour aider les entreprises de services à détecter les dérapages et protéger leurs marges.') }}">
     <meta name="robots" content="index,follow">
     <meta name="theme-color" content="#0b2638">
     <link rel="canonical" href="{{ route('welcome') }}">
 
 
-    <meta property="og:title" content="Logiciel de gestion de projets, temps et facturation | Dalytrac">
-    <meta property="og:description" content="Dalytrac centralise projets, suivi du temps et facturation pour aider les entreprises de services à détecter les dérapages et protéger leurs marges.">
+    <meta property="og:title" content="{{ __('messages.Logiciel de gestion de projets, temps et facturation | Dalytrac') }}">
+    <meta property="og:description" content="{{ __('messages.Dalytrac centralise projets, suivi du temps et facturation pour aider les entreprises de services à détecter les dérapages et protéger leurs marges.') }}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ route('welcome') }}">
 
@@ -32,6 +32,7 @@
 
     <!-- Vite Assets (Tailwind CSS) -->
     @vite('resources/css/app.css')
+    <link rel="stylesheet" href="{{ asset('css/dalytrac-home-mobile.css') }}">
 
     <style>
       [x-cloak] { display: none !important; }
@@ -43,9 +44,9 @@
     </style>
   </head>
 
-  <body class="bg-white text-[#1b3444] antialiased">
+  <body class="dt-home-page bg-white text-[#1b3444] antialiased">
 
-    <x-public.header />
+    <x-public.header :compact-mobile="true" />
 
     <main id="main">
       @include('home.sections.hero')

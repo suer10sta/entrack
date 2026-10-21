@@ -573,16 +573,16 @@ class tasksController extends Controller
 
         if ($request->input('from') === 'onboarding') {
             // withInput() so Step 2 keeps showing the entered values after reload.
-            return redirect()->route('admin.onboarding.step2')->with('message', 'Task Created Successfully')->withInput();
+            return redirect()->route('admin.onboarding.step2')->with('message', __('messages.Task Created Successfully'))->withInput();
         }
         if (Auth::user()->hasRole('Admin')) {
-            return redirect()->route('admin.projects.show', $projectId)->with('message', 'Task Created Successfully');
+            return redirect()->route('admin.projects.show', $projectId)->with('message', __('messages.Task Created Successfully'));
         }
         if (Auth::user()->hasRole('Responsable de projet')) {
-            return redirect()->route('Responsable_de_projet.projects.show', $projectId)->with('message', 'Task Created Successfully');
+            return redirect()->route('Responsable_de_projet.projects.show', $projectId)->with('message', __('messages.Task Created Successfully'));
         }
         if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-            return redirect()->route('Responsable_gestionnaire.projects.show', $projectId)->with('message', 'Task Created Successfully');
+            return redirect()->route('Responsable_gestionnaire.projects.show', $projectId)->with('message', __('messages.Task Created Successfully'));
         }
 
     }
@@ -766,13 +766,13 @@ class tasksController extends Controller
 
 
         if (Auth::user()->hasRole('Admin')) {
-            return redirect()->route('admin.projects.show', $projectId)->with('message', 'Task Updated Successfully');
+            return redirect()->route('admin.projects.show', $projectId)->with('message', __('messages.Task Updated Successfully'));
         }
         if (Auth::user()->hasRole('Responsable de projet')) {
-            return redirect()->route('Responsable_de_projet.projects.show', $projectId)->with('message', 'Task Updated Successfully');
+            return redirect()->route('Responsable_de_projet.projects.show', $projectId)->with('message', __('messages.Task Updated Successfully'));
         }
         if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-            return redirect()->route('Responsable_gestionnaire.projects.show', $projectId)->with('message', 'Task Updated Successfully');
+            return redirect()->route('Responsable_gestionnaire.projects.show', $projectId)->with('message', __('messages.Task Updated Successfully'));
         }
     }
 
@@ -798,7 +798,7 @@ class tasksController extends Controller
         }
 
         $task->delete();
-        return back()->with('message', 'task Deleted Successfully');
+        return back()->with('message', __('messages.task Deleted Successfully'));
     }
 
     /**
@@ -811,12 +811,12 @@ class tasksController extends Controller
             ->first();
 
         if (!$timer) {
-            return redirect()->back()->with('error', 'Timer entry not found or you are not authorized to delete it.');
+            return redirect()->back()->with('error', __('messages.Timer entry not found or you are not authorized to delete it.'));
         }
 
         $timer->delete();
 
-        return redirect()->back()->with('message', 'Timer entry deleted successfully.');
+        return redirect()->back()->with('message', __('messages.Timer entry deleted successfully.'));
     }
 
     public function status(Tasks $task, Request $request, $status)
@@ -835,7 +835,7 @@ class tasksController extends Controller
         if ($status == 2) {
             $task->update(['status' => 2]);
         }
-        return back()->with('message', 'task Status Updated Successfully');
+        return back()->with('message', __('messages.task Status Updated Successfully'));
     }
 
     public function start(Request $request, $task_id, $employee_id)
@@ -917,7 +917,7 @@ class tasksController extends Controller
         $task_timer->entreprise_id = Auth::user()->entreprise_id;
         $task_timer->save();
 
-        return back()->with('success', 'Task started successfully.');
+        return back()->with('success', __('messages.Task started successfully.'));
     }
 
 
@@ -928,7 +928,7 @@ class tasksController extends Controller
 
 
         if (!$tasks) {
-            return back()->with('error', 'Task not found.');
+            return back()->with('error', __('messages.Task not found.'));
         }
 
         $task_timer = tasks_timer::where('task_employee_id', $tasks->id)->whereNull('end_date')->latest()->first();
@@ -941,7 +941,7 @@ class tasksController extends Controller
             $task_timer->duration = $duration;
             $task_timer->paused = 1;
             $task_timer->save();
-            return back()->with('success', 'Task paused successfully.');
+            return back()->with('success', __('messages.Task paused successfully.'));
         } elseif ($task_timer && $task_timer->pause_date != null && $task_timer->resume_date != null && $task_timer->end_date === null) {
             $task_timer->update(['pause_date' => now()]);
             $resume = Carbon::parse($task_timer->resume_date);
@@ -950,7 +950,7 @@ class tasksController extends Controller
             $task_timer->duration = $task_timer->duration + $duration1;
             $task_timer->paused = 1;
             $task_timer->save();
-            return back()->with('success', 'Task paused successfully.');
+            return back()->with('success', __('messages.Task paused successfully.'));
         } else {
             return back()->with('alertmessage', 'The timer was not initiated to pause it.');
         }
@@ -963,7 +963,7 @@ class tasksController extends Controller
 
 
         if (!$tasks) {
-            return back()->with('error', 'Task not found.');
+            return back()->with('error', __('messages.Task not found.'));
         }
 
         $task_timer = tasks_timer::where('task_employee_id', $tasks->id)->whereNull('end_date')->latest()->first();
@@ -973,7 +973,7 @@ class tasksController extends Controller
             $task_timer->paused = 0;
             $task_timer->save();
 
-            return back()->with('success', 'Task resumed successfully.');
+            return back()->with('success', __('messages.Task resumed successfully.'));
         } else {
             return back()->with('alertmessage', 'The timer was not initiated to pause it.');
         }
@@ -1004,7 +1004,7 @@ class tasksController extends Controller
 
 
         if (!$tasks) {
-            return back()->with('error', 'Task not found.');
+            return back()->with('error', __('messages.Task not found.'));
         }
 
         $task_timer = tasks_timer::where('task_employee_id', $tasks->id)->whereNull('end_date')->latest()->first();
@@ -1077,7 +1077,7 @@ class tasksController extends Controller
                 $task_timer->save();
             }
 
-            return back()->with('success', 'Task ended successfully.');
+            return back()->with('success', __('messages.Task ended successfully.'));
 
         } elseif ($task_timer && $task_timer->pause_date != null && $task_timer->end_date === null) {
 
@@ -1127,7 +1127,7 @@ class tasksController extends Controller
             }
             $task_timer->save();
 
-            return back()->with('success', 'Task ended successfully.');
+            return back()->with('success', __('messages.Task ended successfully.'));
         } else {
             return back()->with('alertmessage', 'The timer was not initiated to stop it.');
         }
@@ -1143,12 +1143,12 @@ class tasksController extends Controller
     {
         $comment = $request->input('comment');
         if (blank($comment)) {
-            return response()->json(['error' => 'Comment is empty'], 400);
+            return response()->json(['error' => __('messages.Comment is empty')], 400);
         }
 
         $apiKey = config('services.openai.api_key');
         if (blank($apiKey)) {
-            return response()->json(['error' => 'OpenAI API Key is not configured'], 500);
+            return response()->json(['error' => __('messages.OpenAI API Key is not configured')], 500);
         }
 
         try {
@@ -1180,16 +1180,16 @@ class tasksController extends Controller
                 $correctedText = $data['choices'][0]['message']['content'] ?? $comment;
                 $correctedText = trim($correctedText, "\"' ");
                 if ($prepareForStop && (blank($data['choices'][0]['message']['content'] ?? null) || mb_strlen($correctedText) > 500)) {
-                    return response()->json(['error' => 'Invalid processed description'], 502);
+                    return response()->json(['error' => __('messages.Invalid processed description')], 502);
                 }
                 return response()->json(['corrected' => $correctedText]);
             } else {
                 $errorData = $response->json();
                 $errorMessage = $errorData['error']['message'] ?? 'OpenAI API request failed';
-                return response()->json(['error' => $errorMessage], 500);
+                return response()->json(['error' => \App\Support\LocalizedError::message(new \RuntimeException($errorMessage))], 500);
             }
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => \App\Support\LocalizedError::message($e)], 500);
         }
     }
 
@@ -1197,12 +1197,12 @@ class tasksController extends Controller
     {
         $comment = $request->input('comment');
         if (blank($comment)) {
-            return response()->json(['error' => 'Comment is empty'], 400);
+            return response()->json(['error' => __('messages.Comment is empty')], 400);
         }
 
         $apiKey = config('services.openai.api_key');
         if (blank($apiKey)) {
-            return response()->json(['error' => 'OpenAI API Key is not configured'], 500);
+            return response()->json(['error' => __('messages.OpenAI API Key is not configured')], 500);
         }
 
         try {
@@ -1232,10 +1232,10 @@ class tasksController extends Controller
             } else {
                 $errorData = $response->json();
                 $errorMessage = $errorData['error']['message'] ?? 'OpenAI API request failed';
-                return response()->json(['error' => $errorMessage], 500);
+                return response()->json(['error' => \App\Support\LocalizedError::message(new \RuntimeException($errorMessage))], 500);
             }
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => \App\Support\LocalizedError::message($e)], 500);
         }
     }
 
@@ -1579,7 +1579,7 @@ class tasksController extends Controller
         $task->save();
 
         // Return success response
-        return response()->json(['success' => 'Duration updated successfully.']);
+        return response()->json(['success' => __('messages.Duration updated successfully.')]);
     }
 
 
@@ -1601,7 +1601,7 @@ class tasksController extends Controller
             if (!$task) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Task not found'
+                    'message' => __('messages.Task not found')
                 ], 404);
             }
 
@@ -1623,7 +1623,7 @@ class tasksController extends Controller
                     if ($newStartDate->lt($previousEndDate)) {
                         return response()->json([
                             'status' => 'error',
-                            'message' => 'New start date cannot be before the end date of the previous task'
+                            'message' => __('messages.New start date cannot be before the end date of the previous task')
                         ], 422);
                     }
                 }
@@ -1655,7 +1655,7 @@ class tasksController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Field updated successfully',
+                'message' => __('messages.Field updated successfully'),
                 'data' => [
                     'id' => $task->id,
                     $field => $task->$field,
@@ -1666,7 +1666,7 @@ class tasksController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to update the value: ' . $e->getMessage()
+                'message' => \App\Support\LocalizedError::message($e)
             ], 500);
         }
     }
@@ -1811,7 +1811,7 @@ class tasksController extends Controller
                 'employeeId' => $employeeId ?? null,
             ]);
             return response()->json([
-                'error' => 'Failed to generate PDF: ' . $e->getMessage(),
+                'error' => \App\Support\LocalizedError::message($e),
                 'detail' => $e->getFile() . ':' . $e->getLine(),
             ], 500);
         }
@@ -1938,7 +1938,7 @@ class tasksController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
             return response()->json([
-                'error' => 'Failed to generate PDF: ' . $e->getMessage(),
+                'error' => \App\Support\LocalizedError::message($e),
                 'detail' => $e->getFile() . ':' . $e->getLine(),
             ], 500);
         }
@@ -2029,7 +2029,7 @@ class tasksController extends Controller
                 'startDate' => $startDate ?? null,
             ]);
             return response()->json([
-                'error' => 'Failed to generate PDF: ' . $e->getMessage(),
+                'error' => \App\Support\LocalizedError::message($e),
                 'detail' => $e->getFile() . ':' . $e->getLine(),
             ], 500);
         }
@@ -2250,7 +2250,7 @@ class tasksController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Duration moved successfully'
+                'message' => __('messages.Duration moved successfully')
             ]);
 
         } catch (\Exception $e) {
@@ -2260,7 +2260,7 @@ class tasksController extends Controller
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to move duration: ' . $e->getMessage()
+                'message' => \App\Support\LocalizedError::message($e)
             ], 500);
         }
     }
@@ -2336,7 +2336,7 @@ class tasksController extends Controller
             if ($end->lessThanOrEqualTo($start)) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'End date must be after start date.'
+                    'message' => __('messages.End date must be after start date.')
                 ], 422);
             }
 
@@ -2436,7 +2436,7 @@ class tasksController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Timer created successfully',
+                'message' => __('messages.Timer created successfully'),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -2444,7 +2444,7 @@ class tasksController extends Controller
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to create timer: ' . $e->getMessage(),
+                'message' => \App\Support\LocalizedError::message($e),
             ], 500);
         }
     }
@@ -2467,7 +2467,7 @@ class tasksController extends Controller
             if (!$task) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Task not found or unauthorized access.'
+                    'message' => __('messages.Task not found or unauthorized access.')
                 ], 403);
             }
 
@@ -2480,7 +2480,7 @@ class tasksController extends Controller
             if (!$newProject) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Project not found, archived, or unauthorized access.'
+                    'message' => __('messages.Project not found, archived, or unauthorized access.')
                 ], 403);
             }
 
@@ -2509,7 +2509,7 @@ class tasksController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Task moved successfully.',
+                'message' => __('messages.Task moved successfully.'),
                 'redirect_url' => $redirectRoute,
                 'new_project_id' => $validated['new_project_id']
             ]);
@@ -2518,7 +2518,7 @@ class tasksController extends Controller
             \Log::error('Move Task Error: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to move task: ' . $e->getMessage()
+                'message' => \App\Support\LocalizedError::message($e)
             ], 500);
         }
     }
@@ -2551,7 +2551,7 @@ class tasksController extends Controller
         $taskIds = json_decode($request->taskIds);
 
         if (!$projectId || empty($taskIds)) {
-            return response()->json(['error' => 'Project ID and task IDs are required'], 400);
+            return response()->json(['error' => __('messages.Project ID and task IDs are required')], 400);
         }
 
         // Initialize the query
@@ -2598,10 +2598,10 @@ class tasksController extends Controller
 
         // Validate date format
         if (!$startDate || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate)) {
-            return back()->with('error', 'Invalid or missing start date');
+            return back()->with('error', __('messages.Invalid or missing start date'));
         }
         if (!$endDate || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
-            return back()->with('error', 'Invalid or missing end date');
+            return back()->with('error', __('messages.Invalid or missing end date'));
         }
 
         try {
@@ -2712,7 +2712,7 @@ class tasksController extends Controller
             ]);
         } catch (\Exception $e) {
             \Log::error('Error in previewCustomerReport: ' . $e->getMessage());
-            return back()->with('error', 'Failed to generate preview: ' . $e->getMessage());
+            return back()->with('error', \App\Support\LocalizedError::message($e));
         }
     }
 
@@ -2729,7 +2729,7 @@ class tasksController extends Controller
 
         // Validate date format
         if (!$startDate || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate)) {
-            return back()->with('error', 'Invalid or missing start date');
+            return back()->with('error', __('messages.Invalid or missing start date'));
         }
         try {
             $startDate = Carbon::createFromFormat('Y-m-d', $startDate)->startOfDay();
@@ -2837,7 +2837,7 @@ class tasksController extends Controller
             ]);
         } catch (\Exception $e) {
             \Log::error('Error in previewOneDayCustomerReport: ' . $e->getMessage());
-            return back()->with('error', 'Failed to generate preview: ' . $e->getMessage());
+            return back()->with('error', \App\Support\LocalizedError::message($e));
         }
     }
 
@@ -2911,10 +2911,10 @@ class tasksController extends Controller
             // Clean up temporary file
             unlink($pdfPath);
 
-            return redirect()->route('admin.index')->with('success', 'Email sent successfully to: ' . implode(', ', $recipients));
+            return redirect()->route('admin.index')->with('success', __('messages.Email sent successfully to:') . implode(', ', $recipients));
         } catch (\Exception $e) {
             \Log::error('Error in sendCustomerReport: ' . $e->getMessage());
-            return back()->with('error', 'Failed to send report: ' . $e->getMessage());
+            return back()->with('error', \App\Support\LocalizedError::message($e));
         }
     }
 
@@ -2987,7 +2987,7 @@ class tasksController extends Controller
             return $pdf->stream('customer_report.pdf');
         } catch (\Exception $e) {
             \Log::error('Error in streamCustomerReportPdf: ' . $e->getMessage());
-            return response()->json(['error' => 'Failed to generate PDF: ' . $e->getMessage()], 500);
+            return response()->json(['error' => \App\Support\LocalizedError::message($e)], 500);
         }
     }
 

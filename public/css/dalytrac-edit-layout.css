@@ -1,0 +1,48 @@
+/* Edit forms share readable widths without changing dashboard/list layouts.
+   Load for both the Tailwind and legacy Bootstrap edit templates. */
+.dt-edit-page,
+.dt-app-navbar ~ main.dt-edit-page {
+    padding: 28px clamp(16px, 3vw, 40px) 40px;
+    min-width: 0;
+}
+.dt-edit-container,
+.dt-app-navbar ~ main > .dt-edit-container,
+.dt-app-navbar ~ main.dt-create-page > .dt-edit-container,
+.dt-dashboard-content > .dt-edit-container {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 56rem;
+    min-width: 0;
+    margin-inline: auto;
+}
+.dt-edit-container.dt-edit-container--compact,
+.dt-app-navbar ~ main > .dt-edit-container--compact { max-width: 44rem; }
+.dt-edit-container.dt-edit-container--wide,
+.dt-app-navbar ~ main > .dt-edit-container--wide { max-width: 64rem; }
+.dt-edit-legacy .dt-edit-container { padding: 28px 16px 40px; }
+.dt-edit-container .dt-edit-column { width: 100%; max-width: 100%; flex: 0 0 100%; }
+.dt-edit-container :is(form, fieldset, .grid, .grid > div) { min-width: 0; }
+.dt-edit-container :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="color"]) {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+}
+.dt-edit-container textarea { resize: vertical; }
+.dt-edit-container .ts-wrapper { min-width: 0; max-width: 100%; }
+.dt-edit-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.dt-edit-fields > .dt-edit-field-wide { grid-column: 1 / -1; }
+.dt-edit-fields.space-y-5 > :not([hidden]) ~ :not([hidden]) { margin-top: 0; }
+.dt-edit-container .dt-edit-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+@media (max-width: 639.98px) {
+    .dt-edit-page,
+    .dt-app-navbar ~ main.dt-edit-page { padding: 20px 16px 28px; }
+    .dt-edit-container.dt-edit-profile { padding: 20px 16px 28px; }
+    .dt-edit-legacy .dt-edit-container { padding: 20px 12px 28px; }
+    .dt-edit-fields { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .dt-edit-container .dt-edit-mobile-card { padding: 20px 16px; }
+    .dt-edit-container.dt-edit-mobile-card { padding: 20px 16px; }
+    .dt-edit-container .detail-row { grid-template-columns: minmax(0, 1fr); }
+    .dt-edit-container .detail-row > div { grid-column: 1 / -1; }
+    .dt-edit-container .dt-edit-actions { align-items: stretch; }
+    .dt-edit-legacy .dt-edit-container :is(.col-6, .col-sm-6) { flex: 0 0 100%; max-width: 100%; width: 100%; }
+}

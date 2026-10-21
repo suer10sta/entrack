@@ -1,1 +1,1 @@
-devis body test 
+{{ __('messages.devis body test') }}

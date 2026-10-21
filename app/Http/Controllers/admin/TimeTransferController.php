@@ -66,7 +66,7 @@ class TimeTransferController extends Controller
         $rows = $this->timeTransferService->exportProjectTimers($project, $startDate, $endDate);
 
         if (empty($rows)) {
-            return back()->with('error', 'Aucune heure à exporter pour cette période.');
+            return back()->with('error', __('messages.Aucune heure à exporter pour cette période.'));
         }
 
         $csv = $this->timeTransferService->rowsToCsv($rows);
@@ -106,7 +106,7 @@ class TimeTransferController extends Controller
         ]);
 
         if ($validated['employee_mode'] === 'existing' && empty($validated['employee_id'])) {
-            return back()->withInput()->with('error', 'Veuillez sélectionner un employé.');
+            return back()->withInput()->with('error', __('messages.Veuillez sélectionner un employé.'));
         }
 
         try {
@@ -150,7 +150,7 @@ class TimeTransferController extends Controller
         if (!$payload || empty($payload['rows'])) {
             return redirect()
                 ->route('admin.projects.time-transfer.import', $project)
-                ->with('error', 'Session d\'import expirée. Veuillez recharger le fichier.');
+                ->with('error', __('messages.Session d\'import expirée. Veuillez recharger le fichier.'));
         }
 
         if (($payload['employee_mode'] ?? 'existing') === 'create' || empty($payload['employee_id'])) {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <x-favicon />
     <meta charset="UTF-8">
@@ -181,7 +181,7 @@
                 @if(session('message'))
                     <div class="m-4 sm:m-5 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl relative flex items-center gap-2" role="alert">
                         <span class="block sm:inline text-[13px] font-medium">{{ session('message') }}</span>
-                        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-emerald-600 hover:text-emerald-800 font-bold text-xl" aria-label="Close">
+                        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-emerald-600 hover:text-emerald-800 font-bold text-xl" aria-label="{{ __('messages.Close') }}">
                            &times;
                         </button>
                     </div>
@@ -273,7 +273,7 @@
                                     </td>
                                     {{-- Name with Link --}}
                                     <td data-label="{{ __('messages.Name') }}" class="employee-name-cell px-4 py-2.5 text-[13px] text-slate-700 editable whitespace-normal break-words font-medium"
-                                        data-id="{{$employee->id}}" data-column="name" title="Double-click to edit">
+                                        data-id="{{$employee->id}}" data-column="name" title="{{ __('messages.Double-click to edit') }}">
                                         <a href="{{ route('admin.employees.show', $employee->id) }}"
                                            class="text-[#2D7080] hover:text-[#0B2638] hover:underline font-medium">
                                             {{ $employee->name }}
@@ -382,7 +382,7 @@
                                             
 
                                             {{-- Archive --}}
-                                            <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Archive this employee?') }}');" class="inline">
+                                            <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm(@js(__('messages.Archive this employee?')));" class="inline">
                                                 @csrf
                                                 <button type="submit" title="{{ __('messages.Archive employee') }}"
                                                         class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 hover:border-slate-300 transition-colors">
@@ -395,7 +395,7 @@
 
                                             {{-- Delete --}}
                                             @if($canDelete && !$isSelf)
-                                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure you want to delete this employee?') }}');" class="inline">
+                                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm(@js(__('messages.Are you sure you want to delete this employee?')));" class="inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" title="{{ __('messages.Delete employee') }}"
@@ -554,7 +554,7 @@
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         $parentCell.text(originalContent);
-                        alert('{{ __('messages.Error updating employee') }}: ' + errorThrown);
+                        alert((@js(__('messages.Error updating employee')) + ': ') + errorThrown);
                         console.error("AJAX Error:", textStatus, errorThrown, jqXHR.responseText);
                     }
                 });

@@ -432,7 +432,7 @@
                                         <td data-label="{{ __('messages.Task Name') }}" class="px-4 py-3 task-name-cell">
                                             <div class="flex items-center justify-between gap-3">
                                                 <a href="#" class="min-w-0 truncate text-sm font-medium text-[#2D7080] hover:text-[#0B2638] hover:underline" title="{{ $task->task_name }}">{{ $task->task_name }}</a>
-                                                <button type="button" class="shrink-0 text-slate-400 hover:text-slate-600 sm:hidden" data-task-collapse-toggle aria-label="Toggle task details">
+                                                <button type="button" class="shrink-0 text-slate-400 hover:text-slate-600 sm:hidden" data-task-collapse-toggle aria-label="{{ __('messages.Toggle task details') }}">
                                                     <svg class="task-chevron w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                                         <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                                                     </svg>
@@ -1139,7 +1139,7 @@
                         }
                     })
                     .catch(() => {
-                        alert('Failed to create timer.');
+                        alert(@js(__('messages.Failed to create timer.')));
                     });
                 });
             }
@@ -1370,7 +1370,7 @@
                 if (svg) {
                     svg.setAttribute('fill', isPinned ? '#eab308' : 'none');
                 }
-                $btn.title = isPinned ? '{{ __('messages.Unpin project') }}' : '{{ __('messages.Pin project') }}';
+                $btn.title = isPinned ? @js(__('messages.Unpin project')) : @js(__('messages.Pin project'));
             }
 
             function updateAllPinButtons() {

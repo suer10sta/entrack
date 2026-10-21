@@ -4,25 +4,25 @@
                                             <tr>
                                                 <th
                                                     class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10">
-                                                    Project Name</th>
+                                                    {{ __('messages.Project Name') }}</th>
                                                 <th
                                                     class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10">
-                                                    Client Name</th>
+                                                    {{ __('messages.Client Name') }}</th>
                                                 <th
                                                     class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10 ps-2">
-                                                    Start Date</th>
+                                                    {{ __('messages.Start Date') }}</th>
                                                 <th
                                                     class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10">
-                                                    End Date</th>
+                                                    {{ __('messages.End Date') }}</th>
                                                 <th
                                                     class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10">
-                                                    Invoice Type</th>
+                                                    {{ __('messages.Invoice Type') }}</th>
                                                 <th
                                                     class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10">
-                                                    Created at</th>
+                                                    {{ __('messages.Created at') }}</th>
                                                 <th
                                                     class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10">
-                                                    Actions</th>
+                                                    {{ __('messages.Actions') }}</th>
                                             </tr>
                                         </thead>
                                         <!-- Table body -->
@@ -73,30 +73,30 @@
                                                         $invoice->id)->first()->Payment_status==1)
                                                         <form
                                                             action="{{route('admin.invoice.deactivate', $invoice->id)}}"
-                                                            method="post" onsubmit="return confirm('Are you sure?');">
+                                                            method="post" onsubmit="return confirm(@js(__('messages.Are you sure?')));">
                                                             @csrf
                                                             <button type="submit"
-                                                                class="btn btn-sm btn-success p-2">Paid</button>
+                                                                class="btn btn-sm btn-success p-2">{{ __('messages.Paid') }}</button>
                                                         </form>
                                                         @else
                                                         <form action="{{route('admin.invoice.activate', $invoice->id)}}"
-                                                            method="post" onsubmit="return confirm('Are you sure?');">
+                                                            method="post" onsubmit="return confirm(@js(__('messages.Are you sure?')));">
                                                             @csrf
                                                             <button type="submit"
-                                                                class="btn btn-sm  btn-danger p-2">Unpaid</button>
+                                                                class="btn btn-sm  btn-danger p-2">{{ __('messages.Unpaid') }}</button>
                                                         </form>
                                                         @endif
                                                         <!-- View Button -->
                                                         <a class="btn btn-sm btn-primary p-2"
-                                                            href="{{$invoice->link}}?number={{$invoice->number}}">View</a>
+                                                            href="{{$invoice->link}}?number={{$invoice->number}}">{{ __('messages.View') }}</a>
                                                         <!-- Delete Button -->
                                                         <form action="{{route('admin.invoice.destroy',$invoice->id)}}"
-                                                            method="post" onsubmit="return confirm('Are you sure?');"
+                                                            method="post" onsubmit="return confirm(@js(__('messages.Are you sure?')));"
                                                             class="d-inline">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit"
-                                                                class="btn btn-sm  btn-danger p-2">Delete</button>
+                                                                class="btn btn-sm  btn-danger p-2">{{ __('messages.Delete') }}</button>
                                                         </form>
                                                     </div>
                                                 </td>

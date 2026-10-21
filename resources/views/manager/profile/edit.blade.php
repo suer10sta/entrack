@@ -1,7 +1,8 @@
 @extends('manager.layouts.app')
 
 @section('content')
-    <div class="space-y-6">
+@include('partials.edit-layout-styles')
+    <div class="dt-edit-container space-y-6">
         <div>
             <h2 class="text-[22px] sm:text-[24px] font-bold tracking-tight text-[#0B2638] leading-tight">{{ __('messages.Edit Profile') }}</h2>
             <p class="mt-1 text-[13.5px] text-slate-500">

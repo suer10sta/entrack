@@ -61,7 +61,7 @@
             });
             if (!response.ok) throw new Error('Description processing failed');
             const result = await response.json();
-            if (typeof result.corrected !== 'string' || !result.corrected.trim() || result.corrected.length > 500) throw new Error('Invalid processed description');
+            if (typeof result.corrected !== 'string' || !result.corrected.trim() || result.corrected.length > 500) throw new Error(@js(__('messages.Invalid processed description')));
             text.value = result.corrected.trim();
             if (submitHandler) {
                 await submitHandler(text.value);

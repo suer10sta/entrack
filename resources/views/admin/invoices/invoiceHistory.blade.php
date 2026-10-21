@@ -586,7 +586,7 @@
             
                 {{-- Paid --}}
                 @if($toggleRoute)
-                    <form action="{{ $toggleRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Change payment status?') }}');">
+                    <form action="{{ $toggleRoute }}" method="post" onsubmit="return confirm(@js(__('messages.Change payment status?')));">
                         @csrf
                         <button type="submit"
                                 title="{{ __('messages.Mark as Unpaid') }}"
@@ -658,7 +658,7 @@
                 @can('Delete invoice')
                     @if($deleteRoute)
                     <div class="act-row" style="padding-top: 3px;">
-                        <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Delete this invoice? This cannot be undone.') }}');">
+                        <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm(@js(__('messages.Delete this invoice? This cannot be undone.')));">
                             @csrf
                             @method('DELETE')
                             <button type="submit" title="{{ __('messages.Delete Invoice') }}" class="act-btn act-btn-delete">
@@ -675,7 +675,7 @@
                 
                     {{-- Status --}}
                     @if($toggleRoute)
-                        <form action="{{ $toggleRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Change payment status?') }}');">
+                        <form action="{{ $toggleRoute }}" method="post" onsubmit="return confirm(@js(__('messages.Change payment status?')));">
                             @csrf
                             <button type="submit"
                                     title="{{ __('messages.Mark as Paid') }}"
@@ -815,7 +815,7 @@
                     @if($loop->first)
                         @can('Delete invoice')
                             @if($deleteRoute)
-                            <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Delete this invoice? This cannot be undone.') }}');">
+                            <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm(@js(__('messages.Delete this invoice? This cannot be undone.')));">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" title="{{ __('messages.Delete Invoice') }}" class="act-btn act-btn-delete">
@@ -977,7 +977,7 @@
                             <div>
                                 <label class="block text-[13px] font-semibold text-slate-700 mb-2">
                                     {{ __('messages.Attach Files (Optional)') }}
-                                    <span class="text-xs text-slate-500 font-normal">(PDF, Excel, CSV, JPEG, PNG – max 10MB each)</span>
+                                    <span class="text-xs text-slate-500 font-normal">{{ __('messages.(PDF, Excel, CSV, JPEG, PNG – max 10MB each)') }}</span>
                                 </label>
                                 <input type="file"
                                        id="combined_attachments"
@@ -1238,7 +1238,7 @@
         window.openSendInvoiceModal = function(invoiceId) {
             document.getElementById('invoice_id').value = invoiceId;
             const recipientsList = document.getElementById('recipientsList');
-            recipientsList.innerHTML = '<div class="text-center">{{ __('messages.Loading...') }}</div>';
+            recipientsList.innerHTML = ('<div class="text-center">' + @js(__('messages.Loading...')) + '</div>');
 
             let recipientsUrl = '';
             @if(Auth::user()->hasRole('Admin'))
@@ -1268,12 +1268,12 @@
                             recipientsList.appendChild(div);
                         });
                     } else {
-                        recipientsList.innerHTML = '<p class="text-sm text-slate-500">{{ __('messages.No recipients found') }}</p>';
+                        recipientsList.innerHTML = ('<p class="text-sm text-slate-500">' + @js(__('messages.No recipients found')) + '</p>');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    recipientsList.innerHTML = '<p class="text-sm text-red-600">{{ __('messages.Error loading recipients') }}</p>';
+                    recipientsList.innerHTML = ('<p class="text-sm text-red-600">' + @js(__('messages.Error loading recipients')) + '</p>');
                 });
 
             if (sendInvoiceModal) sendInvoiceModal.classList.remove('hidden');
@@ -1503,7 +1503,7 @@
             if (combinedFilesList) combinedFilesList.innerHTML = '';
 
             if (combinedRecipientsList) {
-                combinedRecipientsList.innerHTML = '<div class="text-center text-slate-500">{{ __('messages.Loading...') }}</div>';
+                combinedRecipientsList.innerHTML = ('<div class="text-center text-slate-500">' + @js(__('messages.Loading...')) + '</div>');
             }
 
             let recipientsUrl = '';
@@ -1535,12 +1535,12 @@
                                 combinedRecipientsList.appendChild(div);
                             });
                         } else {
-                            combinedRecipientsList.innerHTML = '<p class="text-sm text-slate-500">{{ __('messages.No recipients found') }}</p>';
+                            combinedRecipientsList.innerHTML = ('<p class="text-sm text-slate-500">' + @js(__('messages.No recipients found')) + '</p>');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        combinedRecipientsList.innerHTML = '<p class="text-sm text-red-600">{{ __('messages.Error loading recipients') }}</p>';
+                        combinedRecipientsList.innerHTML = ('<p class="text-sm text-red-600">' + @js(__('messages.Error loading recipients')) + '</p>');
                     });
             }
 

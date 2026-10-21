@@ -47,7 +47,8 @@ class projectController extends Controller
     {
         $hasAnyInvoice = invoices_history::where('entreprise_id', $entreprise->id)->exists();
         if (!$hasAnyInvoice && blank($entreprise->invoice_start_number)) {
-            return redirect()->back()->with('error', 'Please set an invoice start number in Invoice Parameters before creating your first invoice.');
+            return redirect()->back()->with('error', __('messages.Please set an invoice start number in Invoice Parameters before creating your first invoice.'))
+                ->with('invoice_error_fix', ['type' => 'parameters']);
         }
 
         return null;
@@ -55,25 +56,14 @@ class projectController extends Controller
 
     private function nextInvoiceNumberForYear(Entreprise $entreprise, int $year): string
     {
-        $latestInvoiceThisYear = invoices_history::where('entreprise_id', $entreprise->id)
-            ->whereYear('created_at', $year)
-            ->orderBy('number', 'desc')
-            ->first();
-
-        $lastNumber = $latestInvoiceThisYear
-            ? (string) $latestInvoiceThisYear->number
-            : (string) ($entreprise->invoice_start_number ?? sprintf('%03d', 0));
-
-        $nextNumber = (int) $lastNumber + 1;
-        $formatLength = max(1, strlen($lastNumber));
-
-        return sprintf("%0{$formatLength}d", $nextNumber);
+        return \App\Support\InvoiceNumbering::next($entreprise);
     }
 
     private function requireProjectClient(?Project $project, string $operation)
     {
         if (!$project || !$project->client_id) {
-            return back()->with('error', "You must assign a client to this project before {$operation}.");
+            return back()->with('error', __('messages.project_client_required'))
+                ->with('invoice_error_fix', $project ? ['type' => 'client', 'project_id' => $project->id] : null);
         }
         return null;
     }
@@ -216,11 +206,11 @@ class projectController extends Controller
         if ($request->input('from') === 'onboarding') {
             if ($request->expectsJson()) {
                 return response()->json([
-                    'message' => 'Project Created Successfully',
+                    'message' => __('messages.Project Created Successfully'),
                     'project' => ['id' => $project->id, 'name' => $project->name, 'client_id' => $project->client_id],
                 ], 201);
             }
-            return redirect()->route('admin.onboarding.step2')->with('message', 'Project Created Successfully');
+            return redirect()->route('admin.onboarding.step2')->with('message', __('messages.Project Created Successfully'));
         }
         if ($parentProjectId) {
             if (Auth::user()->hasRole('Admin')) {
@@ -300,7 +290,7 @@ class projectController extends Controller
         }
 
 
-        return response()->json(['success' => 'Project updated successfully.']);
+        return response()->json(['success' => __('messages.Project updated successfully.')]);
     }
 
     public function show(Project $project)
@@ -312,7 +302,7 @@ class projectController extends Controller
                 $myTeamIds = $employee->teams()->pluck('teams.id');
                 $isAssociated = $project->teams()->whereIn('teams.id', $myTeamIds)->exists();
                 if (!$isAssociated) {
-                    abort(403, 'Action non autorisée.');
+                    abort(403, __('messages.http_403'));
                 }
             }
         }
@@ -401,7 +391,7 @@ class projectController extends Controller
                 $myTeamIds = $employee->teams()->pluck('teams.id');
                 $isAssociated = $project->teams()->whereIn('teams.id', $myTeamIds)->exists();
                 if (!$isAssociated) {
-                    abort(403, 'Action non autorisée.');
+                    abort(403, __('messages.http_403'));
                 }
             }
         }
@@ -413,6 +403,13 @@ class projectController extends Controller
     }
     public function update(Request $request, $id, $client_id = null)
     {
+        // The selector is authoritative; the optional URL value is only for legacy callers.
+        $request->merge(['client_id' => $request->input('client_id', $client_id) ?: null]);
+        $validated = $request->validate([
+            'client_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('clients', 'id')
+                ->where('entreprise_id', auth()->user()->entreprise_id)],
+        ]);
+        $client_id = $validated['client_id'];
         $project = Project::find($id);
         $project->name = $request->name;
         $project->budget = $request->budget;
@@ -555,7 +552,7 @@ class projectController extends Controller
         if ($status == 2) {
             $project->update(['status' => 2]);
         }
-        return back()->with('message', 'project Status Updated Successfully');
+        return back()->with('message', __('messages.project Status Updated Successfully'));
     }
 
     public function invoice($id, Request $request)
@@ -595,10 +592,10 @@ class projectController extends Controller
         $comment = $request->has('comment') ? urldecode($request->comment) : null;
 
         if (!$budget) {
-            return back()->with('message', 'The Budget is not set');
+            return back()->with('message', __('messages.The Budget is not set'));
             //}elseif($budget > ($projectinfos->budget - $projectinfos->amount_billed)){
             // Changed this condition to check if the new budget exceeds remaining budget
-            //    return back()->with('message', 'The amount exceeds the remaining project budget');
+            //    return back()->with('message', __('messages.The amount exceeds the remaining project budget'));
         } else {
             return view('admin.projects.invoice', compact('projectinfos', 'client', 'entreprise', 'number', 'invoice_id', 'comment', 'budget'));
         }
@@ -699,7 +696,7 @@ class projectController extends Controller
         if (!$existingInvoice) {
             return view('admin.projects.invoicebyduration', compact('projectinfos', 'client', 'entreprise', 'duration', 'cost', 'collection', 'invoice_id', 'invoicerealID', 'startdate', 'enddate', 'comment'));
         } else {
-            return back()->with('message', 'Invoice Already Exists: ' . $entreprise->invoice_prefix . '-' . date('ym', strtotime($existingInvoice->created_at)) . $existingInvoice->number);
+            return back()->with('message', __('messages.Invoice Already Exists:') . $entreprise->invoice_prefix . '-' . date('ym', strtotime($existingInvoice->created_at)) . $existingInvoice->number);
         }
 
     }
@@ -757,7 +754,7 @@ class projectController extends Controller
         $invoice->archived = 0;
         $invoice->save();
 
-        return redirect()->back()->with('message', 'Invoice Marked Unpaid successfully');
+        return redirect()->back()->with('message', __('messages.Invoice Marked Unpaid successfully'));
     }
 
     public function activate(invoices_history $invoice)
@@ -767,7 +764,7 @@ class projectController extends Controller
         $invoice->payment_date = now();
         $invoice->save();
 
-        return redirect()->back()->with('message', 'invoice Marked Paid successfully');
+        return redirect()->back()->with('message', __('messages.invoice Marked Paid successfully'));
     }
 
     /**
@@ -778,7 +775,7 @@ class projectController extends Controller
         $invoice->archived = 0;
         $invoice->save();
 
-        return redirect()->back()->with('message', 'Invoice unarchived successfully');
+        return redirect()->back()->with('message', __('messages.Invoice unarchived successfully'));
     }
 
 
@@ -789,13 +786,13 @@ class projectController extends Controller
 
         if (!$invoice) {
             if (Auth::user()->hasRole('Admin')) {
-                return redirect()->route('admin.invoices.invoicehistory')->with('message', 'Invoice not found.');
+                return redirect()->route('admin.invoices.invoicehistory')->with('message', __('messages.Invoice not found.'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return redirect()->route('Responsable_de_projet.invoices.invoicehistory')->with('message', 'Invoice not found.');
+                return redirect()->route('Responsable_de_projet.invoices.invoicehistory')->with('message', __('messages.Invoice not found.'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')->with('message', 'Invoice not found.');
+                return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')->with('message', __('messages.Invoice not found.'));
             }
         }
 
@@ -818,24 +815,24 @@ class projectController extends Controller
 
             // Return success message
             if (Auth::user()->hasRole('Admin')) {
-                return redirect()->route('admin.invoices.invoicehistory')->with('message', 'Invoice deleted successfully.');
+                return redirect()->route('admin.invoices.invoicehistory')->with('message', __('messages.Invoice deleted successfully.'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return redirect()->route('Responsable_de_projet.invoices.invoicehistory')->with('message', 'Invoice deleted successfully.');
+                return redirect()->route('Responsable_de_projet.invoices.invoicehistory')->with('message', __('messages.Invoice deleted successfully.'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')->with('message', 'Invoice deleted successfully.');
+                return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')->with('message', __('messages.Invoice deleted successfully.'));
             }
         } catch (Exception $e) {
             // Return error message in case of exception
             if (Auth::user()->hasRole('Admin')) {
-                return redirect()->route('admin.invoices.invoicehistory')->with('message', 'An error occurred: ' . $e->getMessage());
+                return redirect()->route('admin.invoices.invoicehistory')->with('message', __('messages.An error occurred:') . $e->getMessage());
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return redirect()->route('Responsable_de_projet.invoices.invoicehistory')->with('message', 'An error occurred: ' . $e->getMessage());
+                return redirect()->route('Responsable_de_projet.invoices.invoicehistory')->with('message', __('messages.An error occurred:') . $e->getMessage());
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')->with('message', 'An error occurred: ' . $e->getMessage());
+                return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')->with('message', __('messages.An error occurred:') . $e->getMessage());
             }
         }
     }
@@ -846,7 +843,7 @@ class projectController extends Controller
         set_time_limit(300);
         $invoice = invoices_history::where('id', $invoiceNumber)->first();
         if (!$invoice) {
-            abort(404, 'Invoice not found.');
+            abort(404, __('messages.Invoice not found.'));
         }
         $projectinfos = Project::findOrFail($invoice->project_id);
         $client = Client::where('id', $invoice->client_id)->first();
@@ -918,7 +915,7 @@ class projectController extends Controller
         set_time_limit(300);
         $invoice = invoices_history::where('id', $invoiceNumber)->first();
         if (!$invoice) {
-            abort(404, 'Invoice not found.');
+            abort(404, __('messages.Invoice not found.'));
         }
         $projectinfos = Project::findOrFail($invoice->project_id);
         $client = Client::where('id', $invoice->client_id)->first();
@@ -1222,7 +1219,7 @@ class projectController extends Controller
             if (!$projectinfos->client_id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'You must assign a client to this project before sending a reminder.'
+                    'message' => __('messages.You must assign a client to this project before sending a reminder.')
                 ], 422);
             }
             $client = Client::where('id', $invoice->client_id)->first();
@@ -1280,7 +1277,7 @@ class projectController extends Controller
             if (empty($selectedRecipients)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Please select at least one recipient'
+                    'message' => __('messages.Please select at least one recipient')
                 ]);
             }
 
@@ -1303,13 +1300,13 @@ class projectController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Reminder sent successfully!'
+                'message' => __('messages.Reminder sent successfully!')
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error sending reminder: ' . $e->getMessage()
+                'message' => \App\Support\LocalizedError::message($e)
             ]);
         }
     }
@@ -1364,7 +1361,7 @@ class projectController extends Controller
             if (!$projectinfos->client_id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'You must assign a client to this project before sending an invoice.'
+                    'message' => __('messages.You must assign a client to this project before sending an invoice.')
                 ], 422);
             }
             $client = Client::findOrFail($invoice->client_id);
@@ -1384,7 +1381,7 @@ class projectController extends Controller
             if (!Storage::disk('public')->exists($invoicePath)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invoice PDF not found'
+                    'message' => __('messages.Invoice PDF not found')
                 ], 404);
             }
 
@@ -1446,7 +1443,7 @@ class projectController extends Controller
             if (empty($selectedRecipients)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No recipients selected'
+                    'message' => __('messages.No recipients selected')
                 ], 400);
             }
 
@@ -1478,18 +1475,18 @@ class projectController extends Controller
                 if (empty($failedRecipients)) {
                     return response()->json([
                         'success' => true,
-                        'message' => 'Invoice sent successfully to all recipients!'
+                        'message' => __('messages.Invoice sent successfully to all recipients!')
                     ]);
                 } else {
                     return response()->json([
                         'success' => true,
-                        'message' => 'Invoice sent successfully but failed for some recipients: ' . implode(', ', $failedRecipients)
+                        'message' => __('messages.Invoice sent successfully but failed for some recipients:') . implode(', ', $failedRecipients)
                     ]);
                 }
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to send invoice to any recipient'
+                    'message' => __('messages.Failed to send invoice to any recipient')
                 ], 500);
             }
 
@@ -1502,7 +1499,7 @@ class projectController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to send invoice: ' . $e->getMessage()
+                'message' => \App\Support\LocalizedError::message($e)
             ], 500);
         }
     }
@@ -2055,7 +2052,7 @@ class projectController extends Controller
             if (!$devis) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Devis not found'
+                    'message' => __('messages.Devis not found')
                 ]);
             }
 
@@ -2063,7 +2060,7 @@ class projectController extends Controller
             if ($project && !$project->client_id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'You must assign a client to this project before sending a devis.'
+                    'message' => __('messages.You must assign a client to this project before sending a devis.')
                 ], 422);
             }
 
@@ -2079,7 +2076,7 @@ class projectController extends Controller
             if (empty($selectedRecipients)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No recipients selected'
+                    'message' => __('messages.No recipients selected')
                 ]);
             }
             \Log::info('Processing devis attachments for merging using Fpdi.', ['devis_id' => $devis->id, 'has_attachments' => $request->hasFile('attachments')]);
@@ -2266,7 +2263,7 @@ class projectController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to send devis to any recipient'
+                'message' => __('messages.Failed to send devis to any recipient')
             ]);
 
         } catch (\Exception $e) {
@@ -2277,7 +2274,7 @@ class projectController extends Controller
             ]);
             return response()->json([
                 'success' => false,
-                'message' => 'Error sending devis: ' . $e->getMessage()
+                'message' => \App\Support\LocalizedError::message($e)
             ]);
         }
     }
@@ -2340,7 +2337,7 @@ class projectController extends Controller
 
         $client->save();
 
-        return redirect()->back()->with('message', 'devis deactivated successfully');
+        return redirect()->back()->with('message', __('messages.devis deactivated successfully'));
     }
 
     public function declineDevis(devis_history $devis)
@@ -2371,7 +2368,7 @@ class projectController extends Controller
             $client->save();
         }
 
-        return redirect()->back()->with('message', 'devis activated successfully');
+        return redirect()->back()->with('message', __('messages.devis activated successfully'));
     }
 
 
@@ -2409,7 +2406,7 @@ class projectController extends Controller
 
         $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();
 
-        return view('admin.devis.devisHistory', compact('devis', 'clients', 'projects', 'entreprise'))->with('message', 'Devis deleted successfully.');
+        return view('admin.devis.devisHistory', compact('devis', 'clients', 'projects', 'entreprise'))->with('message', __('messages.Devis deleted successfully.'));
     }
 
 
@@ -2827,7 +2824,7 @@ class projectController extends Controller
             return view('admin.creditNote.invoicecreditNote', compact('projectinfos', 'client', 'entreprise', 'number', 'invoice_id', 'budget', 'partial', 'last_credit_note_number', 'type', 'invoice', 'comment'));
 
         } else {
-            return redirect()->back()->with('message', 'Error');
+            return redirect()->back()->with('message', __('messages.Error'));
         }
 
     }
@@ -3024,13 +3021,13 @@ class projectController extends Controller
             }
 
             if (Auth::user()->hasRole('Admin')) {
-                return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', 'Credit Note Created successfully!');
+                return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', __('messages.Credit Note Created successfully!'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')->with('message', 'Credit Note Created successfully!');
+                return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')->with('message', __('messages.Credit Note Created successfully!'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', 'Credit Note Created successfully!');
+                return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', __('messages.Credit Note Created successfully!'));
             }
 
         } elseif ($invoice->type == 'Full') {
@@ -3141,13 +3138,13 @@ class projectController extends Controller
             Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
             if (Auth::user()->hasRole('Admin')) {
-                return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', 'Credit Note Created successfully!');
+                return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', __('messages.Credit Note Created successfully!'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')->with('message', 'Credit Note Created successfully!');
+                return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')->with('message', __('messages.Credit Note Created successfully!'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', 'Credit Note Created successfully!');
+                return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', __('messages.Credit Note Created successfully!'));
             }
 
         } elseif ($invoice->type == 'Partial') {
@@ -3257,13 +3254,13 @@ class projectController extends Controller
             Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
             if (Auth::user()->hasRole('Admin')) {
-                return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', 'Credit Note Created successfully!');
+                return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', __('messages.Credit Note Created successfully!'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')->with('message', 'Credit Note Created successfully!');
+                return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')->with('message', __('messages.Credit Note Created successfully!'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', 'Credit Note Created successfully!');
+                return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', __('messages.Credit Note Created successfully!'));
             }
 
         } elseif ($invoice->type = "Percentage") {
@@ -3372,17 +3369,17 @@ class projectController extends Controller
             Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
             if (Auth::user()->hasRole('Admin')) {
-                return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', 'Credit Note Created successfully!');
+                return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', __('messages.Credit Note Created successfully!'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')->with('message', 'Credit Note Created successfully!');
+                return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')->with('message', __('messages.Credit Note Created successfully!'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', 'Credit Note Created successfully!');
+                return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', __('messages.Credit Note Created successfully!'));
             }
 
         } else {
-            return redirect()->back()->with('message', 'Error');
+            return redirect()->back()->with('message', __('messages.Error'));
         }
 
     }
@@ -3509,13 +3506,13 @@ class projectController extends Controller
 
         if (!$creditnote) {
             if (Auth::user()->hasRole('Admin')) {
-                return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', 'creditnote not found.');
+                return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', __('messages.creditnote not found.'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')->with('message', 'creditnote not found.');
+                return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')->with('message', __('messages.creditnote not found.'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', 'creditnote not found.');
+                return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', __('messages.creditnote not found.'));
             }
         }
 
@@ -3551,24 +3548,24 @@ class projectController extends Controller
 
             // Return success message
             if (Auth::user()->hasRole('Admin')) {
-                return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', 'creditnote deleted successfully.');
+                return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', __('messages.creditnote deleted successfully.'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')->with('message', 'creditnote deleted successfully.');
+                return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')->with('message', __('messages.creditnote deleted successfully.'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', 'creditnote deleted successfully.');
+                return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', __('messages.creditnote deleted successfully.'));
             }
         } catch (Exception $e) {
             // Return error message in case of exception
             if (Auth::user()->hasRole('Admin')) {
-                return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', 'An error occurred: ' . $e->getMessage());
+                return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', __('messages.An error occurred:') . $e->getMessage());
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')->with('message', 'An error occurred: ' . $e->getMessage());
+                return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')->with('message', __('messages.An error occurred:') . $e->getMessage());
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', 'An error occurred: ' . $e->getMessage());
+                return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', __('messages.An error occurred:') . $e->getMessage());
             }
         }
     }
@@ -3646,13 +3643,13 @@ class projectController extends Controller
         Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
         if (Auth::user()->hasRole('Admin')) {
-            return redirect()->route('admin.notedefrais.notedefraishistory')->with('message', 'Note de frais created successfully!');
+            return redirect()->route('admin.notedefrais.notedefraishistory')->with('message', __('messages.Note de frais created successfully!'));
         }
         if (Auth::user()->hasRole('Responsable de projet')) {
-            return redirect()->route('Responsable_de_projet.notedefrais.notedefraishistory')->with('message', 'Note de frais created successfully!');
+            return redirect()->route('Responsable_de_projet.notedefrais.notedefraishistory')->with('message', __('messages.Note de frais created successfully!'));
         }
         if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-            return redirect()->route('Responsable_gestionnaire.notedefrais.notedefraishistory')->with('message', 'Note de frais created successfully!');
+            return redirect()->route('Responsable_gestionnaire.notedefrais.notedefraishistory')->with('message', __('messages.Note de frais created successfully!'));
         }
     }
 
@@ -3691,13 +3688,13 @@ class projectController extends Controller
 
         if (!$notedefrais) {
             if (Auth::user()->hasRole('Admin')) {
-                return redirect()->route('admin.notedefrais.notedefraishistory')->with('message', 'Expense Note not found.');
+                return redirect()->route('admin.notedefrais.notedefraishistory')->with('message', __('messages.Expense Note not found.'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return redirect()->route('Responsable_de_projet.notedefrais.notedefraishistory')->with('message', 'Expense Note not found.');
+                return redirect()->route('Responsable_de_projet.notedefrais.notedefraishistory')->with('message', __('messages.Expense Note not found.'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return redirect()->route('Responsable_gestionnaire.notedefrais.notedefraishistory')->with('message', 'Expense Note not found.');
+                return redirect()->route('Responsable_gestionnaire.notedefrais.notedefraishistory')->with('message', __('messages.Expense Note not found.'));
             }
         }
 
@@ -3717,24 +3714,24 @@ class projectController extends Controller
 
             // Return success message
             if (Auth::user()->hasRole('Admin')) {
-                return redirect()->route('admin.notedefrais.notedefraishistory')->with('message', 'Expense Note deleted successfully.');
+                return redirect()->route('admin.notedefrais.notedefraishistory')->with('message', __('messages.Expense Note deleted successfully.'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return redirect()->route('Responsable_de_projet.notedefrais.notedefraishistory')->with('message', 'Expense Note deleted successfully.');
+                return redirect()->route('Responsable_de_projet.notedefrais.notedefraishistory')->with('message', __('messages.Expense Note deleted successfully.'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return redirect()->route('Responsable_gestionnaire.notedefrais.notedefraishistory')->with('message', 'Expense Note deleted successfully.');
+                return redirect()->route('Responsable_gestionnaire.notedefrais.notedefraishistory')->with('message', __('messages.Expense Note deleted successfully.'));
             }
         } catch (Exception $e) {
             // Return error message in case of exception
             if (Auth::user()->hasRole('Admin')) {
-                return redirect()->route('admin.notedefrais.notedefraishistory')->with('message', 'An error occurred: ' . $e->getMessage());
+                return redirect()->route('admin.notedefrais.notedefraishistory')->with('message', __('messages.An error occurred:') . $e->getMessage());
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return redirect()->route('Responsable_de_projet.notedefrais.notedefraishistory')->with('message', 'An error occurred: ' . $e->getMessage());
+                return redirect()->route('Responsable_de_projet.notedefrais.notedefraishistory')->with('message', __('messages.An error occurred:') . $e->getMessage());
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return redirect()->route('Responsable_gestionnaire.notedefrais.notedefraishistory')->with('message', 'An error occurred: ' . $e->getMessage());
+                return redirect()->route('Responsable_gestionnaire.notedefrais.notedefraishistory')->with('message', __('messages.An error occurred:') . $e->getMessage());
             }
         }
     }
@@ -3856,7 +3853,7 @@ class projectController extends Controller
             }
         }
         if (!$projectinfos) {
-            return back()->with('message', 'Unable to resolve project from selection');
+            return back()->with('message', __('messages.Unable to resolve project from selection'));
         }
         if ($guard = $this->requireProjectClient($projectinfos, 'creating an invoice')) {
             return $guard;
@@ -3892,19 +3889,19 @@ class projectController extends Controller
                 ->where('entreprise_id', $user_enterprise)
                 ->first();
             if (!$selectedDevis || !$selectedDevis->budget) {
-                return back()->with('message', 'The selected devis has no budget set');
+                return back()->with('message', __('messages.The selected devis has no budget set'));
             }
             $principalBudget = (float) $selectedDevis->budget;
             if ($amount <= 0) {
-                return back()->with('message', 'Amount must be greater than zero');
+                return back()->with('message', __('messages.Amount must be greater than zero'));
             }
             if ($amount > (float) $selectedDevis->budget) {
-                return back()->with('message', 'The amount is greater than the selected devis budget');
+                return back()->with('message', __('messages.The amount is greater than the selected devis budget'));
             }
-            return view('admin.projects.partialInvoice', compact('projectinfos', 'client', 'entreprise', 'number', 'comment', 'invoice_id', 'invoicerealID', 'amount', 'comment', 'principalBudget'));
+            return view('admin.projects.partialInvoicePreview', compact('projectinfos', 'client', 'entreprise', 'number', 'comment', 'invoice_id', 'invoicerealID', 'amount', 'comment', 'principalBudget'));
         } else {
             if (!$projectinfos->budget) {
-                return back()->with('message', 'The project budget is not set');
+                return back()->with('message', __('messages.The project budget is not set'));
             }
             // Calculate total billed dynamically (exclude credit notes)
             $totalBilled = \App\Models\invoices_history::where('project_id', $projectinfos->id)
@@ -3912,11 +3909,11 @@ class projectController extends Controller
                 ->sum('total_htva');
             $unbilledBudget = $projectinfos->budget - $totalBilled;
             if ($unbilledBudget == 0) {
-                return back()->with('message', 'The project is already fully billed');
+                return back()->with('message', __('messages.The project is already fully billed'));
             } elseif ($unbilledBudget < $amount) {
-                return back()->with('message', 'The amount is greater than the project unbilled budget');
+                return back()->with('message', __('messages.The amount is greater than the project unbilled budget'));
             } else {
-                return view('admin.projects.partialInvoice', compact('projectinfos', 'client', 'entreprise', 'number', 'comment', 'invoice_id', 'invoicerealID', 'amount', 'comment', 'principalBudget'));
+                return view('admin.projects.partialInvoicePreview', compact('projectinfos', 'client', 'entreprise', 'number', 'comment', 'invoice_id', 'invoicerealID', 'amount', 'comment', 'principalBudget'));
             }
         }
 
@@ -3938,7 +3935,7 @@ class projectController extends Controller
             }
         }
         if (!$projectinfos) {
-            return back()->with('message', 'Unable to resolve project from selection');
+            return back()->with('message', __('messages.Unable to resolve project from selection'));
         }
         if ($guard = $this->requireProjectClient($projectinfos, 'creating an invoice')) {
             return $guard;
@@ -3981,7 +3978,7 @@ class projectController extends Controller
         $comment = $request->has('comment') ? urldecode($request->comment) : null;
 
         if (!$projectinfos->budget) {
-            return back()->with('message', 'The project budget is not set');
+            return back()->with('message', __('messages.The project budget is not set'));
         }
         // Calculate total billed dynamically (exclude credit notes)
         $totalBilled = \App\Models\invoices_history::where('project_id', $projectinfos->id)
@@ -3989,9 +3986,9 @@ class projectController extends Controller
             ->sum('total_htva');
         $unbilledBudget = $projectinfos->budget - $totalBilled;
         if ($unbilledBudget == 0) {
-            return back()->with('message', 'The project is already fully billed');
+            return back()->with('message', __('messages.The project is already fully billed'));
         } elseif ($unbilledBudget < $amount) {
-            return back()->with('message', 'The amount is greater than the project unbilled budget');
+            return back()->with('message', __('messages.The amount is greater than the project unbilled budget'));
         } else {
             return view('admin.projects.percentageInvoice', compact('projectinfos', 'client', 'entreprise', 'number', 'invoice_id', 'invoicerealID', 'amount', 'percentage', 'comment', 'principalBudget'));
         }
@@ -4081,13 +4078,13 @@ class projectController extends Controller
         Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
         if (Auth::user()->hasRole('Admin')) {
-            return redirect()->route('admin.invoices.invoicehistory')->with('message', 'Invoice created successfully.');
+            return redirect()->route('admin.invoices.invoicehistory')->with('message', __('messages.Invoice created successfully.'));
         }
         if (Auth::user()->hasRole('Responsable de projet')) {
-            return redirect()->route('Responsable_de_projet.invoices.invoicehistory')->with('message', 'Invoice created successfully.');
+            return redirect()->route('Responsable_de_projet.invoices.invoicehistory')->with('message', __('messages.Invoice created successfully.'));
         }
         if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-            return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')->with('message', 'Invoice created successfully.');
+            return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')->with('message', __('messages.Invoice created successfully.'));
         }
 
     }
@@ -4222,24 +4219,24 @@ class projectController extends Controller
             Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
             if (Auth::user()->hasRole('Admin')) {
-                return redirect()->route('admin.invoices.invoicehistory')->with('message', 'Invoice created successfully.');
+                return redirect()->route('admin.invoices.invoicehistory')->with('message', __('messages.Invoice created successfully.'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return redirect()->route('Responsable_de_projet.invoices.invoicehistory')->with('message', 'Invoice created successfully.');
+                return redirect()->route('Responsable_de_projet.invoices.invoicehistory')->with('message', __('messages.Invoice created successfully.'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')->with('message', 'Invoice created successfully.');
+                return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')->with('message', __('messages.Invoice created successfully.'));
             }
 
         } else {
             if (Auth::user()->hasRole('Admin')) {
-                return back()->with('message', 'Invoice Already Exists: ' . $entreprise->invoice_prefix . '-' . date('ym', strtotime($existingInvoice->created_at)) . $existingInvoice->number);
+                return back()->with('message', __('messages.Invoice Already Exists:') . $entreprise->invoice_prefix . '-' . date('ym', strtotime($existingInvoice->created_at)) . $existingInvoice->number);
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return back()->with('message', 'Invoice Already Exists: ' . $entreprise->invoice_prefix . '-' . date('ym', strtotime($existingInvoice->created_at)) . $existingInvoice->number);
+                return back()->with('message', __('messages.Invoice Already Exists:') . $entreprise->invoice_prefix . '-' . date('ym', strtotime($existingInvoice->created_at)) . $existingInvoice->number);
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return back()->with('message', 'Invoice Already Exists: ' . $entreprise->invoice_prefix . '-' . date('ym', strtotime($existingInvoice->created_at)) . $existingInvoice->number);
+                return back()->with('message', __('messages.Invoice Already Exists:') . $entreprise->invoice_prefix . '-' . date('ym', strtotime($existingInvoice->created_at)) . $existingInvoice->number);
             }
         }
     }
@@ -4258,7 +4255,7 @@ class projectController extends Controller
             }
         }
         if (!$projectinfos) {
-            return back()->with('message', 'Unable to resolve project from selection');
+            return back()->with('message', __('messages.Unable to resolve project from selection'));
         }
         if ($guard = $this->requireProjectClient($projectinfos, 'creating an invoice')) {
             return $guard;
@@ -4364,13 +4361,13 @@ class projectController extends Controller
         Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
         if (Auth::user()->hasRole('Admin')) {
-            return redirect()->route('admin.invoices.invoicehistory')->with('message', 'Invoice created successfully.');
+            return redirect()->route('admin.invoices.invoicehistory')->with('message', __('messages.Invoice created successfully.'));
         }
         if (Auth::user()->hasRole('Responsable de projet')) {
-            return redirect()->route('Responsable_de_projet.invoices.invoicehistory')->with('message', 'Invoice created successfully.');
+            return redirect()->route('Responsable_de_projet.invoices.invoicehistory')->with('message', __('messages.Invoice created successfully.'));
         }
         if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-            return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')->with('message', 'Invoice created successfully.');
+            return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')->with('message', __('messages.Invoice created successfully.'));
         }
 
     }
@@ -4465,13 +4462,13 @@ class projectController extends Controller
         Storage::disk('public')->put($filePath, $pdf->output(), 'public');
 
         if (Auth::user()->hasRole('Admin')) {
-            return redirect()->route('admin.invoices.invoicehistory')->with('message', 'Invoice created successfully.');
+            return redirect()->route('admin.invoices.invoicehistory')->with('message', __('messages.Invoice created successfully.'));
         }
         if (Auth::user()->hasRole('Responsable de projet')) {
-            return redirect()->route('Responsable_de_projet.invoices.invoicehistory')->with('message', 'Invoice created successfully.');
+            return redirect()->route('Responsable_de_projet.invoices.invoicehistory')->with('message', __('messages.Invoice created successfully.'));
         }
         if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-            return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')->with('message', 'Invoice created successfully.');
+            return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')->with('message', __('messages.Invoice created successfully.'));
         }
 
     }
@@ -4542,13 +4539,13 @@ class projectController extends Controller
         $project->archived = 1;
         $project->save();
         if (Auth::user()->hasRole('Admin')) {
-            return redirect()->route('admin.projects.index')->with('message', 'Project archived successfully.');
+            return redirect()->route('admin.projects.index')->with('message', __('messages.Project archived successfully.'));
         }
         if (Auth::user()->hasRole('Responsable de projet')) {
-            return redirect()->route('Responsable_de_projet.projects.index')->with('message', 'Project archived successfully.');
+            return redirect()->route('Responsable_de_projet.projects.index')->with('message', __('messages.Project archived successfully.'));
         }
         if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-            return redirect()->route('Responsable_gestionnaire.projects.index')->with('message', 'Project archived successfully.');
+            return redirect()->route('Responsable_gestionnaire.projects.index')->with('message', __('messages.Project archived successfully.'));
         }
     }
 
@@ -4558,13 +4555,13 @@ class projectController extends Controller
         $project->archived = 0;
         $project->save();
         if (Auth::user()->hasRole('Admin')) {
-            return redirect()->route('admin.projects.index')->with('message', 'Project unarchived successfully.');
+            return redirect()->route('admin.projects.index')->with('message', __('messages.Project unarchived successfully.'));
         }
         if (Auth::user()->hasRole('Responsable de projet')) {
-            return redirect()->route('Responsable_de_projet.projects.index')->with('message', 'Project unarchived successfully.');
+            return redirect()->route('Responsable_de_projet.projects.index')->with('message', __('messages.Project unarchived successfully.'));
         }
         if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-            return redirect()->route('Responsable_gestionnaire.projects.index')->with('message', 'Project unarchived successfully.');
+            return redirect()->route('Responsable_gestionnaire.projects.index')->with('message', __('messages.Project unarchived successfully.'));
         }
     }
 
@@ -4593,13 +4590,13 @@ class projectController extends Controller
         $devis->archived = 1;
         $devis->save();
         if (Auth::user()->hasRole('Admin')) {
-            return redirect()->route('admin.devis.devishistory')->with('message', 'devis archived successfully.');
+            return redirect()->route('admin.devis.devishistory')->with('message', __('messages.devis archived successfully.'));
         }
         if (Auth::user()->hasRole('Responsable de projet')) {
-            return redirect()->route('Responsable_de_projet.devis.devishistory')->with('message', 'devis archived successfully.');
+            return redirect()->route('Responsable_de_projet.devis.devishistory')->with('message', __('messages.devis archived successfully.'));
         }
         if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-            return redirect()->route('Responsable_gestionnaire.devis.devishistory')->with('message', 'devis archived successfully.');
+            return redirect()->route('Responsable_gestionnaire.devis.devishistory')->with('message', __('messages.devis archived successfully.'));
         }
     }
 
@@ -4609,13 +4606,13 @@ class projectController extends Controller
         $devis->archived = 0;
         $devis->save();
         if (Auth::user()->hasRole('Admin')) {
-            return redirect()->route('admin.devis.devishistory')->with('message', 'devis unarchived successfully.');
+            return redirect()->route('admin.devis.devishistory')->with('message', __('messages.devis unarchived successfully.'));
         }
         if (Auth::user()->hasRole('Responsable de projet')) {
-            return redirect()->route('Responsable_de_projet.devis.devishistory')->with('message', 'devis unarchived successfully.');
+            return redirect()->route('Responsable_de_projet.devis.devishistory')->with('message', __('messages.devis unarchived successfully.'));
         }
         if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-            return redirect()->route('Responsable_gestionnaire.devis.devishistory')->with('message', 'devis unarchived successfully.');
+            return redirect()->route('Responsable_gestionnaire.devis.devishistory')->with('message', __('messages.devis unarchived successfully.'));
         }
     }
 
@@ -4792,20 +4789,20 @@ class projectController extends Controller
             DB::commit();
             if (Auth::user()->hasRole('Admin')) {
                 return redirect()->route('admin.invoices.invoicehistory')
-                    ->with('success', 'Invoice updated successfully');
+                    ->with('success', __('messages.Invoice updated successfully'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
                 return redirect()->route('Responsable_de_projet.invoices.invoicehistory')
-                    ->with('success', 'Invoice updated successfully');
+                    ->with('success', __('messages.Invoice updated successfully'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
                 return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')
-                    ->with('success', 'Invoice updated successfully');
+                    ->with('success', __('messages.Invoice updated successfully'));
             }
 
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->with('error', 'Error updating invoice: ' . $e->getMessage());
+            return back()->with('error', \App\Support\LocalizedError::message($e));
         }
     }
 
@@ -4886,20 +4883,20 @@ class projectController extends Controller
             DB::commit();
             if (Auth::user()->hasRole('Admin')) {
                 return redirect()->route('admin.invoices.invoicehistory')
-                    ->with('success', 'Invoice updated successfully');
+                    ->with('success', __('messages.Invoice updated successfully'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
                 return redirect()->route('Responsable_de_projet.invoices.invoicehistory')
-                    ->with('success', 'Invoice updated successfully');
+                    ->with('success', __('messages.Invoice updated successfully'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
                 return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')
-                    ->with('success', 'Invoice updated successfully');
+                    ->with('success', __('messages.Invoice updated successfully'));
             }
 
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->with('error', 'Error updating invoice: ' . $e->getMessage());
+            return back()->with('error', \App\Support\LocalizedError::message($e));
         }
     }
 
@@ -4982,20 +4979,20 @@ class projectController extends Controller
             DB::commit();
             if (Auth::user()->hasRole('Admin')) {
                 return redirect()->route('admin.invoices.invoicehistory')
-                    ->with('success', 'Invoice updated successfully');
+                    ->with('success', __('messages.Invoice updated successfully'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
                 return redirect()->route('Responsable_de_projet.invoices.invoicehistory')
-                    ->with('success', 'Invoice updated successfully');
+                    ->with('success', __('messages.Invoice updated successfully'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
                 return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')
-                    ->with('success', 'Invoice updated successfully');
+                    ->with('success', __('messages.Invoice updated successfully'));
             }
 
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->with('error', 'Error updating invoice: ' . $e->getMessage());
+            return back()->with('error', \App\Support\LocalizedError::message($e));
         }
     }
 
@@ -5105,20 +5102,20 @@ class projectController extends Controller
             DB::commit();
             if (Auth::user()->hasRole('Admin')) {
                 return redirect()->route('admin.invoices.invoicehistory')
-                    ->with('success', 'Invoice updated successfully');
+                    ->with('success', __('messages.Invoice updated successfully'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
                 return redirect()->route('Responsable_de_projet.invoices.invoicehistory')
-                    ->with('success', 'Invoice updated successfully');
+                    ->with('success', __('messages.Invoice updated successfully'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
                 return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')
-                    ->with('success', 'Invoice updated successfully');
+                    ->with('success', __('messages.Invoice updated successfully'));
             }
 
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->with('error', 'Error updating invoice: ' . $e->getMessage());
+            return back()->with('error', \App\Support\LocalizedError::message($e));
         }
     }
 
@@ -5360,7 +5357,7 @@ class projectController extends Controller
         // Get the full URL
         $fullUrl = Storage::disk('public')->url($newFilePath);
 
-        return redirect($fullUrl)->with('success', 'Devis updated successfully');
+        return redirect($fullUrl)->with('success', __('messages.Devis updated successfully'));
     }
 
     public function uploadProjectFile(Request $request, $projectId)
@@ -5391,7 +5388,7 @@ class projectController extends Controller
         $projectFile->entreprise_id = Auth::user()->entreprise_id;
         $projectFile->save();
 
-        return redirect()->back()->with('success', 'File uploaded successfully!');
+        return redirect()->back()->with('success', __('messages.File uploaded successfully!'));
     }
 
     //download files
@@ -5411,7 +5408,7 @@ class projectController extends Controller
         $filePath = 'project_files/' . $entreprise->id . '/' . $file->project_id . '/' . $file->file_name;
         Storage::disk('public')->delete($filePath);
         $file->delete();
-        return redirect()->back()->with('success', 'File deleted successfully!');
+        return redirect()->back()->with('success', __('messages.File deleted successfully!'));
     }
 
     public function generateDetailedInvoice()
@@ -5450,7 +5447,7 @@ class projectController extends Controller
             $projectinfos = Project::findOrFail($request->project_id);
             if (!$projectinfos->client_id) {
                 return response()->json([
-                    'error' => 'You must assign a client to this project before creating an invoice.'
+                    'error' => __('messages.You must assign a client to this project before creating an invoice.')
                 ], 422);
             }
             $client = Client::findOrFail($projectinfos->client_id);
@@ -5514,7 +5511,7 @@ class projectController extends Controller
 
             return response()->json([
                 'error' => true,
-                'message' => 'Error generating invoice preview: ' . $e->getMessage()
+                'message' => \App\Support\LocalizedError::message($e)
             ], 500);
         }
     }
@@ -5610,15 +5607,15 @@ class projectController extends Controller
 
             if (Auth::user()->hasRole('Admin')) {
                 return redirect()->route('admin.invoices.invoicehistory')
-                    ->with('success', 'Invoice created successfully');
+                    ->with('success', __('messages.Invoice created successfully'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
                 return redirect()->route('Responsable_de_projet.invoices.invoicehistory')
-                    ->with('success', 'Invoice created successfully');
+                    ->with('success', __('messages.Invoice created successfully'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
                 return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')
-                    ->with('success', 'Invoice created successfully');
+                    ->with('success', __('messages.Invoice created successfully'));
             }
 
         } catch (\Exception $e) {
@@ -5626,7 +5623,7 @@ class projectController extends Controller
             \Log::error($e->getTraceAsString());
 
             return redirect()->back()
-                ->with('error', 'Error confirming invoice: ' . $e->getMessage());
+                ->with('error', \App\Support\LocalizedError::message($e));
         }
     }
 
@@ -5723,20 +5720,20 @@ class projectController extends Controller
             DB::commit();
             if (Auth::user()->hasRole('Admin')) {
                 return redirect()->route('admin.invoices.invoicehistory')
-                    ->with('success', 'Invoice updated successfully');
+                    ->with('success', __('messages.Invoice updated successfully'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
                 return redirect()->route('Responsable_de_projet.invoices.invoicehistory')
-                    ->with('success', 'Invoice updated successfully');
+                    ->with('success', __('messages.Invoice updated successfully'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
                 return redirect()->route('Responsable_gestionnaire.invoices.invoicehistory')
-                    ->with('success', 'Invoice updated successfully');
+                    ->with('success', __('messages.Invoice updated successfully'));
             }
 
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->with('error', 'Error updating invoice: ' . $e->getMessage());
+            return back()->with('error', \App\Support\LocalizedError::message($e));
         }
     }
 
@@ -5755,7 +5752,7 @@ class projectController extends Controller
 
             return response()->json(['devis' => $devis, 'prefix' => $devis_prefix]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => \App\Support\LocalizedError::message($e)], 500);
         }
     }
 
@@ -5802,7 +5799,7 @@ class projectController extends Controller
 
             return response()->json(['devis' => $devis, 'prefix' => $devis_prefix]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => \App\Support\LocalizedError::message($e)], 500);
         }
     }
 
@@ -5819,7 +5816,7 @@ class projectController extends Controller
 
             // Check if invoice is of type 'Detailed'
             if ($invoice->type != 'Detailed') {
-                return redirect()->back()->with('error', 'This is not a detailed invoice.');
+                return redirect()->back()->with('error', __('messages.This is not a detailed invoice.'));
             }
 
             $projectinfos = Project::findOrFail($invoice->project_id);
@@ -5889,7 +5886,7 @@ class projectController extends Controller
             \Log::error('Detailed Credit Note Error: ' . $e->getMessage());
             \Log::error($e->getTraceAsString());
 
-            return redirect()->back()->with('error', 'Error creating credit note: ' . $e->getMessage());
+            return redirect()->back()->with('error', \App\Support\LocalizedError::message($e));
         }
     }
 
@@ -5996,26 +5993,26 @@ class projectController extends Controller
 
             if (Auth::user()->hasRole('Admin')) {
                 return redirect()->route('admin.creditNote.creditNoteHistory')
-                    ->with('success', 'Credit note created successfully');
+                    ->with('success', __('messages.Credit note created successfully'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
                 return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')
-                    ->with('success', 'Credit note created successfully');
+                    ->with('success', __('messages.Credit note created successfully'));
             }
             if (Auth::user()->hasRole('Employee')) {
                 return redirect()->route('employee.creditNote.creditNoteHistory')
-                    ->with('success', 'Credit note created successfully');
+                    ->with('success', __('messages.Credit note created successfully'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
                 return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')
-                    ->with('success', 'Credit note created successfully');
+                    ->with('success', __('messages.Credit note created successfully'));
             }
 
         } catch (\Exception $e) {
             \Log::error('Detailed Credit Note Confirmation Error: ' . $e->getMessage());
             \Log::error($e->getTraceAsString());
 
-            return redirect()->back()->with('error', 'Error confirming credit note: ' . $e->getMessage());
+            return redirect()->back()->with('error', \App\Support\LocalizedError::message($e));
         }
     }
 
@@ -6103,26 +6100,26 @@ class projectController extends Controller
             }
 
             if (count($failedRecipients) > 0) {
-                return redirect()->back()->with('error', 'Failed to send credit note to some recipients: ' . implode(', ', $failedRecipients));
+                return redirect()->back()->with('error', __('messages.Failed to send credit note to some recipients:') . implode(', ', $failedRecipients));
             }
 
             $credit_note->emailsent = 1;
             $credit_note->save();
 
             if (Auth::user()->hasRole('Admin')) {
-                return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', 'Credit Note Sent successfully!');
+                return redirect()->route('admin.creditNote.creditNoteHistory')->with('message', __('messages.Credit Note Sent successfully!'));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')->with('message', 'Credit Note Sent successfully!');
+                return redirect()->route('Responsable_de_projet.creditNote.creditNoteHistory')->with('message', __('messages.Credit Note Sent successfully!'));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', 'Credit Note Sent successfully!');
+                return redirect()->route('Responsable_gestionnaire.creditNote.creditNoteHistory')->with('message', __('messages.Credit Note Sent successfully!'));
             }
         } catch (\Exception $e) {
             \Log::error('Credit note sending failed', [
                 'error' => $e->getMessage()
             ]);
-            return redirect()->back()->with('error', 'Failed to send credit note: ' . $e->getMessage());
+            return redirect()->back()->with('error', \App\Support\LocalizedError::message($e));
         }
     }
 
@@ -6133,7 +6130,7 @@ class projectController extends Controller
         if (!$project->client_id) {
             return response()->json([
                 'recipients' => [],
-                'message' => 'You must assign a client to this project before sending emails.'
+                'message' => __('messages.You must assign a client to this project before sending emails.')
             ], 422);
         }
 
@@ -6177,7 +6174,7 @@ class projectController extends Controller
             if (!$devis) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Devis not found'
+                    'message' => __('messages.Devis not found')
                 ]);
             }
 
@@ -6199,7 +6196,7 @@ class projectController extends Controller
             ]);
             return response()->json([
                 'success' => false,
-                'message' => 'Error fetching contacts: ' . $e->getMessage()
+                'message' => \App\Support\LocalizedError::message($e)
             ]);
         }
     }

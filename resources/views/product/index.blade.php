@@ -26,7 +26,7 @@
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "Web",
         "url": "{{ route('produit') }}",
-        "description": "{{ __('messages.product_schema_desc') }}"
+        "description": @js(__('messages.product_schema_desc'))
       }
     </script>
 

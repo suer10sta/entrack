@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <x-favicon />
     <meta charset="UTF-8">
@@ -119,7 +119,7 @@
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('messages.Contact Email') }} <span
                                             class="text-red-500">*</span></label>
-                                    <input required type="email" name="contact_email" placeholder="Contact Email"
+                                    <input required type="email" name="contact_email" placeholder="{{ __('messages.Contact Email') }}"
                                         class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none transition" />
                                 </div>
                             </div>
@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('error-message')) {
                     const msg = document.createElement('p');
                     msg.classList.add('text-red-500', 'text-xs', 'mt-1.5', 'error-message');
-                    msg.textContent = '{{ __('messages.This field is required.') }}';
+                    msg.textContent = @js(__('messages.This field is required.'));
                     input.insertAdjacentElement('afterend', msg);
                 }
             } else {
@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
             phoneInput.classList.add('border-red-500', 'focus:ring-red-500');
             const msg = document.createElement('p');
             msg.classList.add('text-red-500', 'text-xs', 'mt-1.5', 'error-message');
-            msg.textContent = '{{ __('messages.The number must contain digits only.') }}';
+            msg.textContent = @js(__('messages.The number must contain digits only.'));
             if (!phoneInput.nextElementSibling || !phoneInput.nextElementSibling.classList.contains('error-message')) {
                 phoneInput.insertAdjacentElement('afterend', msg);
             }

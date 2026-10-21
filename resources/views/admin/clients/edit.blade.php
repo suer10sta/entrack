@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 @include('dashboard_layouts.head')
+@include('partials.edit-layout-styles')
 
 <body class="g-sidenav-show bg-gray-100">
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
@@ -16,7 +17,7 @@
         @include('admin.sidebar')
     @endif
 
-    <main class="main-content position-relative border-radius-lg">
+    <main class="dt-edit-legacy main-content position-relative border-radius-lg">
         <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
             id="navbarBlur" data-scroll="false">
             <div class="container-fluid py-1 px-3">
@@ -24,30 +25,30 @@
                 @include('dashboard_layouts.navbar')
 
 
-                <div class="container-fluid py-4">
+                <div class="dt-edit-container container-fluid py-4">
                     <div class="row mb-5">
                         <div class="col-12">
                             <div class="multisteps-form mb-5">
                                 <div class="row">
-                                    <div class="col-12 col-lg-8 mx-auto my-4">
+                                    <div class="dt-edit-column col-12 col-lg-8 mx-auto my-4">
                                         <div class="card">
                                             <div class="card-body">
                                                 <div class="multisteps-form__progress">
                                                     <button class="multisteps-form__progress-btn js-active"
-                                                        type="button" title="client Info">
-                                                        <span>Personal Info</span>
+                                                        type="button" title="{{ __('messages.client Info') }}">
+                                                        <span>{{ __('messages.Personal Infos') }}</span>
                                                     </button>
                                                     <button class="multisteps-form__progress-btn js-active"
-                                                        type="button" title="client Info">
-                                                        <span>Address Info</span>
+                                                        type="button" title="{{ __('messages.client Info') }}">
+                                                        <span>{{ __('messages.Address Infos') }}</span>
                                                     </button>
                                                     <button class="multisteps-form__progress-btn js-active"
-                                                        type="button" title="client Info">
-                                                        <span>Billing Info</span>
+                                                        type="button" title="{{ __('messages.client Info') }}">
+                                                        <span>{{ __('messages.Billing Infos') }}</span>
                                                     </button>
                                                     <button class="multisteps-form__progress-btn js-active"
-                                                        type="button" title="client Info">
-                                                        <span>Contacts</span>
+                                                        type="button" title="{{ __('messages.client Info') }}">
+                                                        <span>{{ __('messages.Contacts label') }}</span>
                                                     </button>
                                                 </div>
                                             </div>
@@ -56,7 +57,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-12 col-lg-8 m-auto">
+                                    <div class="dt-edit-column col-12 col-lg-8 m-auto">
                                     @if(Auth::user()->hasRole('Responsable de projet'))
                                         <form class="multisteps-form__form mb-8" method="POST" action="{{ route('Responsable_de_projet.clients.update', $client) }}">
                                     @endif
@@ -74,30 +75,30 @@
 
                                             <div class="card multisteps-form__panel p-3 border-radius-xl bg-white js-active"
                                                 data-animation="FadeIn">
-                                                <h5 class="font-weight-bolder mb-0">Personal Infos</h5>
-                                                <p class="mb-0 text-sm">Mandatory informations</p>
+                                                <h5 class="font-weight-bolder mb-0">{{ __('messages.Personal Infos Section') }}</h5>
+                                                <p class="mb-0 text-sm">{{ __('messages.Mandatory informations') }}</p>
                                                 <div class="multisteps-form__content ">
                                                     @php
                                                         $countriesList = json_decode(file_get_contents(base_path('countries.json')), true) ?? [];
                                                     @endphp
                                                     <div class="row mt-3">
                                                         <div class="col-12 col-sm-6">
-                                                            <label>Name : </label>
+                                                            <label>{{ __('messages.Name field') }} </label>
                                                             <input class="multisteps-form__input form-control"
                                                                 type="text" value="{{$client->name}}" name="name" />
                                                         </div>
                                                         <div class="col-12 col-sm-6">
-                                                            <label>Client Number : </label>
+                                                            <label>{{ __('messages.Client Number field') }} </label>
                                                             <input class="multisteps-form__input form-control"
                                                                 type="number" value="{{$client->client_number}}" name="client_number" />
                                                         </div>
                                                         <div class="col-12 col-sm-6 mt-3 mt-sm-0">
-                                                            <label>Email : </label>
+                                                            <label>{{ __('messages.Email :') }} </label>
                                                             <input class="multisteps-form__input form-control"
                                                                 type="text" value="{{$client->email}}" name="email"/>
                                                         </div>
                                                         <div class="col-12 col-sm-6 mt-3 mt-sm-0">
-                                                            <label>Phone : </label>
+                                                            <label>{{ __('messages.Phone :') }} </label>
                                                             <input class="multisteps-form__input form-control"
                                                                 type="number" value="{{$client->phone}}" name="phone"/>
                                                         </div>
@@ -105,42 +106,42 @@
                                                 </div>
                                                 <div class="button-row d-flex mt-4">
                                                     <button id='next' class="btn bg-gradient-primary ms-auto mb-0 js-btn-next"
-                                                         title="next">
-                                                        Next
+                                                         title="{{ __('messages.next') }}">
+                                                        {{ __('messages.Next') }}
                                                     </button>
                                                 </div>
                                             </div>
                                             <div class="card multisteps-form__panel p-3 border-radius-xl bg-white js-active"
                                                 data-animation="FadeIn">
-                                                <h5 class="font-weight-bolder mb-0">Address Infos</h5>
-                                                <p class="mb-0 text-sm">Mandatory informations</p>
+                                                <h5 class="font-weight-bolder mb-0">{{ __('messages.Address Infos') }}</h5>
+                                                <p class="mb-0 text-sm">{{ __('messages.Mandatory informations') }}</p>
                                                 <div class="multisteps-form__content ">
                                                     <div class="row mt-3">
                                                         <div class="col-12 col-sm-6">
-                                                            <label>Address : </label>
+                                                            <label>{{ __('messages.Address :') }} </label>
                                                             <input class="multisteps-form__input form-control"
                                                                 type="text" value="{{$client->address}}" name="address" />
                                                         </div>
                                                         <div class="col-12 col-sm-6 mt-3 mt-sm-0">
-                                                            <label>City : </label>
+                                                            <label>{{ __('messages.City field') }} </label>
                                                             <input class="multisteps-form__input form-control"
                                                                 type="text" value="{{$client->city}}" name="city"/>
                                                         </div>
                                                     </div>
                                                     <div class="row mt-3">
                                                         <div class="col-12 col-sm-6">
-                                                            <label>Zip Code :</label>
+                                                            <label>{{ __('messages.Zip Code field') }}</label>
                                                             <input class="multisteps-form__input form-control"
                                                                 type="number" value="{{$client->zip}}" name="zip"/>
                                                         </div>
                                                         <div class="col-12 col-sm-6">
-                                                            <label>Country : </label>
+                                                            <label>{{ __('messages.Country field') }} </label>
                                                             <select class="multisteps-form__input form-control"
                                                                 name="country">
                                                                 @foreach($countriesList as $country)
                                                                     <option value="{{ $country['name'] }}"
                                                                         @if($client->country === $country['name']) selected @endif>
-                                                                        {{ $country['name'] }}
+                                                                        {{ __('countries.' . $country['code']) }}
                                                                     </option>
                                                                 @endforeach
                                                             </select>
@@ -149,24 +150,24 @@
                                                 </div>
                                                 <div class="button-row d-flex mt-4">
                                                     <button id='next' class="btn bg-gradient-primary ms-auto mb-0 js-btn-next"
-                                                         title="next">
-                                                        Next
+                                                         title="{{ __('messages.next') }}">
+                                                        {{ __('messages.Next') }}
                                                     </button>
                                                 </div>
                                             </div>
                                             <div class="card multisteps-form__panel p-3 border-radius-xl bg-white js-active"
                                                 data-animation="FadeIn">
-                                                <h5 class="font-weight-bolder mb-0">Billing Infos</h5>
-                                                <p class="mb-0 text-sm">Mandatory informations</p>
+                                                <h5 class="font-weight-bolder mb-0">{{ __('messages.Billing Infos') }}</h5>
+                                                <p class="mb-0 text-sm">{{ __('messages.Mandatory informations') }}</p>
                                                 <div class="multisteps-form__content ">
                                                     <div class="row mt-3">
                                                         <div class="col-12 col-sm-6">
-                                                            <label>TVA number : </label>
+                                                            <label>{{ __('messages.TVA number :') }} </label>
                                                             <input class="multisteps-form__input form-control"
                                                                 type="number" value="{{$client->TVA}}" name="TVA" />
                                                         </div>
                                                         <div class="col-12 col-sm-6">
-                                                            <label>Due Date : </label>
+                                                            <label>{{ __('messages.Due Date :') }} </label>
                                                             <input class="multisteps-form__input form-control"
                                                                 type="text" value="{{$client->due_date}}" name="due_date" />
                                                         </div>
@@ -174,8 +175,8 @@
                                                 </div>
                                                 <div class="button-row d-flex mt-4">
                                                     <button id='next' class="btn bg-gradient-primary ms-auto mb-0 js-btn-next"
-                                                         title="next">
-                                                        Next
+                                                         title="{{ __('messages.next') }}">
+                                                        {{ __('messages.Next') }}
                                                     </button>
                                                 </div>
                                             </div>
@@ -201,23 +202,23 @@
                                                                 <div class="card-body">
                                                                     <div class="row mt-3">
                                                                         <div class="col-12 col-sm-6">
-                                                                            <label>Full Name : </label>
+                                                                            <label>{{ __('messages.Full Name :') }} </label>
                                                                             <input class="multisteps-form__input form-control" type="text" value="{{$contact->name}}" name="contact_name[]"   />
                                                                         </div>
                                                                         <div class="col-12 col-sm-6">
-                                                                            <label>Functionality : </label>
+                                                                            <label>{{ __('messages.Functionality :') }} </label>
                                                                             <input class="multisteps-form__input form-control" type="text" value="{{$contact->functionality}}" name="contact_function[]"   />
                                                                         </div>
                                                                         <div class="col-12 col-sm-6">
-                                                                            <label>Mobile Fix : </label>
+                                                                            <label>{{ __('messages.Mobile Fix :') }} </label>
                                                                             <input class="multisteps-form__input form-control" type="number" value="{{$contact->mobile_fix}}" name="contact_mobile_fix[]"   />
                                                                         </div>
                                                                         <div class="col-12 col-sm-6">
-                                                                            <label>Email : </label>
+                                                                            <label>{{ __('messages.Email :') }} </label>
                                                                             <input class="multisteps-form__input form-control" type="text" value="{{$contact->email}}" name="contact_email[]"   />
                                                                         </div>
                                                                         <div class="col-12 col-sm-6">
-                                                                            <label>Address : </label>
+                                                                            <label>{{ __('messages.Address :') }} </label>
                                                                             <input class="multisteps-form__input form-control" type="text" value="{{$contact->address}}" name="contact_address[]"  />
                                                                         </div>
                                                                     </div>
@@ -231,47 +232,47 @@
                                                     @endforeach
                                                 </div>
                                                 <br>
-                                                <h5>Add New Contacts :</h5>
+                                                <h5>{{ __('messages.Add New Contacts :') }}</h5>
                                                 <div class="multisteps-form__content ">
                                                     <div id="contact_infos">
                                                         <div class="row mt-3">
                                                             <div class="col-12 col-sm-6">
-                                                                <label>Full Name : </label>
+                                                                <label>{{ __('messages.Full Name :') }} </label>
                                                                 <input class="multisteps-form__input form-control"
-                                                                    type="text" placeholder="Full Name" name="contact_name[]" />
+                                                                    type="text" placeholder="{{ __('messages.Full Name') }}" name="contact_name[]" />
                                                             </div>
                                                             <div class="col-12 col-sm-6">
-                                                                <label>Functionality : </label>
+                                                                <label>{{ __('messages.Functionality :') }} </label>
                                                                 <input class="multisteps-form__input form-control"
-                                                                    type="text" placeholder="Functionality" name="contact_function[]" />
+                                                                    type="text" placeholder="{{ __('messages.Functionality') }}" name="contact_function[]" />
                                                             </div>
                                                             <div class="col-12 col-sm-6">
-                                                                <label>Mobile Fix : </label>
+                                                                <label>{{ __('messages.Mobile Fix :') }} </label>
                                                                 <input class="multisteps-form__input form-control"
-                                                                    type="number" placeholder="Mobile Fix " name="contact_mobile_fix[]" />
+                                                                    type="number" placeholder="{{ __('messages.Mobile Fix') }}" name="contact_mobile_fix[]" />
                                                             </div>
                                                             <div class="col-12 col-sm-6">
-                                                                <label>Email : </label>
+                                                                <label>{{ __('messages.Email :') }} </label>
                                                                 <input class="multisteps-form__input form-control"
                                                                     type="text" placeholder="*****@gmail.com" name="contact_email[]" />
                                                             </div>
                                                             <div class="col-12 col-sm-6">
-                                                                <label>Address : </label>
+                                                                <label>{{ __('messages.Address :') }} </label>
                                                                 <input class="multisteps-form__input form-control"
-                                                                    type="text" placeholder="Address" name="contact_address[]" />
+                                                                    type="text" placeholder="{{ __('messages.Address') }}" name="contact_address[]" />
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <br>
-                                                <button id="addContact" class="btn btn-primary">Add</button>
+                                                <button id="addContact" class="btn btn-primary">{{ __('messages.Add') }}</button>
                                                 <div class="button-row d-flex mt-4">
                                                 <a class='btn btn-light m-0' href="{{route('admin.index')}}">
-                                        Cancel
+                                        {{ __('messages.Cancel') }}
                                     </a>
                                                     <button class="btn bg-gradient-dark ms-auto mb-0 "
-                                                        type="submit" title="create">
-                                                        Save
+                                                        type="submit" title="{{ __('messages.create') }}">
+                                                        {{ __('messages.Save') }}
                                                     </button>
                                                 </div>
                                             </div>
@@ -339,7 +340,7 @@ $(document).ready(function(){
         var newCard = additionalContacts.children().first().clone();
         newCard.find('input').val('');
         if (additionalContacts.children().length > 0) {
-            var deleteButton = $('<button>Delete</button>');
+            var deleteButton = $(('<button>' + @js(__('messages.Delete')) + '</button>'));
             deleteButton.attr('type', 'button');
             deleteButton.addClass('btn btn-danger mt-3 remove-contact');
             deleteButton.click(function() {

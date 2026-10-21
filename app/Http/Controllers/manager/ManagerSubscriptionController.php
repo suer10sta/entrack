@@ -276,14 +276,14 @@ class ManagerSubscriptionController extends Controller
         if (! in_array($channel, ['email', 'peppol'], true)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid send channel.',
+                'message' => __('messages.Invalid send channel.'),
             ], 422);
         }
 
         if (! $entreprise->stripe_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'No Stripe customer configured for this entreprise.',
+                'message' => __('messages.No Stripe customer configured for this entreprise.'),
             ], 404);
         }
 
@@ -293,7 +293,7 @@ class ManagerSubscriptionController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unable to retrieve Stripe invoice.',
+                'message' => __('messages.Unable to retrieve Stripe invoice.'),
             ], 404);
         }
 
@@ -301,7 +301,7 @@ class ManagerSubscriptionController extends Controller
         if (! isset($stripeInvoice->customer) || (string) $stripeInvoice->customer !== (string) $entreprise->stripe_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invoice does not belong to this entreprise.',
+                'message' => __('messages.Invoice does not belong to this entreprise.'),
             ], 403);
         }
 
@@ -310,7 +310,7 @@ class ManagerSubscriptionController extends Controller
         if ($invoiceNumber === '') {
             return response()->json([
                 'success' => false,
-                'message' => 'Unable to determine invoice number.',
+                'message' => __('messages.Unable to determine invoice number.'),
             ], 404);
         }
 
@@ -341,7 +341,7 @@ class ManagerSubscriptionController extends Controller
         if (! Storage::disk('public')->exists($relativePath)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invoice PDF not found on server.',
+                'message' => __('messages.Invoice PDF not found on server.'),
             ], 404);
         }
 
@@ -351,14 +351,14 @@ class ManagerSubscriptionController extends Controller
             if (! str_starts_with($tvaNumber, 'BE')) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Peppol sending is only available for entreprises with a Belgian TVA number.',
+                    'message' => __('messages.Peppol sending is only available for entreprises with a Belgian TVA number.'),
                 ], 422);
             }
 
             if (empty($entreprise->tva)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Entreprise does not have a TVA number configured for Peppol sending.',
+                    'message' => __('messages.Entreprise does not have a TVA number configured for Peppol sending.'),
                 ], 422);
             }
 
@@ -466,13 +466,13 @@ class ManagerSubscriptionController extends Controller
             } catch (\Throwable $e) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to send subscription invoice via Peppol.',
+                    'message' => __('messages.Failed to send subscription invoice via Peppol.'),
                 ], 500);
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Subscription invoice sent successfully via Peppol.',
+                'message' => __('messages.Subscription invoice sent successfully via Peppol.'),
                 'billit' => $billitResponse,
             ]);
         }
@@ -518,7 +518,7 @@ class ManagerSubscriptionController extends Controller
             if (!in_array($email, $allowedRecipients, true)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid recipient selected.',
+                    'message' => __('messages.Invalid recipient selected.'),
                 ], 422);
             }
         }
@@ -547,7 +547,7 @@ class ManagerSubscriptionController extends Controller
         if (empty($allowedRecipients)) {
             return response()->json([
                 'success' => false,
-                'message' => 'No valid recipient email addresses are available for this entreprise.',
+                'message' => __('messages.No valid recipient email addresses are available for this entreprise.'),
             ], 422);
         }
 
@@ -573,7 +573,7 @@ class ManagerSubscriptionController extends Controller
             if (empty($recipients)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Please select at least one recipient.',
+                    'message' => __('messages.Please select at least one recipient.'),
                 ], 422);
             }
 
@@ -600,7 +600,7 @@ class ManagerSubscriptionController extends Controller
             if (! Storage::disk('public')->exists($relativePath)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invoice PDF not found',
+                    'message' => __('messages.Invoice PDF not found'),
                 ], 404);
             }
 
@@ -677,19 +677,19 @@ class ManagerSubscriptionController extends Controller
                     if (! empty($failedRecipients)) {
                         return response()->json([
                             'success' => true,
-                            'message' => 'Subscription invoice sent but failed for some recipients: ' . implode(', ', $failedRecipients),
+                            'message' => __('messages.Subscription invoice sent but failed for some recipients:') . implode(', ', $failedRecipients),
                         ]);
                     }
 
                     return response()->json([
                         'success' => true,
-                        'message' => 'Subscription invoice sent successfully to all recipients.',
+                        'message' => __('messages.Subscription invoice sent successfully to all recipients.'),
                     ]);
                 }
 
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to send subscription invoice to any recipient.',
+                    'message' => __('messages.Failed to send subscription invoice to any recipient.'),
                 ], 500);
             } finally {
                 if (is_string($mergedPdfPathRelative) && Storage::disk('public')->exists($mergedPdfPathRelative)) {
@@ -707,13 +707,13 @@ class ManagerSubscriptionController extends Controller
             ]);
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to send email for this invoice.',
+                'message' => __('messages.Failed to send email for this invoice.'),
             ], 500);
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Subscription invoice sent successfully.',
+            'message' => __('messages.Subscription invoice sent successfully.'),
         ]);
     }
 
@@ -725,14 +725,14 @@ class ManagerSubscriptionController extends Controller
         if (method_exists($entreprise, 'isBlockingExempt') && $entreprise->isBlockingExempt()) {
             return redirect()
                 ->back()
-                ->with('error', 'This entreprise is protected and cannot be deleted.');
+                ->with('error', __('messages.This entreprise is protected and cannot be deleted.'));
         }
 
         $entreprise->deleteWithData();
 
         return redirect()
             ->route('manager.subscriptions.index')
-            ->with('success', 'Entreprise and all related data were deleted successfully.');
+            ->with('success', __('messages.Entreprise and all related data were deleted successfully.'));
     }
 
     private function findLatestStripeSubscription(string $stripeCustomerId): ?object

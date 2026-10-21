@@ -4,7 +4,7 @@
     <x-favicon />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Full Invoice - DalyTrac</title>
+    <title>{{ __('messages.Edit Full Invoice - DalyTrac') }}</title>
     @vite('resources/css/app.css')
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -22,6 +22,7 @@
             padding-right: 2.5rem; 
         }
     </style>
+@include('partials.edit-layout-styles')
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden font-sans">
     
@@ -39,8 +40,8 @@
         <x-dashboard.navbar />
 
         {{-- Zone de contenu principal --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
-            <div class="max-w-3xl mx-auto">
+        <main class="dt-edit-page flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+            <div class="dt-edit-container dt-edit-container--compact max-w-3xl mx-auto">
                 
                 {{-- Message d'erreur de session (style Tailwind) --}}
                 @if(session('error'))

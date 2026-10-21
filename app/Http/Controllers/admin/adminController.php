@@ -162,7 +162,7 @@ class adminController extends Controller
                 \Log::error('Error in AJAX pagination: ' . $e->getMessage());
                 return response()->json([
                     'success' => false,
-                    'message' => 'An error occurred while loading data: ' . $e->getMessage()
+                    'message' => \App\Support\LocalizedError::message($e)
                 ], 500);
             }
         }
@@ -221,11 +221,11 @@ class adminController extends Controller
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'An error occurred while filtering invoices: ' . $e->getMessage()
+                    'message' => \App\Support\LocalizedError::message($e)
                 ], 500);
             }
 
-            return back()->with('error', 'An error occurred while filtering invoices.');
+            return back()->with('error', __('messages.An error occurred while filtering invoices.'));
         }
     }
 

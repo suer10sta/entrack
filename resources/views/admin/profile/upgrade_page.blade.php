@@ -110,7 +110,7 @@
                             <option value="{{ $selectedCountry }}" selected>{{ $selectedCountry }}</option>
                         @endif
                         @foreach($countriesList as $country)
-                            <option value="{{ $country['name'] }}" data-code="{{ $country['code'] }}" @selected($selectedCountry === $country['name'])>{{ $country['name'] }}</option>
+                            <option value="{{ $country['name'] }}" data-code="{{ $country['code'] }}" @selected($selectedCountry === $country['name'])>{{ __('countries.' . $country['code']) }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -143,11 +143,11 @@
                             {{ __('messages.Choose Solo') }}
                         </a>
                         <ul class="space-y-3 text-[13.5px] text-slate-600 flex-grow">
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> <strong>1 utilisateur</strong></li>
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Facturation de base</li>
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Jusqu'à 10 clients</li>
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Rapports de base</li>
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Support par email</li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> <strong>{{ __('messages.1 utilisateur') }}</strong></li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Facturation de base') }}</li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Jusqu\'à 10 clients') }}</li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Rapports de base') }}</li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Support par email') }}</li>
                         </ul>
                     </div>
 
@@ -170,12 +170,12 @@
                             {{ __('messages.Choose Premium') }}
                         </a>
                         <ul class="space-y-3 text-[13.5px] text-slate-600 flex-grow">
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> <strong>Jusqu'à 10 utilisateurs</strong></li>
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Facturation avancée</li>
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Clients illimités</li>
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Rapports avancés</li>
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Collaboration d'équipe</li>
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Support prioritaire</li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> <strong>{{ __('messages.Jusqu\'à 10 utilisateurs') }}</strong></li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Advanced Invoicing') }}</li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Unlimited Clients') }}</li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Advanced Reports') }}</li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Team Collaboration') }}</li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Support prioritaire') }}</li>
                         </ul>
                     </div>
 
@@ -196,14 +196,14 @@
                             {{ __('messages.Choose Pro') }}
                         </a>
                         <ul class="space-y-3 text-[13.5px] text-slate-600 flex-grow">
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> <strong>Utilisateurs illimités</strong></li>
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Facturation avancée + Personnalisation</li>
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Clients illimités</li>
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Rapports personnalisés</li>
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Collaboration d'équipe avancée</li>
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Support dédié</li>
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Accès API</li>
-                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Intégrations sur mesure</li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> <strong>{{ __('messages.Unlimited Users') }}</strong></li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Facturation avancée + Personnalisation') }}</li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Unlimited Clients') }}</li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Rapports personnalisés') }}</li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Collaboration d\'équipe avancée') }}</li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Support dédié') }}</li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Accès API') }}</li>
+                            <li class="flex items-start gap-2"><svg class="h-[18px] w-[18px] text-[#2D7080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> {{ __('messages.Intégrations sur mesure') }}</li>
                         </ul>
                     </div>
                 </div>
@@ -218,18 +218,18 @@
                     @if($trialDaysRemaining !== null && $trialDaysRemaining > 0)
                         {{ $trialDaysRemaining }} {{ __('messages.days left') }}
                     @elseif($trialDaysRemaining === null)
-                        Essai en cours
+                        {{ __('messages.Essai en cours') }}
                     @else
-                        Trial Expiré
+                        {{ __('messages.Trial Expiré') }}
                     @endif
                 </h3>
                 <p class="dt-section-subtitle mt-2 leading-relaxed">
                     @if($trialDaysRemaining !== null && $trialDaysRemaining > 0)
                         {{ __('messages.0-Day Trial description') }}
                     @elseif($trialDaysRemaining === null)
-                        Essai en cours
+                        {{ __('messages.Essai en cours') }}
                     @else
-                        Votre période d'essai est terminée
+                        {{ __('messages.Votre période d\'essai est terminée') }}
                     @endif
                 </p>
             </div>
@@ -292,10 +292,11 @@
                 const codes = 'AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW'.split(' ');
                 const existingCodes = new Set(Array.from(countryInput.options, option => option.dataset.code));
                 const names = new Intl.DisplayNames(['fr'], { type: 'region' });
+                const labels = new Intl.DisplayNames([@js(app()->getLocale())], { type: 'region' });
                 codes.filter(code => !existingCodes.has(code)).forEach(code => {
                     const name = names.of(code);
                     if (!Array.from(countryInput.options).some(option => option.value === name)) {
-                        countryInput.add(new Option(name, name));
+                        countryInput.add(new Option(labels.of(code), name));
                     }
                 });
                 const selector = typeof TomSelect === 'function' ? new TomSelect(countryInput, {

@@ -579,7 +579,7 @@
                 </div>
 
                 {{-- Date --}}
-                <p class="text-[12.5px] text-slate-500 mb-4">{{ now()->format('d F Y') }}</p>
+                <p class="text-[12.5px] text-slate-500 mb-4">{{ now()->locale(app()->getLocale())->translatedFormat('d F Y') }}</p>
 
                 {{-- Events list in horizontal scrollable cards --}}
                 @if($data['dayEvents']->isNotEmpty())
@@ -763,7 +763,7 @@
             function stopAllTimersForEmployee(employeeId) {
                 const forms = document.querySelectorAll('.stop-form-' + employeeId);
                 if (!forms.length) return;
-                if (!confirm('{{ __('messages.Stop all timers for this employee?') }}')) return;
+                if (!confirm(@js(__('messages.Stop all timers for this employee?')))) return;
 
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
@@ -1113,10 +1113,10 @@
             // Usage: const ok = await requestActionConfirm('stop'|'archive'|'delete'|'default', message, fallbackOkText);
             let confirmActionResolve = null;
             const CONFIRM_ACTION_KINDS = {
-                stop: { title: "{{ __('messages.Stop Task') }}", ok: "{{ __('messages.Stop') }}", tone: 'danger' },
-                archive: { title: "{{ __('messages.Archive') }}", ok: "{{ __('messages.Archive') }}", tone: 'warn' },
-                delete: { title: "{{ __('messages.Delete') }}", ok: "{{ __('messages.Delete') }}", tone: 'danger' },
-                default: { title: "{{ __('messages.Are you sure?') }}", ok: "{{ __('messages.Confirm') }}", tone: 'danger' }
+                stop: { title: @js(__('messages.Stop Task')), ok: @js(__('messages.Stop')), tone: 'danger' },
+                archive: { title: @js(__('messages.Archive')), ok: @js(__('messages.Archive')), tone: 'warn' },
+                delete: { title: @js(__('messages.Delete')), ok: @js(__('messages.Delete')), tone: 'danger' },
+                default: { title: @js(__('messages.Are you sure?')), ok: @js(__('messages.Confirm')), tone: 'danger' }
             };
             function requestActionConfirm(kind, message, fallbackOkText) {
                 const preset = CONFIRM_ACTION_KINDS[kind] || CONFIRM_ACTION_KINDS.default;

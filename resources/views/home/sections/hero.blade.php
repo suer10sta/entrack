@@ -1,5 +1,5 @@
 
-<section class="relative grid items-center overflow-hidden bg-[#f8faf9] lg:min-h-[760px]">
+<section data-home-section="hero" class="relative grid items-center overflow-hidden bg-[#f8faf9] lg:min-h-[760px]">
   <div aria-hidden="true" class="pointer-events-none absolute -top-[170px] -right-[160px] h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,rgba(140,207,208,0.2),rgba(140,207,208,0)_68%)]"></div>
 
   <div class="mx-auto grid w-full max-w-[1200px] items-center gap-[70px] px-6 py-[96px] max-lg:gap-[38px] max-md:px-4 max-md:py-[76px] max-md:pb-[92px] lg:grid-cols-[1.02fr_0.98fr]">
@@ -9,12 +9,12 @@
       <p class="mt-7 max-w-[660px] text-[1.12rem] leading-[1.72] text-[#5b6b73]">{{ __('messages.public_home_subtitle') }}</p>
       <div class="mt-[34px] flex flex-wrap gap-3 max-sm:flex-col max-sm:items-stretch">
         <a href="{{ route('register') }}" class="group inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-full btn-sweep btn-sweep-navy bg-brand-secondary px-[22px] text-[0.95rem] font-semibold text-white no-underline shadow-[0_12px_28px_rgba(45,112,128,0.2)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-[0_16px_34px_rgba(45,112,128,0.3)] cursor-pointer max-sm:w-full">{{ __('messages.public_home_trial_button') }} <span aria-hidden="true" class="inline-block transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"><i data-lucide="arrow-up-right" class="h-4 w-4"></i></span></a>
-        <a href="demo" class="group inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-full border border-[#dce6e4] btn-sweep btn-sweep-teal bg-white px-[22px] text-[0.95rem] font-semibold text-brand-primary no-underline transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-brand-secondary hover:shadow-[0_14px_30px_rgba(7,27,50,0.1)] hover:text-white cursor-pointer max-sm:w-full"><span aria-hidden="true" class="grid h-[25px] w-[25px] place-items-center rounded-full bg-brand-primary text-white transition-colors duration-300 group-hover:bg-white group-hover:text-brand-secondary"><i data-lucide="play" class="h-3 w-3 fill-current"></i></span> {{ __('messages.public_home_demo_button') }}</a>
+        <a href="demo" class="group inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-full border border-[#dce6e4] btn-sweep btn-sweep-teal bg-white px-[22px] text-[0.95rem] font-semibold text-brand-primary no-underline transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-brand-secondary hover:shadow-[0_14px_30px_rgba(7,27,50,0.1)] hover:text-white cursor-pointer max-sm:w-full"><span aria-hidden="true" class="dt-hero-demo-icon grid h-[25px] w-[25px] flex-shrink-0 place-items-center rounded-full bg-brand-primary text-white transition-colors duration-300 group-hover:bg-white group-hover:text-brand-secondary"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg></span> {{ __('messages.public_home_demo_button') }}</a>
       </div>
-      <div class="mt-[30px] flex flex-wrap gap-x-[22px] gap-y-2.5 text-[0.84rem] font-bold text-[#496076] max-sm:grid" aria-label="{{ __('messages.public_home_trial_conditions_label') }}">
-        <span class="flex items-center gap-[7px]"><i class="grid h-[21px] min-w-[21px] place-items-center rounded-full border border-[#dce6e4] bg-white text-[0.7rem] not-italic text-brand-secondary">15</i> {{ __('messages.public_home_trial_days') }}</span>
-        <span class="flex items-center gap-[7px]"><span class="grid h-[21px] min-w-[21px] place-items-center rounded-full border border-[#dce6e4] bg-white text-brand-secondary"><i data-lucide="check" class="h-3 w-3"></i></span> {{ __('messages.public_home_trial_features') }}</span>
-        <span class="flex items-center gap-[7px]"><span class="grid h-[21px] min-w-[21px] place-items-center rounded-full border border-[#dce6e4] bg-white text-brand-secondary"><i data-lucide="infinity" class="h-3 w-3"></i></span> {{ __('messages.public_home_trial_users') }}</span>
+      <div class="dt-hero-trial-details mt-[30px] flex flex-wrap gap-x-[22px] gap-y-2.5 text-[0.84rem] font-bold text-[#496076] max-sm:grid" aria-label="{{ __('messages.public_home_trial_conditions_label') }}">
+        <span class="flex items-center gap-[7px]"><span aria-hidden="true" class="dt-hero-trial-icon grid h-[21px] w-[21px] flex-shrink-0 place-items-center rounded-full border border-[#dce6e4] bg-white text-[0.7rem] text-brand-secondary">15</span> {{ __('messages.public_home_trial_days') }}</span>
+        <span class="flex items-center gap-[7px]"><span aria-hidden="true" class="dt-hero-trial-icon grid h-[21px] w-[21px] flex-shrink-0 place-items-center rounded-full border border-[#dce6e4] bg-white text-brand-secondary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6" /></svg></span> {{ __('messages.public_home_trial_features') }}</span>
+        <span class="flex items-center gap-[7px]"><span aria-hidden="true" class="dt-hero-trial-icon grid h-[21px] w-[21px] flex-shrink-0 place-items-center rounded-full border border-[#dce6e4] bg-white text-brand-secondary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 12c-2-3-3-4-5-4a4 4 0 0 0 0 8c2 0 3-1 5-4s3-4 5-4a4 4 0 0 1 0 8c-2 0-3-1-5-4Z" /></svg></span> {{ __('messages.public_home_trial_users') }}</span>
       </div>
     </div>
 
@@ -32,9 +32,9 @@
           </div>
         </div>
       </div>
-      <div class="absolute -right-6 top-11 hidden min-w-[148px] rounded-[13px] border border-[#dce6e4] bg-white px-4 py-[13px] shadow-[0_14px_36px_rgba(7,27,50,0.13)] lg:block"><b class="block text-[1.05rem] text-brand-secondary">{{ __('messages.public_home_metric_margin_value') }}</b><span class="block text-[0.68rem] text-[#5b6b73]">{{ __('messages.public_home_metric_margin_label') }}</span></div>
-      <div class="absolute -left-6 bottom-11 hidden min-w-[148px] rounded-[13px] border border-[#dce6e4] bg-white px-4 py-[13px] shadow-[0_14px_36px_rgba(7,27,50,0.13)] lg:block"><b class="block text-[1.05rem] text-brand-secondary">{{ __('messages.public_home_metric_time_value') }}</b><span class="block text-[0.68rem] text-[#5b6b73]">{{ __('messages.public_home_metric_time_label') }}</span></div>
+      <!-- <div class="absolute -right-6 top-11 hidden min-w-[148px] rounded-[13px] border border-[#dce6e4] bg-white px-4 py-[13px] shadow-[0_14px_36px_rgba(7,27,50,0.13)] lg:block"><b class="block text-[1.05rem] text-brand-secondary">{{ __('messages.public_home_metric_margin_value') }}</b><span class="block text-[0.68rem] text-[#5b6b73]">{{ __('messages.public_home_metric_margin_label') }}</span></div>
+      <div class="absolute -left-6 bottom-11 hidden min-w-[148px] rounded-[13px] border border-[#dce6e4] bg-white px-4 py-[13px] shadow-[0_14px_36px_rgba(7,27,50,0.13)] lg:block"><b class="block text-[1.05rem] text-brand-secondary">{{ __('messages.public_home_metric_time_value') }}</b><span class="block text-[0.68rem] text-[#5b6b73]">{{ __('messages.public_home_metric_time_label') }}</span></div> -->
     </div>
   </div>
-  <div aria-hidden="true" class="absolute bottom-0 left-0 text-[6rem] font-semibold leading-none text-[#071b32]/10 max-sm:hidden xl:left-[max(1.25rem,calc((100vw-1200px)/2-76px))]">01</div>
+
 </section>

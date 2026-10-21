@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <x-favicon />
@@ -77,7 +77,7 @@
                 @if(session('message'))
                 <div class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl relative flex items-center gap-2" role="alert">
                     <span class="block sm:inline text-[13px] font-medium">{{ session('message') }}</span>
-                    <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-emerald-600 hover:text-emerald-800 font-bold text-xl" data-bs-dismiss="alert" aria-label="Close">&times;</button>
+                    <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-emerald-600 hover:text-emerald-800 font-bold text-xl" data-bs-dismiss="alert" aria-label="{{ __('messages.Close') }}">&times;</button>
                 </div>
                 @endif
 

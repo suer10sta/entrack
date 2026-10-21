@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 @include('dashboard_layouts.head')
 
@@ -85,7 +85,7 @@
                                                 Entreprise 1
                                             </td>
                                             <td class="text-success">100$</td>
-                                            <td>6 months</td>
+                                            <td>{{ __('messages.6 months') }}</td>
                                             <td>
                                                 <span class="badge badge-success badge-sm">{{ __('messages.Paid') }}</span>
                                             </td>
@@ -99,7 +99,7 @@
                                                 Entreprise 2
                                             </td>
                                             <td class="text-success">80$</td>
-                                            <td>3months</td>
+                                            <td>{{ __('messages.3months') }}</td>
                                             <td>
                                                 <span class="badge badge-success badge-sm">{{ __('messages.Paid') }}</span>
                                             </td>
@@ -113,7 +113,7 @@
                                                 Entreprise 3
                                             </td>
                                             <td class="text-success">220$</td>
-                                            <td>1 year</td>
+                                            <td>{{ __('messages.1 year') }}</td>
                                             <td>
                                                 <span class="badge badge-success badge-sm">{{ __('messages.Paid') }}</span>
                                             </td>
@@ -127,7 +127,7 @@
                                                 Entreprise 4
                                             </td>
                                             <td class="text-success">40$</td>
-                                            <td>1 months</td>
+                                            <td>{{ __('messages.1 months') }}</td>
                                             <td>
                                                 <span class="badge badge-danger badge-sm">{{ __('messages.Unpaid') }}</span>
                                             </td>

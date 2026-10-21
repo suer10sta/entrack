@@ -110,7 +110,7 @@
                                             @foreach($countriesList as $country)
                                                 <option value="{{ $country['name'] }}"
                                                     @if($entreprise->country === $country['name']) selected @endif>
-                                                    {{ $country['name'] }}
+                                                    {{ __('countries.' . $country['code']) }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -226,7 +226,7 @@
                                             <button
                                                 type="button"
                                                 class="absolute inset-y-0 right-10 px-3 flex items-center text-slate-400 hover:text-slate-600"
-                                                aria-label="Clear Billit API key"
+                                                aria-label="{{ __('messages.Clear Billit API key') }}"
                                                 data-clear-billit-key>
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm2.707-10.707a1 1 0 00-1.414-1.414L10 7.586 8.707 6.293a1 1 0 00-1.414 1.414L8.594 9l-1.293 1.293a1 1 0 101.414 1.414L10 10.414l1.293 1.293a1 1 0 001.414-1.414L11.414 9l1.293-1.293z" clip-rule="evenodd" />
@@ -236,7 +236,7 @@
                                         <button
                                             type="button"
                                             class="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-slate-600"
-                                            aria-label="Toggle Billit API key visibility"
+                                            aria-label="{{ __('messages.Toggle Billit API key visibility') }}"
                                             data-toggle-billit-visibility>
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                                 <path d="M10 3c-4.5 0-8.3 3.1-9.6 7.4a1 1 0 000 .6C1.7 15.9 5.5 19 10 19s8.3-3.1 9.6-7.4a1 1 0 000-.6C18.3 6.1 14.5 3 10 3zm0 13a6 6 0 01-6-6 6 6 0 0112 0 6 6 0 01-6 6z"/>

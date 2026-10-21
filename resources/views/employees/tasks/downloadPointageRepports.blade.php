@@ -111,8 +111,8 @@ thead {
         </div>
         <div class="details-right">
             <div class="header-info">
-                <h2>Pointage Table Reports</h2>
-                <h5>For : <strong>{{$employeeName}}</strong> From : {{ $startDate }} To {{ $endDate }}</h5>
+                <h2>{{ __('messages.Pointage Table Reports') }}</h2>
+                <h5>{{ __('messages.For :') }} <strong>{{$employeeName}}</strong> From : {{ $startDate }} To {{ $endDate }}</h5>
             </div>
         </div>
     </div>
@@ -123,11 +123,11 @@ thead {
     <table>
         <thead>
             <tr>
-                <th>Project Name</th>
-                <th>Task Name</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Duration</th>
+                <th>{{ __('messages.Project Name') }}</th>
+                <th>{{ __('messages.Task Name') }}</th>
+                <th>{{ __('messages.Start Date') }}</th>
+                <th>{{ __('messages.End Date') }}</th>
+                <th>{{ __('messages.Duration') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -157,7 +157,7 @@ thead {
                 <td style="border: none;"></td>
                 <td style="border: none;"></td>
                 <td style="border: none;"></td>
-                <td style="border: none;"><strong>Totals : </strong></td>
+                <td style="border: none;"><strong>{{ __('messages.Totals label') }} </strong></td>
                 <td style="border: none;"> 
                     @php
                         $hours = floor($totalDuration / 60);
@@ -170,7 +170,7 @@ thead {
     </table>
 
     <div class="footer">
-        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
+        <div class='footer-right'>{{ __('messages.Page Number:') }} <span class="page-number"></span></div>
         <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
     </div>
 

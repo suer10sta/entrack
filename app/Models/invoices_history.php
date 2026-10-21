@@ -10,6 +10,20 @@ class invoices_history extends Model
     use HasFactory;
 
     protected $table = 'invoices_history';
+
+    public function save(array $options = [])
+    {
+        if ($this->exists || !$this->entreprise_id) return parent::save($options);
+
+        // Allocate and insert under the same company lock: parallel creations
+        // must not both consume the same next number.
+        return $this->getConnection()->transaction(function () use ($options) {
+            $company = Entreprise::on($this->getConnectionName())
+                ->whereKey($this->entreprise_id)->lockForUpdate()->firstOrFail();
+            $this->number = \App\Support\InvoiceNumbering::next($company);
+            return parent::save($options);
+        });
+    }
     protected $fillable = [
         'project_name',
         'number',

@@ -40,7 +40,7 @@ class ManagerProfileController extends Controller
         $manager->update($validated);
 
         return redirect()->route('manager.profile.index')
-            ->with('success', 'Profile updated successfully.');
+            ->with('success', __('messages.Profile updated successfully.'));
     }
 
     public function updatePassword(Request $request)
@@ -61,7 +61,7 @@ class ManagerProfileController extends Controller
         ]);
 
         return redirect()->route('manager.profile.index')
-            ->with('success', 'Password updated successfully.');
+            ->with('success', __('messages.Password updated successfully.'));
     }
 }
 

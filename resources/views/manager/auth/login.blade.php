@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <x-favicon />
@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
 
-    <title>DalyTrac - Manager Login</title>
+    <title>{{ __('messages.DalyTrac - Manager Login') }}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,16 +34,16 @@
                             <x-application-logo style="background:#F4F7F6;border-radius:8px;padding:7px 10px;" class="inline-flex items-baseline text-[1.1rem] font-extrabold tracking-[-0.03em] text-white leading-none" />
                         </div>
                         <span class="inline-flex h-7 items-center rounded-full bg-[#E7B84B]/15 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#E7B84B] ring-1 ring-[#E7B84B]/40">
-                            Manager
+                            {{ __('messages.Manager') }}
                         </span>
                     </div>
 
                     <div class="mt-auto">
                         <p class="text-[22px] font-bold tracking-tight leading-snug">
-                            Manage subscriptions, invoices and entreprise accounts.
+                            {{ __('messages.Manage subscriptions, invoices and entreprise accounts.') }}
                         </p>
                         <p class="mt-2 text-sm text-slate-300/90 leading-relaxed">
-                            A dedicated manager area with high-level metrics and billing oversight, without impacting normal users.
+                            {{ __('messages.A dedicated manager area with high-level metrics and billing oversight, without impacting normal users.') }}
                         </p>
                     </div>
                 </div>
@@ -51,10 +51,10 @@
                 <div class="px-6 py-8 md:px-8">
                     <div class="mb-6 text-center md:text-left">
                         <h1 class="text-2xl font-bold tracking-tight text-[#0B2638]">
-                            Manager sign in
+                            {{ __('messages.Manager sign in') }}
                         </h1>
                         <p class="mt-1 text-sm text-slate-500">
-                            Sign in using your manager credentials.
+                            {{ __('messages.Sign in using your manager credentials.') }}
                         </p>
                     </div>
 
@@ -71,7 +71,7 @@
 
                         <div class="space-y-1">
                             <label for="email" class="block text-sm font-medium text-slate-700">
-                                Email
+                                {{ __('messages.Email') }}
                             </label>
                             <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
                                 class="block w-full rounded-xl border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25">
@@ -79,7 +79,7 @@
 
                         <div class="space-y-1">
                             <label for="password" class="block text-sm font-medium text-slate-700">
-                                Password
+                                {{ __('messages.Password') }}
                             </label>
                             <input id="password" type="password" name="password" required
                                 class="block w-full rounded-xl border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25">
@@ -89,12 +89,12 @@
                             <label class="inline-flex items-center gap-2 cursor-pointer">
                                 <input id="remember" type="checkbox" name="remember"
                                     class="h-4 w-4 rounded border-slate-300 text-[#2D7080] focus:ring-[#2D7080]/25">
-                                <span class="text-xs text-slate-600">Remember me</span>
+                                <span class="text-xs text-slate-600">{{ __('messages.Remember me') }}</span>
                             </label>
                         </div>
 
                         <button type="submit" class="dt-btn dt-btn-teal w-full py-2.5">
-                            Sign in
+                            {{ __('messages.Sign in') }}
                         </button>
                     </form>
                 </div>

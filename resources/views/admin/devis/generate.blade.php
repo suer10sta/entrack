@@ -31,6 +31,7 @@
             display: none;
         }
     </style>
+    @include('partials.edit-layout-styles')
 </head>
 
 <body class="devis-dashboard-page dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
@@ -52,9 +53,9 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 min-w-0 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7">
+        <main class="dt-edit-page flex-1 min-w-0 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7">
 
-            <div class="w-full max-w-6xl mx-auto space-y-5">
+            <div class="dt-edit-container dt-edit-container--wide w-full max-w-6xl mx-auto space-y-5">
 
                 <div>
                     <p class="dt-overline mb-0.5">{{ __('messages.Devis History') }}</p>
@@ -155,11 +156,11 @@
                             </div>
 
                             {{-- Devis Type Row (Forfait / Hourly / Detailed Hourly) --}}
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                                <div>
+                            <div class="grid mt-6">
+                                <div class="w-full">
                                     <span class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Devis Type') }} <span class="text-red-600">*</span></span>
                                     <div class="mt-2 flex items-center space-x-6">
-                                        <label class="inline-flex items-center">
+                                        <label class="flex items-center">
                                             <input type="radio"
                                                    name="billing_type"
                                                    id="billingForfait"
@@ -168,7 +169,7 @@
                                                    checked>
                                             <span class="ml-2 text-sm text-gray-700">{{ __('messages.Fixed Price') }}</span>
                                         </label>
-                                        <label class="inline-flex items-center">
+                                        <label class="flex items-center">
                                             <input type="radio"
                                                    name="billing_type"
                                                    id="billingHoraire"
@@ -176,7 +177,7 @@
                                                    class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                             <span class="ml-2 text-sm text-gray-700">{{ __('messages.Hourly') }}</span>
                                         </label>
-                                        <label class="inline-flex items-center">
+                                        <label class="flex items-center">
                                             <input type="radio"
                                                    name="billing_type"
                                                    id="billingDetailedHourly"
@@ -240,11 +241,11 @@
                                             <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Total label devis') }}</label>
                                             <input type="text" class="block w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 sm:text-sm py-2 px-3 taskTotal" readonly />
                                         </div>
-                                        <div class="col-span-12 md:col-span-1 flex items-end">
+                                        <!-- <div class="col-span-12 md:col-span-1 flex items-center">
                                             <button type="button" aria-label="{{ __('messages.Delete') }}" title="{{ __('messages.Delete') }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 text-red-600 hover:bg-red-50" onclick="deleteDetailRow(this)">
                                                 <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
                                             </button>
-                                        </div>
+                                        </div> -->
                                     </div>
                                 </div>
                                 {{-- Add/Delete Buttons --}}

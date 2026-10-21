@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 @include('dashboard_layouts.head')
+@include('partials.edit-layout-styles')
 
 <body class="g-sidenav-show bg-gray-100">
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
@@ -15,7 +16,7 @@
         @include('admin.sidebar')
     @endif
 
-    <main class="main-content position-relative border-radius-lg">
+    <main class="dt-edit-legacy main-content position-relative border-radius-lg">
         <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
             id="navbarBlur" data-scroll="false">
             <div class="container-fluid py-1 px-3">
@@ -24,13 +25,13 @@
 
             </div>
 
-            <div class="container-fluid py-4">
+            <div class="dt-edit-container dt-edit-container--compact container-fluid py-4">
 
                 <div class="row">
-                    <div class="col-lg-9 col-12 mx-auto">
+                    <div class="dt-edit-column col-lg-9 col-12 mx-auto">
                         <div class="card card-body mt-4">
-                            <h6 class="mb-0">Update to do task</h6>
-                            <p class="text-sm mb-0">Update task</p>
+                            <h6 class="mb-0">{{ __('messages.Update to do task') }}</h6>
+                            <p class="text-sm mb-0">{{ __('messages.Update task') }}</p>
                             <hr class="horizontal dark my-3" />
                             @if(Auth::user()->hasRole('Admin'))
                             <form method="POST" action="{{route('admin.todoliste.update', $todo->id)}}" autocomplete="off">
@@ -44,46 +45,46 @@
                                 @csrf
                                 @method('')
                                 <div class="row">
-                                    <div class="col-6">
-                                        <label for="projectName" class="form-label">Name</label>
+                                    <div class="col-12 col-sm-6">
+                                        <label for="projectName" class="form-label">{{ __('messages.Name') }}</label>
                                         <input type="text" class="form-control" id="projectName" value='{{$todo->title}}' name='title' />
                                     </div>
                                 </div>
-                                <label class="mt-4">project Description</label>
+                                <label class="mt-4">{{ __('messages.project Description') }}</label>
                                 <input type="text" class="form-control" id="projectDescription" name='description' value='{{$todo->description}}'/>
                                 <br>
 
 
 
                                 <div class="row">
-                                    <div class="col-6">
-                                        <label class="form-label">Start Date</label>
+                                    <div class="col-12 col-sm-6">
+                                        <label class="form-label">{{ __('messages.Start Date') }}</label>
                                         <input class="form-control datetimepicker" type="date"
-                                            placeholder="Please select start date" data-input name='start' value='{{$todo->start}}'/>
+                                            placeholder="{{ __('messages.Please select start date') }}" data-input name='start' value='{{$todo->start}}'/>
                                     </div>
-                                    <div class="col-6">
-                                        <label class="form-label">End Date</label>
+                                    <div class="col-12 col-sm-6">
+                                        <label class="form-label">{{ __('messages.End Date') }}</label>
                                         <input class="form-control datetimepicker" type="date"
-                                            placeholder="Please select end date" data-input name='end' value='{{$todo->end}}'/>
+                                            placeholder="{{ __('messages.Please select end date') }}" data-input name='end' value='{{$todo->end}}'/>
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-end mt-4">
                                     @if(Auth::user()->hasRole('Admin'))
                                     <a class='btn btn-light m-0' href="{{route('admin.index')}}">
-                                        Cancel
+                                        {{ __('messages.Cancel') }}
                                     </a>
                                     <button type="submit" name="button" class="btn bg-gradient-primary m-0 ms-2">
-                                        Update task
+                                        {{ __('messages.Update task') }}
                                     </button>
                                     @endif
                                     @if(Auth::user()->hasRole('Responsable de projet'))
                                     <a class='btn btn-light m-0' href="{{route('Responsable_de_projet.index')}}">
-                                        Cancel
+                                        {{ __('messages.Cancel') }}
                                     </a>
                                     @endif
                                     @if(Auth::user()->hasRole('Employee'))
                                     <a class='btn btn-light m-0' href="{{route('employee.index')}}">
-                                        Cancel
+                                        {{ __('messages.Cancel') }}
                                     </a>
                                     @endif
                                 </div>

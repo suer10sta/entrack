@@ -23,7 +23,9 @@
                     <tr>
                         <td valign='bottom'>
                             <div class="header logo-right">
-                                <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo" style="width: 100px;">
+                                @if(filled(Auth::user()->entreprise?->image) && Storage::disk('public')->exists(Auth::user()->entreprise->image))
+<img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo" style="width: 100px;">
+@endif
                             </div><br />
                         </td>
 
@@ -35,8 +37,10 @@
                                 {{$last_reminder_date}}<br />
                                 {{ __('messages.Due Date') }}: {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}
                                 <br>
+@if(filled($client->client_number))
                                 {{ __('messages.Client Number') }} : {{ $client->client_number }} <br>
-                                {{ __('messages.Invoice Number') }} : {{$invoice->created_at->format('ym')}}@if($invoicenumber){{$invoicenumber}} @else{{$invoice_id}} @endif
+@endif
+                                {{ __('messages.Invoice Number') }} : {{ $invoice->number ?? $invoice_id }}
                                 <br>
                                 {{ __('messages.Reminder Number') }} : {{$reminder_number}}
                                 @if($isOverdue)
@@ -47,11 +51,7 @@
                             <td valign='top' width='35%'>
                             </td>
                             <td valign='top' width='35%' style='font-size:12px;'>
-                                <strong>{{ $client->name }}</strong><br />
-                                {{ $client->billing_street }} <br />
-                                {{ $client->billing_zip }}-{{ $client->billing_city }} <br />
-                                {{ $client->billing_country }}<br />
-                                {{ __('messages.Client VAT') }}: {{ $client->TVA }}
+                                @include('partials.invoice-client-details')
                             </td>
                         </tr>
                     </table>
@@ -59,7 +59,7 @@
                     <table width='100%' height='100' cellspacing='0' cellpadding='0'>
                         <tr>
                             <td>
-                                <div align='center' style='font-size: 14px;font-weight: bold;'>{{ __('messages.Invoice Reminder') }} : {{$entreprise->invoice_prefix}}-{{$invoice->created_at->format('ym')}}@if($invoicenumber){{$invoicenumber}} @else{{$invoice_id}} @endif</div>
+                                <div align='center' style='font-size: 14px;font-weight: bold;'>{{ __('messages.Invoice Reminder') }} : {{$entreprise->invoice_prefix}}-{{ $invoice->number ?? $invoice_id }}</div>
                             </td>
                         </tr>
                     </table>
@@ -142,10 +142,14 @@
     <table width='100%' height='50'>
         <tr>
             <td style=' font-size:12px;text-align:justify ;border-top:double;border-bottom:double'>
+@if(filled($projectinfos->description))
                 <strong> - {{ __('messages.Information') }} :</strong> <br>
                 {!! nl2br(e($projectinfos->description)) !!} <br>
+@endif
+@if(filled($comment ?? null))
                 <strong> - {{ __('messages.Comment') }} : </strong> <br>
                <p style="white-space: pre-wrap;">{!! nl2br(e($comment)) !!}</p>
+@endif
             </td>
         </tr>
     </table>
@@ -198,9 +202,11 @@
                 - {{ __('messages.Please pay the amount of') }}
                 <strong>{{number_format($prixtotal + ($prixtotal*($projectinfos->tva/100)), 2, ',', '')}}€</strong> {{ __('messages.on the account mentioned below before') }} 
                 {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}
-                {{ __('messages.mentioning the invoice number') }} <strong>{{$invoice->created_at->format('ym')}}@if($invoicenumber){{$invoicenumber}} @else{{$invoice_id}} @endif</strong>
+                {{ __('messages.mentioning the invoice number') }} <strong>{{ $invoice->number ?? $invoice_id }}</strong>
                 <br>
+@if(\App\Support\InvoicePresentation::showReverseChargeNotice($entreprise))
                 - {{ __('messages.Intracommunity delivery services note') }}
+@endif
                 <br>
                 - {{ __('messages.See tasks table in annex') }}
                 <br>
@@ -216,19 +222,15 @@
     <table width='100%' cellspacing='0' cellpadding='2'>
         <tr>
             <td width='33%' style='border-top:double medium #CCCCCC;font-size:12px;' valign='top'>
-                <b>{{$entreprise->name}}</b><br />
-                <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}<br />
-
-            </td>
+@include('partials.invoice-company-details', ['section' => 'identity'])
+</td>
             <td width='33%' style='border-top:double medium #CCCCCC; font-size:12px;' align='center' valign='top'>
-                {{$entreprise->Address}}<br />
-                {{ __('messages.Phone') }}: 0{{$entreprise->phone}}<br />
-            </td>
+@include('partials.invoice-company-details', ['section' => 'contact'])
+</td>
 
             <td valign='top' width='34%' style='border-top:double medium #CCCCCC;font-size:12px;' align='right'>
-                {{ __('messages.BANK') }} : {{$entreprise->bank_name}}<br /> {{ __('messages.IBAN') }} : {{$entreprise->iban}} <br />{{ __('messages.SWIFT/BIC') }}:
-                {{$entreprise->swift}} / {{$entreprise->bic}} <br />
-            </td>
+@include('partials.invoice-company-details', ['section' => 'bank'])
+</td>
         </tr>
     </table>
     </td>
@@ -250,7 +252,7 @@
     <!-- Message container -->
     <div id="messageContainer" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1050;" class="alert alert-dismissible fade show">
         <span id="messageText"></span>
-        <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'" aria-label="Close"></button>
+        <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'" aria-label="{{ __('messages.Close') }}"></button>
     </div>
 
     <!-- Send Reminder Modal -->
@@ -259,7 +261,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="sendReminderModalLabel">{{ __('messages.Send Reminder') }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('messages.Close') }}"></button>
                 </div>
         @if(Auth::user()->hasRole('Admin'))
                     <form id="sendReminderForm" action="{{route('admin.invoice.SendInvReminder', ['invoice_id' => $invoice->id, 'reminder_number' => $reminder_number])}}" method="post">
@@ -360,12 +362,12 @@
                             recipientsList.appendChild(recipientDiv);
                         });
                     } else {
-                        recipientsList.innerHTML = '<p class="text-muted">{{ __('messages.No recipients found') }}</p>';
+                        recipientsList.innerHTML = ('<p class="text-muted">' + @js(__('messages.No recipients found')) + '</p>');
                     }
                 })
                 .catch(error => {
                     console.error('Error fetching recipients:', error);
-                    document.getElementById('recipientsList').innerHTML = '<p class="text-danger">{{ __('messages.Error loading recipients') }}</p>';
+                    document.getElementById('recipientsList').innerHTML = ('<p class="text-danger">' + @js(__('messages.Error loading recipients')) + '</p>');
                 });
         });
 
@@ -378,7 +380,7 @@
                 .map(checkbox => checkbox.value);
             
             if (selectedRecipients.length === 0) {
-                showMessage('{{ __('messages.Please select at least one recipient') }}', 'danger');
+                showMessage(@js(__('messages.Please select at least one recipient')), 'danger');
                 return;
             }
 
@@ -427,7 +429,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                    showMessage('{{ __('messages.An error occurred while sending the reminder') }}', 'danger');
+                    showMessage(@js(__('messages.An error occurred while sending the reminder')), 'danger');
             });
         });
 

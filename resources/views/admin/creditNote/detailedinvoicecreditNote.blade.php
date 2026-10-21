@@ -103,7 +103,7 @@
         <p>Original Total: {{ $original_total ?? 'N/A' }}</p>
     </div>
 
-    <button onclick="document.getElementById('debug-info').style.display = document.getElementById('debug-info').style.display === 'none' ? 'block' : 'none'" style="position: absolute; top: 5px; right: 5px; z-index: 1000; font-size: 10px;">Debug</button>
+    <button onclick="document.getElementById('debug-info').style.display = document.getElementById('debug-info').style.display === 'none' ? 'block' : 'none'" style="position: absolute; top: 5px; right: 5px; z-index: 1000; font-size: 10px;">{{ __('messages.Debug') }}</button>
 
     <div class="container">
         @if(session('error'))

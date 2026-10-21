@@ -139,7 +139,7 @@
                         </a>
                         @endcan
                         @can('Delete task')
-                        <form method="post" action="{{ $deleteRoute }}" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline">
+                        <form method="post" action="{{ $deleteRoute }}" onsubmit="return confirm(@js(__('messages.Are you sure?')));" class="inline">
                             @csrf
                             @method('DELETE')
                             <button type="submit" title="{{ __('messages.Delete') }}" aria-label="{{ __('messages.Delete') }}"
@@ -186,16 +186,16 @@
             <table id="taskDetailsTable" class="min-w-full divide-y divide-slate-100">
                 <thead class="bg-white">
                     <tr>
-                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">Tâche</th>
-                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">Employé</th>
-                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">Date Début</th>
-                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">Date Fin</th>
-                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">Durée</th>
+                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">{{ __('messages.Task') }}</th>
+                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">{{ __('messages.Employee') }}</th>
+                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">{{ __('messages.Date Début') }}</th>
+                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">{{ __('messages.Date Fin') }}</th>
+                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">{{ __('messages.Duration') }}</th>
                         <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">
                             {{ __('messages.Comment column') }}
                             <span class="block text-[10px] font-medium text-slate-400 normal-case tracking-normal">{{ __('messages.Double-click to add comment') }}</span>
                         </th>
-                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">Déplacer Durée</th>
+                        <th scope="col" class="px-4 py-2.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-[0.07em] whitespace-nowrap">{{ __('messages.Déplacer Durée') }}</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-slate-50">
@@ -283,7 +283,7 @@
                                             data-end-date="{{$task->end_date}}"
                                             data-duration="{{$task->duration}}">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
-                                        Déplacer
+                                        {{ __('messages.Move') }}
                                     </button>
                                 </td>
                             </tr>
@@ -292,7 +292,7 @@
                         {{-- Ligne Total Quotidien (LOGIQUE D'ORIGINE RESTAURÉE) --}}
                         <tr class="di-total bg-slate-50/60">
                             <td colspan="4" class="px-4 py-2.5 text-right text-[12.5px] font-bold text-slate-500">
-                                Total Quotidien
+                                {{ __('messages.Total Quotidien') }}
                             </td>
                             <td class="px-4 py-2.5 text-[13px] font-bold text-[#0B2638] tabular-nums">
                                 @php
@@ -309,7 +309,7 @@
                     {{-- Ligne Grand Total (LOGIQUE D'ORIGINE RESTAURÉE) --}}
                     <tr class="di-total bg-[#0B2638]/[0.04] border-t-2 border-[#0B2638]/10">
                         <td colspan="4" class="px-4 py-3 text-right text-[13.5px] font-bold text-[#0B2638]">
-                            Grand Total
+                            {{ __('messages.Grand Total') }}
                         </td>
                         <td class="px-4 py-3 text-[14px] font-bold text-[#2D7080] tabular-nums">
                             @php
@@ -342,7 +342,7 @@
         <form id="editDateForm">
             {{-- En-tête --}}
             <div class="flex items-start justify-between pb-3 border-b border-slate-100">
-                <h5 class="text-[15px] font-bold text-[#0B2638]" id="editDateModalLabel">Modifier Date et Heure</h5>
+                <h5 class="text-[15px] font-bold text-[#0B2638]" id="editDateModalLabel">{{ __('messages.Modifier Date et Heure') }}</h5>
                 <button type="button" data-modal-close="editDateModal" class="text-slate-400 bg-transparent rounded-lg hover:bg-slate-100 hover:text-slate-600 text-sm p-1.5 ml-auto inline-flex items-center transition-colors">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                 </button>
@@ -350,12 +350,12 @@
             {{-- Corps --}}
             <div class="py-4 space-y-3">
                 <div>
-                    <label for="dateInput" class="block text-[12.5px] font-medium text-slate-700 mb-1">Date</label>
+                    <label for="dateInput" class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Date') }}</label>
                     <input type="date" id="dateInput" required
                            class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm">
                 </div>
                 <div>
-                    <label for="timeInput" class="block text-[12.5px] font-medium text-slate-700 mb-1">Heure</label>
+                    <label for="timeInput" class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Time') }}</label>
                     <input type="time" id="timeInput" required
                            class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm">
                 </div>
@@ -365,10 +365,10 @@
             {{-- Pied de page --}}
             <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-3 border-t border-slate-100">
                 <button type="button" data-modal-close="editDateModal" class="mt-2 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors">
-                    Fermer
+                    {{ __('messages.Close') }}
                 </button>
                 <button type="button" id="saveChangesBtn" class="w-full sm:w-auto inline-flex justify-center rounded-lg border border-transparent bg-[#0B2638] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#14364d] transition-colors">
-                    Enregistrer
+                    {{ __('messages.Save') }}
                 </button>
             </div>
         </form>
@@ -384,7 +384,7 @@
         <form id="moveDurationForm">
             {{-- En-tête --}}
             <div class="flex items-start justify-between pb-3 border-b border-slate-100">
-                <h5 class="text-[15px] font-bold text-[#0B2638]" id="moveDurationModalLabel">Déplacer la Durée</h5>
+                <h5 class="text-[15px] font-bold text-[#0B2638]" id="moveDurationModalLabel">{{ __('messages.Déplacer la Durée') }}</h5>
                 <button type="button" data-modal-close="moveDurationModal" class="text-slate-400 bg-transparent rounded-lg hover:bg-slate-100 hover:text-slate-600 text-sm p-1.5 ml-auto inline-flex items-center transition-colors">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                 </button>
@@ -392,7 +392,7 @@
             {{-- Corps --}}
             <div class="py-4 space-y-3">
                 <div>
-                    <label for="projectSelect" class="block text-[12.5px] font-medium text-slate-700 mb-1">Projet</label>
+                    <label for="projectSelect" class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Project') }}</label>
                     <select id="projectSelect" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm">
                         @foreach($projects as $project)
                             <option value="{{ $project->id }}">{{ $project->name }}</option>
@@ -400,11 +400,11 @@
                     </select>
                 </div>
                 <div>
-                    <label for="taskSelect" class="block text-[12.5px] font-medium text-slate-700 mb-1">Tâche</label>
+                    <label for="taskSelect" class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Task') }}</label>
                     <select id="taskSelect" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm"></select>
                 </div>
                 <div>
-                    <label for="employeeSelect" class="block text-[12.5px] font-medium text-slate-700 mb-1">Employé</label>
+                    <label for="employeeSelect" class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Employee') }}</label>
                     <select id="employeeSelect" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm">
                         @foreach($employees as $employee)
                             <option value="{{ $employee->id }}">{{ $employee->name }}</option>
@@ -413,19 +413,19 @@
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label for="moveStartDate" class="block text-[12.5px] font-medium text-slate-700 mb-1">Date de Début</label>
+                        <label for="moveStartDate" class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Date de Début') }}</label>
                         <input type="datetime-local" id="moveStartDate" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm">
                     </div>
                     <div>
-                        <label for="moveEndDate" class="block text-[12.5px] font-medium text-slate-700 mb-1">Date de Fin</label>
+                        <label for="moveEndDate" class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Date de Fin') }}</label>
                         <input type="datetime-local" id="moveEndDate" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm">
-                        <p id="moveEndDateError" class="mt-2 text-sm text-red-600 hidden">La date de fin doit être après la date de début.</p>
+                        <p id="moveEndDateError" class="mt-2 text-sm text-red-600 hidden">{{ __('messages.La date de fin doit être après la date de début.') }}</p>
                     </div>
                 </div>
                 <div>
-                    <label for="moveDuration" class="block text-[12.5px] font-medium text-slate-700 mb-1">Durée (HH:MM)</label>
-                    <input type="text" id="moveDuration" required pattern="^([0-9]{2}h:[0-9]{2}m)$" placeholder="00h:00m" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm">
-                    <p id="moveDurationError" class="mt-2 text-sm text-red-600 hidden">Veuillez entrer la durée au format : 00h:00m</p>
+                    <label for="moveDuration" class="block text-[12.5px] font-medium text-slate-700 mb-1">{{ __('messages.Duration (HH:MM)') }}</label>
+                    <input type="text" id="moveDuration" required pattern="^([0-9]{2}h:[0-9]{2}m)$" placeholder="{{ __('messages.Duration placeholder') }}" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#2D7080] focus:ring-[#2D7080] sm:text-sm">
+                    <p id="moveDurationError" class="mt-2 text-sm text-red-600 hidden">{{ __('messages.Veuillez entrer la durée au format : 00h:00m') }}</p>
                 </div>
                 <input type="hidden" id="moveDurationMinutes">
                 <input type="hidden" id="originalTaskId" value="">
@@ -433,10 +433,10 @@
             {{-- Pied de page --}}
             <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-3 border-t border-slate-100">
                 <button type="button" data-modal-close="moveDurationModal" class="mt-2 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors">
-                    Fermer
+                    {{ __('messages.Close') }}
                 </button>
                 <button type="button" id="saveMoveChangesBtn" class="w-full sm:w-auto inline-flex justify-center rounded-lg border border-transparent bg-[#0B2638] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#14364d] transition-colors">
-                    Enregistrer
+                    {{ __('messages.Save') }}
                 </button>
             </div>
         </form>
@@ -576,7 +576,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (response.status === 'success') {
                     location.reload();
                 } else {
-                    alert('Échec de la mise à jour.');
+                    alert(@js(__('messages.Failed to update.')));
                 }
             }
         });
@@ -744,13 +744,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const durationMinutes = document.getElementById('moveDurationMinutes').value;
 
         if (!durationInput.value.match(/^[0-9]{2}h:[0-9]{2}m$/)) {
-            alert('Veuillez entrer la durée au format correct (00h:00m)');
+            alert(@js(__('messages.Veuillez entrer la durée au format correct (00h:00m)')));
             setInputError('moveDuration', 'moveDurationError', 'Veuillez entrer la durée au format : 00h:00m', true);
             return;
         }
 
         if (document.getElementById('moveEndDate').classList.contains('border-red-500')) {
-             alert('La date de fin ne peut pas être antérieure à la date de début.');
+             alert(@js(__('messages.La date de fin ne peut pas être antérieure à la date de début.')));
              return;
         }
 
@@ -786,12 +786,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (response.status === 'success') {
                     location.reload();
                 } else {
-                    alert('Échec du déplacement de la durée : ' + (response.message || 'Erreur inconnue'));
+                    alert(@js(__('messages.Failed to move duration:')) + (response.message || 'Erreur inconnue'));
                 }
             },
             error: function(xhr, status, error) {
                 console.error('Détails de l\'erreur:', { status, error, response: xhr.responseText });
-                alert('Erreur lors du déplacement de la durée : ' + error);
+                alert(@js(__('messages.Erreur lors du déplacement de la durée :')) + error);
             }
         });
 
@@ -828,7 +828,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(json => {
                     if (json.status === 'success') span.textContent = trimmed;
                     else { span.textContent = originalText; alert(json.message || 'Echec'); }
-                }).catch(() => { span.textContent = originalText; alert('Erreur reseau'); })
+                }).catch(() => { span.textContent = originalText; alert(@js(__('messages.Erreur reseau'))); })
                 .finally(() => cleanup());
             };
             var cancel = () => cleanup();

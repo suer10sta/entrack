@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 @include('dashboard_layouts.head')
 
@@ -26,15 +26,15 @@
             <div class="col-12">
               <div class="card">
               <div class="card-header p-3 pb-0">
-                <h6>Roles table</h6>
+                <h6>{{ __('messages.Roles table') }}</h6>
               </div>
                 <div class="table-responsive p-4 pt-1">
                   <table id="example" class="table table-flush" style="width:100%">
                     <thead class="thead-light">
                       <tr class="text-center">
-                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10">Role</th>
-                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10">Permissions</th>
-                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10">Action</th>
+                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10">{{ __('messages.Role') }}</th>
+                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10">{{ __('messages.Permissions') }}</th>
+                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10">{{ __('messages.Action column') }}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -91,15 +91,15 @@
                             <span class="badge bg-gradient-success">{{ $permissionLabel }}</span>
                             @endforeach
                           @else
-                            <span class="badge bg-gradient-danger">No permissions</span>
+                            <span class="badge bg-gradient-danger">{{ __('messages.No permissions') }}</span>
                           @endif  
                         </td>
                         <td>
-                            <a href="{{route('superadmin.roles.edit', $role->id)}}" class="btn btn-primary btn-sm">Edit</a>
-                            <form action="{{route('superadmin.roles.destroy',$role->id) }}" method="post" onsubmit="return confirm('Are you sure?');" class="d-inline">
+                            <a href="{{route('superadmin.roles.edit', $role->id)}}" class="btn btn-primary btn-sm">{{ __('messages.Edit') }}</a>
+                            <form action="{{route('superadmin.roles.destroy',$role->id) }}" method="post" onsubmit="return confirm(@js(__('messages.Are you sure?')));" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                <button type="submit" class="btn btn-danger btn-sm">{{ __('messages.Delete') }}</button>
                             </form>
                         </td>
                     @endforeach

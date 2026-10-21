@@ -313,8 +313,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 data: {
                     labels,
                     datasets: [
-                        { label: '{{ __('messages.Invoiced') }}', data: invoiced, tension:0.4, borderColor:'#2D7080', backgroundColor:gi, fill:true, borderWidth:2, pointRadius:3 },
-                        { label: '{{ __('messages.Paid') }}',     data: paid,     tension:0.4, borderColor:'#C9971F', backgroundColor:gp, fill:true, borderWidth:2, pointRadius:3 },
+                        { label: @js(__('messages.Invoiced')), data: invoiced, tension:0.4, borderColor:'#2D7080', backgroundColor:gi, fill:true, borderWidth:2, pointRadius:3 },
+                        { label: @js(__('messages.Paid')),     data: paid,     tension:0.4, borderColor:'#C9971F', backgroundColor:gp, fill:true, borderWidth:2, pointRadius:3 },
                     ],
                 },
                 options: {

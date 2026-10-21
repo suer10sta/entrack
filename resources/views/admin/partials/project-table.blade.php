@@ -1,16 +1,16 @@
 <table class="table align-items-center mb-0">
     <thead>
         <tr>
-            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10">Project</th>
-            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">Budget</th>
-            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">CPH</th>
-            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">TVA</th>
-            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">Duration</th>
-            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">Estimated Hours</th>
-            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">Difference</th>
-            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">Progress</th>
-            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">Client</th>
-            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">Teams</th>
+            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10">{{ __('messages.Project column') }}</th>
+            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">{{ __('messages.Budget') }}</th>
+            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">{{ __('messages.CPH') }}</th>
+            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">{{ __('messages.TVA') }}</th>
+            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">{{ __('messages.Duration') }}</th>
+            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">{{ __('messages.Estimated Hours') }}</th>
+            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">{{ __('messages.Difference column') }}</th>
+            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">{{ __('messages.Progress column') }}</th>
+            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">{{ __('messages.Client') }}</th>
+            <th class="text-uppercase text-dark text-x font-weight-bolder opacity-10 ps-2">{{ __('messages.Teams column header') }}</th>
             <th class="text-center text-uppercase text-secondary text-x font-weight-bolder opacity-10"></th>
         </tr>
     </thead>
@@ -92,7 +92,7 @@
                             {{App\Models\Client::where('id', $project->client_id)->first()->name}}
                         </a>
                     @else
-                        No client
+                        {{ __('messages.No client') }}
                     @endif
                 </p>
             </td>
@@ -107,7 +107,7 @@
                 </p>
             </td>
             <td class="align-middle">
-                <form action="{{ route('admin.projects.destroy', $project->id)}}" method="post" onsubmit="return confirm('Are you sure?');" class="d-inline">
+                <form action="{{ route('admin.projects.destroy', $project->id)}}" method="post" onsubmit="return confirm(@js(__('messages.Are you sure?')));" class="d-inline">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger btn-xs p-2 mb-0">X</button>

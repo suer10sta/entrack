@@ -96,7 +96,7 @@
                                         </a>
                                         <form action="{{ route('manager.blog.destroy', $post) }}" method="POST"
                                               class="inline-flex flex-shrink-0"
-                                              onsubmit="return confirm('{{ __('messages.Manager Blog delete confirm') }}');">
+                                              onsubmit="return confirm(@js(__('messages.Manager Blog delete confirm')));">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"

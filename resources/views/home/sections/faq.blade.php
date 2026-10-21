@@ -1,4 +1,4 @@
-<section class="bg-white py-28 max-md:py-20" aria-labelledby="faq-title">
+<section data-home-section="faq" class="bg-white py-28 max-md:py-20" aria-labelledby="faq-title">
   <div class="mx-auto grid max-w-[1200px] gap-[90px] px-6 max-md:grid-cols-1 max-md:gap-12 max-md:px-4 lg:grid-cols-[0.72fr_1.28fr]">
     <div>
       <p class="mb-5 flex items-center gap-2.5 text-[0.75rem] font-bold uppercase tracking-[0.13em] text-brand-secondary"><span class="h-0.5 w-7 bg-brand-accent"></span>{{ __('messages.public_faq_eyebrow') }}</p>

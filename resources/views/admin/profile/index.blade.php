@@ -318,7 +318,7 @@
                             @if($entreprise && $entreprise->hasActiveSubscription())
                                 <form method="POST"
                                       action="{{ route('subscription.cancel') }}"
-                                      onsubmit="return confirm('{{ __('messages.Cancel subscription confirm') }}');">
+                                      onsubmit="return confirm(@js(__('messages.Cancel subscription confirm')));">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit"

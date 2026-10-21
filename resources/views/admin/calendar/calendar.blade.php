@@ -738,6 +738,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/fr.min.js"></script>
     @elseif(app()->getLocale() === 'es')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/es.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/nl.min.js"></script>
     @endif
     <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.1/spectrum.min.js"></script>
@@ -791,14 +792,8 @@
             var selectedEmployeeId = '';
             var allProjects = @json($projects);
             // Set moment.js locale for month/day names translation
-            var currentLocale = '{{ app()->getLocale() }}';
-            if (currentLocale === 'fr') {
-                moment.locale('fr');
-            } else if (currentLocale === 'es') {
-                moment.locale('es');
-            } else {
-                moment.locale('en');
-            }
+            var currentLocale = @js(app()->getLocale());
+            moment.locale(currentLocale);
             
             // Ensure moment locale is set before FullCalendar initialization
             // This will translate month names and day names automatically
@@ -880,7 +875,7 @@
 
                 var $projectSelect = $('#project_id');
                 $projectSelect.empty();
-                $projectSelect.append('<option value="">No project</option>');
+                $projectSelect.append(('<option value="">' + @js(__('messages.No project')) + '</option>'));
 
                 projectsForClient.forEach(function (project) {
                     var selected = selectedProjectId && String(project.id) === String(selectedProjectId) ? 'selected' : '';
@@ -900,7 +895,7 @@
 
                 var $taskSelect = $('#task_id');
                 $taskSelect.empty();
-                $taskSelect.append('<option value="">No task</option>');
+                $taskSelect.append(('<option value="">' + @js(__('messages.No task')) + '</option>'));
 
                 tasksForProject.forEach(function (task) {
                     var selected = selectedTaskId && String(task.id) === String(selectedTaskId) ? 'selected' : '';
@@ -1030,7 +1025,7 @@
                 dayClick: function (date, jsEvent, view) {
                     // Check permission before allowing event creation
                     if (!canCreatePlanning) {
-                        alert('You do not have permission to create planning events.');
+                        alert(@js(__('messages.You do not have permission to create planning events.')));
                         return;
                     }
                     
@@ -1065,7 +1060,7 @@
                 select: function (start, end, jsEvent, view) {
                     // Check permission before allowing event creation
                     if (!canCreatePlanning) {
-                        alert('You do not have permission to create planning events.');
+                        alert(@js(__('messages.You do not have permission to create planning events.')));
                         return;
                     }
                     
@@ -1179,7 +1174,7 @@
                                 payload: payload
                             });
                             revertFunc();
-                            alert('Transaction failed');
+                            alert(@js(__('messages.Transaction failed')));
                         }
                     });
                 },
@@ -1232,7 +1227,7 @@
                                 payload: resizePayload
                             });
                             revertFunc();
-                            alert('Transaction failed');
+                            alert(@js(__('messages.Transaction failed')));
                         }
                     });
                 },
@@ -1277,7 +1272,7 @@
                             callback(transformed);
                         },
                         error: function () {
-                            alert('Error loading events.');
+                            alert(@js(__('messages.Error loading events.')));
                         }
                     });
                 },
@@ -1388,12 +1383,12 @@
                     // Add assigned employees below the event (if any)
                     if (event.employee_names && event.employee_names.length > 0) {
                         var employeesLabel = event.employee_names.join(', ');
-                        element.find('.fc-title').after(`<div class="event-employees text-xs opacity-80 mt-0.5"><span class="font-bold">{{ __('messages.Employees label') }}</span> ${employeesLabel}</div>`);
+                        element.find('.fc-title(').after(`<div class="event-employees text-xs opacity-80 mt-0.5"><span class="font-bold">' + @js(__('messages.Employees label')) + '</span> ${employeesLabel}</div>`);
                     }
                 },
 
                 eventClick: function (event) {
-                    $('#title').val(event.title);
+                    $(')#title').val(event.title);
                     $('#description').val(event.description);
                     
                     // Store the original color from the event (use originalColor if available, otherwise color)
@@ -1539,7 +1534,7 @@
             $('#openEventModal').on('click', function () {
                 // Check permission before allowing event creation
                 if (!canCreatePlanning) {
-                    alert('You do not have permission to create planning events.');
+                    alert(@js(__('messages.You do not have permission to create planning events.')));
                     return;
                 }
                 
@@ -1562,7 +1557,7 @@
             $('#saveEvent').click(function () {
                 // simple validation (only title required on frontend; dates handled in controller)
                 if (!$('#title').val()) {
-                    alert('Please enter a title.');
+                    alert(@js(__('messages.Please enter a title.')));
                     return;
                 }
 
@@ -1616,7 +1611,7 @@
                     },
                     error: function (error) {
                         console.log('Error:', error);
-                        alert('Error saving the event.');
+                        alert(@js(__('messages.Error saving the event.')));
                     }
                 });
             });
@@ -1626,11 +1621,11 @@
                 var eventId = $(this).data('eventId');
                 
                 if (!eventId) {
-                    alert('No event selected for deletion.');
+                    alert(@js(__('messages.No event selected for deletion.')));
                     return;
                 }
 
-                if (!confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
+                if (!confirm(@js(__('messages.Are you sure you want to delete this event? This action cannot be undone.')))) {
                     return;
                 }
 
@@ -1652,7 +1647,7 @@
                     },
                     error: function (error) {
                         console.log('Error:', error);
-                        alert('Error deleting the event.');
+                        alert(@js(__('messages.Error deleting the event.')));
                     }
                 });
             });
@@ -1734,7 +1729,7 @@
                     error: function (error) {
                         console.log('Error:', error);
                         console.log('Error response:', error.responseJSON);
-                        alert('Error loading events.');
+                        alert(@js(__('messages.Error loading events.')));
                     }
                 });
             };
@@ -1796,7 +1791,7 @@
                 });
 
                 if (selectedEventIds.length === 0) {
-                    alert('Please select at least one event to send.');
+                    alert(@js(__('messages.Please select at least one event to send.')));
                     return;
                 }
 

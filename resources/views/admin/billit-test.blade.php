@@ -5,23 +5,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Billit API Test</title>
+    <title>{{ __('messages.Billit API Test') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
     <div class="container mx-auto px-4 py-8">
         <div class="max-w-2xl mx-auto">
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h1 class="text-2xl font-bold mb-6">Billit API Test</h1>
+                <h1 class="text-2xl font-bold mb-6">{{ __('messages.Billit API Test') }}</h1>
                 
                 <div class="mb-6">
                     <button id="testBillit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                        Send Test Invoice
+                        {{ __('messages.Send Test Invoice') }}
                     </button>
                 </div>
 
                 <div id="result" class="hidden mt-4 p-4 rounded">
-                    <h2 class="text-lg font-semibold mb-2">Response:</h2>
+                    <h2 class="text-lg font-semibold mb-2">{{ __('messages.Response:') }}</h2>
                     <pre id="responseData" class="bg-gray-100 p-4 rounded overflow-x-auto"></pre>
                 </div>
             </div>

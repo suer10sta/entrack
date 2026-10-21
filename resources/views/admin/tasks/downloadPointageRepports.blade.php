@@ -250,7 +250,7 @@ thead {
     </table>
 
     <div class="footer">
-        <div class='footer-right'>Page Number: <span class="page-number"></span></div>
+        <div class='footer-right'>{{ __('messages.Page Number:') }} <span class="page-number"></span></div>
         <div class='footer-left'>Download Date: {{ date('d-m-Y') }}</div>
     </div>
 </div>

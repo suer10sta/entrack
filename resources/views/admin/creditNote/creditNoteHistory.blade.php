@@ -463,7 +463,7 @@
             {{-- Delete --}}
             @if($destroyRoute)
                 <form action="{{ $destroyRoute }}" method="post"
-                      onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
+                      onsubmit="return confirm(@js(__('messages.Are you sure?')));">
                     @csrf @method('DELETE')
                     <button type="submit" class="act-btn act-btn-delete">
                         <svg class="act-btn-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -628,7 +628,7 @@
                         alert(data.message || @json(__('messages.Credit note sent successfully!')));
                         window.location.reload();
                     } else {
-                        alert('Error: ' + (data.message || 'Unknown error'));
+                        alert(@js(__('messages.Error:')) + (data.message || 'Unknown error'));
                     }
                 })
                 .catch(() => { alert(@json(__('messages.An error occurred while sending the credit note.'))); });

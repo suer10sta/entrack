@@ -513,7 +513,7 @@
                     </span>
                 @elseif($isPaid)
                     <form action="{{ $deactivateRoute }}" method="post"
-                          onsubmit="return confirm('{{ __('messages.Change payment status?') }}');">
+                          onsubmit="return confirm(@js(__('messages.Change payment status?')));">
                         @csrf
                         <button type="submit" class="act-btn act-btn-paid">
                             <svg class="act-btn-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
@@ -522,7 +522,7 @@
                     </form>
                 @else
                     <form action="{{ $activateRoute }}" method="post"
-                          onsubmit="return confirm('{{ __('messages.Change payment status?') }}');">
+                          onsubmit="return confirm(@js(__('messages.Change payment status?')));">
                         @csrf
                         <button type="submit" class="act-btn act-btn-unpaid">
                             <svg class="act-btn-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
@@ -534,7 +534,7 @@
                 {{-- Unarchive --}}
                 @if($unarchiveRoute)
                     <form action="{{ $unarchiveRoute }}" method="post"
-                          onsubmit="return confirm('{{ __('messages.Unarchive this invoice?') }}');">
+                          onsubmit="return confirm(@js(__('messages.Unarchive this invoice?')));">
                         @csrf
                         <button type="submit" class="act-btn act-btn-unarchive">
                             <svg class="act-btn-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>

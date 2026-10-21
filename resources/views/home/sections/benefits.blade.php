@@ -1,4 +1,4 @@
-<section class="bg-[#f8faf9] py-28 max-md:py-20" aria-labelledby="benefits-title">
+<section data-home-section="benefits" class="bg-[#f8faf9] py-28 max-md:py-20" aria-labelledby="benefits-title">
   <div class="mx-auto max-w-[1200px] px-6 max-md:px-4">
     <div class="mb-14 grid items-end gap-20 max-md:grid-cols-1 max-md:gap-6 lg:grid-cols-[1.35fr_0.65fr]">
       <div>
@@ -11,7 +11,7 @@
       <div class="grid min-h-[590px] content-center justify-items-center rounded-[22px] border border-dashed border-[#8eacbe] bg-[repeating-linear-gradient(-45deg,#eef6fa,#eef6fa_12px,#e7f1f6_12px,#e7f1f6_24px)] p-[34px] text-center transition-shadow duration-300 hover:shadow-[0_16px_40px_rgba(7,27,50,0.1)] max-md:min-h-[420px]">
         <span class="text-[0.68rem] font-extrabold uppercase tracking-[0.12em] text-brand-secondary">{{ __('messages.public_home_visual_2_label') }}</span>
         <strong class="mt-[7px] text-[1rem] text-brand-primary">{{ __('messages.public_home_visual_2_title') }}</strong>
-        <p class="mx-auto mt-1.5 max-w-[340px] text-[0.78rem] leading-[1.5] text-[#5b6b73]">{{ __('messages.public_home_visual_2_text') }}</p>
+        <!-- <p class="mx-auto mt-1.5 max-w-[340px] text-[0.78rem] leading-[1.5] text-[#5b6b73]">{{ __('messages.public_home_visual_2_text') }}</p> -->
       </div>
       <div class="border-t border-[#dce6e4]">
         <article class="group grid min-h-[138px] grid-cols-[55px_1fr] items-start gap-5 border-b border-[#dce6e4] py-[26px] max-sm:grid-cols-[36px_1fr]">

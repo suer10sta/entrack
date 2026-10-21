@@ -8,7 +8,7 @@
                             <div class="col-8">
                                 <div class="numbers">
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">
-                                        <a href="{{route('admin.clients.index')}}">Clients</a>
+                                        <a href="{{route('admin.clients.index')}}">{{ __('messages.Clients') }}</a>
                                     </p>
                                     <h5 class="font-weight-bolder"><a href="{{route('admin.clients.index')}}">{{count($clients)}}</a></h5>
                                 </div>
@@ -29,7 +29,7 @@
                             <div class="col-8">
                                 <div class="numbers">
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">
-                                        <a href="{{route('admin.employees.index')}}">Employees</a> 
+                                        <a href="{{route('admin.employees.index')}}">{{ __('messages.Employees') }}</a>
                                     </p>
                                     <h5 class="font-weight-bolder"><a href="{{route('admin.employees.index')}}">{{count($employees)}}</a></h5>
                                 </div>

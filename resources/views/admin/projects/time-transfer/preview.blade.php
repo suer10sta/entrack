@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <x-favicon />
     <meta charset="UTF-8">
@@ -39,12 +39,12 @@
                         <table class="min-w-full text-sm">
                             <thead class="bg-slate-50">
                                 <tr>
-                                    <th class="px-4 py-3 text-left font-semibold text-slate-700">Début</th>
-                                    <th class="px-4 py-3 text-left font-semibold text-slate-700">Fin</th>
-                                    <th class="px-4 py-3 text-left font-semibold text-slate-700">Tâche</th>
-                                    <th class="px-4 py-3 text-left font-semibold text-slate-700">Minutes</th>
-                                    <th class="px-4 py-3 text-left font-semibold text-slate-700">Commentaire</th>
-                                    <th class="px-4 py-3 text-left font-semibold text-slate-700">Action</th>
+                                    <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('messages.Début') }}</th>
+                                    <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('messages.Fin') }}</th>
+                                    <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('messages.Task') }}</th>
+                                    <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('messages.Minutes') }}</th>
+                                    <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('messages.Comment column') }}</th>
+                                    <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('messages.Action column') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">

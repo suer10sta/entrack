@@ -216,18 +216,14 @@
     <div class="footer">
         <div class="footer-content">
             <div class="footer-left footer-text">
-                <b>{{ $entreprise->name }}</b><br>
-                <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
-            </div>
+@include('partials.invoice-company-details', ['section' => 'identity'])
+</div>
             <div class="footer-center footer-text">
-                {{ $entreprise->Address }}<br>
-                {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
-            </div>
+@include('partials.invoice-company-details', ['section' => 'contact'])
+</div>
             <div class="footer-right footer-text">
-                <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }}<br>
-                <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }}<br>
-                <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
-            </div>
+@include('partials.invoice-company-details', ['section' => 'bank'])
+</div>
         </div>
     </div>
 
@@ -237,7 +233,9 @@
             <div class="header">
                 <div class="header logo-right">
                     @if($entreprise->image)
-                        <img src="{{ storage_path('app/public/' . $entreprise->image) }}" alt="Company Logo" class="company-logo">
+                        @if(filled($entreprise?->image) && Storage::disk('public')->exists($entreprise->image))
+<img src="{{ storage_path('app/public/' . $entreprise->image) }}" alt="Company Logo" class="company-logo">
+@endif
                     @endif
                 </div>
             </div>
@@ -249,8 +247,10 @@
                     <p>
                         {{ __('messages.Reminder Date') }}: {{ $last_reminder_date }}<br/>
                         {{ __('messages.Due Date') }}: {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}<br>
+@if(filled($client->client_number))
                         {{ __('messages.Client Number') }} : {{ $client->client_number }}<br>
-                        {{ __('messages.Invoice Number') }} : {{ $invoice->created_at->format('ym') }}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif<br>
+@endif
+                        {{ __('messages.Invoice Number') }} : {{ $invoice->number ?? $invoice_id }}<br>
                         {{ __('messages.Reminder Number') }} : {{$reminder_number}}
                         @if($isOverdue)
                             <br>
@@ -259,18 +259,14 @@
                     </p>
                 </div>
                 <div class="details-right">
-                    <strong>{{ $client->name }}</strong><br />
-                    {{ $client->billing_street }} <br />
-                    {{ $client->billing_zip }}-{{ $client->billing_city }} <br />
-                    {{ $client->billing_country }}<br />
-                    {{ __('messages.Client TVA') }}: {{ $client->TVA }}
+                    @include('partials.invoice-client-details')
                 </div>
             </div>
 
             <br><br><br>
 
             <div class="invoice-number">
-            {{ __('messages.Invoice Reminder') }} : {{$entreprise->invoice_prefix}}-{{ $invoice->created_at->format('ym') }}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif
+            {{ __('messages.Invoice Reminder') }} : {{$entreprise->invoice_prefix}}-{{ $invoice->number ?? $invoice_id }}
             </div>
 
             <table>
@@ -319,12 +315,16 @@
             @if($projectinfos->description || $comment)
             <div class="description" style="margin-bottom: 2px;">
                 @if($projectinfos->description)
+@if(filled($projectinfos->description))
                 <strong> - {{ __('messages.Information') }} :</strong> <br>
                 {!! nl2br(e($projectinfos->description)) !!} <br>
+@endif
                 @endif
                 @if($comment)
+@if(filled($comment ?? null))
                 <strong> - {{ __('messages.Comment') }} : </strong> <br>
                <p style="white-space: pre-wrap;">{!! nl2br(e($comment)) !!}</p>
+@endif
                @endif
             </div>
             @endif
@@ -337,9 +337,11 @@
                 <div class="payment">
                     - {{ __('messages.Please pay the amount of') }} <strong>{{number_format($total_ttc, 2, ',', '')}}€</strong> 
                     {{ __('messages.on the account mentioned below before') }} {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}
-                    {{ __('messages.mentioning the invoice number') }} <strong>{{ $invoice->created_at->format('ym') }}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }}@endif</strong>
+                    {{ __('messages.mentioning the invoice number') }} <strong>{{ $invoice->number ?? $invoice_id }}</strong>
                     <br>
+@if(\App\Support\InvoicePresentation::showReverseChargeNotice($entreprise))
                     - {{ __('messages.In case of intra-community delivery for services') }}:  "Autoliquidation Art 21 § 2 du code TVA belge"
+@endif
                     <br>
                     - {{ __('messages.See general conditions in annex') }}
                     <br>

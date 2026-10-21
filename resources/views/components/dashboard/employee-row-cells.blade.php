@@ -160,7 +160,7 @@
                                                                 <button type="submit"
                                                                     class="stop-button inline-flex items-center gap-1 rounded-md bg-red-500 hover:bg-red-600 text-white text-[10.5px] font-semibold px-2 py-1 transition-colors leading-none">
                                                                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-                                                                    Arrêt
+                                                                    {{ __('messages.Arrêt') }}
                                                                 </button>
                                                             </form>
                                                         @endif

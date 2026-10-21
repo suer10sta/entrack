@@ -181,7 +181,7 @@
                                                         </td>
                                                         <td data-label="{{ __('messages.Actions') }}" class="text-right">
                                                             <form method="POST" action="{{ route('admin.support.destroy', $ticket) }}" class="inline-block"
-                                                                  onsubmit="return confirm('{{ __('messages.Are you sure you want to delete this ticket?') }}');">
+                                                                  onsubmit="return confirm(@js(__('messages.Are you sure you want to delete this ticket?')));">
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <button type="submit"

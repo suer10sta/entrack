@@ -13,7 +13,11 @@ class Language
         // otherwise fall back to session, then default.
         $locale = null;
 
-        if (auth()->check()) {
+        $supported = ['fr', 'en', 'nl', 'es'];
+        $managerArea = $request->is('manager', 'manager/*');
+        if ($managerArea && auth('manager')->check()) {
+            $locale = auth('manager')->user()->locale ?? null;
+        } elseif (auth()->check()) {
             $locale = auth()->user()->locale ?? null;
         }
 
@@ -21,8 +25,14 @@ class Language
             $locale = auth('manager')->user()->locale ?? null;
         }
 
-        if (!$locale) {
-            $locale = session('locale', 'fr');
+        if (!in_array($locale, $supported, true)) {
+            $locale = session('locale');
+        }
+        if (!in_array($locale, $supported, true)) {
+            $locale = config('app.locale', 'fr');
+        }
+        if (!in_array($locale, $supported, true)) {
+            $locale = 'fr';
         }
 
         app()->setLocale($locale);

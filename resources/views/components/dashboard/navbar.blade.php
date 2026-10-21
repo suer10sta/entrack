@@ -152,8 +152,8 @@
             type="button"
             class="hidden lg:inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-[#0B2638] hover:bg-slate-50 hover:border-slate-300 transition-colors"
             onclick="toggleDesktopSidebar()"
-            aria-label="Toggle sidebar"
-            title="Collapse / Expand sidebar"
+            aria-label="{{ __('messages.Toggle sidebar') }}"
+            title="{{ __('messages.Collapse / Expand sidebar') }}"
         >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10" />

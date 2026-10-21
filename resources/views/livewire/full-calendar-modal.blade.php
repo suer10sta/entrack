@@ -18,7 +18,7 @@
                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                         </svg>
                     </div>
-                    <h2 class="text-xl font-semibold text-gray-900 flex-1">Add New Event</h2>
+                    <h2 class="text-xl font-semibold text-gray-900 flex-1">{{ __('messages.Add New Event') }}</h2>
                     {{-- Close Button (replaces Back) --}}
                     <button wire:click="closeAddForm" class="text-gray-400 hover:text-gray-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,21 +31,21 @@
                     <div class="p-6 space-y-5">
                         {{-- Event Title --}}
                         <div>
-                            <label for="eventTitle" class="block text-sm font-medium text-gray-700 mb-1">Event Title <span class="text-red-500">*</span></label>
-                            <input type="text" wire:model.defer="eventTitle" id="eventTitle" placeholder="Enter event title" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            <label for="eventTitle" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Event Title') }} <span class="text-red-500">*</span></label>
+                            <input type="text" wire:model.defer="eventTitle" id="eventTitle" placeholder="{{ __('messages.Enter event title') }}" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                             @error('eventTitle') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                         </div>
 
                         {{-- Description --}}
                         <div>
-                            <label for="eventDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                            <textarea wire:model.defer="eventDescription" id="eventDescription" placeholder="Enter event description" rows="3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"></textarea>
+                            <label for="eventDescription" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Description column') }}</label>
+                            <textarea wire:model.defer="eventDescription" id="eventDescription" placeholder="{{ __('messages.Enter event description') }}" rows="3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"></textarea>
                             @error('eventDescription') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                         </div>
 
                         {{-- Color Picker --}}
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Color') }}</label>
                             <div class="flex space-x-2">
                                 @php $colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']; @endphp
                                 @foreach ($colors as $color)
@@ -60,14 +60,14 @@
 
                         {{-- Start Date & Time --}}
                         <div>
-                            <label for="eventStartTime" class="block text-sm font-medium text-gray-700 mb-1">Start Date & Time <span class="text-red-500">*</span></label>
+                            <label for="eventStartTime" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Start Date and Time') }} <span class="text-red-500">*</span></label>
                             <input type="datetime-local" wire:model.defer="eventStartTime" id="eventStartTime" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                             @error('eventStartTime') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                         </div>
 
                         {{-- End Date & Time --}}
                         <div>
-                            <label for="eventEndTime" class="block text-sm font-medium text-gray-700 mb-1">End Date & Time <span class="text-red-500">*</span></label>
+                            <label for="eventEndTime" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.End Date and Time') }} <span class="text-red-500">*</span></label>
                             <input type="datetime-local" wire:model.defer="eventEndTime" id="eventEndTime" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                             @error('eventEndTime') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                         </div>
@@ -75,10 +75,10 @@
 
                     {{-- Form Footer (Buttons) --}}
                     <div class="bg-gray-50 p-6 rounded-b-2xl border-t flex justify-end gap-3">
-                    <button type="button" wire:click.stop.prevent="closeAddForm" class="text-sm bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg">                            Cancel
+                    <button type="button" wire:click.stop.prevent="closeAddForm" class="text-sm bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg">                            {{ __('messages.Cancel') }}
                         </button>
                         <button type="submit" class="text-sm bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg">
-                            Add Event
+                            {{ __('messages.Add Event') }}
                         </button>
                     </div>
                 </form>
@@ -90,7 +90,7 @@
                 {{-- ################################# --}}
 
                 <div class="flex items-center justify-between p-6 border-b">
-                    <h2 class="text-xl font-semibold text-gray-900">Full Calendar</h2>
+                    <h2 class="text-xl font-semibold text-gray-900">{{ __('messages.Full Calendar') }}</h2>
                     <button wire:click="close" class="text-gray-400 hover:text-gray-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -140,7 +140,7 @@
                         </div>
                         
                         @empty
-                        <p class="text-sm text-gray-500">No events for this day.</p>
+                        <p class="text-sm text-gray-500">{{ __('messages.No events for this day.') }}</p>
                         @endforelse
                     </div>
                 </div>

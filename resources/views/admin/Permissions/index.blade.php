@@ -33,7 +33,7 @@
                 @if(session('message'))
                     <div class="mb-6 bg-green-100 border border-green-200 text-green-800 text-sm rounded-lg px-4 py-3 flex items-center justify-between">
                         <span>{{ session('message') }}</span>
-                        <button type="button" class="text-green-800 font-semibold" data-bs-dismiss="alert" aria-label="Close">×</button>
+                        <button type="button" class="text-green-800 font-semibold" data-bs-dismiss="alert" aria-label="{{ __('messages.Close') }}">×</button>
                     </div>
                 @endif
 
@@ -142,7 +142,7 @@
                                             </a>
                                             <form action="{{ route('admin.permissions.destroy', $permission->id) }}" 
                                                   method="POST" 
-                                                  onsubmit="return confirm('{{ __('messages.Delete permission confirm') }}');" 
+                                                  onsubmit="return confirm(@js(__('messages.Delete permission confirm')));"
                                                   class="inline">
                                                 @csrf
                                                 @method('DELETE')

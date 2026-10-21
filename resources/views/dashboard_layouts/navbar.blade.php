@@ -15,14 +15,14 @@
             @elseif($isExpired)
                 <div class="bg-red-50 border-b border-red-200 px-4 py-2 text-center">
                     <span class="text-sm font-semibold text-red-800">
-                        ⚠️ {{ __('messages.trial_expired') }} <a href="{{ route('profile.upgrade') }}" class="text-red-600 underline font-medium hover:text-red-800">{{ __('messages.upgrade_plan') }}</a> pour continuer.
+                        ⚠️ {{ __('messages.trial_expired') }} <a href="{{ route('profile.upgrade') }}" class="text-red-600 underline font-medium hover:text-red-800">{{ __('messages.upgrade_plan') }}</a> {{ __('messages.pour continuer.') }}
                     </span>
                 </div>
             @endif
         @endif
 
            <div class="sidenav-toggler sidenav-toggler-inner d-xl-none d-block">
-          <a href="#" class="nav-link p-0" data-mobile-sidebar-toggle aria-label="Open navigation">
+          <a href="#" class="nav-link p-0" data-mobile-sidebar-toggle aria-label="{{ __('messages.Open navigation') }}">
   <div class="sidenav-toggler-inner">
     <i class="sidenav-toggler-line bg-white"></i>
     <i class="sidenav-toggler-line bg-white"></i>

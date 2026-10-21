@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 @include('dashboard_layouts.head')
 
@@ -24,13 +24,13 @@
                             </a>
                         </li>
                         <li class="breadcrumb-item text-sm text-white">
-                            <a class="opacity-5 text-white" href="javascript:;">Pages</a>
+                            <a class="opacity-5 text-white" href="javascript:;">{{ __('messages.Pages') }}</a>
                         </li>
                         <li class="breadcrumb-item text-sm text-white active" aria-current="page">
-                            New Permission
+                            {{ __('messages.New Permission') }}
                         </li>
                     </ol>
-                    <h6 class="font-weight-bolder mb-0 text-white">New Permission</h6>
+                    <h6 class="font-weight-bolder mb-0 text-white">{{ __('messages.New Permission') }}</h6>
                 </nav>
                 <div class="sidenav-toggler sidenav-toggler-inner d-xl-block d-none">
                     <a href="javascript:;" class="nav-link p-0">
@@ -46,7 +46,7 @@
                         <div class="input-group">
                             <span class="input-group-text text-body"><i class="fas fa-search"
                                     aria-hidden="true"></i></span>
-                            <input type="text" class="form-control" placeholder="Type here..." />
+                            <input type="text" class="form-control" placeholder="{{ __('messages.Type here...') }}" />
                         </div>
                     </div>
                     <ul class="navbar-nav justify-content-end">
@@ -54,7 +54,7 @@
                             <a href="../../../pages/authentication/signin/illustration.html"
                                 class="nav-link text-white font-weight-bold px-0" target="_blank">
                                 <i class="fa fa-user me-sm-1"></i>
-                                <span class="d-sm-inline d-none">Sign In</span>
+                                <span class="d-sm-inline d-none">{{ __('messages.Sign In') }}</span>
                             </a>
                         </li>
                         <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
@@ -87,12 +87,12 @@
                                             </div>
                                             <div class="d-flex flex-column justify-content-center">
                                                 <h6 class="text-sm font-weight-normal mb-1">
-                                                    <span class="font-weight-bold">New message</span>
-                                                    from Laur
+                                                    <span class="font-weight-bold">{{ __('messages.New message') }}</span>
+                                                    {{ __('messages.from Laur') }}
                                                 </h6>
                                                 <p class="text-sm text-secondary mb-0">
                                                     <i class="fa fa-clock me-1"></i>
-                                                    13 minutes ago
+                                                    {{ __('messages.13 minutes ago') }}
                                                 </p>
                                             </div>
                                         </div>
@@ -107,12 +107,12 @@
                                             </div>
                                             <div class="d-flex flex-column justify-content-center">
                                                 <h6 class="text-sm font-weight-normal mb-1">
-                                                    <span class="font-weight-bold">New album</span> by
+                                                    <span class="font-weight-bold">{{ __('messages.New album') }}</span> by
                                                     Travis Scott
                                                 </h6>
                                                 <p class="text-sm text-secondary mb-0">
                                                     <i class="fa fa-clock me-1"></i>
-                                                    1 day
+                                                    {{ __('messages.1 day') }}
                                                 </p>
                                             </div>
                                         </div>
@@ -145,11 +145,11 @@
                                             </div>
                                             <div class="d-flex flex-column justify-content-center">
                                                 <h6 class="text-sm font-weight-normal mb-1">
-                                                    Payment successfully completed
+                                                    {{ __('messages.Payment successfully completed') }}
                                                 </h6>
                                                 <p class="text-sm text-secondary mb-0">
                                                     <i class="fa fa-clock me-1"></i>
-                                                    2 days
+                                                    {{ __('messages.2 days') }}
                                                 </p>
                                             </div>
                                         </div>
@@ -172,8 +172,8 @@
                                     <div class="card-body">
                                         <div class="multisteps-form__progress">
                                             <button class="multisteps-form__progress-btn js-active" type="button"
-                                                title="User Info">
-                                                <span>ADD NEW PERMISSION</span>
+                                                title="{{ __('messages.User Info') }}">
+                                                <span>{{ __('messages.ADD NEW PERMISSION') }}</span>
                                             </button>
                                         </div>
                                     </div>
@@ -187,20 +187,20 @@
                                     @csrf
                                     <div class="card multisteps-form__panel p-3 border-radius-xl bg-white js-active"
                                         data-animation="FadeIn">
-                                        <h5 class="font-weight-bolder">New Permission : </h5>
+                                        <h5 class="font-weight-bolder">{{ __('messages.New Permission :') }} </h5>
                                         <div class="multisteps-form__content">
                                             <div class="row mt-3">
                                                 <div class="col">
-                                                    <label>Permission Name : </label>
+                                                    <label>{{ __('messages.Permission Name :') }} </label>
                                                     <input class="multisteps-form__input form-control" type="text"
-                                                        placeholder="permission Name" name="name" />
+                                                        placeholder="{{ __('messages.permission Name') }}" name="name" />
                                                 </div>
                                             </div>
 
                                             <div class="button-row d-flex mt-4">
                                                 <button class="btn bg-gradient-dark ms-auto mb-0 js-btn-next"
-                                                    type="submit" title="Next">
-                                                    Create
+                                                    type="submit" title="{{ __('messages.Next') }}">
+                                                    {{ __('messages.Create') }}
                                                 </button>
                                             </div>
                                         </div>

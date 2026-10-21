@@ -71,13 +71,13 @@ class RoleController extends Controller
 
         if($assignEmployeeId && $redirectRoute && in_array($redirectRoute, $allowedRedirectRoutes)) {
             return redirect()->route($redirectRoute, ['employee' => $assignEmployeeId])
-                ->with('message', 'Role Added Successfully');
+                ->with('message', __('messages.Role Added Successfully'));
         }
 
         if(Auth::user()->hasRole('super_admin')) {
-            return to_route('superadmin.roles.index')->with('message', 'Role Added Successfully');
+            return to_route('superadmin.roles.index')->with('message', __('messages.Role Added Successfully'));
         } else {
-            return to_route('admin.roles.index')->with('message', 'Role Added Successfully');
+            return to_route('admin.roles.index')->with('message', __('messages.Role Added Successfully'));
         }
     }
 
@@ -94,15 +94,15 @@ class RoleController extends Controller
         $validated=$request->validate(["name"=>"required"]);
         $role->update($validated);
         if(Auth::user()->hasRole('super_admin')) {
-            return to_route('superadmin.roles.index')->with('message', 'Role Updated Successfully');
+            return to_route('superadmin.roles.index')->with('message', __('messages.Role Updated Successfully'));
         } else {
-            return to_route('admin.roles.index')->with('message', 'Role Updated Successfully');
+            return to_route('admin.roles.index')->with('message', __('messages.Role Updated Successfully'));
         }
     }
 
     public function destroy(Role $role) {
         $role->delete();
-        return back()->with('message', 'Role Deleted Successfully');
+        return back()->with('message', __('messages.Role Deleted Successfully'));
     }
 
     public function assign_permission(Request $request, Role $role)
@@ -127,17 +127,17 @@ class RoleController extends Controller
 
         // Redirect to roles index based on user role
         if(Auth::user()->hasRole('super_admin')) {
-            return to_route('superadmin.roles.index')->with('message', 'Permissions updated successfully');
+            return to_route('superadmin.roles.index')->with('message', __('messages.Permissions updated successfully'));
         } elseif(Auth::user()->hasRole('Admin')) {
-            return to_route('admin.roles.index')->with('message', 'Permissions updated successfully');
+            return to_route('admin.roles.index')->with('message', __('messages.Permissions updated successfully'));
         } elseif(Auth::user()->hasRole('Responsable de projet')) {
-            return to_route('Responsable_de_projet.roles.index')->with('message', 'Permissions updated successfully');
+            return to_route('Responsable_de_projet.roles.index')->with('message', __('messages.Permissions updated successfully'));
         } elseif(Auth::user()->hasRole('Employee')) {
-            return to_route('employee.roles.index')->with('message', 'Permissions updated successfully');
+            return to_route('employee.roles.index')->with('message', __('messages.Permissions updated successfully'));
         } elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-            return to_route('Responsable_gestionnaire.roles.index')->with('message', 'Permissions updated successfully');
+            return to_route('Responsable_gestionnaire.roles.index')->with('message', __('messages.Permissions updated successfully'));
         }
 
-        return redirect()->back()->with('message', 'Permissions updated successfully');
+        return redirect()->back()->with('message', __('messages.Permissions updated successfully'));
     }
 }

@@ -59,7 +59,7 @@ class todolisteController extends Controller
         $item->status = 0;
         $item->save();
 
-        return redirect()->route('admin.index')->with('message', 'task Added Successfully');
+        return redirect()->route('admin.index')->with('message', __('messages.task Added Successfully'));
     }
 
     public function edit($id)
@@ -111,21 +111,21 @@ class todolisteController extends Controller
         $todo->save();
     
         // Return back with a success message
-        return redirect()->route('admin.index')->with('message', 'task Updated Successfully');
+        return redirect()->route('admin.index')->with('message', __('messages.task Updated Successfully'));
     }
 
     public function destroy()
     {
         todoliste::where('user_id', Auth::user()->id)->delete();
 
-        return back()->with('message', 'todolistes Deleted Successfully');
+        return back()->with('message', __('messages.todolistes Deleted Successfully'));
     }
 
     public function deleteItem($id)
     {
         todoliste::where('id', $id)->delete();
 
-        return back()->with('message', 'Item Deleted Successfully');
+        return back()->with('message', __('messages.Item Deleted Successfully'));
     }
 
     public function updateStatus(Request $request, $todoId)
@@ -137,7 +137,7 @@ class todolisteController extends Controller
     
         $todo->save();
     
-        return back()->with('success', 'Todo status updated successfully.');
+        return back()->with('success', __('messages.Todo status updated successfully.'));
     }
 
     

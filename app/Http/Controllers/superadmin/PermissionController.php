@@ -56,9 +56,9 @@ class PermissionController extends Controller
         $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)->get();
 
         if(Auth::user()->hasRole('super_admin')) {
-            return view("superadmin.Permissions.index", compact("permissions"))->with('message', 'Permission Added Successfully');
+            return view("superadmin.Permissions.index", compact("permissions"))->with('message', __('messages.Permission Added Successfully'));
         } else {
-            return view("admin.Permissions.index", compact("permissions", "teams", "employees", "tasks", "projects", "clients" ))->with('message', 'Permission Added Successfully');
+            return view("admin.Permissions.index", compact("permissions", "teams", "employees", "tasks", "projects", "clients" ))->with('message', __('messages.Permission Added Successfully'));
         }
     }
 
@@ -81,14 +81,14 @@ class PermissionController extends Controller
         $projects = Project::where('entreprise_id', auth()->user()->entreprise_id)->get();
         $clients = Client::where('entreprise_id', Auth::user()->entreprise_id)->get();
         if(Auth::user()->hasRole('super_admin')) {
-            return view("superadmin.Permissions.index", compact("permissions"))->with('message', 'Permission Updated Successfully');
+            return view("superadmin.Permissions.index", compact("permissions"))->with('message', __('messages.Permission Updated Successfully'));
         } else {
-            return view("admin.Permissions.index", compact("permissions", "teams", "employees", "tasks", "projects"))->with('message', 'Permission Updated Successfully');
+            return view("admin.Permissions.index", compact("permissions", "teams", "employees", "tasks", "projects"))->with('message', __('messages.Permission Updated Successfully'));
         }
     }
 
     public function destroy(Permission $permission) {
         $permission->delete();
-        return back()->with('message', 'Permission Deleted Successfully');
+        return back()->with('message', __('messages.Permission Deleted Successfully'));
     }
 }

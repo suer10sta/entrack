@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 @include('dashboard_layouts.head')
 <style>
@@ -42,27 +42,27 @@
                                             <tr>
                                                 <th
                                                     class="text-uppercase text-dark text-sm font-weight-bolder opacity-10">
-                                                    Project
+                                                    {{ __('messages.Project column') }}
                                                 </th>
                                                 <th
                                                     class="text-uppercase text-dark text-sm font-weight-bolder opacity-10 ps-2">
-                                                    Budget
+                                                    {{ __('messages.Budget') }}
                                                 </th>
                                                 <th
                                                     class="text-uppercase text-dark text-sm font-weight-bolder opacity-10 ps-2">
-                                                    Client
+                                                    {{ __('messages.Client') }}
                                                 </th>
                                                 <th
                                                     class="text-uppercase text-dark text-sm font-weight-bolder opacity-10 ps-2">
-                                                    Teams
+                                                    {{ __('messages.Teams column header') }}
                                                 </th>
                                                 <th
                                                     class="text-uppercase text-dark text-sm font-weight-bolder opacity-10 ps-2">
-                                                    Status
+                                                    {{ __('messages.Status') }}
                                                 </th>
                                                 <th
                                                     class="text-uppercase text-dark text-sm font-weight-bolder opacity-10 ps-2">
-                                                    Completion
+                                                    {{ __('messages.Completion') }}
                                                 </th>
                                                 <th></th>
                                             </tr>
@@ -89,7 +89,7 @@
                                                                 {{App\Models\Client::where('id', $project->client_id)->first()->name}}
                                                             </a>
                                                         @else
-                                                            No client
+                                                            {{ __('messages.No client') }}
                                                         @endif
                                                     </p>
                                                 </td>
@@ -107,13 +107,13 @@
                                                     <span class="badge badge-dot me-4">
                                                         @if($project->status == 0)
                                                         <i class="bg-danger"></i>
-                                                        <span class="text-dark text-sm">inactive</span>
+                                                        <span class="text-dark text-sm">{{ __('messages.inactive') }}</span>
                                                         @elseif($project->status == 1)
                                                         <i class="bg-info"></i>
-                                                        <span class="text-dark text-sm">working</span>
+                                                        <span class="text-dark text-sm">{{ __('messages.working') }}</span>
                                                         @else
                                                         <i class="bg-success"></i>
-                                                        <span class="text-dark text-sm">done</span>
+                                                        <span class="text-dark text-sm">{{ __('messages.done') }}</span>
                                                         @endif
                                                     </span>
                                                 </td>
@@ -162,11 +162,11 @@
                                                                 <form
                                                                 action="{{ route('admin.projects.status', ['project' => $project->id, 'status' => $status])}}"
                                                                 method="post"
-                                                                onsubmit="return confirm('Are you sure?');"
+                                                                onsubmit="return confirm(@js(__('messages.Are you sure?')));"
                                                                 class="d-inline">
                                                                     @csrf
                                                                     <button type="submit"
-                                                                        class="dropdown-item border-radius-md">Working</button>
+                                                                        class="dropdown-item border-radius-md">{{ __('messages.Working') }}</button>
                                                                 </form>
                                                             </li>
                                                             <li>
@@ -176,15 +176,15 @@
                                                                 <form
                                                                 action="{{ route('admin.projects.status', ['project' => $project->id, 'status' => $status])}}"
                                                                 method="post"
-                                                                onsubmit="return confirm('Are you sure?');"
+                                                                onsubmit="return confirm(@js(__('messages.Are you sure?')));"
                                                                 class="d-inline">
                                                                     @csrf
                                                                     <button type="submit"
-                                                                        class="dropdown-item border-radius-md">Done</button>
+                                                                        class="dropdown-item border-radius-md">{{ __('messages.Status Done') }}</button>
                                                                 </form>
                                                             </li>
                                                             <li>
-                                                                <a class="dropdown-item" href="#">Edit</a>
+                                                                <a class="dropdown-item" href="#">{{ __('messages.Edit') }}</a>
                                                             </li>
                                                         </ul>
                                                     </div>
@@ -202,7 +202,7 @@
                     <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
                         <div class="card h-100 d-flex justify-content-between ">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0 text-capitalize">To do list</h5>
+                                <h5 class="mb-0 text-capitalize">{{ __('messages.To do list') }}</h5>
                                 <small class="text-muted">{{ date('d - M Y') }}</small>
                             </div>
 
@@ -232,13 +232,13 @@
                             </div>
                             <div class="d-flex justify-content-center pb-3">
                                 <a href="{{route('admin.todoliste.create')}}" type="button" class="btn btn-outline-primary btn-xs m-2 ">
-                                    New
+                                    {{ __('messages.New') }}
                                 </a>
                                 <form action="{{route('admin.todoliste.destroy') }}" method="post"
-                                    onsubmit="return confirm('Are you sure?');" class="d-inline">
+                                    onsubmit="return confirm(@js(__('messages.Are you sure?')));" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-outline-primary btn-xs m-2">Clear</button>
+                                    <button type="submit" class="btn btn-outline-primary btn-xs m-2">{{ __('messages.Clear') }}</button>
                                 </form>
                                 
                             </div>
@@ -256,7 +256,7 @@
                         <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
                             <div class="card h-100">
                                 <div class="card-header">
-                                    <h5 class="mb-0 text-capitalize">Teams </h5>
+                                    <h5 class="mb-0 text-capitalize">{{ __('messages.Teams column header') }} </h5>
                                 </div>
                                 <div class="card-body pt-0">
                                     <ul class="list-group list-group-flush">
@@ -283,7 +283,7 @@
                                                 <div class="col-auto">
                                                     <a href="{{route('admin.teams.index')}}" type="button"
                                                         class="btn btn-outline-primary btn-xs mb-0">
-                                                        view
+                                                        {{ __('messages.view') }}
                                                     </a>
                                                 </div>
                                             </div>
@@ -305,7 +305,7 @@
                                     <div class="col-md-6">
                                         <div class="input-group mb-3">
                                             <input type="text" id="searchInput" class="form-control"
-                                                placeholder="Search events">
+                                                placeholder="{{ __('messages.Search events') }}">
                                         </div>
                                     </div>
 
@@ -382,7 +382,7 @@
             dayMaxEvents: true,
             events: '/events',
             eventClick: function (info) {
-                if (confirm("Are you sure you want to delete this event?")) {
+                if (confirm(@js(__('messages.Are you sure you want to delete this event?')))) {
                     $.ajax({
                         url: '/events/' + info.event.id,
                         type: 'DELETE',

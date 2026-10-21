@@ -14,7 +14,7 @@
         .day-left { width: 35px; }
         .total { width: 70px; }
     </style>
-    <title>Employees Daily Totals</title>
+    <title>{{ __('messages.Employees Daily Totals') }}</title>
   </head>
   <body>
     <h3 style="margin: 0 0 8px 0;">{{ $entreprise->name ?? 'Entreprise' }} - Employees Daily Totals</h3>
@@ -23,11 +23,11 @@
     <table>
       <thead>
         <tr>
-          <th class="day-left">Day</th>
+          <th class="day-left">{{ __('messages.Day') }}</th>
           @foreach($employees as $emp)
             <th class="emp-col left">{{ $emp->name }}</th>
           @endforeach
-          <th class="total">Total</th>
+          <th class="total">{{ __('messages.Total column') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -51,7 +51,7 @@
       </tbody>
       <tfoot>
         <tr>
-          <th class="left">Total</th>
+          <th class="left">{{ __('messages.Total column') }}</th>
           @foreach($employees as $emp)
             @php
               $empTotal = 0;

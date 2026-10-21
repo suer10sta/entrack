@@ -1,10 +1,10 @@
-<aside class="sidenav dt-sidebar" id="sidenav-main" aria-label="Main navigation">
+<aside class="sidenav dt-sidebar" id="sidenav-main" aria-label="{{ __('messages.Main navigation') }}">
     <div class="dt-sidebar__brand">
-        <a class="dt-brand" href="{{ route('superadmin.index') }}" aria-label="DalyTrac home">
+        <a class="dt-brand" href="{{ route('superadmin.index') }}" aria-label="{{ __('messages.DalyTrac home') }}">
             <x-application-mark />
             <span class="dt-brand__copy"><x-application-logo /><small>{{ __('messages.Admin console') }}</small></span>
         </a>
-        <button class="dt-sidebar__toggle" type="button" data-sidebar-toggle aria-label="Collapse sidebar" title="Collapse sidebar"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+        <button class="dt-sidebar__toggle" type="button" data-sidebar-toggle aria-label="{{ __('messages.Collapse sidebar') }}" title="{{ __('messages.Collapse sidebar') }}"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
     </div>
     <div class="dt-sidebar__section-label">{{ __('messages.Workspace') }}</div>
     <nav class="dt-sidebar__nav">

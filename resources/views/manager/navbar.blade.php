@@ -5,8 +5,8 @@
             type="button"
             class="hidden lg:inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-[#0B2638] hover:bg-slate-50 hover:border-slate-300 transition-colors"
             onclick="toggleManagerCollapse()"
-            aria-label="Toggle sidebar"
-            title="Collapse / Expand sidebar"
+            aria-label="{{ __('messages.Toggle sidebar') }}"
+            title="{{ __('messages.Collapse / Expand sidebar') }}"
         >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10" />
@@ -79,31 +79,31 @@
                 class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 z-50"
             >
                 <div class="py-2">
-                    <a href="{{ route('changeLang', ['lang' => 'en']) }}"
+                    <a href="{{ route('changeLang', ['lang' => 'en', 'context' => 'manager']) }}"
                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-slate-50 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'en' ? 'bg-[#2D7080]/10 text-[#2D7080]' : '' }}">
                         <img src="https://flagcdn.com/gb.svg" alt="English" class="w-4 h-3 rounded-sm object-cover">
-                        <span>English</span>
+                        <span>{{ __('messages.English') }}</span>
                         @if(app()->getLocale() === 'en')
                             <svg class="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                         @endif
                     </a>
-                    <a href="{{ route('changeLang', ['lang' => 'fr']) }}"
+                    <a href="{{ route('changeLang', ['lang' => 'fr', 'context' => 'manager']) }}"
                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-slate-50 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'fr' ? 'bg-[#2D7080]/10 text-[#2D7080]' : '' }}">
                         <img src="https://flagcdn.com/fr.svg" alt="Français" class="w-4 h-3 rounded-sm object-cover">
-                        <span>Français</span>
+                        <span>{{ __('messages.Français') }}</span>
                         @if(app()->getLocale() === 'fr')
                             <svg class="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                         @endif
                     </a>
-                    <a href="{{ route('changeLang', ['lang' => 'es']) }}"
+                    <a href="{{ route('changeLang', ['lang' => 'es', 'context' => 'manager']) }}"
                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-slate-50 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'es' ? 'bg-[#2D7080]/10 text-[#2D7080]' : '' }}">
                         <img src="https://flagcdn.com/es.svg" alt="Español" class="w-4 h-3 rounded-sm object-cover">
-                        <span>Español</span>
+                        <span>{{ __('messages.Español') }}</span>
                         @if(app()->getLocale() === 'es')
                             <svg class="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                         @endif
                     </a>
-                    <a href="{{ route('changeLang', ['lang' => 'nl']) }}"
+                    <a href="{{ route('changeLang', ['lang' => 'nl', 'context' => 'manager']) }}"
                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-slate-50 transition-colors flex items-center gap-2 {{ app()->getLocale() === 'nl' ? 'bg-[#2D7080]/10 text-[#2D7080]' : '' }}">
                         <img src="https://flagcdn.com/be.svg" alt="Nederlands" class="w-4 h-3 rounded-sm object-cover">
                         <span>{{ __('messages.Nederlands') }}</span>

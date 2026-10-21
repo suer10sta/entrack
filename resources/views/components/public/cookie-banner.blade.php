@@ -30,7 +30,7 @@
     <div class="mx-auto max-w-[1180px] overflow-hidden rounded-[24px] border border-[#d9e7ed] bg-[#f7fafb]/95 shadow-[0_22px_56px_rgba(4,20,37,0.12)] backdrop-blur-md">
         <div class="flex items-center gap-3 border-b border-[#e6edf0] bg-[#eef7f9] px-4 py-3 sm:px-5">
             <span class="inline-flex h-2.5 w-2.5 rounded-full bg-[#5ec8d4]"></span>
-            <span class="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[#264a5b]">Cookie settings</span>
+            <span class="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[#264a5b]">{{ __('messages.Cookie settings') }}</span>
         </div>
 
         <div class="flex flex-col gap-5 px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8">

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <x-favicon />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billing Report</title>
+    <title>{{ __('messages.Billing Report') }}</title>
     <style>
         /* [MODIFIED] Consistent Font and Size */
         body {
@@ -168,7 +168,7 @@
             </div>
             <div class="details-right">
                 <div class="header-info">
-                    <h2>Table de dépense</h2>
+                    <h2>{{ __('messages.Table de dépense') }}</h2>
                     <h4>De date : {{ $startDate }} à {{ $endDate }}</h4>
                     <h5>Nombre de dépense: {{ $billings->count() }}</h5>
                 </div>
@@ -185,9 +185,9 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 50%;">Objet de la dépense</th>
-                        <th style="width: 25%;">Date de la dépense</th>
-                        <th style="width: 25%;">Prix de la dépense</th>
+                        <th style="width: 50%;">{{ __('messages.Objet de la dépense') }}</th>
+                        <th style="width: 25%;">{{ __('messages.Date de la dépense') }}</th>
+                        <th style="width: 25%;">{{ __('messages.Prix de la dépense') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -214,7 +214,7 @@
                     
                     <tr class="total-row">
                         <td></td>
-                        <td style="text-align: right; font-weight: bold;">Total :</td>
+                        <td style="text-align: right; font-weight: bold;">{{ __('messages.Invoices Total') }}</td>
                         <td style="font-weight: bold;">{{ number_format($Total, 3, ',', '')}}€</td> 
                     </tr>
                 </tbody>

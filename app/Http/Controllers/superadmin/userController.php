@@ -178,7 +178,7 @@ class userController extends Controller
         $work_days_repports->save();
         
 
-        return redirect()->route('superadmin.users.index')->with('message', 'User Added Successfully');
+        return redirect()->route('superadmin.users.index')->with('message', __('messages.User Added Successfully'));
     }
 
 
@@ -192,7 +192,7 @@ class userController extends Controller
     {
         $validated = $request->validate(["name" => "required", "email" => "required"]);
         $user->update($validated);
-        return to_route('superadmin.users.index')->with('message', 'User Updated Successfully');
+        return to_route('superadmin.users.index')->with('message', __('messages.User Updated Successfully'));
     }
 
     public function assign_roles(Request $request, User $user)
@@ -204,7 +204,7 @@ class userController extends Controller
             $user->assignRole($role);
         }
 
-        return view('superadmin.users.index')->with('message', 'Roles assigned successfully');
+        return view('superadmin.users.index')->with('message', __('messages.Roles assigned successfully'));
     }
 
     public function destroy(User $user)
@@ -222,7 +222,7 @@ class userController extends Controller
 
         $user->delete();
 
-        return view('superadmin.users.index')->with('message', 'User and associated Entreprise Deleted Successfully');
+        return view('superadmin.users.index')->with('message', __('messages.User and associated Entreprise Deleted Successfully'));
     
     }
 }

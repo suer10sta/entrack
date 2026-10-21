@@ -13,7 +13,7 @@
                   <script>
                     document.write(new Date().getFullYear());
                   </script>
-                  , made with <i class="fa fa-heart"></i> by
+                  , made with <i class="fa fa-heart"></i> {{ __('messages.by') }}
                   <a
                     href=""
                     class="font-weight-bold"
@@ -40,7 +40,7 @@
                       href=""
                       class="nav-link text-muted"
                       target="_blank"
-                      >About Us</a
+                      >{{ __('messages.About Us') }}</a
                     >
                   </li>
                   <li class="nav-item">
@@ -48,7 +48,7 @@
                       href=""
                       class="nav-link text-muted"
                       target="_blank"
-                      >Blog</a
+                      >{{ __('messages.Blog') }}</a
                     >
                   </li>
                   <li class="nav-item">
@@ -56,7 +56,7 @@
                       href=""
                       class="nav-link pe-0 text-muted"
                       target="_blank"
-                      >License</a
+                      >{{ __('messages.License') }}</a
                     >
                   </li>
                 </ul>

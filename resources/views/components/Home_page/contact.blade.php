@@ -6,22 +6,22 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Contact | DalyTrac</title>
+    <title>{{ __('messages.Contact | DalyTrac') }}</title>
     <meta name="description"
-        content="Contact the DalyTrac team with questions about pricing, onboarding, features or support. We’ll respond as quickly as possible.">
+        content="{{ __('messages.Contact the DalyTrac team with questions about pricing, onboarding, features or support. We’ll respond as quickly as possible.') }}">
     <meta name="robots" content="index,follow">
     <link rel="canonical" href="{{ route('contact') }}">
 
-    <meta property="og:title" content="Contact | DalyTrac">
+    <meta property="og:title" content="{{ __('messages.Contact | DalyTrac') }}">
     <meta property="og:description"
-        content="Reach out to DalyTrac for help with invoicing, projects, time tracking and account support.">
+        content="{{ __('messages.Reach out to DalyTrac for help with invoicing, projects, time tracking and account support.') }}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ route('contact') }}">
     <meta property="og:image" content="{{ asset('img/background_hero.png') }}">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Contact | DalyTrac">
-    <meta name="twitter:description" content="Send a message to the DalyTrac support and sales team.">
+    <meta name="twitter:title" content="{{ __('messages.Contact | DalyTrac') }}">
+    <meta name="twitter:description" content="{{ __('messages.Send a message to the DalyTrac support and sales team.') }}">
 
     <!-- Fonts & CSS -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -95,7 +95,7 @@
                                 @csrf
 
                                 <div style="display: none;">
-                                    <label for="website">Website</label>
+                                    <label for="website">{{ __('messages.Website') }}</label>
                                     <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
                                 </div>
 

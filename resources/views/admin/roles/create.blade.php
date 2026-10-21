@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <x-favicon />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DalyTrac Dashboard - Add Role</title>
+    <title>{{ __('messages.DalyTrac Dashboard - Add Role') }}</title>
     
     {{-- Using Vite and Livewire styles from your target file --}}
     @vite('resources/css/app.css')
@@ -32,8 +32,8 @@
 
                 {{-- Header --}}
                 <div class="mb-8">
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2">Add New Role</h1>
-                    <p class="text-gray-600">Create a new user role for your enterprise.</p>
+                    <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ __('messages.Add New Role') }}</h1>
+                    <p class="text-gray-600">{{ __('messages.Create a new user role for your enterprise.') }}</p>
                 </div>
 
 
@@ -77,12 +77,12 @@
                         <div class="p-6">
                             {{-- Role Name Field  --}}
                             <div class="mb-6">
-                                <label for="role_name" class="block text-sm font-medium text-gray-700 mb-2">Role Name</label>
+                                <label for="role_name" class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.Role Name') }}</label>
                                 <input 
                                     type="text" 
                                     name="name" 
                                     id="role_name"
-                                    placeholder="e.g., Project Manager"
+                                    placeholder="{{ __('messages.e.g., Project Manager') }}"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     autocomplete="off"
                                 />
@@ -98,7 +98,7 @@
                             {{-- Cancel Button --}}
                             <a href="javascript:history.back()"
                                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
-                                Cancel
+                                {{ __('messages.Cancel') }}
                             </a>
                             
                             {{-- Create Button  --}}
@@ -108,7 +108,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                                 </svg>
-                                Create Role
+                                {{ __('messages.Create Role') }}
                             </button>
                         </div>
 

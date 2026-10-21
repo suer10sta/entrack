@@ -265,7 +265,7 @@
                         <button class="inline-flex h-8 px-3 items-center justify-center rounded-lg border border-slate-200 bg-white text-[12px] font-semibold text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors" disabled>
                           {{ __('messages.Previous') }}
                         </button>
-                        <button class="inline-flex h-8 min-w-8 px-2 items-center justify-center rounded-lg bg-[#0B2638] text-white text-[12px] font-bold">1</button>
+                        <button class="inline-flex h-8 min-w-8 px-2 items-center justify-center rounded-lg bg-[#0B2638] text-white text-[12px] font-bold">{{ __('messages.public_pricing_users_solo') }}</button>
                         <button class="inline-flex h-8 px-3 items-center justify-center rounded-lg border border-slate-200 bg-white text-[12px] font-semibold text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors" disabled>
                           {{ __('messages.Next') }}
                         </button>

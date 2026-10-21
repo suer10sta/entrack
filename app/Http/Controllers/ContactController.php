@@ -77,7 +77,7 @@ class ContactController extends Controller
                     'failures' => $failures,
                 ]);
 
-                return back()->withInput()->with('error', 'Your message could not be delivered (mail failures detected). Please try again later.');
+                return back()->withInput()->with('error', __('messages.Your message could not be delivered (mail failures detected). Please try again later.'));
             }
 
             Log::info('Contact email dispatched successfully (no Mail::failures reported).');
@@ -104,7 +104,7 @@ class ContactController extends Controller
             }
             */
 
-            return back()->with('success', 'Thank you for your message! We will get back to you soon.');
+            return back()->with('success', __('messages.Thank you for your message! We will get back to you soon.'));
         } catch (\Throwable $e) {
             // Log detailed error so we can debug SMTP / configuration issues
             Log::error('Exception while sending contact email.', [
@@ -115,7 +115,7 @@ class ContactController extends Controller
 
             return back()
                 ->withInput()
-                ->with('error', 'We could not send your message due to a mail error. Please try again later or contact us by another channel.');
+                ->with('error', __('messages.We could not send your message due to a mail error. Please try again later or contact us by another channel.'));
         }
     }
 }

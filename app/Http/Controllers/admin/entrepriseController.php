@@ -40,7 +40,7 @@ class entrepriseController extends Controller
         $entrepriseCharge->{$request->column} = $request->content;
         $entrepriseCharge->save();
 
-        return response()->json(['success'=>'Entreprise updated successfully.']);
+        return response()->json(['success'=>__('messages.Entreprise updated successfully.')]);
     }
 
     public function updateInfos(Request $request)
@@ -80,13 +80,13 @@ class entrepriseController extends Controller
         ];
 
         if (!in_array($request->column, $allowedColumns, true)) {
-            return response()->json(['error' => 'Invalid field'], 422);
+            return response()->json(['error' => __('messages.Invalid field')], 422);
         }
 
         $Entreprise = Entreprise::find($request->id);
 
         if (! $Entreprise) {
-            return response()->json(['error' => 'Company not found'], 404);
+            return response()->json(['error' => __('messages.Company not found')], 404);
         }
 
         if ($request->column === 'billit_api_key') {
@@ -104,7 +104,7 @@ class entrepriseController extends Controller
 
         $Entreprise->save();
 
-        return response()->json(['success'=>'Entreprise updated successfully.']);
+        return response()->json(['success'=>__('messages.Entreprise updated successfully.')]);
     }
 
     public function updateSMTPInfos(Request $request)
@@ -144,7 +144,7 @@ class entrepriseController extends Controller
         
         
 
-        return response()->json(['success'=>'SMTP Config updated successfully.']);
+        return response()->json(['success'=>__('messages.SMTP Config updated successfully.')]);
     }
 
     public function create()
@@ -167,13 +167,13 @@ class entrepriseController extends Controller
 
 
         if($latestBudget == null) {
-            return redirect()->back()->with('error', 'Please add a budget first');
+            return redirect()->back()->with('error', __('messages.Please add a budget first'));
         }else{
             if(is_array($names) && is_array($prices) && count($names) == count($prices)) {
                 for($i = 0; $i < count($names); $i++) {
                     // Check if name and price are set and price is numeric
                     if(!isset($names[$i]) || !isset($prices[$i]) || !is_numeric($prices[$i])) {
-                        return redirect()->back()->with('error', 'Invalid name or price');
+                        return redirect()->back()->with('error', __('messages.Invalid name or price'));
                     }
     
                     // Create a new entrepriseCharges instance
@@ -198,7 +198,7 @@ class entrepriseController extends Controller
         $entreprise = entrepriseCharges::where('entreprise_id', auth()->user()->entreprise_id)->first();
         $entreprise->update($request->all());
 
-        return redirect()->back()->with('success', 'Charges updated successfully');
+        return redirect()->back()->with('success', __('messages.Charges updated successfully'));
     }
 
     public function updateImage(Request $request)
@@ -233,7 +233,7 @@ class entrepriseController extends Controller
             $entreprise->save();
         }
     
-        return redirect()->back()->with('success', 'Image updated successfully');
+        return redirect()->back()->with('success', __('messages.Image updated successfully'));
     }
 
     public function destroy($id)
@@ -241,7 +241,7 @@ class entrepriseController extends Controller
         $entreprise = entrepriseCharges::where('id', $id)->first();
         $entreprise->delete();
 
-        return redirect()->back()->with('success', 'Charges deleted successfully');
+        return redirect()->back()->with('success', __('messages.Charges deleted successfully'));
     }
 
     public function validateBilling($chargeid, $budget_id)
@@ -255,7 +255,7 @@ class entrepriseController extends Controller
 
     if($budget->budget_remaining < $charge->price) {
         return redirect()->back()->with([
-            'error' => 'Budget remaining is not enough to validate this charge',
+            'error' => __('messages.Budget remaining is not enough to validate this charge'),
         ]);
     }else{
         $charge->validated = 1;
@@ -266,7 +266,7 @@ class entrepriseController extends Controller
         $budget->save();
 
         return redirect()->back()->with([
-            'success' => 'Dépense validated successfully',
+            'success' => __('messages.Dépense validated successfully'),
          
         ]);
     }
@@ -291,7 +291,7 @@ public function unvalidateBilling($chargeid, $budget_id)
    
 
     return redirect()->back()->with([
-        'success' => 'Dépense unvalidated successfully',
+        'success' => __('messages.Dépense unvalidated successfully'),
        
     ]);
 }
@@ -362,7 +362,7 @@ public function unvalidateBilling($chargeid, $budget_id)
 
         $billing->delete();
 
-        return redirect()->back()->with('success', 'Billing deleted successfully');
+        return redirect()->back()->with('success', __('messages.Billing deleted successfully'));
     }
 
     public function updateCharge(Request $request, $id)
@@ -375,7 +375,7 @@ public function unvalidateBilling($chargeid, $budget_id)
     $entreprise_charge = entrepriseCharges::where('Billings_budget_id', $id)->get();
 
     if ($entreprise_charge->isNotEmpty()) {
-        return response()->json(['error' => 'Please delete all charges before updating the budget']);
+        return response()->json(['error' => __('messages.Please delete all charges before updating the budget')]);
     }
 
     $billings_budget->budget = $request->input('budget');

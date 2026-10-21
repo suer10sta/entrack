@@ -142,7 +142,7 @@
                     <p class="sidebar-section px-3 mb-2 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-slate-400/80">{{ __('messages.Overview') }}</p>
                     <div class="space-y-1">
                         <a href="{{ $dashboardRoute }}"
-                            title="Dashboard"
+                            title="{{ __('messages.Dashboard') }}"
                             class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs($rolePrefix . '.index') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                             @if(request()->routeIs($rolePrefix . '.index'))
                                 <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
@@ -209,19 +209,19 @@
                                     @if(request()->routeIs('*.projects.report'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Rapports des projets
+                                    {{ __('messages.Rapports des projets') }}
                                 </a>
                                 <a href="{{ $taskRoute }}"
                                     class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
                                     @if(request()->routeIs('*.tasks.index'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Rapports des tâches
+                                    {{ __('messages.Rapports des tâches') }}
                                 </a>
                             </div>
                         </div>
                         <a href="{{ $planningRoute }}"
-                            title="Planning"
+                            title="{{ __('messages.Planning Menu') }}"
                             class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs('*.calendar.*') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                             @if(request()->routeIs('*.calendar.*'))
                                 <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
@@ -285,21 +285,21 @@
                                     @if(request()->routeIs('*.projects.report'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Rapports des projets
+                                    {{ __('messages.Rapports des projets') }}
                                 </a>
                                 <a href="{{ $taskRoute }}"
                                     class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
                                     @if(request()->routeIs('*.tasks.index'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Rapports des tâches
+                                    {{ __('messages.Rapports des tâches') }}
                                 </a>
                                 <a href="{{ $gestWorkDaysRoute }}"
                                     class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
                                     @if(request()->routeIs('*.workDaysReports.*'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Rapports des jours travaillés
+                                    {{ __('messages.Rapports des jours travaillés') }}
                                 </a>
                             </div>
                         </div>
@@ -307,7 +307,7 @@
                         @unless($isRespProjet || $isGestionnaire || $isEmployeeRole)
                         @can('Planning')
                         <a href="{{ $planningRoute }}"
-                            title="Planning"
+                            title="{{ __('messages.Planning Menu') }}"
                             class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs('*.calendar.*') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                             @if(request()->routeIs('*.calendar.*'))
                                 <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
@@ -322,7 +322,7 @@
 
                         @canany(['View client', 'View employee', 'View teams', 'View project', 'View task', 'Pointage reports', 'View pointage', 'Manage workDaysReports'])
                         <div>
-                            <button type="button" onclick="toggleDropdown('reporting')" title="Reporting"
+                            <button type="button" onclick="toggleDropdown('reporting')" title="{{ __('messages.Reporting') }}"
                                 class="dt-nav-item group relative flex justify-between items-center w-full px-3 py-2.5 rounded-xl text-[13.5px] text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
                                 @if($isReportingPage)
                                     <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
@@ -345,7 +345,7 @@
                                     @if(request()->routeIs('*.clients.*'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Clients Reports
+                                    {{ __('messages.Clients Reports') }}
                                 </a>
                                 @endcan
                                 @can('View employee')
@@ -354,7 +354,7 @@
                                     @if(request()->routeIs('*.employees.*'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Employees Reports
+                                    {{ __('messages.Employees Reports') }}
                                 </a>
                                 @endcan
                                 @can('View project')
@@ -363,7 +363,7 @@
                                     @if(request()->routeIs('*.projects.*'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Projects Reports
+                                    {{ __('messages.Projects Reports') }}
                                 </a>
                                 @endcan
                                 @can('View task')
@@ -372,7 +372,7 @@
                                     @if(request()->routeIs('*.tasks.index'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Tasks Reports
+                                    {{ __('messages.Tasks Reports') }}
                                 </a>
                                 @endcan
                                 @can('View task')
@@ -390,7 +390,7 @@
                                     @if(request()->routeIs('*.teams.*'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Teams Reports
+                                    {{ __('messages.Teams Reports') }}
                                 </a>
                                 @endcan
                                 @canany(['Pointage reports', 'View pointage'])
@@ -399,7 +399,7 @@
                                     @if(request()->routeIs('*.tasks.pointage'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Pointage Reports
+                                    {{ __('messages.Pointage Reports') }}
                                 </a>
                                 @endcanany
                                 @can('Manage workDaysReports')
@@ -408,7 +408,7 @@
                                     @if(request()->routeIs('*.workDaysReports.*'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Work Days Reports
+                                    {{ __('messages.Work Days Reports') }}
                                 </a>
                                 @endcan
                             </div>
@@ -417,7 +417,7 @@
 
                         @can('Create invoice')
                         <div>
-                            <button type="button" onclick="toggleDropdown('invoices')" title="Invoices"
+                            <button type="button" onclick="toggleDropdown('invoices')" title="{{ __('messages.Invoices header') }}"
                                 class="dt-nav-item group relative flex justify-between items-center w-full px-3 py-2.5 rounded-xl text-[13.5px] text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
                                 @if($isInvoicesPage)
                                     <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
@@ -439,21 +439,21 @@
                                     @if(request()->routeIs('*.invoices.fullinvoice'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Generate
+                                    {{ __('messages.Generate') }}
                                 </a>
                                 <a href="{{ $routeFor('invoices', 'invoicehistory') }}"
                                     class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
                                     @if(request()->routeIs('*.invoices.invoicehistory'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    History
+                                    {{ __('messages.History') }}
                                 </a>
                                 <a href="{{ $routeFor('invoices', 'parameters') }}"
                                     class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
                                     @if(request()->routeIs('*.invoices.parameters'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Parameters
+                                    {{ __('messages.Parameters') }}
                                 </a>
                             </div>
                         </div>
@@ -461,7 +461,7 @@
 
                         @can('Create devis')
                         <div>
-                            <button type="button" onclick="toggleDropdown('devis')" title="Devis"
+                            <button type="button" onclick="toggleDropdown('devis')" title="{{ __('messages.Devis type') }}"
                                 class="dt-nav-item group relative flex justify-between items-center w-full px-3 py-2.5 rounded-xl text-[13.5px] text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
                                 @if($isDevisPage)
                                     <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
@@ -483,21 +483,21 @@
                                     @if(request()->routeIs('*.devis.generateDevis'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Generate
+                                    {{ __('messages.Generate') }}
                                 </a>
                                 <a href="{{ $routeFor('devis', 'devishistory') }}"
                                     class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
                                     @if(request()->routeIs('*.devis.devishistory'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    History
+                                    {{ __('messages.History') }}
                                 </a>
                                 <a href="{{ $routeFor('devis', 'parameters') }}"
                                     class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
                                     @if(request()->routeIs('*.devis.parameters'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Parameters
+                                    {{ __('messages.Parameters') }}
                                 </a>
                             </div>
                         </div>
@@ -505,7 +505,7 @@
 
                         @can('Create expense note')
                         <div>
-                            <button type="button" onclick="toggleDropdown('expense')" title="Expense Note"
+                            <button type="button" onclick="toggleDropdown('expense')" title="{{ __('messages.Expense Note') }}"
                                 class="dt-nav-item group relative flex justify-between items-center w-full px-3 py-2.5 rounded-xl text-[13.5px] text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
                                 @if($isExpensePage)
                                     <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
@@ -528,21 +528,21 @@
                                     @if(request()->routeIs('*.notedefrais.generateNoteDeFrais'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Generate
+                                    {{ __('messages.Generate') }}
                                 </a>
                                 <a href="{{ $routeFor('notedefrais', 'notedefraishistory') }}"
                                     class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
                                     @if(request()->routeIs('*.notedefrais.notedefraishistory'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    History
+                                    {{ __('messages.History') }}
                                 </a>
                                 <a href="{{ $routeFor('notedefrais', 'parameters') }}"
                                     class="submenu-item block px-3 py-2 text-[13px] text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 relative">
                                     @if(request()->routeIs('*.notedefrais.parameters'))
                                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#E7B84B] rounded-r-full"></span>
                                     @endif
-                                    Parameters
+                                    {{ __('messages.Parameters') }}
                                 </a>
                             </div>
                         </div>
@@ -552,7 +552,7 @@
                         {{-- Employee + Gestionnaire: Planning as a standalone item
                              (same markup as above; visibility required by role) --}}
                         <a href="{{ $planningRoute }}"
-                            title="Planning"
+                            title="{{ __('messages.Planning Menu') }}"
                             class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs('*.calendar.*') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                             @if(request()->routeIs('*.calendar.*'))
                                 <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
@@ -589,7 +589,7 @@
                     <p class="sidebar-section px-3 mb-2 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-slate-400/80">{{ __('messages.System') }}</p>
                     <div class="space-y-1">
                         <a href="{{ $billRoute }}"
-                            title="Billings"
+                            title="{{ __('messages.Billings') }}"
                             class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs('*.Enterprise_infos.create') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                             @if(request()->routeIs('*.Enterprise_infos.create'))
                                 <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>

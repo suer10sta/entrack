@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <x-favicon />
@@ -220,7 +220,7 @@
             <div class="footer-left footer-text">
                 @if(Auth::user()->entreprise)
                     <b>{{ Auth::user()->entreprise->name }}</b><br>
-                    <b>Numéro TVA:</b> {{ Auth::user()->entreprise->tva}}
+                    <b>{{ __('messages.Numéro TVA:') }}</b> {{ Auth::user()->entreprise->tva}}
                 @endif
             </div>
             <div class="footer-center footer-text">
@@ -231,9 +231,9 @@
             </div>
             <div class="footer-right footer-text">
                 @if(Auth::user()->entreprise)
-                    <b>BANK</b> : {{ Auth::user()->entreprise->bank_name }}<br>
-                    <b>IBAN</b> : {{ Auth::user()->entreprise->iban }}<br>
-                    <b>SWIFT/BIC</b> : {{ Auth::user()->entreprise->swift }} / {{ Auth::user()->entreprise->bic }}
+                    <b>{{ __('messages.BANK') }}</b> : {{ Auth::user()->entreprise->bank_name }}<br>
+                    <b>{{ __('messages.IBAN') }}</b> : {{ Auth::user()->entreprise->iban }}<br>
+                    <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ Auth::user()->entreprise->swift }} / {{ Auth::user()->entreprise->bic }}
                 @endif
                 <br>
                 <span style="font-size: 9px; color: #666;">{{ __('messages.Printed') }}: {{ date('d-m-Y') }}</span>

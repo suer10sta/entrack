@@ -20,7 +20,7 @@ class CustomLoginMiddleware
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            return redirect()->route('login')->with('error', 'You cannot login the account is not activated.');
+            return redirect()->route('login')->with('error', __('messages.You cannot login the account is not activated.'));
         }else{
             return $next($request);
         }

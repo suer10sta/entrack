@@ -124,14 +124,7 @@ class clientsController extends Controller
             'contact_mobile_fix' => 'nullable|array',
             'contact_address' => 'nullable|array',
         ], [
-            'name.required' => 'The client name field is required.',
-            'client_number.unique' => 'This client number already exists for your enterprise.',
-            'address.required' => 'The address field is required.',
-            'city.required' => 'The city field is required.',
-            'zip.required' => 'The zip code field is required.',
-            'country.required' => 'The country field is required.',
-            'due_date.required' => 'The due date field is required.',
-            'email.email' => 'Please enter a valid email address.',
+            'client_number.unique' => __('messages.This client number already exists for your enterprise.'),
         ]);
 
         // Create the associated client
@@ -205,30 +198,30 @@ class clientsController extends Controller
 
         
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => __('messages.client Added Successfully'),
+                'client' => ['id' => $client->id, 'name' => $client->name],
+            ], 201);
+        }
         if ($request->input('from') === 'onboarding') {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'message' => 'client Added Successfully',
-                    'client' => ['id' => $client->id, 'name' => $client->name],
-                ], 201);
-            }
-            return redirect()->route('admin.onboarding.step2')->with('message', 'client Added Successfully');
+            return redirect()->route('admin.onboarding.step2')->with('message', __('messages.client Added Successfully'));
         }
         if(Auth::user()->hasRole('Responsable de projet')){
-            return redirect()->route('Responsable_de_projet.clients.index')->with('message', 'client Added Successfully');
+            return redirect()->route('Responsable_de_projet.clients.index')->with('message', __('messages.client Added Successfully'));
         }
         if(Auth::user()->hasRole('Responsable de projet et gestionnaire')){
-            return redirect()->route('Responsable_gestionnaire.clients.index')->with('message', 'client Added Successfully');
+            return redirect()->route('Responsable_gestionnaire.clients.index')->with('message', __('messages.client Added Successfully'));
         }
         if(Auth::user()->hasRole('Admin')){
-            return redirect()->route('admin.clients.index')->with('message', 'client Added Successfully');
+            return redirect()->route('admin.clients.index')->with('message', __('messages.client Added Successfully'));
         }
         if(Auth::user()->hasRole('Employee')){
-            return redirect()->route('employee.clients.index')->with('message', 'client Added Successfully');
+            return redirect()->route('employee.clients.index')->with('message', __('messages.client Added Successfully'));
         }
         
         // Fallback redirect
-        return redirect()->back()->with('message', 'client Added Successfully');
+        return redirect()->back()->with('message', __('messages.client Added Successfully'));
     }
 
     public function edit(Client $client)
@@ -283,13 +276,13 @@ class clientsController extends Controller
         }
 
         if(Auth::user()->hasRole('Responsable de projet')){
-            return redirect()->route('Responsable_de_projet.clients.index')->with('message', 'client Updated Successfully');
+            return redirect()->route('Responsable_de_projet.clients.index')->with('message', __('messages.client Updated Successfully'));
         }
         if(Auth::user()->hasRole('Responsable de projet et gestionnaire')){
-            return redirect()->route('Responsable_gestionnaire.clients.index')->with('message', 'client Updated Successfully');
+            return redirect()->route('Responsable_gestionnaire.clients.index')->with('message', __('messages.client Updated Successfully'));
         }
         if(Auth::user()->hasRole('Admin')){
-            return redirect()->route('admin.clients.index')->with('message', 'client Updated Successfully');
+            return redirect()->route('admin.clients.index')->with('message', __('messages.client Updated Successfully'));
         }
     }
 
@@ -299,7 +292,7 @@ class clientsController extends Controller
         $client->{$request->column} = $request->content;
         $client->save();
 
-        return response()->json(['success'=>'Client updated successfully.']);
+        return response()->json(['success'=>__('messages.client Updated Successfully')]);
     }
 
     public function updateContact(Request $request)
@@ -308,7 +301,7 @@ class clientsController extends Controller
         $contact->{$request->column} = $request->content;
         $contact->save();
 
-        return response()->json(['success'=>'contact updated successfully.']);
+        return response()->json(['success'=>__('messages.contact updated successfully.')]);
     }
 
     public function addContact(Request $request, Client $client)
@@ -333,7 +326,7 @@ class clientsController extends Controller
             }
         } 
         return redirect()->route('admin.clients.show', $client->id)
-        ->with('message', 'client Updated Successfully');
+        ->with('message', __('messages.client Updated Successfully'));
     }
 
 
@@ -341,7 +334,7 @@ class clientsController extends Controller
     {
         $client->delete();
 
-        return back()->with('message', 'client Deleted Successfully');
+        return back()->with('message', __('messages.client Deleted Successfully'));
     } 
 
     public function destroyContact($contact_id)
@@ -349,7 +342,7 @@ class clientsController extends Controller
         $contact = client_contacts::where('id', $contact_id)->first();
         $contact->delete();
 
-        return back()->with('message', 'contact Deleted Successfully');
+        return back()->with('message', __('messages.contact Deleted Successfully'));
     }
 
     public function downloadClinetsRepports()

@@ -8,9 +8,9 @@ use Illuminate\Notifications\Notification;
 
 class WelcomeNotification extends Notification
 {
-    protected Entreprise $entreprise;
+    protected ?Entreprise $entreprise;
 
-    public function __construct(Entreprise $entreprise)
+    public function __construct(?Entreprise $entreprise = null)
     {
         $this->entreprise = $entreprise;
     }
@@ -25,16 +25,11 @@ class WelcomeNotification extends Notification
         $fromAddress = config('mail.from.address') ?: 'dessin@bureaumercier.com';
         $fromName = config('mail.from.name') ?: 'DalyTrac';
 
-        $trialDays = $this->entreprise->trial_ends_at
-            ? (int) ceil(now()->floatDiffInDays($this->entreprise->trial_ends_at))
-            : 15;
-
         return (new MailMessage)
-            ->subject('Bienvenue sur DalyTrac !')
+            ->subject(__('emails.welcome_subject'))
             ->view('emails.welcome', [
                 'userName'      => $notifiable->name,
-                'entrepriseName' => $this->entreprise->name,
-                'trialDays'     => $trialDays,
+                'entrepriseName' => trim((string) $this->entreprise?->name),
             ])
             ->from($fromAddress, $fromName);
     }

@@ -35,6 +35,7 @@
             background-color: #f9fafb; /* gray-50 */
         }
     </style>
+@include('partials.edit-layout-styles')
 </head>
 <body class="devis-dashboard-page dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
     {{-- Sidebar --}}
@@ -51,7 +52,7 @@
         <x-dashboard.navbar />
 
         {{-- Page Content --}}
-        <main class="flex-1 min-w-0 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7">
+        <main class="dt-edit-page flex-1 min-w-0 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7">
 
             
             @php
@@ -68,7 +69,7 @@
                 }
             @endphp
 
-            <div class="max-w-6xl mx-auto">
+            <div class="dt-edit-container dt-edit-container--wide max-w-6xl mx-auto">
                 <div class="mb-5">
                     <p class="dt-overline mb-0.5">{{ __('messages.Devis History') }}</p>
                     <h1 class="text-[18px] sm:text-[20px] lg:text-[22px] font-bold text-[#0B2638] leading-tight">{{ __('messages.Edit Devis') }}</h1>
@@ -517,7 +518,7 @@
                     },
                     error: function(xhr, status, error) {
                         console.error('Error loading contacts:', error);
-                        $('#contactsDiv').html('<p class="text-sm text-red-600">{{ __('messages.Error loading contacts') }}</p>');
+                        $('#contactsDiv').html(('<p class="text-sm text-red-600">' + @js(__('messages.Error loading contacts')) + '</p>'));
                     }
                 });
             }
@@ -684,13 +685,13 @@
             if (isDetailedHourly) {
                 hoursColumnHtml = `
                 <div class="col-span-12 md:col-span-2 task-hours-column" style="display: ${hoursColumnDisplay};">
-                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Number of hours') }} <span class="text-red-600">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700">${@js(__('messages.Number of hours'))} <span class="text-red-600">*</span></label>
                     <input type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskHours" name="taskHours[]" />
                 </div>`;
             } else {
                 hoursColumnHtml = `
                 <div class="col-span-12 md:col-span-2 task-hours-column" style="display: ${hoursColumnDisplay};">
-                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Number of hours') }} <span class="text-red-600">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700">${@js(__('messages.Number of hours'))} <span class="text-red-600">*</span></label>
                     <input type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskHours" name="taskHours[]" />
                 </div>`;
             }
@@ -701,20 +702,20 @@
             
             newdiv.innerHTML = `
                 <div class="col-span-12 md:col-span-4">
-                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Details') }} <span class="text-red-600">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700">${@js(__('messages.Details'))} <span class="text-red-600">*</span></label>
                     <textarea class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="task[]" rows="3"></textarea>
                 </div>
                 ${hoursColumnHtml}
                 <div class="col-span-12 md:col-span-2 task-budget-column" style="display: ${budgetColumnDisplay};">
-                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Budget') }} <span class="text-red-600">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700">${@js(__('messages.Budget'))} <span class="text-red-600">*</span></label>
                     <input type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskBudget" name="taskBudget[]" />
                 </div>
                 <div class="col-span-12 md:col-span-2 task-cost-per-hour-column" style="display: ${costPerHourColumnDisplay};">
-                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Cost per hour') }} <span class="text-red-600">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700">${@js(__('messages.Cost per hour'))} <span class="text-red-600">*</span></label>
                     <input type="number" step="0.0001" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm taskCostPerHour" name="taskCostPerHour[]" />
                 </div>
                 <div class="col-span-12 md:col-span-2 task-total-column" style="display: ${totalColumnDisplay};">
-                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Total') }}</label>
+                    <label class="block text-sm font-medium text-gray-700">${@js(__('messages.Total'))}</label>
                     <input type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 taskTotal" readonly />
                 </div>
                 <div class="col-span-12 md:col-span-1 flex items-end">
@@ -745,7 +746,7 @@
                 button.closest('.detail-row').remove();
                 updateProjectBudget();
             } else {
-                alert('{{ __('messages.At least one detail row must remain') }}.');
+                alert((@js(__('messages.At least one detail row must remain')) + '.'));
             }
         }
 
@@ -756,7 +757,7 @@
                 div.removeChild(div.lastChild);
                 updateProjectBudget();
             } else {
-                alert('{{ __('messages.At least one detail row must remain') }}.');
+                alert((@js(__('messages.At least one detail row must remain')) + '.'));
             }
         }
 

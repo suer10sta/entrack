@@ -11,6 +11,7 @@
         .role-edit-form .role-permission input { margin-top: 4px; }
         .role-edit-form .role-permission:has(input:checked) { border-color: #2D7080; background: rgba(45,112,128,.06); }
     </style>
+@include('partials.edit-layout-styles')
 </head>
 <body class="dt-app-shell bg-[#f8fafc] text-[#0B2638] flex h-screen overflow-hidden font-sans antialiased">
 
@@ -26,9 +27,9 @@
         <x-dashboard.navbar />
 
         {{-- Contenu Principal --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:p-8">
+        <main class="dt-edit-page flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:p-8">
 
-            <div class="w-full max-w-4xl mx-auto">
+            <div class="dt-edit-container w-full max-w-4xl mx-auto">
                 
                 {{-- Déterminer les routes en premier --}}
                 @php

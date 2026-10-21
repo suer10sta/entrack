@@ -84,7 +84,7 @@ class employeesController extends Controller
         // 2. VÉRIFIER LA LIMITE AVANT DE CONTINUER
         if ($entreprise && !$entreprise->canAddMoreUsers()) {
             // 3. Si la limite est atteinte, arrêter et renvoyer une erreur
-            return back()->with('error', 'Vous avez atteint la limite de ' . $entreprise->getUserLimit() . ' utilisateurs pour votre plan. Veuillez passer au plan Pro pour en ajouter davantage.');
+            return back()->with('error', __('messages.plan_user_limit', ['limit' => $entreprise->getUserLimit()]));
         }
 
         $validated = $request->validate([
@@ -237,16 +237,16 @@ class employeesController extends Controller
         $work_days_repports->save();
 
         if ($request->input('from') === 'onboarding') {
-            return redirect()->route('admin.onboarding.step2')->with('message', 'Employee Added Successfully');
+            return redirect()->route('admin.onboarding.step2')->with('message', __('messages.Employee Added Successfully'));
         }
         if(Auth::user()->hasRole('Admin')){
-            return redirect()->route('admin.employees.index')->with('message', 'Employee Added Successfully');
+            return redirect()->route('admin.employees.index')->with('message', __('messages.Employee Added Successfully'));
         }
         if(Auth::user()->hasRole('Responsable de projet')){
-            return redirect()->route('Responsable_de_projet.employees.index')->with('message', 'Employee Added Successfully');
+            return redirect()->route('Responsable_de_projet.employees.index')->with('message', __('messages.Employee Added Successfully'));
         }
         if(Auth::user()->hasRole('Responsable de projet et gestionnaire')){
-            return redirect()->route('Responsable_gestionnaire.employees.index')->with('message', 'Employee Added Successfully');
+            return redirect()->route('Responsable_gestionnaire.employees.index')->with('message', __('messages.Employee Added Successfully'));
         }
     }
 
@@ -278,13 +278,13 @@ class employeesController extends Controller
         }
 
         if(Auth::user()->hasRole('Admin')){
-            return redirect()->route('admin.employees.index')->with('message', 'Employee Updated Successfully');
+            return redirect()->route('admin.employees.index')->with('message', __('messages.Employee Updated Successfully'));
         }
         if(Auth::user()->hasRole('Responsable de projet')){
-            return redirect()->route('Responsable_de_projet.employees.index')->with('message', 'Employee Updated Successfully');
+            return redirect()->route('Responsable_de_projet.employees.index')->with('message', __('messages.Employee Updated Successfully'));
         }
         if(Auth::user()->hasRole('Responsable de projet et gestionnaire')){
-            return redirect()->route('Responsable_gestionnaire.employees.index')->with('message', 'Employee Updated Successfully');
+            return redirect()->route('Responsable_gestionnaire.employees.index')->with('message', __('messages.Employee Updated Successfully'));
         }
     }
 
@@ -300,7 +300,7 @@ class employeesController extends Controller
                 $user->timezone = $request->content;
                 $user->save();
             }
-            return response()->json(['success'=>'Employee timezone updated successfully.']);
+            return response()->json(['success'=>__('messages.Employee timezone updated successfully.')]);
         }
 
         if($request->column == 'salary')
@@ -330,7 +330,7 @@ class employeesController extends Controller
             if ($emailExists) {
                 return response()->json([
                     'success' => false,
-                    'error' => 'This email is already taken.'
+                    'error' => __('messages.This email is already taken.')
                 ], 422);
             }
 
@@ -355,7 +355,7 @@ class employeesController extends Controller
         $Employee->save();
         
 
-        return response()->json(['success'=>'Employee updated successfully.']);
+        return response()->json(['success'=>__('messages.Employee Updated Successfully')]);
     }
 
     public function show(Employees $employee)
@@ -451,7 +451,7 @@ class employeesController extends Controller
         }
         $employee->delete();
 
-        return back()->with('message', 'Employee Deleted Successfully');
+        return back()->with('message', __('messages.Employee Deleted Successfully'));
     }
 
     public function assign_roles(Request $request, Employees $employee)
@@ -471,7 +471,7 @@ class employeesController extends Controller
         // Automatically assign permissions based on roles
         $this->assignRolePermissions($roles, $user->entreprise_id);
 
-        return back()->with('message', 'Roles assigned successfully');
+        return back()->with('message', __('messages.Roles assigned successfully'));
 
     }
 
@@ -483,7 +483,7 @@ class employeesController extends Controller
         $user->is_activate = false;
         $user->save();
 
-        return redirect()->back()->with('message', 'employee deactivated successfully');
+        return redirect()->back()->with('message', __('messages.employee deactivated successfully'));
     }
 
     public function activate(Employees $employee)
@@ -494,7 +494,7 @@ class employeesController extends Controller
         $user->is_activate = true;
         $user->save();
 
-        return redirect()->back()->with('message', 'employee activated successfully');
+        return redirect()->back()->with('message', __('messages.employee activated successfully'));
     }
 
     public function downloadEmployeesRepports()
@@ -541,7 +541,7 @@ class employeesController extends Controller
         
         $work_days_repports->save();   
 
-        return response()->json(['success'=>'work days repports updated successfully.']);
+        return response()->json(['success'=>__('messages.work days repports updated successfully.')]);
     }
 
     
@@ -931,7 +931,7 @@ public function sendWorkdaysReportEmail(Request $request)
     if (count($emails) === 0) {
         // Clean up temp file before returning
         File::delete($tempPath);
-        return redirect()->back()->with('error', 'No valid recipient emails provided.');
+        return redirect()->back()->with('error', __('messages.No valid recipient emails provided.'));
     }
 
     $primaryRecipient = $emails[0];
@@ -945,7 +945,7 @@ public function sendWorkdaysReportEmail(Request $request)
     File::delete($tempPath);
     
     return redirect()->route('admin.workDaysReports.index')
-        ->with('message', 'Workdays report has been sent successfully to ' . implode(', ', $emails));
+        ->with('message', __('messages.Workdays report has been sent successfully to') . implode(', ', $emails));
 }
 
 public function nextMonthRepports(Request $request)
@@ -1061,13 +1061,13 @@ public function archiveEmployee($id){
     $employee->archived = 1;
     $employee->save();
     if(Auth::user()->hasRole('Admin')){
-        return redirect()->route('admin.employees.index')->with('message', 'Employee archived successfully.');
+        return redirect()->route('admin.employees.index')->with('message', __('messages.Employee archived successfully.'));
     }
     if(Auth::user()->hasRole('Responsable de projet')){
-        return redirect()->route('Responsable_de_projet.employees.index')->with('message', 'Employee archived successfully.');
+        return redirect()->route('Responsable_de_projet.employees.index')->with('message', __('messages.Employee archived successfully.'));
     }
     if(Auth::user()->hasRole('Responsable de projet et gestionnaire')){
-        return redirect()->route('Responsable_gestionnaire.employees.index')->with('message', 'Employee archived successfully.');
+        return redirect()->route('Responsable_gestionnaire.employees.index')->with('message', __('messages.Employee archived successfully.'));
     }
 }
 
@@ -1076,13 +1076,13 @@ public function unarchiveEmployee($id){
     $employee->archived = 0;
     $employee->save();
     if(Auth::user()->hasRole('Admin')){
-        return redirect()->route('admin.employees.index')->with('message', 'Employee unarchived successfully.');
+        return redirect()->route('admin.employees.index')->with('message', __('messages.Employee unarchived successfully.'));
     }
     if(Auth::user()->hasRole('Responsable de projet')){
-        return redirect()->route('Responsable_de_projet.employees.index')->with('message', 'Employee unarchived successfully.');
+        return redirect()->route('Responsable_de_projet.employees.index')->with('message', __('messages.Employee unarchived successfully.'));
     }
     if(Auth::user()->hasRole('Responsable de projet et gestionnaire')){
-        return redirect()->route('Responsable_gestionnaire.employees.index')->with('message', 'Employee unarchived successfully.');
+        return redirect()->route('Responsable_gestionnaire.employees.index')->with('message', __('messages.Employee unarchived successfully.'));
     }
 }
 
@@ -1167,9 +1167,9 @@ public function sendEmail(Request $request)
                 $employeeAttachments
             ));
 
-        return response()->json(['message' => 'Email sent successfully']);
+        return response()->json(['message' => __('messages.Email sent successfully')]);
     } catch (\Exception $e) {
-        return response()->json(['error' => 'Failed to send email: ' . $e->getMessage()], 500);
+        return response()->json(['error' => \App\Support\LocalizedError::message($e)], 500);
     }
 }
 

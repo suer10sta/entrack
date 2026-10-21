@@ -52,6 +52,7 @@
             padding: 12px 16px;
         }
     </style>
+    @include('partials.edit-layout-styles')
 </head>
 
 <body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
@@ -66,7 +67,8 @@
     <div class="flex flex-col flex-1 overflow-y-auto">
         <x-dashboard.navbar />
 
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7">
+        <main class="dt-edit-page flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7">
+            <div class="dt-edit-container mx-auto">
 
             {{-- ── Page header ── --}}
             <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-5">
@@ -184,7 +186,7 @@
                                            placeholder="{{ __('messages.Expense Details') }}"
                                            class="dt-input">
                                     <input type="number" step="0.0001" name="quantity[]"
-                                           placeholder="1"
+                                           placeholder="{{ __('messages.public_pricing_users_solo') }}"
                                            class="taskQuantity dt-input">
                                     <input type="number" step="0.0001" name="taskBudget[]"
                                            placeholder="0.00"
@@ -241,6 +243,7 @@
                 </form>
             </div>
 
+            </div>
         </main>
     </div>
 
@@ -248,7 +251,7 @@
     // ── Row management ──
     function rowHtml() {
         return `<div class="expense-row-grid expense-data-row p-2 rounded-lg border border-slate-100 bg-slate-50/50">
-            <input type="text" name="task[]" placeholder="{{ __('messages.Expense Details') }}" class="dt-input">
+            <input type="text" name="task[]" placeholder=@js(__('messages.Expense Details')) class="dt-input">
             <input type="number" step="0.0001" name="quantity[]" placeholder="1" class="taskQuantity dt-input">
             <input type="number" step="0.0001" name="taskBudget[]" placeholder="0.00" class="taskBudget dt-input">
             <div class="col-delete flex items-center">

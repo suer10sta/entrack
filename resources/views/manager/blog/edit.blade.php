@@ -1,7 +1,8 @@
 @extends('manager.layouts.app')
 
 @section('content')
-    <div class="max-w-4xl mx-auto">
+@include('partials.edit-layout-styles')
+    <div class="dt-edit-container max-w-4xl mx-auto">
         {{-- Page heading --}}
         <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-6">
             <div class="min-w-0">

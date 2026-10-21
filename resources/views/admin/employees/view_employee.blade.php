@@ -1059,11 +1059,11 @@
                         <div>
                     <label for="body" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Message') }}</label>
                             <textarea class="w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3" id="body" name="body" rows="6" required>Bonjour,
-Veuillez trouver ci-joint le document, pour votre information.
+{{ __('messages.Veuillez trouver ci-joint le document, pour votre information.') }}
 
-N'hésitez pas à me contacter si vous avez la moindre question.
+{{ __('messages.N\'hésitez pas à me contacter si vous avez la moindre question.') }}
 
-Bien cordialement,
+{{ __('messages.Bien cordialement,') }}
 
 Pour Stabel</textarea>
                         </div>
@@ -1271,11 +1271,11 @@ Pour Stabel</textarea>
                     success: function(response) {
                         $('#contactModal').addClass('hidden');
                         // Use a custom modal for success instead of alert
-                        alert('{{ __('messages.Email sent successfully!') }}');
+                        alert(@js(__('messages.Email sent successfully!')));
                     },
                     error: function(xhr) {
                         // Use a custom modal for error instead of alert
-                        alert('{{ __('messages.Error sending email. Please try again.') }}');
+                        alert(@js(__('messages.Error sending email. Please try again.')));
                     }
                 });
             });
@@ -1314,7 +1314,7 @@ Pour Stabel</textarea>
                 btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
                 body.classList.toggle('hidden', !expanded);
                 if (chevron) chevron.classList.toggle('rotate-180', expanded);
-                if (label) label.textContent = expanded ? "{{ __('messages.Hide') }}" : "{{ __('messages.Show') }}";
+                if (label) label.textContent = expanded ? @js(__('messages.Hide')) : @js(__('messages.Show'));
             };
 
             const initForViewport = () => {

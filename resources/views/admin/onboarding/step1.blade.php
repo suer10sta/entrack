@@ -54,7 +54,7 @@
                         <select data-col="country" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2D7080]/25 focus:border-[#2D7080] outline-none bg-white">
                             <option value="">—</option>
                             @foreach($countriesList as $country)
-                                <option value="{{ $country['name'] }}" {{ ($entreprise->country ?? '') === $country['name'] ? 'selected' : '' }}>{{ $country['name'] }}</option>
+                                <option value="{{ $country['name'] }}" {{ ($entreprise->country ?? '') === $country['name'] ? 'selected' : '' }}>{{ __('countries.' . $country['code']) }}</option>
                             @endforeach
                         </select>
                     </div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <x-favicon />
     <meta charset="UTF-8">
@@ -157,7 +157,7 @@
                 @if(session('message'))
                     <div class="m-4 sm:m-5 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl relative flex items-center gap-2" role="alert">
                         <span class="block sm:inline text-[13px] font-medium">{{ session('message') }}</span>
-                        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-emerald-600 hover:text-emerald-800 font-bold text-xl" aria-label="Close">
+                        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-emerald-600 hover:text-emerald-800 font-bold text-xl" aria-label="{{ __('messages.Close') }}">
                            &times;
                         </button>
                     </div>
@@ -316,7 +316,7 @@
                                 elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $deleteRoute = route('Responsable_gestionnaire.clients.destroy', $client->id);
                                 elseif (Auth::user()->hasRole('Admin')) $deleteRoute = route('admin.clients.destroy', $client->id);
                             @endphp
-                            <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
+                            <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm(@js(__('messages.Are you sure?')));" class="inline-block">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" title="{{ __('messages.Delete') }}"
@@ -475,7 +475,7 @@
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         $parentCell.text(originalContent);
-                        alert('{{ __('messages.Error updating client') }}: ' + errorThrown);
+                        alert((@js(__('messages.Error updating client')) + ': ') + errorThrown);
                         console.error("AJAX Error:", textStatus, errorThrown, jqXHR.responseText);
                     }
                 });

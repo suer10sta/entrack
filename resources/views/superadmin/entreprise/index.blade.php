@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 @include('dashboard_layouts.head')
 
@@ -26,16 +26,16 @@
             <div class="col-12">
               <div class="card">
               <div class="card-header p-3 pb-0">
-                <h6>Entreprises Table</h6>
+                <h6>{{ __('messages.Entreprises Table') }}</h6>
               </div>
                 <div class="table-responsive p-4 pt-1">
                   <table id="example" class="table table-flush" style="width:100%">
                     <thead class="thead-light">
                       <tr class="text-center">
-                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10"> Name</th>
-                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10"> Status</th>
-                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10"> Duration</th>
-                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10"> Action</th>
+                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10"> {{ __('messages.Name') }}</th>
+                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10"> {{ __('messages.Status') }}</th>
+                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10"> {{ __('messages.Duration') }}</th>
+                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-10"> {{ __('messages.Action column') }}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -49,22 +49,22 @@
                         </td>
                         <td> 
                             @if($entreprise->is_activated == 1)
-                                <span class="badge badge-success badge-sm">Active</span>
+                                <span class="badge badge-success badge-sm">{{ __('messages.Active') }}</span>
                             @else
-                                <span class="badge badge-danger badge-sm">Deactive</span>
+                                <span class="badge badge-danger badge-sm">{{ __('messages.Deactive') }}</span>
                             @endif
                         </td>
                         <td>{{$entreprise->duration}}</td>
                         <td>
                             @if($entreprise->is_activated == 1)
-                            <form action="{{route('superadmin.entreprise.disactivate', $entreprise->id) }}" method="post" onsubmit="return confirm('Are you sure?');" class="d-inline">
+                            <form action="{{route('superadmin.entreprise.disactivate', $entreprise->id) }}" method="post" onsubmit="return confirm(@js(__('messages.Are you sure?')));" class="d-inline">
                                 @csrf
-                                <button type="submit" class="btn btn-danger btn-sm">Deactivate</button>
+                                <button type="submit" class="btn btn-danger btn-sm">{{ __('messages.Deactivate') }}</button>
                             </form>
                             @else
-                            <form action="{{route('superadmin.entreprise.activate', $entreprise->id) }}" method="post" onsubmit="return confirm('Are you sure?');" class="d-inline">
+                            <form action="{{route('superadmin.entreprise.activate', $entreprise->id) }}" method="post" onsubmit="return confirm(@js(__('messages.Are you sure?')));" class="d-inline">
                                 @csrf
-                                <button type="submit" class="btn btn-success btn-sm">Activate</button>
+                                <button type="submit" class="btn btn-success btn-sm">{{ __('messages.Activate') }}</button>
                             </form>
                             @endif
                         </td>

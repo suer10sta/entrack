@@ -213,7 +213,7 @@
             @if(session('alertmessage'))
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative flex justify-between items-center" role="alert">
                 <span class="block sm:inline">{{ session('alertmessage') }}</span>
-                <button type="button" onclick="this.parentElement.style.display='none';" class="p-1 -mr-1" aria-label="Close">
+                <button type="button" onclick="this.parentElement.style.display='none';" class="p-1 -mr-1" aria-label="{{ __('messages.Close') }}">
                     <svg class="w-5 h-5 text-red-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>
@@ -222,7 +222,7 @@
             @elseif(session('success'))
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative flex justify-between items-center" role="alert">
                 <span class="block sm:inline">{{ session('success') }}</span>
-                <button type="button" onclick="this.parentElement.style.display='none';" class="p-1 -mr-1" aria-label="Close">
+                <button type="button" onclick="this.parentElement.style.display='none';" class="p-1 -mr-1" aria-label="{{ __('messages.Close') }}">
                     <svg class="w-5 h-5 text-green-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>

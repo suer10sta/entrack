@@ -186,7 +186,7 @@
                                 @if($search)
                                     <a href="{{ route('admin.projects.index', ['per_page' => $perPage]) }}"
                                        class="absolute inset-y-0 right-2.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
-                                       aria-label="Clear search">
+                                       aria-label="{{ __('messages.Clear search') }}">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                     </a>
                                 @endif
@@ -383,7 +383,7 @@
 
                                                 {{-- Archive — icon only --}}
                                                 <form action="{{ $archiveRoute }}" method="POST" class="inline"
-                                                      onsubmit="return confirm('{{ __('messages.Archive this project?') }}')">
+                                                      onsubmit="return confirm(@js(__('messages.Archive this project?')))">
                                                     @csrf
                                                     <button type="submit" class="act-icon act-icon-archive" title="{{ __('messages.Archive') }}">
                                                         <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -394,7 +394,7 @@
 
                                                 {{-- Delete — icon only --}}
                                                 <form action="{{ $deleteRoute }}" method="POST" class="inline"
-                                                      onsubmit="return confirm('{{ __('messages.Are you sure you want to delete this project?') }}')">
+                                                      onsubmit="return confirm(@js(__('messages.Are you sure you want to delete this project?')))">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="act-icon act-icon-delete" title="{{ __('messages.Delete') }}">

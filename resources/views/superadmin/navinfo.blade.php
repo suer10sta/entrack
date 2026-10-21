@@ -8,7 +8,7 @@
                       <div class="col-8">
                         <div class="numbers">
                           <p class="text-sm mb-0 text-uppercase font-weight-bold">
-                            {{ __(
+                            {{ __('messages.Company') }}
                           </p>
                           <h5 class="font-weight-bolder">{{count($entreprises)}}</h5>
                           <p class="mb-0 metric-note">
@@ -33,7 +33,7 @@
                       <div class="col-8">
                         <div class="numbers">
                           <p class="text-sm mb-0 text-uppercase font-weight-bold">
-                            {{ __(
+                            {{ __('messages.Users') }}
                           </p>
                           <h5 class="font-weight-bolder">{{count($users)}}</h5>
                           <p class="mb-0 metric-note">
@@ -57,7 +57,7 @@
                       <div class="col-8">
                         <div class="numbers">
                           <p class="text-sm mb-0 text-uppercase font-weight-bold">
-                            {{ __(
+                            {{ __('messages.Total') }}
                           </p>
                           <h5 class="font-weight-bolder">4</h5>
                           <p class="mb-0 metric-note">

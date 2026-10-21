@@ -1,4 +1,4 @@
-<section id="tarifs" class="scroll-mt-24 bg-[linear-gradient(120deg,#0b2638_0%,#194354_100%)] py-[95px] text-white">
+<section data-home-section="cta" id="tarifs" class="scroll-mt-24 bg-[linear-gradient(120deg,#0b2638_0%,#194354_100%)] py-[95px] text-white">
   <div class="mx-auto grid max-w-[1200px] items-center gap-[90px] px-6 max-md:grid-cols-1 max-md:gap-[38px] max-md:px-4 lg:grid-cols-[1.2fr_0.8fr]">
     <div>
       <p class="mb-5 flex items-center gap-2.5 text-[0.75rem] font-bold uppercase tracking-[0.13em] text-[#8ccfd0]"><span class="h-0.5 w-7 bg-brand-accent"></span>{{ __('messages.public_cta_eyebrow') }}</p>

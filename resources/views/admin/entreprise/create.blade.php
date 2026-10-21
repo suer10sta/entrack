@@ -283,7 +283,7 @@
                                         elseif (Auth::user()->hasRole('Employee')) $deleteBudgetRoute = route('employee.billing.destroy', $billing->id);
                                         elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $deleteBudgetRoute = route('Responsable_gestionnaire.billing.destroy', $billing->id);
                                     @endphp
-                                    <form method="post" action="{{ $deleteBudgetRoute }}" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
+                                    <form method="post" action="{{ $deleteBudgetRoute }}" onsubmit="return confirm(@js(__('messages.Are you sure?')));">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="dt-btn dt-btn-ghost text-red-700 text-[11px]">
@@ -349,7 +349,7 @@
                                                             elseif (Auth::user()->hasRole('Employee')) $deleteExpenseRoute = route('employee.Enterprise_infos.destroy', $entrepriseCharge->id);
                                                             elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $deleteExpenseRoute = route('Responsable_gestionnaire.Enterprise_infos.destroy', $entrepriseCharge->id);
                                                         @endphp
-                                                        <form method="post" action="{{ $deleteExpenseRoute }}" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
+                                                        <form method="post" action="{{ $deleteExpenseRoute }}" onsubmit="return confirm(@js(__('messages.Are you sure?')));">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="dt-btn dt-btn-ghost text-red-700 text-[11px]"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7-3h8m-9 3 1 14h6l1-14"/></svg>{{ __('messages.Delete') }}</button>

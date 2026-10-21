@@ -4,20 +4,20 @@
     <x-favicon />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Blog | DalyTrac</title>
-    <meta name="description" content="Practical articles on e-invoicing, project management, time tracking and running a modern services business with DalyTrac.">
+    <title>{{ __('messages.Blog | DalyTrac') }}</title>
+    <meta name="description" content="{{ __('messages.Practical articles on e-invoicing, project management, time tracking and running a modern services business with DalyTrac.') }}">
     <meta name="robots" content="index,follow">
     <link rel="canonical" href="{{ route('blog.index') }}">
 
-    <meta property="og:title" content="Blog | DalyTrac">
-    <meta property="og:description" content="Tips and best practices for using DalyTrac to manage invoices, projects and teams.">
+    <meta property="og:title" content="{{ __('messages.Blog | DalyTrac') }}">
+    <meta property="og:description" content="{{ __('messages.Tips and best practices for using DalyTrac to manage invoices, projects and teams.') }}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ route('blog.index') }}">
     <meta property="og:image" content="{{ asset('img/background_hero.png') }}">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Blog | DalyTrac">
-    <meta name="twitter:description" content="Guides and updates about DalyTrac and business operations.">
+    <meta name="twitter:title" content="{{ __('messages.Blog | DalyTrac') }}">
+    <meta name="twitter:description" content="{{ __('messages.Guides and updates about DalyTrac and business operations.') }}">
 
     @vite('resources/css/app.css')
     <link rel="stylesheet" href="{{ asset('welcome/css/aos.css') }}" />

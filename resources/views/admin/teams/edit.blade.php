@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 @include('dashboard_layouts.head')
+@include('partials.edit-layout-styles')
 
 <body class="g-sidenav-show bg-gray-100">
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
@@ -15,7 +16,7 @@
         @include('admin.sidebar')
     @endif
 
-    <main class="main-content position-relative border-radius-lg">
+    <main class="dt-edit-legacy main-content position-relative border-radius-lg">
         <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl z-index-sticky"
             id="navbarBlur" data-scroll="false">
             <div class="container-fluid py-1 px-3">
@@ -24,10 +25,10 @@
 
             </div>
 
-            <div class="container-fluid py-4">
+            <div class="dt-edit-container container-fluid py-4">
 
                 <div class="row">
-                    <div class="col-lg-9 col-12 mx-auto">
+                    <div class="dt-edit-column col-lg-9 col-12 mx-auto">
                         <div class="card card-body mt-4">
                             <h6 class="mb-0">{{ __('messages.New Team') }}</h6>
                             <p class="text-sm mb-0">{{ __('messages.Edit Team Header') }}</p>

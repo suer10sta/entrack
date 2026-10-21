@@ -26,6 +26,7 @@
             box-shadow: 0 0 0 1px #ef4444;
         }
     </style>
+    @include('partials.edit-layout-styles')
 </head>
 
 <body class="devis-dashboard-page dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
@@ -41,7 +42,8 @@
         {{-- Navbar Component --}}
         <x-dashboard.navbar />
         
-        <main class="flex-1 min-w-0 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7 space-y-5">
+        <main class="dt-edit-page flex-1 min-w-0 overflow-x-hidden overflow-y-auto bg-[#f8fafc] px-3 py-4 sm:px-5 sm:py-5 lg:px-16 lg:py-7">
+            <div class="dt-edit-container mx-auto space-y-5">
             {{-- 1. Header Section --}}
             <div class="flex flex-wrap justify-between items-end gap-3">
                 <div>
@@ -169,6 +171,7 @@
                     </button>
                 </div>
             </form>
+            </div>
         </main>
     </div>
 
@@ -196,7 +199,7 @@
                 const $button = $('#saveButton'); 
                 const originalText = $button.html();
                 
-                $button.prop('disabled', true).html('<svg class="animate-spin h-4 w-4 mr-2 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>{{ __('messages.Saving...') }}');
+                $button.prop('disabled', true).html(('<svg class="animate-spin h-4 w-4 mr-2 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>' + @js(__('messages.Saving...'))));
 
                 const entrepriseId = "{{ Auth::user()->entreprise_id }}";
                 const updateUrl = "{{ $updateUrl }}";
@@ -278,7 +281,7 @@
                             // --- Error animation ---
                             $button.removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-red-600');
                             $button.html('<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>{{ __('messages.Error!') }}');
-                            alert('{{ __('messages.Failed to save changes. Please try again.') }}');
+                            alert(@js(__('messages.Failed to save changes. Please try again.')));
                         }
 
                         // --- Reset button state ---

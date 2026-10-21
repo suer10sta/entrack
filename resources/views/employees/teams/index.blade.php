@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 @include('dashboard_layouts.head')
 
@@ -23,7 +23,7 @@
                 @if(session('message'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         {{ session('message') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('messages.Close') }}">X</button>
                     </div>
                   @endif
                 <div class="card">
@@ -33,13 +33,13 @@
                                 <thead>
                                     <tr>
                                         <th class="text-uppercase text-dark text-sm font-weight-bolder opacity-10">
-                                            Team
+                                            {{ __('messages.Team') }}
                                         </th>
                                         <th class="text-uppercase text-dark text-sm font-weight-bolder opacity-10 ps-2">
-                                            Projects
+                                            {{ __('messages.Projects Section') }}
                                         </th>
                                         <th class="text-uppercase text-dark text-sm font-weight-bolder opacity-10 ps-2">
-                                            Tasks
+                                            {{ __('messages.Tasks column') }}
                                         </th>
                                         <th></th>
                                     </tr>
@@ -104,10 +104,10 @@
                                 <div class="d-flex justify-content-between w-100">
                                     <h5 class="mb-0 text-capitalize">{{$team->name}}</h5>
                                     <form action="{{route('admin.teams.destroy',$team->id) }}" method="post"
-                                        onsubmit="return confirm('Are you sure?');" class="d-inline">
+                                        onsubmit="return confirm(@js(__('messages.Are you sure?')));" class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger btn-sm">Delete</button>
+                                        <button type="submit" class="btn btn-sm btn-danger btn-sm">{{ __('messages.Delete') }}</button>
                                     </form>
                                 </div>
                                 <span class="font-weight-bold" style="font-size: 0.8em; padding-left: 10px;">Team
@@ -141,17 +141,17 @@
                                                     <a href="javascript:;">{{$team_member->employee_name}}</a>
                                                 </h6>
                                                 @if(App\Models\Employees::where('id', $team_member->employee_id)->first()->status == 0)
-                                                    <span class="badge badge-danger badge-sm">Off Work</span>
+                                                    <span class="badge badge-danger badge-sm">{{ __('messages.Off Work') }}</span>
                                                 @elseif(App\Models\Employees::where('id', $team_member->employee_id)->first()->status == 1)
-                                                    <span class="badge badge-success badge-sm">On Work</span>
+                                                    <span class="badge badge-success badge-sm">{{ __('messages.On Work') }}</span>
                                                 @else
-                                                    <span class="badge badge-warning badge-sm">On Pause</span>
+                                                    <span class="badge badge-warning badge-sm">{{ __('messages.On Pause') }}</span>
                                                 @endif
                                             </div>
                                             <div class="col-auto">
                                                 <a href="{{route('admin.employees.show', $team_member->employee_id)}}"
                                                     type="button" class="btn btn-outline-primary btn-xs mb-0">
-                                                    view
+                                                    {{ __('messages.view') }}
                                                 </a>
                                             </div>
                                         </div>

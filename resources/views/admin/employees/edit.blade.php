@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <x-favicon />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DalyTrac Dashboard</title>
+    <title>{{ __('messages.DalyTrac Dashboard') }}</title>
     @vite('resources/css/app.css')
+@include('partials.edit-layout-styles')
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
@@ -19,9 +20,9 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <main class="flex-1 overflow-y-auto p-8 bg-gray-50">
-            <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Assign Role</h2>
+        <main class="dt-edit-page flex-1 overflow-y-auto p-8 bg-gray-50">
+            <div class="dt-edit-mobile-card dt-edit-container max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">{{ __('messages.Assign Role') }}</h2>
 
                 @php
                     $currentRouteName = request()->route()->getName();
@@ -61,13 +62,13 @@
                     {{-- Roles Section --}}
                     <div class="mb-8">
                         <div class="flex items-center justify-between mb-3">
-                            <h5 class="text-lg font-semibold text-gray-800">Assign Roles</h5>
+                            <h5 class="text-lg font-semibold text-gray-800">{{ __('messages.Assign Roles') }}</h5>
                             @if($roleCreateRoute)
                                 <a href="{{ $roleCreateRoute }}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium shadow-sm hover:bg-blue-700">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                                     </svg>
-                                    Add New Role
+                                    {{ __('messages.Add New Role') }}
                                 </a>
                             @endif
                         </div>
@@ -89,10 +90,10 @@
                     <div class="flex justify-between items-center mt-6">
                         <button type="button"  onclick="window.history.back()" 
                            class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">
-                           Cancel
+                           {{ __('messages.Cancel') }}
                         </button>
                         <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-sm">
-                            Save
+                            {{ __('messages.Save') }}
                         </button>
                     </div>
                 </form>

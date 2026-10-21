@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <x-favicon />
     <meta charset="UTF-8">
@@ -1031,7 +1031,7 @@
                                             </div>
                                             <div class="flex flex-col items-stretch gap-2">
                                                 @if(Auth::user()->hasRole('Admin'))
-                                                    <form action="{{ route('admin.tasks.timer.destroy', $task->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this timer entry?');">
+                                                    <form action="{{ route('admin.tasks.timer.destroy', $task->id) }}" method="POST" onsubmit="return confirm(@js(__('messages.Are you sure you want to delete this timer entry?')));">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="inline-flex items-center justify-center gap-1.5 w-full rounded-lg border border-red-200 bg-white px-2 py-1.5 text-[11px] font-semibold text-red-600 hover:bg-red-50 transition-colors">
@@ -1135,7 +1135,7 @@
                     <label for="moveDuration" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Duration (HH:MM)') }}</label>
                     <input type="text" x-model="duration" id="moveDuration" @input="validateDurationFormat()"
                            class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3"
-                           placeholder="00h:00m" pattern="^(\d+)h:(\d{2})m$">
+                           placeholder="{{ __('messages.Duration placeholder') }}" pattern="^(\d+)h:(\d{2})m$">
                 </div>
             </div>
             <div class="flex items-center justify-end p-4 bg-slate-50/70 border-t border-slate-100 rounded-b-2xl space-x-2">
@@ -1277,7 +1277,7 @@
                         .then(json => {
                             if (json.status === 'success') span.textContent = trimmed;
                             else { span.textContent = originalText; alert(json.message || 'Failed to update'); }
-                        }).catch(err => { span.textContent = originalText; alert('Network error'); })
+                        }).catch(err => { span.textContent = originalText; alert(@js(__('messages.Network error'))); })
                         .finally(() => cleanup());
                     };
                     var cancel = () => cleanup();
@@ -1301,7 +1301,7 @@
                     e.preventDefault();
                     var startDate = document.getElementById('startDateInput').value;
                     var endDate = document.getElementById('endDateInput').value;
-                    if(!startDate || !endDate){ alert('Please pick start and end dates first.'); return; }
+                    if(!startDate || !endDate){ alert(@js(__('messages.Please pick start and end dates first.'))); return; }
                     var url = "{{ route('admin.Pointagerepports.employeesDailyTotals', ['startDate' => 'START', 'endDate' => 'END']) }}";
                     url = url.replace('START', startDate).replace('END', endDate);
                     window.open(url, '_blank');
@@ -1701,7 +1701,7 @@
                 syncTimeTransferFilters();
                 // Reset task filter when client changes
                 const taskFilter = document.getElementById('taskFilter');
-                taskFilter.innerHTML = '<option value="all" selected>All Tasks</option>';
+                taskFilter.innerHTML = ('<option value="all" selected>' + @js(__('messages.All Tasks')) + '</option>');
             });
 
             document.getElementById('employeeFilter').addEventListener('change', async () => {
@@ -1787,8 +1787,8 @@
                     .map(option => option.value)
                     .filter(taskId => taskId !== 'all');
 
-                if (!projectId) { alert('Please select a project from the filter dropdown.'); return; }
-                if (!startDate || !endDate) { alert('Please enter both start and end dates in the date filter section.'); return; }
+                if (!projectId) { alert(@js(__('messages.Please select a project from the filter dropdown.'))); return; }
+                if (!startDate || !endDate) { alert(@js(__('messages.Please enter both start and end dates in the date filter section.'))); return; }
 
                 var downloadUrl = '';
                 @if(Auth::user()->hasRole('Responsable de projet')) downloadUrl = "{{ route('Responsable_de_projet.projects.invoicebyduration2', ['id' => ':projectId', 'startdate' => ':startDate', 'enddate' => ':endDate']) }}"; @endif
@@ -1960,11 +1960,11 @@
                         if (window.showPdfErrorModal) {
                             window.showPdfErrorModal(null, 'An error occurred while generating the PDF. Please try again. If the problem persists, check your filters and network connection, or contact an administrator.');
                         } else {
-                            alert('An error occurred while generating the PDF. Please try again.');
+                            alert(@js(__('messages.An error occurred while generating the PDF. Please try again.')));
                         }
                     });
                 } else {
-                    alert('Please select a start date first.');
+                    alert(@js(__('messages.Please select a start date first.')));
                 }
             });
 

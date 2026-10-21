@@ -480,7 +480,7 @@
                                 recipientsList.innerHTML += `
                                     <div class="flex items-center">
                                         <input class="h-4 w-4 rounded border-slate-300 text-[#2D7080] focus:ring-[#2D7080]/30" type="checkbox" id="selectAllRecipients">
-                                        <label class="ml-2 text-sm font-bold text-slate-900" for="selectAllRecipients">{{ __('messages.Select All') }}</label>
+                                        <label class="ml-2 text-sm font-bold text-slate-900" for="selectAllRecipients">${@js(__('messages.Select All'))}</label>
                                     </div>`;
                                 data.recipients.forEach(recipient => {
                                     recipientsList.innerHTML += `
@@ -502,7 +502,7 @@
                                     });
                                 }
                             } else {
-                                recipientsList.innerHTML = '<p class="text-sm text-slate-500">{{ __('messages.No recipients found') }}</p>';
+                                recipientsList.innerHTML = ('<p class="text-sm text-slate-500">' + @js(__('messages.No recipients found')) + '</p>');
                             }
                         });
                 },
@@ -736,8 +736,8 @@
                         @if(!$project->client_id)
                             <div class="flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl mt-3" role="alert">
                                 <svg class="w-4 h-4 flex-shrink-0 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-                                <span class="text-sm font-medium">This project has no client assigned. You must assign a client before creating invoices, devis, or credit notes.</span>
-                                <a href="{{ route($taskRoutePrefix . 'projects.edit', $project->id) }}" class="dt-btn dt-btn-teal text-[12px] ml-auto flex-shrink-0">Assign Client</a>
+                                <span class="text-sm font-medium">{{ __('messages.This project has no client assigned. You must assign a client before creating invoices, devis, or credit notes.') }}</span>
+                                <a href="{{ route($taskRoutePrefix . 'projects.edit', $project->id) }}" class="dt-btn dt-btn-teal text-[12px] ml-auto flex-shrink-0">{{ __('messages.Assign Client') }}</a>
                             </div>
                         @endif
                     </div>
@@ -880,7 +880,7 @@
                                     $deleteRoute = route($taskRoutePrefix . 'projects.destroy', $project->id);
                                 @endphp
 
-                                <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Archive this project?') }}');" class="inline">
+                                <form action="{{ $archiveRoute }}" method="post" onsubmit="return confirm(@js(__('messages.Archive this project?')));" class="inline">
                                     @csrf
                                     <button type="submit" class="dt-btn dt-btn-ghost">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
@@ -888,7 +888,7 @@
                                     </button>
                                 </form>
 
-                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure you want to delete this project?') }}');" class="inline">
+                                <form action="{{ $deleteRoute }}" method="post" onsubmit="return confirm(@js(__('messages.Are you sure you want to delete this project?')));" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="dt-btn dt-btn-ghost !text-red-600 !border-red-200 hover:!bg-red-50">
@@ -961,7 +961,7 @@
                                     <div class="flex items-center gap-3 text-[12px] text-slate-500 flex-shrink-0">
                                         <span>{{ __('messages.Created') }}: {{ $sub->created_at?->format('Y-m-d') }}</span>
                                         @can('Delete project')
-                                            <form action="{{ $subProjectDeleteRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure you want to delete this project?') }}');">
+                                            <form action="{{ $subProjectDeleteRoute }}" method="post" onsubmit="return confirm(@js(__('messages.Are you sure you want to delete this project?')));">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" title="{{ __('messages.Delete project') }}" class="act-btn act-btn-delete">
@@ -1161,7 +1161,7 @@
                                                 </button>
                                             @endcan
                                             @can('Delete task')
-                                            <form method="post" action="{{ route($taskRoutePrefix . 'tasks.destroy', $task->id) }}" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
+                                            <form method="post" action="{{ route($taskRoutePrefix . 'tasks.destroy', $task->id) }}" onsubmit="return confirm(@js(__('messages.Are you sure?')));">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="act-btn act-btn-delete" title="{{ __('messages.Delete Task') }}">
@@ -1288,7 +1288,7 @@
                                                 elseif(Auth::user()->hasRole('Employee')) $toggleRoute = $isPaid ? route('employee.invoice.deactivate', $invoice->id) : route('employee.invoice.activate', $invoice->id);
                                                 elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $toggleRoute = $isPaid ? route('Responsable_gestionnaire.invoice.deactivate', $invoice->id) : route('Responsable_gestionnaire.invoice.activate', $invoice->id);
                                             @endphp
-                                            <form action="{{ $toggleRoute }}" method="post" onsubmit="return confirm('{{ __('messages.Change payment status?') }}');">
+                                            <form action="{{ $toggleRoute }}" method="post" onsubmit="return confirm(@js(__('messages.Change payment status?')));">
                                                 @csrf
                                                 <button type="submit" title="{{ $isPaid ? __('messages.Mark as Unpaid') : __('messages.Mark as Paid') }}"
                                                         class="payment-button act-btn {{ $isPaid ? 'act-btn-paid' : 'act-btn-unpaid' }}">
@@ -1468,7 +1468,7 @@
                                             </form>
                                             @endcan
                                             @can('Delete devis')
-                                            <form action="{{route($devisRoutePrefix . 'devis.destroy', $d->id)}}" method="post" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');" class="inline-block">
+                                            <form action="{{route($devisRoutePrefix . 'devis.destroy', $d->id)}}" method="post" onsubmit="return confirm(@js(__('messages.Are you sure?')));" class="inline-block">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="act-btn act-btn-delete" title="{{ __('messages.Delete') }}">
@@ -1566,7 +1566,7 @@
                                                         </svg>
                                                         {{ __('messages.Download') }}
                                                     </a>
-                                                    <form action="{{ route($fileRoutePrefix . 'projects.deletefiles', $file->file_name) }}" method="POST" onsubmit="return confirm('{{ __('messages.Are you sure?') }}');">
+                                                    <form action="{{ route($fileRoutePrefix . 'projects.deletefiles', $file->file_name) }}" method="POST" onsubmit="return confirm(@js(__('messages.Are you sure?')));">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="act-btn act-btn-delete" title="{{ __('messages.Delete') }}">

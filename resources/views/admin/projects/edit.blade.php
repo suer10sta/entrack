@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <x-favicon />
@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ __('messages.Edit Project') }}</title>
     @vite('resources/css/app.css')
+@include('partials.edit-layout-styles')
 </head>
 
 <body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
@@ -22,8 +23,8 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <main class="flex-1 overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
-            <div class="max-w-6xl mx-auto w-full">
+        <main class="dt-edit-page dt-create-page flex-1 overflow-y-auto bg-[#f8fafc] p-4 sm:p-6">
+            <div class="dt-edit-container dt-create-container mx-auto w-full">
 
                 {{-- Header with back navigation --}}
                 @php
@@ -32,6 +33,7 @@
                     elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $indexRoute = route('Responsable_gestionnaire.projects.index');
                     elseif (Auth::user()->hasRole('Employee')) $indexRoute = route('employee.projects.index');
                     elseif (Auth::user()->hasRole('Admin')) $indexRoute = route('admin.projects.index');
+                    $clientCreateRoute = \Illuminate\Support\Str::before(request()->route()->getName(), '.') . '.clients.create';
                 @endphp
                 <div class="flex items-center gap-3 mb-5">
 
@@ -40,7 +42,7 @@
                         <h1 class="text-[22px] sm:text-[24px] font-bold tracking-tight text-[#0B2638] leading-tight truncate">
                             {{ __('messages.Edit Project') }}
                         </h1>
-                        <p class="text-[13.5px] text-slate-500 mt-1">{{ __('messages.Update project details') }}</p>
+                        <!-- <p class="text-[13.5px] text-slate-500 mt-1">{{ __('messages.Update project details') }}</p> -->
                     </div>
                     <span class="dt-badge dt-badge-navy hidden md:inline-flex flex-shrink-0 max-w-[260px]">
                         <span class="dt-dot flex-shrink-0"></span><span class="truncate">{{ $project->name }}</span>
@@ -50,26 +52,26 @@
                 @if(session('message'))
                 <div class="mb-5 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl relative flex items-center gap-2" role="alert">
                     <span class="text-[13px] font-medium">{{ session('message') }}</span>
-                    <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-emerald-600 hover:text-emerald-800 font-bold" data-bs-dismiss="alert" aria-label="Close">&times;</button>
+                    <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-emerald-600 hover:text-emerald-800 font-bold" data-bs-dismiss="alert" aria-label="{{ __('messages.Close') }}">&times;</button>
                 </div>
                 @endif
 
                 @if(Auth::user()->hasRole('Admin'))
-                    <form method="POST" action="{{ route('admin.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id ?? '']) }}" autocomplete="off">
+                    <form method="POST" action="{{ route('admin.projects.updateInfos', ['id' => $project->id]) }}" autocomplete="off">
                 @elseif(Auth::user()->hasRole('Responsable de projet'))
-                    <form method="POST" action="{{ route('Responsable_de_projet.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id ?? '']) }}" autocomplete="off">
+                    <form method="POST" action="{{ route('Responsable_de_projet.projects.updateInfos', ['id' => $project->id]) }}" autocomplete="off">
                 @elseif(Auth::user()->hasRole('Employee'))
-                    <form method="POST" action="{{ route('employee.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id ?? '']) }}" autocomplete="off">
+                    <form method="POST" action="{{ route('employee.projects.updateInfos', ['id' => $project->id]) }}" autocomplete="off">
                 @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                    <form method="POST" action="{{ route('Responsable_gestionnaire.projects.updateInfos', ['id' => $project->id, 'client_id' => $project->client_id ?? '']) }}" autocomplete="off">
+                    <form method="POST" action="{{ route('Responsable_gestionnaire.projects.updateInfos', ['id' => $project->id]) }}" autocomplete="off">
                 @endif
                     @csrf
 
-                    <div class="grid grid-cols-1 xl:grid-cols-5 gap-4 sm:gap-5 items-start">
-                        {{-- Left column: project facts + display --}}
-                        <div class="xl:col-span-3 space-y-4 sm:space-y-5 min-w-0">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 sm:gap-5 items-start">
+                        {{-- Project details occupy the full first row. --}}
+                        <div class="md:col-span-5 min-w-0">
                             {{-- Project details --}}
-                            <section class="dt-card p-5 sm:p-6">
+                            <section class="dt-card dt-create-panel p-5 sm:p-6">
                                 <div class="flex items-center gap-3 mb-5">
                                     <span class="flex items-center justify-center w-9 h-9 rounded-xl bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 flex-shrink-0">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" /></svg>
@@ -86,13 +88,36 @@
                                 </div>
 
                                 <div class="mb-4">
-                                    <label for="clientSelect" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Client') }}</label>
-                                    <select id="clientSelect" name="client_id" class="w-full rounded-xl border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25">
+                                    <div class="mb-2">
+                                        <label for="clientSelect" class="block text-[13px] font-semibold text-slate-700">{{ __('messages.Client') }}</label>
+                                    </div>
+                                    <div style="display:flex;align-items:center;gap:10px">
+                                    <select id="clientSelect" name="client_id" style="flex:1;min-width:0" class="w-full rounded-xl border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25">
                                         <option value="">{{ __('messages.No client') }}</option>
                                         @foreach($clients as $client)
                                         <option value="{{ $client->id }}" {{ ($project->client_id ?? '') == $client->id ? 'selected' : '' }}>{{ $client->name }}</option>
                                         @endforeach
                                     </select>
+                                        @can('Add client')
+                                            @if(Route::has($clientCreateRoute))
+                                                <button type="button" id="toggle-client-form" aria-expanded="false" aria-controls="project-client-inline" class="dt-btn dt-btn-ghost text-[12px] whitespace-nowrap flex-shrink-0">
+                                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M12 5v14M5 12h14" /></svg>
+                                                    {{ __('messages.Add Client') }}
+                                                </button>
+                                            @endif
+                                        @endcan
+                                    </div>
+                                    @can('Add client')
+                                        <div id="project-client-inline" hidden class="mt-4 rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+                                            <div id="client-form-errors" hidden role="alert" class="mb-3 text-sm text-red-700"></div>
+                                            @include('partials.inline-client-fields')
+                                            <div class="mt-4 flex justify-end gap-2">
+                                                <button type="button" id="cancel-client-inline" class="dt-btn dt-btn-ghost">{{ __('messages.Cancel') }}</button>
+                                                <button type="submit" form="create-client-form" id="submit-client-inline" class="dt-btn dt-btn-teal">{{ __('messages.Create') }}</button>
+                                            </div>
+                                        </div>
+                                        <p id="client-created-message" hidden role="status" class="mt-2 text-sm text-emerald-700">{{ __('messages.client Added Successfully') }}</p>
+                                    @endcan
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -127,8 +152,12 @@
                                 </div>
                             </section>
 
+                        </div>
+
+                        {{-- Second row: display & content beside teams and contacts. --}}
+                        <div class="md:col-span-3 min-w-0">
                             {{-- Display & content --}}
-                            <section class="dt-card p-5 sm:p-6">
+                            <section class="dt-card dt-create-panel p-5 sm:p-6">
                                 <div class="flex items-center gap-3 mb-5">
                                     <span class="flex items-center justify-center w-9 h-9 rounded-xl bg-[#E7B84B]/20 text-[#0B2638] ring-1 ring-[#E7B84B]/40 flex-shrink-0">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-.88-7.903A5 5 0 1115.9 6.06A5 5 0 0119 16.9V18a1 1 0 01-1 1H8a3 3 0 01-1-5.83V21zM7 21h10" /></svg>
@@ -159,8 +188,8 @@
                         </div>
 
                         {{-- Right column: teams & contacts --}}
-                        <div class="xl:col-span-2 space-y-4 sm:space-y-5 min-w-0">
-                            <section class="dt-card p-5 sm:p-6">
+                        <div class="md:col-span-2 space-y-4 sm:space-y-5 min-w-0">
+                            <section class="dt-card dt-create-panel p-5 sm:p-6">
                                 <div class="flex items-center justify-between gap-3 mb-4">
                                     <div class="flex items-center gap-3 min-w-0">
                                         <span class="flex items-center justify-center w-9 h-9 rounded-xl bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 flex-shrink-0">
@@ -189,7 +218,7 @@
                                 </div>
                             </section>
 
-                            <section class="dt-card p-5 sm:p-6">
+                            <section class="dt-card dt-create-panel p-5 sm:p-6">
                                 <div class="flex items-center justify-between gap-3 mb-4">
                                     <div class="flex items-center gap-3 min-w-0">
                                         <span class="flex items-center justify-center w-9 h-9 rounded-xl bg-[#0B2638]/[0.06] text-[#0B2638] ring-1 ring-[#0B2638]/10 flex-shrink-0">
@@ -226,7 +255,7 @@
                     </div>
 
                     {{-- Sticky action bar --}}
-                    <div class=" bottom-4 z-20 dt-card mt-5 px-5 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" >
+                    <div class="dt-create-actions mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <p class="text-[12.5px] text-slate-500"><span class="text-red-500 font-bold">*</span> {{ __('messages.Mandatory informations') }}</p>
                         <div class="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                             <a href="javascript:history.back()" class="dt-btn dt-btn-ghost w-full sm:w-auto">
@@ -239,6 +268,9 @@
                         </div>
                     </div>
                 </form>
+                @can('Add client')
+                    <form id="create-client-form" action="{{ route(str_replace('.create', '.store', $clientCreateRoute)) }}" method="POST" autocomplete="off">@csrf</form>
+                @endcan
             </div>
         </main>
     </div>
@@ -246,6 +278,88 @@
     @include('dashboard_layouts.scripts')
 
     <script>
+        (() => {
+            const form = document.getElementById('create-client-form');
+            const toggle = document.getElementById('toggle-client-form');
+            if (!form || !toggle) return;
+            const panel = document.getElementById('project-client-inline');
+            const errors = document.getElementById('client-form-errors');
+            const submit = document.getElementById('submit-client-inline');
+            const select = document.getElementById('clientSelect');
+            function setOpen(open) {
+                panel.hidden = !open;
+                toggle.setAttribute('aria-expanded', String(open));
+                if (open) panel.querySelector('input').focus();
+                else toggle.focus();
+            }
+            toggle.addEventListener('click', () => setOpen(panel.hidden));
+            document.getElementById('cancel-client-inline').addEventListener('click', () => setOpen(false));
+            document.getElementById('ic-billing-same').addEventListener('change', function () {
+                [['address', 'billing_street'], ['city', 'billing_city'], ['zip', 'billing_zip'], ['country', 'billing_country']].forEach(([from, to]) => {
+                    const source = panel.querySelector(`[name="${from}"]`);
+                    const target = panel.querySelector(`[name="${to}"]`);
+                    if (source && target) target.value = this.checked ? source.value : '';
+                });
+            });
+            document.getElementById('ic-add-contact').addEventListener('click', () => {
+                const container = document.getElementById('ic-contacts');
+                const entry = container.firstElementChild.cloneNode(true);
+                entry.querySelectorAll('input').forEach(input => input.value = '');
+                const remove = document.createElement('button');
+                remove.type = 'button';
+                remove.className = 'dt-btn dt-btn-ghost';
+                remove.textContent = @js(__('messages.Delete Contact'));
+                remove.addEventListener('click', () => entry.remove());
+                entry.appendChild(remove);
+                container.appendChild(entry);
+            });
+            form.addEventListener('submit', async event => {
+                event.preventDefault();
+                errors.hidden = true;
+                document.getElementById('client-created-message').hidden = true;
+                submit.disabled = true;
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST', body: new FormData(form),
+                        headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    const data = await response.json();
+                    if (!response.ok) {
+                        errors.textContent = data.errors ? Object.values(data.errors).flat().join('\n') : (data.message || @js(__('messages.Failed to save changes. Please try again.')));
+                        errors.style.whiteSpace = 'pre-line';
+                        errors.hidden = false;
+                        return;
+                    }
+                    if (!data.client?.id) throw new Error('Missing client');
+                    select.add(new Option(data.client.name, data.client.id, true, true));
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                    // Previous client's contacts must not be submitted for the new client.
+                    document.getElementById('contactsDiv').replaceChildren();
+                    document.querySelector('[data-selected-count="contactsDiv"]').textContent = '0';
+                    // Load any contacts supplied in the inline client form.
+                    fetch(@js(url(\Illuminate\Support\Str::before(request()->route()->getName(), '.') . '/get-contacts')) + '/' + encodeURIComponent(data.client.id), {
+                        headers: { Accept: 'application/json' }
+                    }).then(response => response.ok ? response.json() : []).then(contacts => {
+                        if (String(select.value) !== String(data.client.id)) return;
+                        const container = document.getElementById('contactsDiv');
+                        contacts.forEach(contact => {
+                            const label = document.createElement('label');
+                            label.className = 'flex items-center gap-2 px-3 py-2 text-sm text-slate-700';
+                            const input = document.createElement('input');
+                            input.type = 'checkbox'; input.name = 'contacts[]'; input.value = contact.id;
+                            label.append(input, document.createTextNode(contact.name));
+                            container.appendChild(label);
+                        });
+                    }).catch(() => {});
+                    form.reset();
+                    setOpen(false);
+                    document.getElementById('client-created-message').hidden = false;
+                } catch (error) {
+                    errors.textContent = @js(__('messages.Failed to save changes. Please try again.'));
+                    errors.hidden = false;
+                } finally { submit.disabled = false; }
+            });
+        })();
         // Disable autocomplete
         window.addEventListener('load', function() {
             var inputs = document.getElementsByTagName('input');

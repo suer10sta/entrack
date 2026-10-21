@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ __('messages.Edit Profile Page Title') }}</title>
     @vite('resources/css/app.css')
+@include('partials.edit-layout-styles')
 </head>
 <body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden">
     {{-- Sidebar --}}
@@ -19,7 +20,7 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <div class="mx-auto w-full max-w-4xl p-4 sm:p-6 lg:p-8">
+        <div class="dt-edit-container dt-edit-profile mx-auto w-full max-w-4xl p-4 sm:p-6 lg:p-8">
 
             <div class="mb-5 sm:mb-6">
                 <p class="dt-overline">{{ __('messages.My Profile') }}</p>

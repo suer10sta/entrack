@@ -151,7 +151,9 @@
     <div class="container">
         <div class="header">
             <div class="header logo-right">
+@if(filled(Auth::user()->entreprise?->image) && Storage::disk('public')->exists(Auth::user()->entreprise->image))
             <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+@endif
             </div>
         </div>
 
@@ -164,7 +166,7 @@
                     {{ \Carbon\Carbon::now()->addDays(abs((int)filter_var($client->due_date, FILTER_SANITIZE_NUMBER_INT)))->format('d-m-Y') }}
                     <br>
                     {{ __('messages.Client Number') }} : {{ $client->client_number }} <br>
-                    {{ __('messages.Invoice Number') }} : {{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif
+                    {{ __('messages.Invoice Number') }} : {{ $invoice->number ?? $invoice_id }}
                     @php
                         $devis_number = null;
                         if(request()->has('devis_id') && !empty(request()->query('devis_id'))){
@@ -194,7 +196,7 @@
         }
         @endphp
         <div class="invoice-number">
-            {{ __('messages.Invoice') }} : {{$entreprise->invoice_prefix}}-{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif
+            {{ __('messages.Invoice') }} : {{$entreprise->invoice_prefix}}-{{ $invoice->number ?? $invoice_id }}
         </div>
 
         <table>
@@ -210,7 +212,7 @@
                 <tr>
                     <td>{{strtoupper($projectinfos->name)}}</td>
                     <td>
-                        1
+                        {{ __('messages.public_pricing_users_solo') }}
                     </td>
                     <td>{{ isset($principalBudget) ? $principalBudget : $projectinfos->budget }}€</td>
                     <td>
@@ -261,9 +263,11 @@
             - {{ __('messages.Please pay the amount of') }}
             <strong>{{number_format($amount + ($amount*($projectinfos->tva/100)), 2, ',', '')}}€</strong> {{ __('messages.on the account mentioned below before') }}
             {{ \Carbon\Carbon::now()->addDays(abs((int)filter_var($client->due_date, FILTER_SANITIZE_NUMBER_INT)))->format('d-m-Y') }}
-            {{ __('messages.mentioning the invoice number') }} <strong>{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif</strong>
+            {{ __('messages.mentioning the invoice number') }} <strong>{{ $invoice->number ?? $invoice_id }}</strong>
             <br>
+@if(\App\Support\InvoicePresentation::showReverseChargeNotice($entreprise))
             - {{ __('messages.In case of intra-community delivery for services') }}:  "Autoliquidation Art 21 § 2 du code TVA belge"
+@endif
             <br>
             - {{ __('messages.See general conditions in annex') }}
             <br>
@@ -338,16 +342,19 @@
 
     <div class="footer">
         <div style="float: left; width: 30%; height: 80%;text-align: center;">
-            <b>{{ $entreprise->name }}</b>
-            <br>
-            <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
-        </div>
+@include('partials.invoice-company-details', ['section' => 'identity'])
+</div>
         <div style="float: left; margin-left: 5%; width: 30%; height: 80%; text-align: center;">
-            {{ $entreprise->Address }}
-            <br>
-            {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
-        </div>
+@include('partials.invoice-company-details', ['section' => 'contact'])
+</div>
         <div style="float: left; margin-left: 5%; width: 30%; height: 80%; text-align: center;">
+@include('partials.invoice-company-details', ['section' => 'bank'])
+</div>
+    </div>
+</body>
+
+</html>
+rgin-left: 5%; width: 30%; height: 80%; text-align: center;">
             <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }} <br>
             <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }} <br>
             <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}

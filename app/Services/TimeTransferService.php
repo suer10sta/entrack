@@ -72,7 +72,7 @@ class TimeTransferService
         $lines = preg_split('/\R/', trim($content));
 
         if (!$lines || count($lines) < 2) {
-            throw new \InvalidArgumentException('Le fichier est vide ou ne contient pas de données.');
+            throw new \InvalidArgumentException(__('messages.time_transfer_empty'));
         }
 
         $delimiter = $this->detectDelimiter($lines[0]);
@@ -104,7 +104,7 @@ class TimeTransferService
         }
 
         if (empty($rows)) {
-            throw new \InvalidArgumentException('Aucune ligne valide trouvée dans le fichier.');
+            throw new \InvalidArgumentException(__('messages.time_transfer_no_rows'));
         }
 
         return $rows;
@@ -275,7 +275,7 @@ class TimeTransferService
 
         if (!$hasDateRange && !$hasLegacyDate) {
             throw new \InvalidArgumentException(
-                'Colonnes obligatoires manquantes : start_date et end_date (ou date pour l\'ancien format). Attendu : start_date, end_date, task_name, duration_minutes, comment (optionnel).'
+                __('messages.time_transfer_date_headers')
             );
         }
 
@@ -283,7 +283,7 @@ class TimeTransferService
 
         if (!empty($missing)) {
             throw new \InvalidArgumentException(
-                'Colonnes obligatoires manquantes : ' . implode(', ', $missing) . '. Attendu : start_date, end_date, task_name, duration_minutes, comment (optionnel).'
+                __('messages.time_transfer_missing_headers', ['columns' => implode(', ', $missing)])
             );
         }
     }
@@ -308,16 +308,16 @@ class TimeTransferService
         $comment = isset($headerMap['comment']) ? trim((string) ($cells[$headerMap['comment']] ?? '')) : '';
 
         if ($taskName === '' || $durationRaw === '') {
-            throw new \InvalidArgumentException("Ligne {$lineNumber} : task_name et duration_minutes sont obligatoires.");
+            throw new \InvalidArgumentException(__('messages.time_transfer_required', ['line' => $lineNumber]));
         }
 
         if (!is_numeric($durationRaw)) {
-            throw new \InvalidArgumentException("Ligne {$lineNumber} : duration_minutes doit être un nombre entier.");
+            throw new \InvalidArgumentException(__('messages.time_transfer_integer', ['line' => $lineNumber]));
         }
 
         $durationMinutes = (int) $durationRaw;
         if ($durationMinutes <= 0) {
-            throw new \InvalidArgumentException("Ligne {$lineNumber} : duration_minutes doit être supérieur à 0.");
+            throw new \InvalidArgumentException(__('messages.time_transfer_positive', ['line' => $lineNumber]));
         }
 
         if (isset($headerMap['start_date'], $headerMap['end_date'])) {
@@ -325,29 +325,29 @@ class TimeTransferService
             $endRaw = trim((string) ($cells[$headerMap['end_date']] ?? ''));
 
             if ($startRaw === '' || $endRaw === '') {
-                throw new \InvalidArgumentException("Ligne {$lineNumber} : start_date et end_date sont obligatoires.");
+                throw new \InvalidArgumentException(__('messages.time_transfer_dates_required', ['line' => $lineNumber]));
             }
 
             try {
                 $start = Carbon::parse($startRaw);
                 $end = Carbon::parse($endRaw);
             } catch (\Throwable $e) {
-                throw new \InvalidArgumentException("Ligne {$lineNumber} : start_date ou end_date invalide.");
+                throw new \InvalidArgumentException(__('messages.time_transfer_invalid_dates', ['line' => $lineNumber]));
             }
 
             if ($end->lte($start)) {
-                throw new \InvalidArgumentException("Ligne {$lineNumber} : end_date doit être postérieure à start_date.");
+                throw new \InvalidArgumentException(__('messages.time_transfer_date_order', ['line' => $lineNumber]));
             }
         } else {
             $date = trim((string) ($cells[$headerMap['date']] ?? ''));
             if ($date === '') {
-                throw new \InvalidArgumentException("Ligne {$lineNumber} : date est obligatoire.");
+                throw new \InvalidArgumentException(__('messages.time_transfer_date_required', ['line' => $lineNumber]));
             }
 
             try {
                 $start = Carbon::parse($date);
             } catch (\Throwable $e) {
-                throw new \InvalidArgumentException("Ligne {$lineNumber} : date invalide ({$date}).");
+                throw new \InvalidArgumentException(__('messages.time_transfer_invalid_date', ['line' => $lineNumber, 'date' => $date]));
             }
 
             $end = $start->copy()->addMinutes($durationMinutes);

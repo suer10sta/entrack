@@ -26,7 +26,7 @@
     <main class="min-h-screen px-4 pt-10 pb-5 sm:px-6 lg:px-8">
         <div class="mx-auto max-w-[560px]">
             <header class="mb-6 flex items-center justify-center">
-                <a href="/" aria-label="DalyTrac, home" class="inline-flex items-baseline text-[1.65rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><x-application-logo /></a>
+                <a href="/" aria-label="{{ __('messages.DalyTrac, home') }}" class="inline-flex items-baseline text-[1.65rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><x-application-logo /></a>
             </header>
 
             <div class="overflow-hidden rounded-[28px] border border-[#dfe9e7] bg-white shadow-[0_24px_70px_rgba(11,38,56,0.08)]">

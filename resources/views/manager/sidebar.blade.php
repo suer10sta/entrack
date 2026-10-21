@@ -196,7 +196,7 @@
                         $enterpriseUser = Auth::guard('web')->user();
                     @endphp
                     @if($enterpriseUser && (int)($enterpriseUser->entreprise_id ?? 0) === 43)
-                    <a href="{{ route('admin.index') }}" title="Back to Enterprise Dashboard"
+                    <a href="{{ route('admin.index') }}" title="{{ __('messages.Back to Enterprise Dashboard') }}"
                        class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium text-white bg-white/10 hover:bg-white/20 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5 flex-shrink-0">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />

@@ -60,6 +60,7 @@
         }
     </style>
 
+    @include('partials.edit-layout-styles')
 </head>
 
 <body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden font-sans">
@@ -78,7 +79,8 @@
         <x-dashboard.navbar />
 
         {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
+        <main class="dt-edit-page flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] p-4 sm:p-6 lg:px-20 lg:py-8">
+            <div class="dt-edit-container mx-auto">
 
             {{-- Back route computation --}}
             @php
@@ -102,10 +104,27 @@
             </div>
 
             {{-- Session Error Alert --}}
+            @php
+                // All invoice pages share the role's route prefix (admin, employee, etc.).
+                $invoiceRoutePrefix = \Illuminate\Support\Str::before(request()->route()->getName(), '.') . '.';
+                $invoiceFix = session('invoice_error_fix', []);
+                $invoiceFixUrl = null;
+                $invoiceFixLabel = null;
+                if (($invoiceFix['type'] ?? null) === 'client' && !empty($invoiceFix['project_id']) && Route::has($invoiceRoutePrefix . 'projects.edit')) {
+                    $invoiceFixUrl = route($invoiceRoutePrefix . 'projects.edit', $invoiceFix['project_id']);
+                    $invoiceFixLabel = __('messages.Assign Client');
+                } elseif (($invoiceFix['type'] ?? null) === 'parameters' && Route::has($invoiceRoutePrefix . 'invoices.parameters')) {
+                    $invoiceFixUrl = route($invoiceRoutePrefix . 'invoices.parameters');
+                    $invoiceFixLabel = __('messages.Invoice Parameters');
+                }
+            @endphp
             @if(session('error'))
-                <div class="mb-5 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl relative flex items-center gap-2" role="alert">
+                <div class="mb-5 bg-red-50 border border-red-200 text-red-700 pl-4 pr-12 py-3 rounded-xl relative flex flex-wrap items-center gap-2" role="alert">
                     <strong class="text-[13px] font-bold">{{ __('messages.Error!') }}</strong>
                     <span class="block sm:inline text-[13px] font-medium">{{ session('error') }}</span>
+                    @if($invoiceFixUrl)
+                        <a href="{{ $invoiceFixUrl }}" class="text-[13px] font-semibold underline underline-offset-4 hover:text-red-900">{{ $invoiceFixLabel }} &rarr;</a>
+                    @endif
                     <button type="button" onclick="this.parentElement.style.display='none';"
                             class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl text-red-600 hover:text-red-800" aria-label="{{ __('messages.Close') }}">&times;</button>
                 </div>
@@ -139,7 +158,7 @@
                     </div>
                 </div>
                 <div class="px-5 sm:px-6 py-5">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {{-- Project Filter --}}
                         <div class="lg:col-span-1">
                             <label for="projectFilter1" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Select Project') }}</label>
@@ -150,7 +169,8 @@
                                 @foreach($projects as $project)
                                     <option value="{{ $project->id }}"
                                             data-cost-per-hour="{{ $project->cost_per_hour }}"
-                                            data-tva="{{ $project->tva }}">
+                                            data-tva="{{ $project->tva }}"
+                                            data-edit-url="{{ Route::has($invoiceRoutePrefix . 'projects.edit') ? route($invoiceRoutePrefix . 'projects.edit', $project->id) : '' }}">
                                         @if(preg_match('/^(\d+)(.*)/', $project->name, $matches))
                                             {{ $matches[1] }}{{ $matches[2] }}
                                         @else
@@ -185,7 +205,7 @@
                                    placeholder="{{ __('messages.Manual budget') }}">
                         </div>
                         {{-- Comment (Full Width) --}}
-                        <div class="lg:col-span-3">
+                        <div class="sm:col-span-2">
                             <label for="FullInvComment" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Comment') }}</label>
                             <textarea name="FullInvComment" id="FullInvComment"
                                       placeholder="{{ __('messages.Add any additional notes...') }}"
@@ -225,7 +245,7 @@
                     </div>
                 </div>
                 <div class="px-5 sm:px-6 py-5">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {{-- Project Filter --}}
                         <div class="lg:col-span-1">
                             <label for="projectFilter2" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Select Project') }}</label>
@@ -264,7 +284,7 @@
                                    class="block w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3">
                         </div>
                         {{-- Comment (Full Width) --}}
-                        <div class="lg:col-span-3">
+                        <div class="sm:col-span-2">
                             <label for="PeriodInvComment" class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Comment') }}</label>
                             <textarea name="PeriodInvComment" id="PeriodInvComment"
                                       placeholder="{{ __('messages.Add any additional notes...') }}"
@@ -399,9 +419,11 @@
                 </div>
             </div>
 
+            </div>
         </main>
     </div>
 
+    <x-error-popup />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
@@ -491,7 +513,9 @@
 
                 // Check if project has TVA
                 if (!projectTva) {
-                    alert(@json(__('messages.This project has no TVA. Please add TVA to the project before generating an invoice.')));
+                    showDalyTracError(@js(__('messages.This project has no TVA. Please add TVA to the project before generating an invoice.')), {
+                        url: selectedProject.data('edit-url'), label: @js(__('messages.Edit Project'))
+                    });
                     return;
                 }
 
@@ -508,22 +532,22 @@
                         if (!isNaN(h) && !isNaN(m) && m < 60) {
                             hours = h + (m / 60);
                         } else {
-                            alert(@json(__('messages.Please enter a valid time format (e.g., 5:30 or 5h:30m)')));
+                            showDalyTracError(@js(__('messages.Please enter a valid time format (e.g., 5:30 or 5h:30m)')));
                             return;
                         }
                     } else {
-                        alert(@json(__('messages.Please enter time in format: h:mm (example: 5:30)')));
+                        showDalyTracError(@js(__('messages.Please enter time in format: h:mm (example: 5:30)')));
                         return;
                     }
                 }
 
                 if (!projectId) {
-                    alert(@json(__('messages.Please select a project.')));
+                    showDalyTracError(@js(__('messages.Please select a project.')));
                     return;
                 }
 
                 if (!hours && !manualBudget) {
-                    alert(@json(__('messages.Please enter either hours or manual budget.')));
+                    showDalyTracError(@js(__('messages.Please enter either hours or manual budget.')));
                     return;
                 }
 
@@ -597,7 +621,7 @@
                     downloadUrl += '?' + params.toString();
                     window.location.href = downloadUrl;
                 } else {
-                    alert(@json(__('messages.Please select a project and enter start/end dates.')));
+                    showDalyTracError(@js(__('messages.Please select a project and enter start/end dates.')));
                 }
             });
 
@@ -647,7 +671,7 @@
                     downloadUrl += '?' + params.toString();
                     window.location.href = downloadUrl;
                 } else {
-                    alert(@json(__('messages.Please select a devis and enter the Amount.')));
+                    showDalyTracError(@js(__('messages.Please select a devis and enter the Amount.')));
                 }
             });
 
@@ -688,7 +712,7 @@
                     downloadUrl += '?' + params.toString();
                     window.location.href = downloadUrl;
                 } else {
-                    alert(@json(__('messages.Please select a devis and enter the percentage.')));
+                    showDalyTracError(@js(__('messages.Please select a devis and enter the percentage.')));
                 }
             });
 

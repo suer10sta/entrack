@@ -63,7 +63,7 @@ class teamsController extends Controller
     if ($entreprise && !$entreprise->canAddMoreUsers()) {
         
         // 3. Si la limite est atteinte, arrêter et renvoyer une erreur
-        return back()->with('error', 'Vous avez atteint la limite de ' . $entreprise->getUserLimit() . ' utilisateurs pour votre plan. Veuillez passer au plan Pro pour en ajouter davantage.');
+        return back()->with('error', __('messages.plan_user_limit', ['limit' => $entreprise->getUserLimit()]));
     }
 
         $members=$request->input('members', []);
@@ -86,12 +86,12 @@ class teamsController extends Controller
             
         }
         if(Auth::user()->hasRole('Responsable de projet et gestionnaire')){
-            return redirect()->route('Responsable_gestionnaire.teams.index')->with('message', 'team Added Successfully');
+            return redirect()->route('Responsable_gestionnaire.teams.index')->with('message', __('messages.team Added Successfully'));
         }
         if(Auth::user()->hasRole('Responsable de projet')){
-            return redirect()->route('Responsable_de_projet.teams.index')->with('message', 'team Added Successfully');
+            return redirect()->route('Responsable_de_projet.teams.index')->with('message', __('messages.team Added Successfully'));
         }
-        return to_route('admin.teams.index')->with('message', 'team Added Successfully');
+        return to_route('admin.teams.index')->with('message', __('messages.team Added Successfully'));
 
     }
 
@@ -155,12 +155,12 @@ class teamsController extends Controller
             
         }
         if(Auth::user()->hasRole('Responsable de projet et gestionnaire')){
-            return redirect()->route('Responsable_gestionnaire.teams.index')->with('message', 'team Updated Successfully');
+            return redirect()->route('Responsable_gestionnaire.teams.index')->with('message', __('messages.team Updated Successfully'));
         }
         if(Auth::user()->hasRole('Responsable de projet')){
-            return redirect()->route('Responsable_de_projet.teams.index')->with('message', 'team Updated Successfully');
+            return redirect()->route('Responsable_de_projet.teams.index')->with('message', __('messages.team Updated Successfully'));
         }
-        return to_route('admin.teams.index')->with('message', 'team Updated Successfully');
+        return to_route('admin.teams.index')->with('message', __('messages.team Updated Successfully'));
     }
 
     public function destroy(Teams $team)
@@ -171,7 +171,7 @@ class teamsController extends Controller
         }
         $team->delete();
 
-        return back()->with('message', 'teams Deleted Successfully');
+        return back()->with('message', __('messages.teams Deleted Successfully'));
     }
 
     

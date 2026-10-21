@@ -19,32 +19,34 @@
         try { return route($role . '.' . $base . '.' . $suffix); } catch (\Throwable $e) { return '#'; }
     };
 @endphp
-<aside class="sidenav dt-sidebar" id="sidenav-main" aria-label="Main navigation">
+<aside class="sidenav dt-sidebar" id="sidenav-main" aria-label="{{ __('messages.Main navigation') }}">
     <div class="dt-sidebar__brand">
-        <a class="dt-brand" href="{{ $dashboardRoute }}" aria-label="DalyTrac home">
+        <a class="dt-brand" href="{{ $dashboardRoute }}" aria-label="{{ __('messages.DalyTrac home') }}">
             <x-application-mark />
             <span class="dt-brand__copy"><x-application-logo /><strong style="font-size:11px;margin-top:4px">{{ $empName }}</strong><small>{{ $empRole }}</small></span>
         </a>
-        <button class="dt-sidebar__toggle" type="button" data-sidebar-toggle aria-label="Collapse sidebar" title="Collapse sidebar"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+        <button class="dt-sidebar__toggle" type="button" data-sidebar-toggle aria-label="{{ __('messages.Collapse sidebar') }}" title="{{ __('messages.Collapse sidebar') }}"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
     </div>
-    <div class="dt-sidebar__section-label">Workspace</div>
+    <div class="dt-sidebar__section-label">{{ __('messages.Workspace') }}</div>
     <nav class="dt-sidebar__nav">
-        <a class="dt-nav-link {{ request()->routeIs('*.index') && !request()->routeIs('*.calendar.*') ? 'is-active' : '' }}" href="{{ $dashboardRoute }}" title="Dashboard"><span class="dt-nav-link__icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span><span class="dt-nav-link__label">Dashboard</span></a>
+        <a class="dt-nav-link {{ request()->routeIs('*.index') && !request()->routeIs('*.calendar.*') ? 'is-active' : '' }}" href="{{ $dashboardRoute }}" title="{{ __('messages.Dashboard') }}"><span class="dt-nav-link__icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span><span class="dt-nav-link__label">{{ __('messages.Dashboard') }}</span></a>
 
         @can('Planning')
-        <a class="dt-nav-link {{ request()->routeIs('*.calendar.*') ? 'is-active' : '' }}" href="{{ $planningRoute }}" title="Planning"><span class="dt-nav-link__icon"><i class="fa-regular fa-calendar" aria-hidden="true"></i></span><span class="dt-nav-link__label">Planning</span></a>
+        <a class="dt-nav-link {{ request()->routeIs('*.calendar.*') ? 'is-active' : '' }}" href="{{ $planningRoute }}" title="{{ __('messages.Planning Menu') }}"><span class="dt-nav-link__icon"><i class="fa-regular fa-calendar" aria-hidden="true"></i></span><span class="dt-nav-link__label">{{ __('messages.Planning Menu') }}</span></a>
         @endcan
 
         @canany(['View client', 'View employee', 'View teams', 'View project', 'View task', 'Pointage reports', 'View pointage', 'Manage workDaysReports'])
-        @php($reportingActive = request()->routeIs('*.clients.*') || request()->routeIs('*.employees.*') || request()->routeIs('*.teams.*') || request()->routeIs('*.projects.*') || request()->routeIs('*.tasks.*') || request()->routeIs('*.workDaysReports.*'))
+        @php
+            $reportingActive = request()->routeIs('*.clients.*') || request()->routeIs('*.employees.*') || request()->routeIs('*.teams.*') || request()->routeIs('*.projects.*') || request()->routeIs('*.tasks.*') || request()->routeIs('*.workDaysReports.*');
+        @endphp
         <div class="dt-nav-group">
-            <button class="dt-nav-link dt-nav-link--group {{ $reportingActive ? 'is-active' : '' }}" type="button" data-sidebar-group="reporting" aria-expanded="{{ $reportingActive ? 'true' : 'false' }}" title="Reporting"><span class="dt-nav-link__icon"><i class="fa-regular fa-file-lines" aria-hidden="true"></i></span><span class="dt-nav-link__label">Reporting</span><i class="fa-solid fa-chevron-down dt-nav-link__chevron" aria-hidden="true"></i></button>
+            <button class="dt-nav-link dt-nav-link--group {{ $reportingActive ? 'is-active' : '' }}" type="button" data-sidebar-group="reporting" aria-expanded="{{ $reportingActive ? 'true' : 'false' }}" title="{{ __('messages.Reporting') }}"><span class="dt-nav-link__icon"><i class="fa-regular fa-file-lines" aria-hidden="true"></i></span><span class="dt-nav-link__label">{{ __('messages.Reporting') }}</span><i class="fa-solid fa-chevron-down dt-nav-link__chevron" aria-hidden="true"></i></button>
             <div class="dt-nav-submenu {{ $reportingActive ? 'is-open' : '' }}" data-sidebar-submenu="reporting">
-                @can('View client')<a href="{{ $routeFor('clients') }}" title="Clients Reports"><span>Clients Reports</span></a>@endcan
-                @can('View employee')<a href="{{ $routeFor('employees') }}" title="Employees Reports"><span>Employees Reports</span></a>@endcan
-                @can('View project')<a href="{{ $routeFor('projects') }}" title="Projects Reports"><span>Projects Reports</span></a>@endcan
-                @can('View task')<a href="{{ $routeFor('tasks') }}" title="Tasks Reports"><span>Tasks Reports</span></a>@endcan
-                @can('View team')<a href="{{ $routeFor('teams') }}" title="Teams Reports"><span>Teams Reports</span></a>@endcan
+                @can('View client')<a href="{{ $routeFor('clients') }}" title="{{ __('messages.Clients Reports') }}"><span>{{ __('messages.Clients Reports') }}</span></a>@endcan
+                @can('View employee')<a href="{{ $routeFor('employees') }}" title="{{ __('messages.Employees Reports') }}"><span>{{ __('messages.Employees Reports') }}</span></a>@endcan
+                @can('View project')<a href="{{ $routeFor('projects') }}" title="{{ __('messages.Projects Reports') }}"><span>{{ __('messages.Projects Reports') }}</span></a>@endcan
+                @can('View task')<a href="{{ $routeFor('tasks') }}" title="{{ __('messages.Tasks Reports') }}"><span>{{ __('messages.Tasks Reports') }}</span></a>@endcan
+                @can('View team')<a href="{{ $routeFor('teams') }}" title="{{ __('messages.Teams Reports') }}"><span>{{ __('messages.Teams Reports') }}</span></a>@endcan
                 @canany(['Pointage reports', 'View pointage'])
                     @php
                         $pointageRoute = '#';
@@ -52,48 +54,48 @@
                         elseif (Auth::user()->hasRole('Employee')) $pointageRoute = route('employee.tasks.pointage');
                         elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $pointageRoute = route('Responsable_gestionnaire.tasks.pointage');
                     @endphp
-                    <a href="{{ $pointageRoute }}" title="Pointage Reports"><span>Pointage Reports</span></a>
+                    <a href="{{ $pointageRoute }}" title="{{ __('messages.Pointage Reports') }}"><span>{{ __('messages.Pointage Reports') }}</span></a>
                 @endcanany
-                @can('Manage workDaysReports')<a href="{{ $routeFor('workDaysReports') }}" title="Work Days Reports"><span>Work Days Reports</span></a>@endcan
+                @can('Manage workDaysReports')<a href="{{ $routeFor('workDaysReports') }}" title="{{ __('messages.Work Days Reports') }}"><span>{{ __('messages.Work Days Reports') }}</span></a>@endcan
             </div>
         </div>
         @endcanany
 
         @can('Create invoice')
         <div class="dt-nav-group">
-            <button class="dt-nav-link dt-nav-link--group {{ request()->routeIs('*.invoices.*') || request()->routeIs('*.invoice.*') ? 'is-active' : '' }}" type="button" data-sidebar-group="invoices" aria-expanded="false" title="Invoices"><span class="dt-nav-link__icon"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span><span class="dt-nav-link__label">Invoices</span><i class="fa-solid fa-chevron-down dt-nav-link__chevron" aria-hidden="true"></i></button>
+            <button class="dt-nav-link dt-nav-link--group {{ request()->routeIs('*.invoices.*') || request()->routeIs('*.invoice.*') ? 'is-active' : '' }}" type="button" data-sidebar-group="invoices" aria-expanded="false" title="{{ __('messages.Invoices header') }}"><span class="dt-nav-link__icon"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span><span class="dt-nav-link__label">{{ __('messages.Invoices header') }}</span><i class="fa-solid fa-chevron-down dt-nav-link__chevron" aria-hidden="true"></i></button>
             <div class="dt-nav-submenu" data-sidebar-submenu="invoices">
-                <a href="{{ $routeFor('invoices', 'fullinvoice') }}" title="Generate"><span>Generate</span></a>
-                <a href="{{ $routeFor('invoices', 'invoicehistory') }}" title="History"><span>History</span></a>
-                <a href="{{ $routeFor('invoices', 'parameters') }}" title="Parameters"><span>Parameters</span></a>
+                <a href="{{ $routeFor('invoices', 'fullinvoice') }}" title="{{ __('messages.Generate') }}"><span>{{ __('messages.Generate') }}</span></a>
+                <a href="{{ $routeFor('invoices', 'invoicehistory') }}" title="{{ __('messages.History') }}"><span>{{ __('messages.History') }}</span></a>
+                <a href="{{ $routeFor('invoices', 'parameters') }}" title="{{ __('messages.Parameters') }}"><span>{{ __('messages.Parameters') }}</span></a>
             </div>
         </div>
         @endcan
 
         @can('Create devis')
         <div class="dt-nav-group">
-            <button class="dt-nav-link dt-nav-link--group {{ request()->routeIs('*.devis.*') ? 'is-active' : '' }}" type="button" data-sidebar-group="devis" aria-expanded="false" title="Devis"><span class="dt-nav-link__icon"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></span><span class="dt-nav-link__label">Devis</span><i class="fa-solid fa-chevron-down dt-nav-link__chevron" aria-hidden="true"></i></button>
+            <button class="dt-nav-link dt-nav-link--group {{ request()->routeIs('*.devis.*') ? 'is-active' : '' }}" type="button" data-sidebar-group="devis" aria-expanded="false" title="{{ __('messages.Devis type') }}"><span class="dt-nav-link__icon"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></span><span class="dt-nav-link__label">{{ __('messages.Devis type') }}</span><i class="fa-solid fa-chevron-down dt-nav-link__chevron" aria-hidden="true"></i></button>
             <div class="dt-nav-submenu" data-sidebar-submenu="devis">
-                <a href="{{ $routeFor('devis', 'generateDevis') }}" title="Generate"><span>Generate</span></a>
-                <a href="{{ $routeFor('devis', 'devishistory') }}" title="History"><span>History</span></a>
-                <a href="{{ $routeFor('devis', 'parameters') }}" title="Parameters"><span>Parameters</span></a>
+                <a href="{{ $routeFor('devis', 'generateDevis') }}" title="{{ __('messages.Generate') }}"><span>{{ __('messages.Generate') }}</span></a>
+                <a href="{{ $routeFor('devis', 'devishistory') }}" title="{{ __('messages.History') }}"><span>{{ __('messages.History') }}</span></a>
+                <a href="{{ $routeFor('devis', 'parameters') }}" title="{{ __('messages.Parameters') }}"><span>{{ __('messages.Parameters') }}</span></a>
             </div>
         </div>
         @endcan
 
         @can('Create expense note')
         <div class="dt-nav-group">
-            <button class="dt-nav-link dt-nav-link--group {{ request()->routeIs('*.notedefrais.*') ? 'is-active' : '' }}" type="button" data-sidebar-group="expense" aria-expanded="false" title="Expense Note"><span class="dt-nav-link__icon"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span><span class="dt-nav-link__label">Expense Note</span><i class="fa-solid fa-chevron-down dt-nav-link__chevron" aria-hidden="true"></i></button>
+            <button class="dt-nav-link dt-nav-link--group {{ request()->routeIs('*.notedefrais.*') ? 'is-active' : '' }}" type="button" data-sidebar-group="expense" aria-expanded="false" title="{{ __('messages.Expense Note') }}"><span class="dt-nav-link__icon"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span><span class="dt-nav-link__label">{{ __('messages.Expense Note') }}</span><i class="fa-solid fa-chevron-down dt-nav-link__chevron" aria-hidden="true"></i></button>
             <div class="dt-nav-submenu" data-sidebar-submenu="expense">
-                <a href="{{ $routeFor('notedefrais', 'generateNoteDeFrais') }}" title="Generate"><span>Generate</span></a>
-                <a href="{{ $routeFor('notedefrais', 'notedefraishistory') }}" title="History"><span>History</span></a>
-                <a href="{{ $routeFor('notedefrais', 'parameters') }}" title="Parameters"><span>Parameters</span></a>
+                <a href="{{ $routeFor('notedefrais', 'generateNoteDeFrais') }}" title="{{ __('messages.Generate') }}"><span>{{ __('messages.Generate') }}</span></a>
+                <a href="{{ $routeFor('notedefrais', 'notedefraishistory') }}" title="{{ __('messages.History') }}"><span>{{ __('messages.History') }}</span></a>
+                <a href="{{ $routeFor('notedefrais', 'parameters') }}" title="{{ __('messages.Parameters') }}"><span>{{ __('messages.Parameters') }}</span></a>
             </div>
         </div>
         @endcan
 
         @can('Billings')
-        <a class="dt-nav-link" href="{{ $billRoute }}" title="Billings"><span class="dt-nav-link__icon"><i class="fa-solid fa-credit-card" aria-hidden="true"></i></span><span class="dt-nav-link__label">Billings</span></a>
+        <a class="dt-nav-link" href="{{ $billRoute }}" title="{{ __('messages.Billings') }}"><span class="dt-nav-link__icon"><i class="fa-solid fa-credit-card" aria-hidden="true"></i></span><span class="dt-nav-link__label">{{ __('messages.Billings') }}</span></a>
         @endcan
     </nav>
     <div class="dt-sidebar__footer" style="position:static;margin:12px 14px 8px;">

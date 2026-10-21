@@ -4,7 +4,7 @@
     <x-favicon />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DalyTrac Dashboard</title>
+    <title>{{ __('messages.DalyTrac Dashboard') }}</title>
     @vite('resources/css/app.css')
     @livewireStyles
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -22,6 +22,7 @@
             padding-right: 2.5rem; 
         }
     </style>
+@include('partials.edit-layout-styles')
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
@@ -35,8 +36,8 @@
         <x-dashboard.navbar />
 
         {{-- Main Content --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
-            <div class="max-w-3xl mx-auto">
+        <main class="dt-edit-page flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+            <div class="dt-edit-container dt-edit-container--compact max-w-3xl mx-auto">
                 
                 {{-- Session Error --}}
                 @if(session('error'))
@@ -90,7 +91,7 @@
                         </div>
 
                         {{-- Card Body (Form Fields) --}}
-                        <div class="p-6 space-y-5">
+                        <div class="dt-edit-fields p-6 space-y-5">
                             
                             {{-- Project --}}
                             <div>
@@ -122,7 +123,7 @@
                             </div>
 
                             {{-- Comment --}}
-                            <div>
+                            <div class="dt-edit-field-wide">
                                 <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Comment') }}</label>
                                 <textarea name="comment" id="comment" rows="4" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm @error('comment') border-red-500 @enderror">{{ old('comment', $invoice->comment) }}</textarea>
                                 @error('comment')

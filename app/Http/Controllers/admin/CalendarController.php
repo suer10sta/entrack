@@ -240,7 +240,7 @@ class CalendarController extends Controller
         // Ensure at least one of start/end is present after normalization
         if (!$start && !$end) {
             throw ValidationException::withMessages([
-                'start' => 'Either start or end time is required.',
+                'start' => __('messages.calendar_time_required'),
             ]);
         }
 
@@ -274,7 +274,7 @@ class CalendarController extends Controller
 
         return response()->json([
             'id' => $event->id,
-            'message' => 'Event created successfully'
+            'message' => __('messages.Event created successfully')
         ], 201);
     }
 
@@ -346,7 +346,7 @@ class CalendarController extends Controller
         }
 
         return response()->json([
-            'message' => 'Event updated successfully'
+            'message' => __('messages.Event updated successfully')
         ]);
     }
 
@@ -356,7 +356,7 @@ class CalendarController extends Controller
         $event->delete();
 
         return response()->json([
-            'message' => 'Event deleted successfully'
+            'message' => __('messages.Event deleted successfully')
         ]);
     }
 
@@ -376,7 +376,7 @@ class CalendarController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Event dates updated successfully'
+            'message' => __('messages.Event dates updated successfully')
         ]);
     }
 
@@ -468,7 +468,7 @@ class CalendarController extends Controller
         $year = $request->get('year', now()->year);
 
         if (!$eventIds) {
-            return redirect()->route('calendar.index')->with('error', 'No events selected.');
+            return redirect()->route('calendar.index')->with('error', __('messages.No events selected.'));
         }
 
         $eventIdsArray = explode(',', $eventIds);
@@ -506,7 +506,7 @@ class CalendarController extends Controller
     {
         $eventIds = $request->get('events');
         if (!$eventIds) {
-            return response()->json(['error' => 'No events specified'], 400);
+            return response()->json(['error' => __('messages.No events specified')], 400);
         }
 
         $eventIdsArray = explode(',', $eventIds);
@@ -588,7 +588,7 @@ class CalendarController extends Controller
         });
 
         if (empty($recipients)) {
-            return response()->json(['error' => 'No valid email addresses provided'], 400);
+            return response()->json(['error' => __('messages.No valid email addresses provided')], 400);
         }
 
         // Handle attachments
@@ -612,9 +612,9 @@ class CalendarController extends Controller
                 ));
             }
 
-            return response()->json(['message' => 'Email sent successfully to ' . count($recipients) . ' recipient(s)']);
+            return response()->json(['message' => __('messages.Email sent successfully to') . count($recipients) . ' recipient(s)']);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to send email: ' . $e->getMessage()], 500);
+            return response()->json(['error' => \App\Support\LocalizedError::message($e)], 500);
         }
     }
 
@@ -642,7 +642,7 @@ class CalendarController extends Controller
 
             if (!$projectExists) {
                 throw ValidationException::withMessages([
-                    'project_id' => 'The selected project is invalid for your entreprise.',
+                    'project_id' => __('validation.exists', ['attribute' => __('validation.attributes.project_id')]),
                 ]);
             }
         }
@@ -657,7 +657,7 @@ class CalendarController extends Controller
 
             if (!$taskQuery->exists()) {
                 throw ValidationException::withMessages([
-                    'task_id' => 'The selected task is invalid for the selected project.',
+                    'task_id' => __('messages.calendar_invalid_task'),
                 ]);
             }
         }

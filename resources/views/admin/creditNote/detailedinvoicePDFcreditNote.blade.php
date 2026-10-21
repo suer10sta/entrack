@@ -327,16 +327,16 @@
             <div class="footer-content">
                 <div class="footer-left footer-text">
                     <b>{{ $entreprise->name }}</b><br>
-                    <b>Numéro TVA:</b> {{ $entreprise->tva }}
+                    <b>{{ __('messages.Numéro TVA:') }}</b> {{ $entreprise->tva }}
                 </div>
                 <div class="footer-center footer-text">
                     {{ $entreprise->Address }}<br>
                     Tél: 0{{ $entreprise->phone }}
                 </div>
                 <div class="footer-right footer-text">
-                    <b>BANK</b>: {{ $entreprise->bank_name }}<br>
-                    <b>IBAN</b>: {{ $entreprise->iban }}<br>
-                    <b>SWIFT/BIC</b>: {{ $entreprise->swift }} / {{ $entreprise->bic }}
+                    <b>{{ __('messages.BANK') }}</b>: {{ $entreprise->bank_name }}<br>
+                    <b>{{ __('messages.IBAN') }}</b>: {{ $entreprise->iban }}<br>
+                    <b>{{ __('messages.SWIFT/BIC') }}</b>: {{ $entreprise->swift }} / {{ $entreprise->bic }}
                 </div>
             </div>
         </div>

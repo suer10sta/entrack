@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Work Days Report</title>
+    <title>{{ __('messages.Work Days Report') }}</title>
     <style>
         /* [MODIFIED] Styles adapted for a flowing report */
         body {
@@ -158,13 +158,15 @@
         <div class="details">
             <div class="details-left">
                 @if(Auth::user()->entreprise && Auth::user()->entreprise->image)
-                    <img src="{{ storage_path('app/public/' . Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+                    @if(filled(Auth::user()->entreprise?->image) && Storage::disk('public')->exists(Auth::user()->entreprise->image))
+<img src="{{ storage_path('app/public/' . Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+@endif
                 @endif
             </div>
             <div class="details-right">
                 <div class="header-info">
-                    <h2>Work Days Report</h2>
-                    <h4>Period: <strong>{{ $month }}-{{ $year }}</strong></h4>
+                    <h2>{{ __('messages.Work Days Report') }}</h2>
+                    <h4>{{ __('messages.Period:') }} <strong>{{ $month }}-{{ $year }}</strong></h4>
                 </div>
             </div>
         </div>
@@ -174,23 +176,23 @@
         <table>
             <thead>
                 <tr>
-                    <th>Nom d'employé</th>
-                    @if (!in_array('work_days_gross', $excludedColumns)) <th>Jrs brut</th> @endif
-                    @if (!in_array('days_worked', $excludedColumns)) <th>Travaillés (Int)</th> @endif
-                    @if (!in_array('days_worked_gross', $excludedColumns)) <th>Jrs Net</th> @endif
-                    @if (!in_array('days_of_unpaid_absence', $excludedColumns)) <th>Absence</th> @endif
-                    @if (!in_array('sick_days', $excludedColumns)) <th>Maladie</th> @endif
-                    @if (!in_array('holidays', $excludedColumns)) <th>Fériés</th> @endif
-                    @if (!in_array('remaining_days_of_paid_leave', $excludedColumns)) <th>Reliquat CP</th> @endif
-                    @if (!in_array('number_of_days_of_paid_leave_acquired', $excludedColumns)) <th>Acquis CP</th> @endif
-                    @if (!in_array('number_of_days_of_paid_leave_taken', $excludedColumns)) <th>Pris CP</th> @endif
-                    @if (!in_array('holiday_balance', $excludedColumns)) <th>Solde</th> @endif
-                    @if (!in_array('dates_of_holidays', $excludedColumns)) <th>Dates CP</th> @endif
-                    @if (!in_array('days_to_recover', $excludedColumns)) <th>Récup</th> @endif
-                    @if (!in_array('interne_remarque', $excludedColumns)) <th>Remarque Int</th> @endif
-                    @if (!in_array('remarque', $excludedColumns)) <th>Remarque</th> @endif
-                    @if (!in_array('month', $excludedColumns)) <th>Mois</th> @endif
-                    @if (!in_array('year', $excludedColumns)) <th>Année</th> @endif
+                    <th>{{ __('messages.Nom d\'employé') }}</th>
+                    @if (!in_array('work_days_gross', $excludedColumns)) <th>{{ __('messages.Jrs brut') }}</th> @endif
+                    @if (!in_array('days_worked', $excludedColumns)) <th>{{ __('messages.Travaillés (Int)') }}</th> @endif
+                    @if (!in_array('days_worked_gross', $excludedColumns)) <th>{{ __('messages.Jrs Net') }}</th> @endif
+                    @if (!in_array('days_of_unpaid_absence', $excludedColumns)) <th>{{ __('messages.Absence') }}</th> @endif
+                    @if (!in_array('sick_days', $excludedColumns)) <th>{{ __('messages.Maladie') }}</th> @endif
+                    @if (!in_array('holidays', $excludedColumns)) <th>{{ __('messages.Fériés') }}</th> @endif
+                    @if (!in_array('remaining_days_of_paid_leave', $excludedColumns)) <th>{{ __('messages.Reliquat CP') }}</th> @endif
+                    @if (!in_array('number_of_days_of_paid_leave_acquired', $excludedColumns)) <th>{{ __('messages.Acquis CP') }}</th> @endif
+                    @if (!in_array('number_of_days_of_paid_leave_taken', $excludedColumns)) <th>{{ __('messages.Pris CP') }}</th> @endif
+                    @if (!in_array('holiday_balance', $excludedColumns)) <th>{{ __('messages.Balance') }}</th> @endif
+                    @if (!in_array('dates_of_holidays', $excludedColumns)) <th>{{ __('messages.Dates CP') }}</th> @endif
+                    @if (!in_array('days_to_recover', $excludedColumns)) <th>{{ __('messages.Récup') }}</th> @endif
+                    @if (!in_array('interne_remarque', $excludedColumns)) <th>{{ __('messages.Remarque Int') }}</th> @endif
+                    @if (!in_array('remarque', $excludedColumns)) <th>{{ __('messages.Remark') }}</th> @endif
+                    @if (!in_array('month', $excludedColumns)) <th>{{ __('messages.Month') }}</th> @endif
+                    @if (!in_array('year', $excludedColumns)) <th>{{ __('messages.Year') }}</th> @endif
                 </tr>
             </thead>
             <tbody>
@@ -306,26 +308,14 @@
     <div class="footer">
         <div class="footer-content">
             <div class="footer-left footer-text">
-                @if(Auth::user()->entreprise)
-                    <b>{{ Auth::user()->entreprise->name }}</b><br>
-                    <b>Numéro TVA:</b> {{ Auth::user()->entreprise->tva}}
-                @endif
-            </div>
+@include('partials.invoice-company-details', ['section' => 'identity'])
+</div>
             <div class="footer-center footer-text">
-                @if(Auth::user()->entreprise)
-                    {{ Auth::user()->entreprise->Address }}<br>
-                    Tél: 0{{ Auth::user()->entreprise->phone }}
-                @endif
-            </div>
+@include('partials.invoice-company-details', ['section' => 'contact'])
+</div>
             <div class="footer-right footer-text">
-                @if(Auth::user()->entreprise)
-                    <b>BANK</b> : {{ Auth::user()->entreprise->bank_name }}<br>
-                    <b>IBAN</b> : {{ Auth::user()->entreprise->iban }}<br>
-                    <b>SWIFT/BIC</b> : {{ Auth::user()->entreprise->swift }} / {{ Auth::user()->entreprise->bic }}
-                @endif
-                <br>
-                <span style="font-size: 9px; color: #666;">Printed: {{ date('d-m-Y') }}</span>
-            </div>
+@include('partials.invoice-company-details', ['section' => 'bank'])
+</div>
         </div>
     </div>
 </body>

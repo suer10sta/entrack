@@ -94,7 +94,7 @@ class SupportController extends Controller
             }
             */
 
-            return back()->with('success', 'Your support request has been sent. Our team will get back to you soon.');
+            return back()->with('success', __('messages.Support request sent successfully'));
         } catch (\Throwable $e) {
             Log::error('Failed to send enterprise support ticket.', [
                 'error_message' => $e->getMessage(),
@@ -104,7 +104,7 @@ class SupportController extends Controller
 
             return back()
                 ->withInput()
-                ->with('error', 'We could not send your support request due to a mail error. Please try again later.');
+                ->with('error', __('messages.Support request email failed'));
         }
     }
 
@@ -141,7 +141,7 @@ class SupportController extends Controller
 
         return redirect()
             ->route('admin.support.index')
-            ->with('success', 'Ticket deleted successfully.');
+            ->with('success', __('messages.Support ticket deleted successfully'));
     }
 }
 

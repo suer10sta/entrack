@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <x-favicon />
     <meta charset="UTF-8">
@@ -246,7 +246,7 @@
                 @if(session('message'))
                     <div class="m-4 sm:m-5 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl relative flex items-center gap-2" role="alert">
                         <span class="block sm:inline text-[13px] font-medium">{{ session('message') }}</span>
-                        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-emerald-600 hover:text-emerald-800 font-bold text-xl" aria-label="Close">
+                        <button type="button" onclick="this.parentElement.style.display='none'" class="absolute top-0 bottom-0 right-0 px-4 py-3 text-emerald-600 hover:text-emerald-800 font-bold text-xl" aria-label="{{ __('messages.Close') }}">
                            &times;
                         </button>
                     </div>
@@ -550,7 +550,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M4 20h4l9.5-9.5-4-4L4 16v4z" />
                                                         </svg>
                                                     </a>
-                                                    <form action="{{ $archiveRoute }}" method="post" class="inline" onsubmit="return confirm('{{ __('messages.Archive this project?') }}');">
+                                                    <form action="{{ $archiveRoute }}" method="post" class="inline" onsubmit="return confirm(@js(__('messages.Archive this project?')));">
                                                         @csrf
                                                         <button type="submit" title="{{ __('messages.Archive') }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 hover:border-slate-300 transition-colors">
                                                             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -558,7 +558,7 @@
                                                             </svg>
                                                         </button>
                                                     </form>
-                                                    <form action="{{ $deleteRoute }}" method="post" class="inline" onsubmit="return confirm('{{ __('messages.Are you sure you want to delete this project?') }}');">
+                                                    <form action="{{ $deleteRoute }}" method="post" class="inline" onsubmit="return confirm(@js(__('messages.Are you sure you want to delete this project?')));">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" title="{{ __('messages.Delete') }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors">
@@ -639,7 +639,7 @@
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         $parentCell.text(originalContent); // Revert on error
-                        alert('Error updating project: ' + errorThrown);
+                        alert(@js(__('messages.Error updating project:')) + errorThrown);
                         console.error("AJAX Error:", textStatus, errorThrown, jqXHR.responseText);
                     }
                 });
@@ -806,7 +806,7 @@
                     sortField: null,
                     maxOptions: null,
                     allowEmptyOption: true,
-                    placeholder: el.options[0] ? el.options[0].text : '{{ __("messages.Search for projects placeholder") }}'
+                    placeholder: el.options[0] ? el.options[0].text : @js(__("messages.Search for projects placeholder"))
                 });
             }
         });

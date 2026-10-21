@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <x-favicon />
     <meta charset="utf-8" />
@@ -39,11 +39,11 @@
                                 <i class="fa-solid fa-shield-halved text-sm text-primary-foreground"></i>
                             </div>
                             <span
-                                class="text-xs font-semibold tracking-[0.18em] uppercase text-sky-700">Security</span>
+                                class="text-xs font-semibold tracking-[0.18em] uppercase text-sky-700">{{ __('messages.privacy_nav_security') }}</span>
                         </div>
                         <span
                             class="inline-flex h-7 items-center rounded-full border border-sky-200 bg-white/70 px-3 text-[10px] text-sky-700">
-                            Protected
+                            {{ __('messages.Protected') }}
                             <span class="ml-1 inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.7)]"></span>
                         </span>
                     </div>
@@ -53,7 +53,7 @@
                         <div
                             class="rounded-xl border border-sky-100 bg-sky-50 p-3 shadow-inner shadow-sky-100 text-[10px] text-slate-600">
                             <div class="mb-2 flex items-center justify-between">
-                                <span>Sessions</span>
+                                <span>{{ __('messages.Sessions') }}</span>
                                 <span class="inline-flex items-center gap-1 text-emerald-500">
                                     <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
                                     OK
@@ -70,7 +70,7 @@
                         <div
                             class="rounded-xl border border-sky-100 bg-sky-50 p-3 shadow-inner shadow-sky-100 text-[10px] text-slate-600">
                             <div class="mb-2 flex items-center justify-between">
-                                <span>Devices</span>
+                                <span>{{ __('messages.Devices') }}</span>
                                 <span class="inline-flex items-center gap-1 text-sky-500">
                                     <i class="fa-solid fa-mobile-screen text-[9px]"></i>
                                     3
@@ -88,9 +88,9 @@
                         <div class="mb-2 flex items-center justify-between">
                             <span class="inline-flex items-center gap-1">
                                 <i class="fa-solid fa-key text-[9px] text-amber-400"></i>
-                                Password strength
+                                {{ __('messages.Password strength') }}
                             </span>
-                            <span class="rounded-full bg-white px-2 py-0.5 text-[9px] text-slate-600 shadow-sm">Live</span>
+                            <span class="rounded-full bg-white px-2 py-0.5 text-[9px] text-slate-600 shadow-sm">{{ __('messages.Live') }}</span>
                         </div>
                         <div class="flex gap-1.5">
                             <span class="h-1.5 flex-1 rounded-full bg-slate-700"></span>
@@ -102,7 +102,7 @@
                     <!-- Footer accent -->
                     <div class="flex items-center justify-between text-[9px] text-slate-500/90">
                         <span class="inline-flex h-5 items-center rounded-full bg-white px-2 shadow-sm">
-                            Reset in progress
+                            {{ __('messages.Reset in progress') }}
                         </span>
                         <div class="flex items-center gap-1.5">
                             <span class="h-1 w-4 rounded-full bg-emerald-400/80"></span>
@@ -121,12 +121,12 @@
                                 class="mr-2 flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                                 <i class="fa-solid fa-lock text-[11px]"></i>
                             </span>
-                            Reset password
+                            {{ __('messages.Reset password') }}
                         </div>
                         <h1 class="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Create new
                             password</h1>
                         <p class="mt-1 text-sm text-muted-foreground">
-                            Choose a strong password to secure your DalyTrac account.
+                            {{ __('messages.Choose a strong password to secure your DalyTrac account.') }}
                         </p>
                     </div>
 
@@ -142,7 +142,7 @@
                         <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
                         <div class="space-y-1">
-                            <label for="email" class="block text-sm font-medium text-foreground">Email</label>
+                            <label for="email" class="block text-sm font-medium text-foreground">{{ __('messages.Email') }}</label>
                             <input id="email" type="email" name="email"
                                 value="{{ old('email', $request->email) }}"
                                 required autofocus autocomplete="username"
@@ -153,7 +153,7 @@
                         </div>
 
                         <div class="space-y-1">
-                            <label for="password" class="block text-sm font-medium text-foreground">New password</label>
+                            <label for="password" class="block text-sm font-medium text-foreground">{{ __('messages.New password') }}</label>
                             <input id="password" type="password" name="password" required autocomplete="new-password"
                                 class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground">
                             @error('password')
@@ -163,7 +163,7 @@
 
                         <div class="space-y-1">
                             <label for="password_confirmation"
-                                class="block text-sm font-medium text-foreground">Confirm password</label>
+                                class="block text-sm font-medium text-foreground">{{ __('messages.Confirm password') }}</label>
                             <input id="password_confirmation" type="password" name="password_confirmation" required
                                 autocomplete="new-password"
                                 class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground">
@@ -174,11 +174,11 @@
 
                         <button type="submit"
                             class="w-full bg-primary text-primary-foreground py-2.5 px-4 rounded-md text-sm font-semibold shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                            Reset password
+                            {{ __('messages.Reset password') }}
                         </button>
 
                         <p class="text-xs text-center text-muted-foreground">
-                            Remember your password?
+                            {{ __('messages.Remember your password?') }}
                             <a href="{{ route('login') }}" class="font-medium text-primary hover:underline">Back to
                                 sign in</a>
                         </p>

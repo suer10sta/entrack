@@ -35,7 +35,7 @@ class CheckEntrepriseDuration
             if (!$entreprise->is_activated || ($durationExpired && !$hasPaidPlan && !$isExempt)) {
                 $entreprise->update(['is_activated' => false]);
                 Auth::logout();
-                return redirect()->route('login')->with('error', 'You cannot log in, the activation time is out or the account is not activated.');
+                return redirect()->route('login')->with('error', __('messages.You cannot log in, the activation time is out or the account is not activated.'));
             }
         }
 

@@ -4,8 +4,9 @@
     <x-favicon />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DalyTrac Dashboard</title>
+    <title>{{ __('messages.DalyTrac Dashboard') }}</title>
     @vite('resources/css/app.css')
+@include('partials.edit-layout-styles')
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
     {{-- Sidebar --}}
@@ -20,8 +21,8 @@
 
         {{-- Main Content --}}
 
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
-            <div class="max-w-5xl mx-auto">
+        <main class="dt-edit-page flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+            <div class="dt-edit-container dt-edit-container--wide max-w-5xl mx-auto">
                 
                 {{-- Session Error (Tailwind Styled) --}}
                 @if(session('error'))

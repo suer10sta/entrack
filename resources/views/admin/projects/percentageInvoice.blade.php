@@ -151,7 +151,9 @@
     <div class="container">
         <div class="header">
             <div class="header logo-right">
+@if(filled(Auth::user()->entreprise?->image) && Storage::disk('public')->exists(Auth::user()->entreprise->image))
             <img src="{{ Storage::disk('public')->url(Auth::user()->entreprise->image) }}" alt="Company Logo" class="company-logo">
+@endif
             </div>
         </div>
 
@@ -163,8 +165,10 @@
                     {{ __('messages.Due Date') }}:
                     {{ \Carbon\Carbon::now()->addDays(abs(filter_var($client->due_date, FILTER_SANITIZE_NUMBER_INT)))->format('d-m-Y') }}
                     <br>
+@if(filled($client->client_number))
                     {{ __('messages.Client Number') }} : {{ $client->client_number }} <br>
-                    {{ __('messages.Invoice Number') }} : {{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif
+@endif
+                    {{ __('messages.Invoice Number') }} : {{ $invoice->number ?? $invoice_id }}
                     @php
                         $devis_number = null;
                         if(request()->has('devis_id') && !empty(request()->query('devis_id'))){
@@ -178,11 +182,7 @@
                 </p>
             </div>
             <div class="details-right">
-                <strong>{{ $client->name }}</strong><br />
-                {{ $client->billing_street }} <br />
-                {{ $client->billing_zip }}-{{ $client->billing_city }} <br />
-                {{ $client->billing_country }}<br />
-                {{ __('messages.Client TVA') }}: {{ $client->TVA }}
+                @include('partials.invoice-client-details')
             </div>
         </div>
 
@@ -194,7 +194,7 @@
         }
         @endphp
         <div class="invoice-number">
-            {{ __('messages.Invoice') }} : {{$entreprise->invoice_prefix}}-{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif
+            {{ __('messages.Invoice') }} : {{$entreprise->invoice_prefix}}-{{ $invoice->number ?? $invoice_id }}
         </div>
 
         <table>
@@ -211,7 +211,7 @@
                 <tr>
                     <td>{{strtoupper($projectinfos->name)}}</td>
                     <td>
-                        1
+                        {{ __('messages.public_pricing_users_solo') }}
                     </td>
                     <td>
                         {{$percentage}}%
@@ -255,26 +255,32 @@
         </table>
 
         <div class="description">
+@if(filled($projectinfos->description))
             <strong> - {{ __('messages.Information') }} :</strong> <br>
             {!! nl2br(e($projectinfos->description)) !!} <br>
+@endif
+@if(filled($comment ?? null))
             <strong> - {{ __('messages.Comment') }} : </strong> <br>
            <p style="white-space: pre-wrap;">{!! nl2br(e($comment)) !!}</p>
+@endif
         </div>
 
         <div class="payment">
             - {{ __('messages.Please pay the amount of') }}
             <strong>{{number_format($amount + ($amount*($projectinfos->tva/100)), 2, ',', '')}}€</strong> {{ __('messages.on the account mentioned below before') }}
             {{ \Carbon\Carbon::now()->addDays(abs(filter_var($client->due_date, FILTER_SANITIZE_NUMBER_INT)))->format('d-m-Y') }}
-            {{ __('messages.mentioning the invoice number') }} <strong>{{date('ym')}}@if(request()->has('invoice_number')){{request()->input('invoice_number')}}@else{{$invoice_id }} @endif</strong>
+            {{ __('messages.mentioning the invoice number') }} <strong>{{ $invoice->number ?? $invoice_id }}</strong>
             <br>
+@if(\App\Support\InvoicePresentation::showReverseChargeNotice($entreprise))
             - {{ __('messages.In case of intra-community delivery for services') }}:  "Autoliquidation Art 21 § 2 du code TVA belge"
+@endif
             <br>
             - {{ __('messages.See general conditions in annex') }}
             <br>
             - {{ __('messages.Thank you for your trust') }}
 
         </div>
-        <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+        <div style="display: flex; justify-content: center; align-items: center; flex-direction: row; gap: 12px;">
         @php
             $devisIdParam = request()->query('devis_id');
             $querySuffix = $devisIdParam ? ('?devis_id=' . urlencode($devisIdParam)) : '';
@@ -282,7 +288,7 @@
         @if(Auth::user()->hasRole('Admin'))
             <form action="{{ route('admin.projects.confirmPercentageInvoice', ['projectID' => $projectinfos->id, 'percentage' => $percentage, 'comment' => base64_encode($comment)]) }}{{ $querySuffix }}" method="POST" style="display: inline-block;">
                 @csrf
-                <button type="submit" style="padding: 6px 12px; margin-bottom: 6px; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: green; border-color: green;">
+                <button type="submit" style="padding: 6px 12px; margin-bottom: 0; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: green; border-color: green;">
                     {{ __('messages.Confirm') }} 
                 </button>
             </form>
@@ -296,7 +302,7 @@
         @if(Auth::user()->hasRole('Responsable de projet'))
             <form action="{{ route('Responsable_de_projet.projects.confirmPercentageInvoice', ['projectID' => $projectinfos->id, 'percentage' => $percentage, 'comment' => base64_encode($comment)]) }}{{ $querySuffix }}" method="POST" style="display: inline-block;">
                 @csrf
-                <button type="submit" style="padding: 6px 12px; margin-bottom: 6px; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: green; border-color: green;">
+                <button type="submit" style="padding: 6px 12px; margin-bottom: 0; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: green; border-color: green;">
                     {{ __('messages.Confirm') }} 
                 </button>
             </form>
@@ -310,7 +316,7 @@
         @if(Auth::user()->hasRole('Employee'))
             <form action="{{ route('employee.projects.confirmPercentageInvoice', ['projectID' => $projectinfos->id, 'percentage' => $percentage, 'comment' => base64_encode($comment)]) }}{{ $querySuffix }}" method="POST" style="display: inline-block;">
                 @csrf
-                <button type="submit" style="padding: 6px 12px; margin-bottom: 6px; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: green; border-color: green;">
+                <button type="submit" style="padding: 6px 12px; margin-bottom: 0; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: green; border-color: green;">
                     {{ __('messages.Confirm') }} 
                 </button>
             </form>
@@ -324,7 +330,7 @@
         @if(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
             <form action="{{ route('Responsable_gestionnaire.projects.confirmPercentageInvoice', ['projectID' => $projectinfos->id, 'percentage' => $percentage, 'comment' => base64_encode($comment)]) }}{{ $querySuffix }}" method="POST" style="display: inline-block;">
                 @csrf
-                <button type="submit" style="padding: 6px 12px; margin-bottom: 6px; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: green; border-color: green;">
+                <button type="submit" style="padding: 6px 12px; margin-bottom: 0; font-size: 14px; font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-image: none; border: 1px solid transparent; border-radius: 4px; color: #fff; background-color: green; border-color: green;">
                     {{ __('messages.Confirm') }} 
                 </button>
             </form>
@@ -342,19 +348,13 @@
 
     <div class="footer">
         <div style="float: left; width: 30%; height: 80%;text-align: center;">
-            <b>{{ $entreprise->name }}</b>
-            <br>
-            <b>{{ __('messages.VAT Number') }}:</b> {{ $entreprise->tva}}
+@include('partials.invoice-company-details', ['section' => 'identity'])
         </div>
         <div style="float: left; margin-left: 5%; width: 30%; height: 80%; text-align: center;">
-            {{ $entreprise->Address }}
-            <br>
-            {{ __('messages.Phone') }}: 0{{ $entreprise->phone }}
+@include('partials.invoice-company-details', ['section' => 'contact'])
         </div>
         <div style="float: left; margin-left: 5%; width: 30%; height: 80%; text-align: center;">
-            <b>{{ __('messages.BANK') }}</b> : {{ $entreprise->bank_name }} <br>
-            <b>{{ __('messages.IBAN') }}</b> : {{ $entreprise->iban }} <br>
-            <b>{{ __('messages.SWIFT/BIC') }}</b> : {{ $entreprise->swift }} / {{ $entreprise->bic }}
+@include('partials.invoice-company-details', ['section' => 'bank'])
         </div>
     </div>
 </body>

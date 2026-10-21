@@ -70,7 +70,7 @@ class tasksController extends Controller
 
         $task->update($validated);
 
-        return redirect()->route('employees.tasks.index')->with('message', 'task Updated Successfully');
+        return redirect()->route('employees.tasks.index')->with('message', __('messages.task Updated Successfully'));
     }
 
 
@@ -86,7 +86,7 @@ class tasksController extends Controller
         }
 
         $task->delete();
-        return back()->with('message', 'task Deleted Successfully');
+        return back()->with('message', __('messages.task Deleted Successfully'));
     }
 
     public function status(Tasks $task, Request $request, $status)
@@ -104,7 +104,7 @@ class tasksController extends Controller
         if($status==2) {
             $task->update(['status' => 2]);
         }
-        return back()->with('message', 'task Status Updated Successfully');
+        return back()->with('message', __('messages.task Status Updated Successfully'));
     }
 
     function pointage(){
@@ -216,13 +216,13 @@ public function updateTimerComment(Request $request, $id)
 
         $timer = tasks_timer::where('id', $id)->first();
         if (!$timer) {
-            return response()->json(['message' => 'Task timer not found'], 404);
+            return response()->json(['message' => __('messages.Task timer not found')], 404);
         }
 
         // Ensure the authenticated user is the owner employee
         $employeeId = Employees::where('user_id', Auth::id())->value('id');
         if ($timer->employee_id !== $employeeId) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('messages.Forbidden')], 403);
         }
 
         $comment = $request->input('comment');
@@ -236,7 +236,7 @@ public function updateTimerComment(Request $request, $id)
         $timer->save();
 
         return response()->json([
-            'message' => 'Comment updated',
+            'message' => __('messages.Comment updated'),
             'comment' => $timer->comment,
             'id' => $timer->id,
         ]);
