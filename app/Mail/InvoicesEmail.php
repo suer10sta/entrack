@@ -8,7 +8,6 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
 use App\Models\Entreprise;
 use App\Models\invoices_history;
@@ -39,22 +38,9 @@ class InvoicesEmail extends Mailable
         $entrepriseId = Auth::user()?->entreprise_id;
         $entreprise = $entrepriseId ? Entreprise::where('id', $entrepriseId)->first() : null;
 
-        // In manager context, Auth::user() may not be tied to an entreprise.
-        // Fallback to a safe default sender so we don't crash on `$entreprise->name`.
-        $configuredFrom = (string) (config('mail.from.address') ?: '');
-        $smtpUsername = (string) (config('mail.mailers.smtp.username') ?: '');
-
-        // Prefer configured "from", then SMTP username, then hard fallback.
-        $senderEmail = $entreprise?->email
-            ?: ($configuredFrom !== '' && $configuredFrom !== 'hello@example.com' ? $configuredFrom : '')
-            ?: ($smtpUsername !== '' ? $smtpUsername : 'dalytrac@support.com');
-        $senderName = $entreprise?->name ?? 'Dalytrac';
-
         return new Envelope(
-            from: new Address($senderEmail, 'Invoice-'.$senderName),
-            replyTo: [
-                new Address($senderEmail, 'Invoice-'.$senderName)
-            ],
+            from: CompanySender::from($entreprise),
+            replyTo: CompanySender::replyTo($entreprise),
             subject: $this->subject,
         );
     }

@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'devis_send_error_title' => 'No se pudo enviar el presupuesto',
     'Practical articles on e-invoicing, project management, time tracking and running a modern services business with DalyTrac.' => 'Artículos prácticos sobre facturación electrónica, proyectos, tiempo y gestión de una empresa de servicios con DalyTrac.',
     'Tips and best practices for using DalyTrac to manage invoices, projects and teams.' => 'Consejos para gestionar facturas, proyectos y equipos con DalyTrac.',
     'Guides and updates about DalyTrac and business operations.' => 'Guías y novedades sobre DalyTrac y la gestión empresarial.',

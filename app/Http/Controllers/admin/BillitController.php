@@ -1016,7 +1016,8 @@ class BillitController extends Controller
             $subject = 'Invoice ' . $fileName;
             $body = 'Please find attached the invoice PDF for import into WinAuditor.';
 
-            Mail::raw($body, function ($message) use ($email, $binary, $fileName) {
+            Mail::raw($body, function ($message) use ($email, $binary, $fileName, $entreprise) {
+                \App\Mail\CompanySender::apply($message, $entreprise);
                 $message->to($email)
                         ->subject($fileName)
                         ->attachData($binary, $fileName, ['mime' => 'application/pdf']);

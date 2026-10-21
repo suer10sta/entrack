@@ -8,7 +8,6 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
 use App\Models\Entreprise;
 use Illuminate\Support\Facades\Auth;
@@ -63,13 +62,10 @@ class CalendarEventsEmail extends Mailable
     {
         $entreprise_id = Auth::user()->entreprise_id;
         $entreprise = Entreprise::where('id', $entreprise_id)->first();
-        $entreprise_email = $entreprise->email;
 
         return new Envelope(
-            from: new Address($entreprise_email, 'Calendar Events - '.$entreprise->name),
-            replyTo: [
-                new Address($entreprise_email, 'Calendar Events - '.$entreprise->name)
-            ],
+            from: CompanySender::from($entreprise),
+            replyTo: CompanySender::replyTo($entreprise),
             subject: $this->subject,
         );
     }

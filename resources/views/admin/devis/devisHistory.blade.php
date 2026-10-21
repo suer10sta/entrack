@@ -708,6 +708,15 @@
             <form id="sendDevisForm" class="devis-form" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="devis_id" id="devis_id">
+                <div id="devisSendError" class="hidden mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm" role="alert" tabindex="-1">
+                    <div class="flex items-start gap-3">
+                        <svg class="mt-0.5 h-5 w-5 shrink-0 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01M10.3 3.9 1.8 18.6A1.6 1.6 0 0 0 3.2 21h17.6a1.6 1.6 0 0 0 1.4-2.4L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+                        <div>
+                            <p class="font-semibold text-red-900">{{ __('messages.devis_send_error_title') }}</p>
+                            <p id="devisSendErrorMessage" class="mt-1 leading-relaxed text-red-800"></p>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Select Recipients Devis') }}</label>
@@ -950,6 +959,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function handleSendClick(event) {
         event.preventDefault();
+        document.getElementById('devisSendError').classList.add('hidden');
         const form = event.target.closest('form');
         const devisId = form.querySelector('input[name="devis_id"]').value;
         const formAction = form.getAttribute('action');
@@ -1001,14 +1011,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    function showDevisSendError(message) {
+        const panel = document.getElementById('devisSendError');
+        document.getElementById('devisSendErrorMessage').textContent = message;
+        panel.classList.remove('hidden');
+        panel.focus();
+    }
+
     document.getElementById('confirmSend').addEventListener('click', function() {
+        document.getElementById('devisSendError').classList.add('hidden');
         const form = document.getElementById('sendDevisForm');
         const devisId = document.getElementById('devis_id').value;
         const selectedRecipients = Array.from(document.querySelectorAll('input[name="recipients[]"]:checked'))
             .map(checkbox => checkbox.value);
         
         if (selectedRecipients.length === 0) {
-            alert(@json(__('messages.Please select at least one recipient')));
+            showDevisSendError(@json(__('messages.Please select at least one recipient')));
             return;
         }
 
@@ -1038,12 +1056,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (sendDevisModalEl) sendDevisModalEl.classList.add('hidden');
                 location.reload();
             } else {
-                alert(@json(__('messages.Error sending devis: ')) + data.message);
+                showDevisSendError(data.message || @json(__('messages.An error occurred while sending the devis')));
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert(@json(__('messages.An error occurred while sending the devis')));
+            showDevisSendError(@json(__('messages.An error occurred while sending the devis')));
         });
     });
 });

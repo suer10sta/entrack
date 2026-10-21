@@ -8,7 +8,6 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
 use App\Models\Entreprise;
 use Illuminate\Support\Facades\Auth;
@@ -44,14 +43,12 @@ class CustomerReportMail extends Mailable
     public function envelope(): Envelope
     {
         $user = auth()->user();
-        $companyEmail = $user->entreprise->email ?? config('mail.from.address');
+        $entreprise = $user?->entreprise;
 
         return new Envelope(
             subject: $this->subject,
-            from: new Address($companyEmail),
-            replyTo: [
-                new Address($companyEmail)
-            ]
+            from: CompanySender::from($entreprise),
+            replyTo: CompanySender::replyTo($entreprise)
         );
     }
 

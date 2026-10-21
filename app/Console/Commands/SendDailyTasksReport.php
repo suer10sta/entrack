@@ -188,9 +188,10 @@ class SendDailyTasksReport extends Command
                     // Split the emails string into an array
                     $recipientEmails = array_map('trim', explode(',', $RECIPIENT_EMAIL));
                     
-                    Mail::send('admin.emails.daily-tasks-report', 
+                    Mail::send('admin.emails.daily-tasks-report',
                         ['enterprise' => $enterprise], 
                         function($message) use ($attachments, $enterprise, $recipientEmails) {
+                            \App\Mail\CompanySender::apply($message, $enterprise);
                             $message->to($recipientEmails[0]); // First email as primary recipient
                             
                             // If there are additional emails, add them as CC

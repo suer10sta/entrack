@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'devis_send_error_title' => 'The quote could not be sent',
     'Practical articles on e-invoicing, project management, time tracking and running a modern services business with DalyTrac.' => 'Practical articles on e-invoicing, project management, time tracking and running a modern services business with DalyTrac.',
     'Tips and best practices for using DalyTrac to manage invoices, projects and teams.' => 'Tips and best practices for using DalyTrac to manage invoices, projects and teams.',
     'Guides and updates about DalyTrac and business operations.' => 'Guides and updates about DalyTrac and business operations.',

@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'devis_send_error_title' => 'De offerte kon niet worden verstuurd',
     'Practical articles on e-invoicing, project management, time tracking and running a modern services business with DalyTrac.' => 'Praktische artikelen over e-facturatie, projectbeheer, tijdregistratie en het leiden van een dienstverlenend bedrijf met DalyTrac.',
     'Tips and best practices for using DalyTrac to manage invoices, projects and teams.' => 'Tips om facturen, projecten en teams met DalyTrac te beheren.',
     'Guides and updates about DalyTrac and business operations.' => 'Handleidingen en updates over DalyTrac en bedrijfsvoering.',

@@ -38,11 +38,9 @@ class EmployeeEmail extends Mailable
     {
         $entreprise_id = auth()->user()->entreprise_id;
         $entreprise = \App\Models\Entreprise::where('id', $entreprise_id)->first();
-        $entreprise_email = $entreprise->email;
-        $entreprise_name = $entreprise->name;
+        CompanySender::apply($this, $entreprise);
 
-        $email = $this->from($entreprise_email, $entreprise_name)
-            ->subject($this->subject)
+        $email = $this->subject($this->subject)
             ->view('emails.employee-email')
             ->with(['body' => $this->body]);
 

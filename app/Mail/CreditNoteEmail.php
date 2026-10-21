@@ -8,7 +8,6 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
 use App\Models\Entreprise;
 use App\Models\credit_note;
@@ -37,14 +36,11 @@ class CreditNoteEmail extends Mailable
     public function envelope(): Envelope
     {
         $entreprise_id = Auth::user()->entreprise_id;
-        $entreprise_email = Entreprise::where('id', $entreprise_id)->value('email');
         $entreprise = Entreprise::where('id', $entreprise_id)->first();
 
         return new Envelope(
-            from: new Address($entreprise_email, 'Credit Note-'.$entreprise->name),
-            replyTo: [
-                new Address($entreprise_email, 'Credit Note-'.$entreprise->name)
-            ],
+            from: CompanySender::from($entreprise),
+            replyTo: CompanySender::replyTo($entreprise),
             subject: $this->subject,
         );
     }
