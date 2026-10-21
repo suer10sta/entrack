@@ -4,214 +4,101 @@
     <x-favicon />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ __('messages.DalyTrac Dashboard') }}</title>
+    <title>{{ __('messages.Edit Detailed Invoice') }} - DalyTrac</title>
     @vite('resources/css/app.css')
-@include('partials.edit-layout-styles')
+    @livewireStyles
+    <link rel="stylesheet" href="{{ asset('css/dalytrac-detailed-invoice-edit.css') }}">
+    <script src="{{ asset('js/dalytrac-detailed-invoice-edit.js') }}" defer></script>
 </head>
-<body class="bg-gray-50 flex h-screen overflow-hidden">
-    {{-- Sidebar --}}
+<body class="bg-gray-50 flex h-screen overflow-hidden font-sans">
     @if(Auth::user()->hasRole('Admin'))
         <x-dashboard.sidebar />
     @else
         <x-employees.sidebar />
     @endif
-    <div class="flex flex-col flex-1 overflow-y-auto">
-        {{-- Navbar --}}
+    <div class="flex flex-col flex-1 min-w-0 overflow-y-auto">
         <x-dashboard.navbar />
-
-        {{-- Main Content --}}
-
-        <main class="dt-edit-page flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
-            <div class="dt-edit-container dt-edit-container--wide max-w-5xl mx-auto">
-                
-                {{-- Session Error (Tailwind Styled) --}}
-                @if(session('error'))
-                <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                    <strong class="font-bold">{{ __('messages.Error!') }}</strong>
-                    <span class="block sm:inline">{{ session('error') }}</span>
-                    <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="{{ __('messages.Close') }}">&times;</button>
-                </div>
+        @php
+            $prefix = 'admin';
+            if (!Auth::user()->hasRole('Admin')) {
+                if (Auth::user()->hasRole('Responsable de projet')) $prefix = 'Responsable_de_projet';
+                elseif (Auth::user()->hasRole('Employee')) $prefix = 'employee';
+                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $prefix = 'Responsable_gestionnaire';
+                elseif (Auth::user()->hasRole('SuperAdmin')) $prefix = 'SuperAdmin';
+            }
+            $cancelRoute = route($prefix.'.invoices.invoicehistory');
+            $details = array_values(old('details', json_decode($invoice->details, true) ?: [['description' => '', 'quantity' => '', 'unit_price' => '']]));
+            $subtotal = array_sum(array_map(fn ($line) => (float) ($line['quantity'] ?? 0) * (float) ($line['unit_price'] ?? 0), $details));
+            $taxRate = (float) $project->tva;
+            $formatAmount = fn ($amount) => number_format($amount, 2, app()->getLocale() === 'en' ? '.' : ',', app()->getLocale() === 'en' ? ',' : ' ').' €';
+        @endphp
+        <main class="detailed-invoice-edit">
+            <div class="die-container">
+                <nav class="die-breadcrumb" aria-label="{{ __('messages.Invoices') }}"><a href="{{ $cancelRoute }}">{{ __('messages.Invoices') }}</a><span aria-hidden="true">/</span><span>#{{ $invoice->number }}</span></nav>
+                <header class="die-header">
+                    <div><span class="die-eyebrow">{{ __('messages.Invoices') }}</span><h1>{{ __('messages.Edit Detailed Invoice') }}</h1><p>{{ __('messages.detailed_edit_intro') }}</p></div>
+                    <span class="die-reference">#{{ $invoice->number }}</span>
+                </header>
+                @if(session('error'))<div class="die-alert die-alert-error" role="alert">{{ session('error') }}</div>@endif
+                @if(session('message'))<div class="die-alert die-alert-success" role="status">{{ session('message') }}</div>@endif
+                @if($errors->any())
+                    <div class="die-alert die-alert-error" role="alert"><strong>{{ __('messages.period_edit_validation') }}</strong><ul>@foreach($errors->all() as $message)<li>{{ $message }}</li>@endforeach</ul></div>
                 @endif
-
-                {{-- Session Message (Tailwind Styled) --}}
-                @if(session('message'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                    <strong class="font-bold">{{ __('messages.Success') }}!</strong>
-                    <span class="block sm:inline">{{ session('message') }}</span>
-                    <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="{{ __('messages.Close') }}">&times;</button>
-                </div>
-                @endif
-
-                {{-- Determine Routes (Simplified Logic) --}}
-                @php
-                    $updateRoute = '';
-                    $cancelRoute = '';
-                    if (Auth::user()->hasRole('Admin')) {
-                        $updateRoute = route('admin.invoices.updateDetailedInvoice', $invoice->id);
-                        $cancelRoute = route('admin.invoices.invoicehistory');
-                    } elseif (Auth::user()->hasRole('Responsable de projet')) {
-                        $updateRoute = route('Responsable_de_projet.invoices.updateDetailedInvoice', $invoice->id);
-                        $cancelRoute = route('Responsable_de_projet.invoices.invoicehistory');
-                    } elseif (Auth::user()->hasRole('Employee')) {
-                        $updateRoute = route('employee.invoices.updateDetailedInvoice', $invoice->id);
-                        $cancelRoute = route('employee.invoices.invoicehistory');
-                    } elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                        $updateRoute = route('Responsable_gestionnaire.invoices.updateDetailedInvoice', $invoice->id);
-                        $cancelRoute = route('Responsable_gestionnaire.invoices.invoicehistory');
-                    }
-                @endphp
-
-                {{-- Form Card (Tailwind Styled) --}}
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <form action="{{ $updateRoute }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="project_id" value="{{ $invoice->project_id }}">
-
-                        {{-- Card Header --}}
-                        <div class="p-6 border-b border-gray-200">
-                            <h2 class="text-lg font-semibold text-gray-900">
-                                {{ __('messages.Edit Detailed Invoice') }}
-                            </h2>
+                <form id="detailedInvoiceForm" action="{{ route($prefix.'.invoices.updateDetailedInvoice', $invoice->id) }}" method="POST" data-tax-rate="{{ $taxRate }}" data-locale="{{ app()->getLocale() }}">
+                    @csrf
+                    <input type="hidden" name="project_id" value="{{ $invoice->project_id }}">
+                    <div class="die-layout">
+                        <div class="die-sections">
+                            <section class="die-card" aria-labelledby="die-lines-title">
+                                <div class="die-section-heading"><span class="die-step" aria-hidden="true">01</span><div><h2 id="die-lines-title">{{ __('messages.detailed_edit_lines') }}</h2><p>{{ __('messages.detailed_edit_lines_help') }}</p></div></div>
+                                <div id="detailsContainer">
+                                    @foreach($details as $index => $detail)
+                                        <div class="detail-row">
+                                            <div class="die-description die-field">
+                                                <label for="detail-{{ $index }}-description">{{ __('messages.Detail') }}</label>
+                                                <input id="detail-{{ $index }}-description" type="text" name="details[{{ $index }}][description]" value="{{ $detail['description'] ?? '' }}" required>
+                                            </div>
+                                            <div class="die-field">
+                                                <label for="detail-{{ $index }}-quantity">{{ __('messages.Quantity') }}</label>
+                                                <input id="detail-{{ $index }}-quantity" class="quantity-input" type="number" min="0" step="0.01" name="details[{{ $index }}][quantity]" value="{{ $detail['quantity'] ?? '' }}" required>
+                                            </div>
+                                            <div class="die-field">
+                                                <label for="detail-{{ $index }}-unit_price">{{ __('messages.Unit Price') }} (€)</label>
+                                                <input id="detail-{{ $index }}-unit_price" class="price-input" type="number" min="0" step="0.01" name="details[{{ $index }}][unit_price]" value="{{ $detail['unit_price'] ?? '' }}" required>
+                                            </div>
+                                            <div class="die-field">
+                                                <label for="detail-{{ $index }}-total">{{ __('messages.Total') }} (€)</label>
+                                                <input id="detail-{{ $index }}-total" class="total-input" type="text" value="{{ number_format((float) ($detail['quantity'] ?? 0) * (float) ($detail['unit_price'] ?? 0), 2, '.', '') }}" readonly>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="die-line-actions">
+                                    <button type="button" id="addRowBtn" class="dt-btn dt-btn-ghost"><span aria-hidden="true">＋</span> {{ __('messages.Add Row') }}</button>
+                                    <button type="button" id="deleteRowBtn" class="die-delete">{{ __('messages.Delete Row') }}</button>
+                                </div>
+                            </section>
+                            <section class="die-card" aria-labelledby="die-comment-title">
+                                <div class="die-section-heading"><span class="die-step" aria-hidden="true">02</span><div><h2 id="die-comment-title">{{ __('messages.Comment') }} <span class="die-optional">{{ __('messages.period_edit_optional') }}</span></h2><p>{{ __('messages.period_edit_comment_help') }}</p></div></div>
+                                <div class="die-field"><label for="comment" class="sr-only">{{ __('messages.Comment') }}</label><textarea name="comment" id="comment" rows="4">{{ old('comment', $invoice->comment) }}</textarea></div>
+                            </section>
                         </div>
-
-                        {{-- Card Body (Form Fields) --}}
-                        <div class="p-6 space-y-6">
-                            
-                            {{-- Comment --}}
-                            <div>
-                                <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Comment') }}</label>
-                                <textarea name="comment" id="comment" rows="4" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">{{ $invoice->comment }}</textarea>
-                            </div>
-
-                            {{-- Details Header --}}
-                            <div class="grid grid-cols-10 gap-4 mb-2">
-                                <div class="col-span-10 md:col-span-4">
-                                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Detail') }}</label>
-                                </div>
-                                <div class="col-span-5 md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Quantity') }}</label>
-                                </div>
-                                <div class="col-span-5 md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Unit Price') }} (€)</label>
-                                </div>
-                                <div class="col-span-10 md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700">{{ __('messages.Total') }}</label>
-                                </div>
-                            </div>
-                            
-                            {{-- Dynamic Details Container --}}
-                            <div id="detailsContainer" class="space-y-3">
-                                @foreach(json_decode($invoice->details, true) as $index => $detail)
-                                <div class="grid grid-cols-10 gap-4 items-center detail-row">
-                                    <div class="col-span-10 md:col-span-4">
-                                        <input type="text" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm detail-input" name="details[{{$index}}][description]" value="{{ $detail['description'] }}" required>
-                                    </div>
-                                    <div class="col-span-5 md:col-span-2">
-                                        <input type="number" step="0.01" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm quantity-input" name="details[{{$index}}][quantity]" value="{{ $detail['quantity'] }}" required>
-                                    </div>
-                                    <div class="col-span-5 md:col-span-2">
-                                        <input type="number" step="0.01" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm price-input" name="details[{{$index}}][unit_price]" value="{{ $detail['unit_price'] }}" required>
-                                    </div>
-                                    <div class="col-span-10 md:col-span-2">
-                                        <input type="number" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-gray-50 total-input" value="{{ $detail['quantity'] * $detail['unit_price'] }}" readonly>
-                                    </div>
-                                </div>
-                                @endforeach
-                            </div>
-
-                            {{-- Add/Delete Row Buttons --}}
-                            <div class="flex items-center gap-3">
-                                <button type="button" id="addRowBtn" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 rounded-lg text-sm shadow-sm">
-                                    {{ __('messages.Add Row') }}
-                                </button>
-                                <button type="button" id="deleteRowBtn" class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-1.5 rounded-lg text-sm shadow-sm">
-                                    {{ __('messages.Delete Row') }}
-                                </button>
-                            </div>
-
-                            {{-- Grand Total --}}
-                            <div class="mt-6 bg-gray-50 border border-gray-200 rounded-lg p-4 flex justify-between items-center">
-                                <span class="text-lg font-semibold text-gray-800">{{ __('messages.Total Amount (HTVA)') }}:</span>
-                                <span id="grandTotal" class="text-2xl font-bold text-blue-600">0.00€</span>
-                            </div>
-
-                        </div>
-
-                        {{-- Card Footer (Buttons) --}}
-                        <div class="p-6 bg-gray-50 border-t border-gray-200 flex items-center gap-3">
-                            <button type="submit" class="inline-flex justify-center bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">
-                                {{ __('messages.Update Invoice') }}
-                            </button>
-                            <a href="{{ $cancelRoute }}" class="inline-flex justify-center bg-white hover:bg-gray-50 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm">
-                                {{ __('messages.Cancel') }}
-                            </a>
-                        </div>
-                        
-                    </form>
-                </div>
+                        <aside class="die-card die-summary" aria-labelledby="die-summary-title">
+                            <h2 id="die-summary-title">{{ __('messages.detailed_edit_summary') }}</h2>
+                            <div class="die-project"><span>{{ __('messages.Project') }}</span><strong>{{ $project->name }}</strong></div>
+                            <dl>
+                                <div><dt>{{ __('messages.Total Amount (HTVA)') }}</dt><dd id="grandTotal">{{ $formatAmount($subtotal) }}</dd></div>
+                                <div><dt>{{ __('messages.VAT') }} ({{ $taxRate }} %)</dt><dd id="taxTotal">{{ $formatAmount($subtotal * $taxRate / 100) }}</dd></div>
+                                <div class="die-total"><dt>{{ __('messages.period_edit_total_incl_tax') }}</dt><dd id="invoiceTotal">{{ $formatAmount($subtotal * (1 + $taxRate / 100)) }}</dd></div>
+                            </dl>
+                            <p class="die-summary-help">{{ __('messages.detailed_edit_totals_help') }}</p>
+                            <div class="die-save-actions"><button type="submit" class="dt-btn dt-btn-primary">{{ __('messages.Update Invoice') }}</button><a href="{{ $cancelRoute }}" class="dt-btn dt-btn-ghost">{{ __('messages.Cancel') }}</a></div>
+                        </aside>
+                    </div>
+                </form>
             </div>
         </main>
     </div>
     @livewireScripts
-
-    <script>
-        $(document).ready(function() {
-            function calculateRowTotal(row) {
-                const quantity = parseFloat(row.find('.quantity-input').val()) || 0;
-                const price = parseFloat(row.find('.price-input').val()) || 0;
-                const total = quantity * price;
-                row.find('.total-input').val(total.toFixed(2));
-                calculateGrandTotal();
-            }
-
-            function calculateGrandTotal() {
-                let grandTotal = 0;
-                $('.total-input').each(function() {
-                    grandTotal += parseFloat($(this).val()) || 0;
-                });
-                $('#grandTotal').text(grandTotal.toFixed(2) + '€'); // Added € symbol for consistency
-            }
-
-            function attachRowEventListeners(row) {
-                row.find('.quantity-input, .price-input').on('input', function() {
-                    calculateRowTotal(row);
-                });
-            }
-
-            $('#addRowBtn').click(function() {
-                // Find the last row to clone, or the first if it's the only one
-                const lastRow = $('.detail-row:last');
-                const newRow = lastRow.clone();
-                const newIndex = $('.detail-row').length;
-                
-                newRow.find('input').val(''); // Clear all input values
-                newRow.find('input[name^="details"]').each(function() {
-                    const oldName = $(this).attr('name');
-                    // Replace the index [0] or [1] etc. with the new index
-                    $(this).attr('name', oldName.replace(/\[\d+\]/, '[' + newIndex + ']'));
-                });
-                
-                // Use .after() on the last row to append, or .append() to the container
-                lastRow.after(newRow); 
-                attachRowEventListeners(newRow);
-                calculateRowTotal(newRow); // Calculate total for the new row (which will be 0)
-            });
-
-            $('#deleteRowBtn').click(function() {
-                if ($('.detail-row').length > 1) {
-                    $('.detail-row:last').remove();
-                    calculateGrandTotal();
-                }
-            });
-
-            // Attach listeners to all existing rows on page load
-            $('.detail-row').each(function() {
-                attachRowEventListeners($(this));
-            });
-
-            // Calculate the grand total on page load
-            calculateGrandTotal();
-        });
-    </script>
 </body>
 </html>

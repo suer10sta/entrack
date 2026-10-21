@@ -45,6 +45,12 @@ class entrepriseController extends Controller
 
     public function updateInfos(Request $request)
     {
+        if ($request->attributes->get('subscriptionCountryRecovery')) {
+            $countries = json_decode(file_get_contents(base_path('countries.json')), true) ?? [];
+            $request->validate([
+                'content' => ['required', 'string', \Illuminate\Validation\Rule::in(array_column($countries, 'name'))],
+            ]);
+        }
         $allowedColumns = [
             'name',
             'phone',
@@ -83,7 +89,9 @@ class entrepriseController extends Controller
             return response()->json(['error' => __('messages.Invalid field')], 422);
         }
 
-        $Entreprise = Entreprise::find($request->id);
+        // This endpoint is shared by several roles; never trust a submitted tenant ID.
+        abort_unless((string) $request->id === (string) auth()->user()->entreprise_id, 403);
+        $Entreprise = Entreprise::find(auth()->user()->entreprise_id);
 
         if (! $Entreprise) {
             return response()->json(['error' => __('messages.Company not found')], 404);

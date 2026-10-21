@@ -1,0 +1,52 @@
+.period-invoice-edit { flex: 1; padding: 30px clamp(16px, 3vw, 40px) 48px; background: #f5f8fa; color: #0b2638; }
+.period-invoice-edit .pie-container { max-width: 1120px; margin: 0 auto; }
+.period-invoice-edit .pie-breadcrumb { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; color: #7c8b98; font-size: 12px; margin-bottom: 24px; }
+.period-invoice-edit .pie-breadcrumb a { color: #526777; text-decoration: none; }
+.period-invoice-edit .pie-breadcrumb a:hover { color: #2d7080; text-decoration: underline; }
+.period-invoice-edit .pie-page-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 26px; }
+.period-invoice-edit .pie-eyebrow { display: inline-flex; color: #2d7080; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; margin-bottom: 8px; }
+.period-invoice-edit h1 { margin: 0; font-size: clamp(23px, 2.3vw, 29px); line-height: 1.25; font-weight: 700; letter-spacing: -.035em; }
+.period-invoice-edit .pie-page-header p { margin-top: 9px; color: #6c7d8a; font-size: 13px; line-height: 1.6; }
+.period-invoice-edit .pie-reference { padding: 8px 12px; border: 1px solid #dde7ec; border-radius: 8px; background: #fff; font-size: 12px; font-weight: 600; overflow-wrap: anywhere; }
+.period-invoice-edit .pie-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+.period-invoice-edit .pie-form { display: grid; gap: 18px; min-width: 0; }
+.period-invoice-edit .pie-card { background: #fff; border: 1px solid #e1e8ed; border-radius: 14px; padding: 24px; box-shadow: 0 2px 4px rgba(11, 38, 56, .025); min-width: 0; }
+.period-invoice-edit .pie-section-heading { display: flex; gap: 13px; align-items: flex-start; margin-bottom: 22px; }
+.period-invoice-edit .pie-step { display: grid; place-items: center; width: 32px; height: 32px; flex-shrink: 0; border-radius: 9px; background: #edf5f5; color: #2d7080; font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.period-invoice-edit h2 { font-size: 14px; line-height: 1.5; font-weight: 650; margin: 0; }
+.period-invoice-edit .pie-section-heading p { color: #7b8995; font-size: 12px; line-height: 1.6; margin-top: 4px; }
+.period-invoice-edit .pie-field { min-width: 0; }
+.period-invoice-edit .pie-field label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: #445a6b; }
+.period-invoice-edit .pie-field label span { color: #b45309; }
+.period-invoice-edit .pie-field :is(input, select, textarea) { box-sizing: border-box; width: 100%; min-width: 0; max-width: 100%; border: 1px solid #dce5eb; border-radius: 9px; background-color: #fafcfd; padding: 11px 13px; color: #1f3748; font-size: 13px; line-height: 1.5; box-shadow: none; transition: border-color .15s, box-shadow .15s; }
+.period-invoice-edit .pie-field select { padding-right: 36px; text-overflow: ellipsis; }
+.period-invoice-edit .pie-field textarea { resize: vertical; min-height: 125px; }
+.period-invoice-edit .pie-field :is(input, select, textarea):focus { outline: none; background-color: #fff; border-color: #2d7080; box-shadow: 0 0 0 3px rgba(45, 112, 128, .12); }
+.period-invoice-edit .pie-field [aria-invalid="true"] { border-color: #dc2626; }
+.period-invoice-edit .pie-field-error { color: #b91c1c; font-size: 12px; margin-top: 7px; }
+.period-invoice-edit .pie-date-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.period-invoice-edit .pie-optional { margin-left: 7px; color: #8996a1; font-size: 11px; font-weight: 400; }
+.period-invoice-edit .pie-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding: 3px 0; }
+.period-invoice-edit .pie-actions .dt-btn { min-height: 42px; border-radius: 9px; padding-inline: 18px; }
+.period-invoice-edit .pie-summary { position: sticky; top: 88px; min-width: 0; }
+.period-invoice-edit .pie-summary-card { padding: 24px; border-top: 3px solid #2d7080; }
+.period-invoice-edit .pie-summary-icon { display: grid; place-items: center; width: 46px; height: 46px; color: #2d7080; background: #edf5f5; border-radius: 12px; margin-bottom: 17px; }
+.period-invoice-edit .pie-summary-reference { color: #8b98a2; font-size: 12px; margin-top: 5px; }
+.period-invoice-edit .pie-summary-project { display: grid; gap: 5px; padding: 20px 0; margin-top: 6px; border-bottom: 1px solid #edf1f4; }
+.period-invoice-edit .pie-summary-project span { color: #8795a0; font-size: 11px; }
+.period-invoice-edit .pie-summary-project strong { font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }
+.period-invoice-edit .pie-totals { margin-top: 19px; }
+.period-invoice-edit .pie-totals > div { display: flex; justify-content: space-between; gap: 12px; margin-top: 13px; font-size: 12px; }
+.period-invoice-edit .pie-totals dt { color: #718390; }
+.period-invoice-edit .pie-totals dd { margin: 0; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.period-invoice-edit .pie-totals .pie-total { border-top: 1px solid #e9eef2; padding-top: 17px; margin-top: 18px; align-items: center; }
+.period-invoice-edit .pie-total dt { color: #0b2638; font-weight: 600; }
+.period-invoice-edit .pie-total dd { font-size: 21px; letter-spacing: -.03em; }
+.period-invoice-edit .pie-summary-note { display: flex; align-items: flex-start; gap: 8px; padding: 12px; margin-top: 22px; border-radius: 8px; background: #f4f8fa; color: #6d818e; font-size: 11px; line-height: 1.7; }
+.period-invoice-edit .pie-summary-note svg { flex-shrink: 0; margin-top: 2px; }
+.period-invoice-edit .pie-alert { border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+.period-invoice-edit .pie-alert-error { background: #fff1f2; border: 1px solid #fecdd3; color: #9f1239; }
+.period-invoice-edit .pie-alert-success { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+.period-invoice-edit .pie-alert ul { list-style: disc; padding-left: 20px; margin-top: 6px; }
+@media (max-width: 1050px) { .period-invoice-edit .pie-layout { grid-template-columns: minmax(0, 1fr); } .period-invoice-edit .pie-summary { position: static; } }
+@media (max-width: 540px) { .period-invoice-edit { padding: 20px 16px 32px; } .period-invoice-edit .pie-card { padding: 20px 16px; } .period-invoice-edit .pie-date-grid { grid-template-columns: minmax(0, 1fr); } .period-invoice-edit .pie-actions .dt-btn { flex: 1 1 auto; white-space: normal; } .period-invoice-edit .pie-reference { font-size: 11px; } }

@@ -1,117 +1,92 @@
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
-
 <head>
     <x-favicon />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ __('messages.Send Calendar Events - DalyTrac') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="stylesheet" href="{{ asset('css/dalytrac-calendar-preview.css') }}">
 </head>
-
 <body class="bg-gray-50 flex h-screen overflow-hidden">
-
-    {{-- Sidebar Component --}}
     @if(Auth::user()->hasRole('Admin'))
-        @if(Auth::user()->hasRole('Admin'))
         <x-dashboard.sidebar />
     @else
         <x-employees.sidebar />
     @endif
-    @else
-        <x-employees.sidebar />
-    @endif
-
-    {{-- Main Wrapper (Navbar + Content) --}}
-    <div class="flex flex-col flex-1 overflow-y-auto">
-        {{-- Navbar Component --}}
+    <div class="flex flex-col flex-1 min-w-0 overflow-y-auto">
         <x-dashboard.navbar />
-
-        {{-- Main Content Area --}}
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6 lg:p-8">
-            
-            <div class="max-w-7xl mx-auto">
-                
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
-                    {{-- Left Column: PDF Preview --}}
-                    <div class="lg:col-span-2">
-                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col h-full">
-                            <div class="p-6 border-b border-gray-200">
-                                <h4 class="text-lg font-semibold text-gray-900">{{ __('messages.Calendar Events Preview') }} - {{ $monthName }}</h4>
+        @php($pdfUrl = route('admin.calendar.events.pdf', ['events' => $eventIds, 'month' => $month, 'year' => $year]))
+        <main class="calendar-email-preview">
+            <div class="cep-container">
+                <!-- <nav class="cep-breadcrumb" aria-label="{{ __('messages.Planning') }}">
+                    <a href="{{ route('admin.calendar.index') }}">{{ __('messages.Planning') }}</a>
+                    <span aria-hidden="true">/</span>
+                    <span>{{ __('messages.Calendar Events Preview') }}</span>
+                </nav>
+                <header class="cep-header">
+                    <div>
+                        <span class="cep-eyebrow">{{ __('messages.Planning') }}</span>
+                        <h1>{{ __('messages.Send Calendar Events') }}</h1>
+                        <p>{{ __('messages.calendar_preview_intro') }}</p>
+                    </div>
+                    <span class="cep-period">{{ $monthName }}</span>
+                </header> -->
+                <div class="cep-layout">
+                    <section class="cep-card cep-preview" aria-labelledby="pdf-preview-heading">
+                        <div class="cep-card-heading">
+                            <div class="cep-heading-group">
+                                <span class="cep-icon" aria-hidden="true">PDF</span>
+                                <div><h2 id="pdf-preview-heading">{{ __('messages.Calendar Events Preview') }}</h2><p>{{ $monthName }}</p></div>
                             </div>
-                            <div class="p-6 flex-1">
-                                <div class="w-full h-full border border-gray-200 rounded-lg overflow-hidden bg-gray-100" style="min-height: 600px;">
-                                    <iframe src="{{ route('admin.calendar.events.pdf', ['events' => $eventIds, 'month' => $month, 'year' => $year]) }}" 
-                                            class="w-full h-full" 
-                                            style="height: 600px; border: none;">
-                                    </iframe>
+                            <a class="cep-open" href="{{ $pdfUrl }}" target="_blank" rel="noopener">{{ __('messages.calendar_preview_open') }} <span aria-hidden="true">↗</span></a>
+                        </div>
+                        <div class="cep-pdf-frame">
+                            <iframe src="{{ $pdfUrl }}" title="{{ __('messages.Calendar Events Preview') }} — {{ $monthName }}"></iframe>
+                        </div>
+                        <div class="cep-included"><span aria-hidden="true">✓</span> {{ __('messages.calendar_preview_included') }}</div>
+                    </section>
+                    <section class="cep-card cep-composer" aria-labelledby="email-options-heading">
+                        <div class="cep-card-heading">
+                            <div class="cep-heading-group">
+                                <span class="cep-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3 7 9 6 9-6"/></svg></span>
+                                <div><h2 id="email-options-heading">{{ __('messages.Email Options') }}</h2><p>{{ __('messages.calendar_preview_compose') }}</p></div>
+                            </div>
+                        </div>
+                        <form id="sendEventsForm" action="{{ route('admin.calendar.send-events-email') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="events" value="{{ $eventIds }}">
+                            <input type="hidden" name="month" value="{{ $month }}">
+                            <input type="hidden" name="year" value="{{ $year }}">
+                            <div class="cep-fields">
+                                <div class="cep-field">
+                                    <label for="recipients">{{ __('messages.Recipients label') }} <span>*</span></label>
+                                    <textarea id="recipients" name="recipients" rows="2" placeholder="{{ __('messages.Recipients placeholder') }}" aria-describedby="recipients-help" required></textarea>
+                                    <p id="recipients-help">{{ __('messages.Separate emails helper') }}</p>
+                                </div>
+                                <div class="cep-field">
+                                    <label for="subject">{{ __('messages.Email Subject') }} <span>*</span></label>
+                                    <input type="text" id="subject" name="subject" value="{{ __('messages.Calendar Events Subject Prefix') }} {{ $monthName }}" required>
+                                </div>
+                                <div class="cep-field">
+                                    <label for="body">{{ __('messages.Email Body') }} <span>*</span></label>
+                                    <textarea id="body" name="body" rows="7" required>{{ __('messages.Calendar Events default body', ['month' => $monthName]) }}</textarea>
+                                </div>
+                                <div class="cep-attachments cep-field">
+                                    <label for="attachments">{{ __('messages.Additional Attachments') }}</label>
+                                    <input type="file" id="attachments" name="attachments[]" multiple aria-describedby="attachments-help">
+                                    <p id="attachments-help">{{ __('messages.Calendar Attachments helper') }}</p>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    {{-- Right Column: Email Form --}}
-                    <div class="lg:col-span-1">
-                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-                            <div class="p-6 border-b border-gray-200">
-                                <h4 class="text-lg font-semibold text-gray-900">{{ __('messages.Email Options') }}</h4>
+                            <div class="cep-form-footer">
+                                <button type="submit" class="cep-send">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m22 2-7 20-4-9-9-4 20-7ZM22 2 11 13"/></svg>
+                                    {{ __('messages.Send email button') }}
+                                </button>
                             </div>
-                            <div class="p-6">
-                                <form id="sendEventsForm" action="{{ route('admin.calendar.send-events-email') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                                    @csrf
-                                    <input type="hidden" name="events" value="{{ $eventIds }}">
-                                    <input type="hidden" name="month" value="{{ $month }}">
-                                    <input type="hidden" name="year" value="{{ $year }}">
-                                    
-                                    {{-- Recipients --}}
-                                    <div>
-                                        <label for="recipients" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Recipients label') }} <span class="text-red-500">*</span></label>
-                                        <textarea id="recipients" name="recipients" rows="3" 
-                                                  class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
-                                                  placeholder="{{ __('messages.Recipients placeholder') }}" required></textarea>
-                                        <p class="mt-1 text-xs text-gray-500">{{ __('messages.Separate emails helper') }}</p>
-                                    </div>
-                                    
-                                    {{-- Subject --}}
-                                    <div>
-                                        <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Email Subject') }} <span class="text-red-500">*</span></label>
-                                        <input type="text" id="subject" name="subject" 
-                                               class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
-                                               value="{{ __('messages.Calendar Events Subject Prefix') }} {{ $monthName }}" required>
-                                    </div>
-                                    
-                                    {{-- Body --}}
-                                    <div>
-                                        <label for="body" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Email Body') }} <span class="text-red-500">*</span></label>
-                                        <textarea id="body" name="body" rows="6" 
-                                                  class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>{{ __('messages.Calendar Events default body', ['month' => $monthName]) }}</textarea>
-                                    </div>
-                                    
-                                    {{-- Attachments --}}
-                                    <div>
-                                        <label for="attachments" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Additional Attachments') }}</label>
-                                        <input type="file" id="attachments" name="attachments[]" 
-                                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" 
-                                               multiple>
-                                        <p class="mt-1 text-xs text-gray-500">{{ __('messages.Calendar Attachments helper') }}</p>
-                                    </div>
-                                    
-                                    {{-- Submit Button --}}
-                                    <div class="pt-4">
-                                        <button type="submit" 
-                                                class="w-full inline-flex justify-center items-center rounded-lg border border-transparent shadow-sm px-4 py-2.5 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
-                                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                            </svg>
-                                            {{ __('messages.Send email button') }}
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+                        </form>
+                    </section>
                 </div>
             </div>
         </main>

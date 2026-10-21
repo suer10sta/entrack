@@ -4,168 +4,107 @@
     <x-favicon />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ __('messages.Edit Period Invoice - DalyTrac') }}</title>
     @vite('resources/css/app.css')
-    @livewireScripts
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    
-    {{-- Styles personnalisés pour l'icône de flèche du 'select' --}}
-    <style>
-        select.form-select-custom {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
-            padding-right: 2.5rem; 
-        }
-    </style>
-@include('partials.edit-layout-styles')
+    @livewireStyles
+    <link rel="stylesheet" href="{{ asset('css/dalytrac-period-invoice-edit.css') }}">
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden font-sans">
-    
-    {{-- Sidebar --}}
     @if(Auth::user()->hasRole('Admin'))
         <x-dashboard.sidebar />
     @else
         <x-employees.sidebar />
     @endif
-
-    {{-- Conteneur principal (Navbar + Contenu) --}}
-    <div class="flex flex-col flex-1 overflow-y-auto">
-
-        {{-- Navbar --}}
+    <div class="flex flex-col flex-1 min-w-0 overflow-y-auto">
         <x-dashboard.navbar />
-
-        {{-- Zone de contenu principal --}}
-        <main class="dt-edit-page flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
-            <div class="dt-edit-container dt-edit-container--compact max-w-3xl mx-auto">
-                
-                {{-- Message d'erreur de session (style Tailwind) --}}
-                @if(session('error'))
-                <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                    <strong class="font-bold">{{ __('messages.Error!') }}</strong>
-                    <span class="block sm:inline">{{ session('error') }}</span>
-                    <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="{{ __('messages.Close') }}">&times;</button>
-                </div>
+        @php
+            $prefix = 'admin';
+            if (!Auth::user()->hasRole('Admin')) {
+                if (Auth::user()->hasRole('Responsable de projet')) $prefix = 'Responsable_de_projet';
+                elseif (Auth::user()->hasRole('Employee')) $prefix = 'employee';
+                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $prefix = 'Responsable_gestionnaire';
+            }
+            $updateRoute = route($prefix.'.invoices.updatePeriodInvoice', $invoice->id);
+            $cancelRoute = route($prefix.'.invoices.invoicehistory');
+            $reference = $entreprise->invoice_prefix.'-'.($invoice->created_at ? \Carbon\Carbon::parse($invoice->created_at)->format('ym') : '').$invoice->number;
+            $currentProject = $projects->firstWhere('id', $invoice->project_id);
+            $formatAmount = fn ($amount) => number_format((float) $amount, 2, app()->getLocale() === 'en' ? '.' : ',', app()->getLocale() === 'en' ? ',' : ' ').' €';
+        @endphp
+        <main class="period-invoice-edit">
+            <div class="pie-container">
+                <nav class="pie-breadcrumb" aria-label="{{ __('messages.Invoices') }}"><a href="{{ $cancelRoute }}">{{ __('messages.Invoices') }}</a><span aria-hidden="true">/</span><span>{{ $reference }}</span></nav>
+                <header class="pie-page-header">
+                    <div><span class="pie-eyebrow">{{ __('messages.Period Invoice') }}</span><h1>{{ __('messages.Edit Period Invoice') }}</h1><p>{{ __('messages.period_edit_intro') }}</p></div>
+                    <span class="pie-reference">{{ $reference }}</span>
+                </header>
+                @if(session('error'))<div class="pie-alert pie-alert-error" role="alert">{{ session('error') }}</div>@endif
+                @if(session('message'))<div class="pie-alert pie-alert-success" role="status">{{ session('message') }}</div>@endif
+                @if($errors->any())
+                    <div class="pie-alert pie-alert-error" role="alert"><strong>{{ __('messages.period_edit_validation') }}</strong><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>
                 @endif
-
-                {{-- Message de session (style Tailwind) --}}
-                @if(session('message'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                    <strong class="font-bold">{{ __('messages.Success') }}!</strong>
-                    <span class="block sm:inline">{{ session('message') }}</span>
-                    <button type="button" onclick="this.parentElement.style.display='none';" class="absolute top-0 bottom-0 right-0 px-4 py-3 font-bold text-xl" aria-label="{{ __('messages.Close') }}">&times;</button>
-                </div>
-                @endif
-
-                {{-- Déterminer les routes (Logique simplifiée) --}}
-                @php
-                    $updateRoute = '';
-                    $cancelRoute = '';
-                    if (Auth::user()->hasRole('Admin')) {
-                        $updateRoute = route('admin.invoices.updatePeriodInvoice', $invoice->id);
-                        $cancelRoute = route('admin.invoices.invoicehistory');
-                    } elseif (Auth::user()->hasRole('Responsable de projet')) {
-                        $updateRoute = route('Responsable_de_projet.invoices.updatePeriodInvoice', $invoice->id);
-                        $cancelRoute = route('Responsable_de_projet.invoices.invoicehistory');
-                    } elseif (Auth::user()->hasRole('Employee')) {
-                        $updateRoute = route('employee.invoices.updatePeriodInvoice', $invoice->id);
-                        $cancelRoute = route('employee.invoices.invoicehistory');
-                    } elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                        $updateRoute = route('Responsable_gestionnaire.invoices.updatePeriodInvoice', $invoice->id);
-                        $cancelRoute = route('Responsable_gestionnaire.invoices.invoicehistory');
-                    }
-                @endphp
-
-                {{-- Carte de formulaire (style Tailwind) --}}
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <form method="POST" action="{{ $updateRoute }}">
+                <div class="pie-layout">
+                    <form id="periodInvoiceForm" method="POST" action="{{ $updateRoute }}" class="pie-form">
                         @csrf
                         @method('PUT')
-
-                        {{-- En-tête de la carte --}}
-                        <div class="p-6 border-b border-gray-200">
-                            <h2 class="text-lg font-semibold text-gray-900">
-                                {{ __('messages.Edit Period Invoice') }} {{ $entreprise->invoice_prefix }}-{{ $invoice->number }}
-                            </h2>
-                            <p class="text-sm text-gray-600 mt-1">{{ __('messages.Update the period invoice details') }}</p>
-                        </div>
-
-                        {{-- Corps de la carte (Champs de formulaire) --}}
-                        <div class="dt-edit-fields p-6 space-y-5">
-                            
-                            {{-- Projet --}}
-                            <div class="dt-edit-field-wide">
-                                <label for="project_id" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Project') }}</label>
-                                <select name="project_id" id="project_id" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 form-select-custom @error('project_id') border-red-500 @enderror" required>
+                        <section class="pie-card" aria-labelledby="pie-project-title">
+                            <div class="pie-section-heading"><span class="pie-step" aria-hidden="true">01</span><div><h2 id="pie-project-title">{{ __('messages.Project') }}</h2><p>{{ __('messages.period_edit_project_help') }}</p></div></div>
+                            <div class="pie-field">
+                                <label for="project_id">{{ __('messages.Project') }} <span aria-hidden="true">*</span></label>
+                                <select name="project_id" id="project_id" required @error('project_id') aria-invalid="true" aria-describedby="project_id-error" @enderror>
                                     @foreach($projects as $project)
-                                        <option value="{{ $project->id }}" 
-                                            {{ $project->id == $invoice->project_id ? 'selected' : '' }}
-                                            data-tva="{{ $project->tva }}"
-                                            data-remaining="{{ $project->budget ? $project->budget : 0 }}">
-                                            {{ $project->name }} ({{ __('messages.Budget') }}: {{ $project->budget ? $project->budget : 0 }})
-                                        </option>
+                                        <option value="{{ $project->id }}" @selected((string) old('project_id', $invoice->project_id) === (string) $project->id) data-tva="{{ $project->tva }}" data-remaining="{{ $project->budget ?: 0 }}">{{ $project->name }} ({{ __('messages.Budget') }}: {{ $formatAmount($project->budget ?: 0) }})</option>
                                     @endforeach
                                 </select>
-                                @error('project_id')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                                @error('project_id')<p id="project_id-error" class="pie-field-error">{{ $message }}</p>@enderror
                             </div>
-
-                            {{-- Date de début --}}
-                            <div>
-                                <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Start Date') }}</label>
-                                <input type="date" name="start_date" id="start_date" 
-                                       class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm @error('start_date') border-red-500 @enderror" 
-                                       value="{{ old('start_date', \Carbon\Carbon::parse($invoice->start_date)->format('Y-m-d')) }}" required>
-                                @error('start_date')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                        </section>
+                        <section class="pie-card" aria-labelledby="pie-period-title">
+                            <div class="pie-section-heading"><span class="pie-step" aria-hidden="true">02</span><div><h2 id="pie-period-title">{{ __('messages.period_edit_billing_period') }}</h2><p>{{ __('messages.period_edit_period_help') }}</p></div></div>
+                            <div class="pie-date-grid">
+                                <div class="pie-field">
+                                    <label for="start_date">{{ __('messages.Start Date') }} <span aria-hidden="true">*</span></label>
+                                    <input type="date" name="start_date" id="start_date" value="{{ old('start_date', $invoice->start_date ? \Carbon\Carbon::parse($invoice->start_date)->format('Y-m-d') : '') }}" required @error('start_date') aria-invalid="true" aria-describedby="start_date-error" @enderror>
+                                    @error('start_date')<p id="start_date-error" class="pie-field-error">{{ $message }}</p>@enderror
+                                </div>
+                                <div class="pie-field">
+                                    <label for="end_date">{{ __('messages.End Date') }} <span aria-hidden="true">*</span></label>
+                                    <input type="date" name="end_date" id="end_date" value="{{ old('end_date', $invoice->end_date ? \Carbon\Carbon::parse($invoice->end_date)->format('Y-m-d') : '') }}" required @error('end_date') aria-invalid="true" aria-describedby="end_date-error" @enderror>
+                                    @error('end_date')<p id="end_date-error" class="pie-field-error">{{ $message }}</p>@enderror
+                                </div>
                             </div>
-
-                            {{-- Date de fin --}}
-                            <div>
-                                <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.End Date') }}</label>
-                                <input type="date" name="end_date" id="end_date" 
-                                       class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm @error('end_date') border-red-500 @enderror" 
-                                       value="{{ old('end_date', \Carbon\Carbon::parse($invoice->end_date)->format('Y-m-d')) }}" required>
-                                @error('end_date')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                        </section>
+                        <section class="pie-card" aria-labelledby="pie-comment-title">
+                            <div class="pie-section-heading"><span class="pie-step" aria-hidden="true">03</span><div><h2 id="pie-comment-title">{{ __('messages.Comment') }} <span class="pie-optional">{{ __('messages.period_edit_optional') }}</span></h2><p>{{ __('messages.period_edit_comment_help') }}</p></div></div>
+                            <div class="pie-field">
+                                <label for="comment" class="sr-only">{{ __('messages.Comment') }}</label>
+                                <textarea name="comment" id="comment" rows="5" placeholder="{{ __('messages.Optional comment for the period invoice...') }}" @error('comment') aria-invalid="true" aria-describedby="comment-error" @enderror>{{ old('comment', $invoice->comment) }}</textarea>
+                                @error('comment')<p id="comment-error" class="pie-field-error">{{ $message }}</p>@enderror
                             </div>
-
-                            {{-- Commentaire --}}
-                            <div class="dt-edit-field-wide">
-                                <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.Comment') }}</label>
-                                <textarea name="comment" id="comment" rows="4" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm @error('comment') border-red-500 @enderror">{{ old('comment', $invoice->comment) }}</textarea>
-                                @error('comment')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
+                        </section>
+                        <div class="pie-actions">
+                            <a href="{{ $cancelRoute }}" class="dt-btn dt-btn-ghost">{{ __('messages.Cancel') }}</a>
+                            <button type="submit" class="dt-btn dt-btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12 4 4L19 6"/></svg>{{ __('messages.Update Invoice') }}</button>
                         </div>
-
-                        {{-- Pied de page de la carte (Boutons) --}}
-                        <div class="p-6 bg-gray-50 border-t border-gray-200 flex items-center gap-3">
-                            <button type="submit" class="inline-flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow-sm">
-                                {{ __('messages.Update Invoice') }}
-                            </button>
-                            <a href="{{ $cancelRoute }}" class="inline-flex justify-center bg-white hover:bg-gray-50 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm border border-gray-300 shadow-sm">
-                                {{ __('messages.Cancel') }}
-                            </a>
-                        </div>
-                        
                     </form>
+                    <aside class="pie-summary" aria-labelledby="pie-summary-title">
+                        <div class="pie-card pie-summary-card">
+                            <div class="pie-summary-icon" aria-hidden="true"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3h7l4 4v14H5V3h3Zm6 0v5h5M8 12h8m-8 4h5"/></svg></div>
+                            <h2 id="pie-summary-title">{{ __('messages.period_edit_summary') }}</h2>
+                            <p class="pie-summary-reference">{{ $reference }}</p>
+                            <div class="pie-summary-project"><span>{{ __('messages.Project') }}</span><strong>{{ $currentProject?->name ?? $invoice->project_name }}</strong></div>
+                            <dl class="pie-totals">
+                                <div><dt>{{ __('messages.Total HT') }}</dt><dd>{{ $formatAmount($invoice->total_htva) }}</dd></div>
+                                <div><dt>{{ __('messages.VAT') }}</dt><dd>{{ $formatAmount($invoice->total_tva) }}</dd></div>
+                                <div class="pie-total"><dt>{{ __('messages.period_edit_total_incl_tax') }}</dt><dd>{{ $formatAmount($invoice->total_ttc) }}</dd></div>
+                            </dl>
+                            <p class="pie-summary-note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg><span>{{ __('messages.period_edit_recalculation') }}</span></p>
+                        </div>
+                    </aside>
                 </div>
             </div>
         </main>
     </div>
-
     @livewireScripts
-    {{-- J'ai supprimé le script JavaScript incorrect car il ne correspondait pas à ce formulaire. --}}
-    {{-- Si vous avez besoin de scripts spécifiques pour cette page, incluez-les ici. --}}
 </body>
 </html>

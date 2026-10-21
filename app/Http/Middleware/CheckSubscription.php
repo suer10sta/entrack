@@ -67,6 +67,24 @@ class CheckSubscription
                     $isBlocked = false;
                 }
 
+                // The existing upgrade page saves the country through this API.
+                // Allow only that field; company settings pages stay blocked.
+                if ($isBlocked && $user->hasAnyRole([
+                    'Admin', 'SuperAdmin', 'Responsable de projet', 'Responsable de projet et gestionnaire',
+                ])) {
+                    $companyRoutes = ['admin', 'SuperAdmin', 'Responsable_de_projet', 'Responsable_gestionnaire'];
+                    foreach ($companyRoutes as $prefix) {
+                        $isCountryUpdate = $request->isMethod('POST')
+                            && $request->routeIs($prefix.'.Enterprise_infos.updateInfos')
+                            && $request->input('column') === 'country'
+                            && (string) $request->input('id') === (string) $user->entreprise_id;
+                        if ($isCountryUpdate) {
+                            $request->attributes->set('subscriptionCountryRecovery', true);
+                            return $next($request);
+                        }
+                    }
+                }
+
                 // Allow access to profile & subscription routes so they can upgrade,
                 // and always allow logout so blocked users can sign out.
                 if (

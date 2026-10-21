@@ -1167,16 +1167,20 @@
 
             /* Elapsed math shared by the pill and every list row (single ticker below) */
             timerBase(t) {
-                const startMs  = new Date(String(t.start_date).replace(' ', 'T')).getTime();
-                const resumeMs = t.resume_date
-                    ? new Date(String(t.resume_date).replace(' ', 'T')).getTime() : null;
-                const base = t.duration ? parseFloat(t.duration) * 60 : 0;
+                const now = Date.now();
+                const paused = Number(t.paused) === 1;
+                const start = t.started_at_ms != null ? Number(t.started_at_ms)
+                    : Date.parse(String(t.start_date).replace(' ', 'T'));
+                const startMs = Number.isFinite(start) ? start : now;
+                const resume = t.resumed_at_ms != null ? Number(t.resumed_at_ms)
+                    : (t.resume_date ? Date.parse(String(t.resume_date).replace(' ', 'T')) : NaN);
+                const base = Number.isFinite(parseFloat(t.duration)) ? parseFloat(t.duration) * 60 : 0;
+                const serverElapsed = t.elapsed_seconds != null ? Number(t.elapsed_seconds) : NaN;
+                const elapsed = Number.isFinite(serverElapsed) ? serverElapsed
+                    : (paused ? base : (Number.isFinite(resume) ? base + (now - resume) / 1000 : (now - startMs) / 1000));
                 return {
-                    startMs: Number.isFinite(startMs) ? startMs : Date.now(),
-                    offsetSec: t.paused
-                        ? Math.round(base)
-                        : Math.round(resumeMs ? base + (Date.now() - resumeMs) / 1000
-                                              : (Date.now() - startMs) / 1000),
+                    startMs,
+                    offsetSec: Math.max(0, Math.floor(elapsed)),
                 };
             },
 
@@ -1190,7 +1194,7 @@
                         const b = this.timerBase(t);
                         return { etId: t.task_employee_id, empId: t.employee_id,
                                  taskId: t.task_id ?? null, name: t.task_name || '',
-                                 paused: t.paused == 1, startMs: b.startMs,
+                                 paused: Number(t.paused) === 1, startMs: b.startMs,
                                  offsetSec: b.offsetSec, appliedAt: now,
                                  elapsed: this.fmt(b.offsetSec) };
                     })
@@ -1223,19 +1227,19 @@
                     /* The ONE ticker: pill first, then every list row from its own base */
                     const now = Date.now();
                     this.elapsed = this.fmt(
-                        this.timerOffsetSec + Math.round((now - this.timerStartMs) / 1000)
+                        this.timerOffsetSec + (this.runningTimers[0]?.paused ? 0 : Math.floor((now - this.timerStartMs) / 1000))
                     );
                     this.runningTimers.forEach(rt => {
                         rt.elapsed = rt.paused
                             ? this.fmt(rt.offsetSec)
-                            : this.fmt(rt.offsetSec + Math.round((now - rt.appliedAt) / 1000));
+                            : this.fmt(rt.offsetSec + Math.floor((now - rt.appliedAt) / 1000));
                     });
                     if (window.ChronoSync) window.ChronoSync.patch({ elapsed: this.elapsed });
                 }, 1000);
             },
 
             fmt(total) {
-                total = Math.max(0, Math.round(total));
+                total = Number.isFinite(total) ? Math.max(0, Math.floor(total)) : 0;
                 const h = Math.floor(total / 3600);
                 const m = Math.floor((total % 3600) / 60);
                 const s = total % 60;

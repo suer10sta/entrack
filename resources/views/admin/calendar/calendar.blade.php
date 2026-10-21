@@ -320,6 +320,8 @@
         #eventModal .modal-footer,
         #sendEventsModal .modal-footer { background: #f8fafc; border-color: #e2e8f0; }
 
+        #eventModal .modal-footer > .dt-btn { flex-shrink: 0; }
+
         #calendar .fc-button-group {
             display: inline-flex;
             align-items: center;
@@ -475,7 +477,7 @@
 
             <!-- Modal Panel -->
             <div
-                class="planning-modal-panel inline-block align-bottom bg-white text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+                class="planning-modal-panel inline-block align-bottom bg-white text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full">
                 <!-- Header -->
                 <div class="bg-white px-4 py-4 sm:px-5 border-b border-slate-100">
                     <div class="flex items-center justify-between">
@@ -508,6 +510,10 @@
                 <!-- Body (Form) -->
                 <div class="bg-white px-4 py-4 sm:px-5 sm:py-5 max-h-[70vh] overflow-y-auto">
                     <form id="eventForm" class="space-y-4">
+                        <div id="eventFormErrors" hidden role="alert" tabindex="-1" class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                            <p class="font-semibold">{{ __('messages.calendar_save_error_title') }}</p>
+                            <ul id="eventFormErrorMessages" class="mt-2 list-disc space-y-1 pl-5"></ul>
+                        </div>
                         <!-- Title -->
                         <div>
                             <label for="title" class="block text-sm font-medium text-gray-700">{{ __('messages.Event Title') }} <span
@@ -964,8 +970,26 @@
             const $viewTaskBtn = $('#viewTask');
             const $viewProjectBtn = $('#viewProject');
 
+            function clearEventErrors() {
+                $('#eventFormErrors').prop('hidden', true);
+                $('#eventFormErrorMessages').empty();
+                $('#eventForm [aria-invalid="true"]').removeAttr('aria-invalid aria-describedby').removeClass('ring-2 ring-red-300');
+            }
+
+            function showEventErrors(messages, fields = []) {
+                const $list = $('#eventFormErrorMessages').empty();
+                [...new Set(messages)].forEach(message => $('<li>').text(message).appendTo($list));
+                fields.forEach(field => {
+                    const name = field.split('.')[0];
+                    $('#eventForm :input').filter(function () { return this.name === name || this.name === name + '[]'; })
+                        .attr({'aria-invalid': 'true', 'aria-describedby': 'eventFormErrors'}).addClass('ring-2 ring-red-300');
+                });
+                $('#eventFormErrors').prop('hidden', false).trigger('focus');
+            }
+
             // Function to show modal using Tailwind classes
             const showModal = () => {
+                clearEventErrors();
                 $modal.removeClass('hidden');
                 // Small delay to allow display change to register before opacity transition (if we added one)
                 // For now just removing hidden is enough for the structure
@@ -1555,9 +1579,27 @@
             });
 
             $('#saveEvent').click(function () {
-                // simple validation (only title required on frontend; dates handled in controller)
-                if (!$('#title').val()) {
-                    alert(@js(__('messages.Please enter a title.')));
+                if (this.disabled) return;
+                clearEventErrors();
+                const errors = [], fields = [];
+                const startValue = $('#start').val(), endValue = $('#end').val();
+                if (!String($('#title').val() || '').trim()) {
+                    errors.push(@js(__('messages.Please enter a title.'))); fields.push('title');
+                }
+                if (!startValue && !endValue) {
+                    errors.push(@js(__('messages.calendar_time_required'))); fields.push('start', 'end');
+                }
+                if (startValue && !moment(startValue, moment.ISO_8601, true).isValid()) {
+                    errors.push(@js(__('messages.calendar_invalid_start'))); fields.push('start');
+                }
+                if (endValue && !moment(endValue, moment.ISO_8601, true).isValid()) {
+                    errors.push(@js(__('messages.calendar_invalid_end'))); fields.push('end');
+                }
+                if (startValue && endValue && moment(endValue).isBefore(moment(startValue))) {
+                    errors.push(@js(__('validation.after_or_equal', ['attribute' => __('messages.End Time'), 'date' => __('messages.Start Time')]))); fields.push('end');
+                }
+                if (errors.length) {
+                    showEventErrors(errors, fields);
                     return;
                 }
 
@@ -1595,10 +1637,12 @@
                     method = 'PUT';
                 }
 
+                const $saveButton = $(this).prop('disabled', true).attr('aria-busy', 'true');
                 $.ajax({
                     url: url,
                     type: method,
                     data: eventData,
+                    headers: { 'Accept': 'application/json' },
                     success: function (response) {
                         calendar.fullCalendar('refetchEvents');
                         hideModal();
@@ -1610,9 +1654,19 @@
                         $('#is_finished').prop('checked', false);
                     },
                     error: function (error) {
-                        console.log('Error:', error);
-                        alert(@js(__('messages.Error saving the event.')));
-                    }
+                        const validationErrors = error.status === 422 && error.responseJSON && error.responseJSON.errors;
+                        if (validationErrors && typeof validationErrors === 'object') {
+                            const messages = Object.values(validationErrors).flat().filter(message => typeof message === 'string');
+                            showEventErrors(messages.length ? messages : [@js(__('messages.Error saving the event.'))], Object.keys(validationErrors));
+                        } else {
+                            const message = error.status === 0 ? @js(__('messages.calendar_save_network_error'))
+                                : (error.status === 401 || error.status === 419) ? @js(__('messages.calendar_save_session_expired'))
+                                : error.status === 403 ? @js(__('messages.calendar_save_forbidden'))
+                                : @js(__('messages.calendar_save_unavailable'));
+                            showEventErrors([message]);
+                        }
+                    },
+                    complete: function () { $saveButton.prop('disabled', false).removeAttr('aria-busy'); }
                 });
             });
 
