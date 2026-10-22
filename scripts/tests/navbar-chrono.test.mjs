@@ -27,6 +27,26 @@ const timer = overrides => ({task_employee_id: 7, employee_id: 2, task_id: 3, ta
     start_date: '2026-10-21 10:00:00', started_at_ms: Date.parse('2026-10-21T10:00:00Z'),
     elapsed_seconds: 23, paused: '0', duration: '0', ...overrides});
 
+test('daily limit freezes elapsed at deadline and forces a server check without waiting for polling', () => {
+    const {state, advance, ticks} = harness();
+    const checks = [];
+    state.checkRunningTimer = force => checks.push(force);
+    state.limitDeadlineMs = Date.parse('2026-10-21T10:00:25Z');
+    state.applyTimers([timer({elapsed_seconds: 28798})]);
+    advance(3000);
+    assert.equal(state.elapsed, '08:00:00');
+    assert.equal(state.runningTimers[0].elapsed, '08:00:00');
+    assert.deepEqual(checks, [true]);
+    advance(1000);
+    assert.equal(state.elapsed, '08:00:00');
+    assert.equal(checks.length, 1);
+    state.applyTimers([]);
+    assert.equal(state.isRunning, false);
+    assert.equal(state.runningTimers.length, 0);
+    assert.equal(state.activeEmployeeTaskId, null);
+    assert.equal(ticks.size, 0);
+});
+
 test('server elapsed avoids both a one-hour head start and a future-date zero clamp', () => {
     for (const skew of [-3600000, 0, 3600000, 7200000]) {
         const {state, advance} = harness(skew);

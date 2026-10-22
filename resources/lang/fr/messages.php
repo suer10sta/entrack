@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'password_visibility_show' => 'Afficher le mot de passe',
+    'password_visibility_hide' => 'Masquer le mot de passe',
+
+    'employee_roles_intro' => 'Définissez les rôles attribués à cet utilisateur.',
+    'employee_roles_help' => 'Sélectionnez un ou plusieurs rôles, puis enregistrez vos modifications.',
+
     'detailed_edit_intro' => 'Modifiez les prestations et les montants de votre facture, puis vérifiez le récapitulatif avant d’enregistrer.',
     'detailed_edit_lines' => 'Lignes de facturation',
     'detailed_edit_lines_help' => 'Détaillez chaque prestation, sa quantité et son prix unitaire.',

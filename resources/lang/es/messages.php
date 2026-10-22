@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'password_visibility_show' => 'Mostrar contraseña',
+    'password_visibility_hide' => 'Ocultar contraseña',
+
+    'employee_roles_intro' => 'Gestione los roles asignados a este usuario.',
+    'employee_roles_help' => 'Seleccione uno o varios roles y guarde los cambios.',
+
     'detailed_edit_intro' => 'Modifique los conceptos y los importes de la factura y revise el resumen antes de guardar.',
     'detailed_edit_lines' => 'Líneas de factura',
     'detailed_edit_lines_help' => 'Detalle cada servicio, su cantidad y su precio unitario.',

@@ -1035,6 +1035,7 @@
             /* timer */
             elapsed: '00:00:00', taskName: '',
             timerInterval: null, timerStartMs: 0, timerOffsetSec: 0,
+            limitDeadlineMs: 0, limitCheckAt: 0,
             activeEmployeeTaskId: null, activeEmployeeId: null, activeTaskId: null,
             multiAllowed: @json($chronoMultiAllowed ?? false),
             /* SuperAdmin running-timers list (primary = earliest started) */
@@ -1132,12 +1133,19 @@
                         { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
                     if (!r.ok) return;
                     const d = await r.json();
+                    const hadTimer = this.isRunning;
+                    const reachedDeadline = this.limitDeadlineMs && Date.now() >= this.limitDeadlineMs;
+                    this.limitDeadlineMs = d.auto_stop_in_seconds != null
+                        ? Date.now() + Math.max(0, Number(d.auto_stop_in_seconds)) * 1000 : 0;
                     this.applyTimers(
                         (d.allTimers && d.allTimers.length)
                             ? d.allTimers
                             : (d.tasksTimer && !d.tasksTimer.end_date ? [d.tasksTimer] : [])
                     );
                     this.publishState();
+                    if (d.auto_stopped || (hadTimer && !this.isRunning && reachedDeadline)) {
+                        window.dispatchEvent(new CustomEvent('chrono:limit-reached'));
+                    }
                 } catch (e) { console.error('Chrono init:', e); }
                 finally { this.stateChecked = true; this.publishState(); this._checking = false; }
                 @else
@@ -1225,7 +1233,12 @@
                 if (window.ChronoSync) window.ChronoSync.patch({ elapsed: this.elapsed });
                 this.timerInterval = setInterval(() => {
                     /* The ONE ticker: pill first, then every list row from its own base */
-                    const now = Date.now();
+                    const realNow = Date.now();
+                    const now = this.limitDeadlineMs ? Math.min(realNow, this.limitDeadlineMs) : realNow;
+                    if (this.limitDeadlineMs && realNow >= this.limitDeadlineMs && realNow - this.limitCheckAt >= 5000) {
+                        this.limitCheckAt = realNow;
+                        this.checkRunningTimer(true);
+                    }
                     this.elapsed = this.fmt(
                         this.timerOffsetSec + (this.runningTimers[0]?.paused ? 0 : Math.floor((now - this.timerStartMs) / 1000))
                     );

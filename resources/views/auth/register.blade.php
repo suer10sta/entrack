@@ -3,6 +3,7 @@
 
 <head>
     <x-favicon />
+    @include('partials.password-visibility')
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="{{ __('messages.DalyTrac Create Account - Start your free trial') }}">

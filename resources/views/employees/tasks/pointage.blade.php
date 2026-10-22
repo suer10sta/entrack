@@ -572,6 +572,7 @@
 
             {{-- Stop Comment Modal --}}
             <x-chrono-stop-modal />
+            <script>window.addEventListener('chrono:limit-reached', () => window.location.reload());</script>
 
 <div class="dt-card mb-6 overflow-hidden">
                 <div class="px-5 sm:px-6 pt-5 pb-1">

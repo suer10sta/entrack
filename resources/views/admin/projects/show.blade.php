@@ -2242,6 +2242,7 @@
     </script>
 
     <x-chrono-stop-modal />
+    <script>window.addEventListener('chrono:limit-reached', () => window.location.reload());</script>
 
     <script>
 $(document).ready(function() {

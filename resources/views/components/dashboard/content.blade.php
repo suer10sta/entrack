@@ -884,6 +884,8 @@
 
             }
 
+            window.addEventListener('chrono:limit-reached', refreshEmployeeData);
+
             // Start auto-refresh
             function startAutoRefresh() {
                 refreshEmployeeData();

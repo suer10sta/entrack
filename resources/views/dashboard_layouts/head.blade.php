@@ -1,5 +1,6 @@
 <head>
     <x-favicon />
+    @include('partials.password-visibility')
     <meta charset="utf-8" />
     <meta
       name="viewport"

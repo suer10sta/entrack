@@ -267,6 +267,7 @@
         /* After a modal stop on this page, reload so rows reflect server truth
            (same UX as the project pages, which submit stop forms natively). */
         function refreshEmployeeData() { window.location.reload(); }
+        window.addEventListener('chrono:limit-reached', refreshEmployeeData);
         /* Live elapsed for running rows (display only; server stays the source of truth) */
         function boardTick() {
             document.querySelectorAll('[data-tick="1"]').forEach(function (el) {

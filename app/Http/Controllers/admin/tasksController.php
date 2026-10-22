@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\invoices_history;
 use App\Mail\CustomerReportMail;
 use App\Services\PointageFilterService;
+use App\Services\EmployeeTimerLimit;
 
 
 class tasksController extends Controller
@@ -842,12 +843,10 @@ class tasksController extends Controller
     {
 
         $employee = Employees::where('id', $employee_id)->first();
+        app(EmployeeTimerLimit::class)->synchronize($employee);
         $employee_user = User::where('id', $employee->user_id)->first();
 
         $comment = $request->input('comment');
-
-        $employee_user->is_loggedIn = 1;
-        $employee_user->save();
 
         // Get the task details
         $task_details = employees_tasks::where('id', $task_id)
@@ -916,6 +915,8 @@ class tasksController extends Controller
         $task_timer->comment = $comment;
         $task_timer->entreprise_id = Auth::user()->entreprise_id;
         $task_timer->save();
+        $employee_user->is_loggedIn = 1;
+        $employee_user->save();
 
         return back()->with('success', __('messages.Task started successfully.'));
     }
@@ -931,7 +932,12 @@ class tasksController extends Controller
             return back()->with('error', __('messages.Task not found.'));
         }
 
+        $limitState = app(EmployeeTimerLimit::class)->synchronize($employee);
         $task_timer = tasks_timer::where('task_employee_id', $tasks->id)->whereNull('end_date')->latest()->first();
+
+        if (!$task_timer && $limitState['stopped']) {
+            return back()->with('success', __('messages.Task ended successfully.'));
+        }
 
         if ($task_timer && $task_timer->pause_date === null && $task_timer->end_date === null) {
             $task_timer->update(['pause_date' => now()]);
@@ -966,7 +972,12 @@ class tasksController extends Controller
             return back()->with('error', __('messages.Task not found.'));
         }
 
+        $limitState = app(EmployeeTimerLimit::class)->synchronize($employee);
         $task_timer = tasks_timer::where('task_employee_id', $tasks->id)->whereNull('end_date')->latest()->first();
+
+        if (!$task_timer && $limitState['stopped']) {
+            return back()->with('success', __('messages.Task ended successfully.'));
+        }
 
         if ($task_timer && $task_timer->pause_date != null && $task_timer->end_date === null) {
             $task_timer->update(['resume_date' => now()]);
@@ -1008,6 +1019,15 @@ class tasksController extends Controller
         }
 
         $task_timer = tasks_timer::where('task_employee_id', $tasks->id)->whereNull('end_date')->latest()->first();
+
+        app(EmployeeTimerLimit::class)->synchronize($employee);
+        $task_timer?->refresh();
+        if ($task_timer && $task_timer->end_date) {
+            if ($request->filled('stop_comment')) {
+                $task_timer->update(['comment' => $request->input('stop_comment')]);
+            }
+            return back()->with('success', __('messages.Task ended successfully.'));
+        }
 
         // Calculate total completed minutes for today to enforce daily work hours limit
         $today_completed_tasks = 0;
@@ -1277,72 +1297,7 @@ class tasksController extends Controller
 
     public function checkTasksAndTime()
     {
-        // Get the tasks that are still running
-        $runningTasks = tasks_timer::whereNull('end_date')
-            //->where('entreprise_id', 26)
-            ->get();
-
-        // If there are running tasks
-        if (!$runningTasks->isEmpty()) {
-            foreach ($runningTasks as $task) {
-                $employee = Employees::where('id', $task->employee_id)->first();
-                if (!$employee)
-                    continue;
-
-                $start_date = Carbon::parse($task->start_date);
-                $current_time = now();
-
-                // Calculate actual elapsed duration for the current task
-                if ($task->paused == 1) {
-                    // Task is currently paused - use accumulated duration
-                    $duration = (float) ($task->duration ?? 0);
-                } elseif ($task->resume_date !== null) {
-                    // Task was paused and resumed - accumulated + time since resume
-                    $duration = (float) ($task->duration ?? 0) + Carbon::parse($task->resume_date)->diffInMinutes($current_time);
-                } else {
-                    // Task was never paused - calculate from start
-                    $duration = $start_date->diffInMinutes($current_time);
-                }
-
-                // Get all completed tasks for today for this employee
-                $today_completed_tasks = tasks_timer::where('employee_id', $task->employee_id)
-                    ->whereDate('start_date', Carbon::today())
-                    ->whereNotNull('end_date')
-                    ->where('id', '!=', $task->id)
-                    ->sum('duration');
-
-                // Also include elapsed time of other currently running tasks
-                $today_completed_tasks += $this->getRunningTasksDurationToday($task->employee_id, $task->id);
-
-                // Calculate total duration including current task
-                $total_duration = $today_completed_tasks + $duration;
-
-                // Convert work hours limit to minutes - ensure we handle decimals correctly
-                $work_minutes_limit = (float) $employee->workHours_limit * 60;
-
-                // If no limit is defined or set to 0, don't auto-stop the task
-                if ($work_minutes_limit <= 0) {
-                    continue;
-                }
-
-                // Only stop the task if total duration exceeds work hours limit
-                if ($total_duration > $work_minutes_limit) {
-                    $remaining_minutes = $work_minutes_limit - $today_completed_tasks;
-
-                    if ($remaining_minutes <= 0) {
-                        // No time left in the work day
-                        $task->delete();
-                    } else {
-                        // Set the task duration to remaining time
-                        $task->duration = $remaining_minutes;
-                        $task->cost = $employee->cost_per_hour * ((float) $remaining_minutes / 60);
-                        $task->end_date = $start_date->copy()->addMinutes($remaining_minutes);
-                        $task->save();
-                    }
-                }
-                // Don't stop the task if we haven't reached the limit yet
-            }
-        }
+        app(EmployeeTimerLimit::class)->synchronizeAll();
     }
 
 
@@ -1395,49 +1350,12 @@ class tasksController extends Controller
         if (!$employee) {
             return response()->json(['tasksTimer' => null]);
         }
+        $limitState = app(EmployeeTimerLimit::class)->synchronize($employee);
         $tasksTimer = \App\Models\tasks_timer::where('employee_id', $employee->id)
             ->whereDate('start_date', '=', now()->toDateString())
             ->whereNull('end_date')
             ->orderBy('start_date', 'asc')
             ->first();
-
-        if ($tasksTimer) {
-            $work_minutes_limit = (float) ($employee->workHours_limit ?? 0) * 60;
-            if ($work_minutes_limit > 0) {
-                $start_date = \Carbon\Carbon::parse($tasksTimer->start_date);
-
-                if ($tasksTimer->paused == 1) {
-                    $duration = (float) ($tasksTimer->duration ?? 0);
-                } elseif ($tasksTimer->resume_date !== null) {
-                    $duration = (float) ($tasksTimer->duration ?? 0) + \Carbon\Carbon::parse($tasksTimer->resume_date)->diffInMinutes(now());
-                } else {
-                    $duration = $start_date->diffInMinutes(now());
-                }
-
-                $today_completed_tasks = \App\Models\tasks_timer::where('employee_id', $employee->id)
-                    ->whereDate('start_date', \Carbon\Carbon::today())
-                    ->whereNotNull('end_date')
-                    ->where('id', '!=', $tasksTimer->id)
-                    ->sum('duration');
-
-                $today_completed_tasks += $this->getRunningTasksDurationToday($employee->id, $tasksTimer->id);
-
-                $total_duration = $today_completed_tasks + $duration;
-
-                if ($total_duration >= $work_minutes_limit) {
-                    $remaining_minutes = max(0, $work_minutes_limit - $today_completed_tasks);
-                    if ($remaining_minutes <= 0) {
-                        $tasksTimer->delete();
-                    } else {
-                        $tasksTimer->duration = $remaining_minutes;
-                        $tasksTimer->cost = $employee->cost_per_hour * ((float) $remaining_minutes / 60);
-                        $tasksTimer->end_date = $start_date->copy()->addMinutes($remaining_minutes);
-                        $tasksTimer->save();
-                    }
-                    $tasksTimer = null;
-                }
-            }
-        }
 
         // Database timestamps have no offset. Calculate elapsed time on the server
         // instead of having each browser interpret them in its own timezone.
@@ -1458,7 +1376,7 @@ class tasksController extends Controller
                 'resumed_at_ms' => $resume ? $resume->getTimestamp() * 1000 : null,
             ]);
         };
-        $response = ['tasksTimer' => $serializeTimer($tasksTimer)];
+        $response = ['tasksTimer' => $serializeTimer($tasksTimer), 'auto_stop_in_seconds' => $limitState['auto_stop_in_seconds'], 'auto_stopped' => $limitState['stopped'] > 0];
 
         // SuperAdmin employees may run several timers at once: expose all of
         // their open timers so the navbar can list them. Normal users keep the
@@ -2261,7 +2179,7 @@ class tasksController extends Controller
             $newTimer->cost = $new_cost;
             $newTimer->entreprise_id = auth()->user()->entreprise_id;
             $newTimer->paused = 0; // Set default value
-            $newTimer->comment = null; // Set explicitly to null if it's nullable
+            $newTimer->comment = $originalTimer->comment;
             $newTimer->save();
 
             // Update original timer

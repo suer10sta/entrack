@@ -2,6 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <x-favicon />
+    @include('partials.password-visibility')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ __('messages.Employee Profile') }} - DalyTrac</title>
@@ -306,7 +307,7 @@
                                     <div class="min-w-0">
                                         <label class="block text-[13px] font-semibold text-slate-700 mb-1.5">{{ __('messages.Password') }}</label>
                                         <input class="editable w-full rounded-xl border-slate-200 bg-white text-slate-700 shadow-sm outline-none focus:border-[#2D7080] focus:ring-2 focus:ring-[#2D7080]/25 text-sm py-2 px-3"
-                                            data-id="{{$employee->id}}" data-column="password"  type="text"
+                                            data-id="{{$employee->id}}" data-column="password"  type="password"
                                             name="password" value="{{ $employee->password }}" readonly/>
                                     </div>
                                 </div>
@@ -1380,6 +1381,7 @@ Pour Stabel</textarea>
     </script>
     {{-- Stop Comment Modal --}}
     <x-chrono-stop-modal />
+    <script>window.addEventListener('chrono:limit-reached', () => window.location.reload());</script>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>

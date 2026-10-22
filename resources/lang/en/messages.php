@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'password_visibility_show' => 'Show password',
+    'password_visibility_hide' => 'Hide password',
+
+    'employee_roles_intro' => 'Manage the roles assigned to this user.',
+    'employee_roles_help' => 'Select one or more roles, then save your changes.',
+
     'detailed_edit_intro' => 'Edit your invoice items and amounts, then review the summary before saving.',
     'detailed_edit_lines' => 'Invoice items',
     'detailed_edit_lines_help' => 'Describe each item, its quantity and unit price.',

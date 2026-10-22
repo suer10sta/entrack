@@ -3,17 +3,16 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Http\Controllers\admin\tasksController;
+use App\Services\EmployeeTimerLimit;
 
 class CheckRunningTasks extends Command
 {
     protected $signature = 'tasks:check-running';
-    protected $description = 'Check and update running tasks every 15 minutes';
+    protected $description = 'Stop employee timers that have reached their daily work-hours limit';
 
-    public function handle()
+    public function handle(EmployeeTimerLimit $limits)
     {
-        $tasksController = new tasksController();
-        $tasksController->checkTasksAndTime();
+        $limits->synchronizeAll();
         $this->info('Running tasks check completed');
     }
 }

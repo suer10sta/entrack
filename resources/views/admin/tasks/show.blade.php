@@ -281,6 +281,7 @@
     <script>
         /* After a modal stop on this page, reload so all states reflect server truth. */
         function refreshEmployeeData() { window.location.reload(); }
+        window.addEventListener('chrono:limit-reached', refreshEmployeeData);
         /* Live elapsed for the running timer (display only; server stays the source of truth) */
         function detailsTick() {
             var el = document.getElementById('details-live');

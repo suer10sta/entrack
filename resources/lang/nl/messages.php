@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'password_visibility_show' => 'Wachtwoord tonen',
+    'password_visibility_hide' => 'Wachtwoord verbergen',
+
+    'employee_roles_intro' => 'Beheer de rollen die aan deze gebruiker zijn toegewezen.',
+    'employee_roles_help' => 'Selecteer één of meer rollen en sla uw wijzigingen op.',
+
     'detailed_edit_intro' => 'Wijzig de factuurregels en bedragen en controleer het overzicht voordat u opslaat.',
     'detailed_edit_lines' => 'Factuurregels',
     'detailed_edit_lines_help' => 'Beschrijf elke prestatie, de hoeveelheid en de eenheidsprijs.',

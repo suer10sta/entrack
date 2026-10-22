@@ -4,103 +4,71 @@
     <x-favicon />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ __('messages.DalyTrac Dashboard') }}</title>
+    <title>{{ __('messages.Assign Role') }} - DalyTrac</title>
     @vite('resources/css/app.css')
-@include('partials.edit-layout-styles')
+    @livewireStyles
+    <link rel="stylesheet" href="{{ asset('css/dalytrac-employee-roles.css') }}">
 </head>
-<body class="bg-gray-50 flex h-screen overflow-hidden">
-    {{-- Sidebar --}}
+<body class="bg-gray-50 flex h-screen overflow-hidden font-sans">
     @if(Auth::user()->hasRole('Admin'))
         <x-dashboard.sidebar />
     @else
         <x-employees.sidebar />
     @endif
-    <div class="flex flex-col flex-1 overflow-y-auto">
-        {{-- Navbar --}}
+    <div class="flex flex-col flex-1 min-w-0 overflow-y-auto">
         <x-dashboard.navbar />
-
-        {{-- Main Content --}}
-        <main class="dt-edit-page flex-1 overflow-y-auto p-8 bg-gray-50">
-            <div class="dt-edit-mobile-card dt-edit-container max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">{{ __('messages.Assign Role') }}</h2>
-
-                @php
-                    $currentRouteName = request()->route()->getName();
-                    $roleCreateRoute = null;
-
-                    if (Auth::user()->hasRole('Admin')) {
-                        $roleCreateRoute = route('admin.roles.create', [
-                            'assign_employee' => $employee->id,
-                            'redirect_route' => $currentRouteName,
-                        ]);
-                    } elseif (Auth::user()->hasRole('Responsable de projet')) {
-                        $roleCreateRoute = route('Responsable_de_projet.roles.create', [
-                            'assign_employee' => $employee->id,
-                            'redirect_route' => $currentRouteName,
-                        ]);
-                    } elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                        $roleCreateRoute = route('Responsable_gestionnaire.roles.create', [
-                            'assign_employee' => $employee->id,
-                            'redirect_route' => $currentRouteName,
-                        ]);
-                    }
-                @endphp
-
-                {{-- Form --}}
-                @if(Auth::user()->hasRole('Admin'))
-                    <form method="POST" action="{{ route('admin.employees.update', $employee) }}">
-                @elseif(Auth::user()->hasRole('Responsable de projet'))
-                    <form method="POST" action="{{ route('Responsable_de_projet.employees.update', $employee) }}">
-                @elseif(Auth::user()->hasRole('Employee'))
-                    <form method="POST" action="{{ route('employee.employees.update', $employee) }}">
-                @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                    <form method="POST" action="{{ route('Responsable_gestionnaire.employees.update', $employee) }}">
+        @php
+            $prefix = 'admin';
+            if (!Auth::user()->hasRole('Admin')) {
+                if (Auth::user()->hasRole('Responsable de projet')) $prefix = 'Responsable_de_projet';
+                elseif (Auth::user()->hasRole('Employee')) $prefix = 'employee';
+                elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $prefix = 'Responsable_gestionnaire';
+                elseif (Auth::user()->hasRole('SuperAdmin')) $prefix = 'SuperAdmin';
+            }
+            $roleCreateRoute = null;
+            if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
+                $roleCreateRoute = route($prefix.'.roles.create', ['assign_employee' => $employee->id, 'redirect_route' => request()->route()->getName()]);
+            }
+        @endphp
+        <main class="employee-roles-edit">
+            <div class="ere-container">
+                <nav class="ere-breadcrumb" aria-label="{{ __('messages.Employees') }}"><a href="{{ route($prefix.'.employees.index') }}">{{ __('messages.Employees') }}</a><span aria-hidden="true">/</span><span>{{ __('messages.Assign Role') }}</span></nav>
+                <header class="ere-header"><span class="ere-eyebrow">{{ __('messages.Employees') }}</span><h1>{{ __('messages.Assign Role') }}</h1><p>{{ __('messages.employee_roles_intro') }}</p></header>
+                @if($errors->any())
+                    <div class="ere-errors" role="alert"><ul>@foreach($errors->all() as $message)<li>{{ $message }}</li>@endforeach</ul></div>
                 @endif
+                <form method="POST" action="{{ route($prefix.'.employees.update', $employee) }}" class="ere-card">
                     @csrf
                     @method('PUT')
-
-                    {{-- Roles Section --}}
-                    <div class="mb-8">
-                        <div class="flex items-center justify-between mb-3">
-                            <h5 class="text-lg font-semibold text-gray-800">{{ __('messages.Assign Roles') }}</h5>
-                            @if($roleCreateRoute)
-                                <a href="{{ $roleCreateRoute }}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium shadow-sm hover:bg-blue-700">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    {{ __('messages.Add New Role') }}
-                                </a>
-                            @endif
+                    <div class="ere-person">
+                        <span class="ere-avatar" aria-hidden="true">{{ mb_strtoupper(mb_substr($user->name ?? '', 0, 1)) }}</span>
+                        <div class="ere-person-info"><strong>{{ $user->name }}</strong><span>{{ $user->email }}</span></div>
+                        <svg class="ere-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m12 3 8 3v6c0 4-4 7-8 9-4-2-8-5-8-9V6l8-3Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m8 12 3 3 5-6"/></svg>
+                    </div>
+                    <section class="ere-roles" aria-labelledby="ere-roles-title">
+                        <div class="ere-section-header">
+                            <div><h2 id="ere-roles-title">{{ __('messages.Assign Roles') }}</h2><p id="ere-roles-help">{{ __('messages.employee_roles_help') }}</p></div>
+                            @if($roleCreateRoute)<a href="{{ $roleCreateRoute }}" class="dt-btn dt-btn-ghost"><span aria-hidden="true">＋</span>{{ __('messages.Add New Role') }}</a>@endif
                         </div>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div class="ere-role-grid" role="group" aria-labelledby="ere-roles-title" aria-describedby="ere-roles-help">
                             @foreach($role_name as $role)
                                 @if(Auth::user()->hasRole('SuperAdmin') || (!$user->hasRole('SuperAdmin') && $role != 'SuperAdmin'))
-                                    <label class="flex items-center space-x-2 bg-gray-50 hover:bg-gray-100 rounded-lg px-3 py-2 border border-gray-200 cursor-pointer">
-                                        <input id="vue-checkbox-{{ $role }}" name="roles[]" type="checkbox" value="{{ $role }}"
-                                            class="text-blue-600 focus:ring-blue-500"
-                                            @if($user->hasRole($role)) checked @endif>
-                                        <span class="text-sm text-gray-700">{{ $role }}</span>
+                                    <label class="ere-role" for="employee-role-{{ $loop->index }}">
+                                        <input id="employee-role-{{ $loop->index }}" name="roles[]" type="checkbox" value="{{ $role }}" @checked($user->hasRole($role))>
+                                        <span>{{ $role }}</span>
                                     </label>
                                 @endif
                             @endforeach
                         </div>
-                    </div>
-
-                    {{-- Buttons --}}
-                    <div class="flex justify-between items-center mt-6">
-                        <button type="button"  onclick="window.history.back()" 
-                           class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium">
-                           {{ __('messages.Cancel') }}
-                        </button>
-                        <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-sm">
-                            {{ __('messages.Save') }}
-                        </button>
-                    </div>
+                    </section>
+                    <footer class="ere-footer">
+                        <button type="button" onclick="window.history.back()" class="dt-btn dt-btn-ghost">{{ __('messages.Cancel') }}</button>
+                        <button type="submit" class="dt-btn dt-btn-primary">{{ __('messages.Save') }}</button>
+                    </footer>
                 </form>
             </div>
         </main>
-
     </div>
-    
+    @livewireScripts
 </body>
 </html>
