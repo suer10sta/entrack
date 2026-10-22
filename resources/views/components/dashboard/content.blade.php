@@ -641,7 +641,6 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200">
                         @php
-                            $avatarColors = ['bg-emerald-500','bg-slate-400','bg-amber-500','bg-red-400','bg-purple-500','bg-sky-500','bg-rose-700','bg-slate-600','bg-yellow-500','bg-indigo-500'];
                             $isSuperAdmin = auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('super_admin');
                         @endphp
                         @foreach($data['employees'] as $employee)
@@ -684,16 +683,12 @@
                                     class=" py-2.5 align-middle employee-overview-toggle-cell" data-employee-overview-toggle>
                                     <div class="flex items-center justify-between gap-2">
                                         <div class="flex items-center gap-2.5 min-w-0">
-                                            <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-white text-[12px] font-bold
-                                                {{ $avatarColors[$loop->index % count($avatarColors)] }}">
-                                                {{ strtoupper(substr($employee->name, 0, 1)) }}
-                                            </div>
                                             <div class="flex flex-col min-w-0">
                                                 <a href="{{ route('admin.employees.show', $employee->id) }}"
-                                                    class="text-[13px] font-semibold text-slate-800 hover:text-brand-secondary truncate max-w-[124px] leading-tight">
+                                                    class="text-[13px] font-semibold text-slate-800 hover:text-brand-secondary whitespace-nowrap leading-tight">
                                                     {{ $employee->name }}
                                                 </a>
-                                                <span class="text-[11px] text-slate-400 truncate max-w-[124px] leading-tight">{{ $employee->email }}</span>
+                                                <span class="text-[11px] text-slate-400 whitespace-normal leading-tight" style="overflow-wrap: anywhere;">{{ $employee->email }}</span>
                                                 @if(count($employeeRoles))
                                                     <div class="flex flex-wrap gap-0.5 mt-0.5">
                                                         @foreach($employeeRoles as $role)

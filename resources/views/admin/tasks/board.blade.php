@@ -148,7 +148,7 @@
                 </div>
                 @endunless
 
-                <div class="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-3">
+                <div class="columns-1 sm:columns-2 lg:columns-3 gap-3">
                 @foreach($visibleProjects as $project)
                     @php
                         $projectTasks = $grouped[$project->id];

@@ -1,5 +1,4 @@
 @php
-    $avatarColors = ['bg-emerald-500', 'bg-gray-400', 'bg-amber-500', 'bg-red-500', 'bg-purple-500', 'bg-sky-500', 'bg-rose-800', 'bg-slate-700', 'bg-yellow-400', 'bg-indigo-500'];
     $hasWorkedToday = $employeesToday->isNotEmpty();
     $todayStart = \Carbon\Carbon::today();
     $todayEnd = \Carbon\Carbon::today()->endOfDay();
@@ -7,7 +6,7 @@
 @endphp
 
 <div class="dashboard-employee-overview-list divide-y divide-gray-200">
-    @foreach($employeesToday as $employeeIndex => $employee)
+    @foreach($employeesToday as $employee)
         @php
             // Get all timers for this employee today
             $employeeTimers = $timersToday->where('employee_id', $employee->id);
@@ -117,13 +116,9 @@
                             @if($projectIndex === 0)
                                 <div class="flex items-center justify-between gap-3 w-full">
                                     <div class="dashboard-emp-employee-inner flex items-center gap-3 min-w-0">
-                                    <div
-                                        class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full text-white font-semibold {{ $avatarColors[$employeeIndex % count($avatarColors)] }}">
-                                        {{ strtoupper(substr($employee->name, 0, 2)) }}
-                                    </div>
                                     <div class="min-w-0 flex flex-col gap-0.5">
-                                        <p class="text-sm font-medium text-gray-900 truncate">{{ $employee->name }}</p>
-                                        <p class="text-xs text-gray-500 truncate">{{ $employee->email }}</p>
+                                        <p class="text-sm font-medium text-gray-900 whitespace-nowrap">{{ $employee->name }}</p>
+                                        <p class="text-xs text-gray-500 whitespace-normal" style="overflow-wrap: anywhere;">{{ $employee->email }}</p>
                                         @php
                                             $employeeRoles = is_array($employee->roles ?? null) ? $employee->roles : (array) ($employee->roles ?? []);
                                         @endphp
