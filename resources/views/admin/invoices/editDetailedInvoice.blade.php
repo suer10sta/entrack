@@ -34,10 +34,10 @@
         @endphp
         <main class="detailed-invoice-edit">
             <div class="die-container">
-                <nav class="die-breadcrumb" aria-label="{{ __('messages.Invoices') }}"><a href="{{ $cancelRoute }}">{{ __('messages.Invoices') }}</a><span aria-hidden="true">/</span><span>#{{ $invoice->number }}</span></nav>
+                <nav class="die-breadcrumb" aria-label="{{ __('messages.Invoices') }}"><a href="{{ $cancelRoute }}">{{ __('messages.Invoices') }}</a><span aria-hidden="true">/</span><span>#{{ $invoice->invoice_reference ?? $invoice->number }}</span></nav>
                 <header class="die-header">
                     <div><span class="die-eyebrow">{{ __('messages.Invoices') }}</span><h1>{{ __('messages.Edit Detailed Invoice') }}</h1><p>{{ __('messages.detailed_edit_intro') }}</p></div>
-                    <span class="die-reference">#{{ $invoice->number }}</span>
+                    <span class="die-reference">#{{ $invoice->invoice_reference ?? $invoice->number }}</span>
                 </header>
                 @if(session('error'))<div class="die-alert die-alert-error" role="alert">{{ session('error') }}</div>@endif
                 @if(session('message'))<div class="die-alert die-alert-success" role="status">{{ session('message') }}</div>@endif

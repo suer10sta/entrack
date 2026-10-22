@@ -135,32 +135,27 @@
                             <p class="text-[10.5px] font-bold uppercase tracking-[.08em] text-slate-400 mb-3">{{ __('messages.Expense Note Information') }}</p>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="dt-label">{{ __('messages.Employee Name') }}<span class="dt-required">*</span></label>
-                                    <input type="text" id="employee_name" name="employee_name"
-                                           class="dt-input" required>
+                                    <label for="employee_name" class="dt-label">{{ __('messages.Employee Name') }}<span class="dt-required">*</span></label>
+                                    <select id="employee_name" name="employee_name" class="dt-input" required>
+                                        <option value="">{{ __('messages.Select Employee') }}</option>
+                                        @foreach($employees as $employee)
+                                            <option value="{{ $employee->name }}" @selected(old('employee_name') === $employee->name)>{{ $employee->name }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div>
-                                    <label class="dt-label">{{ __('messages.Total Budget') }}</label>
-                                    <div class="relative">
-                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[13px] font-medium select-none">€</span>
-                                        <input type="number" step="0.01" id="projectBudget" name="budget"
-                                               class="dt-input pl-7 bg-slate-100 cursor-default" readonly
-                                               placeholder="0.00">
-                                    </div>
-                                    <p class="text-[11px] text-slate-400 mt-1">{{ __('messages.Mandatory information expense') }}</p>
+                                    <label for="projectDescription" class="dt-label">{{ __('messages.Expense Description') }}<span class="dt-required">*</span></label>
+                                    <input type="text" id="projectDescription" name="description"
+                                           value="{{ old('description') }}" class="dt-input" required>
                                 </div>
                             </div>
                         </div>
 
-                        <div>
-                            <label class="dt-label">{{ __('messages.Expense Description') }}<span class="dt-required">*</span></label>
-                            <input type="text" id="projectDescription" name="description"
-                                   class="dt-input" required>
-                        </div>
+                        <input type="hidden" id="projectBudget" name="budget" value="0.00">
 
                         <div class="border-t border-slate-100 pt-5">
-                            <div class="flex items-center justify-between mb-3">
-                                <p class="text-[10.5px] font-bold uppercase tracking-[.08em] text-slate-400">{{ __('messages.Expense Details') }}</p>
+                            <div class="flex items-center justify-end mb-3">
+
                                 <div class="flex items-center gap-2">
                                     <button type="button" onclick="addExpenseRow()"
                                             class="dt-btn dt-btn-teal text-[11.5px] h-7 px-3">

@@ -425,7 +425,7 @@
         <div class="hidden lg:flex lg:items-center lg:gap-2">
             <a href="{{ $pdfRoute }}" target="_blank"
                class="text-[12.5px] font-semibold text-[#2D7080] hover:text-[#0B2638] hover:underline">
-                {{ $entreprise_infos->invoice_prefix }}-{{ date('ym', strtotime($invoice->created_at)) }}{{ $invoice->number }}
+                {{ \App\Support\InvoiceNumbering::reference($entreprise_infos, $invoice, true) }}
             </a>
             @if($isCreditNote)
                 <span class="dt-badge dt-badge-accent text-[10px]">{{ __('messages.Credit Note') }}</span>
@@ -437,7 +437,7 @@
             <div class="flex items-center gap-2 min-w-0">
                 <a href="{{ $pdfRoute }}" target="_blank"
                    class="text-[12px] font-semibold text-[#2D7080] hover:underline truncate">
-                    {{ $entreprise_infos->invoice_prefix }}-{{ date('ym', strtotime($invoice->created_at)) }}{{ $invoice->number }}
+                    {{ \App\Support\InvoiceNumbering::reference($entreprise_infos, $invoice, true) }}
                 </a>
                 @if($isCreditNote)
                     <span class="dt-badge dt-badge-accent text-[10px]">{{ __('messages.Credit Note') }}</span>

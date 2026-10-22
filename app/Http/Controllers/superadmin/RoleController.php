@@ -39,48 +39,6 @@ class RoleController extends Controller
         }
     }
 
-    public function create() {
-        if(Auth::user()->hasRole('super_admin')) {
-            return view('superadmin.roles.create');
-        } else {
-            return view('admin.roles.create');
-        }
-    }
-
-    public function store(Request $request) {
-        
-        $validate=$request->validate(["name"=>"required"]);
-        $role = Role::create($validate);
-
-        $assignEmployeeId = $request->input('assign_employee_id');
-        $redirectRoute = $request->input('redirect_route');
-
-        if($assignEmployeeId) {
-            $employee = Employees::with('user')->find($assignEmployeeId);
-            if($employee && $employee->user) {
-                $employee->user->assignRole($role->name);
-            }
-        }
-        
-
-        $allowedRedirectRoutes = [
-            'admin.employees.edit',
-            'Responsable_de_projet.employees.edit',
-            'Responsable_gestionnaire.employees.edit',
-        ];
-
-        if($assignEmployeeId && $redirectRoute && in_array($redirectRoute, $allowedRedirectRoutes)) {
-            return redirect()->route($redirectRoute, ['employee' => $assignEmployeeId])
-                ->with('message', __('messages.Role Added Successfully'));
-        }
-
-        if(Auth::user()->hasRole('super_admin')) {
-            return to_route('superadmin.roles.index')->with('message', __('messages.Role Added Successfully'));
-        } else {
-            return to_route('admin.roles.index')->with('message', __('messages.Role Added Successfully'));
-        }
-    }
-
     public function edit(Role $role) {
         $permissions = Permission::orderBy('name')->get();
         if(Auth::user()->hasRole('super_admin')) {

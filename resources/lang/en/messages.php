@@ -1,6 +1,22 @@
 <?php
 
 return [
+    'invoice_next_sequence_label' => 'Next sequential number',
+    'invoice_next_sequence_help' => 'Sets the next sequential number, independently of the chosen format.',
+
+    'invoice_number_format_year_month_short' => 'Year and month',
+    'invoice_number_format_examples' => 'Choose “Year and month” to add the last two digits of the year and the month to the invoice number. Example: :example.',
+    'invoice_number_format_none_example' => 'With “None”, only the entered number is used. Example: F-1.',
+    'internal_expenses' => 'Internal expenses',
+    'invoice_number_format_label' => 'Numbering format',
+    'invoice_number_format_year_month' => 'Year + month + number → example: 2610001',
+    'invoice_number_format_sequence' => 'Number only → example: 001',
+    'invoice_number_format_help' => 'Choose the format used to automatically generate your invoice numbers.',
+    'invoice_sequence_too_low' => 'The next number must be at least :number to avoid duplicates.',
+
+    'auth_fp_sent_title' => 'Check your inbox',
+    'auth_fp_sent_help' => 'Open the email and follow the link to choose your new password. Remember to check your spam folder.',
+
     'password_visibility_show' => 'Show password',
     'password_visibility_hide' => 'Hide password',
 

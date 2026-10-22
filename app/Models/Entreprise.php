@@ -48,6 +48,8 @@ class Entreprise extends Model
         'billit_api_key',
     ];
 
+    protected $attributes = ['invoice_prefix' => 'F', 'invoice_number_format' => 'year_month_number'];
+
     protected $fillable = [
         'name', 
         'phone',
@@ -69,6 +71,7 @@ class Entreprise extends Model
         'general_conditions',
         'invoice_prefix',
         'invoice_start_number',
+        'invoice_number_format',
         'second_reminder',
         'third_reminder',
         'devis_prefix',

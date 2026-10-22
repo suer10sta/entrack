@@ -16,11 +16,11 @@
             background-color: #ffffff;
         }
         /* Visual feedback after saving */
-        input.border-green-500, textarea.border-green-500 {
+        input.border-green-500, textarea.border-green-500, select.border-green-500 {
             border-color: #22c55e;
             box-shadow: 0 0 0 1px #22c55e;
         }
-        input.border-red-500, textarea.border-red-500 {
+        input.border-red-500, textarea.border-red-500, select.border-red-500 {
             border-color: #ef4444;
             box-shadow: 0 0 0 1px #ef4444;
         }
@@ -30,6 +30,38 @@
             border-color: #2D7080;
             box-shadow: 0 0 0 3px rgba(45, 112, 128, 0.1);
         }
+        .invoice-number-group {
+            display: flex;
+            min-width: 0;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.75rem;
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .invoice-number-group:focus-within {
+            border-color: #2D7080;
+            box-shadow: 0 0 0 3px rgba(45, 112, 128, 0.1);
+        }
+        .invoice-number-group > .entrepriseInfos {
+            min-width: 0;
+            border: 0;
+            box-shadow: none;
+            outline: none;
+        }
+        .invoice-number-group > select {
+            flex: 0 0 10rem;
+            width: 10rem;
+            border-right: 1px solid #e2e8f0;
+            border-radius: 0.75rem 0 0 0.75rem;
+            background-color: #f8fafc;
+        }
+        .invoice-number-group > input {
+            flex: 1;
+            width: 0;
+            border-radius: 0 0.75rem 0.75rem 0;
+        }
+        .invoice-number-group:has(.border-green-500) { border-color: #22c55e; }
+        .invoice-number-group:has(.border-red-500) { border-color: #ef4444; }
     </style>
     @include('partials.edit-layout-styles')
 </head>
@@ -88,17 +120,26 @@
                                        class="entrepriseInfos block w-full rounded-xl border border-slate-300 shadow-sm sm:text-sm py-3 px-4 transition-all duration-200" 
                                        type="text" 
                                        name="invoice_prefix" 
-                                       value="{{ $entreprise->invoice_prefix ?? '' }}" />
+                                       value="{{ filled($entreprise->invoice_prefix) ? $entreprise->invoice_prefix : 'F' }}" />
                                 <p class="mt-2 text-xs text-gray-500">{{ __('messages.Used as prefix for all invoice numbers') }}</p>
                             </div>
                             <div>
                                 <label for="invoice_start_number" class="block text-sm font-semibold text-gray-700 mb-2">{{ __('messages.Start Number') }}</label>
-                                <input id="invoice_start_number"
-                                       class="entrepriseInfos block w-full rounded-xl border border-slate-300 shadow-sm sm:text-sm py-3 px-4 transition-all duration-200"
-                                       type="text"
-                                       name="invoice_start_number"
-                                       value="{{ $entreprise->invoice_start_number ?? '' }}" />
-                                <p class="mt-2 text-xs text-gray-500">{{ __('messages.Next generated invoice will increment from this value') }}</p>
+                                <div class="invoice-number-group">
+                                    <label for="invoice_number_format" class="sr-only">{{ __('messages.invoice_number_format_label') }}</label>
+                                    <select id="invoice_number_format" name="invoice_number_format" aria-describedby="invoice-number-format-help" class="entrepriseInfos sm:text-sm py-3 pl-4 pr-8">
+                                        <option value="year_month_number" @selected(($entreprise->invoice_number_format ?? 'year_month_number') === 'year_month_number')>{{ __('messages.invoice_number_format_year_month_short') }}</option>
+                                        <option value="number_only" @selected($entreprise->invoice_number_format === 'number_only')>{{ __('messages.None') }}</option>
+                                    </select>
+                                    <input id="invoice_start_number"
+                                           class="entrepriseInfos sm:text-sm py-3 px-4"
+                                           type="text"
+                                           inputmode="numeric"
+                                           aria-describedby="invoice-number-format-help"
+                                           name="invoice_start_number"
+                                           value="{{ $nextInvoiceNumber }}" />
+                                </div>
+                                <p id="invoice-number-format-help" class="mt-2 text-xs leading-relaxed text-gray-500">{{ __('messages.invoice_number_format_examples', ['example' => 'F'.now()->format('ym').'1']) }}<br>{{ __('messages.invoice_number_format_none_example') }}</p>
                             </div>
                         </div>
 

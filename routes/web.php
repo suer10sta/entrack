@@ -199,7 +199,7 @@ Route::get('/dashboard', function () {
 
 Route::middleware(['auth', 'verified', 'role:super_admin'])->name('superadmin.')->prefix('superadmin')->group(function () {
     Route::get("/", [IndexController::class, "index"])->name("index");
-    Route::resource('/roles', RoleController::class);
+    Route::resource('/roles', RoleController::class)->except(['create', 'store'])->where(['role' => '[0-9]+']);
     Route::post('/roles/{role}/assign_permission', [RoleController::class, "assign_permission"])->name("roles.assign_permission");
     Route::post('superadmin/roles/{role}/delete_permission', [RoleController::class, "delete_permission"])->name('roles.delete_permission');
     Route::resource('/permissions', PermissionController::class);
@@ -227,7 +227,7 @@ Route::middleware(['auth', 'verified', 'role:Admin'])->name('admin.')->prefix('a
     Route::get('/onboarding/step-2', [OnboardingController::class, 'step2'])->name('onboarding.step2');
     Route::post('/onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
     Route::get('/onboarding/done', [OnboardingController::class, 'done'])->name('onboarding.done');
-    Route::resource('/roles', RoleController::class);
+    Route::resource('/roles', RoleController::class)->except(['create', 'store'])->where(['role' => '[0-9]+']);
     Route::post('/roles/{role}/assign_permission', [RoleController::class, "assign_permission"])->name("roles.assign_permission");
     Route::post('admin/roles/{role}/delete_permission', [RoleController::class, "delete_permission"])->name('roles.delete_permission');
     Route::resource('/permissions', PermissionController::class);
@@ -639,7 +639,7 @@ Route::middleware(['auth', 'verified', 'role:Responsable de projet'])->name('Res
     Route::post('/workDaysReports/nextMonthRepports', [employeesController::class, 'nextMonthRepports'])->name('workDaysReports.nextMonthRepports');
 
 
-    Route::resource('/roles', RoleController::class);
+    Route::resource('/roles', RoleController::class)->except(['create', 'store'])->where(['role' => '[0-9]+']);
     Route::post('/roles/{role}/assign_permission', [RoleController::class, "assign_permission"])->name("roles.assign_permission");
     Route::post('admin/roles/{role}/delete_permission', [RoleController::class, "delete_permission"])->name('roles.delete_permission');
     Route::resource('/permissions', PermissionController::class);
@@ -1009,7 +1009,7 @@ Route::middleware(['auth', 'verified', 'role:Employee'])->name('employee.')->pre
     Route::post('/workDaysReports/nextMonthRepports', [employeesController::class, 'nextMonthRepports'])->name('workDaysReports.nextMonthRepports');
 
 
-    Route::resource('/roles', RoleController::class);
+    Route::resource('/roles', RoleController::class)->except(['create', 'store'])->where(['role' => '[0-9]+']);
     Route::post('/roles/{role}/assign_permission', [RoleController::class, "assign_permission"])->name("roles.assign_permission");
     Route::post('admin/roles/{role}/delete_permission', [RoleController::class, "delete_permission"])->name('roles.delete_permission');
     Route::resource('/permissions', PermissionController::class);
@@ -1327,7 +1327,7 @@ Route::middleware(['auth', 'verified', 'role:Employee'])->name('employee.')->pre
 
 Route::middleware(['auth', 'verified', 'role:SuperAdmin'])->name('SuperAdmin.')->prefix('SuperAdmin')->group(function () {
     Route::get("/", [adminController::class, "index"])->name("index");
-    Route::resource('/roles', RoleController::class);
+    Route::resource('/roles', RoleController::class)->except(['create', 'store'])->where(['role' => '[0-9]+']);
     Route::post('/roles/{role}/assign_permission', [RoleController::class, "assign_permission"])->name("roles.assign_permission");
     Route::post('admin/roles/{role}/delete_permission', [RoleController::class, "delete_permission"])->name('roles.delete_permission');
     Route::resource('/permissions', PermissionController::class);
@@ -1679,7 +1679,7 @@ Route::middleware(['auth', 'verified', 'role:Responsable de projet et gestionnai
     Route::post('/workDaysReports/nextMonthRepports', [employeesController::class, 'nextMonthRepports'])->name('workDaysReports.nextMonthRepports');
 
 
-    Route::resource('/roles', RoleController::class);
+    Route::resource('/roles', RoleController::class)->except(['create', 'store'])->where(['role' => '[0-9]+']);
     Route::post('/roles/{role}/assign_permission', [RoleController::class, "assign_permission"])->name("roles.assign_permission");
     Route::post('admin/roles/{role}/delete_permission', [RoleController::class, "delete_permission"])->name('roles.delete_permission');
     Route::resource('/permissions', PermissionController::class);

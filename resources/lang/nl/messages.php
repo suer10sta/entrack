@@ -1,6 +1,22 @@
 <?php
 
 return [
+    'invoice_next_sequence_label' => 'Volgend volgnummer',
+    'invoice_next_sequence_help' => 'Bepaalt het volgende volgnummer, onafhankelijk van het gekozen formaat.',
+
+    'invoice_number_format_year_month_short' => 'Jaar en maand',
+    'invoice_number_format_examples' => 'Kies “Jaar en maand” om de laatste twee cijfers van het jaar en de maand aan het factuurnummer toe te voegen. Voorbeeld: :example.',
+    'invoice_number_format_none_example' => 'Met “Geen” wordt alleen het ingevoerde nummer gebruikt. Voorbeeld: F-1.',
+    'internal_expenses' => 'Interne uitgaven',
+    'invoice_number_format_label' => 'Nummeringsformaat',
+    'invoice_number_format_year_month' => 'Jaar + maand + nummer → voorbeeld: 2610001',
+    'invoice_number_format_sequence' => 'Alleen nummer → voorbeeld: 001',
+    'invoice_number_format_help' => 'Kies het formaat waarmee uw factuurnummers automatisch worden gegenereerd.',
+    'invoice_sequence_too_low' => 'Het volgende nummer moet minstens :number zijn om dubbele nummers te voorkomen.',
+
+    'auth_fp_sent_title' => 'Controleer uw inbox',
+    'auth_fp_sent_help' => 'Open de e-mail en volg de link om een nieuw wachtwoord te kiezen. Controleer ook uw spammap.',
+
     'password_visibility_show' => 'Wachtwoord tonen',
     'password_visibility_hide' => 'Wachtwoord verbergen',
 

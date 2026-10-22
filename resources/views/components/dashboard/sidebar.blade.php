@@ -462,7 +462,7 @@
                 </a>
 
                 @can('Billings')
-                <a href="{{route('admin.Enterprise_infos.create')}}" title="{{ __('messages.Billing Menu') }}"
+                <a href="{{route('admin.Enterprise_infos.create')}}" title="{{ __('messages.internal_expenses') }}"
                     class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] transition-colors {{ request()->routeIs('admin.Enterprise_infos.create') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                     @if(request()->routeIs('admin.Enterprise_infos.create'))
                         <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>
@@ -472,8 +472,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
-                    <span class="sidebar-label truncate">{{ __('messages.Billing Menu') }}</span>
-                    <span class="sidebar-tip">{{ __('messages.Billing Menu') }}</span>
+                    <span class="sidebar-label truncate">{{ __('messages.internal_expenses') }}</span>
+                    <span class="sidebar-tip">{{ __('messages.internal_expenses') }}</span>
                 </a>
                 @endcan
 

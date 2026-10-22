@@ -27,7 +27,7 @@
             }
             $updateRoute = route($prefix.'.invoices.updatePeriodInvoice', $invoice->id);
             $cancelRoute = route($prefix.'.invoices.invoicehistory');
-            $reference = $entreprise->invoice_prefix.'-'.($invoice->created_at ? \Carbon\Carbon::parse($invoice->created_at)->format('ym') : '').$invoice->number;
+            $reference = \App\Support\InvoiceNumbering::reference($entreprise, $invoice, true);
             $currentProject = $projects->firstWhere('id', $invoice->project_id);
             $formatAmount = fn ($amount) => number_format((float) $amount, 2, app()->getLocale() === 'en' ? '.' : ',', app()->getLocale() === 'en' ? ',' : ' ').' €';
         @endphp

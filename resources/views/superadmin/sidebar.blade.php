@@ -13,7 +13,7 @@
         @php($navGroups = [
             ['key' => 'users', 'label' => __('messages.Users'), 'icon' => 'fa-regular fa-user', 'active' => request()->routeIs('superadmin.users.*'), 'links' => [['route' => 'superadmin.users.index', 'label' => __('messages.Reports')], ['route' => 'superadmin.users.create', 'label' => __('messages.New user')]]],
             ['key' => 'enterprises', 'label' => __('messages.Enterprises'), 'icon' => 'fa-solid fa-building', 'active' => request()->routeIs('superadmin.entreprise.*'), 'links' => [['route' => 'superadmin.entreprise.index', 'label' => __('messages.Reports')]]],
-            ['key' => 'roles', 'label' => __('messages.Roles'), 'icon' => 'fa-solid fa-shield-halved', 'active' => request()->routeIs('superadmin.roles.*'), 'links' => [['route' => 'superadmin.roles.index', 'label' => __('messages.Reports')], ['route' => 'superadmin.roles.create', 'label' => __('messages.New role')]]],
+            ['key' => 'roles', 'label' => __('messages.Roles'), 'icon' => 'fa-solid fa-shield-halved', 'active' => request()->routeIs('superadmin.roles.*'), 'links' => [['route' => 'superadmin.roles.index', 'label' => __('messages.Reports')]]],
             ['key' => 'permissions', 'label' => __('messages.Permissions'), 'icon' => 'fa-solid fa-key', 'active' => request()->routeIs('superadmin.permissions.*'), 'links' => [['route' => 'superadmin.permissions.index', 'label' => __('messages.Reports')], ['route' => 'superadmin.permissions.create', 'label' => __('messages.New permission')]]],
         ])
         @foreach($navGroups as $group)

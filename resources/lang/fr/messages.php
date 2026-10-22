@@ -1,6 +1,22 @@
 <?php
 
 return [
+    'invoice_next_sequence_label' => 'Prochain numéro séquentiel',
+    'invoice_next_sequence_help' => 'Définit le prochain numéro séquentiel, indépendamment du format choisi.',
+
+    'invoice_number_format_year_month_short' => 'Année et mois',
+    'invoice_number_format_examples' => 'Choisissez « Année et mois » pour ajouter les deux derniers chiffres de l’année et le mois au numéro de facture. Exemple : :example.',
+    'invoice_number_format_none_example' => 'Avec « Aucun », seul le numéro saisi est utilisé. Exemple : F-1.',
+    'internal_expenses' => 'Dépenses internes',
+    'invoice_number_format_label' => 'Format de numérotation',
+    'invoice_number_format_year_month' => 'Année + mois + numéro → exemple : 2610001',
+    'invoice_number_format_sequence' => 'Numéro uniquement → exemple : 001',
+    'invoice_number_format_help' => 'Choisissez le format utilisé pour générer automatiquement les numéros de vos factures.',
+    'invoice_sequence_too_low' => 'Le prochain numéro doit être supérieur ou égal à :number pour éviter les doublons.',
+
+    'auth_fp_sent_title' => 'Consultez votre boîte e-mail',
+    'auth_fp_sent_help' => 'Ouvrez l’e-mail reçu et suivez le lien pour choisir votre nouveau mot de passe. Pensez à vérifier vos courriers indésirables.',
+
     'password_visibility_show' => 'Afficher le mot de passe',
     'password_visibility_hide' => 'Masquer le mot de passe',
 

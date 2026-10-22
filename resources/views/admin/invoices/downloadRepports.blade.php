@@ -241,7 +241,7 @@
                             $daysOverdue = $isOverdue ? $today->diffInDays($dueDate) : 0;
                         @endphp
                         <span style="{{ $isOverdue ? 'color: red;' : '' }}">
-                            <b>{{$entreprise->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}</b>
+                            <b>{{ \App\Support\InvoiceNumbering::reference($entreprise, $invoice, true) }}</b>
                             @if($isOverdue)
                                 <br><span style="color: red; font-size: 9px;">({{ $daysOverdue }} days overdue)</span>
                             @endif

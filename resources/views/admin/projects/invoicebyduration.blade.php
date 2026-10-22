@@ -39,7 +39,7 @@
 @if(filled($client->client_number))
                                 {{ __('messages.Client Number') }} : {{ $client->client_number }} <br>
 @endif
-                                {{ __('messages.Invoice Number') }} : {{ $invoice->number ?? $invoice_id }}
+                                {{ __('messages.Invoice Number') }} : {{ $invoice->invoice_reference ?? $invoice->number ?? \App\Support\InvoiceNumbering::preview($entreprise, $invoice_id) }}
                             </td>
                             <td valign='top' width='35%'>
                             </td>
@@ -58,7 +58,7 @@
                                 $invoicenumber = request()->input('invoice_number');
                                 }
                                 @endphp
-                                <div align='center' style='font-size: 14px;font-weight: bold;'>{{ __('messages.Invoice') }} : {{$entreprise->invoice_prefix}}-{{ $invoice->number ?? $invoice_id }}</div>
+                                <div align='center' style='font-size: 14px;font-weight: bold;'>{{ __('messages.Invoice') }} : {{ \App\Support\InvoiceNumbering::reference($entreprise, $invoice ?? $invoice_id) }}</div>
                             </td>
                         </tr>
                     </table>
@@ -203,7 +203,7 @@
                 - {{ __('messages.Please pay the amount of') }}
                 <strong>{{number_format($prixtotal + ($prixtotal*($projectinfos->tva/100)), 2, ',', '')}}€</strong> {{ __('messages.on the account mentioned below before') }}
                 {{ \Carbon\Carbon::now()->addDays(abs((int)filter_var($client->due_date, FILTER_SANITIZE_NUMBER_INT)))->format('d-m-Y') }}
-                {{ __('messages.mentioning the invoice number') }} <strong>{{ $invoice->number ?? $invoice_id }}</strong>
+                {{ __('messages.mentioning the invoice number') }} <strong>{{ $invoice->invoice_reference ?? $invoice->number ?? \App\Support\InvoiceNumbering::preview($entreprise, $invoice_id) }}</strong>
                 <br>
 @if(\App\Support\InvoicePresentation::showReverseChargeNotice($entreprise))
                 - {{ __('messages.Intracommunity delivery services note') }}

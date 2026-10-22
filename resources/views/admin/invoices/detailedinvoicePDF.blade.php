@@ -250,7 +250,7 @@
 @if(filled($client->client_number))
                         {{ __('messages.Client Number') }} : {{ $client->client_number }} <br>
 @endif
-                        {{ __('messages.Invoice Number') }} : {{$invoice_id}}
+                        {{ __('messages.Invoice Number') }} : {{ isset($invoice) ? ($invoice->invoice_reference ?? $invoice_id) : \App\Support\InvoiceNumbering::preview($entreprise, $invoice_id) }}
                     </p>
                 </div>
                 <div class="details-right">
@@ -261,7 +261,7 @@
             <br><br><br>
 
             <div class="invoice-number">
-                {{ __('messages.Invoice') }} : {{$entreprise->invoice_prefix}}-{{$invoice_id}}
+                {{ __('messages.Invoice') }} : {{ \App\Support\InvoiceNumbering::reference($entreprise, $invoice ?? $invoice_id) }}
             </div>
 
             <table>
@@ -332,7 +332,7 @@
                 <div class="payment">
                     - {{ __('messages.Please pay the amount of') }} <strong>{{number_format($total_ttc, 2, ',', '')}}€</strong> 
                     {{ __('messages.on the account mentioned below before') }} {{ $due_date }}
-                    {{ __('messages.mentioning the invoice number') }} <strong>{{$invoice_id}}</strong>
+                    {{ __('messages.mentioning the invoice number') }} <strong>{{ isset($invoice) ? ($invoice->invoice_reference ?? $invoice_id) : \App\Support\InvoiceNumbering::preview($entreprise, $invoice_id) }}</strong>
                     <br>
 @if(\App\Support\InvoicePresentation::showReverseChargeNotice($entreprise))
                     - {{ __('messages.Intracommunity delivery services note') }}

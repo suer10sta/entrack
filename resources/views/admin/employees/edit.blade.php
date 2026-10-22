@@ -25,10 +25,6 @@
                 elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $prefix = 'Responsable_gestionnaire';
                 elseif (Auth::user()->hasRole('SuperAdmin')) $prefix = 'SuperAdmin';
             }
-            $roleCreateRoute = null;
-            if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                $roleCreateRoute = route($prefix.'.roles.create', ['assign_employee' => $employee->id, 'redirect_route' => request()->route()->getName()]);
-            }
         @endphp
         <main class="employee-roles-edit">
             <div class="ere-container">
@@ -48,7 +44,6 @@
                     <section class="ere-roles" aria-labelledby="ere-roles-title">
                         <div class="ere-section-header">
                             <div><h2 id="ere-roles-title">{{ __('messages.Assign Roles') }}</h2><p id="ere-roles-help">{{ __('messages.employee_roles_help') }}</p></div>
-                            @if($roleCreateRoute)<a href="{{ $roleCreateRoute }}" class="dt-btn dt-btn-ghost"><span aria-hidden="true">＋</span>{{ __('messages.Add New Role') }}</a>@endif
                         </div>
                         <div class="ere-role-grid" role="group" aria-labelledby="ere-roles-title" aria-describedby="ere-roles-help">
                             @foreach($role_name as $role)

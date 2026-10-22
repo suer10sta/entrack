@@ -85,7 +85,7 @@
                         {{-- Card Header --}}
                         <div class="p-6 border-b border-gray-200">
                             <h2 class="text-lg font-semibold text-gray-900">
-                                {{ __('messages.Edit Partial Invoice') }} {{ $entreprise->invoice_prefix }}-{{ $invoice->number }}
+                                {{ __('messages.Edit Partial Invoice') }} {{ \App\Support\InvoiceNumbering::reference($entreprise, $invoice) }}
                             </h2>
                             <p class="text-sm text-gray-600 mt-1">{{ __('messages.Update the partial invoice details') }}</p>
                         </div>

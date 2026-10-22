@@ -89,7 +89,7 @@
                         {{-- En-tête de la carte --}}
                         <div class="p-6 border-b border-gray-200">
                             <h2 class="text-lg font-semibold text-gray-900">
-                                {{ __('messages.Edit Full Invoice') }} {{ $entreprise->invoice_prefix }}-{{ $invoice->number }}
+                                {{ __('messages.Edit Full Invoice') }} {{ \App\Support\InvoiceNumbering::reference($entreprise, $invoice) }}
                             </h2>
                             <p class="text-sm text-gray-600 mt-1">{{ __('messages.Update invoice details') }}</p>
                         </div>

@@ -126,7 +126,7 @@
         </div>
 
         <div style="text-align: center; margin: 20px 0;">
-            <h2>{{ __('messages.Invoice') }} : {{$entreprise->invoice_prefix}}-{{$number}}</h2>
+            <h2>{{ __('messages.Invoice') }} : {{ \App\Support\InvoiceNumbering::reference($entreprise, $invoice ?? $number) }}</h2>
         </div>
 
         <table>

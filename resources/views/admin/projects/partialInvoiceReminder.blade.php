@@ -165,7 +165,7 @@
 @if(filled($client->client_number))
                     {{ __('messages.Client Number') }} : {{ $client->client_number }} <br>
 @endif
-                    {{ __('messages.Invoice Number') }} : {{ $invoice->number ?? $invoice_id }}
+                    {{ __('messages.Invoice Number') }} : {{ $invoice->invoice_reference ?? $invoice->number ?? \App\Support\InvoiceNumbering::preview($entreprise, $invoice_id) }}
                     <br>
                     {{ __('messages.Reminder Number') }} : {{$reminder_number}}
                     @if($isOverdue)
@@ -187,7 +187,7 @@
         }
         @endphp
         <div class="invoice-number">
-        {{ __('messages.Invoice Reminder') }} : {{$entreprise->invoice_prefix}}-{{ $invoice->number ?? $invoice_id }}
+        {{ __('messages.Invoice Reminder') }} : {{ \App\Support\InvoiceNumbering::reference($entreprise, $invoice ?? $invoice_id) }}
         </div>
 
         <table>
@@ -258,7 +258,7 @@
             - {{ __('messages.Please pay the amount of') }}
             <strong>{{number_format($amount + ($amount*($projectinfos->tva/100)), 2, ',', '')}}€</strong> {{ __('messages.on the account mentioned below before') }}
             {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}
-            {{ __('messages.mentioning the invoice number') }} <strong>{{ $invoice->number ?? $invoice_id }}</strong>
+            {{ __('messages.mentioning the invoice number') }} <strong>{{ $invoice->invoice_reference ?? $invoice->number ?? \App\Support\InvoiceNumbering::preview($entreprise, $invoice_id) }}</strong>
             <br>
 @if(\App\Support\InvoicePresentation::showReverseChargeNotice($entreprise))
             - {{ __('messages.In case of intra-community delivery for services') }}:  "Autoliquidation Art 21 § 2 du code TVA belge"

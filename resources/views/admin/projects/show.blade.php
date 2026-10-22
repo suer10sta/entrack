@@ -1248,7 +1248,7 @@
                                         @if(Auth::user()->hasRole('Responsable de projet et gestionnaire')) @php $pdfRoute = route('Responsable_gestionnaire.invoices.servePdf', ['invoiceName' => $invoice->id]); @endphp @endif
 
                                         <a href="{{ $pdfRoute }}" target="_blank" class="text-[12.5px] font-semibold text-[#2D7080] hover:text-[#0B2638] hover:underline">
-                                            {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
+                                            {{ \App\Support\InvoiceNumbering::reference($entreprise_infos, $invoice, true) }}
                                         </a>
                                     </td>
                                     <td data-label="{{ __('messages.VAT') }}" class="text-[12.5px] text-slate-500 whitespace-nowrap">

@@ -136,7 +136,7 @@
 
         <div style="text-align: center; margin: 20px 0; margin-top: 100px;">
             <h2>{{ __('messages.Credit Note') }} : NC-{{date('ym')}}{{ str_pad($last_credit_note_number + 1, 3, '0', STR_PAD_LEFT) }}</h2>
-            <p>{{ __('messages.Ref') }}: {{$entreprise->invoice_prefix}}-{{date('ym')}}{{$invoice_number}}</p>
+            <p>{{ __('messages.Ref') }}: {{ $invoice->invoice_reference ?? (($entreprise->invoice_prefix ?? '').'-'.date('ym').$invoice_number) }}</p>
         </div>
 
         <table>
@@ -199,7 +199,7 @@
         @endif
 
         <div class="payment">
-            - {{ __('messages.This credit note cancels') }} @if($partial){{ __('messages.partially') }} @else {{ __('messages.totally') }} @endif {{ __('messages.the invoice') }} {{$entreprise->invoice_prefix}}-{{date('ym')}}{{$invoice_number}}
+            - {{ __('messages.This credit note cancels') }} @if($partial){{ __('messages.partially') }} @else {{ __('messages.totally') }} @endif {{ __('messages.the invoice') }} {{ $invoice->invoice_reference ?? (($entreprise->invoice_prefix ?? '').'-'.date('ym').$invoice_number) }}
             <br>
             - {{ __('messages.Intracommunity delivery services note') }}
             <br>

@@ -21,7 +21,13 @@ class invoices_history extends Model
             $company = Entreprise::on($this->getConnectionName())
                 ->whereKey($this->entreprise_id)->lockForUpdate()->firstOrFail();
             $this->number = \App\Support\InvoiceNumbering::next($company);
-            return parent::save($options);
+            $this->invoice_reference = \App\Support\InvoiceNumbering::preview($company, $this->number, $this->created_at);
+            $saved = parent::save($options);
+            if ($saved) {
+                $company->invoice_start_number = \App\Support\InvoiceNumbering::increment($this->number);
+                $company->save();
+            }
+            return $saved;
         });
     }
     protected $fillable = [

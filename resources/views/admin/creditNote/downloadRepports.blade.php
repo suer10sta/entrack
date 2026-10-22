@@ -203,7 +203,7 @@
                         @php
                             $invoice = App\Models\invoices_history::where('id', $cn->invoice_id)->first();
                         @endphp
-                        {{$entreprise->invoice_prefix}}-{{date('ym')}}{{$invoice->number}}
+                        {{ $invoice->invoice_reference ?? (($entreprise->invoice_prefix ?? '').'-'.date('ym').$invoice->number) }}
                     </td>
                     <td>
                         @php 

@@ -506,7 +506,7 @@
         @endphp
         {{-- Desktop: keep original simple link layout --}}
         <a href="{{ $pdfRoute }}" target="_blank" class="{{ $isOverdue ? 'invoice-link-overdue' : 'invoice-link-normal' }} hidden lg:inline text-[12.5px]">
-            {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
+            {{ \App\Support\InvoiceNumbering::reference($entreprise_infos, $invoice, true) }}
             @if($isOverdue)
                 <span class="block text-xs">({{ $daysOverdue }} {{ __('messages.Invoice days overdue') }})</span>
             @endif
@@ -519,7 +519,7 @@
                     {{ __('messages.Invoice N°') }}
                 </span>
                 <a href="{{ $pdfRoute }}" target="_blank" class="{{ $isOverdue ? 'invoice-link-overdue' : 'invoice-link-normal' }} truncate text-[12px]">
-                    {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
+                    {{ \App\Support\InvoiceNumbering::reference($entreprise_infos, $invoice, true) }}
                     @if($isOverdue)
                         <span class="block text-xs">({{ $daysOverdue }} {{ __('messages.Invoice days overdue') }})</span>
                     @endif

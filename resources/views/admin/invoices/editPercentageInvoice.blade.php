@@ -27,7 +27,7 @@
                 <div class="row">
                     <div class="dt-edit-column col-lg-9 col-12 mx-auto">
                         <div class="card card-body mt-4">
-                            <h6 class="mb-0">{{ __('messages.Edit Percentage Invoice') }} {{ $entreprise->invoice_prefix }}-{{ $invoice->number }}</h6>
+                            <h6 class="mb-0">{{ __('messages.Edit Percentage Invoice') }} {{ \App\Support\InvoiceNumbering::reference($entreprise, $invoice) }}</h6>
                             <p class="text-sm mb-0">{{ __('messages.Update the percentage invoice details') }}</p>
                             @if(session('error'))
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">

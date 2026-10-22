@@ -25,7 +25,7 @@
                     <a href="{{ route('admin.invoices.servePdf', ['invoiceName' => $invoice->id]) }}" 
                        target="_blank" 
                        style="{{ $isOverdue ? 'color: red;' : '' }}">
-                        <b>{{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}</b>
+                        <b>{{ \App\Support\InvoiceNumbering::reference($entreprise_infos, $invoice, true) }}</b>
                         @if($isOverdue)
                             <span class="text-danger"><br>({{ $daysOverdue }} days overdue)</span>
                         @endif

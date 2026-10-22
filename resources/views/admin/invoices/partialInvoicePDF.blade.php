@@ -208,7 +208,7 @@
 @if(filled($client->client_number))
                         {{ __('messages.Client Number') }} : {{ $client->client_number }} <br>
 @endif
-                        {{ __('messages.Invoice Number') }} : {{ $invoice->number ?? $invoice_id }}
+                        {{ __('messages.Invoice Number') }} : {{ $invoice->invoice_reference ?? $invoice->number ?? \App\Support\InvoiceNumbering::preview($entreprise, $invoice_id) }}
                         @if(!empty($devis_number))<br>
                         {{ __('messages.Quote Balance') }} : {{$entreprise->devis_prefix}}-{{$devis_number}}
                         @endif
@@ -223,7 +223,7 @@
 
             <div class="invoice-number">
                 {{ __('messages.Invoice') }} :
-                {{$entreprise->invoice_prefix}}-{{ $invoice->number ?? $invoice_id }}
+                {{ \App\Support\InvoiceNumbering::reference($entreprise, $invoice ?? $invoice_id) }}
             </div>
 
             <table>
@@ -296,7 +296,7 @@
                 - {{ __('messages.Please pay the amount of') }}
                 <strong>{{number_format($amount + ($amount*($projectinfos->tva/100)), 2, ',', '')}}€</strong> {{ __('messages.on the account mentioned below before') }}
                 {{$is_Editing ? $due_last_date : $due_date}}
-                {{ __('messages.mentioning the invoice number') }} <strong>{{ $invoice->number ?? $invoice_id }}</strong>
+                {{ __('messages.mentioning the invoice number') }} <strong>{{ $invoice->invoice_reference ?? $invoice->number ?? \App\Support\InvoiceNumbering::preview($entreprise, $invoice_id) }}</strong>
                 <br>
 @if(\App\Support\InvoicePresentation::showReverseChargeNotice($entreprise))
                 - {{ __('messages.In case of intra-community delivery for services') }}:  "Autoliquidation Art 21 § 2 du code TVA belge"

@@ -220,8 +220,8 @@
             <div class="invoice-number">
                 {{ __('messages.Credit Note') }} : NC-{{date('ym')}}{{$credit_note->credit_note_number}}
                 <br> {{ __('messages.Ref') }}:
-                {{$entreprise->invoice_prefix}}-{{date('ym')}}@if(request()->has('number')){{request()->input('number')}}@else{{$invoice_id }}
-                @endif
+                @if(!empty($invoice->invoice_reference)){{ $invoice->invoice_reference }}@else{{$entreprise->invoice_prefix}}-{{date('ym')}}@if(request()->has('number')){{request()->input('number')}}@else{{$invoice_id }}
+                @endif@endif
             </div>
 
             <table>
@@ -314,7 +314,7 @@ echo $hours . 'h:' . sprintf('%02d', $minutes) . 'm';
             @endif
 
             <div class="payment">
-                - {{ __('messages.This credit note cancels') }} @if($partial){{ __('messages.partially') }} @else {{ __('messages.totally') }} @endif {{ __('messages.the invoice') }} {{$entreprise->invoice_prefix}}-{{date('ym')}}{{$invoice->number}}
+                - {{ __('messages.This credit note cancels') }} @if($partial){{ __('messages.partially') }} @else {{ __('messages.totally') }} @endif {{ __('messages.the invoice') }} {{ $invoice->invoice_reference ?? (($entreprise->invoice_prefix ?? '').'-'.date('ym').$invoice->number) }}
                 <br>
                 - {{ __('messages.Intracommunity delivery services note') }}
                 <br>

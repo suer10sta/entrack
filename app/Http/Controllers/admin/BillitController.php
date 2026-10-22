@@ -479,9 +479,9 @@ class BillitController extends Controller
             : now()->addDays(30)->format('Y-m-d');
 
         // Build invoice number (matching your template format)
-        $invoiceNumber = ($entreprise && $entreprise->invoice_prefix ? $entreprise->invoice_prefix . '-' : '') 
+        $invoiceNumber = $invoice->invoice_reference ?? (($entreprise && $entreprise->invoice_prefix ? $entreprise->invoice_prefix . '-' : '')
                         . now()->format('ym') 
-                        . $invoice->number;
+                        . $invoice->number);
 
         // Calculate VAT percentage from invoice totals or project
         $vatPercentage = 0;
@@ -737,7 +737,7 @@ class BillitController extends Controller
                     // Basic PDF validation: non-empty and starts with %PDF-
                     $looksPdf = $sizeBytes > 100 && strncmp($pdfBinary, "%PDF-", 5) === 0;
                     if ($looksPdf) {
-                        $fileName = "{$entreprise->invoice_prefix}-{$yearForName}{$month}{$invoice->number}.pdf";
+                        $fileName = $invoice->invoice_reference ? $invoice->invoice_reference.'.pdf' : "{$entreprise->invoice_prefix}-{$yearForName}{$month}{$invoice->number}.pdf";
                         $base64 = base64_encode($pdfBinary);
                         \Log::info('Billit attach - base64 prepared', [
                             'length' => strlen($base64),
@@ -1011,7 +1011,7 @@ class BillitController extends Controller
                 return;
             }
 
-            $fileName = "{$entreprise->invoice_prefix}-{$yearForName}{$month}{$invoice->number}.pdf";
+            $fileName = $invoice->invoice_reference ? $invoice->invoice_reference.'.pdf' : "{$entreprise->invoice_prefix}-{$yearForName}{$month}{$invoice->number}.pdf";
 
             $subject = 'Invoice ' . $fileName;
             $body = 'Please find attached the invoice PDF for import into WinAuditor.';

@@ -609,7 +609,7 @@
                                             elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire')) $invoiceRoute = route('Responsable_gestionnaire.invoices.servePdf', ['invoiceName' => $invoice->id]);
                                         @endphp
                                         <a href="{{ $invoiceRoute }}" target="_blank" class="{{ $isOverdue ? 'text-red-600 font-bold' : 'text-[#2D7080] hover:text-[#0B2638] font-medium' }}">
-                                            {{$entreprise_infos->invoice_prefix}}-{{date('ym', strtotime($invoice->created_at))}}{{$invoice->number}}
+                                            {{ \App\Support\InvoiceNumbering::reference($entreprise_infos, $invoice, true) }}
                                             @if($isOverdue)
                                                 <span class="ml-2">({{ $daysOverdue }} {{ __('messages.days overdue') }})</span>
                                             @endif

@@ -5,7 +5,7 @@
     <x-favicon />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ __('messages.Enterprise Expenses - DalyTrac') }}</title>
+    <title>{{ __('messages.internal_expenses') }} - DalyTrac</title>
     
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
@@ -98,8 +98,8 @@
 
                 <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-4">
                     <div>
-                        <p class="dt-overline mb-0.5">{{ __('messages.Billing Menu') }}</p>
-                        <h1 class="text-[18px] sm:text-[20px] lg:text-[22px] font-bold tracking-tight text-[#0B2638] leading-tight">{{ __('messages.Expenses') }}</h1>
+                        <p class="dt-overline mb-0.5">{{ __('messages.internal_expenses') }}</p>
+                        <h1 class="text-[18px] sm:text-[20px] lg:text-[22px] font-bold tracking-tight text-[#0B2638] leading-tight">{{ __('messages.internal_expenses') }}</h1>
                         <p class="text-[12px] text-slate-500 mt-0.5">{{ __('messages.Expenses subtitle') }}</p>
                     </div>
                 </div>
@@ -133,28 +133,34 @@
                     </div>
 
                     <div class="lg:col-span-2 space-y-3">
-                        <div x-data="datePicker()" class="dt-card overflow-hidden">
+                        @php
+                            $reportPrefix = 'admin';
+                            if (Auth::user()->hasRole('Responsable de projet')) $reportPrefix = 'Responsable_de_projet';
+                            elseif (Auth::user()->hasRole('Employee')) $reportPrefix = 'employee';
+                            elseif (Auth::user()->hasRole('Responsable de projet et gestionnaire')) $reportPrefix = 'Responsable_gestionnaire';
+                        @endphp
+                        <div class="dt-card overflow-hidden">
                             <div class="px-5 py-4 border-b border-slate-100">
                                 <h3 class="text-[13px] font-semibold text-[#0B2638]">{{ __('messages.Export Report') }}</h3>
                             </div>
                             <div class="p-4 sm:p-5">
-                            <div class="flex flex-col md:flex-row md:items-end gap-4">
+                            <form action="{{ route($reportPrefix.'.entrepriseBillings.downloadRepports') }}" method="GET" class="flex flex-col md:flex-row md:items-end gap-4">
                                 <div class="flex-1">
                                     <label class="block text-[11px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1.5">{{ __('messages.Start Date') }}:</label>
-                                    <input id="start-date" type="date" name="startDate" x-model="startDate"
+                                    <input id="start-date" type="date" name="startDate" required
                                            class="w-full px-3 py-2 border">
                                 </div>
                                 <div class="flex-1">
                                     <label class="block text-[11px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1.5">{{ __('messages.End Date') }}:</label>
-                                    <input id="end-date" type="date" name="endDate" x-model="endDate"
+                                    <input id="end-date" type="date" name="endDate" required
                                            class="w-full px-3 py-2 border">
                                 </div>
-                                <a href="#" @click.prevent="updateHref" id="downloadLink"
+                                <button type="submit" id="downloadLink"
                                    class="dt-btn dt-btn-primary justify-center flex-shrink-0 w-full md:w-auto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19z"/></svg>
                                     {{ __('messages.Print PDF') }}
-                                </a>
-                            </div>
+                                </button>
+                            </form>
                             </div>
                         </div>
 
@@ -503,34 +509,6 @@
                 });
             }
         });
-
-        // Script pour le datePicker (Alpine.js)
-        function datePicker() {
-            return {
-                startDate: '',
-                endDate: '',
-                updateHref() {
-                    let baseUrl = '';
-                    @if(Auth::user()->hasRole('Responsable de projet'))
-                        baseUrl = "{{route('Responsable_de_projet.entrepriseBillings.downloadRepports')}}";
-                    @elseif(Auth::user()->hasRole('Admin'))
-                        baseUrl = "{{route('admin.entrepriseBillings.downloadRepports')}}";
-                    @elseif(Auth::user()->hasRole('Employee'))
-                        baseUrl = "{{route('employee.entrepriseBillings.downloadRepports')}}";
-                    @elseif(Auth::user()->hasRole('Responsable de projet et gestionnaire'))
-                        baseUrl = "{{route('Responsable_gestionnaire.entrepriseBillings.downloadRepports')}}";
-                    @endif
-                    
-                    let urlWithParams = baseUrl;
-                    if (this.startDate && this.endDate) {
-                        urlWithParams += `?startDate=${this.startDate}&endDate=${this.endDate}`;
-                        window.location.href = urlWithParams; // Redirige seulement si les dates sont valides
-                    } else {
-                        alert(@json(__('messages.Select both dates')));
-                    }
-                }
-            }
-        }
 
         // Script pour la modification du BUDGET (enableEditing)
         function enableEditing(input, budgetId) {

@@ -66,6 +66,7 @@ class entrepriseController extends Controller
             'bic',
             'invoice_prefix',
             'invoice_start_number',
+            'invoice_number_format',
             'general_conditions',
             'invoice_body',
             'first_reminder',
@@ -95,6 +96,25 @@ class entrepriseController extends Controller
 
         if (! $Entreprise) {
             return response()->json(['error' => __('messages.Company not found')], 404);
+        }
+
+        if ($request->column === 'invoice_number_format') {
+            $request->validate(['content' => ['required', \Illuminate\Validation\Rule::in([
+                \App\Support\InvoiceNumbering::YEAR_MONTH_NUMBER, \App\Support\InvoiceNumbering::NUMBER_ONLY,
+            ])]]);
+        }
+        if ($request->column === 'invoice_start_number') {
+            $request->validate(['content' => ['required', 'string', 'regex:/^[0-9]{1,30}$/']]);
+            return \Illuminate\Support\Facades\DB::transaction(function () use ($request, $Entreprise) {
+                $company = Entreprise::whereKey($Entreprise->id)->lockForUpdate()->firstOrFail();
+                $minimum = \App\Support\InvoiceNumbering::next($company);
+                if (\App\Support\InvoiceNumbering::compare($request->content, $minimum) < 0) {
+                    return response()->json(['error' => __('messages.invoice_sequence_too_low', ['number' => $minimum])], 422);
+                }
+                $company->invoice_start_number = $request->content;
+                $company->save();
+                return response()->json(['success' => __('messages.Entreprise updated successfully.')]);
+            });
         }
 
         if ($request->column === 'billit_api_key') {

@@ -696,7 +696,7 @@ class projectController extends Controller
         if (!$existingInvoice) {
             return view('admin.projects.invoicebyduration', compact('projectinfos', 'client', 'entreprise', 'duration', 'cost', 'collection', 'invoice_id', 'invoicerealID', 'startdate', 'enddate', 'comment'));
         } else {
-            return back()->with('message', __('messages.Invoice Already Exists:') . $entreprise->invoice_prefix . '-' . date('ym', strtotime($existingInvoice->created_at)) . $existingInvoice->number);
+            return back()->with('message', __('messages.Invoice Already Exists:') . \App\Support\InvoiceNumbering::reference($entreprise, $existingInvoice, true));
         }
 
     }
@@ -901,7 +901,7 @@ class projectController extends Controller
         // IMPORTANT: Overwrite the same stored path used by servePdf()
         $invoiceYear = $invoice->created_at->format('Y');
         $invoiceMonth = $invoice->created_at->format('m');
-        $downloadName = $entreprise->invoice_prefix . '-' . date('y') . $invoiceMonth . $invoice->number . '.pdf';
+        $downloadName = $invoice->invoice_reference ? $invoice->invoice_reference.'.pdf' : ($entreprise->invoice_prefix . '-' . date('y') . $invoiceMonth . $invoice->number . '.pdf');
         $storedPath = 'invoices/' . $entreprise->id . '/' . $invoiceYear . '/' . $entreprise->invoice_prefix . '-' . $invoice->number . '.pdf';
 
         Storage::disk('public')->put($storedPath, $pdf->output(), 'public');
@@ -925,6 +925,7 @@ class projectController extends Controller
         $invoice_id = $invoice->number;
 
         $pdf = PDF::loadView('admin.invoices.fullinvoicePDF', [
+                'invoice' => $invoice,
             'projectinfos' => $projectinfos,
             'client' => $client,
             'entreprise' => $entreprise,
@@ -935,7 +936,7 @@ class projectController extends Controller
         // IMPORTANT: Overwrite the same stored path used by servePdf()
         $invoiceYear = $invoice->created_at->format('Y');
         $invoiceMonth = $invoice->created_at->format('m');
-        $downloadName = $entreprise->invoice_prefix . '-' . date('y') . $invoiceMonth . $invoice->number . '.pdf';
+        $downloadName = $invoice->invoice_reference ? $invoice->invoice_reference.'.pdf' : ($entreprise->invoice_prefix . '-' . date('y') . $invoiceMonth . $invoice->number . '.pdf');
         $storedPath = 'invoices/' . $entreprise->id . '/' . $invoiceYear . '/' . $entreprise->invoice_prefix . '-' . $invoice->number . '.pdf';
 
         Storage::disk('public')->put($storedPath, $pdf->output(), 'public');
@@ -1262,13 +1263,13 @@ class projectController extends Controller
                 $message = "<p>" . nl2br($entreprise->third_reminder) . "</p>";
             }
 
-            $message .= "<p>Facture : " . $entreprise->invoice_prefix . "-" . date('ym') . $invoice->number . "<br>
+            $message .= "<p>Facture : " . ($invoice->invoice_reference ?? ($entreprise->invoice_prefix . "-" . date('ym') . $invoice->number)) . "<br>
         Date d'échéance : " . Carbon::parse($invoice->due_date)->format('d-m-Y') . "<br>
         Montant : " . number_format($invoice->total_ttc, 2, ',', '') . "€" . "</p>";
 
             $invyear = $invoice->created_at->format('y');
             $invmonth = $invoice->created_at->format('m');
-            $subject = "Invoice Reminder : " . $entreprise->invoice_prefix . "-" . $invyear . $invmonth . $invoice->number . " for Project : " . $projectinfos->name;
+            $subject = "Invoice Reminder : " . ($invoice->invoice_reference ?? ($entreprise->invoice_prefix . "-" . $invyear . $invmonth . $invoice->number)) . " for Project : " . $projectinfos->name;
             $body = $message;
 
             // Get selected recipients from the request
@@ -1371,7 +1372,7 @@ class projectController extends Controller
             $email = Entreprise::where('id', Auth::user()->entreprise_id)->first()->email;
             $subject = 'Invoice for your project : ' . $projectinfos->name;
             $message = "<p>" . nl2br($entreprise->invoice_body) . "</p>";
-            $message .= "<p>Facture : " . $entreprise->invoice_prefix . "-" . date('ym') . $invoice->number . "<br>
+            $message .= "<p>Facture : " . ($invoice->invoice_reference ?? ($entreprise->invoice_prefix . "-" . date('ym') . $invoice->number)) . "<br>
                         Date d'échéance : " . $invoice->due_date . "<br>
                         Montant : " . number_format($invoice->total_ttc, 2, '.', '') . "€" . "</p>";
             $body = $message;
@@ -2419,7 +2420,7 @@ class projectController extends Controller
         $invoiceYear = $invoiceCreatedAt->format('Y');
         $invoiceMonth = $invoiceCreatedAt->format('m');
         // Create the filename
-        $fileName = $entreprise->invoice_prefix . '-' . date('y') . $invoiceMonth . $invoice->number . '.pdf';
+        $fileName = $invoice->invoice_reference ? $invoice->invoice_reference.'.pdf' : ($entreprise->invoice_prefix . '-' . date('y') . $invoiceMonth . $invoice->number . '.pdf');
         $filePath = 'invoices/' . $entreprise->id . '/' . $invoiceYear . '/' . $entreprise->invoice_prefix . '-' . $invoice->number . '.pdf';
 
         // Get file from DO Spaces and return it
@@ -2434,7 +2435,10 @@ class projectController extends Controller
     public function parameters()
     {
         $entreprise = Entreprise::where('id', Auth::user()->entreprise_id)->first();
-        return view('admin.invoices.parameters', compact('entreprise'));
+        $nextInvoiceNumber = blank($entreprise->invoice_start_number)
+            && !invoices_history::where('entreprise_id', $entreprise->id)->exists()
+                ? '' : \App\Support\InvoiceNumbering::next($entreprise);
+        return view('admin.invoices.parameters', compact('entreprise', 'nextInvoiceNumber'));
     }
 
     public function devisparameters()
@@ -3232,6 +3236,7 @@ class projectController extends Controller
             $number = $latestInvoice ? $latestInvoice->number : 0; // Set number to the latest invoice number or 0 if no invoice exists
 
             $pdf = PDF::loadView('admin.creditNote.fullinvoicePDFcreditNote', [
+                'invoice' => $invoice,
                 'projectinfos' => $projectinfos,
                 'client' => $client,
                 'entreprise' => $entreprise,
@@ -3348,6 +3353,7 @@ class projectController extends Controller
             $number = $latestInvoice ? $latestInvoice->number : 0; // Set number to the latest invoice number or 0 if no invoice exists
 
             $pdf = PDF::loadView('admin.creditNote.fullinvoicePDFcreditNote', [
+                'invoice' => $invoice,
                 'projectinfos' => $projectinfos,
                 'client' => $client,
                 'entreprise' => $entreprise,
@@ -3573,7 +3579,11 @@ class projectController extends Controller
 
     public function generateNoteDeFrais()
     {
-        return view('admin.noteDeFrais.generate');
+        $employees = Employees::where('entreprise_id', Auth::user()->entreprise_id)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return view('admin.noteDeFrais.generate', compact('employees'));
     }
 
     public function saveNoteDeFraisPdf(Request $request)
@@ -4060,6 +4070,7 @@ class projectController extends Controller
         $is_Editing = false;
 
         $pdf = PDF::loadView('admin.invoices.fullinvoicePDF', [
+                'invoice' => $save_invoice,
             'projectinfos' => $projectinfos,
             'client' => $client,
             'entreprise' => $entreprise,
@@ -4230,13 +4241,13 @@ class projectController extends Controller
 
         } else {
             if (Auth::user()->hasRole('Admin')) {
-                return back()->with('message', __('messages.Invoice Already Exists:') . $entreprise->invoice_prefix . '-' . date('ym', strtotime($existingInvoice->created_at)) . $existingInvoice->number);
+                return back()->with('message', __('messages.Invoice Already Exists:') . \App\Support\InvoiceNumbering::reference($entreprise, $existingInvoice, true));
             }
             if (Auth::user()->hasRole('Responsable de projet')) {
-                return back()->with('message', __('messages.Invoice Already Exists:') . $entreprise->invoice_prefix . '-' . date('ym', strtotime($existingInvoice->created_at)) . $existingInvoice->number);
+                return back()->with('message', __('messages.Invoice Already Exists:') . \App\Support\InvoiceNumbering::reference($entreprise, $existingInvoice, true));
             }
             if (Auth::user()->hasRole('Responsable de projet et gestionnaire')) {
-                return back()->with('message', __('messages.Invoice Already Exists:') . $entreprise->invoice_prefix . '-' . date('ym', strtotime($existingInvoice->created_at)) . $existingInvoice->number);
+                return back()->with('message', __('messages.Invoice Already Exists:') . \App\Support\InvoiceNumbering::reference($entreprise, $existingInvoice, true));
             }
         }
     }
@@ -4341,6 +4352,7 @@ class projectController extends Controller
         }
 
         $pdf = PDF::loadView('admin.invoices.percentageInvoicePDF', [
+                'invoice' => $save_invoice,
             'projectinfos' => $projectinfos,
             'client' => $client,
             'entreprise' => $entreprise,
@@ -4442,6 +4454,7 @@ class projectController extends Controller
         }
 
         $pdf = PDF::loadView('admin.invoices.partialInvoicePDF', [
+                'invoice' => $save_invoice,
             'projectinfos' => $projectinfos,
             'client' => $client,
             'entreprise' => $entreprise,
@@ -4772,6 +4785,7 @@ class projectController extends Controller
             $is_Editing = true;
 
             $pdf = PDF::loadView('admin.invoices.fullinvoicePDF', [
+                'invoice' => $invoice,
                 'projectinfos' => $project,
                 'client' => $client,
                 'entreprise' => $entreprise,
@@ -4865,6 +4879,7 @@ class projectController extends Controller
             $is_Editing = true;
 
             $pdf = PDF::loadView('admin.invoices.partialInvoicePDF', [
+                'invoice' => $invoice,
                 'projectinfos' => $project,
                 'client' => $client,
                 'entreprise' => $entreprise,
@@ -4960,6 +4975,7 @@ class projectController extends Controller
             $is_Editing = true;
 
             $pdf = PDF::loadView('admin.invoices.percentageInvoicePDF', [
+                'invoice' => $invoice,
                 'projectinfos' => $project,
                 'client' => $client,
                 'entreprise' => $entreprise,
@@ -5587,6 +5603,7 @@ class projectController extends Controller
 
             // Generate PDF
             $pdf = PDF::loadView('admin.invoices.detailedinvoicePDF', [
+                'invoice' => $invoice,
                 'projectinfos' => $projectinfos,
                 'client' => $client,
                 'entreprise' => $entreprise,
@@ -5700,6 +5717,7 @@ class projectController extends Controller
             $due_date = Carbon::parse($invoice->due_date)->format('d-m-Y');
 
             $pdf = PDF::loadView('admin.invoices.detailedinvoicePDF', [
+                'invoice' => $invoice,
                 'projectinfos' => $project,
                 'client' => $client,
                 'entreprise' => $entreprise,
@@ -5866,6 +5884,7 @@ class projectController extends Controller
 
             // Return the credit note view
             return view('admin.creditNote.detailedinvoicecreditNote', [
+                'invoice' => $invoice,
                 'projectinfos' => $projectinfos,
                 'client' => $client,
                 'entreprise' => $entreprise,
@@ -5954,6 +5973,7 @@ class projectController extends Controller
 
             // Generate PDF
             $pdf = PDF::loadView('admin.creditNote.detailedinvoicePDFcreditNote', [
+                'invoice' => $invoice,
                 'projectinfos' => $projectinfos,
                 'client' => $client,
                 'entreprise' => $entreprise,
