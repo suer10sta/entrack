@@ -2932,7 +2932,7 @@ return [
     'public_pricing_faq_a2' => 'Oui. L’essai permet un nombre illimité d’utilisateurs pendant 15 jours.',
     'public_pricing_faq_q3' => 'Les fonctionnalités varient-elles selon le prix ?',
     'public_pricing_faq_a3' => 'Non. D’après l’offre actuellement présentée par DalyTrac, les fonctionnalités sont les mêmes dans Solo, Premium et Pro. Le nombre d’utilisateurs varie.',
-    'public_pricing_meta_title' => 'Tarifs DalyTrac : Solo, Premium et Pro | Logiciel de gestion de projets',
+    'public_pricing_meta_title' => 'Tarifs DalyTrac : Solo, Premium et Pro',
     'public_pricing_meta_desc' => 'Comparez les prix DalyTrac : Solo à 19 €, Premium à 49 € et Pro à 99 € par mois. Toutes les fonctionnalités sont incluses. Essai gratuit complet de 15 jours.',
     'public_pricing_og_title' => 'Tarifs DalyTrac : Solo, Premium et Pro',
     'public_pricing_og_desc' => 'Solo à 19 €, Premium à 49 € et Pro à 99 € par mois. Toutes les fonctionnalités incluses, essai gratuit de 15 jours.',
@@ -3232,7 +3232,7 @@ return [
     'cookie_banner_learn_more' => 'En savoir plus',
 
     'cgu_meta_title' => 'Conditions générales d’utilisation | DalyTrac',
-    'cgu_meta_desc' => 'CGU de DalyTrac : accès au site et au compte, essai gratuit de 15 jours, abonnements Solo, Premium et Pro, disponibilité, propriété intellectuelle et responsabilités.',
+    'cgu_meta_desc' => 'CGU DalyTrac : accès au compte, essai gratuit, abonnements, disponibilité du service, propriété intellectuelle et responsabilités.',
     'cgu_kicker' => 'Cadre d’utilisation',
     'cgu_title' => 'Conditions générales d’utilisation',
     'cgu_lead' => 'Règles applicables à l’accès au site, au compte et aux fonctionnalités de DalyTrac.',
@@ -3352,7 +3352,7 @@ return [
 
     // Product page
     'product_meta_title' => 'Fonctionnalités du logiciel de gestion de projets | DalyTrac',
-    'product_meta_desc' => 'Explorez les fonctionnalités DalyTrac : gestion de projets et tâches, suivi du temps, budgets, dépenses, devis, facturation et tableaux de bord pour PME de services.',
+    'product_meta_desc' => 'Découvrez DalyTrac : projets, tâches, suivi du temps, budgets, dépenses, devis et facturation pour les PME de services.',
     'product_og_title' => 'Fonctionnalités du logiciel de gestion de projets | DalyTrac',
     'product_og_desc' => 'Projets, tâches, temps, budgets, devis, facturation et tableaux de bord : tout ce qu’il faut pour suivre un projet du devis jusqu’à la marge.',
     'product_schema_desc' => 'Logiciel de gestion de projets, de suivi du temps, de facturation et de pilotage de la rentabilité pour les entreprises de services.',
@@ -3576,7 +3576,7 @@ return [
 
     // Confidentialité
     'privacy_meta_title' => 'Politique de confidentialité | DalyTrac',
-    'privacy_meta_desc' => 'Politique de confidentialité DalyTrac : données collectées, finalités, bases juridiques, durées de conservation, destinataires, transferts, sécurité et vos droits RGPD.',
+    'privacy_meta_desc' => 'Découvrez comment DalyTrac collecte, utilise et protège vos données personnelles, ainsi que vos droits et les durées de conservation.',
     'privacy_og_title' => 'Politique de confidentialité | DalyTrac',
     'privacy_og_desc' => 'Quelles données personnelles peuvent être traitées dans le cadre du site, du compte et de l’utilisation de DalyTrac.',
     'privacy_eyebrow' => 'Protection des données',
@@ -3890,4 +3890,6 @@ return [
     'auth_register_card_invoices_value' => 'Simplifiée',
     'auth_register_card_planning_label' => 'Planning & tâches',
     'auth_register_card_planning_value' => 'Organisés',
+    'seo_blog_title' => 'Blog DalyTrac : facturation, projets et suivi du temps',
+    'demo_videos_unavailable' => 'Les vidéos de démonstration seront bientôt disponibles. Contactez-nous pour découvrir DalyTrac.',
 ];

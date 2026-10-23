@@ -17,7 +17,10 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
-/tests
+/tests/**
+!/tests/Feature/
+!/tests/Feature/PublicSeoTest.php
+!/tests/Feature/HomeMobilePageTest.php
 /public/entreprise_images
 /public/employee_images
 /public/devis

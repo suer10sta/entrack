@@ -4,20 +4,7 @@
     <x-favicon />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ __('messages.Blog | DalyTrac') }}</title>
-    <meta name="description" content="{{ __('messages.Practical articles on e-invoicing, project management, time tracking and running a modern services business with DalyTrac.') }}">
-    <meta name="robots" content="index,follow">
-    <link rel="canonical" href="{{ route('blog.index') }}">
-
-    <meta property="og:title" content="{{ __('messages.Blog | DalyTrac') }}">
-    <meta property="og:description" content="{{ __('messages.Tips and best practices for using DalyTrac to manage invoices, projects and teams.') }}">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ route('blog.index') }}">
-    <meta property="og:image" content="{{ asset('img/background_hero.png') }}">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ __('messages.Blog | DalyTrac') }}">
-    <meta name="twitter:description" content="{{ __('messages.Guides and updates about DalyTrac and business operations.') }}">
+    <x-seo :title="__('messages.seo_blog_title')" :description="__('messages.Practical articles on e-invoicing, project management, time tracking and running a modern services business with DalyTrac.')" />
 
     @vite('resources/css/app.css')
     <link rel="stylesheet" href="{{ asset('welcome/css/aos.css') }}" />
@@ -61,7 +48,7 @@
                     </p>
                   @endif
                   <a href="{{ route('blog.show', $post->slug) }}" class="text-sm font-semibold text-primary hover:text-primary/80">
-                    {{ __('messages.Read more') }} →
+                    {{ __('messages.Read more') }}<span class="sr-only"> : {{ $post->title }}</span> â†’
                   </a>
                 </article>
               @endforeach

@@ -2,49 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Route;
+use App\Models\Post;
+use App\Support\Seo;
 
 class SitemapController extends Controller
 {
-    /**
-     * Basic XML sitemap for main public marketing pages.
-     */
-    public function index()
+    public function __invoke()
     {
-        $urls = [
-            route('welcome'),
-            route('produit'),
-            route('tarifs'),
-            route('mentions-legales'),
-            route('confidentialite'),
-            route('cookies'),
-            route('cgu'),
-            route('cgv'),
-            route('about'),
-            route('faq'),
-            route('demo'),
-            route('contact'),
-            route('blog.index'),
-        ];
-
-        $lastmod = now()->toAtomString();
-
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
-
-        foreach ($urls as $url) {
-            $xml .= '  <url>' . "\n";
-            $xml .= '    <loc>' . e($url) . '</loc>' . "\n";
-            $xml .= '    <lastmod>' . $lastmod . '</lastmod>' . "\n";
-            $xml .= '    <changefreq>weekly</changefreq>' . "\n";
-            $xml .= '    <priority>0.8</priority>' . "\n";
-            $xml .= '  </url>' . "\n";
+        $xml = new \DOMDocument('1.0', 'UTF-8');
+        $xml->formatOutput = true;
+        $root = $xml->appendChild($xml->createElementNS('http://www.sitemaps.org/schemas/sitemap/0.9', 'urlset'));
+        $append = function (string $url, ?string $lastmod = null) use ($xml, $root) {
+            $entry = $root->appendChild($xml->createElement('url'));
+            $entry->appendChild($xml->createElement('loc'))->appendChild($xml->createTextNode($url));
+            if ($lastmod) {
+                $entry->appendChild($xml->createElement('lastmod'))->appendChild($xml->createTextNode($lastmod));
+            }
+        };
+        foreach (array_keys(config('seo.pages')) as $name) {
+            foreach (config('seo.locales') as $locale) {
+                $append(Seo::url($name, $locale));
+            }
         }
-
-        $xml .= '</urlset>';
-
-        return response($xml, 200)->header('Content-Type', 'application/xml');
+        foreach (Post::published()->orderBy('id')->cursor() as $post) {
+            $append(Seo::url('blog.show', null, ['post' => $post->slug]), $post->updated_at?->toAtomString());
+        }
+        return response($xml->saveXML(), 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
     }
 }
-
-

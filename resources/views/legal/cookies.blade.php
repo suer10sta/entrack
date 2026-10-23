@@ -6,17 +6,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{ __('messages.cookies_meta_title') }}</title>
-    <meta name="description" content="{{ __('messages.cookies_meta_desc') }}">
-    <meta name="robots" content="index,follow">
+    <x-seo :title="__('messages.cookies_meta_title')" :description="__('messages.cookies_meta_desc')" />
     <meta name="theme-color" content="#0b2638">
-    <link rel="canonical" href="{{ route('cookies') }}">
-
-
-    <meta property="og:title" content="{{ __('messages.cookies_meta_title') }}">
-    <meta property="og:description" content="{{ __('messages.cookies_meta_desc') }}">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ route('cookies') }}">
 
     <!-- Vite Assets (Tailwind CSS) -->
     @vite('resources/css/app.css')

@@ -6,29 +6,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{ __('messages.Logiciel de gestion de projets, temps et facturation | Dalytrac') }}</title>
-    <meta name="description" content="{{ __('messages.Dalytrac centralise projets, suivi du temps et facturation pour aider les entreprises de services à détecter les dérapages et protéger leurs marges.') }}">
-    <meta name="robots" content="index,follow">
+    <x-seo :title="__('messages.Logiciel de gestion de projets, temps et facturation | Dalytrac')" :description="__('messages.Dalytrac centralise projets, suivi du temps et facturation pour aider les entreprises de services à détecter les dérapages et protéger leurs marges.')" />
     <meta name="theme-color" content="#0b2638">
-    <link rel="canonical" href="{{ route('welcome') }}">
 
-
-    <meta property="og:title" content="{{ __('messages.Logiciel de gestion de projets, temps et facturation | Dalytrac') }}">
-    <meta property="og:description" content="{{ __('messages.Dalytrac centralise projets, suivi du temps et facturation pour aider les entreprises de services à détecter les dérapages et protéger leurs marges.') }}">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ route('welcome') }}">
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "Dalytrac",
-        "applicationCategory": "BusinessApplication",
-        "operatingSystem": "Web",
-        "url": "{{ route('welcome') }}",
-        "description": "All-in-one platform for project management, time tracking and invoicing for service companies."
-      }
-    </script>
+    <x-json-ld :data="['@context' => 'https://schema.org', '@type' => 'SoftwareApplication', '@id' => config('seo.url') . '/#software', 'name' => 'DalyTrac', 'applicationCategory' => 'BusinessApplication', 'operatingSystem' => 'Web', 'url' => \App\Support\Seo::url('welcome'), 'description' => __('messages.Dalytrac centralise projets, suivi du temps et facturation pour aider les entreprises de services à détecter les dérapages et protéger leurs marges.')]" />
 
     <!-- Vite Assets (Tailwind CSS) -->
     @vite('resources/css/app.css')

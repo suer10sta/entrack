@@ -48,6 +48,17 @@ class LangController extends Controller
         // Set locale for current request
         App::setLocale($lang);
         
+        // Old language-switch links still lead to the equivalent stable public URL.
+        $previous = parse_url(url()->previous(), PHP_URL_PATH) ?: '/';
+        $path = trim($previous, '/');
+        if (preg_match('#^/(fr|en|nl|es)(/.*)?$#', $previous, $matches)) {
+            $path = trim($matches[2] ?? '', '/');
+        }
+        $name = array_search($path, config('seo.pages'), true);
+        if ($name !== false) {
+            return redirect()->route($name, ['locale' => $lang]);
+        }
+
         return redirect()->back();
     }
 }

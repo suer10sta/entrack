@@ -4,20 +4,7 @@
     <x-favicon />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ $post->title }} | DalyTrac Blog</title>
-    <meta name="description" content="{{ $post->excerpt ?: Str::limit(strip_tags($post->body), 150) }}">
-    <meta name="robots" content="index,follow">
-    <link rel="canonical" href="{{ route('blog.show', $post->slug) }}">
-
-    <meta property="og:title" content="{{ $post->title }} | DalyTrac Blog">
-    <meta property="og:description" content="{{ $post->excerpt ?: Str::limit(strip_tags($post->body), 150) }}">
-    <meta property="og:type" content="article">
-    <meta property="og:url" content="{{ route('blog.show', $post->slug) }}">
-    <meta property="og:image" content="{{ asset('img/background_hero.png') }}">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $post->title }} | DalyTrac Blog">
-    <meta name="twitter:description" content="{{ $post->excerpt ?: Str::limit(strip_tags($post->body), 150) }}">
+    <x-seo :title="$post->title . ' | DalyTrac Blog'" :description="Str::limit(preg_replace('/\s+/u', ' ', strip_tags($post->excerpt ?: $post->body)), 155)" type="article" :image="\App\Support\Seo::postImage($post)" />
 
     @vite('resources/css/app.css')
     <link rel="stylesheet" href="{{ asset('welcome/css/aos.css') }}" />

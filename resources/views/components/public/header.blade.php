@@ -11,7 +11,7 @@
 
 <header id="top" x-data="{ open: false }" class="sticky top-0 z-50 border-b border-[#d9e6ed]/90 bg-white/95 backdrop-blur-md">
   <div class="dt-public-header-row mx-auto flex min-h-[82px] max-w-[1200px] items-center gap-9 px-6 max-md:min-h-[72px] max-md:px-4">
-    <a href="/" aria-label="{{ __('messages.DalyTrac, accueil') }}" class="inline-flex items-baseline text-[1.65rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><x-application-logo /></a>
+    <a href="{{ route('welcome') }}" aria-label="{{ __('messages.DalyTrac, accueil') }}" class="inline-flex items-baseline text-[1.65rem] font-extrabold tracking-[-0.065em] text-brand-primary no-underline max-sm:text-[1.42rem]"><x-application-logo /></a>
 
     <button type="button" @click="open = !open" :aria-expanded="open.toString()" aria-controls="{{ $compactMobile ? 'home-mobile-nav' : 'main-nav' }}" class="dt-public-menu-toggle hidden border-0 bg-transparent p-2 text-brand-primary max-md:block" aria-label="{{ __('messages.public_nav_mobile_menu') }}">
       <span class="sr-only">{{ __('messages.public_nav_mobile_menu') }}</span>
@@ -50,19 +50,19 @@
         </button>
 
         <div x-show="localeOpen" x-cloak x-transition class="absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl border border-[#dce6e4] bg-white shadow-[0_16px_36px_rgba(7,27,50,0.12)]">
-          <a href="{{ route('changeLang', ['lang' => 'en']) }}" class="flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-[#3d5866] transition hover:bg-[#f3f7f6] {{ app()->getLocale() === 'en' ? 'bg-[#edf5f4] text-brand-primary' : '' }}">
+          <a href="{{ \App\Support\Seo::languageLink('en') }}" class="flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-[#3d5866] transition hover:bg-[#f3f7f6] {{ app()->getLocale() === 'en' ? 'bg-[#edf5f4] text-brand-primary' : '' }}">
             <span class="flex items-center gap-2"><img src="https://flagcdn.com/gb.svg" alt="English" class="h-3.5 w-5 rounded-sm object-cover"> {{ __('messages.English') }}</span>
             @if(app()->getLocale() === 'en')<i data-lucide="check" class="h-4 w-4"></i>@endif
           </a>
-          <a href="{{ route('changeLang', ['lang' => 'fr']) }}" class="flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-[#3d5866] transition hover:bg-[#f3f7f6] {{ app()->getLocale() === 'fr' ? 'bg-[#edf5f4] text-brand-primary' : '' }}">
+          <a href="{{ \App\Support\Seo::languageLink('fr') }}" class="flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-[#3d5866] transition hover:bg-[#f3f7f6] {{ app()->getLocale() === 'fr' ? 'bg-[#edf5f4] text-brand-primary' : '' }}">
             <span class="flex items-center gap-2"><img src="https://flagcdn.com/fr.svg" alt="Français" class="h-3.5 w-5 rounded-sm object-cover"> {{ __('messages.Français') }}</span>
             @if(app()->getLocale() === 'fr')<i data-lucide="check" class="h-4 w-4"></i>@endif
           </a>
-          <a href="{{ route('changeLang', ['lang' => 'es']) }}" class="flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-[#3d5866] transition hover:bg-[#f3f7f6] {{ app()->getLocale() === 'es' ? 'bg-[#edf5f4] text-brand-primary' : '' }}">
+          <a href="{{ \App\Support\Seo::languageLink('es') }}" class="flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-[#3d5866] transition hover:bg-[#f3f7f6] {{ app()->getLocale() === 'es' ? 'bg-[#edf5f4] text-brand-primary' : '' }}">
             <span class="flex items-center gap-2"><img src="https://flagcdn.com/es.svg" alt="Español" class="h-3.5 w-5 rounded-sm object-cover"> {{ __('messages.Español') }}</span>
             @if(app()->getLocale() === 'es')<i data-lucide="check" class="h-4 w-4"></i>@endif
           </a>
-          <a href="{{ route('changeLang', ['lang' => 'nl']) }}" class="flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-[#3d5866] transition hover:bg-[#f3f7f6] {{ app()->getLocale() === 'nl' ? 'bg-[#edf5f4] text-brand-primary' : '' }}">
+          <a href="{{ \App\Support\Seo::languageLink('nl') }}" class="flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-[#3d5866] transition hover:bg-[#f3f7f6] {{ app()->getLocale() === 'nl' ? 'bg-[#edf5f4] text-brand-primary' : '' }}">
             <span class="flex items-center gap-2"><img src="https://flagcdn.com/be.svg" alt="Nederlands" class="h-3.5 w-5 rounded-sm object-cover"> {{ __('messages.Nederlands') }}</span>
             @if(app()->getLocale() === 'nl')<i data-lucide="check" class="h-4 w-4"></i>@endif
           </a>
@@ -84,7 +84,7 @@
     @if($compactMobile)
       <div class="dt-home-mobile-languages" aria-label="{{ __('messages.Language') }}">
         @foreach(['en' => ['gb', 'English'], 'fr' => ['fr', 'Français'], 'nl' => ['be', 'Nederlands'], 'es' => ['es', 'Español']] as $locale => [$flag, $label])
-          <a href="{{ route('changeLang', ['lang' => $locale]) }}" @if(app()->getLocale() === $locale) aria-current="true" @endif>
+          <a href="{{ \App\Support\Seo::languageLink($locale) }}" @if(app()->getLocale() === $locale) aria-current="true" @endif>
             <img src="https://flagcdn.com/{{ $flag }}.svg" alt="" width="20" height="14">
             {{ __('messages.' . $label) }}
           </a>

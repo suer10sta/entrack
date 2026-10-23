@@ -4,22 +4,8 @@
     <x-favicon />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ __('messages.Watch Demo') }} | DalyTrac</title>
-    <meta name="description" content="{{ __('messages.Watch DalyTrac demo videos to see how our platform handles dashboards, invoices, projects, time tracking, expenses, clients and more.') }}">
-    <meta name="robots" content="index,follow">
+    <x-seo :title="__('messages.Watch Demo') . ' | DalyTrac'" :description="__('messages.Watch DalyTrac demo videos to see how our platform handles dashboards, invoices, projects, time tracking, expenses, clients and more.')" />
     <meta name="theme-color" content="#0b2638">
-    <link rel="canonical" href="{{ route('demo') }}">
-
-
-    <meta property="og:title" content="{{ __('messages.Watch Demo') }} | DalyTrac">
-    <meta property="og:description" content="{{ __('messages.Explore DalyTrac feature demos and discover how to streamline your business operations end‑to‑end.') }}">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ route('demo') }}">
-    <meta property="og:image" content="{{ asset('img/background_hero.png') }}">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ __('messages.Watch Demo') }} | DalyTrac">
-    <meta name="twitter:description" content="{{ __('messages.See DalyTrac in action across invoicing, projects, time tracking, calendar and more.') }}">
 
     @vite('resources/css/app.css')
 
@@ -35,6 +21,11 @@
   <body class="bg-white font-normal text-[#1b3444] antialiased">
     <x-public.header />
 
+    @php
+      $availableVideos = collect(config('demo.videos'))->filter(fn ($label, $file) => is_file(public_path('videos/' . $file)));
+      $firstVideo = $availableVideos->keys()->first();
+      $playlistData = collect(config('demo.videos'))->map(fn ($label, $file) => ['src' => is_file(public_path('videos/' . $file)) ? asset('videos/' . $file) : null, 'name' => __('messages.' . $label)])->values();
+    @endphp
     <main id="main">
       {{-- Hero Section --}}
       <section class="bg-[#f8faf9] pb-12 pt-16 max-md:pt-12">
@@ -49,6 +40,12 @@
         </div>
       </section>
 
+      @if($availableVideos->isEmpty())
+      <section class="bg-[#f8faf9] px-6 pb-20 text-center">
+        <p>{{ __('messages.demo_videos_unavailable') }}</p>
+        <a href="{{ route('contact') }}" class="font-semibold text-brand-secondary">{{ __('messages.Contact Us') }}</a>
+      </section>
+      @else
       {{-- Video + Playlist --}}
       <section class="bg-[#f8faf9] pb-20 pt-4 max-md:pb-14">
         <div class="mx-auto max-w-[1200px] px-6 max-md:px-4">
@@ -64,7 +61,7 @@
                     autoplay
                     class="h-full w-full"
                   >
-                    <source src="{{ asset('videos/DashboardDemo.mp4') }}" type="video/mp4">
+                    <source src="{{ asset('videos/' . $firstVideo) }}" type="video/mp4">
                     {{ __('messages.Your browser does not support the video tag.') }}
                   </video>
                 </div>
@@ -120,7 +117,7 @@
                         loop
                         playsinline
                       >
-                        <source src="{{ asset('videos/DashboardDemo.mp4') }}" type="video/mp4">
+                        @if(is_file(public_path('videos/DashboardDemo.mp4')))<source src="{{ asset('videos/DashboardDemo.mp4') }}" type="video/mp4">@endif
                       </video>
                       <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
                         <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
@@ -145,7 +142,7 @@
                         loop
                         playsinline
                       >
-                        <source src="{{ asset('videos/InvoiceDemo.mp4') }}" type="video/mp4">
+                        @if(is_file(public_path('videos/InvoiceDemo.mp4')))<source src="{{ asset('videos/InvoiceDemo.mp4') }}" type="video/mp4">@endif
                       </video>
                       <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
                         <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
@@ -170,7 +167,7 @@
                         loop
                         playsinline
                       >
-                        <source src="{{ asset('videos/DevisDemo.mp4') }}" type="video/mp4">
+                        @if(is_file(public_path('videos/DevisDemo.mp4')))<source src="{{ asset('videos/DevisDemo.mp4') }}" type="video/mp4">@endif
                       </video>
                       <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
                         <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
@@ -195,7 +192,7 @@
                         loop
                         playsinline
                       >
-                        <source src="{{ asset('videos/Projects_TasksDemo.mp4') }}" type="video/mp4">
+                        @if(is_file(public_path('videos/Projects_TasksDemo.mp4')))<source src="{{ asset('videos/Projects_TasksDemo.mp4') }}" type="video/mp4">@endif
                       </video>
                       <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
                         <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
@@ -220,7 +217,7 @@
                         loop
                         playsinline
                       >
-                        <source src="{{ asset('videos/TimeTrackerDemo.mp4') }}" type="video/mp4">
+                        @if(is_file(public_path('videos/TimeTrackerDemo.mp4')))<source src="{{ asset('videos/TimeTrackerDemo.mp4') }}" type="video/mp4">@endif
                       </video>
                       <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
                         <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
@@ -245,7 +242,7 @@
                         loop
                         playsinline
                       >
-                        <source src="{{ asset('videos/ExpenseDemo.mp4') }}" type="video/mp4">
+                        @if(is_file(public_path('videos/ExpenseDemo.mp4')))<source src="{{ asset('videos/ExpenseDemo.mp4') }}" type="video/mp4">@endif
                       </video>
                       <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
                         <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
@@ -270,7 +267,7 @@
                         loop
                         playsinline
                       >
-                        <source src="{{ asset('videos/ClientDemo.mp4') }}" type="video/mp4">
+                        @if(is_file(public_path('videos/ClientDemo.mp4')))<source src="{{ asset('videos/ClientDemo.mp4') }}" type="video/mp4">@endif
                       </video>
                       <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
                         <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
@@ -295,7 +292,7 @@
                         loop
                         playsinline
                       >
-                        <source src="{{ asset('videos/EmployeesDemo.mp4') }}" type="video/mp4">
+                        @if(is_file(public_path('videos/EmployeesDemo.mp4')))<source src="{{ asset('videos/EmployeesDemo.mp4') }}" type="video/mp4">@endif
                       </video>
                       <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
                         <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
@@ -320,7 +317,7 @@
                         loop
                         playsinline
                       >
-                        <source src="{{ asset('videos/PlanningDemo.mp4') }}" type="video/mp4">
+                        @if(is_file(public_path('videos/PlanningDemo.mp4')))<source src="{{ asset('videos/PlanningDemo.mp4') }}" type="video/mp4">@endif
                       </video>
                       <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
                         <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
@@ -345,7 +342,7 @@
                         loop
                         playsinline
                       >
-                        <source src="{{ asset('videos/DayDemo.mp4') }}" type="video/mp4">
+                        @if(is_file(public_path('videos/DayDemo.mp4')))<source src="{{ asset('videos/DayDemo.mp4') }}" type="video/mp4">@endif
                       </video>
                       <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
                         <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
@@ -362,6 +359,8 @@
           </div>
         </div>
       </section>
+
+      @endif
 
       {{-- CTA --}}
       <section class="bg-brand-primary py-16 max-md:py-12">
@@ -415,22 +414,19 @@
     <script>
       // Video Playlist Functions
       let currentPlaylistIndex = 0;
-      const playlistVideos = [
-        { src: '{{ asset("videos/DashboardDemo.mp4") }}', name: {!! json_encode(__('messages.Dashboard Overview')) !!} },
-        { src: '{{ asset("videos/InvoiceDemo.mp4") }}', name: {!! json_encode(__('messages.Invoice Management')) !!} },
-        { src: '{{ asset("videos/DevisDemo.mp4") }}', name: {!! json_encode(__('messages.Quotes & Devis to Invoice')) !!} },
-        { src: '{{ asset("videos/Projects_TasksDemo.mp4") }}', name: {!! json_encode(__('messages.Project & Task Management')) !!} },
-        { src: '{{ asset("videos/TimeTrackerDemo.mp4") }}', name: {!! json_encode(__('messages.Time Tracking')) !!} },
-        { src: '{{ asset("videos/ExpenseDemo.mp4") }}', name: {!! json_encode(__('messages.Expense Management')) !!} },
-        { src: '{{ asset("videos/ClientDemo.mp4") }}', name: {!! json_encode(__('messages.Client Management')) !!} },
-        { src: '{{ asset("videos/EmployeesDemo.mp4") }}', name: {!! json_encode(__('messages.Team & Employee Management')) !!} },
-        { src: '{{ asset("videos/PlanningDemo.mp4") }}', name: {!! json_encode(__('messages.Calendar & Events')) !!} },
-        { src: '{{ asset("videos/DayDemo.mp4") }}', name: {!! json_encode(__('messages.Day in the Life')) !!} }
-      ];
+      const playlistVideos = @json($playlistData);
 
       // Initialize: Play first video on load
       document.addEventListener('DOMContentLoaded', function() {
-        playPlaylistVideo(0);
+        document.querySelectorAll('.playlist-item').forEach((item, index) => {
+          if (!playlistVideos[index].src) {
+            item.removeAttribute('onclick');
+            item.setAttribute('aria-disabled', 'true');
+            item.classList.add('opacity-50');
+          }
+        });
+        const first = playlistVideos.findIndex(item => item.src);
+        if (first >= 0) playPlaylistVideo(first);
 
         // Auto-play thumbnail videos on hover
         const playlistItems = document.querySelectorAll('.playlist-item');
@@ -438,7 +434,7 @@
           const thumbnailVideo = item.querySelector('video');
           if (thumbnailVideo) {
             item.addEventListener('mouseenter', function() {
-              thumbnailVideo.play();
+              thumbnailVideo.play().catch(() => {});
             });
             item.addEventListener('mouseleave', function() {
               thumbnailVideo.pause();
@@ -454,7 +450,7 @@
         const playlistItems = document.querySelectorAll('.playlist-item');
         const videoTitle = document.getElementById('current-video-title');
 
-        if (video && playlistVideos[index]) {
+        if (video && playlistVideos[index] && playlistVideos[index].src) {
           // Update video source
           video.innerHTML = '<source src="' + playlistVideos[index].src + '" type="video/mp4">';
           video.load();
@@ -477,19 +473,18 @@
           updatePlaylistNavigation();
 
           // Play video
-          video.play();
+          video.play().catch(() => {});
         }
       }
 
       function playNextVideo() {
-        if (currentPlaylistIndex < playlistVideos.length - 1) {
-          playPlaylistVideo(currentPlaylistIndex + 1);
-        }
+        const next = playlistVideos.findIndex((item, index) => index > currentPlaylistIndex && item.src);
+        if (next >= 0) playPlaylistVideo(next);
       }
 
       function playPreviousVideo() {
-        if (currentPlaylistIndex > 0) {
-          playPlaylistVideo(currentPlaylistIndex - 1);
+        for (let index = currentPlaylistIndex - 1; index >= 0; index--) {
+          if (playlistVideos[index].src) { playPlaylistVideo(index); break; }
         }
       }
 
@@ -499,10 +494,10 @@
         const currentNumber = document.getElementById('current-video-number');
         const totalVideos = document.getElementById('total-videos');
 
-        if (prevBtn) prevBtn.disabled = currentPlaylistIndex === 0;
-        if (nextBtn) nextBtn.disabled = currentPlaylistIndex === playlistVideos.length - 1;
-        if (currentNumber) currentNumber.textContent = currentPlaylistIndex + 1;
-        if (totalVideos) totalVideos.textContent = playlistVideos.length;
+        if (prevBtn) prevBtn.disabled = !playlistVideos.some((item, index) => index < currentPlaylistIndex && item.src);
+        if (nextBtn) nextBtn.disabled = !playlistVideos.some((item, index) => index > currentPlaylistIndex && item.src);
+        if (currentNumber) currentNumber.textContent = playlistVideos.slice(0, currentPlaylistIndex + 1).filter(item => item.src).length;
+        if (totalVideos) totalVideos.textContent = playlistVideos.filter(item => item.src).length;
       }
     </script>
   </body>

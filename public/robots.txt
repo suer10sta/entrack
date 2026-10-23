@@ -1,2 +1,4 @@
 User-agent: *
 Disallow:
+
+Sitemap: https://dalytrac.com/sitemap.xml

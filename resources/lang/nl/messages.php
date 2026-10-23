@@ -2793,7 +2793,7 @@ return [
     'public_faq_contact_link' => 'Contact met DalyTrac',
     'public_faq_no_result' => 'Geen antwoord gevonden. Probeer een ander woord of',
     'public_faq_no_result_link' => 'neem contact op met DalyTrac',
-    'public_faq_page_meta_title' => 'Veelgestelde vragen over DalyTrac: gratis proef, tijdregistratie en abonnementen',
+    'public_faq_page_meta_title' => 'DalyTrac FAQ: gratis proef, tijdregistratie en plannen',
     'public_faq_page_meta_desc' => 'Antwoorden op veelgestelde vragen over DalyTrac: registratie, gratis proef van 15 dagen, projectbeheer, tijdregistratie, facturatie en abonnementen.',
     'public_faq_page_og_title' => 'Veelgestelde vragen over DalyTrac: gratis proef, tijdregistratie en abonnementen',
     'public_faq_page_og_desc' => 'Antwoorden op veelgestelde vragen over DalyTrac: registratie, gratis proef van 15 dagen, projectbeheer, tijdregistratie, facturatie en abonnementen.',
@@ -2918,7 +2918,7 @@ return [
     'public_pricing_faq_a2' => 'Ja. De proef staat een onbeperkt aantal gebruikers toe gedurende 15 dagen.',
     'public_pricing_faq_q3' => 'Verschillen de functies per prijs?',
     'public_pricing_faq_a3' => 'Nee. Volgens het huidige DalyTrac-aanbod zijn de functies in Solo, Premium en Pro dezelfde. Alleen het aantal gebruikers verschilt.',
-    'public_pricing_meta_title' => 'DalyTrac-prijzen: Solo, Premium en Pro | Projectbeheersoftware',
+    'public_pricing_meta_title' => 'DalyTrac-prijzen: Solo, Premium en Pro',
     'public_pricing_meta_desc' => 'Vergelijk de DalyTrac-prijzen: Solo voor € 19, Premium voor € 49 en Pro voor € 99 per maand. Alle functies inbegrepen. Volledige gratis proef van 15 dagen.',
     'public_pricing_og_title' => 'DalyTrac-prijzen: Solo, Premium en Pro',
     'public_pricing_og_desc' => 'Solo voor € 19, Premium voor € 49 en Pro voor € 99 per maand. Alle functies inbegrepen, gratis proef van 15 dagen.',
@@ -3014,7 +3014,7 @@ return [
     'cookie_banner_learn_more' => 'Meer informatie',
 
     'cgu_meta_title' => 'Gebruiksvoorwaarden | DalyTrac',
-    'cgu_meta_desc' => 'Gebruiksvoorwaarden van DalyTrac: toegang tot site en account, gratis proefperiode van 15 dagen, Solo-, Premium- en Pro-abonnementen, beschikbaarheid, intellectuele eigendom en aansprakelijkheid.',
+    'cgu_meta_desc' => 'DalyTrac-gebruiksvoorwaarden: accounttoegang, gratis proef, abonnementen, beschikbaarheid, intellectuele eigendom en aansprakelijkheid.',
     'cgu_kicker' => 'Gebruikerskader',
     'cgu_title' => 'Algemene gebruiksvoorwaarden',
     'cgu_lead' => 'Regels voor de toegang tot de site, het account en de functies van DalyTrac.',
@@ -3722,4 +3722,6 @@ return [
     'auth_register_card_invoices_value' => 'Vereenvoudigd',
     'auth_register_card_planning_label' => 'Planning & taken',
     'auth_register_card_planning_value' => 'Georganiseerd',
+    'seo_blog_title' => 'DalyTrac-blog: facturatie, projecten en tijdregistratie',
+    'demo_videos_unavailable' => 'Demovideo’s zijn binnenkort beschikbaar. Neem contact op om DalyTrac te ontdekken.',
 ];

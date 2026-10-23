@@ -6,35 +6,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{ __('messages.Contact | DalyTrac') }}</title>
-    <meta name="description"
-        content="{{ __('messages.Contact the DalyTrac team with questions about pricing, onboarding, features or support. We’ll respond as quickly as possible.') }}">
-    <meta name="robots" content="index,follow">
-    <link rel="canonical" href="{{ route('contact') }}">
-
-    <meta property="og:title" content="{{ __('messages.Contact | DalyTrac') }}">
-    <meta property="og:description"
-        content="{{ __('messages.Reach out to DalyTrac for help with invoicing, projects, time tracking and account support.') }}">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ route('contact') }}">
-    <meta property="og:image" content="{{ asset('img/background_hero.png') }}">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ __('messages.Contact | DalyTrac') }}">
-    <meta name="twitter:description" content="{{ __('messages.Send a message to the DalyTrac support and sales team.') }}">
+    <x-seo :title="__('messages.Contact | DalyTrac')" :description="__('messages.Contact the DalyTrac team with questions about pricing, onboarding, features or support. We’ll respond as quickly as possible.')" />
 
     <!-- Fonts & CSS -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
     {{--
-    <link rel="stylesheet" href="welcome/css/bootstrap.min.css"> --}}
-    <link rel="stylesheet" href="welcome/css/aos.css">
-    <link rel="stylesheet" href="welcome/css/owl.carousel.min.css">
-    <link rel="stylesheet" href="welcome/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="{{ asset('welcome/css/bootstrap.min.css') }}"> --}}
+    <link rel="stylesheet" href="{{ asset('welcome/css/aos.css') }}">
+    <link rel="stylesheet" href="{{ asset('welcome/css/owl.carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('welcome/css/owl.theme.default.min.css') }}">
     {{--
     <link href="{{ asset('css/app.css') }}" rel="stylesheet"> --}}
     @vite('resources/css/app.css')
-    <link rel="stylesheet" href="welcome/css/templatemo-digital-trend.css">
+    <link rel="stylesheet" href="{{ asset('welcome/css/templatemo-digital-trend.css') }}">
 
     <style>
         input:focus,
@@ -63,7 +48,7 @@
                     <section class="px-5 py-7 sm:px-8 lg:px-10 lg:py-10">
                         <div class="mx-auto max-w-[560px]">
                             <div class="mb-7">
-                                <h2 class="text-[2rem] font-bold leading-[1.1] tracking-[-0.05em] text-[#0B2638]">{{ __('messages.Contact Us') }}</h2>
+                                <h1 class="text-[2rem] font-bold leading-[1.1] tracking-[-0.05em] text-[#0B2638]">{{ __('messages.Contact Us') }}</h1>
                                 <p class="mt-2 text-[0.95rem] leading-7 text-[#5b6b73]">
                                     {{ __('messages.Have a question or need assistance? We\'d love to hear from you. Fill out the form below and we\'ll get back to you as soon as possible.') }}
                                 </p>

@@ -4,20 +4,7 @@
     <x-favicon />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ __('messages.About Us') }} | DalyTrac</title>
-    <meta name="description" content="{{ __('messages.Learn about DalyTrac, the all‑in‑one business management platform that unifies invoices, projects, teams and finances into one calm, powerful workspace.') }}">
-    <meta name="robots" content="index,follow">
-    <link rel="canonical" href="{{ route('about') }}">
-
-    <meta property="og:title" content="{{ __('messages.About Us') }} | DalyTrac">
-    <meta property="og:description" content="{{ __('messages.Discover the story, mission and values behind DalyTrac and how we help teams simplify operations, invoicing and time tracking.') }}">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ route('about') }}">
-    <meta property="og:image" content="{{ asset('img/background_hero.png') }}">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ __('messages.About Us') }} | DalyTrac">
-    <meta name="twitter:description" content="{{ __('messages.DalyTrac connects your invoices, projects and people in a single, unified platform.') }}">
+    <x-seo :title="__('messages.About Us') . ' | DalyTrac'" :description="__('messages.Learn about DalyTrac, the all‑in‑one business management platform that unifies invoices, projects, teams and finances into one calm, powerful workspace.')" />
 
     <link rel="preconnect" href="https://fonts.bunny.net" />
     <link
@@ -25,7 +12,7 @@
       rel="stylesheet"
     />
     @vite('resources/css/app.css')
-    <link rel="stylesheet" href="welcome/css/aos.css" />
+    <link rel="stylesheet" href="{{ asset('welcome/css/aos.css') }}" />
     <!-- This script is for the "fas fa-arrow-right" icon in your CTA button -->
     <script
       src="https://kit.fontawesome.com/a076d05399.js"
@@ -350,7 +337,7 @@
                 {{ __('messages.About Personalized Body') }}
             </p>
 
-            <a href="/contact" class="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground font-bold rounded-lg shadow-lg shadow-primary/20 hover:bg-primary/90 hover:-translate-y-1 transition-all duration-300">
+            <a href="{{ route('contact') }}" class="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground font-bold rounded-lg shadow-lg shadow-primary/20 hover:bg-primary/90 hover:-translate-y-1 transition-all duration-300">
                 <span>{{ __('messages.About Personalized CTA') }}</span>
                 <i class="fas fa-arrow-right"></i>
             </a>
@@ -361,7 +348,7 @@
 
     <x-public.footer />
 
-    <script src="welcome/js/aos.js"></script>
+    <script src="{{ asset('welcome/js/aos.js') }}"></script>
     <script>
       AOS.init({ duration: 800, once: true, offset: 50 });
     </script>

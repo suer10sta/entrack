@@ -31,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
 
         Paginator::useBootstrap();
         if (app()->environment('production') && str_starts_with(config('app.url'), 'https://')) {
+            \URL::forceRootUrl(config('seo.url'));
             \URL::forceScheme('https');
             Paginator::useTailwind();
         }

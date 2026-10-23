@@ -23,7 +23,7 @@ class BlogController extends Controller
      */
     public function show(Post $post)
     {
-        abort_unless($post->is_published, 404);
+        abort_unless(Post::published()->whereKey($post->getKey())->exists(), 404);
 
         return view('blog.show', compact('post'));
     }

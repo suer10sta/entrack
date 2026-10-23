@@ -6,17 +6,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{ __('messages.public_faq_page_meta_title') }}</title>
-    <meta name="description" content="{{ __('messages.public_faq_page_meta_desc') }}">
-    <meta name="robots" content="index,follow">
+    <x-seo :title="__('messages.public_faq_page_meta_title')" :description="__('messages.public_faq_page_meta_desc')" />
     <meta name="theme-color" content="#0b2638">
-    <link rel="canonical" href="{{ route('faq') }}">
-
-
-    <meta property="og:title" content="{{ __('messages.public_faq_page_og_title') }}">
-    <meta property="og:description" content="{{ __('messages.public_faq_page_og_desc') }}">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ route('faq') }}">
 
     @php
       $faqGroups = [
@@ -65,9 +56,7 @@
         ])->values()->all(),
       ];
     @endphp
-    <script type="application/ld+json">
-      {!! json_encode($faqLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
-    </script>
+    <x-json-ld :data="$faqLd" />
 
     <!-- Vite Assets (Tailwind CSS) -->
     @vite('resources/css/app.css')

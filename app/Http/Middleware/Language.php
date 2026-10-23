@@ -35,7 +35,14 @@ class Language
             $locale = 'fr';
         }
 
+        // Public URLs are authoritative; account/session preferences still apply elsewhere.
+        $urlLocale = $request->route('locale');
+        if (in_array($urlLocale, $supported, true)) {
+            $locale = $urlLocale;
+        }
+
         app()->setLocale($locale);
+        \Illuminate\Support\Facades\URL::defaults(['locale' => $locale]);
 
         // Keep session in sync so existing session-based language switch UI keeps working.
         if (session('locale') !== $locale) {

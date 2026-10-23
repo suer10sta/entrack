@@ -107,6 +107,9 @@ $trackPublicVisit = function () {
     }
 };
 
+require __DIR__ . '/seo.php';
+
+Route::prefix('{locale}')->where(['locale' => 'fr|en|nl|es'])->group(function () use ($trackPublicVisit) {
 Route::get('/', function () use ($trackPublicVisit) {
     $trackPublicVisit();
 
@@ -160,7 +163,7 @@ Route::get('/contact', function () {
     return view('components.Home_page.contact');
 })->name('contact');
 
-Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+
 
 Route::get('/about', function () {
     return view('components.Home_page.about');
@@ -175,6 +178,10 @@ Route::get('/demo', function () {
 })->name('demo');
 
 Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
+});
+
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+
 Route::get('/blog/{post:slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
 
 // Public chatbot endpoint for landing page assistant

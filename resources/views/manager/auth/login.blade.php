@@ -2,6 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
+    <meta name="robots" content="noindex,follow">
     <x-favicon />
     @include('partials.password-visibility')
     <meta charset="utf-8" />
