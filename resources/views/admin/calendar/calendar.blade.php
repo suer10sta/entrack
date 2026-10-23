@@ -793,9 +793,6 @@
             var taskShowRouteTemplate = @json($taskShowRouteTemplate);
             var projectShowRouteTemplate = @json($projectShowRouteTemplate);
 
-            // Currently selected filters
-            var selectedClientId = '';
-            var selectedEmployeeId = '';
             var allProjects = @json($projects);
             // Set moment.js locale for month/day names translation
             var currentLocale = @js(app()->getLocale());
@@ -1010,6 +1007,11 @@
                 originalColor = null; // Reset original color
             };
 
+            // Bind before initialization so initial rendering cannot prevent filter setup.
+            $('#filterClient, #filterEmployee').on('change', function () {
+                $('#calendar').fullCalendar('refetchEvents');
+            });
+
             var calendar = $('#calendar').fullCalendar({
                 header: {
                     left: 'prev,next today',
@@ -1069,7 +1071,7 @@
                     $('#deleteEvent').hide();
                     $viewTaskBtn.data('taskUrl', null).addClass('hidden');
                     $viewProjectBtn.data('projectUrl', null).addClass('hidden');
-                    $('.modal-title').text('Add Event');
+                    $('.modal-title').text(@js(__('messages.Add Event')));
                     
                     // Set start to clicked day at 09:00 and end at 10:00
                     var clickedDay = moment(date).startOf('day').hour(9).minute(0);
@@ -1111,7 +1113,7 @@
                             $('#deleteEvent').hide();
                             $viewTaskBtn.data('taskUrl', null).addClass('hidden');
                             $viewProjectBtn.data('projectUrl', null).addClass('hidden');
-                            $('.modal-title').text('Add Event');
+                            $('.modal-title').text(@js(__('messages.Add Event')));
                             
                             var clickedDay = startMoment.startOf('day').hour(9).minute(0);
                             var endTime = clickedDay.clone().add(1, 'hour');
@@ -1136,7 +1138,7 @@
                     $('#deleteEvent').hide();
                     $viewTaskBtn.data('taskUrl', null).addClass('hidden');
                     $viewProjectBtn.data('projectUrl', null).addClass('hidden');
-                    $('.modal-title').text('Add Event');
+                    $('.modal-title').text(@js(__('messages.Add Event')));
                     
                     // Use the selected times for range selection
                     var startMoment = moment(start);
@@ -1263,8 +1265,8 @@
                         url: calendarRoutePrefix + '/events',
                         type: 'GET',
                         data: {
-                            client_id: selectedClientId || '',
-                            employee_id: selectedEmployeeId || ''
+                            client_id: $('#filterClient').val() || '',
+                            employee_id: $('#filterEmployee').val() || ''
                         },
                         success: function (events) {
                             var view = $('#calendar').fullCalendar('getView');
@@ -1407,12 +1409,12 @@
                     // Add assigned employees below the event (if any)
                     if (event.employee_names && event.employee_names.length > 0) {
                         var employeesLabel = event.employee_names.join(', ');
-                        element.find('.fc-title(').after(`<div class="event-employees text-xs opacity-80 mt-0.5"><span class="font-bold">' + @js(__('messages.Employees label')) + '</span> ${employeesLabel}</div>`);
+                        element.find('.fc-title').after(`<div class="event-employees text-xs opacity-80 mt-0.5"><span class="font-bold">${@js(__('messages.Employees label'))}</span> ${employeesLabel}</div>`);
                     }
                 },
 
                 eventClick: function (event) {
-                    $(')#title').val(event.title);
+                    $('#title').val(event.title);
                     $('#description').val(event.description);
                     
                     // Store the original color from the event (use originalColor if available, otherwise color)
@@ -1508,7 +1510,7 @@
                             .addClass('hidden');
                     }
 
-                    $('.modal-title').text('Edit Event');
+                    $('.modal-title').text(@js(__('messages.Edit Event')));
                     $('#saveEvent').data('eventId', event.id);
                     $('#deleteEvent').data('eventId', event.id);
                     $('#deleteEvent').show();
@@ -1543,17 +1545,6 @@
                 }
             });
 
-            // Filter handlers
-            $('#filterClient').on('change', function () {
-                selectedClientId = $(this).val();
-                calendar.fullCalendar('refetchEvents');
-            });
-
-            $('#filterEmployee').on('change', function () {
-                selectedEmployeeId = $(this).val();
-                calendar.fullCalendar('refetchEvents');
-            });
-
             // Handle event saving
             $('#openEventModal').on('click', function () {
                 // Check permission before allowing event creation
@@ -1562,7 +1553,7 @@
                     return;
                 }
                 
-                $('.modal-title').text('Add Event');
+                $('.modal-title').text(@js(__('messages.Add Event')));
                 $('#eventForm')[0].reset();
                 $('input[name="employee_ids[]"]').prop('checked', false);
                 $("#color").spectrum("set", defaultEventColor);
@@ -1649,7 +1640,7 @@
                         $('#eventForm')[0].reset();
                         populateProjectOptions('', null);
                         populateTaskOptions('', null);
-                        $('.modal-title').text('Add Event');
+                        $('.modal-title').text(@js(__('messages.Add Event')));
                         $("#color").spectrum("set", defaultEventColor); // Reset color picker
                         $('#is_finished').prop('checked', false);
                     },
@@ -1695,7 +1686,7 @@
                         $('#eventForm')[0].reset();
                         populateProjectOptions('', null);
                         populateTaskOptions('', null);
-                        $('.modal-title').text('Add Event');
+                        $('.modal-title').text(@js(__('messages.Add Event')));
                         $("#color").spectrum("set", defaultEventColor);
                         $('#is_finished').prop('checked', false);
                     },
