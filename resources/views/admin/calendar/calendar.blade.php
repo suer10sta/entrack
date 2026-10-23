@@ -10,6 +10,51 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <style>
+        /* Compact planning toolbar; keep filters and actions together as space allows. */
+        .calendar-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 1rem;
+        }
+        .calendar-toolbar-filters {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+            flex: 1 1 360px;
+            max-width: 580px;
+            min-width: 0;
+        }
+        .calendar-toolbar-filters > div { min-width: 0; }
+        .calendar-toolbar-filters .ts-wrapper { width: 100%; min-width: 0; }
+        .calendar-toolbar-filters .ts-wrapper.single .ts-control {
+            min-height: 36px !important;
+            padding: 0.4rem 0.65rem !important;
+        }
+        .calendar-toolbar-filters select {
+            min-height: 36px;
+            padding: 0.4rem 0.65rem;
+        }
+        .calendar-toolbar-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-left: auto;
+        }
+        .calendar-toolbar-actions .dt-btn { min-height: 36px; }
+        @media (max-width: 639px) {
+            .calendar-toolbar-filters {
+                flex-basis: 100%;
+                max-width: none;
+            }
+            .calendar-toolbar-actions { width: 100%; }
+            .calendar-toolbar-actions .dt-btn { flex: 1 1 100%; }
+        }
+        @media (max-width: 399px) {
+            .calendar-toolbar-filters { grid-template-columns: minmax(0, 1fr); }
+        }
+
         /* Searchable filter selects (Tom Select, dashboard look) */
         .ts-wrapper.single .ts-control {
             border: 1px solid #e2e8f0 !important;
@@ -418,22 +463,11 @@
                     <h1 class="text-[18px] sm:text-[20px] lg:text-[22px] font-bold tracking-tight text-[#0B2638] leading-tight">{{ __('messages.Planning Calendar') }}</h1>
                     <p class="text-[12px] text-slate-500 mt-0.5 hidden sm:block">{{ __('messages.Planning Calendar subtitle') }}</p>
                 </div>
-                <div class="flex flex-col sm:flex-row sm:flex-wrap gap-2 w-full sm:w-auto">
-                    @can('Create planning')
-                    <button id="openEventModal" type="button" class="dt-btn dt-btn-primary justify-center w-full sm:w-auto">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                        <span>{{ __('messages.Add Event') }}</span>
-                    </button>
-                    @endcan
-                    <button id="openSendEventsModal" type="button" class="dt-btn dt-btn-teal justify-center w-full sm:w-auto">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                        <span>{{ __('messages.Send Events') }}</span>
-                    </button>
-                </div>
+
             </div>
 
-            <div class="dt-card p-3 sm:p-4 mb-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+            <div class="dt-card p-3 sm:p-4 mb-4 calendar-toolbar">
+                <div class="calendar-toolbar-filters">
                     <div>
                         <label for="filterClient" class="block text-[11px] font-semibold uppercase tracking-[.07em] text-slate-400 mb-1.5">{{ __('messages.Filter by Client') }}</label>
                         <select id="filterClient" class="dt-filter-select block w-full rounded-lg border border-slate-200 bg-slate-50 text-[13px] text-slate-700 focus:border-[#2D7080] focus:ring-1 focus:ring-[#2D7080] py-2 px-3 transition-all">
@@ -452,6 +486,18 @@
                             @endforeach
                         </select>
                     </div>
+                </div>
+                <div class="calendar-toolbar-actions">
+                    @can('Create planning')
+                    <button id="openEventModal" type="button" class="dt-btn dt-btn-primary justify-center w-full sm:w-auto">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                        <span>{{ __('messages.Add Event') }}</span>
+                    </button>
+                    @endcan
+                    <button id="openSendEventsModal" type="button" class="dt-btn dt-btn-teal justify-center w-full sm:w-auto">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                        <span>{{ __('messages.Send Events') }}</span>
+                    </button>
                 </div>
             </div>
 
@@ -1860,7 +1906,9 @@
                 if (el && window.TomSelect && !el.tomselect) {
                     new TomSelect(el, {
                         create: false,
-                        sortField: null,
+                        // Preserve the select order so the "All" option stays first.
+                        sortField: [{ field: '$order', direction: 'asc' }],
+                        hideSelected: false,
                         maxOptions: null,
                         allowEmptyOption: true,
                         placeholder: el.options[0] ? el.options[0].text : ''

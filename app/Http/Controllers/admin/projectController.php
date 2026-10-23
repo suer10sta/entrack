@@ -3580,6 +3580,7 @@ class projectController extends Controller
     public function generateNoteDeFrais()
     {
         $employees = Employees::where('entreprise_id', Auth::user()->entreprise_id)
+            ->where('archived', 0)
             ->orderBy('name')
             ->get(['id', 'name']);
 
