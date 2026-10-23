@@ -354,11 +354,9 @@ class tasksController extends Controller
         // Total tracked minutes per visible task (completed timers only;
         // open timers accrue live on top, ticked client-side from their base)
         $taskIds = $tasks->pluck('id');
-        // Presentation only: include open timers for any employee, but only
+        // Expand only projects where the current viewer has an open timer,
         // within the tasks left visible by the existing role scope and filters.
-        $openTaskIds = $taskIds->isNotEmpty()
-            ? tasks_timer::whereIn('task_id', $taskIds)->whereNull('end_date')->pluck('task_id')
-            : collect();
+        $openTaskIds = $viewerOpen->pluck('task_id');
         $projectsWithOpenTasks = $tasks->whereIn('id', $openTaskIds)
             ->pluck('project_id')->map(fn ($id) => (string) $id)->unique();
         $durations = $taskIds->isNotEmpty()
@@ -854,6 +852,9 @@ class tasksController extends Controller
             ->first();
 
         if (!$task_details) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Task not found for this employee.'], 404);
+            }
             return back()->with('alertmessage', 'Task not found for this employee.');
         }
 
@@ -865,6 +866,9 @@ class tasksController extends Controller
             ->first();
 
         if ($existing_timer) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'A timer is already running for this task. Please stop the existing timer before starting a new one.'], 409);
+            }
             return back()->with('alertmessage', 'A timer is already running for this task. Please stop the existing timer before starting a new one.');
         }
 
@@ -879,6 +883,9 @@ class tasksController extends Controller
             $today_completed_tasks += $this->getRunningTasksDurationToday($employee_id);
 
             if ($today_completed_tasks >= $work_minutes_limit) {
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => 'You have reached your daily work hours limit. Cannot start a new task.'], 422);
+                }
                 return back()->with('alertmessage', 'You have reached your daily work hours limit. Cannot start a new task.');
             }
         }
@@ -898,6 +905,9 @@ class tasksController extends Controller
                 ->get();
 
             if ($existing_task_timers->isNotEmpty()) {
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => 'A Task is already running. Please stop it before starting a new one.'], 409);
+                }
                 return back()->with('alertmessage', 'A Task is already running. Please stop it before starting a new one.');
             }
         }
@@ -918,6 +928,9 @@ class tasksController extends Controller
         $employee_user->is_loggedIn = 1;
         $employee_user->save();
 
+        if ($request->expectsJson()) {
+            return response()->json(['message' => __('messages.Task started successfully.')]);
+        }
         return back()->with('success', __('messages.Task started successfully.'));
     }
 

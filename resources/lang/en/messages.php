@@ -683,6 +683,7 @@ return [
 
     // Events
     "Today's Events" => "Today's Events",
+    'Edit Event' => 'Edit Event',
     'Add Event' => 'Add Event',
     'No events scheduled for today.' => 'No events scheduled for today.',
     'See full calendar' => 'See full calendar',

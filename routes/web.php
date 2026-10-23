@@ -8,6 +8,7 @@ use App\Http\Controllers\AlertController;
 use App\Http\Controllers\admin\adminController;
 use App\Http\Controllers\admin\OnboardingController;
 use App\Http\Controllers\admin\tasksController;
+use App\Http\Controllers\admin\TimeTransferController;
 use App\Http\Controllers\admin\teamsController;
 use App\Http\Controllers\admin\clientsController;
 use App\Http\Controllers\admin\projectController;
@@ -218,6 +219,11 @@ Route::middleware(['auth', 'verified', 'role:super_admin'])->name('superadmin.')
 //Route::middleware(['auth', 'role:Admin', \App\Http\Middleware\CheckEntrepriseDuration::class])->name('admin.')->prefix('admin')->group(function () {
 
 Route::middleware(['auth', 'verified', 'role:Admin'])->name('admin.')->prefix('admin')->group(function () {
+    // Existing pointage CSV transfer actions and import workflow.
+    Route::post('/pointage/time-transfer/export', [TimeTransferController::class, 'exportFromPointage'])->name('pointage.time-transfer.export');
+    Route::get('/projects/{project}/time-transfer/import', [TimeTransferController::class, 'importForm'])->name('projects.time-transfer.import');
+    Route::post('/projects/{project}/time-transfer/preview', [TimeTransferController::class, 'preview'])->name('projects.time-transfer.preview');
+    Route::post('/projects/{project}/time-transfer/confirm', [TimeTransferController::class, 'confirm'])->name('projects.time-transfer.confirm');
     Route::get("/", [adminController::class, "index"])->name("index");
 
     // First-time onboarding for new workspaces (same auth/role guards as the dashboard)

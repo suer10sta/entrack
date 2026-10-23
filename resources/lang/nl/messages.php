@@ -792,6 +792,7 @@ return [
     'No teams assigned' => 'Geen teams toegewezen',
 
     "Today's Events" => "Gebeurtenissen van vandaag",
+    'Edit Event' => 'Gebeurtenis bewerken',
     'Add Event' => 'Gebeurtenis toevoegen',
     'No events scheduled for today.' => 'Geen evenementen gepland voor vandaag.',
     'See full calendar' => 'Volledige kalender bekijken',

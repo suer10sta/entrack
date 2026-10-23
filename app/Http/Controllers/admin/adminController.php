@@ -113,7 +113,7 @@ class adminController extends Controller
         foreach ($employees as $employee) {
             $user_id = $employee->user_id;
             $user = User::find($user_id);
-            $roles = $user->roles;
+            $roles = $user?->roles ?? collect();
             $roleNames = $roles->pluck('name')->toArray();
             $permissions = [];
             foreach ($roles as $role) {

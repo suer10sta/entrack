@@ -511,10 +511,12 @@
                         <input type="hidden" name="end_date" id="timeTransferEndDate">
                         <input type="hidden" name="project_id" id="timeTransferProjectId">
                         <button type="submit" class="dt-btn dt-btn-ghost w-full sm:w-auto">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v12m-4-4 4 4 4-4M5 17v3a1 1 0 001 1h12a1 1 0 001-1v-3" /></svg>
                             {{ __('messages.Export time transfer') }}
                         </button>
                     </form>
                     <a href="#" id="timeTransferImportLink" class="dt-btn dt-btn-ghost w-full sm:w-auto">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16V4m-4 4 4-4 4 4M5 17v3a1 1 0 001 1h12a1 1 0 001-1v-3" /></svg>
                         {{ __('messages.Import time transfer') }}
                     </a>
                     @endif

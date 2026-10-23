@@ -20,12 +20,16 @@
                                 {{-- PROJECT --}}
                                 <td data-label="{{ __('messages.Current Project') }}"
                                     class="px-3 py-2.5 align-middle text-left cell-current-project">
-                                    @if($rowActiveTasks->isNotEmpty())
+                                    @php
+                                        $rowProjectTimers = $rowTasksToday->flatten(1);
+                                    @endphp
+                                    @if($rowProjectTimers->isNotEmpty())
                                         @php
-                                            $projectGroups = $rowActiveTasks
-                                                ->map(function($t){ $t->_pid = \App\Models\Tasks::where('id',$t->task_id)->value('project_id') ?? 0; return $t; })
-                                                ->groupBy('_pid')
-                                                ->unique(fn($g)=>$g->first()->_pid);
+                                            $projectGroups = $rowProjectTimers->groupBy(function ($timer) {
+                                                return $timer->project_id
+                                                    ?? \App\Models\Tasks::where('id', $timer->task_id)->value('project_id')
+                                                    ?? 0;
+                                            });
                                         @endphp
                                         <div class="flex flex-col gap-1.5">
                                             @foreach($projectGroups as $pid => $pg)

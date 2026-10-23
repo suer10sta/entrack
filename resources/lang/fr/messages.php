@@ -1177,6 +1177,7 @@ return [
     'No clients or projects found' => 'Aucun client ou projet trouvé.',
 
     // Calendar page
+    'Edit Event' => 'Modifier un événement',
     'Planning - DalyTrac' => 'Planning - DalyTrac',
     'Planning Calendar' => 'Calendrier de planning',
     'Planning Calendar subtitle' => 'Gérez efficacement le planning et les Événements de votre Équipe.',

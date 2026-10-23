@@ -781,6 +781,7 @@ return [
     'No teams assigned' => 'Sin equipos asignados',
 
     "Today's Events" => 'Eventos de hoy',
+    'Edit Event' => 'Editar evento',
     'Add Event' => 'Agregar evento',
     'No events scheduled for today.' => 'No hay eventos programados para hoy.',
     'See full calendar' => 'Ver calendario completo',
