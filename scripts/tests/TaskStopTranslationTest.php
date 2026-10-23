@@ -69,4 +69,46 @@ class TaskStopTranslationTest extends TestCase
         $this->assertSame($original, $request->input('stop_comment'));
         $this->assertSame('trim me', $request->input('other'));
     }
+
+    public function test_symbols_and_numbers_bypass_correction_even_without_an_api_key(): void
+    {
+        config(['services.openai.api_key' => null]);
+        Http::fake();
+        foreach (['-', '*', '..', '-- ** ..', '123', '🙂'] as $comment) {
+            $this->postJson('/tasks/prepare-stop-comment', ['comment' => $comment])
+                ->assertOk()->assertExactJson(['corrected' => $comment]);
+        }
+        Http::assertNothingSent();
+    }
+
+    public function test_correction_failures_return_the_original_comment(): void
+    {
+        foreach ([
+            Http::response(['error' => ['message' => 'Unavailable']], 503),
+            Http::response(['choices' => []]),
+            Http::response(['choices' => [['message' => ['content' => '']]]]),
+            Http::response(['choices' => [['message' => ['content' => str_repeat('x', 501)]]]]),
+            Http::response(['choices' => [['message' => ['content' => ['invalid']]]]]),
+        ] as $response) {
+            Http::fake(['api.openai.com/*' => $response]);
+            $this->postJson('/tasks/prepare-stop-comment', ['comment' => 'Original comment.'])
+                ->assertOk()->assertExactJson(['corrected' => 'Original comment.']);
+        }
+    }
+
+    public function test_connection_failure_returns_the_original_comment(): void
+    {
+        Http::fake(fn () => throw new \Illuminate\Http\Client\ConnectionException('Timed out'));
+        $this->postJson('/tasks/prepare-stop-comment', ['comment' => 'Original comment.'])
+            ->assertOk()->assertExactJson(['corrected' => 'Original comment.']);
+    }
+
+    public function test_missing_api_key_does_not_block_correction_for_stop(): void
+    {
+        config(['services.openai.api_key' => null]);
+        Http::fake();
+        $this->postJson('/tasks/prepare-stop-comment', ['comment' => 'Original comment.'])
+            ->assertOk()->assertExactJson(['corrected' => 'Original comment.']);
+        Http::assertNothingSent();
+    }
 }

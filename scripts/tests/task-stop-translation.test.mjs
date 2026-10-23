@@ -8,7 +8,8 @@ const script = blade.match(/<script>([\s\S]*?)<\/script>/)[1]
     .replace(/@(?:json|js)\(__\('[^']*'\)\)/g, '"label"');
 const flush = () => new Promise(resolve => setImmediate(resolve));
 function setup(stopResponse = {ok: true}) {
-    const elements = new Map(), calls = [], pending = [], documentListeners = {};
+    const elements = new Map(), calls = [], pending = [], documentListeners = {}, timers = new Map();
+    let timerId = 0;
     function element(id) {
         if (!elements.has(id)) {
             const listeners = {}, attributes = {};
@@ -27,15 +28,21 @@ function setup(stopResponse = {ok: true}) {
         querySelector: () => ({getAttribute: () => 'csrf'}),
         addEventListener(event, callback) {(documentListeners[event] ??= []).push(callback);}};
     const window = {dispatchEvent() {}};
-    vm.runInNewContext(script, {window, document, FormData, CustomEvent: class {},
+    vm.runInNewContext(script, {window, document, FormData, AbortController, CustomEvent: class {},
+        setTimeout(callback) {timers.set(++timerId, callback); return timerId;},
+        clearTimeout(id) {timers.delete(id);},
         fetch(url, options) {
             calls.push({url, options});
-            return url === '/tasks/prepare-stop-comment' ? new Promise(resolve => pending.push(resolve)) : Promise.resolve(stopResponse);
+            return url === '/tasks/prepare-stop-comment' ? new Promise((resolve, reject) => {
+                pending.push(resolve);
+                options.signal?.addEventListener('abort', () => reject(new Error('Aborted')));
+            }) : Promise.resolve(stopResponse);
         }});
     const open = handler => window.ChronoStopModal.open('/tasks/7/stop', handler);
     open();
     const text = element('chronoStopText'); text.value = 'Worked on plans.'; text.fire('input');
     return {text, calls, element, document, open, window,
+        expireCorrection() {for (const callback of timers.values()) callback();},
         respond(response) {pending.shift()(response);},
         documentEvent(event, data) {for (const callback of documentListeners[event] ?? []) callback(data);}};
 }
@@ -151,16 +158,61 @@ test('failed stop preserves text and re-enables controls', async () => {
     assert.equal(ui.element('chronoStopConfirmBtn').disabled, false);
 });
 
-for (const response of [{ok: false}, success(''), success('x'.repeat(501))]) {
-    test('failed or invalid correction preserves the text and does not stop the task: ' + JSON.stringify(response), async () => {
+for (const response of [{ok: false}, success(''), success('x'.repeat(501)), {ok: true, json: async () => {throw new Error('Invalid JSON');}}]) {
+    test('failed or invalid correction still stops with the original text: ' + JSON.stringify(response), async () => {
         const ui = setup();
         ui.element('chronoStopConfirmBtn').click();
         ui.element('chronoStopConfirmBtn').click();
         assert.equal(ui.calls.length, 1);
         ui.respond(response); await flush();
-        assert.equal(ui.calls.length, 1);
+        assert.equal(ui.calls.length, 2);
+        assert.equal(ui.calls[1].options.body.get('stop_comment'), 'Worked on plans.');
         assert.equal(ui.text.value, 'Worked on plans.');
-        assert.equal(ui.element('chronoStopModal').style.display, 'block');
+        assert.equal(ui.element('chronoStopModal').style.display, 'none');
         assert.equal(ui.element('chronoStopConfirmBtn').disabled, false);
     });
 }
+
+test('symbols and numbers stop unchanged without a correction request', async () => {
+    for (const comment of ['-', '*', '..', '  -- ** ..  ', '123', '🙂']) {
+        const ui = setup();
+        ui.text.value = comment; ui.text.fire('input');
+        ui.element('chronoStopConfirmBtn').click(); await flush();
+        assert.equal(ui.calls.length, 1);
+        assert.equal(ui.calls[0].url, '/tasks/7/stop');
+        assert.equal(ui.calls[0].options.body.get('stop_comment'), comment);
+        assert.equal(ui.element('chronoStopError').textContent, '');
+        assert.equal(ui.element('chronoStopModal').style.display, 'none');
+    }
+});
+
+test('a stalled correction times out and stops once with the original comment', async () => {
+    const ui = setup();
+    ui.element('chronoStopConfirmBtn').click();
+    ui.expireCorrection(); await flush();
+    assert.equal(ui.calls.length, 2);
+    assert.equal(ui.calls[1].options.body.get('stop_comment'), 'Worked on plans.');
+    ui.respond(success('Late correction')); await flush();
+    assert.equal(ui.calls.length, 2);
+    assert.equal(ui.text.value, 'Worked on plans.');
+});
+
+test('Unicode letters still trigger correction', async () => {
+    for (const comment of ['été', '作業', 'عمل']) {
+        const ui = setup(); ui.text.value = comment; ui.text.fire('input');
+        ui.element('chronoStopConfirmBtn').click();
+        assert.equal(ui.calls[0].url, '/tasks/prepare-stop-comment');
+        ui.respond(success(comment)); await flush();
+        assert.equal(ui.calls[1].options.body.get('stop_comment'), comment);
+    }
+});
+
+test('legacy submit handler receives the original comment if correction fails', async () => {
+    const ui = setup(); let comment;
+    ui.open(async value => {comment = value;});
+    ui.text.value = 'Original comment'; ui.text.fire('input');
+    ui.element('chronoStopConfirmBtn').click();
+    ui.respond({ok: false}); await flush();
+    assert.equal(comment, 'Original comment');
+    assert.equal(ui.element('chronoStopModal').style.display, 'none');
+});

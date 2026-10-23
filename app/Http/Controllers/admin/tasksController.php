@@ -1160,7 +1160,30 @@ class tasksController extends Controller
             'translate' => 'sometimes|boolean',
             'language' => $request->boolean('translate') ? 'required|in:fr,en,nl,es' : 'sometimes|in:fr,en,nl,es',
         ]);
-        return $this->correctComment($request, true);
+        // Explicit translation keeps its existing validation and error handling.
+        if ($request->boolean('translate')) {
+            return $this->correctComment($request, true);
+        }
+
+        $comment = $request->input('comment');
+        if (!preg_match('/\p{L}/u', $comment)) {
+            return response()->json(['corrected' => $comment]);
+        }
+
+        // Correction is optional: provider failures must not prevent stopping.
+        try {
+            $response = $this->correctComment($request, true);
+            if ($response->isSuccessful()) {
+                $corrected = $response->getData(true)['corrected'] ?? null;
+                if (is_string($corrected) && trim($corrected) !== '' && mb_strlen($corrected) <= 500) {
+                    return $response;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Keep the original comment if correction cannot be completed.
+        }
+
+        return response()->json(['corrected' => $comment]);
     }
 
     public function correctComment(Request $request, bool $prepareForStop = false)

@@ -110,15 +110,26 @@
         status.textContent = @json(__('messages.chrono_stop_processing')); status.classList.remove('hidden');
         const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
         try {
-            const prepared = await fetch('/tasks/prepare-stop-comment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': token },
-                body: JSON.stringify({ comment: text.value, translate: false })
-            });
-            if (!prepared.ok) throw new Error('Correction failed');
-            const result = await prepared.json();
-            if (typeof result.corrected !== 'string' || !result.corrected.trim() || result.corrected.length > 500) throw new Error('Invalid correction');
-            text.value = result.corrected;
+            const originalComment = text.value;
+            // Symbols and numbers alone have no spelling to correct.
+            if (/\p{L}/u.test(originalComment)) {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 10000);
+                try {
+                    const prepared = await fetch('/tasks/prepare-stop-comment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': token },
+                        body: JSON.stringify({ comment: originalComment, translate: false }),
+                        signal: controller.signal
+                    });
+                    if (!prepared.ok) throw new Error('Correction failed');
+                    const result = await prepared.json();
+                    if (typeof result.corrected !== 'string' || !result.corrected.trim() || Array.from(result.corrected).length > 500) throw new Error('Invalid correction');
+                    text.value = result.corrected;
+                } catch (err) {
+                    text.value = originalComment;
+                } finally { clearTimeout(timeout); }
+            }
             if (submitHandler) {
                 await submitHandler(text.value);
             } else {
