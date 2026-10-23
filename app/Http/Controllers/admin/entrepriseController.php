@@ -186,13 +186,16 @@ class entrepriseController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate(['budget_id' => 'nullable|integer']);
         $names = $request->name;
         $prices = $request->price;
         $entreprise = Entreprise::where('id', auth()->user()->entreprise_id)->first();
         $entrepriseCharges = entrepriseCharges::where('entreprise_id', auth()->user()->entreprise_id)->get();
         $smtp = smtpConfig::where('entreprise_id', auth()->user()->entreprise_id)->first();
-        $latestBudget = billings_budget::where('entreprise_id', auth()->user()->entreprise_id)->where('sold_out', 0)->latest()->first();
-
+        $budgets = billings_budget::where('entreprise_id', auth()->user()->entreprise_id);
+        $latestBudget = $request->filled('budget_id')
+            ? $budgets->whereKey($request->input('budget_id'))->firstOrFail()
+            : $budgets->where('sold_out', 0)->latest()->first();
 
         if($latestBudget == null) {
             return redirect()->back()->with('error', __('messages.Please add a budget first'));

@@ -1360,6 +1360,7 @@ return [
     'Add Budget to Cashbox' => 'Ajouter un budget à la caisse',
     'New budget' => 'Nouveau budget :',
     'Amount to add' => 'Montant à ajouter',
+    'Add Expense' => 'Ajouter une dépense',
     'New Expense' => 'Nouvelle dépense',
     'Expense description' => 'Description de la dépense :',
     'Expense name placeholder' => 'Nom de la dépense',

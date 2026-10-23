@@ -1472,6 +1472,7 @@ return [
     'Add Budget to Cashbox' => 'Budget aan kas toevoegen',
     'New budget' => 'Nieuw budget:',
     'Amount to add' => 'Toe te voegen bedrag',
+    'Add Expense' => 'Een uitgave toevoegen',
     'New Expense' => 'Nieuwe uitgave',
     'Expense description' => 'Omschrijving uitgave:',
     'Expense name placeholder' => 'Naam van de uitgave',

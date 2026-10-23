@@ -803,6 +803,7 @@ return [
     'Add Budget to Cashbox' => 'Add Budget to Cashbox',
     'New budget' => 'New budget:',
     'Amount to add' => 'Amount to add',
+    'Add Expense' => 'Add an expense',
     'New Expense' => 'New Expense',
     'Expense description' => 'Expense description:',
     'Expense name placeholder' => 'Expense name',

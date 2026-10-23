@@ -217,6 +217,10 @@
                         <td style="text-align: right; font-weight: bold;">{{ __('messages.Invoices Total') }}</td>
                         <td style="font-weight: bold;">{{ number_format($Total, 3, ',', '')}}€</td> 
                     </tr>
+                    <tr class="total-row">
+                        <td colspan="2" style="text-align: right; font-weight: bold;">{{ __('messages.Remaining Balance') }}</td>
+                        <td style="font-weight: bold;">{{ number_format((float) $billing->budget_remaining, 3, ',', '') }}€</td>
+                    </tr>
                 </tbody>
             </table>
         @endforeach
