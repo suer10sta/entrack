@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
   <head>
-    <x-favicon />
+    <x-public.head />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <x-seo :title="__('messages.seo_blog_title')" :description="__('messages.Practical articles on e-invoicing, project management, time tracking and running a modern services business with DalyTrac.')" />

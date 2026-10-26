@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
   <head>
-    <x-favicon />
+    <x-public.head />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <x-seo :title="$post->title . ' | DalyTrac Blog'" :description="Str::limit(preg_replace('/\s+/u', ' ', strip_tags($post->excerpt ?: $post->body)), 155)" type="article" :image="\App\Support\Seo::postImage($post)" />

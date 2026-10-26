@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
   <head>
-    <x-favicon />
+    <x-public.head />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <x-seo :title="__('messages.About Us') . ' | DalyTrac'" :description="__('messages.Learn about DalyTrac, the all‑in‑one business management platform that unifies invoices, projects, teams and finances into one calm, powerful workspace.')" />

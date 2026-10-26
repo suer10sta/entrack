@@ -1,0 +1,63 @@
+/* Scoped Manager SEO layout: independent of generated utility breakpoints. */
+#seo-dashboard { max-width: 1600px; margin: 0 auto; padding: 28px; display: flex; flex-direction: column; gap: 20px; color: #0B2638; }
+#seo-dashboard > * { margin-top: 0; margin-bottom: 0; }
+#seo-dashboard > div:first-child { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+#seo-dashboard h1 { font-size: 24px; letter-spacing: -.6px; line-height: 1.3; }
+#seo-dashboard h2 { font-size: 14px; font-weight: 700; }
+#seo-dashboard .dt-card { border: 1px solid #dde6eb; border-radius: 14px; box-shadow: 0 2px 4px #0b263804; background: #fff; }
+#seo-dashboard > div:first-child p { margin-top: 6px; font-size: 12px; color: #71838f; }
+#seo-dashboard > div:first-child a { font-size: 12px; white-space: nowrap; padding: 11px 16px; border-radius: 9px; text-decoration: none; }
+#seo-filters { display: grid; grid-template-columns: minmax(220px, 1fr) 155px 155px auto; align-items: end; gap: 16px; padding: 16px 20px; }
+#seo-filters label { font-size: 11px; font-weight: 600; color: #647886; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+#seo-filters select, #seo-filters input { width: 100%; min-width: 0; height: 38px; margin: 0; border: 1px solid #d6e0e7; border-radius: 8px; background-color: #fbfcfd; font-size: 12px; color: #0B2638; padding: 7px 10px; }
+#seo-filters select { padding-right: 30px; }
+#seo-submit { height: 38px; padding: 0 20px; font-size: 12px; font-weight: 600; border-radius: 8px; background: #2D7080; color: #fff; }
+#seo-submit:disabled { opacity: .55; cursor: wait; }
+#seo-dashboard .seo-filter-actions { display: flex; align-items: center; gap: 8px; }
+#seo-refresh { height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 14px; border: 1px solid #cbdde2; border-radius: 8px; background: #f1f7f8; color: #2D7080; font-size: 12px; font-weight: 600; white-space: nowrap; transition: background .15s, border-color .15s; }
+#seo-refresh:hover:not(:disabled) { background: #e4f0f2; border-color: #2D7080; }
+#seo-dashboard #seo-refresh svg { width: 16px; height: 16px; flex-shrink: 0; }
+#seo-refresh:disabled { opacity: .6; cursor: wait; }
+#seo-refresh[aria-busy="true"] svg { animation: seo-refresh-spin 1s linear infinite; }
+@keyframes seo-refresh-spin { to { transform: rotate(360deg); } }
+@media(prefers-reduced-motion: reduce) { #seo-refresh[aria-busy="true"] svg { animation: none; } }
+@media(max-width: 1100px) { #seo-dashboard .seo-filter-actions { grid-column: 1/-1; justify-content: flex-end; } }
+#seo-dashboard :is(a,button,input,select,summary):focus-visible { outline: 3px solid #E7B84B; outline-offset: 3px; }
+#seo-status { font-size: 11px; color: #647886; min-height: 16px; }
+#seo-dashboard .seo-kpis { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; }
+#seo-dashboard .seo-kpis .dt-card { position: relative; padding: 20px; border: 0; min-height: 104px; background: #0B2638; color: white; overflow: hidden; }
+#seo-dashboard .seo-kpis .dt-card:nth-child(2) { background: #2D7080; }
+#seo-dashboard .seo-kpis .dt-card:nth-child(3) { background: #e7b84b; color: #0B2638; }
+#seo-dashboard .seo-kpis .dt-card:nth-child(4) { background: #e9f1f3; color: #0B2638; border: 1px solid #d5e4e8; }
+#seo-dashboard .seo-kpis .dt-stat-label { color: inherit; opacity: .8; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; padding-right: 26px; }
+#seo-dashboard .seo-kpis .dt-stat-value { color: inherit; font-size: 28px; font-weight: 700; letter-spacing: -.7px; margin-top: 10px; line-height: 1; }
+#seo-dashboard .seo-kpi-mark { position: absolute; right: 16px; top: 16px; width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: #ffffff20; font-size: 15px; }
+#seo-dashboard .seo-charts, #seo-dashboard .seo-reports { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; align-items: start; }
+#seo-dashboard section { padding: 20px; min-width: 0; }
+#seo-dashboard section > h2 { margin-bottom: 5px; }
+#seo-dashboard section > p { font-size: 11px; color: #7b8c97; margin-bottom: 14px; }
+#seo-dashboard .seo-charts section { min-height: 0; padding: 16px 18px; }
+#seo-dashboard .seo-charts section > p { margin-bottom: 6px; }
+#seo-dashboard .seo-charts svg { width: 100%; height: 180px; display: block; overflow: visible; }
+#seo-dashboard .seo-plot { position: relative; width: 100%; min-width: 0; }
+#seo-dashboard .seo-chart-tooltip { position: absolute; top: 0; z-index: 2; max-width: 210px; padding: 8px 10px; border-radius: 6px; background: #0B2638; color: #fff; box-shadow: 0 4px 12px #0b263820; font-size: 10px; pointer-events: none; }
+#seo-dashboard .seo-chart-note { font-size: 10px; color: #718592; margin-top: 4px; }
+#seo-dashboard .seo-plot rect:focus-visible { outline: 1px solid #2D7080; }
+#seo-dashboard .seo-chart-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 10px; padding: 10px 0 0; }
+#seo-dashboard .seo-chart-legend span::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; background: currentColor; }
+#seo-dashboard .seo-reports section:last-child { grid-column: 1/-1; }
+#seo-dashboard .seo-reports section > div { max-height: 310px; overflow: auto; margin-top: 14px; scrollbar-width: thin; scrollbar-color: #c5d4dc transparent; }
+#seo-dashboard table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 11px; text-align: left; }
+#seo-dashboard th { position: sticky; top: 0; background: #f5f8fa; z-index: 1; padding: 11px 10px; font-weight: 600; white-space: nowrap; color: #748693; border-bottom: 1px solid #e3eaef; }
+#seo-dashboard td { padding: 11px 10px; border-bottom: 1px solid #edf1f4; color: #435d6c; font-variant-numeric: tabular-nums; }
+#seo-dashboard td:first-child { min-width: 135px; max-width: 240px; overflow-wrap: anywhere; color: #2D7080; }
+#seo-dashboard td:not(:first-child), #seo-dashboard th:not(:first-child) { text-align: right; white-space: nowrap; }
+#seo-dashboard tbody tr:hover td { background: #f8fbfc; }
+#seo-dashboard details { margin-top: 10px; padding-top: 10px; border-top: 1px solid #edf1f4; font-size: 11px; }
+#seo-dashboard summary { cursor: pointer; color: #647886; }
+#seo-dashboard details > div { max-height: 220px; overflow: auto; margin-top: 10px; }
+#seo-dashboard .seo-chart-dates { font-size: 10px; color: #8a9aa5; text-align: right; }
+#seo-dashboard .seo-footnote { font-size: 10px; line-height: 1.7; color: #8a9aa5; }
+@media(max-width: 1100px) { #seo-dashboard { padding: 20px; } #seo-filters { grid-template-columns: minmax(160px,1fr) 140px 140px; } #seo-submit { grid-column: 1/-1; } }
+@media(max-width: 800px) { #seo-dashboard .seo-charts, #seo-dashboard .seo-reports { grid-template-columns: minmax(0,1fr); } #seo-dashboard .seo-kpis { grid-template-columns: repeat(2,minmax(0,1fr)); } #seo-filters { grid-template-columns: repeat(2,minmax(0,1fr)); } #seo-filters label:first-child { grid-column: 1/-1; } }
+@media(max-width: 480px) { #seo-dashboard { padding: 14px; gap: 14px; } #seo-dashboard > div:first-child { align-items: flex-start; flex-direction: column; gap: 12px; } #seo-dashboard h1 { font-size: 20px; } #seo-dashboard section { padding: 15px; } #seo-dashboard .seo-kpis { gap: 10px; } #seo-dashboard .seo-kpis .dt-card { padding: 16px; } #seo-dashboard .seo-kpis .dt-stat-value { font-size: 24px; } }

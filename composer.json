@@ -9,6 +9,7 @@
         "ext-gd": "*",
         "barryvdh/laravel-dompdf": "^2.2",
         "doctrine/dbal": "^3.10",
+        "google/auth": "~1.45",
         "guzzlehttp/guzzle": "^7.2",
         "jaybizzle/crawler-detect": "^1.4",
         "laravel/cashier": "^16.0",

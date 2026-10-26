@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
   <head>
-    <x-favicon />
+    <x-public.head />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <x-seo :title="__('messages.Watch Demo') . ' | DalyTrac'" :description="__('messages.Watch DalyTrac demo videos to see how our platform handles dashboards, invoices, projects, time tracking, expenses, clients and more.')" />

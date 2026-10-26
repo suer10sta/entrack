@@ -469,8 +469,6 @@
 
 <body class="dt-app-shell bg-[#f8fafc] text-slate-900 antialiased flex h-screen overflow-hidden font-sans" x-data>
 
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-            style="display: none; visibility: hidden"></iframe></noscript>
 
     {{-- Sidebar Component --}}
     @if(Auth::user()->hasRole('Admin'))

@@ -44,6 +44,8 @@ class PublicSeoTest extends TestCase
                 $url = '/'.$locale.($path ? '/'.$path : '');
                 $response = $this->withSession(['locale' => 'es'])->get($url)->assertOk();
                 $x = $this->xpath($response->getContent());
+                $this->assertSame(1, $x->query('//head/script[@src="https://www.googletagmanager.com/gtag/js?id=G-MDJNVZY2WF"]')->length, $url);
+                $this->assertSame(1, substr_count($response->getContent(), "gtag('config', 'G-MDJNVZY2WF')"), $url);
                 $this->assertSame($locale, $x->evaluate('string(/html/@lang)'), $url);
                 $this->assertSame(1, $x->query('//head/title')->length, $url);
                 $this->assertSame(1, $x->query('//h1')->length, $url);
@@ -198,5 +200,21 @@ class PublicSeoTest extends TestCase
         $response = (new \App\Http\Middleware\SeoPolicy)->handle($signed, fn () => response('signed middleware still applies'));
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('noindex, follow', $response->headers->get('X-Robots-Tag'));
+    }
+    public function test_analytics_tracks_registration_but_not_login_or_private_head(): void
+    {
+        $this->get('/register')->assertOk()->assertSee('https://www.googletagmanager.com/gtag/js?id=G-MDJNVZY2WF', false);
+        $this->get('/login')->assertOk()->assertDontSee('googletagmanager.com')->assertDontSee('gtag(');
+        $html = view('dashboard_layouts.head')->render();
+        $this->assertStringNotContainsString('googletagmanager.com', $html);
+        $this->assertStringNotContainsString('google-analytics.com', $html);
+        foreach (['manager/seo', 'admin/projects', 'admin/tasks', 'admin/invoices'] as $uri) {
+            $request = \Illuminate\Http\Request::create('/'.$uri);
+            $route = new \Illuminate\Routing\Route('GET', $uri, fn () => '');
+            $route->name(str_replace('/', '.', $uri));
+            $request->setRouteResolver(fn () => $route);
+            $this->app->instance('request', $request);
+            $this->assertStringNotContainsString('googletagmanager.com', view('components.public.head')->render());
+        }
     }
 }

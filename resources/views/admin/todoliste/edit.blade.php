@@ -5,8 +5,6 @@
 @include('partials.edit-layout-styles')
 
 <body class="g-sidenav-show bg-gray-100">
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6" height="0" width="0"
-            style="display: none; visibility: hidden"></iframe></noscript>
     <div class="min-height-300 bg-primary position-absolute w-100"></div>
 
     @if(Auth::user()->hasRole('Responsable de projet') || Auth::user()->hasRole('Employee'))

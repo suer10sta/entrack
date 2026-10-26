@@ -3,7 +3,7 @@
 
 <head>
     <meta name="robots" content="noindex,follow">
-    <x-favicon />
+    <x-public.head />
     @include('partials.password-visibility')
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />

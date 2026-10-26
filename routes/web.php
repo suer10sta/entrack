@@ -108,6 +108,7 @@ $trackPublicVisit = function () {
 };
 
 require __DIR__ . '/seo.php';
+require __DIR__ . '/search-console.php';
 
 Route::prefix('{locale}')->where(['locale' => 'fr|en|nl|es'])->group(function () use ($trackPublicVisit) {
 Route::get('/', function () use ($trackPublicVisit) {
