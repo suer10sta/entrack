@@ -22,6 +22,7 @@ class GoogleAnalyticsService
             throw new HttpException(401, 'Connectez votre compte Google pour accéder à Analytics.');
         }
         $definitions = [
+            'kpis' => [[], ['activeUsers', 'sessions', 'newUsers', 'screenPageViews']],
             'overview' => [[], ['activeUsers', 'newUsers', 'sessions', 'screenPageViews', 'engagementRate', 'userEngagementDuration', 'engagedSessions', 'eventCount', 'keyEvents']],
             'traffic' => [['date'], ['activeUsers', 'newUsers', 'sessions', 'screenPageViews']],
             'pages' => [['pagePath'], ['screenPageViews', 'activeUsers', 'engagementRate']],
@@ -42,6 +43,18 @@ class GoogleAnalyticsService
         if ($dimensions) {
             $body['orderBys'] = $report === 'traffic' ? [['dimension' => ['dimensionName' => 'date']]] : [['metric' => ['metricName' => $metrics[0]], 'desc' => true]];
         }
+        if ($report === 'kpis') {
+            $base = ['dateRanges' => $body['dateRanges'], 'limit' => 1];
+            $body = ['requests' => [
+                $base + ['metrics' => $body['metrics']],
+                $base + ['metrics' => [['name' => 'totalUsers']], 'dimensionFilter' => ['filter' => [
+                    'fieldName' => 'newVsReturning', 'stringFilter' => ['matchType' => 'EXACT', 'value' => 'returning', 'caseSensitive' => true],
+                ]]],
+                $base + ['metrics' => [['name' => 'keyEvents']], 'dimensionFilter' => ['filter' => [
+                    'fieldName' => 'eventName', 'inListFilter' => ['values' => ['sign_up', 'subscription_success'], 'caseSensitive' => true],
+                ]]],
+            ]];
+        }
         $key = 'ga4:v2:'.hash('sha256', json_encode([$managerId, $connection->getRawOriginal('access_token'), $property, $body, now('UTC')->toDateString()]));
         if (! $refresh && ($cached = Cache::get($key)) !== null) {
             $cached['meta']['cache_hit'] = true;
@@ -52,7 +65,7 @@ class GoogleAnalyticsService
         for ($attempt = 0; $attempt < 2; $attempt++) {
             try {
                 $response = Http::withToken($token)->acceptJson()->connectTimeout(5)->timeout(30)
-                    ->post('https://analyticsdata.googleapis.com/v1beta/properties/'.$property.':runReport', $body);
+                    ->post('https://analyticsdata.googleapis.com/v1beta/properties/'.$property.($report === 'kpis' ? ':batchRunReports' : ':runReport'), $body);
             } catch (\Illuminate\Http\Client\ConnectionException $e) {
                 throw new HttpException(502, 'Google Analytics est temporairement indisponible.');
             }
@@ -73,6 +86,33 @@ class GoogleAnalyticsService
                 throw new HttpException(isset($messages[$status]) ? $status : 502, $messages[$status] ?? 'Google Analytics est temporairement indisponible.', null, $status === 429 ? ['Retry-After' => '300'] : []);
             }
             $raw = $response->json();
+            if ($report === 'kpis') {
+                if (count($raw['reports'] ?? []) !== 3) {
+                    throw new HttpException(502, 'Réponse KPI Google Analytics incomplète.');
+                }
+                $reports = $raw['reports'];
+                $totals = [];
+                foreach ($metrics as $i => $name) {
+                    $totals[$name] = (float) ($reports[0]['rows'][0]['metricValues'][$i]['value'] ?? 0);
+                }
+                $totals['returningUsers'] = (float) ($reports[1]['rows'][0]['metricValues'][0]['value'] ?? 0);
+                $totals['conversions'] = (float) ($reports[2]['rows'][0]['metricValues'][0]['value'] ?? 0);
+                $quality = $reports[0]['metadata'] ?? [];
+                foreach ($reports as $part) {
+                    foreach (['subjectToThresholding', 'dataLossFromOtherRow'] as $flag) {
+                        $quality[$flag] = ! empty($quality[$flag]) || ! empty($part['metadata'][$flag]);
+                    }
+                    if (! empty($part['metadata']['samplingMetadatas'])) {
+                        $quality['samplingMetadatas'] = $part['metadata']['samplingMetadatas'];
+                    }
+                }
+                $result = ['totals' => $totals, 'rows' => [], 'meta' => ['property_id' => $property, 'days' => $days,
+                    'fetched_at' => now('UTC')->toIso8601String(), 'cache_hit' => false, 'timezone' => $quality['timeZone'] ?? null,
+                    'data_quality' => $quality, 'conversion_events' => ['sign_up', 'subscription_success']]];
+                Cache::put($key, $result, now()->addHours(config('analytics.cache_hours')));
+
+                return $result;
+            }
             $rows = array_map(function ($row) use ($dimensions, $metrics) {
                 $result = [];
                 foreach ($dimensions as $i => $name) {

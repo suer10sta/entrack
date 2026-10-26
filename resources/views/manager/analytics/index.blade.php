@@ -1,12 +1,14 @@
 @extends('manager.layouts.app')
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/seo-breakdown-chart.css') }}">
+<script src="{{ asset('js/seo-breakdown-chart.js') }}" defer></script>
 <link rel="stylesheet" href="{{ asset('css/manager-analytics.css') }}">
 <div id="ga-dashboard" data-api="{{ url('/api/seo/google-analytics') }}" data-connected="{{ $connected ? '1' : '0' }}">
     <header class="ga-header">
         <div><h1>SEO · Google Analytics</h1><p>Comprenez vos visiteurs et les performances de vos pages · cache de 3 heures</p></div>
         <div class="ga-actions">
             <a class="ga-button ga-secondary" href="{{ route('manager.seo.connect', ['integration' => 'analytics']) }}">{{ $connected ? 'Autoriser Analytics' : 'Connecter Google' }}</a>
-            @if($propertyId)<a class="ga-button ga-primary" href="https://analytics.google.com/analytics/web/#/p{{ urlencode($propertyId) }}/reports/intelligenthome" target="_blank" rel="noopener noreferrer">Ouvrir Google Analytics ↗</a>@endif
+            @if($propertyId)<a class="ga-button ga-primary" href="https://analytics.google.com/analytics/web/#/p{{ urlencode($propertyId) }}/reports/intelligenthome" target="_blank" rel="noopener noreferrer">Ouvrir Google Analytics <svg class="lucide lucide-external-link" aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>@endif
         </div>
     </header>
     @if(session('gsc_error'))<p class="ga-alert" role="alert">{{ session('gsc_error') }}</p>@endif
@@ -20,8 +22,8 @@
     </div>
     <p id="ga-status" role="status" aria-live="polite"></p>
     <div class="ga-kpis">
-        @foreach(['activeUsers' => ['Utilisateurs actifs', '◉'], 'sessions' => ['Sessions', '↗'], 'newUsers' => ['Nouveaux utilisateurs', '+'], 'screenPageViews' => ['Vues', '▤'], 'engagementRate' => ['Taux d’engagement', '%'], 'averageEngagement' => ['Engagement / utilisateur', '◷']] as $key => $item)
-        <section class="ga-card ga-kpi"><div><h2>{{ $item[0] }}</h2><span aria-hidden="true">{{ $item[1] }}</span></div><strong id="ga-{{ $key }}">—</strong></section>
+        @foreach(['activeUsers' => ['Utilisateurs actifs', '◉'], 'sessions' => ['Sessions', '↗'], 'newUsers' => ['Nouveaux utilisateurs', '+'], 'returningUsers' => ['Revenants', '↩'], 'screenPageViews' => ['Pages vues', '▤'], 'conversions' => ['Conversions', '✓']] as $key => $item)
+        <section class="ga-card ga-kpi"><div><h2>{{ $item[0] }}</h2><span aria-hidden="true">@if($key === 'returningUsers')<svg class="lucide lucide-user-round-arrow-left" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 16-3 3"/><path d="M2 21a8 8 0 0 1 12.664-6.5"/><path d="M22 19h-6l3 3"/><circle cx="10" cy="8" r="5"/></svg>@else{{ $item[1] }}@endif</span></div><strong id="ga-{{ $key }}">—</strong></section>
         @endforeach
     </div>
     <div class="ga-chart-grid">
@@ -35,7 +37,7 @@
         <section class="ga-card"><div class="ga-card-heading"><h2>{{ $item[0] }}</h2><span>{{ $item[1] }}</span></div><div class="ga-table-wrap" id="ga-{{ $key }}">Chargement…</div></section>
         @endforeach
     </div>
-    <p class="ga-footnote">Périodes jusqu’à aujourd’hui, selon le fuseau de la propriété GA4. Les données récentes peuvent évoluer. Les utilisateurs sont dédupliqués sur la période : les totaux des tableaux ne s’additionnent pas nécessairement. Engagement / utilisateur = durée totale d’engagement ÷ utilisateurs actifs. Les tableaux affichent jusqu’à 1 000 lignes.</p>
+    <p class="ga-footnote">Périodes jusqu’à aujourd’hui, selon le fuseau de la propriété GA4. Les données récentes peuvent évoluer. Les utilisateurs sont dédupliqués sur la période : les totaux des tableaux ne s’additionnent pas nécessairement. Conversions = événements clés sign_up et subscription_success uniquement. Les tableaux affichent jusqu’à 1 000 lignes.</p>
     @endif
 </div>
 @if($connected && $propertyId)<script src="{{ asset('js/manager-analytics.js') }}" defer></script>@endif

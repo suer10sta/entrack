@@ -1,5 +1,7 @@
 @extends('manager.layouts.app')
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/seo-breakdown-chart.css') }}">
+<script src="{{ asset('js/seo-breakdown-chart.js') }}" defer></script>
 <link rel="stylesheet" href="{{ asset('css/manager-seo.css') }}"> 
 <div class="space-y-6 p-4 md:p-6" id="seo-dashboard" data-connected="{{ $connected ? '1' : '0' }}" data-api="{{ url('/api/seo') }}">
     <div class="flex flex-wrap items-center justify-between gap-4">

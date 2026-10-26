@@ -3,9 +3,24 @@
     if (!root || root.dataset.connected !== '1') return;
     const el = key => document.getElementById('ga-' + key);
     const number = (value, digits = 0) => Number(value || 0).toLocaleString('fr-FR', { maximumFractionDigits: digits });
-    const duration = seconds => `${Math.floor(seconds / 60)} min ${Math.floor(seconds % 60)} s`;
     let days = 28, generation = 0;
     const observers = new Map();
+    function dailySeries(rows, period, meta) {
+        // Anchor cached data to its collection date in the GA4 property's timezone.
+        const parts = new Intl.DateTimeFormat('en-CA', { timeZone: meta.timezone || 'UTC', year: 'numeric', month: '2-digit', day: '2-digit' })
+            .formatToParts(new Date(meta.fetched_at));
+        const part = name => Number(parts.find(p => p.type === name).value);
+        const end = Date.UTC(part('year'), part('month') - 1, part('day'));
+        const start = end - period * 86400000;
+        const existing = new Map(rows.map(row => [row.date, row]));
+        const result = [];
+        // Match the API exactly: NdaysAgo through today, both bounds inclusive.
+        for (let timestamp = start; timestamp <= end; timestamp += 86400000) {
+            const date = new Date(timestamp).toISOString().slice(0, 10).replaceAll('-', '');
+            result.push({ date, activeUsers: 0, sessions: 0, screenPageViews: 0, ...existing.get(date), missing: !existing.has(date) });
+        }
+        return result;
+    }
     function table(target, columns, rows) {
         target.replaceChildren();
         if (!rows.length) { target.textContent = 'Aucune donnée sur cette période.'; return; }
@@ -19,13 +34,16 @@
         observers.get(target)?.disconnect(); target.replaceChildren();
         if (!rows.length) { target.textContent = 'Aucune donnée sur cette période.'; return; }
         const legend = document.createElement('div'); legend.className = 'ga-legend';
-        series.forEach(([, title, color]) => { const label = document.createElement('span'); label.style.color = color; label.textContent = title; legend.append(label); });
+        series.forEach(([, title, color], index) => { const label = document.createElement('span'); label.style.color = color; label.className = index ? 'ga-series-dashed' : ''; label.textContent = title; legend.append(label); });
         const wrap = document.createElement('div'); wrap.className = 'ga-plot';
         const ns = 'http://www.w3.org/2000/svg'; const svg = document.createElementNS(ns, 'svg');
         const tooltip = document.createElement('div'); tooltip.className = 'ga-tooltip'; tooltip.hidden = true;
         wrap.append(svg, tooltip); target.append(legend, wrap);
         const date = value => `${value.slice(6, 8)}/${value.slice(4, 6)}`;
         const epoch = value => Date.parse(`${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}T00:00:00Z`);
+        const range = document.createElement('p'); range.className = 'ga-chart-range';
+        range.textContent = `${date(rows[0].date)}/${rows[0].date.slice(0, 4)} → ${date(rows.at(-1).date)}/${rows.at(-1).date.slice(0, 4)} · jours sans données représentés à 0`;
+        target.insertBefore(range, legend);
         function draw() {
             const width = Math.max(250, wrap.clientWidth), height = 190, left = 44, right = width - 12, top = 14, bottom = 160;
             svg.replaceChildren(); svg.setAttribute('viewBox', `0 0 ${width} ${height}`); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', series.map(s => s[1]).join(' et ') + ' par date, valeurs réelles. Tableau quotidien disponible ci-dessous.');
@@ -41,19 +59,27 @@
             const labels = Math.min(rows.length, Math.max(2, Math.floor((right - left) / 65)));
             const indices = new Set(Array.from({ length: labels }, (_, i) => Math.round(i * (rows.length - 1) / Math.max(1, labels - 1))));
             rows.forEach((row, i) => { if (indices.has(i)) { add('line', { x1: x(row), x2: x(row), y1: top, y2: bottom, stroke: '#f0f4f6', 'stroke-dasharray': '2 3' }); add('text', { x: x(row), y: 181, 'text-anchor': 'middle', fill: '#7c909d', 'font-size': 10 }, date(row.date)); } });
-            series.forEach(([key, , color]) => {
+            series.forEach(([key, , color], seriesIndex) => {
                 let segment = [];
-                const flush = () => { if (segment.length > 1) add('polyline', { points: segment.map(row => `${x(row)},${y(row[key])}`).join(' '), fill: 'none', stroke: color, 'stroke-width': 2, 'stroke-linejoin': 'round' }); segment = []; };
+                const flush = () => { if (segment.length > 1) add('polyline', { points: segment.map(row => `${x(row)},${y(row[key])}`).join(' '), fill: 'none', stroke: color, 'stroke-width': 2.5, 'stroke-linejoin': 'round', 'stroke-dasharray': seriesIndex ? '6 4' : 'none' }); segment = []; };
                 rows.forEach((row, i) => { if (i && epoch(row.date) - epoch(rows[i - 1].date) > 86400000) flush(); segment.push(row); }); flush();
-                rows.forEach(row => add('circle', { cx: x(row), cy: y(row[key]), r: rows.length > 60 ? 1.5 : 2.5, fill: color, stroke: 'white', 'stroke-width': .6 }));
+                rows.forEach(row => { if (row[key] > 0 || rows.length <= 8) add('circle', { cx: x(row), cy: y(row[key]), r: seriesIndex ? 2 : 3.5, fill: color, stroke: 'white', 'stroke-width': .6 }); });
             });
+            const guide = add('line', { x1: left, x2: left, y1: top, y2: bottom, stroke: '#91a8b5', 'stroke-dasharray': '3 3', visibility: 'hidden' });
+            const hoverDots = series.map(([, , color]) => add('circle', { r: 4, fill: color, stroke: 'white', 'stroke-width': 1, visibility: 'hidden' }));
+            const hitWidth = (right - left - 8) / Math.max(1, rows.length - 1);
             rows.forEach(row => {
-                const hit = add('rect', { x: Math.max(left, x(row) - 8), y: top, width: 16, height: bottom - top, fill: 'transparent', tabindex: 0 });
-                const value = `${date(row.date)}/${row.date.slice(0, 4)} · ${series.map(([key, title]) => `${title} : ${number(row[key])}`).join(' · ')}`;
+                const hitLeft = Math.max(left, x(row) - hitWidth / 2);
+                const hit = add('rect', { x: hitLeft, y: top, width: Math.min(right, x(row) + hitWidth / 2) - hitLeft, height: bottom - top, fill: 'transparent', tabindex: 0 });
+                const value = `${date(row.date)}/${row.date.slice(0, 4)}\n${series.map(([key, title]) => `${title} : ${number(row[key])}`).join('\n')}${row.missing ? '\nAucune ligne GA4 : valeur affichée à 0' : ''}`;
                 hit.setAttribute('aria-label', value);
-                const show = () => { tooltip.hidden = false; tooltip.textContent = value; tooltip.style.left = `${Math.max(0, Math.min(width - 220, x(row) - 80))}px`; };
+                const show = () => {
+                    tooltip.hidden = false; tooltip.textContent = value; tooltip.style.left = `${Math.max(0, Math.min(width - 220, x(row) - 80))}px`;
+                    guide.setAttribute('x1', x(row)); guide.setAttribute('x2', x(row)); guide.setAttribute('visibility', 'visible');
+                    hoverDots.forEach((dot, i) => { dot.setAttribute('cx', x(row)); dot.setAttribute('cy', y(row[series[i][0]])); dot.setAttribute('visibility', 'visible'); });
+                };
                 ['mouseenter', 'focus', 'touchstart'].forEach(event => hit.addEventListener(event, show));
-                ['mouseleave', 'blur'].forEach(event => hit.addEventListener(event, () => tooltip.hidden = true));
+                ['mouseleave', 'blur'].forEach(event => hit.addEventListener(event, () => { tooltip.hidden = true; guide.setAttribute('visibility', 'hidden'); hoverDots.forEach(dot => dot.setAttribute('visibility', 'hidden')); }));
             });
         }
         draw(); const observer = new ResizeObserver(draw); observer.observe(wrap); observers.set(target, observer);
@@ -68,14 +94,15 @@
         countries: [['country', 'Pays'], ['activeUsers', 'Actifs', number], ['sessions', 'Sessions', number], ['screenPageViews', 'Vues', number]],
         devices: [['deviceCategory', 'Appareil'], ['activeUsers', 'Actifs', number], ['sessions', 'Sessions', number], ['screenPageViews', 'Vues', number]],
     };
-    const kpis = ['activeUsers', 'sessions', 'newUsers', 'screenPageViews', 'engagementRate', 'averageEngagement'];
+    const kpis = ['activeUsers', 'sessions', 'newUsers', 'returningUsers', 'screenPageViews', 'conversions'];
     async function load(refresh = false) {
         const run = ++generation; const period = days; let failed = 0, overviewMeta = null, limited = false;
         observers.forEach(observer => observer.disconnect()); observers.clear();
         kpis.forEach(key => el(key).textContent = '—');
+        ['countries', 'devices'].forEach(key => window.DalyTracBreakdown.destroy(el(key)));
         ['traffic', 'views-chart', ...Object.keys(definitions)].forEach(key => el(key).textContent = 'Chargement…');
         el('refresh').disabled = true; el('refresh').setAttribute('aria-busy', 'true'); el('status').textContent = 'Chargement des données Google Analytics…';
-        await Promise.all(['overview', 'traffic', ...Object.keys(definitions)].map(async report => {
+        await Promise.all(['kpis', 'traffic', ...Object.keys(definitions)].map(async report => {
             try {
                 const response = await fetch(`${root.dataset.api}/${report}?${new URLSearchParams({ days: period, refresh: refresh ? 1 : 0 })}`, { credentials: 'same-origin', headers: { Accept: 'application/json' } });
                 const data = await response.json().catch(() => ({}));
@@ -83,17 +110,22 @@
                 if (run !== generation) return;
                 const quality = data.meta?.data_quality || {};
                 limited ||= Boolean(quality.subjectToThresholding || quality.dataLossFromOtherRow || quality.samplingMetadatas?.length || data.meta?.truncated);
-                if (report === 'overview') {
+                if (report === 'kpis') {
                     overviewMeta = data.meta; const t = data.totals;
-                    kpis.forEach(key => el(key).textContent = key === 'engagementRate' ? number(t[key] * 100, 1) + ' %' : key === 'averageEngagement' ? duration(t.activeUsers ? t.userEngagementDuration / t.activeUsers : 0) : number(t[key]));
+                    kpis.forEach(key => el(key).textContent = number(t[key]));
                 } else if (report === 'traffic') {
-                    const rows = [...data.rows].sort((a, b) => a.date.localeCompare(b.date));
+                    const rows = dailySeries(data.rows, period, data.meta);
                     chart(el('traffic'), rows, [['activeUsers', 'Utilisateurs actifs', '#2D7080'], ['sessions', 'Sessions', '#E7B84B']]);
                     chart(el('views-chart'), rows, [['screenPageViews', 'Vues', '#0B2638']]);
+                } else if (report === 'countries' || report === 'devices') {
+                    const rows = data.rows.map(row => ({ ...row, label: window.DalyTracBreakdown.label(row[report === 'countries' ? 'country' : 'deviceCategory'], report === 'countries') }));
+                    window.DalyTracBreakdown.render(el(report), rows, [
+                        { key: 'activeUsers', label: 'Utilisateurs actifs' }, { key: 'sessions', label: 'Sessions' }, { key: 'screenPageViews', label: 'Pages vues' }
+                    ], 'activeUsers');
                 } else table(el(report), definitions[report], data.rows);
             } catch (error) {
                 if (run !== generation) return; failed++;
-                if (report === 'overview') el('status').textContent = error.message;
+                if (report === 'kpis') el('status').textContent = error.message;
                 else { el(report).textContent = error.message; if (report === 'traffic') el('views-chart').textContent = error.message; }
             }
         }));

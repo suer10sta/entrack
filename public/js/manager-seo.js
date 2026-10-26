@@ -120,6 +120,7 @@
         el('refresh').setAttribute('aria-busy', refresh ? 'true' : 'false');
         el('refresh-label').textContent = refresh ? 'Actualisation…' : 'Actualiser';
         ['clicks', 'impressions', 'ctr', 'position'].forEach(k => el(k).textContent = '—');
+        ['countries', 'devices'].forEach(k => window.DalyTracBreakdown.destroy(el(k)));
         ['traffic', 'position-chart', 'queries', 'pages', 'countries', 'devices', 'sitemaps'].forEach(k => el(k).textContent = 'Chargement…');
         let failed = false;
         await Promise.all(['overview', 'queries', 'pages', 'countries', 'devices', 'sitemaps'].map(async report => {
@@ -131,6 +132,12 @@
                     el('diagnostics').textContent = JSON.stringify({ ...data._meta, backend_totals: data.totals, displayed: Object.fromEntries(['clicks', 'impressions', 'ctr', 'position'].map(k => [k, el(k).textContent])), display_rules: 'Clics/impressions : valeurs Google ; CTR : ratio Google × 100 ; position : valeur Google. Arrondi visuel à 2 décimales.' }, null, 2);
                     chart(el('traffic'), data.rows, [['clicks', 'Clics', '#2D7080'], ['impressions', 'Impressions', '#E7B84B']]);
                     chart(el('position-chart'), data.rows, [['position', 'Position moyenne', '#0B2638']]);
+                } else if (report === 'countries' || report === 'devices') {
+                    const rows = (data.rows || []).map(row => ({ ...row, code: row.keys[0], label: window.DalyTracBreakdown.label(row.keys[0], report === 'countries') }));
+                    window.DalyTracBreakdown.render(el(report), rows, [
+                        { key: 'impressions', label: 'Impressions' }, { key: 'clicks', label: 'Clics' },
+                        { key: 'ctr', label: 'CTR', percent: true, digits: 2 }, { key: 'position', label: 'Position moyenne', digits: 2 }
+                    ], 'impressions');
                 } else if (report === 'sitemaps') {
                     table(el(report), ['Sitemap', 'État', 'Erreurs', 'Alertes', 'Dernière lecture'], (data.sitemap || []).map(s => [s.path, s.isPending ? 'En attente' : Number(s.errors) > 0 ? 'Erreur' : Number(s.warnings) > 0 ? 'Avertissement' : 'Traité', fmt(s.errors), fmt(s.warnings), s.lastDownloaded || '—']));
                 } else {

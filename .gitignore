@@ -24,6 +24,9 @@ yarn-error.log
 !/tests/Feature/SearchConsoleTest.php
 !/tests/Feature/GoogleAnalyticsTest.php
 !/tests/Feature/AnalyticsBusinessEventsTest.php
+!/tests/JavaScript/
+!/tests/JavaScript/GoogleAnalyticsCharts.cjs
+!/tests/JavaScript/SeoBreakdownCharts.cjs
 /public/entreprise_images
 /public/employee_images
 /public/devis

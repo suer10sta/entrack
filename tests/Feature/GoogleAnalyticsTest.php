@@ -128,6 +128,49 @@ class GoogleAnalyticsTest extends TestCase
         Http::assertNothingSent();
     }
 
+    public function test_six_kpis_use_exact_returning_users_and_only_selected_key_events(): void
+    {
+        $this->login();
+        $fixture = ['reports' => [
+            ['rows' => [['metricValues' => array_map(fn ($v) => ['value' => (string) $v], [42, 115, 35, 299])]], 'metadata' => ['timeZone' => 'Europe/Brussels']],
+            ['rows' => [['metricValues' => [['value' => '13']]]]],
+            ['rows' => [['metricValues' => [['value' => '8']]]]],
+        ]];
+        Http::fake(['analyticsdata.googleapis.com/*' => Http::response($fixture)]);
+        foreach ([7, 28, 90, 180] as $days) {
+            $url = '/api/seo/google-analytics/kpis?days='.$days;
+            $response = $this->getJson($url)->assertOk()->assertJsonPath('meta.cache_hit', false);
+            $this->assertSame(['activeUsers' => 42, 'sessions' => 115, 'newUsers' => 35, 'screenPageViews' => 299, 'returningUsers' => 13, 'conversions' => 8], $response->json('totals'));
+            $this->getJson($url)->assertOk()->assertJsonPath('meta.cache_hit', true);
+            $this->getJson($url.'&refresh=1')->assertOk()->assertJsonPath('meta.cache_hit', false);
+        }
+        Http::assertSentCount(8);
+        foreach (Http::recorded() as [$request]) {
+            $this->assertStringEndsWith(':batchRunReports', $request->url());
+            $requests = $request['requests'];
+            $this->assertSame([['name' => 'totalUsers']], $requests[1]['metrics']);
+            $this->assertSame('returning', $requests[1]['dimensionFilter']['filter']['stringFilter']['value']);
+            $this->assertSame([['name' => 'keyEvents']], $requests[2]['metrics']);
+            $this->assertSame(['sign_up', 'subscription_success'], $requests[2]['dimensionFilter']['filter']['inListFilter']['values']);
+            foreach ($requests as $part) {
+                $this->assertSame($requests[0]['dateRanges'], $part['dateRanges']);
+            }
+            $this->assertSame('today', $requests[0]['dateRanges'][0]['endDate']);
+        }
+        $html = $this->get('/manager/seo/google-analytics')->assertOk()->getContent();
+        preg_match_all('/<strong id="ga-([^"]+)"/', $html, $matches);
+        $this->assertSame(['activeUsers', 'sessions', 'newUsers', 'returningUsers', 'screenPageViews', 'conversions'], $matches[1]);
+    }
+
+    public function test_empty_kpi_reports_are_zero_and_incomplete_batch_is_not_silently_accepted(): void
+    {
+        $this->login();
+        Http::fake(['*' => Http::sequence()->push(['reports' => [[], [], []]])->push(['reports' => [[]]])]);
+        $response = $this->getJson('/api/seo/google-analytics/kpis')->assertOk();
+        $this->assertSame(0, array_sum($response->json('totals')));
+        $this->getJson('/api/seo/google-analytics/kpis?refresh=1')->assertStatus(502);
+    }
+
     public function test_all_periods_share_dates_across_reports_and_have_independent_refreshable_cache(): void
     {
         $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
