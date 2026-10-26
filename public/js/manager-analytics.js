@@ -99,7 +99,7 @@
         }));
         if (run !== generation) return;
         el('refresh').disabled = false; el('refresh').setAttribute('aria-busy', 'false');
-        if (overviewMeta) el('status').textContent = `${period} jours jusqu’à hier · ${overviewMeta.timezone || 'fuseau de la propriété'} · ${overviewMeta.cache_hit ? 'données en cache' : 'données récupérées depuis Google'} · ${new Date(overviewMeta.fetched_at).toLocaleString('fr-FR')}${failed ? ' · Certains rapports sont indisponibles.' : ''}${limited ? ' · Google applique des seuils, un échantillonnage ou une limite de lignes à certains résultats.' : ''}`;
+        if (overviewMeta) el('status').textContent = `${period} jours jusqu’à aujourd’hui · données récentes susceptibles d’évoluer · ${overviewMeta.timezone || 'fuseau de la propriété'} · ${overviewMeta.cache_hit ? 'données en cache' : 'données récupérées depuis Google'} · ${new Date(overviewMeta.fetched_at).toLocaleString('fr-FR')}${failed ? ' · Certains rapports sont indisponibles.' : ''}${limited ? ' · Google applique des seuils, un échantillonnage ou une limite de lignes à certains résultats.' : ''}`;
     }
     root.querySelectorAll('[data-days]').forEach(button => button.addEventListener('click', () => {
         days = Number(button.dataset.days); root.querySelectorAll('[data-days]').forEach(b => b.setAttribute('aria-pressed', String(b === button))); load();

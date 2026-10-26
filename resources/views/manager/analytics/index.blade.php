@@ -35,7 +35,7 @@
         <section class="ga-card"><div class="ga-card-heading"><h2>{{ $item[0] }}</h2><span>{{ $item[1] }}</span></div><div class="ga-table-wrap" id="ga-{{ $key }}">Chargement…</div></section>
         @endforeach
     </div>
-    <p class="ga-footnote">Périodes jusqu’à hier, selon le fuseau de la propriété GA4. Les données récentes peuvent évoluer. Les utilisateurs sont dédupliqués sur la période : les totaux des tableaux ne s’additionnent pas nécessairement. Engagement / utilisateur = durée totale d’engagement ÷ utilisateurs actifs. Les tableaux affichent jusqu’à 1 000 lignes.</p>
+    <p class="ga-footnote">Périodes jusqu’à aujourd’hui, selon le fuseau de la propriété GA4. Les données récentes peuvent évoluer. Les utilisateurs sont dédupliqués sur la période : les totaux des tableaux ne s’additionnent pas nécessairement. Engagement / utilisateur = durée totale d’engagement ÷ utilisateurs actifs. Les tableaux affichent jusqu’à 1 000 lignes.</p>
     @endif
 </div>
 @if($connected && $propertyId)<script src="{{ asset('js/manager-analytics.js') }}" defer></script>@endif

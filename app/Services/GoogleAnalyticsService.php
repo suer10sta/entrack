@@ -36,13 +36,13 @@ class GoogleAnalyticsService
         }
         [$dimensions, $metrics] = $definitions[$report];
         // Relative dates are evaluated by GA4 in the property's own timezone.
-        $body = ['dateRanges' => [['startDate' => $days.'daysAgo', 'endDate' => 'yesterday']],
+        $body = ['dateRanges' => [['startDate' => $days.'daysAgo', 'endDate' => 'today']],
             'dimensions' => array_map(fn ($name) => ['name' => $name], $dimensions),
             'metrics' => array_map(fn ($name) => ['name' => $name], $metrics), 'limit' => $report === 'overview' ? 1 : 1000];
         if ($dimensions) {
             $body['orderBys'] = $report === 'traffic' ? [['dimension' => ['dimensionName' => 'date']]] : [['metric' => ['metricName' => $metrics[0]], 'desc' => true]];
         }
-        $key = 'ga4:v1:'.hash('sha256', json_encode([$managerId, $connection->getRawOriginal('access_token'), $property, $body, now('UTC')->toDateString()]));
+        $key = 'ga4:v2:'.hash('sha256', json_encode([$managerId, $connection->getRawOriginal('access_token'), $property, $body, now('UTC')->toDateString()]));
         if (! $refresh && ($cached = Cache::get($key)) !== null) {
             $cached['meta']['cache_hit'] = true;
 

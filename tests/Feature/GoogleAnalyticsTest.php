@@ -69,7 +69,7 @@ class GoogleAnalyticsTest extends TestCase
         $this->getJson('/api/seo/google-analytics/overview?days=28')->assertOk()
             ->assertJsonPath('totals.activeUsers', 42)->assertJsonPath('totals.screenPageViews', 299)->assertJsonPath('totals.engagementRate', .6)
             ->assertJsonPath('meta.timezone', 'Europe/Brussels');
-        Http::assertSent(fn ($r) => $r->hasHeader('Authorization', 'Bearer shared-access') && $r['dimensions'] === [] && $r['dateRanges'][0] === ['startDate' => '28daysAgo', 'endDate' => 'yesterday']);
+        Http::assertSent(fn ($r) => $r->hasHeader('Authorization', 'Bearer shared-access') && $r['dimensions'] === [] && $r['dateRanges'][0] === ['startDate' => '28daysAgo', 'endDate' => 'today']);
     }
 
     public function test_cache_refresh_period_and_manager_isolation(): void
@@ -126,5 +126,31 @@ class GoogleAnalyticsTest extends TestCase
         config(['analytics.property_id' => 'G-MEASUREMENT']);
         $this->getJson('/api/seo/google-analytics/overview')->assertStatus(503);
         Http::assertNothingSent();
+    }
+
+    public function test_all_periods_share_dates_across_reports_and_have_independent_refreshable_cache(): void
+    {
+        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->login();
+        Http::fake(['analyticsdata.googleapis.com/*' => Http::response(['rows' => []])]);
+        $reports = ['overview', 'traffic', 'pages', 'sources', 'campaigns', 'events', 'countries', 'devices'];
+        $count = 0;
+        foreach ([7, 28, 90, 180] as $days) {
+            foreach ($reports as $report) {
+                $url = '/api/seo/google-analytics/'.$report.'?days='.$days;
+                $this->getJson($url)->assertOk()->assertJsonPath('meta.cache_hit', false)->assertJsonPath('meta.days', $days);
+                $count++;
+                Http::assertSentCount($count);
+                $this->getJson($url)->assertOk()->assertJsonPath('meta.cache_hit', true);
+                Http::assertSentCount($count);
+            }
+            $this->getJson('/api/seo/google-analytics/overview?days='.$days.'&refresh=1')->assertOk()->assertJsonPath('meta.cache_hit', false);
+            $count++;
+        }
+        foreach (Http::recorded() as [$request]) {
+            $this->assertSame('today', $request['dateRanges'][0]['endDate']);
+            $this->assertContains($request['dateRanges'][0]['startDate'], ['7daysAgo', '28daysAgo', '90daysAgo', '180daysAgo']);
+        }
+        Http::assertSentCount(36);
     }
 }
