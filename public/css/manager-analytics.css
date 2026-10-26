@@ -1,0 +1,100 @@
+#ga-dashboard{max-width:1600px;margin:auto;padding:28px;display:flex;flex-direction:column;gap:20px;color:#0B2638;font-size:13px}
+#ga-dashboard *{box-sizing:border-box}
+#ga-dashboard h1,#ga-dashboard h2,#ga-dashboard p{margin:0}
+.ga-header{display:flex;justify-content:space-between;align-items:center;gap:20px}
+.ga-header h1{font-size:24px;font-weight:700;letter-spacing:-.6px;line-height:1.3}
+.ga-header p{color:#71838f;margin-top:6px!important;font-size:12px}
+.ga-actions{display:flex;gap:8px;flex-wrap:wrap}
+.ga-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:8px;padding:10px 13px;font-size:11px;font-weight:600;border:1px solid transparent;text-decoration:none;cursor:pointer}
+.ga-primary{background:#2D7080;color:white}
+.ga-secondary{background:white;border-color:#d6e2e8;color:#2D7080}
+.ga-button:hover{filter:brightness(.97)}
+.ga-toolbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 20px;background:#fff;border:1px solid #dde6eb;border-radius:14px;box-shadow:0 2px 4px #0b263804}
+.ga-property{display:flex;flex-direction:column;gap:6px;margin-right:auto}
+.ga-property span{font-size:11px;font-weight:600;color:#647886}
+.ga-property strong{font-size:12px;font-weight:500;color:#0B2638}
+.ga-periods{display:flex;gap:5px}
+.ga-periods button{background:white;border:1px solid #dce5eb;border-radius:7px;padding:8px 13px;font-size:11px;color:#607787}
+.ga-periods button[aria-pressed=true]{background:#0B2638;border-color:#0B2638;color:white}
+.ga-button svg{width:15px;height:15px}
+.ga-button:disabled{opacity:.55;cursor:wait}
+#ga-refresh[aria-busy=true] svg{animation:ga-spin 1s linear infinite}
+@keyframes ga-spin{to{transform:rotate(360deg)}
+}
+#ga-status{font-size:11px;color:#718592;min-height:16px}
+.ga-card{background:white;border:1px solid #dde6eb;border-radius:14px;padding:20px;box-shadow:0 2px 4px #0b263804;min-width:0}
+.ga-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px}
+.ga-kpi>div{display:flex;justify-content:space-between;align-items:center;gap:5px}
+.ga-kpi h2{font-size:10px;font-weight:600;color:#718592}
+.ga-kpi span{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:#edf4f6;color:#2D7080}
+.ga-kpi strong{display:block;margin-top:17px;font-size:27px;letter-spacing:-.7px;line-height:1.1;font-weight:700}
+.ga-chart-grid,.ga-report-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.ga-card-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.ga-card-heading h2{font-size:14px;font-weight:700}
+.ga-card-heading>span{font-size:10px;color:#8b9ca6}
+.ga-caption{font-size:10px;color:#8b9ca6}
+.ga-table-wrap{max-height:310px;overflow:auto;scrollbar-width:thin;font-size:11px}
+.ga-table-wrap table{width:100%;border-collapse:separate;border-spacing:0;text-align:left;font-variant-numeric:tabular-nums}
+.ga-table-wrap th{position:sticky;top:0;background:#f6f9fa;color:#7d8f9a;white-space:nowrap;font-weight:600;padding:10px;border-bottom:1px solid #e4edf1}
+.ga-table-wrap td{padding:11px 10px;border-bottom:1px solid #edf2f5;color:#425f6f}
+.ga-table-wrap tr:hover td{background:#f9fbfc}
+.ga-table-wrap td:first-child{color:#2D7080;overflow-wrap:anywhere;max-width:280px;min-width:110px}
+.ga-table-wrap td:not(:first-child),.ga-table-wrap th:not(:first-child){text-align:right}
+.ga-footnote{font-size:10px;line-height:1.7;color:#8a9ba5}
+.ga-alert{padding:14px 18px;border-radius:9px;background:#fff3ef;color:#a33e27}
+.ga-notice{padding:14px 18px;border-radius:9px;background:#eaf5f3;color:#2D7080}
+.ga-empty{padding:35px}
+.ga-empty h2{font-size:18px;margin-bottom:10px!important}
+.ga-plot{position:relative;width:100%}
+.ga-plot svg{display:block;width:100%;height:190px}
+.ga-legend{display:flex;gap:14px;margin:10px 0 3px;font-size:10px}
+.ga-legend span:before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:5px}
+.ga-tooltip{position:absolute;top:5px;max-width:230px;padding:8px 10px;border-radius:7px;background:#0B2638;color:white;font-size:10px;pointer-events:none;z-index:2}
+.ga-chart-details{font-size:10px;color:#718592;border-top:1px solid #edf2f5;padding-top:9px;margin-top:8px}
+.ga-chart-details summary{cursor:pointer}
+.ga-chart-details .ga-table-wrap{margin-top:8px;max-height:200px}
+#ga-dashboard :is(button,a,summary):focus-visible{outline:3px solid #E7B84B;outline-offset:3px}
+@media(max-width:1250px){.ga-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:800px){#ga-dashboard{padding:20px}
+.ga-header{align-items:flex-start;flex-direction:column}
+.ga-chart-grid,.ga-report-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:480px){#ga-dashboard{padding:14px;gap:14px}
+.ga-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.ga-card{padding:14px}
+.ga-kpi strong{font-size:24px}
+.ga-periods button{padding:8px}
+.ga-card-heading>span{display:none}
+.ga-toolbar{flex-wrap:wrap}
+.ga-actions{width:100%}
+}
+@media(prefers-reduced-motion:reduce){#ga-refresh[aria-busy=true] svg{animation:none}
+}
+
+
+#ga-dashboard .ga-kpi{position:relative;min-height:104px;border:0;background:#0B2638;color:#fff;overflow:hidden}
+
+#ga-dashboard .ga-kpi:nth-child(3n+2){background:#2D7080}
+
+#ga-dashboard .ga-kpi:nth-child(3n){background:#E7B84B;color:#0B2638}
+
+#ga-dashboard .ga-kpi h2{color:inherit;opacity:.8;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:500}
+
+#ga-dashboard .ga-kpi span{width:28px;height:28px;border-radius:9px;background:#ffffff20;color:inherit;flex-shrink:0}
+
+#ga-dashboard .ga-kpi strong{font-size:28px;margin-top:10px;letter-spacing:-.7px}
+
+#ga-dashboard .ga-chart-grid>.ga-card{padding:16px 18px}
+
+#ga-dashboard .ga-header .ga-button{font-size:12px;padding:11px 16px;border-radius:9px}
+
+@media(max-width:1100px){#ga-dashboard{padding:20px}
+}
+
+@media(max-width:480px){#ga-dashboard{padding:14px}
+.ga-kpi{padding:16px}
+#ga-dashboard .ga-kpi strong{font-size:24px}
+.ga-header h1{font-size:20px}
+}
+

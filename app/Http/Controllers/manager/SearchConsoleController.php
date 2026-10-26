@@ -17,23 +17,26 @@ class SearchConsoleController extends Controller
 
     public function connect(Request $request, SearchConsoleService $service)
     {
+        $analytics = $request->query('integration') === 'analytics';
+        $destination = $analytics ? 'manager.seo.analytics' : 'manager.seo.index';
         $state = bin2hex(random_bytes(32));
-        $request->session()->put('gsc_oauth', ['state' => $state, 'manager' => auth('manager')->id(), 'expires' => now()->addMinutes(10)->timestamp]);
+        $request->session()->put('gsc_oauth', ['state' => $state, 'manager' => auth('manager')->id(), 'expires' => now()->addMinutes(10)->timestamp, 'destination' => $destination]);
         try {
-            return redirect()->away((string) $service->oauth()->buildFullAuthorizationUri(['state' => $state, 'access_type' => 'offline', 'prompt' => 'consent']));
+            return redirect()->away((string) $service->oauth($analytics)->buildFullAuthorizationUri(['state' => $state, 'access_type' => 'offline', 'prompt' => 'consent', 'include_granted_scopes' => 'true']));
         } catch (HttpExceptionInterface $e) {
-            return redirect()->route('manager.seo.index')->with('gsc_error', $e->getMessage());
+            return redirect()->route($destination)->with('gsc_error', $e->getMessage());
         }
     }
 
     public function callback(Request $request, SearchConsoleService $service)
     {
         $pending = $request->session()->pull('gsc_oauth');
+        $destination = ($pending['destination'] ?? null) === 'manager.seo.analytics' ? 'manager.seo.analytics' : 'manager.seo.index';
         if (! $pending || ! is_string($request->query('state')) || ! hash_equals($pending['state'], $request->query('state')) || $pending['manager'] !== auth('manager')->id() || $pending['expires'] < now()->timestamp) {
             return redirect()->route('manager.seo.index')->with('gsc_error', 'Autorisation expirée ou invalide. Relancez la connexion Google.');
         }
         if ($request->has('error')) {
-            return redirect()->route('manager.seo.index')->with('gsc_error', 'Autorisation Google annulée ou refusée.');
+            return redirect()->route($destination)->with('gsc_error', 'Autorisation Google annulée ou refusée.');
         }
         $request->validate(['code' => 'required|string|max:4096']);
         try {
@@ -41,9 +44,9 @@ class SearchConsoleController extends Controller
             $oauth->setCode($request->query('code'));
             $service->storeTokens(auth('manager')->id(), $service->exchange($oauth));
 
-            return redirect()->route('manager.seo.index')->with('gsc_success', 'Google Search Console connecté.');
+            return redirect()->route($destination)->with('gsc_success', $destination === 'manager.seo.analytics' ? 'Autorisations Google mises à jour.' : 'Google Search Console connecté.');
         } catch (HttpExceptionInterface $e) {
-            return redirect()->route('manager.seo.index')->with('gsc_error', $e->getMessage());
+            return redirect()->route($destination)->with('gsc_error', $e->getMessage());
         }
     }
 

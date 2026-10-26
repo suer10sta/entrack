@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class SearchConsoleService
 {
-    public function oauth(): OAuth2
+    public function oauth(bool $analytics = false): OAuth2
     {
         if (! config('search-console.client_id') || ! config('search-console.client_secret')) {
             throw new HttpException(503, 'Configurez les identifiants Google sur le serveur.');
@@ -22,7 +22,9 @@ class SearchConsoleService
             'redirectUri' => config('search-console.redirect_uri'),
             'authorizationUri' => 'https://accounts.google.com/o/oauth2/v2/auth',
             'tokenCredentialUri' => 'https://oauth2.googleapis.com/token',
-            'scope' => 'https://www.googleapis.com/auth/webmasters.readonly',
+            'scope' => $analytics
+                ? ['https://www.googleapis.com/auth/webmasters.readonly', 'https://www.googleapis.com/auth/analytics.readonly']
+                : 'https://www.googleapis.com/auth/webmasters.readonly',
         ]);
     }
 
@@ -52,7 +54,7 @@ class SearchConsoleService
         return $connection;
     }
 
-    private function token(int $managerId, bool $force = false, ?string $rejected = null): string
+    public function token(int $managerId, bool $force = false, ?string $rejected = null): string
     {
         return Cache::lock('gsc:refresh:'.$managerId, 30)->block(5, function () use ($managerId, $force, $rejected) {
             $connection = SearchConsoleConnection::where('manager_id', $managerId)->first();

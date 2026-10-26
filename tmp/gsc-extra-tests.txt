@@ -1,0 +1,43 @@
+    public function test_kpis_preserve_raw_aggregate_not_daily_or_table_totals(): void
+    {
+        $this->login();
+        $this->connection();
+        $raw = ['clicks' => 2, 'impressions' => 10, 'ctr' => .2, 'position' => 26.3];
+        Http::fake(['*' => Http::sequence()->push(['rows' => [$raw], 'responseAggregationType' => 'byProperty'])->push(['rows' => [['keys' => ['2026-10-22'], 'clicks' => 0, 'impressions' => 7, 'ctr' => 0, 'position' => 99]]])]);
+        $response = $this->getJson('/api/seo/overview?site=sc-domain:dalytrac.com&start=2026-09-26&end=2026-10-26')->assertOk();
+        $this->assertSame($raw, $response->json('totals'));
+        $this->assertSame($raw, $response->json('_meta.raw_aggregate_response.rows.0'));
+        $response->assertJsonPath('_meta.daily_counts.impressions', 7)->assertJsonPath('_meta.timezone', 'America/Los_Angeles');
+        Http::assertSent(function ($request) {
+            $data = $request->data();
+            return $data['startDate'] === '2026-09-26' && $data['endDate'] === '2026-10-26'
+                && $data['dataState'] === 'all' && $data['type'] === 'web' && $data['aggregationType'] === 'byProperty'
+                && !isset($data['dimensions'], $data['rowLimit']) && !isset($data['dimensionFilterGroups']);
+        });
+    }
+
+    public function test_cache_separates_data_state_search_type_and_explicit_refresh(): void
+    {
+        $this->login(); $this->connection();
+        Http::fake(['*' => Http::response(['rows' => []])]);
+        $url = '/api/seo/overview?site=sc-domain:dalytrac.com&start=2026-09-26&end=2026-10-26';
+        $this->getJson($url)->assertOk()->assertJsonPath('_meta.cache_hit', false);
+        $this->getJson($url)->assertOk()->assertJsonPath('_meta.cache_hit', true);
+        Http::assertSentCount(2);
+        $this->getJson($url.'&data_state=final')->assertOk()->assertJsonPath('_meta.request.dataState', 'final');
+        $this->getJson($url.'&type=image')->assertOk()->assertJsonPath('_meta.request.type', 'image');
+        $this->getJson($url.'&refresh=1')->assertOk()->assertJsonPath('_meta.cache_hit', false);
+        Http::assertSentCount(8);
+        $this->getJson($url)->assertOk()->assertJsonPath('_meta.cache_hit', true);
+        Http::assertSentCount(8);
+    }
+
+    public function test_dates_remain_inclusive_pacific_dates_despite_application_timezone(): void
+    {
+        $this->login(); $this->connection();
+        config(['app.timezone' => 'Asia/Tokyo']);
+        Http::fake(['*' => Http::response(['rows' => []])]);
+        $this->getJson('/api/seo/overview?site=sc-domain:dalytrac.com&start=2026-09-26&end=2026-10-26')->assertOk()
+            ->assertJsonPath('_meta.request.startDate', '2026-09-26')->assertJsonPath('_meta.request.endDate', '2026-10-26');
+    }
+

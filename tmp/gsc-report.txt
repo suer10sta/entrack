@@ -1,0 +1,55 @@
+    public function report(int $managerId, string $report, string $site, string $start, string $end, array $options = []): array
+    {
+        $connection = SearchConsoleConnection::where('manager_id', $managerId)->first();
+        if (! $connection) {
+            throw new HttpException(401, 'Connectez votre compte Google Search Console.');
+        }
+        $state = $options['data_state'] ?? 'all';
+        $type = $options['type'] ?? 'web';
+        if (!in_array($state, ['all', 'final'], true) || !in_array($type, ['web', 'image', 'video', 'news'], true)) {
+            throw new HttpException(422, 'Paramètres Search Console invalides.');
+        }
+        // Version the cache when changing API semantics; never reuse old final-only results.
+        $key = 'gsc:v2:'.hash('sha256', json_encode([$managerId, $connection->getRawOriginal('access_token'), $report, $site, $start, $end, $state, $type]));
+        $cached = empty($options['refresh']) ? Cache::get($key) : null;
+        if ($cached !== null) {
+            if (isset($cached['_meta'])) { $cached['_meta']['cache_hit'] = true; }
+            return $cached;
+        }
+        if ($report === 'sites') {
+            $result = $this->request($managerId, 'sites');
+        } elseif ($report === 'sitemaps') {
+            $result = $this->request($managerId, 'sites/'.rawurlencode($site).'/sitemaps');
+        } else {
+            $path = 'sites/'.rawurlencode($site).'/searchAnalytics/query';
+            $body = ['startDate' => $start, 'endDate' => $end, 'type' => $type, 'dataState' => $state];
+            if ($report === 'overview') {
+                // No dimensions, filters or row limit: use Google's complete property aggregate.
+                $aggregateRequest = $body + ['aggregationType' => 'byProperty'];
+                $totals = $this->request($managerId, $path, $aggregateRequest);
+                $daily = $this->request($managerId, $path, $aggregateRequest + ['dimensions' => ['date'], 'rowLimit' => 1000]);
+                $rows = $daily['rows'] ?? [];
+                usort($rows, fn ($a, $b) => strcmp($a['keys'][0], $b['keys'][0]));
+                $result = ['totals' => $totals['rows'][0] ?? null, 'rows' => $rows, '_meta' => [
+                    'property' => $site, 'request' => $aggregateRequest,
+                    'timezone' => 'America/Los_Angeles', 'dates_inclusive' => true,
+                    'filters' => [], 'fetched_at' => now('UTC')->toIso8601String(), 'cache_hit' => false,
+                    'raw_aggregate_response' => $totals,
+                    'daily_metadata' => $daily['metadata'] ?? null,
+                    'daily_row_count' => count($rows),
+                    // Diagnostic only: neither these sums nor averages of rows drive the KPI cards.
+                    'daily_counts' => ['clicks' => array_sum(array_column($rows, 'clicks')), 'impressions' => array_sum(array_column($rows, 'impressions'))],
+                    'kpi_source' => 'raw_aggregate_response.rows[0]',
+                ]];
+                if (config('search-console.debug')) {
+                    \Illuminate\Support\Facades\Log::debug('GSC KPI trace', ['manager_id' => $managerId, 'trace' => $result['_meta'], 'backend_totals' => $result['totals']]);
+                }
+            } else {
+                $dimensions = ['queries' => 'query', 'pages' => 'page', 'countries' => 'country', 'devices' => 'device'];
+                $result = $this->request($managerId, $path, $body + ['dimensions' => [$dimensions[$report]], 'rowLimit' => 1000]);
+            }
+        }
+        Cache::put($key, $result, now()->addHours(config('search-console.cache_hours')));
+        return $result;
+    }
+}
