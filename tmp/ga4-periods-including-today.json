@@ -1,0 +1,2302 @@
+{
+    "checked_at": "2026-10-26T15:27:30+00:00",
+    "property_id": "560766425",
+    "periods": {
+        "7": {
+            "reports": {
+                "overview": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "7daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [],
+                                "metrics": [
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "newUsers"
+                                    },
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "screenPageViews"
+                                    },
+                                    {
+                                        "name": "engagementRate"
+                                    },
+                                    {
+                                        "name": "userEngagementDuration"
+                                    },
+                                    {
+                                        "name": "engagedSessions"
+                                    },
+                                    {
+                                        "name": "eventCount"
+                                    },
+                                    {
+                                        "name": "keyEvents"
+                                    }
+                                ],
+                                "limit": 1
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "activeUsers": 1,
+                                "newUsers": 1,
+                                "sessions": 1,
+                                "screenPageViews": 2,
+                                "engagementRate": 1,
+                                "userEngagementDuration": 0,
+                                "engagedSessions": 1,
+                                "eventCount": 6,
+                                "keyEvents": 0
+                            }
+                        ],
+                        "totals": {
+                            "activeUsers": 1,
+                            "newUsers": 1,
+                            "sessions": 1,
+                            "screenPageViews": 2,
+                            "engagementRate": 1,
+                            "userEngagementDuration": 0,
+                            "engagedSessions": 1,
+                            "eventCount": 6,
+                            "keyEvents": 0
+                        },
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 7,
+                            "fetched_at": "2026-10-26T15:27:31+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "traffic": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "7daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "date"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "newUsers"
+                                    },
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "screenPageViews"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "dimension": {
+                                            "dimensionName": "date"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "date": "20261026",
+                                "activeUsers": 1,
+                                "newUsers": 1,
+                                "sessions": 1,
+                                "screenPageViews": 2
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 7,
+                            "fetched_at": "2026-10-26T15:27:32+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "pages": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "7daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "pagePath"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "screenPageViews"
+                                    },
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "engagementRate"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "screenPageViews"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "pagePath": "/fr/contact",
+                                "screenPageViews": 2,
+                                "activeUsers": 1,
+                                "engagementRate": 1
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 7,
+                            "fetched_at": "2026-10-26T15:27:33+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "sources": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "7daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "sessionDefaultChannelGroup"
+                                    },
+                                    {
+                                        "name": "sessionSourceMedium"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "newUsers"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "sessions"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "sessionDefaultChannelGroup": "Direct",
+                                "sessionSourceMedium": "(direct) / (none)",
+                                "sessions": 1,
+                                "activeUsers": 1,
+                                "newUsers": 1
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 7,
+                            "fetched_at": "2026-10-26T15:27:35+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "campaigns": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "7daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "sessionCampaignName"
+                                    },
+                                    {
+                                        "name": "sessionSourceMedium"
+                                    },
+                                    {
+                                        "name": "sessionManualAdContent"
+                                    },
+                                    {
+                                        "name": "sessionManualTerm"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "keyEvents"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "sessions"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "sessionCampaignName": "(direct)",
+                                "sessionSourceMedium": "(direct) / (none)",
+                                "sessionManualAdContent": "",
+                                "sessionManualTerm": "",
+                                "sessions": 1,
+                                "activeUsers": 1,
+                                "keyEvents": 0
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 7,
+                            "fetched_at": "2026-10-26T15:27:37+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "events": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "7daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "eventName"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "eventCount"
+                                    },
+                                    {
+                                        "name": "totalUsers"
+                                    },
+                                    {
+                                        "name": "keyEvents"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "eventCount"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "eventName": "page_view",
+                                "eventCount": 2,
+                                "totalUsers": 1,
+                                "keyEvents": 0
+                            },
+                            {
+                                "eventName": "scroll",
+                                "eventCount": 2,
+                                "totalUsers": 1,
+                                "keyEvents": 0
+                            },
+                            {
+                                "eventName": "first_visit",
+                                "eventCount": 1,
+                                "totalUsers": 1,
+                                "keyEvents": 0
+                            },
+                            {
+                                "eventName": "session_start",
+                                "eventCount": 1,
+                                "totalUsers": 1,
+                                "keyEvents": 0
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 7,
+                            "fetched_at": "2026-10-26T15:27:40+00:00",
+                            "cache_hit": false,
+                            "row_count": 4,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "countries": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "7daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "country"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "screenPageViews"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "activeUsers"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "country": "Morocco",
+                                "activeUsers": 1,
+                                "sessions": 1,
+                                "screenPageViews": 2
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 7,
+                            "fetched_at": "2026-10-26T15:27:41+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "devices": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "7daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "deviceCategory"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "screenPageViews"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "activeUsers"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "deviceCategory": "desktop",
+                                "activeUsers": 1,
+                                "sessions": 1,
+                                "screenPageViews": 2
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 7,
+                            "fetched_at": "2026-10-26T15:27:41+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "28": {
+            "reports": {
+                "overview": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "28daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [],
+                                "metrics": [
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "newUsers"
+                                    },
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "screenPageViews"
+                                    },
+                                    {
+                                        "name": "engagementRate"
+                                    },
+                                    {
+                                        "name": "userEngagementDuration"
+                                    },
+                                    {
+                                        "name": "engagedSessions"
+                                    },
+                                    {
+                                        "name": "eventCount"
+                                    },
+                                    {
+                                        "name": "keyEvents"
+                                    }
+                                ],
+                                "limit": 1
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "activeUsers": 1,
+                                "newUsers": 1,
+                                "sessions": 1,
+                                "screenPageViews": 2,
+                                "engagementRate": 1,
+                                "userEngagementDuration": 0,
+                                "engagedSessions": 1,
+                                "eventCount": 6,
+                                "keyEvents": 0
+                            }
+                        ],
+                        "totals": {
+                            "activeUsers": 1,
+                            "newUsers": 1,
+                            "sessions": 1,
+                            "screenPageViews": 2,
+                            "engagementRate": 1,
+                            "userEngagementDuration": 0,
+                            "engagedSessions": 1,
+                            "eventCount": 6,
+                            "keyEvents": 0
+                        },
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 28,
+                            "fetched_at": "2026-10-26T15:27:42+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "traffic": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "28daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "date"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "newUsers"
+                                    },
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "screenPageViews"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "dimension": {
+                                            "dimensionName": "date"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "date": "20261026",
+                                "activeUsers": 1,
+                                "newUsers": 1,
+                                "sessions": 1,
+                                "screenPageViews": 2
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 28,
+                            "fetched_at": "2026-10-26T15:27:43+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "pages": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "28daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "pagePath"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "screenPageViews"
+                                    },
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "engagementRate"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "screenPageViews"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "pagePath": "/fr/contact",
+                                "screenPageViews": 2,
+                                "activeUsers": 1,
+                                "engagementRate": 1
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 28,
+                            "fetched_at": "2026-10-26T15:27:44+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "sources": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "28daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "sessionDefaultChannelGroup"
+                                    },
+                                    {
+                                        "name": "sessionSourceMedium"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "newUsers"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "sessions"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "sessionDefaultChannelGroup": "Direct",
+                                "sessionSourceMedium": "(direct) / (none)",
+                                "sessions": 1,
+                                "activeUsers": 1,
+                                "newUsers": 1
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 28,
+                            "fetched_at": "2026-10-26T15:27:45+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "campaigns": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "28daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "sessionCampaignName"
+                                    },
+                                    {
+                                        "name": "sessionSourceMedium"
+                                    },
+                                    {
+                                        "name": "sessionManualAdContent"
+                                    },
+                                    {
+                                        "name": "sessionManualTerm"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "keyEvents"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "sessions"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "sessionCampaignName": "(direct)",
+                                "sessionSourceMedium": "(direct) / (none)",
+                                "sessionManualAdContent": "",
+                                "sessionManualTerm": "",
+                                "sessions": 1,
+                                "activeUsers": 1,
+                                "keyEvents": 0
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 28,
+                            "fetched_at": "2026-10-26T15:27:46+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "events": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "28daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "eventName"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "eventCount"
+                                    },
+                                    {
+                                        "name": "totalUsers"
+                                    },
+                                    {
+                                        "name": "keyEvents"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "eventCount"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "eventName": "page_view",
+                                "eventCount": 2,
+                                "totalUsers": 1,
+                                "keyEvents": 0
+                            },
+                            {
+                                "eventName": "scroll",
+                                "eventCount": 2,
+                                "totalUsers": 1,
+                                "keyEvents": 0
+                            },
+                            {
+                                "eventName": "first_visit",
+                                "eventCount": 1,
+                                "totalUsers": 1,
+                                "keyEvents": 0
+                            },
+                            {
+                                "eventName": "session_start",
+                                "eventCount": 1,
+                                "totalUsers": 1,
+                                "keyEvents": 0
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 28,
+                            "fetched_at": "2026-10-26T15:27:47+00:00",
+                            "cache_hit": false,
+                            "row_count": 4,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "countries": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "28daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "country"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "screenPageViews"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "activeUsers"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "country": "Morocco",
+                                "activeUsers": 1,
+                                "sessions": 1,
+                                "screenPageViews": 2
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 28,
+                            "fetched_at": "2026-10-26T15:27:48+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "devices": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "28daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "deviceCategory"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "screenPageViews"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "activeUsers"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "deviceCategory": "desktop",
+                                "activeUsers": 1,
+                                "sessions": 1,
+                                "screenPageViews": 2
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 28,
+                            "fetched_at": "2026-10-26T15:27:50+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "90": {
+            "reports": {
+                "overview": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "90daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [],
+                                "metrics": [
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "newUsers"
+                                    },
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "screenPageViews"
+                                    },
+                                    {
+                                        "name": "engagementRate"
+                                    },
+                                    {
+                                        "name": "userEngagementDuration"
+                                    },
+                                    {
+                                        "name": "engagedSessions"
+                                    },
+                                    {
+                                        "name": "eventCount"
+                                    },
+                                    {
+                                        "name": "keyEvents"
+                                    }
+                                ],
+                                "limit": 1
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "activeUsers": 1,
+                                "newUsers": 1,
+                                "sessions": 1,
+                                "screenPageViews": 2,
+                                "engagementRate": 1,
+                                "userEngagementDuration": 0,
+                                "engagedSessions": 1,
+                                "eventCount": 6,
+                                "keyEvents": 0
+                            }
+                        ],
+                        "totals": {
+                            "activeUsers": 1,
+                            "newUsers": 1,
+                            "sessions": 1,
+                            "screenPageViews": 2,
+                            "engagementRate": 1,
+                            "userEngagementDuration": 0,
+                            "engagedSessions": 1,
+                            "eventCount": 6,
+                            "keyEvents": 0
+                        },
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 90,
+                            "fetched_at": "2026-10-26T15:27:51+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "traffic": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "90daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "date"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "newUsers"
+                                    },
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "screenPageViews"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "dimension": {
+                                            "dimensionName": "date"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "date": "20261026",
+                                "activeUsers": 1,
+                                "newUsers": 1,
+                                "sessions": 1,
+                                "screenPageViews": 2
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 90,
+                            "fetched_at": "2026-10-26T15:27:51+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "pages": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "90daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "pagePath"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "screenPageViews"
+                                    },
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "engagementRate"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "screenPageViews"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "pagePath": "/fr/contact",
+                                "screenPageViews": 2,
+                                "activeUsers": 1,
+                                "engagementRate": 1
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 90,
+                            "fetched_at": "2026-10-26T15:27:52+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "sources": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "90daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "sessionDefaultChannelGroup"
+                                    },
+                                    {
+                                        "name": "sessionSourceMedium"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "newUsers"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "sessions"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "sessionDefaultChannelGroup": "Direct",
+                                "sessionSourceMedium": "(direct) / (none)",
+                                "sessions": 1,
+                                "activeUsers": 1,
+                                "newUsers": 1
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 90,
+                            "fetched_at": "2026-10-26T15:27:53+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "campaigns": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "90daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "sessionCampaignName"
+                                    },
+                                    {
+                                        "name": "sessionSourceMedium"
+                                    },
+                                    {
+                                        "name": "sessionManualAdContent"
+                                    },
+                                    {
+                                        "name": "sessionManualTerm"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "keyEvents"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "sessions"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "sessionCampaignName": "(direct)",
+                                "sessionSourceMedium": "(direct) / (none)",
+                                "sessionManualAdContent": "",
+                                "sessionManualTerm": "",
+                                "sessions": 1,
+                                "activeUsers": 1,
+                                "keyEvents": 0
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 90,
+                            "fetched_at": "2026-10-26T15:27:55+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "events": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "90daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "eventName"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "eventCount"
+                                    },
+                                    {
+                                        "name": "totalUsers"
+                                    },
+                                    {
+                                        "name": "keyEvents"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "eventCount"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "eventName": "page_view",
+                                "eventCount": 2,
+                                "totalUsers": 1,
+                                "keyEvents": 0
+                            },
+                            {
+                                "eventName": "scroll",
+                                "eventCount": 2,
+                                "totalUsers": 1,
+                                "keyEvents": 0
+                            },
+                            {
+                                "eventName": "first_visit",
+                                "eventCount": 1,
+                                "totalUsers": 1,
+                                "keyEvents": 0
+                            },
+                            {
+                                "eventName": "session_start",
+                                "eventCount": 1,
+                                "totalUsers": 1,
+                                "keyEvents": 0
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 90,
+                            "fetched_at": "2026-10-26T15:27:56+00:00",
+                            "cache_hit": false,
+                            "row_count": 4,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "countries": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "90daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "country"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "screenPageViews"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "activeUsers"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "country": "Morocco",
+                                "activeUsers": 1,
+                                "sessions": 1,
+                                "screenPageViews": 2
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 90,
+                            "fetched_at": "2026-10-26T15:27:57+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "devices": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "90daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "deviceCategory"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "screenPageViews"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "activeUsers"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "deviceCategory": "desktop",
+                                "activeUsers": 1,
+                                "sessions": 1,
+                                "screenPageViews": 2
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 90,
+                            "fetched_at": "2026-10-26T15:27:58+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "180": {
+            "reports": {
+                "overview": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "180daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [],
+                                "metrics": [
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "newUsers"
+                                    },
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "screenPageViews"
+                                    },
+                                    {
+                                        "name": "engagementRate"
+                                    },
+                                    {
+                                        "name": "userEngagementDuration"
+                                    },
+                                    {
+                                        "name": "engagedSessions"
+                                    },
+                                    {
+                                        "name": "eventCount"
+                                    },
+                                    {
+                                        "name": "keyEvents"
+                                    }
+                                ],
+                                "limit": 1
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "activeUsers": 1,
+                                "newUsers": 1,
+                                "sessions": 1,
+                                "screenPageViews": 2,
+                                "engagementRate": 1,
+                                "userEngagementDuration": 0,
+                                "engagedSessions": 1,
+                                "eventCount": 6,
+                                "keyEvents": 0
+                            }
+                        ],
+                        "totals": {
+                            "activeUsers": 1,
+                            "newUsers": 1,
+                            "sessions": 1,
+                            "screenPageViews": 2,
+                            "engagementRate": 1,
+                            "userEngagementDuration": 0,
+                            "engagedSessions": 1,
+                            "eventCount": 6,
+                            "keyEvents": 0
+                        },
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 180,
+                            "fetched_at": "2026-10-26T15:27:59+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "traffic": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "180daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "date"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "newUsers"
+                                    },
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "screenPageViews"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "dimension": {
+                                            "dimensionName": "date"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "date": "20261026",
+                                "activeUsers": 1,
+                                "newUsers": 1,
+                                "sessions": 1,
+                                "screenPageViews": 2
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 180,
+                            "fetched_at": "2026-10-26T15:28:00+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "pages": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "180daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "pagePath"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "screenPageViews"
+                                    },
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "engagementRate"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "screenPageViews"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "pagePath": "/fr/contact",
+                                "screenPageViews": 2,
+                                "activeUsers": 1,
+                                "engagementRate": 1
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 180,
+                            "fetched_at": "2026-10-26T15:28:01+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "sources": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "180daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "sessionDefaultChannelGroup"
+                                    },
+                                    {
+                                        "name": "sessionSourceMedium"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "newUsers"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "sessions"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "sessionDefaultChannelGroup": "Direct",
+                                "sessionSourceMedium": "(direct) / (none)",
+                                "sessions": 1,
+                                "activeUsers": 1,
+                                "newUsers": 1
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 180,
+                            "fetched_at": "2026-10-26T15:28:02+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "campaigns": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "180daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "sessionCampaignName"
+                                    },
+                                    {
+                                        "name": "sessionSourceMedium"
+                                    },
+                                    {
+                                        "name": "sessionManualAdContent"
+                                    },
+                                    {
+                                        "name": "sessionManualTerm"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "keyEvents"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "sessions"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "sessionCampaignName": "(direct)",
+                                "sessionSourceMedium": "(direct) / (none)",
+                                "sessionManualAdContent": "",
+                                "sessionManualTerm": "",
+                                "sessions": 1,
+                                "activeUsers": 1,
+                                "keyEvents": 0
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 180,
+                            "fetched_at": "2026-10-26T15:28:03+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "events": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "180daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "eventName"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "eventCount"
+                                    },
+                                    {
+                                        "name": "totalUsers"
+                                    },
+                                    {
+                                        "name": "keyEvents"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "eventCount"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "eventName": "page_view",
+                                "eventCount": 2,
+                                "totalUsers": 1,
+                                "keyEvents": 0
+                            },
+                            {
+                                "eventName": "scroll",
+                                "eventCount": 2,
+                                "totalUsers": 1,
+                                "keyEvents": 0
+                            },
+                            {
+                                "eventName": "first_visit",
+                                "eventCount": 1,
+                                "totalUsers": 1,
+                                "keyEvents": 0
+                            },
+                            {
+                                "eventName": "session_start",
+                                "eventCount": 1,
+                                "totalUsers": 1,
+                                "keyEvents": 0
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 180,
+                            "fetched_at": "2026-10-26T15:28:03+00:00",
+                            "cache_hit": false,
+                            "row_count": 4,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "countries": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "180daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "country"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "screenPageViews"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "activeUsers"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "country": "Morocco",
+                                "activeUsers": 1,
+                                "sessions": 1,
+                                "screenPageViews": 2
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 180,
+                            "fetched_at": "2026-10-26T15:28:05+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                },
+                "devices": {
+                    "requests": [
+                        {
+                            "path": "/v1beta/properties/560766425:runReport",
+                            "body": {
+                                "dateRanges": [
+                                    {
+                                        "startDate": "180daysAgo",
+                                        "endDate": "today"
+                                    }
+                                ],
+                                "dimensions": [
+                                    {
+                                        "name": "deviceCategory"
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "name": "activeUsers"
+                                    },
+                                    {
+                                        "name": "sessions"
+                                    },
+                                    {
+                                        "name": "screenPageViews"
+                                    }
+                                ],
+                                "limit": 1000,
+                                "orderBys": [
+                                    {
+                                        "metric": {
+                                            "metricName": "activeUsers"
+                                        },
+                                        "desc": true
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "response": {
+                        "rows": [
+                            {
+                                "deviceCategory": "desktop",
+                                "activeUsers": 1,
+                                "sessions": 1,
+                                "screenPageViews": 2
+                            }
+                        ],
+                        "totals": null,
+                        "meta": {
+                            "property_id": "560766425",
+                            "days": 180,
+                            "fetched_at": "2026-10-26T15:28:05+00:00",
+                            "cache_hit": false,
+                            "row_count": 1,
+                            "truncated": false,
+                            "timezone": "Europe/Brussels",
+                            "data_quality": {
+                                "currencyCode": "EUR",
+                                "timeZone": "Europe/Brussels"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
