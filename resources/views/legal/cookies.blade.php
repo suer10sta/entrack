@@ -73,7 +73,7 @@
           </nav>
         </aside>
 
-        <div class="min-w-0" x-data="{ panel: false, prefs: true, audience: false, saved: false, save() { try { localStorage.setItem('dalytrac_cookie_consent', JSON.stringify({ necessary: true, preferences: this.prefs, audience: this.audience, at: new Date().toISOString() })); } catch (e) {} this.saved = true; }, refuse() { this.prefs = false; this.audience = false; this.save(); } }">
+        <div class="min-w-0" x-data="{ panel: false, prefs: true, audience: window.DalyTracConsent ? window.DalyTracConsent.allowed() : false, saved: false, save() { try { localStorage.setItem('dalytrac_cookie_consent', JSON.stringify({ necessary: true, preferences: this.prefs, audience: this.audience, at: new Date().toISOString() })); } catch (e) {} if (window.DalyTracConsent) window.DalyTracConsent.choose(this.audience ? 'all' : 'necessary', this.prefs); this.saved = true; }, refuse() { this.prefs = false; this.audience = false; this.save(); } }">
           <section id="definition" aria-labelledby="definition-title" class="scroll-mt-[110px]">
             <h2 id="definition-title" class="text-[clamp(1.65rem,2.4vw,2rem)] font-semibold leading-[1.2] tracking-[-0.037em] text-brand-primary">{{ __('messages.cookies_s1_title') }}</h2>
             <p class="mt-4 text-[0.93rem] leading-[1.75] text-[#50666c]">{{ __('messages.cookies_s1_p1') }}</p>

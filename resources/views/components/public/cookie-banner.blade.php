@@ -8,6 +8,7 @@
             }
         })(),
         save(choice) {
+            if (window.DalyTracConsent) { window.DalyTracConsent.choose(choice); this.open = false; return; }
             try {
                 localStorage.setItem(
                     'dalytrac_cookie_banner_state',

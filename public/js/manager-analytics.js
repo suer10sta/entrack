@@ -62,7 +62,7 @@
     }
     const definitions = {
         sources: [['sessionDefaultChannelGroup', 'Canal'], ['sessionSourceMedium', 'Source / support'], ['sessions', 'Sessions', number], ['activeUsers', 'Actifs', number], ['newUsers', 'Nouveaux', number]],
-        campaigns: [['sessionCampaignName', 'Campagne'], ['sessionSourceMedium', 'Source / support'], ['sessions', 'Sessions', number], ['activeUsers', 'Actifs', number], ['keyEvents', 'Événements clés', number]],
+        campaigns: [['sessionCampaignName', 'Campagne'], ['sessionSourceMedium', 'Source / support'], ['sessionManualAdContent', 'Contenu UTM'], ['sessionManualTerm', 'Terme UTM'], ['sessions', 'Sessions', number], ['activeUsers', 'Actifs', number], ['keyEvents', 'Événements clés', number]],
         events: [['eventName', 'Événement'], ['eventCount', 'Total', number], ['totalUsers', 'Utilisateurs', number], ['keyEvents', 'Événements clés', number]],
         pages: [['pagePath', 'Page'], ['screenPageViews', 'Vues', number], ['activeUsers', 'Actifs', number], ['engagementRate', 'Engagement', n => number(n * 100, 1) + ' %']],
         countries: [['country', 'Pays'], ['activeUsers', 'Actifs', number], ['sessions', 'Sessions', number], ['screenPageViews', 'Vues', number]],

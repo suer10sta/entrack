@@ -23,6 +23,7 @@ yarn-error.log
 !/tests/Feature/HomeMobilePageTest.php
 !/tests/Feature/SearchConsoleTest.php
 !/tests/Feature/GoogleAnalyticsTest.php
+!/tests/Feature/AnalyticsBusinessEventsTest.php
 /public/entreprise_images
 /public/employee_images
 /public/devis

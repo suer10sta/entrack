@@ -26,7 +26,7 @@ class GoogleAnalyticsService
             'traffic' => [['date'], ['activeUsers', 'newUsers', 'sessions', 'screenPageViews']],
             'pages' => [['pagePath'], ['screenPageViews', 'activeUsers', 'engagementRate']],
             'sources' => [['sessionDefaultChannelGroup', 'sessionSourceMedium'], ['sessions', 'activeUsers', 'newUsers']],
-            'campaigns' => [['sessionCampaignName', 'sessionSourceMedium'], ['sessions', 'activeUsers', 'keyEvents']],
+            'campaigns' => [['sessionCampaignName', 'sessionSourceMedium', 'sessionManualAdContent', 'sessionManualTerm'], ['sessions', 'activeUsers', 'keyEvents']],
             'events' => [['eventName'], ['eventCount', 'totalUsers', 'keyEvents']],
             'countries' => [['country'], ['activeUsers', 'sessions', 'screenPageViews']],
             'devices' => [['deviceCategory'], ['activeUsers', 'sessions', 'screenPageViews']],

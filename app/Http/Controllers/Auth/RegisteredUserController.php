@@ -234,6 +234,7 @@ class RegisteredUserController extends Controller
 
 
         Auth::login($user);
+        app(\App\Services\AnalyticsBusinessEvents::class)->registration((int) $entreprise->id, (int) $user->id, $request->session()->get('analytics_context', []));
 
         // Send emails/notifications AFTER the response so a slow or failing
         // mail transport never blocks (or kills) the registration redirect.

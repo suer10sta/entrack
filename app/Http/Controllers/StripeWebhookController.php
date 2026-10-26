@@ -48,6 +48,7 @@ class StripeWebhookController extends CashierWebhookController
                 // who never returns to the success URL still gets their plan.
                 // Only fills/aligns type_compt, never clears it.
                 $paidPlan = $this->planFromInvoice($invoice);
+                app(\App\Services\AnalyticsBusinessEvents::class)->payment((int) $entreprise->id, $invoice ?? [], $paidPlan ?: $entreprise->type_compt);
                 if ($paidPlan && $entreprise->type_compt !== $paidPlan) {
                     $entreprise->forceFill([
                         'type_compt' => $paidPlan,

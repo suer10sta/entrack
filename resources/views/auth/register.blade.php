@@ -270,6 +270,7 @@
             }
         });
     </script>
+    <x-public.cookie-banner />
 </body>
 
 </html>
