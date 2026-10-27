@@ -19,6 +19,7 @@
         "league/flysystem-aws-s3-v3": "^3.29",
         "livewire/livewire": "^3.7",
         "mikehaertl/php-pdftk": "^0.13.1",
+        "phpoffice/phpspreadsheet": "~3.10.0",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
         "spatie/laravel-permission": "^6.3",

@@ -24,9 +24,17 @@ yarn-error.log
 !/tests/Feature/SearchConsoleTest.php
 !/tests/Feature/GoogleAnalyticsTest.php
 !/tests/Feature/AnalyticsBusinessEventsTest.php
+!/tests/Feature/ProspectFoundationTest.php
+!/tests/Feature/ManagerProspectsTest.php
+!/tests/Feature/CrmRegistrationSyncTest.php
+!/tests/Feature/CrmSubscriptionSyncTest.php
+!/tests/Feature/ProspectExcelImportTest.php
+!/tests/Feature/ProspectReferralTest.php
+!/tests/Feature/CrmCampaignTest.php
 !/tests/JavaScript/
 !/tests/JavaScript/GoogleAnalyticsCharts.cjs
 !/tests/JavaScript/SeoBreakdownCharts.cjs
+!/tests/JavaScript/ProspectReferralLink.cjs
 /public/entreprise_images
 /public/employee_images
 /public/devis

@@ -31,6 +31,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         try {
+            $schedule->command('crm:send-campaigns')->everyMinute()->withoutOverlapping(20)
+                ->appendOutputTo(storage_path('logs/scheduler.log'));
+
             // Ensure storage directory exists and is writable
             if (!file_exists(storage_path('app/public'))) {
                 mkdir(storage_path('app/public'), 0755, true);

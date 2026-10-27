@@ -234,6 +234,8 @@ class RegisteredUserController extends Controller
 
 
         Auth::login($user);
+        app(\App\Services\CrmRegistrationSync::class)->registered($user,
+            app(\App\Services\ProspectReferralAttribution::class)->consume($request));
         app(\App\Services\AnalyticsBusinessEvents::class)->registration((int) $entreprise->id, (int) $user->id, $request->session()->get('analytics_context', []));
 
         // Send emails/notifications AFTER the response so a slow or failing

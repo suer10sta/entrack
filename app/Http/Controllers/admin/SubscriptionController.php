@@ -275,6 +275,14 @@ class SubscriptionController extends Controller
             'account_status' => 'active',
         ])->save();
 
+        // CRM is secondary: only the server-confirmed, activated payment reaches this hook.
+        try {
+            app(\App\Services\CrmSubscriptionSync::class)->paid($entreprise, $user, $session);
+        } catch (\Throwable $crmError) {
+            Log::error('CRM payment hook failed; subscription activation is preserved.',
+                ['entreprise_id' => $entreprise->id, 'session_id' => $sessionId, 'exception' => $crmError]);
+        }
+
         $subscription = $entreprise->currentSubscription();
         if ($subscription && $renewalPreference === 'manual') {
             $subscription->cancelAtEndOfPeriod();

@@ -109,6 +109,7 @@ $trackPublicVisit = function () {
 
 require __DIR__ . '/seo.php';
 require __DIR__ . '/search-console.php';
+require __DIR__ . '/prospects.php';
 Route::post('/analytics/consent', \App\Http\Controllers\AnalyticsConsentController::class)->withoutMiddleware(\App\Http\Middleware\CheckSubscription::class)->middleware('throttle:60,1')->block(5, 5)->name('analytics.consent');
 
 Route::prefix('{locale}')->where(['locale' => 'fr|en|nl|es'])->group(function () use ($trackPublicVisit) {

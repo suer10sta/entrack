@@ -17,6 +17,8 @@ class VerifyEmailController extends Controller
     public function __invoke(EmailVerificationRequest $request): RedirectResponse
     {
         if ($request->user()->hasVerifiedEmail()) {
+            // Retry only an existing eligible CRM receipt after a transient failure.
+            app(\App\Services\CrmRegistrationSync::class)->verified($request->user());
             return redirect()->intended(RouteServiceProvider::HOME.'?verified=1');
         }
 
@@ -39,6 +41,7 @@ class VerifyEmailController extends Controller
         }
 
         if ($user->hasVerifiedEmail()) {
+            app(\App\Services\CrmRegistrationSync::class)->verified($user);
             return redirect()->intended(RouteServiceProvider::HOME.'?verified=1');
         }
 

@@ -19,6 +19,7 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         \Illuminate\Auth\Events\Verified::class => [
+            \App\Listeners\SyncProspectAfterVerification::class,
             \App\Listeners\SendWelcomeAfterVerification::class,
         ],
         \App\Events\TrialExpirationWarning::class => [

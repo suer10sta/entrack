@@ -1,0 +1,3 @@
+<label>Nom de la campagne *<input name="name" required maxlength="255" value="{{ old('name', $campaign->name ?? '') }}" placeholder="Ex. Présentation DalyTrac"></label>
+<label>Objet de l’email *<input name="subject" required maxlength="255" value="{{ old('subject', $campaign->subject ?? '') }}" placeholder="L’objet que verront vos destinataires"></label>
+<label>Contenu de l’email *<textarea name="content" required maxlength="50000" rows="9" placeholder="Rédigez votre message…">{{ old('content', $campaign->content ?? '') }}</textarea></label><p class="cc-help">Texte simple, retours à la ligne conservés. Expéditeur : {{ config('mail.from.name') }}.</p>
