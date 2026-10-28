@@ -890,4 +890,48 @@ class CrmCampaignTest extends TestCase
             DB::statement("SET TIME ZONE 'UTC'");
         }
     }
+
+    public function test_global_rates_use_all_sent_campaigns_and_weight_recipients_beyond_pagination(): void
+    {
+        $first = $this->campaign();
+        $first->update(['name' => 'Old sent campaign', 'status' => 'completed']);
+        $second = $this->campaign();
+        $second->update(['status' => 'completed_with_errors']);
+        foreach ([$first, $second, $second, $second] as $index => $campaign) {
+            $prospect = $this->prospect('global'.$index.'@example.test');
+            $campaign->recipients()->create(['prospect_id' => $prospect->id, 'name' => $prospect->name, 'email' => $prospect->email, 'email_normalized' => $prospect->email,
+                'status' => 'sent', 'sent_at' => now(), 'first_opened_at' => $index === 0 ? now() : null, 'open_count' => $index === 0 ? 30 : 0,
+                'first_clicked_at' => $index < 2 ? now() : null, 'click_count' => $index < 2 ? 20 : 0]);
+        }
+        $draft = $this->campaign();
+        $prospect = $this->prospect('draft-global@example.test');
+        $draft->recipients()->create(['prospect_id' => $prospect->id, 'name' => 'Draft', 'email' => $prospect->email, 'email_normalized' => $prospect->email,
+            'status' => 'sent', 'sent_at' => now(), 'first_opened_at' => now(), 'first_clicked_at' => now()]);
+        $prospect = $this->prospect('failed-global@example.test');
+        $second->recipients()->create(['prospect_id' => $prospect->id, 'name' => 'Failed', 'email' => $prospect->email, 'email_normalized' => $prospect->email,
+            'status' => 'failed', 'first_opened_at' => now(), 'first_clicked_at' => now()]);
+        for ($i = 0; $i < 21; $i++) {
+            $this->campaign();
+        }
+        $this->actingAs($this->manager, 'manager');
+        foreach ([1, 2] as $page) {
+            $this->get(route('manager.campaigns.index', ['page' => $page]))->assertOk()
+                ->assertViewHas('globalRates', ['Taux d’ouverture' => '25,0 %', 'Taux de clic' => '50,0 %']);
+        }
+        $this->get(route('manager.campaigns.index'))->assertViewHas('campaigns', fn ($rows) => ! $rows->contains('id', $first->id));
+    }
+
+    public function test_detail_has_exactly_six_kpis_and_empty_global_rates_are_zero(): void
+    {
+        $campaign = $this->campaign();
+        $campaign->update(['status' => 'completed']);
+        $this->actingAs($this->manager, 'manager');
+        $this->get(route('manager.campaigns.index'))->assertOk()->assertViewHas('globalRates', ['Taux d’ouverture' => '0,0 %', 'Taux de clic' => '0,0 %']);
+        $response = $this->get(route('manager.campaigns.show', $campaign))->assertOk()->assertDontSee('Taux d’ouverture')->assertDontSee('Taux de clic');
+        $document = new \DOMDocument;
+        @$document->loadHTML('<?xml encoding="utf-8" ?>'.$response->getContent());
+        $labels = (new \DOMXPath($document))->query('//div[contains(concat(" ", normalize-space(@class), " "), " cc-detail-kpis ")]/div/span');
+        $this->assertSame(['Total destinataires', 'Envoyés avec succès', 'En attente', 'Échecs', 'Ouverts', 'Cliqués'], array_map(fn ($node) => trim($node->textContent), iterator_to_array($labels)));
+        $response->assertSee('Résultats par destinataire');
+    }
 }

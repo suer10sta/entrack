@@ -23,7 +23,16 @@ class CrmCampaignController extends Controller
             'recipients as uncertain_count' => fn ($q) => $q->where('status', 'uncertain'),
             'recipients as skipped_count' => fn ($q) => $q->where('status', 'skipped')])->latest('id')->paginate(20);
 
-        return view('manager.campaigns.index', compact('campaigns'));
+        $totals = \App\Models\CrmCampaignRecipient::where('status', 'sent')->whereNotNull('sent_at')
+            ->whereHas('campaign', fn ($query) => $query->where('status', '!=', 'draft'))
+            ->selectRaw('COUNT(*) AS sent, COUNT(first_opened_at) AS opened, COUNT(first_clicked_at) AS clicked')->first();
+        $sent = (int) $totals->sent;
+        $globalRates = [
+            'Taux d’ouverture' => number_format($sent ? (int) $totals->opened / $sent * 100 : 0, 1, ',', ' ').' %',
+            'Taux de clic' => number_format($sent ? (int) $totals->clicked / $sent * 100 : 0, 1, ',', ' ').' %',
+        ];
+
+        return view('manager.campaigns.index', compact('campaigns', 'globalRates'));
     }
 
     public function create()
