@@ -95,11 +95,49 @@ class ProspectController extends Controller
     {
         $prospect->load('ownerManager');
         // Paginate the combined timeline rather than loading an unbounded history.
-        $activities = DB::table('prospect_activities')->where('prospect_id', $prospect->id)
-            ->selectRaw("id, 'activity' AS kind, type, body, occurred_at, manager_id, NULL AS from_status, NULL AS to_status, due_at, subject, NULL AS source");
-        $history = DB::table('prospect_status_history')->where('prospect_id', $prospect->id)
-            ->selectRaw("id, 'status' AS kind, NULL AS type, note AS body, occurred_at, manager_id, from_status, to_status, NULL AS due_at, NULL AS subject, source");
-        $timeline = DB::query()->fromSub($activities->unionAll($history), 'timeline')->orderByDesc('occurred_at')->orderBy('kind')->orderByDesc('id')->paginate(20)->withQueryString();
+        // Correlate by durable business identifiers, never by similar timestamps or labels.
+        $matchesActivity = function ($query) {
+            $query->whereColumn('a.prospect_id', 'h.prospect_id')->whereRaw("(
+                (a.type = 'automatic' AND h.source = 'registration' AND h.idempotency_key = 'user:' || (a.metadata->>'user_id') || ':demo_essai')
+                OR (a.type = 'automatic' AND h.source = 'stripe' AND h.idempotency_key = (SELECT event_key || ':client' FROM crm_lifecycle_events WHERE id::text = a.metadata->>'lifecycle_event_id'))
+                OR (a.type = 'automatic' AND a.metadata->>'event' = 'linkedin_link_clicked' AND h.source = 'linkedin_click' AND h.idempotency_key = 'linkedin-click:' || a.prospect_id::text)
+                OR (a.type = 'campaign' AND h.source = 'campaign' AND h.idempotency_key = 'campaign:' || (a.metadata->>'campaign_id') || ':prospect:' || a.prospect_id::text)
+            )");
+        };
+        $activities = DB::table('prospect_activities as a')->where('a.prospect_id', $prospect->id)
+            ->leftJoin('prospect_status_history as h', $matchesActivity)
+            ->selectRaw("a.id, 'activity' AS kind, a.type, a.body, a.occurred_at, a.manager_id, h.from_status, h.to_status, a.due_at, a.subject, h.source");
+        $history = DB::table('prospect_status_history as h')->where('h.prospect_id', $prospect->id)
+            ->whereNotExists(function ($query) use ($matchesActivity) {
+                $query->selectRaw('1')->from('prospect_activities as a');
+                $matchesActivity($query);
+            })
+            ->whereNotExists(function ($query) {
+                $query->selectRaw('1')->from('crm_campaign_recipients as recipient')
+                    ->whereColumn('recipient.prospect_id', 'h.prospect_id')->where('h.source', 'campaign_click')
+                    ->where('recipient.status', 'sent')->whereNotNull('recipient.sent_at')->whereNotNull('recipient.first_clicked_at')
+                    ->whereRaw("h.idempotency_key = 'campaign-click:' || recipient.id::text");
+            })
+            ->selectRaw("h.id, 'status' AS kind, NULL AS type, h.note AS body, h.occurred_at, h.manager_id, h.from_status, h.to_status, NULL AS due_at, NULL AS subject, h.source");
+        $campaignEvents = [];
+        foreach (['opened' => 'first_opened_at', 'clicked' => 'first_clicked_at'] as $interaction => $dateColumn) {
+            $campaignEvents[] = DB::table('crm_campaign_recipients as recipient')
+                ->join('crm_campaigns as campaign', 'campaign.id', '=', 'recipient.campaign_id')
+                ->leftJoin('prospect_status_history as click_status', function ($join) use ($interaction) {
+                    $join->whereColumn('click_status.prospect_id', 'recipient.prospect_id')->where('click_status.source', 'campaign_click')
+                        ->whereRaw("click_status.idempotency_key = 'campaign-click:' || recipient.id::text")
+                        ->whereRaw($interaction === 'clicked' ? 'TRUE' : 'FALSE');
+                })
+                ->where('recipient.prospect_id', $prospect->id)
+                ->where('recipient.status', 'sent')->whereNotNull('recipient.sent_at')
+                ->whereNotNull('recipient.'.$dateColumn)
+                ->selectRaw("recipient.id, 'campaign_{$interaction}' AS kind, 'campaign_{$interaction}' AS type, NULL AS body, recipient.{$dateColumn} AS occurred_at, NULL AS manager_id, click_status.from_status, click_status.to_status, NULL AS due_at, campaign.name AS subject, 'campaign' AS source");
+        }
+        $combined = $activities->unionAll($history);
+        foreach ($campaignEvents as $events) {
+            $combined->unionAll($events);
+        }
+        $timeline = DB::query()->fromSub($combined, 'timeline')->orderByDesc('occurred_at')->orderBy('kind')->orderByDesc('id')->paginate(20)->withQueryString();
         $authors = \App\Models\Manager::whereIn('id', $timeline->pluck('manager_id')->filter())->pluck('name', 'id');
 
         return view('manager.prospects.show', compact('prospect', 'timeline', 'authors'));

@@ -65,6 +65,8 @@ class CrmCampaignTest extends TestCase
         (require database_path('migrations/2026_10_27_000102_add_campaign_composition_fields.php'))->up();
         (require database_path('migrations/2026_10_27_000103_add_campaign_media.php'))->up();
         (require database_path('migrations/2026_10_27_000104_add_campaign_tracking.php'))->up();
+        (require database_path('migrations/2026_10_28_000000_add_campaign_scheduling.php'))->up();
+        (require database_path('migrations/2026_10_28_000001_add_campaign_soft_deletes.php'))->up();
         config(['mail.default' => 'smtp', 'crm.campaign_batch_size' => 10, 'crm.campaign_interval_ms' => 0]);
         $this->manager = Manager::create(['name' => 'CRM Manager', 'email' => 'manager@example.test']);
         $this->withoutVite();
@@ -136,9 +138,12 @@ class CrmCampaignTest extends TestCase
             $this->getJson(route('manager.campaigns.index'))->assertUnauthorized();
             $this->getJson(route('manager.campaigns.create'))->assertUnauthorized();
             $this->getJson(route('manager.campaigns.preview', $campaign))->assertUnauthorized();
+            $this->getJson(route('manager.campaigns.sent-email', $campaign))->assertUnauthorized();
+            $this->getJson(route('manager.campaigns.sent-email.content', $campaign))->assertUnauthorized();
             $this->postJson(route('manager.campaigns.setup', $campaign), [])->assertUnauthorized();
             $this->getJson(route('manager.campaigns.show', $campaign))->assertUnauthorized();
             $this->postJson(route('manager.campaigns.store'), [])->assertUnauthorized();
+            $this->deleteJson(route('manager.campaigns.destroy', $campaign))->assertUnauthorized();
             $this->patchJson(route('manager.campaigns.update', $campaign), [])->assertUnauthorized();
             $this->postJson(route('manager.campaigns.recipients', $campaign), ['mode' => 'clear'])->assertUnauthorized();
             $this->postJson(route('manager.campaigns.send', $campaign), ['confirm' => 1, 'revision' => $campaign->fresh()->revision])->assertUnauthorized();
@@ -847,6 +852,28 @@ class CrmCampaignTest extends TestCase
         $this->assertSame('0,0 %', $empty->trackingRate(0));
     }
 
+    public function test_prospect_timeline_shows_first_campaign_interactions_without_duplicates(): void
+    {
+        $campaign = $this->campaign();
+        $campaign->update(['name' => 'Campagne découverte', 'cta_text' => 'Go', 'cta_url' => 'https://dalytrac.com']);
+        $prospect = $this->prospect(status: ProspectStatus::Contacte);
+        $recipient = $this->trackedRecipient($campaign, $prospect);
+        $other = $this->trackedRecipient($campaign, $this->prospect('other-timeline@example.test'));
+        foreach ([$recipient, $other] as $row) {
+            for ($i = 0; $i < 3; $i++) {
+                $this->get(route('crm.tracking.open', $row->tracking_token))->assertOk();
+                $this->get(route('crm.tracking.click', $row->links()->sole()->token))->assertRedirect();
+            }
+        }
+        $response = $this->actingAs($this->manager, 'manager')->get(route('manager.prospects.show', $prospect))->assertOk()
+            ->assertSee('Email de la campagne « Campagne découverte » ouvert')
+            ->assertSee('Lien de la campagne « Campagne découverte » cliqué')
+            ->assertViewHas('timeline', fn ($rows) => $rows->where('kind', 'campaign_opened')->count() === 1 && $rows->where('kind', 'campaign_clicked')->count() === 1);
+        $this->assertSame(3, $recipient->fresh()->open_count);
+        $this->assertSame(3, $recipient->fresh()->click_count);
+        $this->assertSame(ProspectStatus::Engage, $prospect->fresh()->status);
+    }
+
     public function test_click_recording_survives_crm_failure_and_retries_without_duplicate_transition(): void
     {
         $campaign = $this->campaign();
@@ -930,8 +957,362 @@ class CrmCampaignTest extends TestCase
         $response = $this->get(route('manager.campaigns.show', $campaign))->assertOk()->assertDontSee('Taux d’ouverture')->assertDontSee('Taux de clic');
         $document = new \DOMDocument;
         @$document->loadHTML('<?xml encoding="utf-8" ?>'.$response->getContent());
-        $labels = (new \DOMXPath($document))->query('//div[contains(concat(" ", normalize-space(@class), " "), " cc-detail-kpis ")]/div/span');
+        $labels = (new \DOMXPath($document))->query('//div[contains(concat(" ", normalize-space(@class), " "), " cc-detail-kpis ")]/a/span');
         $this->assertSame(['Total destinataires', 'Envoyés avec succès', 'En attente', 'Échecs', 'Ouverts', 'Cliqués'], array_map(fn ($node) => trim($node->textContent), iterator_to_array($labels)));
         $response->assertSee('Résultats par destinataire');
+    }
+
+    public function test_scheduled_campaign_waits_until_due_then_uses_existing_sender_once(): void
+    {
+        $this->travelTo(now('UTC')->startOfMinute());
+        $campaign = $this->campaign()->fresh();
+        $prospect = $this->prospect();
+        $this->selectAll($campaign);
+        $campaign->refresh();
+        $due = now('UTC')->addHours(2);
+        $this->actingAs($this->manager, 'manager');
+        $data = ['wizard_final' => 1, 'confirm' => 1, 'revision' => $campaign->revision, 'content' => 'Scheduled message', 'schedule_enabled' => 1,
+            'scheduled_date' => $due->format('Y-m-d'), 'scheduled_time' => $due->format('H:i')];
+        $this->post(route('manager.campaigns.send', $campaign), $data)->assertSessionHasNoErrors()->assertRedirect();
+        $this->post(route('manager.campaigns.send', $campaign), $data)->assertRedirect();
+        $campaign->refresh();
+        $this->assertSame('scheduled', $campaign->status);
+        $this->assertNull($campaign->queued_at);
+        $this->assertTrue($due->equalTo($campaign->scheduled_at));
+        $this->assertSame('pending', $campaign->recipients()->sole()->status);
+        $this->assertSame(ProspectStatus::Nouveau, $prospect->fresh()->status);
+        $this->get(route('manager.campaigns.index'))->assertOk()->assertSee('Programmé')->assertSee($due->format('d/m/Y H:i'));
+        $this->get(route('manager.campaigns.show', $campaign))->assertOk()->assertSee('Campagne programmée.')->assertSee('UTC')->assertDontSee('Envoi en cours :');
+        $this->mailer();
+        $this->assertSame(0, app(CrmCampaignSender::class)->batch());
+        $this->assertSame('scheduled', $campaign->fresh()->status);
+        $this->assertCount(0, $this->addresses);
+        $this->travelTo($due->copy()->subSecond());
+        $this->assertSame(0, app(CrmCampaignSender::class)->batch());
+        $this->travelTo($due);
+        $this->assertSame(1, app(CrmCampaignSender::class)->batch());
+        $this->assertSame('completed', $campaign->fresh()->status);
+        $this->assertTrue($due->equalTo($campaign->fresh()->queued_at));
+        $this->assertSame(ProspectStatus::Contacte, $prospect->fresh()->status);
+        $this->travel(61)->seconds();
+        $this->assertSame(0, app(CrmCampaignSender::class)->batch());
+        $this->assertCount(1, $this->addresses);
+    }
+
+    public function test_schedule_validation_preview_and_switch_off_preserve_immediate_behavior(): void
+    {
+        $campaign = $this->campaign()->fresh();
+        $this->actingAs($this->manager, 'manager');
+        $url = route('manager.campaigns.setup', $campaign);
+        $data = ['step' => 3, 'revision' => $campaign->revision, 'content' => 'Message', 'schedule_enabled' => 1];
+        $this->post($url, $data)->assertSessionHasErrors(['scheduled_date', 'scheduled_time']);
+        $this->post($url, $data + ['scheduled_date' => now('UTC')->subDay()->format('Y-m-d'), 'scheduled_time' => '12:00'])->assertSessionHasErrors('scheduled_date');
+        $this->post($url, $data + ['scheduled_date' => '2026-02-30', 'scheduled_time' => '25:00'])->assertSessionHasErrors(['scheduled_date', 'scheduled_time']);
+        $due = now('UTC')->addDays(2)->startOfMinute();
+        $this->post($url, $data + ['scheduled_date' => $due->format('Y-m-d'), 'scheduled_time' => $due->format('H:i')])->assertSessionHasNoErrors();
+        $campaign->refresh();
+        $this->assertSame('draft', $campaign->status);
+        $this->assertTrue($due->equalTo($campaign->scheduled_at));
+        $this->get(route('manager.campaigns.show', ['campaign' => $campaign, 'step' => 3]))->assertOk()->assertSee('Programmer l’envoi à une date ultérieure')->assertSee('Programmer la campagne');
+        $this->get(route('manager.campaigns.preview', $campaign))->assertOk()->assertDontSee('/crm/t/');
+        $this->post($url, ['step' => 3, 'revision' => $campaign->revision, 'content' => 'Immediate message', 'schedule_enabled' => 0,
+            'scheduled_date' => 'invalid', 'scheduled_time' => 'invalid'])->assertSessionHasNoErrors();
+        $this->assertNull($campaign->fresh()->scheduled_at);
+        $this->prospect();
+        $this->selectAll($campaign);
+        $this->queue($campaign);
+        $this->assertSame('queued', $campaign->fresh()->status);
+        $this->assertNotNull($campaign->fresh()->queued_at);
+    }
+
+    public function test_scheduler_catches_up_overdue_campaigns_in_non_utc_database_without_releasing_future_campaigns(): void
+    {
+        $this->travelTo(now('UTC')->startOfMinute());
+        $due = $this->campaign();
+        $future = $this->campaign();
+        $this->prospect();
+        foreach ([$due, $future] as $campaign) {
+            $this->selectAll($campaign);
+        }
+        $due->update(['scheduled_at' => now('UTC')->addMinute()]);
+        $future->update(['scheduled_at' => now('UTC')->addDays(2)]);
+        $this->queue($due);
+        $this->queue($future);
+        $this->travel(3)->hours();
+        DB::statement("SET TIME ZONE 'Asia/Tokyo'");
+        try {
+            $this->mailer();
+            $this->artisan('crm:send-campaigns')->assertSuccessful();
+            $this->assertSame('completed', $due->fresh()->status);
+            $this->assertSame('scheduled', $future->fresh()->status);
+            $this->assertCount(1, $this->addresses);
+        } finally {
+            DB::statement("SET TIME ZONE 'UTC'");
+        }
+    }
+
+    public function test_expired_saved_schedule_cannot_be_confirmed_and_schedule_does_not_bypass_audience_checks(): void
+    {
+        $campaign = $this->campaign();
+        $campaign->update(['scheduled_at' => now('UTC')->addMinute()]);
+        $this->prospect();
+        $this->selectAll($campaign);
+        $this->travel(2)->minutes();
+        $this->actingAs($this->manager, 'manager')->post(route('manager.campaigns.send', $campaign), ['confirm' => 1, 'revision' => $campaign->fresh()->revision])->assertSessionHasErrors('scheduled_date');
+        $this->assertSame('draft', $campaign->fresh()->status);
+        $empty = $this->campaign();
+        $empty->update(['scheduled_at' => now('UTC')->addDay()]);
+        $this->post(route('manager.campaigns.send', $empty), ['confirm' => 1, 'revision' => $empty->fresh()->revision])->assertSessionHasErrors('recipients');
+        $this->assertSame('draft', $empty->fresh()->status);
+    }
+
+    public function test_campaign_greeting_is_personalized_escaped_and_precedes_message_in_both_email_parts(): void
+    {
+        $campaign = $this->campaign();
+        $campaign->update(['content' => 'Votre message personnalisé.', 'cta_text' => 'Découvrir', 'cta_url' => 'https://dalytrac.com/produit']);
+        $prospect = $this->prospect();
+        $prospect->update(['name' => 'Amélie & <Client>']);
+        $this->selectAll($campaign);
+        $recipient = $campaign->recipients()->sole();
+        $mail = new ProspectCampaignMail($campaign->subject, $campaign->content, null, $campaign->cta_text, $campaign->ctaLink(), null, null, $recipient);
+        $sent = Mail::mailer('array')->to('recipient@example.test')->send($mail);
+        $message = $sent->getSymfonySentMessage()->getOriginalMessage();
+        $html = $message->getHtmlBody();
+        $text = $message->getTextBody();
+        $this->assertStringContainsString('Bonjour Amélie &amp; &lt;Client&gt;,', $html);
+        $this->assertStringContainsString('Bonjour Amélie & <Client>,', $text);
+        $this->assertLessThan(strpos($html, 'Votre message personnalisé.'), strpos($html, 'Bonjour Amélie'));
+        $this->assertStringContainsString('L’équipe DalyTrac', $html);
+        $this->assertStringContainsString('L’équipe DalyTrac', $text);
+        $this->assertStringContainsString('aria-label="DalyTrac"', $html);
+        $this->assertStringContainsString('/crm/t/c/', $html);
+        $this->assertStringContainsString('/crm/t/o/', $html);
+        $this->assertSame('Votre message personnalisé.', $campaign->fresh()->content);
+        $this->assertSame(0, $recipient->fresh()->open_count);
+    }
+
+    public function test_preview_uses_selected_name_without_tracking_and_creation_explains_automatic_greeting(): void
+    {
+        $campaign = $this->campaign();
+        $campaign->update(['content' => 'Message sans formule d’appel.']);
+        $prospect = $this->prospect();
+        $prospect->update(['name' => 'Sarah Dupont']);
+        $this->selectAll($campaign);
+        $this->actingAs($this->manager, 'manager');
+        $this->get(route('manager.campaigns.preview', $campaign))->assertOk()->assertSee('Bonjour Sarah Dupont,')->assertSee('Message sans formule d’appel.')->assertSee('L’équipe DalyTrac')->assertDontSee('/crm/t/');
+        $this->assertNull($campaign->recipients()->sole()->tracking_token);
+        $this->get(route('manager.campaigns.show', ['campaign' => $campaign, 'step' => 3]))->assertOk()->assertSee('Bonjour + nom du prospect')->assertSee('automatiquement ajoutée');
+    }
+
+    public function test_sent_email_preview_uses_saved_recipient_and_media_without_tracking_or_resending(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('local');
+        $file = $this->campaignImage();
+        $path = $file->store('preview-test', 'local');
+        $campaign = $this->campaign();
+        $campaign->update(['content' => 'Message réellement enregistré.', 'cta_text' => 'Découvrir DalyTrac', 'cta_url' => 'https://dalytrac.com/produit',
+            'media' => ['image' => ['path' => $path, 'name' => 'banner.png', 'size' => $file->getSize(), 'mime' => 'image/png']]]);
+        $prospect = $this->prospect('sarah@example.test');
+        $prospect->update(['name' => 'Sarah Dupont']);
+        $recipient = $this->trackedRecipient($campaign, $prospect);
+        $second = $this->trackedRecipient($campaign, $this->prospect('second-preview@example.test'));
+        $failed = $this->trackedRecipient($campaign, $this->prospect('failed-preview@example.test'), 'failed');
+        $campaign->update(['status' => 'completed']);
+        $before = $recipient->fresh()->getRawOriginal();
+        $linkCount = \App\Models\CrmCampaignLink::count();
+        $historyCount = $prospect->statusHistories()->count();
+        $prospect->update(['name' => 'Nom modifié après envoi']);
+        Mail::fake();
+        $this->actingAs($this->manager, 'manager');
+        $this->get(route('manager.campaigns.show', $campaign))->assertOk()->assertSee('Voir l’email envoyé');
+        $this->get(route('manager.campaigns.sent-email', ['campaign' => $campaign, 'recipient' => $recipient->id]))->assertOk()
+            ->assertSee('Sarah Dupont')->assertDontSee('failed-preview@example.test')->assertSee('sandbox=""', false)->assertSee('recipient='.$recipient->id, false);
+        $response = $this->get(route('manager.campaigns.sent-email.content', ['campaign' => $campaign, 'recipient' => $recipient->id]));
+        $document = new \DOMDocument;
+        @$document->loadHTML($response->getContent());
+        foreach (['Message réellement enregistré.', 'Découvrir DalyTrac', 'L’équipe DalyTrac'] as $text) {
+            $this->assertStringContainsString($text, $document->textContent);
+        }
+        $response->assertOk()->assertSee('Bonjour Sarah Dupont,')
+            ->assertSee('data:image/png;base64,', false)->assertSee('aria-label="DalyTrac"', false)->assertSee('aria-disabled="true"', false)
+            ->assertDontSee('href=', false)->assertDontSee('/crm/t/')->assertDontSee('Nom modifié après envoi');
+        $this->get(route('manager.campaigns.sent-email.content', ['campaign' => $campaign, 'recipient' => $second->id]))->assertOk()->assertSee('Bonjour Contact,');
+        $this->assertSame($before, $recipient->fresh()->getRawOriginal());
+        $this->assertSame($linkCount, \App\Models\CrmCampaignLink::count());
+        $this->assertSame($historyCount, $prospect->statusHistories()->count());
+        Mail::assertNothingSent();
+    }
+
+    public function test_sent_preview_rejects_other_campaign_or_unsent_recipients_and_hides_button_until_sent(): void
+    {
+        $campaign = $this->campaign();
+        $campaign->update(['status' => 'queued']);
+        $pending = $campaign->recipients()->create(['prospect_id' => $this->prospect()->id, 'name' => 'Pending', 'email' => 'contact@example.test', 'email_normalized' => 'contact@example.test', 'status' => 'pending']);
+        $otherCampaign = $this->campaign();
+        $other = $this->trackedRecipient($otherCampaign, $this->prospect('outside@example.test'));
+        $this->actingAs($this->manager, 'manager');
+        $this->get(route('manager.campaigns.show', $campaign))->assertOk()->assertDontSee('Voir l’email envoyé');
+        foreach (['manager.campaigns.sent-email', 'manager.campaigns.sent-email.content'] as $route) {
+            $this->get(route($route, $campaign))->assertNotFound();
+            $this->get(route($route, ['campaign' => $campaign, 'recipient' => $pending->id]))->assertNotFound();
+            $this->get(route($route, ['campaign' => $campaign, 'recipient' => $other->id]))->assertNotFound();
+        }
+    }
+
+    public function test_total_campaigns_card_counts_all_pages_and_excludes_deleted_campaigns(): void
+    {
+        for ($index = 0; $index < 23; $index++) {
+            $this->campaign();
+        }
+        $removed = $this->campaign();
+        $removed->delete();
+        $response = $this->actingAs($this->manager, 'manager')->get(route('manager.campaigns.index'))->assertOk()->assertSee('Total campagnes')->assertSee('Supprimer la campagne')->assertSee('data-delete-campaign', false);
+        $response->assertViewHas('campaigns', fn ($rows) => $rows->total() === 23 && $rows->count() === 20);
+        $document = new \DOMDocument;
+        @$document->loadHTML('<?xml encoding="utf-8" ?>'.$response->getContent());
+        $value = (new \DOMXPath($document))->query('//div[contains(concat(" ", normalize-space(@class), " "), " cc-rate-total ")]/strong')->item(0)->textContent;
+        $this->assertSame('23', trim($value));
+    }
+
+    public function test_delete_keeps_prospects_media_and_existing_tracking_links_but_removes_campaign_from_ui(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('local');
+        \Illuminate\Support\Facades\Storage::disk('local')->put('campaign-delete/retained.txt', 'Retained private asset');
+        $campaign = $this->campaign();
+        $campaign->update(['cta_text' => 'Go', 'cta_url' => 'https://dalytrac.com/produit']);
+        $prospect = $this->prospect(status: ProspectStatus::Contacte);
+        $recipient = $this->trackedRecipient($campaign, $prospect);
+        $link = $recipient->links()->sole();
+        $campaign->update(['status' => 'completed', 'media' => ['attachment' => ['path' => 'campaign-delete/retained.txt']]]);
+        $this->actingAs($this->manager, 'manager')->delete(route('manager.campaigns.destroy', $campaign))->assertRedirect(route('manager.campaigns.index'));
+        $this->assertSoftDeleted('crm_campaigns', ['id' => $campaign->id]);
+        $this->assertSame(0, CrmCampaign::count());
+        $this->assertSame(1, CrmCampaignRecipient::count());
+        $this->assertSame(1, Prospect::count());
+        $this->assertSame(ProspectStatus::Contacte, $prospect->fresh()->status);
+        $this->assertNotNull($recipient->fresh()->campaign);
+        \Illuminate\Support\Facades\Storage::disk('local')->assertExists('campaign-delete/retained.txt');
+        $this->get(route('manager.campaigns.show', $campaign))->assertNotFound();
+        $this->post(route('manager.campaigns.send', $campaign), ['confirm' => 1, 'revision' => 0])->assertNotFound();
+        $this->get(route('manager.campaigns.index'))->assertOk()->assertDontSee($campaign->name)->assertViewHas('globalRates', ['Taux d’ouverture' => '0,0 %', 'Taux de clic' => '0,0 %']);
+        $this->get(route('crm.tracking.open', $recipient->tracking_token))->assertOk();
+        $this->get(route('crm.tracking.click', $link->token))->assertRedirect($link->destination);
+        $this->assertSame(1, $recipient->fresh()->open_count);
+        $this->assertSame(1, $recipient->fresh()->click_count);
+        $this->assertSame(ProspectStatus::Engage, $prospect->fresh()->status);
+    }
+
+    public function test_delete_stops_pending_and_scheduled_campaigns_without_affecting_other_sends(): void
+    {
+        $queued = $this->campaign();
+        $scheduled = $this->campaign();
+        $active = $this->campaign();
+        $this->prospect();
+        foreach ([$queued, $scheduled, $active] as $campaign) {
+            $this->selectAll($campaign);
+        }
+        $scheduled->update(['scheduled_at' => now('UTC')->addHour()]);
+        foreach ([$queued, $scheduled, $active] as $campaign) {
+            $this->queue($campaign);
+        }
+        $this->actingAs($this->manager, 'manager');
+        foreach ([$queued, $scheduled] as $campaign) {
+            $this->delete(route('manager.campaigns.destroy', $campaign))->assertRedirect();
+        }
+        $this->travel(2)->hours();
+        $this->mailer();
+        $this->assertSame(1, app(CrmCampaignSender::class)->batch());
+        $this->assertSame('completed', $active->fresh()->status);
+        $this->assertSame('pending', $queued->recipients()->sole()->status);
+        $this->assertSame('pending', $scheduled->recipients()->sole()->status);
+        $this->assertSame('scheduled', CrmCampaign::withTrashed()->findOrFail($scheduled->id)->status);
+        $this->assertCount(1, $this->addresses);
+    }
+
+    public function test_campaign_deletion_is_rejected_during_an_active_smtp_batch(): void
+    {
+        $campaign = $this->campaign();
+        config(['database.connections.crm_delete_lock_test' => config('database.connections.pgsql')]);
+        $other = DB::connection('crm_delete_lock_test');
+        $key = 'crm.campaign.sender:'.DB::connection()->getDatabaseName();
+        $other->select('SELECT pg_advisory_lock(hashtextextended(?, 0))', [$key]);
+        try {
+            $this->actingAs($this->manager, 'manager')->delete(route('manager.campaigns.destroy', $campaign))->assertSessionHasErrors('campaign');
+            $this->assertNotNull(CrmCampaign::find($campaign->id));
+        } finally {
+            $other->select('SELECT pg_advisory_unlock(hashtextextended(?, 0))', [$key]);
+            DB::purge('crm_delete_lock_test');
+        }
+        $this->delete(route('manager.campaigns.destroy', $campaign))->assertRedirect();
+        $this->assertSoftDeleted('crm_campaigns', ['id' => $campaign->id]);
+    }
+
+    public function test_detail_kpi_cards_filter_recipients_without_changing_counts_or_tracking(): void
+    {
+        $campaign = $this->campaign();
+        $campaign->update(['status' => 'sending']);
+        $expected = ['all' => [], 'sent' => [], 'pending' => [], 'failed' => [], 'opened' => [], 'clicked' => []];
+        foreach (['sent', 'sent', 'sent', 'sent', 'selected', 'pending', 'sending', 'failed', 'uncertain', 'skipped'] as $index => $status) {
+            $prospect = $this->prospect('filter'.$index.'@example.test');
+            $row = $campaign->recipients()->create(['prospect_id' => $prospect->id, 'name' => 'Recipient '.$index, 'email' => $prospect->email, 'email_normalized' => $prospect->email,
+                'status' => $status, 'sent_at' => $status === 'sent' ? now() : null,
+                'first_opened_at' => in_array($index, [0, 2], true) ? now() : null, 'first_clicked_at' => in_array($index, [1, 2], true) ? now() : null]);
+            $expected['all'][] = $row->id;
+            if ($status === 'sent') {
+                $expected['sent'][] = $row->id;
+            }
+            if (in_array($status, ['selected', 'pending', 'sending'], true)) {
+                $expected['pending'][] = $row->id;
+            }
+            if ($status === 'failed') {
+                $expected['failed'][] = $row->id;
+            }
+            if (in_array($index, [0, 2], true)) {
+                $expected['opened'][] = $row->id;
+            }
+            if (in_array($index, [1, 2], true)) {
+                $expected['clicked'][] = $row->id;
+            }
+        }
+        $before = $campaign->recipients()->orderBy('id')->get()->map->getRawOriginal()->all();
+        $this->actingAs($this->manager, 'manager');
+        foreach ($expected as $filter => $ids) {
+            $response = $this->get(route('manager.campaigns.show', ['campaign' => $campaign, 'result' => $filter]))->assertOk()
+                ->assertViewHas('resultFilter', $filter)
+                ->assertViewHas('results', fn ($rows) => $rows->pluck('id')->all() === $ids)
+                ->assertViewHas('campaign', fn ($value) => $value->sent_count === 4 && $value->opened_count === 2 && $value->clicked_count === 2);
+            $document = new \DOMDocument;
+            @$document->loadHTML($response->getContent());
+            $active = (new \DOMXPath($document))->query('//a[contains(concat(" ", normalize-space(@class), " "), " cc-kpi-filter ")][@aria-current="page"]');
+            $this->assertSame(1, $active->length);
+            $this->assertSame('10', (new \DOMXPath($document))->query('//a[contains(concat(" ", normalize-space(@class), " "), " cc-kpi-filter ")]/strong')->item(0)->textContent);
+        }
+        $this->assertSame($before, $campaign->recipients()->orderBy('id')->get()->map->getRawOriginal()->all());
+        $this->getJson(route('manager.campaigns.show', ['campaign' => $campaign, 'result' => 'invalid']))->assertUnprocessable();
+        $empty = $this->campaign();
+        $empty->update(['status' => 'completed']);
+        $this->get(route('manager.campaigns.show', ['campaign' => $empty, 'result' => 'clicked']))->assertOk()->assertSee('Aucun destinataire pour ce filtre.');
+    }
+
+    public function test_recipient_filter_persists_through_pagination_and_cards_reset_the_page(): void
+    {
+        $campaign = $this->campaign();
+        $campaign->update(['status' => 'completed']);
+        for ($index = 0; $index < 28; $index++) {
+            $prospect = $this->prospect('pagefilter'.$index.'@example.test');
+            $campaign->recipients()->create(['prospect_id' => $prospect->id, 'name' => 'Recipient '.$index, 'email' => $prospect->email, 'email_normalized' => $prospect->email,
+                'status' => 'sent', 'sent_at' => now(), 'first_clicked_at' => now()]);
+        }
+        $response = $this->actingAs($this->manager, 'manager')->get(route('manager.campaigns.show', ['campaign' => $campaign, 'result' => 'clicked', 'results_page' => 2]))->assertOk()
+            ->assertViewHas('results', fn ($rows) => $rows->count() === 3 && $rows->total() === 28 && $rows->currentPage() === 2);
+        $document = new \DOMDocument;
+        @$document->loadHTML($response->getContent());
+        $links = (new \DOMXPath($document))->query('//a[contains(concat(" ", normalize-space(@class), " "), " cc-kpi-filter ")]');
+        $this->assertSame(6, $links->length);
+        foreach ($links as $link) {
+            $this->assertStringNotContainsString('results_page', $link->getAttribute('href'));
+        }
+        $this->assertStringContainsString('result=clicked', $links->item(5)->getAttribute('href'));
+        $this->assertStringNotContainsString('result=', $links->item(0)->getAttribute('href'));
     }
 }

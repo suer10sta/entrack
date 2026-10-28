@@ -1,4 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-delete-campaign]').forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!window.confirm(`Supprimer la campagne « ${form.dataset.campaignName} » ? Les envois restants seront arrêtés. Les emails déjà envoyés ne peuvent pas être rappelés.`)) {
+                event.preventDefault();
+                return;
+            }
+            form.querySelector('button').disabled = true;
+        });
+    });
     // Only read-only, queued/sending campaign pages refresh. Draft forms are never reloaded.
     if (document.querySelector('[data-campaign-refresh]')) {
         const refresh = () => window.setTimeout(() => {

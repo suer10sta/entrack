@@ -52,6 +52,8 @@ class ManagerProspectsTest extends TestCase
         foreach (glob(database_path('migrations/2026_10_27_00000*_*.php')) as $path) {
             (require $path)->up();
         }
+        (require database_path('migrations/2026_10_27_000100_create_crm_campaigns.php'))->up();
+        (require database_path('migrations/2026_10_27_000104_add_campaign_tracking.php'))->up();
         $this->manager = Manager::create(['name' => 'CRM Manager', 'email' => 'manager@example.test']);
         $this->withoutVite();
         Http::preventStrayRequests();
@@ -195,7 +197,7 @@ class ManagerProspectsTest extends TestCase
         }
         $this->assertSame(6, $prospect->activities()->count());
         $this->assertSame('2026-11-15 10:30', $prospect->fresh()->next_follow_up_at->format('Y-m-d H:i'));
-        $this->get(route('manager.prospects.show', $prospect))->assertOk()->assertSee('Action email')->assertSee('15/11/2026 10:30');
+        $this->get(route('manager.prospects.show', $prospect))->assertOk()->assertSee('Action email')->assertSee($prospect->activities()->where('type', 'follow_up')->sole()->due_at->utc()->format('d/m/Y H:i'));
         \Illuminate\Support\Facades\Mail::assertNothingSent();
         \Illuminate\Support\Facades\Mail::assertNothingQueued();
     }
@@ -239,6 +241,42 @@ class ManagerProspectsTest extends TestCase
             ->assertDontSee('Prospect créé');
         $this->get(route('manager.prospects.show', $prospect).'?page=2')->assertOk()
             ->assertViewHas('timeline', fn ($rows) => $rows->count() === 1)->assertSee('Prospect créé');
+    }
+
+    public function test_timeline_normalizes_database_offsets_to_utc_once(): void
+    {
+        $prospect = Prospect::create(['name' => 'Timezone test']);
+        DB::table('prospects')->where('id', $prospect->id)->update(['created_at' => '2026-10-28 13:40:00+00']);
+        $prospect->activities()->create(['type' => 'note', 'body' => 'Timezone note', 'occurred_at' => '2026-10-28 13:45:00+00']);
+        DB::table('prospect_activities')->where('prospect_id', $prospect->id)->update(['occurred_at' => '2026-10-28 13:45:00+00']);
+        foreach (['Europe/Paris', 'UTC'] as $timezone) {
+            DB::statement("SET TIME ZONE '".$timezone."'");
+            $this->actingAs($this->manager, 'manager')->get(route('manager.prospects.show', $prospect))
+                ->assertOk()
+                ->assertSee('datetime="2026-10-28T13:40:00+00:00">28/10/2026 13:40 UTC', false)
+                ->assertSee('datetime="2026-10-28T13:45:00+00:00">28/10/2026 13:45 UTC', false);
+        }
+    }
+
+    public function test_automatic_actions_combine_their_status_change_without_hiding_manual_history(): void
+    {
+        foreach ([
+            ['registration', 'user:99:demo_essai', 'Compte DalyTrac créé / email vérifié', ['user_id' => 99], ProspectStatus::DemoEssai, 'Compte DalyTrac créé et email vérifié'],
+            ['linkedin_click', null, 'Lien LinkedIn consulté', ['event' => 'linkedin_link_clicked'], ProspectStatus::Engage, 'Lien LinkedIn consulté'],
+            ['campaign', null, 'Campagne email envoyée : Découverte', ['campaign_id' => 123], ProspectStatus::Contacte, 'Email de campagne envoyé'],
+        ] as [$source, $key, $subject, $metadata, $target, $title]) {
+            $prospect = Prospect::create(['name' => 'Combined '.$source]);
+            $key ??= $source === 'campaign' ? 'campaign:123:prospect:'.$prospect->id : 'linkedin-click:'.$prospect->id;
+            app(ProspectStatusService::class)->transition($prospect, $target, $source, idempotencyKey: $key);
+            $prospect->activities()->create(['type' => $source === 'campaign' ? 'campaign' : 'automatic', 'subject' => $subject, 'metadata' => $metadata, 'occurred_at' => now('UTC')]);
+            $this->actingAs($this->manager, 'manager')->get(route('manager.prospects.show', $prospect))->assertOk()
+                ->assertSee($title)->assertSee('Statut passé de <strong>Nouveau</strong> à <strong>'.$target->label().'</strong>', false)
+                ->assertViewHas('timeline', fn ($rows) => $rows->total() === 1 && $rows->first()->from_status === 'nouveau' && $rows->first()->to_status === $target->value);
+            app(ProspectStatusService::class)->transition($prospect, ProspectStatus::Perdu, manager: $this->manager);
+            $this->get(route('manager.prospects.show', $prospect))->assertOk()
+                ->assertViewHas('timeline', fn ($rows) => $rows->total() === 2 && $rows->where('kind', 'status')->count() === 1);
+            $this->assertSame(2, $prospect->statusHistories()->count());
+        }
     }
 
     public function test_failed_initial_transition_rolls_back_the_entire_creation(): void

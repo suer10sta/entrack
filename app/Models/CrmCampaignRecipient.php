@@ -16,7 +16,7 @@ class CrmCampaignRecipient extends Model
 
     public function campaign()
     {
-        return $this->belongsTo(CrmCampaign::class, 'campaign_id');
+        return $this->belongsTo(CrmCampaign::class, 'campaign_id')->withTrashed();
     }
 
     public function prospect()

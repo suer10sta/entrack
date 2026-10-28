@@ -14,8 +14,11 @@ Route::prefix('manager/seo')->name('manager.')->middleware('auth:manager')->grou
     Route::post('campaigns', [\App\Http\Controllers\manager\CrmCampaignController::class, 'store'])->name('campaigns.store');
     Route::get('campaigns/create', [\App\Http\Controllers\manager\CrmCampaignController::class, 'create'])->name('campaigns.create');
     Route::post('campaigns/{campaign}/setup', [\App\Http\Controllers\manager\CrmCampaignController::class, 'setup'])->name('campaigns.setup');
+    Route::get('campaigns/{campaign}/sent-email', [\App\Http\Controllers\manager\CrmCampaignController::class, 'sentEmail'])->name('campaigns.sent-email');
+    Route::get('campaigns/{campaign}/sent-email/content', [\App\Http\Controllers\manager\CrmCampaignController::class, 'sentEmailContent'])->name('campaigns.sent-email.content');
     Route::get('campaigns/{campaign}/preview', [\App\Http\Controllers\manager\CrmCampaignController::class, 'preview'])->name('campaigns.preview');
     Route::get('campaigns/{campaign}', [\App\Http\Controllers\manager\CrmCampaignController::class, 'show'])->name('campaigns.show');
+    Route::delete('campaigns/{campaign}', [\App\Http\Controllers\manager\CrmCampaignController::class, 'destroy'])->name('campaigns.destroy');
     Route::patch('campaigns/{campaign}', [\App\Http\Controllers\manager\CrmCampaignController::class, 'update'])->name('campaigns.update');
     Route::post('campaigns/{campaign}/recipients', [\App\Http\Controllers\manager\CrmCampaignController::class, 'recipients'])->name('campaigns.recipients');
     Route::post('campaigns/{campaign}/send', [\App\Http\Controllers\manager\CrmCampaignController::class, 'send'])->middleware('throttle:10,1')->name('campaigns.send');

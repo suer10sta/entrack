@@ -56,10 +56,14 @@
                     </dl>
                 @else<p class="pd-help">Aucun compte DalyTrac n’est actuellement rattaché à ce prospect.</p>@endif
             </section>
-            <section class="pd-card"><div class="pd-section-heading"><h2>@include('manager.prospects.partials.icon', ['icon' => 'clock']) Timeline</h2><span class="pd-help">Historique du prospect · UTC</span></div>
-                <ol class="pd-timeline">
+            <section class="pd-card"><div class="pd-section-heading"><h2>@include('manager.prospects.partials.icon', ['icon' => 'clock']) Timeline</h2><span class="pd-help">Historique du prospect · <span data-timeline-timezone>UTC</span></span></div>
+                @php
+                    $managerTimezone = auth('manager')->user()?->getAttribute('timezone');
+                    $managerTimezone = is_string($managerTimezone) && in_array($managerTimezone, timezone_identifiers_list(), true) ? $managerTimezone : '';
+                @endphp
+                <ol class="pd-timeline" data-prospect-timeline data-timezone="{{ $managerTimezone }}">
                     @foreach($timeline as $entry) @include('manager.prospects.partials.timeline-entry') @endforeach
-                    @if(!$timeline->hasMorePages())<li class="pd-event pd-event-created"><span class="pd-event-icon">@include('manager.prospects.partials.icon', ['icon' => 'new'])</span><div class="pd-event-content"><h3>Prospect créé</h3><p class="pd-event-meta"><time datetime="{{ $prospect->created_at->toIso8601String() }}">{{ $prospect->created_at->format('d/m/Y H:i') }} UTC</time>@if($prospect->ownerManager)<span aria-hidden="true">·</span>{{ $prospect->ownerManager->name }}@endif</p></div></li>@endif
+                    @if(!$timeline->hasMorePages())<li class="pd-event pd-event-created"><span class="pd-event-icon">@include('manager.prospects.partials.icon', ['icon' => 'new'])</span><div class="pd-event-content"><h3>Prospect créé</h3><p class="pd-event-meta"><time datetime="{{ $prospect->created_at->toImmutable()->utc()->toIso8601String() }}">{{ $prospect->created_at->toImmutable()->utc()->format('d/m/Y H:i') }} UTC</time>@if($prospect->ownerManager)<span aria-hidden="true">·</span>{{ $prospect->ownerManager->name }}@endif</p></div></li>@endif
                 </ol><div class="pd-pagination">{{ $timeline->links() }}</div>
             </section>
             <section class="pd-card"><h2>@include('manager.prospects.partials.icon', ['icon' => 'edit']) Notes et activités</h2><p class="pd-help">Consignez vos actions. Aucun email ni rappel n’est envoyé automatiquement. Dates en UTC.</p>
@@ -73,6 +77,7 @@
         </div>
     </div>
 </div>
+<script src="{{ asset('js/prospect-timeline.js') }}" defer></script>
 <script src="{{ asset('js/prospect-referral-link.js') }}" defer></script>
 @include('manager.prospects.partials.edit-dialog', ['editingProspect' => $prospect])
 <link rel="stylesheet" href="{{ asset('css/prospect-modals.css') }}">

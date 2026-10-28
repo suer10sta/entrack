@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -23,8 +24,10 @@ class ProspectImportController extends Controller
         $request->session()->forget('prospect_import_report');
         $request->session()->flash('prospect_modal', 'import');
         try {
-            $request->validate(['file' => ['required', 'file', 'mimes:xlsx', 'extensions:xlsx', 'max:5120']]);
-            $result = $importer->import($request->file('file'), $request->user('manager'));
+            $request->validate(['file' => ['required', 'file', 'mimes:xlsx,csv,txt', 'extensions:xlsx,csv', 'max:5120'],
+                'import_source' => ['nullable', Rule::in(['Google', 'Google Ads', 'LinkedIn', 'Facebook', 'Instagram', 'Email', 'Campagne', 'Salon / Événement', 'Recommandation', 'Site web', 'Autre'])],
+            ]);
+            $result = $importer->import($request->file('file'), $request->user('manager'), $request->input('import_source'));
         } catch (ValidationException $error) {
             throw $error->redirectTo(route('manager.prospects.index'));
         } catch (Throwable $error) {

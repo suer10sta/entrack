@@ -28,6 +28,7 @@ class CrmCampaignSender
             return 0;
         }
         try {
+            app(CrmCampaignService::class)->releaseDueScheduled();
             $this->recoverInterrupted();
             foreach (CrmCampaignRecipient::where('status', 'sent')->whereNull('crm_synced_at')->orderBy('id')->limit(100)->get() as $recipient) {
                 $this->syncContact($recipient);
@@ -104,7 +105,7 @@ class CrmCampaignSender
     private function claim(): ?CrmCampaignRecipient
     {
         return DB::transaction(function () {
-            $recipient = CrmCampaignRecipient::where('status', 'pending')->whereHas('campaign', fn ($q) => $q->whereIn('status', ['queued', 'sending']))
+            $recipient = CrmCampaignRecipient::where('status', 'pending')->whereHas('campaign', fn ($q) => $q->whereIn('status', ['queued', 'sending'])->whereNull('crm_campaigns.deleted_at'))
                 ->orderBy('id')->lockForUpdate()->first();
             if (! $recipient) {
                 return null;

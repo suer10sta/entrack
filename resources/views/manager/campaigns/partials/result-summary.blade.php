@@ -13,6 +13,8 @@
             @if($finished)
                 <strong>Campagne terminée : {{ $sent }} {{ $sent === 1 ? 'email envoyé' : 'emails envoyés' }}, {{ $failed }} {{ $failed === 1 ? 'échec' : 'échecs' }}.</strong>
                 <p>Traitement terminé le {{ $campaign->completed_at->format('d/m/Y H:i') }}.</p>
+            @elseif($campaign->status === 'scheduled')
+                <strong>Campagne programmée.</strong><p>Envoi programmé le {{ $campaign->scheduled_at?->utc()->format('d/m/Y à H:i') }} UTC · {{ $pending }} destinataire(s) en attente.</p><p>L’envoi par lots démarrera à la date prévue.</p>
             @elseif($campaign->status === 'queued')
                 <strong>Campagne en attente d’envoi.</strong><p>{{ $pending }} destinataire(s) en attente. Les résultats apparaîtront après traitement par le serveur de messagerie.</p>
             @else

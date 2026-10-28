@@ -31,7 +31,8 @@
                 <section class="cc-card"><h2>@include('manager.prospects.partials.icon', ['icon' => 'mail']) Contenu de l’email</h2>
                     <form id="campaign-composition" method="POST" enctype="multipart/form-data" action="{{ route('manager.campaigns.setup', $campaign) }}" class="cc-form" data-wizard-composition>
                         @csrf <input type="hidden" name="_wizard" value="1"><input type="hidden" name="step" value="3"><input type="hidden" name="revision" value="{{ $campaign->revision }}">
-                        <label>Message de l’email *<textarea name="content" required maxlength="50000" rows="6" placeholder="Rédigez votre message…">{{ old('content', $campaign->content) }}</textarea></label>
+                        <label>Message de l’email *<textarea name="content" required maxlength="50000" rows="6" placeholder="Rédigez votre message sans formule d’appel…">{{ old('content', $campaign->content) }}</textarea></label>
+                        <p class="cc-help">La formule personnalisée « Bonjour + nom du prospect » est automatiquement ajoutée au début de chaque email. Rédigez uniquement votre message ci-dessus ; la signature « L’équipe DalyTrac » est également ajoutée.</p>
                         <div class="cw-field-grid cw-media-grid">
                             @foreach(['image' => 'Image affichée dans l’email', 'attachment' => 'Fichier joint (pièce jointe)'] as $kind => $label)
                                 @php($asset = $campaign->media[$kind] ?? null)
@@ -48,6 +49,16 @@
                             <label>Lien final généré avec paramètres UTM<textarea class="cw-utm-output" rows="2" readonly data-cta-generated data-utm-campaign="{{ $campaign->utm_campaign }}" placeholder="Renseignez une URL de destination pour afficher le lien final.">{{ $campaign->ctaLink() }}</textarea></label>
                             <p class="cc-help">Source : dalytrac · Support : email. À l’envoi, chaque destinataire reçoit un lien de suivi unique. Renseignez le texte et l’URL pour afficher le bouton.</p>
                         </fieldset>
+                        @php($scheduleEnabled = (bool) old('schedule_enabled', (bool) $campaign->scheduled_at))
+                        <fieldset class="cw-schedule"><legend>@include('manager.prospects.partials.icon', ['icon' => 'clock']) Date d’envoi</legend>
+                            <input type="hidden" name="schedule_enabled" value="0">
+                            <label class="cw-schedule-toggle"><input type="checkbox" role="switch" name="schedule_enabled" value="1" data-schedule-toggle aria-controls="campaign-schedule-fields" @checked($scheduleEnabled)> <span>Programmer l’envoi à une date ultérieure</span></label>
+                            <div id="campaign-schedule-fields" class="cw-field-grid" data-schedule-fields @if(!$scheduleEnabled) hidden @endif>
+                                <label>Date d’envoi<input type="date" name="scheduled_date" min="{{ now('UTC')->toDateString() }}" value="{{ old('scheduled_date', $campaign->scheduled_at?->utc()->format('Y-m-d')) }}" @disabled(!$scheduleEnabled) @required($scheduleEnabled)></label>
+                                <label>Heure d’envoi (UTC)<input type="time" name="scheduled_time" value="{{ old('scheduled_time', $campaign->scheduled_at?->utc()->format('H:i')) }}" @disabled(!$scheduleEnabled) @required($scheduleEnabled)></label>
+                            </div>
+                            <p class="cc-help" data-schedule-help>{{ $scheduleEnabled ? 'L’envoi commencera à partir de la date et de l’heure choisies (UTC).' : 'Désactivé : l’envoi démarrera après confirmation.' }}</p>
+                        </fieldset>
                         <button class="cc-button cc-secondary" formnovalidate>@include('manager.prospects.partials.icon', ['icon' => 'eye']) Enregistrer et afficher l’aperçu</button>
                         <p class="cc-help" data-preview-feedback role="status">L’aperçu correspond au contenu et aux fichiers enregistrés.</p>
                         <div class="cw-send-confirm"><label class="cc-check"><input type="checkbox" name="confirm" value="1"> Je confirme l’envoi de ce message à {{ $selected->count() }} destinataire(s) enregistré(s).</label></div>
@@ -56,11 +67,11 @@
                 <section class="cc-card"><h2>@include('manager.prospects.partials.icon', ['icon' => 'eye']) Aperçu de l’email</h2>
                     @if(trim($campaign->content) !== '')<iframe class="cw-preview" title="Aperçu de l’email enregistré" src="{{ route('manager.campaigns.preview', $campaign) }}" sandbox="" referrerpolicy="no-referrer"></iframe>@else<p class="cc-help">Enregistrez votre message et vos fichiers pour afficher l’aperçu.</p>@endif
                 </section>
-                <div class="cw-navigation"><button form="campaign-composition" name="back_to_audience" value="1" formnovalidate class="cc-button cc-secondary">← Précédent</button><button form="campaign-composition" formaction="{{ route('manager.campaigns.send', $campaign) }}" name="wizard_final" value="1" class="cc-button cc-primary" @disabled($selected->isEmpty())>@include('manager.prospects.partials.icon', ['icon' => 'send']) Envoyer la campagne</button></div>
+                <div class="cw-navigation"><button form="campaign-composition" name="back_to_audience" value="1" formnovalidate class="cc-button cc-secondary">← Précédent</button><button form="campaign-composition" formaction="{{ route('manager.campaigns.send', $campaign) }}" name="wizard_final" value="1" class="cc-button cc-primary" @disabled($selected->isEmpty())>@include('manager.prospects.partials.icon', ['icon' => 'send']) <span data-send-label>{{ $scheduleEnabled ? 'Programmer la campagne' : 'Envoyer la campagne' }}</span></button></div>
             @endif
         </main>
         <aside class="cc-card cw-summary"><h2>@include('manager.prospects.partials.icon', ['icon' => 'mail']) Résumé de la campagne</h2>
-            <dl><div><dt>Nom de la campagne</dt><dd data-summary-value="name">{{ $campaign?->name ?: 'À renseigner' }}</dd></div><div><dt>Objet de l’email</dt><dd data-summary-value="subject">{{ $campaign?->subject ?: 'À renseigner' }}</dd></div><div><dt>Audience sélectionnée</dt><dd>Prospects sélectionnés</dd></div><div class="cw-summary-count"><dt>Nombre de destinataires</dt><dd data-wizard-recipient-count>{{ $selected->count() }}</dd></div><div><dt>UTM campagne</dt><dd data-summary-value="utm_campaign">{{ $campaign?->utm_campaign ?: 'Non définie' }}</dd></div></dl>
+            <dl><div><dt>Nom de la campagne</dt><dd data-summary-value="name">{{ $campaign?->name ?: 'À renseigner' }}</dd></div><div><dt>Objet de l’email</dt><dd data-summary-value="subject">{{ $campaign?->subject ?: 'À renseigner' }}</dd></div><div><dt>Audience sélectionnée</dt><dd>Prospects sélectionnés</dd></div><div class="cw-summary-count"><dt>Nombre de destinataires</dt><dd data-wizard-recipient-count>{{ $selected->count() }}</dd></div><div><dt>UTM campagne</dt><dd data-summary-value="utm_campaign">{{ $campaign?->utm_campaign ?: 'Non définie' }}</dd></div><div><dt>Envoi</dt><dd data-schedule-summary>{{ $campaign?->scheduled_at ? $campaign->scheduled_at->utc()->format('d/m/Y à H:i').' UTC' : 'Dès confirmation' }}</dd></div></dl>
             <p class="cc-help">Envoi par lots via la messagerie DalyTrac. Les destinataires ne sont contactés qu’après confirmation de l’envoi SMTP.</p>
             @if($step === 3 && $selected->isEmpty())<p class="cw-empty-audience">Sélectionnez au moins un destinataire à l’étape 2 avant l’envoi.</p>@endif
         </aside>

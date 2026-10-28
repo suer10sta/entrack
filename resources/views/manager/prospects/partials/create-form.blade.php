@@ -6,7 +6,6 @@
                     'email' => ['Email', 'email', 'email', 255],
                     'phone' => ['Téléphone', 'tel', 'tel', 64],
                     'company_name' => ['Société', 'text', 'organization', 255],
-                    'country' => ['Pays', 'text', 'country-name', 100],
                 ] as $field => [$label, $type, $autocomplete, $limit])
                     <div>
                         <label for="create-{{ $field }}" class="mb-1.5 block text-[13px] font-medium text-[#0B2638]">{{ $label }}</label>
@@ -14,6 +13,19 @@
                             class="block h-9 w-full rounded-lg border-slate-300 px-3 py-1.5 text-sm focus:border-[#2D7080] focus:ring-[#2D7080]">
                     </div>
                 @endforeach
+
+                @php
+                    $prospectCountries = json_decode(file_get_contents(base_path('countries.json')), true) ?? [];
+                    $selectedCountry = old('country', '');
+                @endphp
+                <div class="crm-country-field">
+                    <label for="create-country" class="mb-1.5 block text-[13px] font-medium text-[#0B2638]">Pays</label>
+                    <select id="create-country" name="country" autocomplete="country-name" data-prospect-country @if($errors->has('country')) aria-invalid="true" @endif class="block h-9 w-full rounded-lg border-slate-300 py-1.5 pl-3 pr-8 text-sm focus:border-[#2D7080] focus:ring-[#2D7080]">
+                        <option value="">Choisir un pays</option>
+                        @if($selectedCountry && !in_array($selectedCountry, array_column($prospectCountries, 'name'), true))<option value="{{ $selectedCountry }}" selected>{{ $selectedCountry }}</option>@endif
+                        @foreach($prospectCountries as $country)<option value="{{ $country['name'] }}" @selected($selectedCountry === $country['name'])>{{ __('countries.'.$country['code']) }}</option>@endforeach
+                    </select>
+                </div>
 
                 <div>
                     <label for="create-source" class="mb-1.5 block text-[13px] font-medium text-[#0B2638]">Source d’acquisition</label>

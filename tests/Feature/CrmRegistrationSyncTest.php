@@ -529,7 +529,7 @@ class CrmRegistrationSyncTest extends TestCase
         $this->assertSame(ProspectStatus::DemoEssai, $emailMatch->fresh()->status);
         $this->assertNull($referral->fresh()->linked_user_id);
         $this->assertNull($referral->fresh()->linked_entreprise_id);
-        $this->assertSame(ProspectStatus::Nouveau, $referral->fresh()->status);
+        $this->assertSame(ProspectStatus::Engage, $referral->fresh()->status);
         Http::assertNothingSent();
     }
 
@@ -545,7 +545,9 @@ class CrmRegistrationSyncTest extends TestCase
         $this->assertSame($prospect->id, $this->receipt($user)->payload['referral']['prospect_id']);
         $this->assertNull($prospect->fresh()->linked_user_id);
         $this->assertSame(1, Prospect::count());
-        $this->assertSame(0, DB::table('prospect_status_history')->count());
+        $this->assertSame(ProspectStatus::Engage, $prospect->fresh()->status);
+        $this->assertSame(0, DB::table('prospect_status_history')->where('source', 'registration')->count());
+        $this->assertSame(1, DB::table('prospect_status_history')->where('source', 'linkedin_click')->count());
     }
 
     public function test_ref_does_not_disambiguate_duplicate_prospects_with_the_same_email(): void

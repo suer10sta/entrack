@@ -3,14 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CrmCampaign extends Model
 {
+    use SoftDeletes;
+
     protected $guarded = ['id'];
 
     protected $dateFormat = 'Y-m-d H:i:sP';
 
-    protected $casts = ['media' => 'array', 'queued_at' => 'immutable_datetime', 'started_at' => 'immutable_datetime', 'completed_at' => 'immutable_datetime'];
+    protected $casts = ['scheduled_at' => 'immutable_datetime', 'media' => 'array', 'queued_at' => 'immutable_datetime', 'started_at' => 'immutable_datetime', 'completed_at' => 'immutable_datetime'];
 
     public function recipients()
     {
@@ -62,6 +65,6 @@ class CrmCampaign extends Model
 
     public static function labels(): array
     {
-        return ['draft' => 'Brouillon', 'queued' => 'En attente', 'sending' => 'En cours', 'completed' => 'Terminée', 'completed_with_errors' => 'Terminée avec erreurs', 'failed' => 'Terminée avec erreurs'];
+        return ['draft' => 'Brouillon', 'scheduled' => 'Programmé', 'queued' => 'En attente', 'sending' => 'En cours', 'completed' => 'Terminée', 'completed_with_errors' => 'Terminée avec erreurs', 'failed' => 'Terminée avec erreurs'];
     }
 }

@@ -92,8 +92,18 @@ class CrmCampaignService
             if (! $campaign->recipients()->exists()) {
                 throw ValidationException::withMessages(['recipients' => 'Sélectionnez et enregistrez au moins un destinataire avant l’envoi.']);
             }
+            if ($campaign->scheduled_at && ! $campaign->scheduled_at->isFuture()) {
+                throw ValidationException::withMessages(['scheduled_date' => 'La date et l’heure de programmation doivent être dans le futur (UTC).']);
+            }
             $campaign->recipients()->update(['status' => 'pending']);
-            $campaign->update(['status' => 'queued', 'queued_at' => now('UTC')]);
+            $campaign->update(['status' => $campaign->scheduled_at ? 'scheduled' : 'queued', 'queued_at' => $campaign->scheduled_at ? null : now('UTC')]);
         });
+    }
+
+    public function releaseDueScheduled(): void
+    {
+        CrmCampaign::where('status', 'scheduled')->whereNotNull('scheduled_at')
+            ->where('scheduled_at', '<=', now('UTC')->toISOString())
+            ->update(['status' => 'queued', 'queued_at' => now('UTC')->toISOString()]);
     }
 }

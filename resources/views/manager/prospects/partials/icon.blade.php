@@ -17,6 +17,7 @@
         'copy' => 'M9 9h12v12H9z M5 15H3V3h12v2',
         'globe' => 'M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z M3 12h18 M12 3c4 5 4 13 0 18-4-5-4-13 0-18Z',
         'building' => 'M4 21V3h12v18 M16 9h4v12 M2 21h20 M8 7h4 M8 11h4 M8 15h4 M9 21v-2h2v2',
+        'trash' => 'M3 6h18 M9 6V4h6v2 M5 6l1 14h12l1-14 M10 10v6 M14 10v6',
         'close' => 'm6 6 12 12 M18 6 6 18',
     ];
 @endphp

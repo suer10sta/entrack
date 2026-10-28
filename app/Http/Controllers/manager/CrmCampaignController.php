@@ -24,7 +24,7 @@ class CrmCampaignController extends Controller
             'recipients as skipped_count' => fn ($q) => $q->where('status', 'skipped')])->latest('id')->paginate(20);
 
         $totals = \App\Models\CrmCampaignRecipient::where('status', 'sent')->whereNotNull('sent_at')
-            ->whereHas('campaign', fn ($query) => $query->where('status', '!=', 'draft'))
+            ->whereHas('campaign', fn ($query) => $query->where('status', '!=', 'draft')->whereNull('crm_campaigns.deleted_at'))
             ->selectRaw('COUNT(*) AS sent, COUNT(first_opened_at) AS opened, COUNT(first_clicked_at) AS clicked')->first();
         $sent = (int) $totals->sent;
         $globalRates = [
@@ -33,6 +33,26 @@ class CrmCampaignController extends Controller
         ];
 
         return view('manager.campaigns.index', compact('campaigns', 'globalRates'));
+    }
+
+    public function destroy(CrmCampaign $campaign)
+    {
+        $connection = DB::connection();
+        // Share the SMTP batch lock so deletion cannot race an in-flight send.
+        $key = 'crm.campaign.sender:'.$connection->getDatabaseName();
+        $locked = $connection->selectOne('SELECT pg_try_advisory_lock(hashtextextended(?, 0)) AS acquired', [$key])->acquired;
+        if (! $locked) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['campaign' => 'Un lot d’envoi est en cours. Réessayez la suppression dans quelques instants.']);
+        }
+        try {
+            DB::transaction(function () use ($campaign) {
+                CrmCampaign::whereKey($campaign->id)->lockForUpdate()->firstOrFail()->delete();
+            });
+        } finally {
+            $connection->select('SELECT pg_advisory_unlock(hashtextextended(?, 0))', [$key]);
+        }
+
+        return redirect()->route('manager.campaigns.index')->with('status', 'Campagne supprimée. Les envois restants sont arrêtés ; les emails déjà envoyés ne peuvent pas être rappelés.');
     }
 
     public function create()
@@ -67,10 +87,59 @@ class CrmCampaignController extends Controller
 
     public function preview(CrmCampaign $campaign)
     {
-        $mail = new \App\Mail\ProspectCampaignMail($campaign->subject, $campaign->content, $campaign->preheader, $campaign->cta_text, $campaign->ctaLink(), $campaign->media['image'] ?? null, $campaign->media['attachment'] ?? null);
+        $mail = new \App\Mail\ProspectCampaignMail($campaign->subject, $campaign->content, $campaign->preheader, $campaign->cta_text, $campaign->ctaLink(), $campaign->media['image'] ?? null, $campaign->media['attachment'] ?? null, previewName: $campaign->recipients()->orderBy('id')->value('name'));
 
         return response($mail->render())->header('Cache-Control', 'no-store, private')
             ->header('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'");
+    }
+
+    private function sentRecipient(Request $request, CrmCampaign $campaign): \App\Models\CrmCampaignRecipient
+    {
+        $request->validate(['recipient' => ['nullable', 'integer', 'min:1']]);
+        $query = $campaign->recipients()->where('status', 'sent')->whereNotNull('sent_at');
+        if ($request->filled('recipient')) {
+            $query->whereKey($request->input('recipient'));
+        }
+
+        return $query->orderBy('id')->firstOrFail();
+    }
+
+    public function sentEmail(Request $request, CrmCampaign $campaign)
+    {
+        $recipient = $this->sentRecipient($request, $campaign);
+        $recipients = $campaign->recipients()->where('status', 'sent')->whereNotNull('sent_at')->orderBy('name')->orderBy('id')->get(['id', 'name', 'email']);
+
+        return response()->view('manager.campaigns.sent-email', compact('campaign', 'recipient', 'recipients'))
+            ->header('Cache-Control', 'no-store, private');
+    }
+
+    public function sentEmailContent(Request $request, CrmCampaign $campaign)
+    {
+        $recipient = $this->sentRecipient($request, $campaign);
+        // Do not pass trackingRecipient: previewName personalizes without creating tokens/events.
+        $mail = new \App\Mail\ProspectCampaignMail($campaign->subject, $campaign->content, $campaign->preheader,
+            $campaign->cta_text, $campaign->ctaLink(), $campaign->media['image'] ?? null, $campaign->media['attachment'] ?? null,
+            previewName: $recipient->name);
+        $previous = libxml_use_internal_errors(true);
+        try {
+            $document = new \DOMDocument;
+            $document->loadHTML('<?xml encoding="utf-8" ?>'.$mail->render(), LIBXML_NONET);
+            foreach ($document->getElementsByTagName('a') as $anchor) {
+                $anchor->removeAttribute('href');
+                $anchor->removeAttribute('target');
+                $anchor->setAttribute('aria-disabled', 'true');
+                $anchor->setAttribute('tabindex', '-1');
+                $anchor->setAttribute('style', $anchor->getAttribute('style').';cursor:default;');
+            }
+            $html = $document->saveHTML();
+        } finally {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+        }
+
+        return response($html)->header('Cache-Control', 'no-store, private')
+            ->header('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'")
+            ->header('X-Robots-Tag', 'noindex, nofollow');
     }
 
     public function show(Request $request, CrmCampaign $campaign)
@@ -90,12 +159,22 @@ class CrmCampaignController extends Controller
         $campaign->loadCount(['recipients as sent_count' => fn ($q) => $q->where('status', 'sent'),
             'recipients as opened_count' => fn ($q) => $q->where('status', 'sent')->whereNotNull('first_opened_at'),
             'recipients as clicked_count' => fn ($q) => $q->where('status', 'sent')->whereNotNull('first_clicked_at')]);
-        $results = $campaign->recipients()->with(['links' => fn ($q) => $q->where('click_count', '>', 0)->orderBy('first_clicked_at')])->orderBy('id')->paginate(25, ['*'], 'results_page')->withQueryString();
+        $request->validate(['result' => ['nullable', Rule::in(['all', 'sent', 'pending', 'failed', 'opened', 'clicked'])]]);
+        $resultFilter = $request->query('result') ?: 'all';
+        $resultQuery = $campaign->recipients()->with(['links' => fn ($q) => $q->where('click_count', '>', 0)->orderBy('first_clicked_at')]);
+        if ($resultFilter === 'pending') {
+            $resultQuery->whereIn('status', ['selected', 'pending', 'sending']);
+        } elseif (in_array($resultFilter, ['sent', 'failed'], true)) {
+            $resultQuery->where('status', $resultFilter);
+        } elseif (in_array($resultFilter, ['opened', 'clicked'], true)) {
+            $resultQuery->where('status', 'sent')->whereNotNull($resultFilter === 'opened' ? 'first_opened_at' : 'first_clicked_at');
+        }
+        $results = $resultQuery->orderBy('id')->paginate(25, ['*'], 'results_page')->withQueryString();
 
         $request->validate(['step' => ['nullable', 'integer', Rule::in([1, 2, 3])]]);
         $step = (int) $request->query('step', 2);
 
-        return view($campaign->status === 'draft' ? 'manager.campaigns.wizard' : 'manager.campaigns.show', compact('campaign', 'step', 'filters', 'prospects', 'sources', 'selected', 'counts', 'results'));
+        return view($campaign->status === 'draft' ? 'manager.campaigns.wizard' : 'manager.campaigns.show', compact('campaign', 'step', 'filters', 'prospects', 'sources', 'selected', 'counts', 'results', 'resultFilter'));
     }
 
     public function update(Request $request, CrmCampaign $campaign)
@@ -139,7 +218,11 @@ class CrmCampaignController extends Controller
             $service->enqueue($campaign, (int) $request->input('revision'));
         }
 
-        return redirect()->route('manager.campaigns.show', $campaign)->with('status', 'Campagne mise en attente. L’envoi sera effectué par lots en arrière-plan.');
+        $campaign->refresh();
+
+        return redirect()->route('manager.campaigns.show', $campaign)->with('status', $campaign->status === 'scheduled'
+            ? 'Campagne programmée pour le '.$campaign->scheduled_at->utc()->format('d/m/Y à H:i').' UTC.'
+            : 'Campagne mise en attente. L’envoi sera effectué par lots en arrière-plan.');
     }
 
     private function checkRevision(CrmCampaign $campaign, Request $request): void
@@ -158,7 +241,11 @@ class CrmCampaignController extends Controller
 
     private function composition(Request $request, bool $draft = false): array
     {
-        $data = $request->validate(['content' => [$draft ? 'nullable' : 'required', 'string', 'max:50000'],
+        $data = $request->validate([
+            'schedule_enabled' => ['sometimes', 'boolean'],
+            'scheduled_date' => ['exclude_unless:schedule_enabled,1', 'required', 'date_format:Y-m-d'],
+            'scheduled_time' => ['exclude_unless:schedule_enabled,1', 'required', 'date_format:H:i'],
+            'content' => [$draft ? 'nullable' : 'required', 'string', 'max:50000'],
             'image_file' => ['nullable', 'file', 'image', 'mimes:'.CrmCampaignAssets::IMAGES, 'max:2048'],
             'attachment_file' => ['nullable', 'file', 'mimes:'.CrmCampaignAssets::DOCUMENTS, 'max:10240'],
             'image_url' => ['nullable', 'url:http,https', 'max:2048'],
@@ -172,6 +259,15 @@ class CrmCampaignController extends Controller
                 }
             }]]);
         $data['content'] = $data['content'] ?? '';
+        $data['scheduled_at'] = null;
+        if ($request->boolean('schedule_enabled')) {
+            $scheduled = \Illuminate\Support\Carbon::createFromFormat('!Y-m-d H:i', $data['scheduled_date'].' '.$data['scheduled_time'], 'UTC');
+            if (! $scheduled->isFuture()) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['scheduled_date' => 'Choisissez une date et une heure futures (UTC).']);
+            }
+            $data['scheduled_at'] = $scheduled;
+        }
+        unset($data['schedule_enabled'], $data['scheduled_date'], $data['scheduled_time']);
 
         return $data;
     }

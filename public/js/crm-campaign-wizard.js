@@ -9,6 +9,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const form = document.querySelector('[data-wizard-composition]');
     if (!form) return;
+    const scheduleToggle = form.querySelector('[data-schedule-toggle]');
+    const scheduleFields = form.querySelector('[data-schedule-fields]');
+    const scheduleDate = form.querySelector('[name="scheduled_date"]');
+    const scheduleTime = form.querySelector('[name="scheduled_time"]');
+    const updateSchedule = () => {
+        const enabled = scheduleToggle.checked;
+        scheduleFields.hidden = !enabled;
+        [scheduleDate, scheduleTime].forEach(input => { input.disabled = !enabled; input.required = enabled; });
+        form.querySelector('[data-schedule-help]').textContent = enabled
+            ? 'L’envoi commencera à partir de la date et de l’heure choisies (UTC).'
+            : 'Désactivé : l’envoi démarrera après confirmation.';
+        document.querySelector('[data-send-label]').textContent = enabled ? 'Programmer la campagne' : 'Envoyer la campagne';
+        const date = scheduleDate.value.split('-').reverse().join('/');
+        document.querySelector('[data-schedule-summary]').textContent = enabled
+            ? (scheduleDate.value && scheduleTime.value ? `${date} à ${scheduleTime.value} UTC` : 'Date et heure à renseigner (UTC)')
+            : 'Dès confirmation';
+    };
+    scheduleToggle.addEventListener('change', updateSchedule);
+    scheduleDate.addEventListener('input', updateSchedule);
+    scheduleTime.addEventListener('input', updateSchedule);
+    updateSchedule();
     form.addEventListener('input', event => {
         if (event.target.name === 'confirm') return;
         document.querySelector('[data-preview-feedback]').textContent = 'Aperçu non actualisé : enregistrez le message pour le mettre à jour.';

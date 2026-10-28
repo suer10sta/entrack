@@ -103,6 +103,85 @@ class ProspectExcelImportTest extends TestCase
         return new UploadedFile($path, 'prospects.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
     }
 
+    private function csv(array $rows, string $delimiter = ',', bool $bom = false): UploadedFile
+    {
+        $path = tempnam(sys_get_temp_dir(), 'crm_csv_');
+        $this->files[] = $path;
+        $stream = fopen($path, 'wb');
+        if ($bom) {
+            fwrite($stream, "\xEF\xBB\xBF");
+        }
+        foreach ($rows as $row) {
+            fputcsv($stream, $row, $delimiter, '"', '');
+        }
+        fclose($stream);
+
+        return new UploadedFile($path, 'prospects.csv', 'text/csv', null, true);
+    }
+
+    public function test_csv_uses_the_same_validation_duplicates_and_creation_flow(): void
+    {
+        Prospect::create(['name' => 'Existing', 'email' => 'existing@example.test']);
+        foreach ([',', ';'] as $index => $delimiter) {
+            $this->upload($this->csv([
+                ['Prénom', 'Nom', 'Email', 'Téléphone', 'Société', 'Pays', 'source', 'utm_campaign', 'status', 'linked_user_id'],
+                ['Élodie', 'Test', " Fresh{$index}@Example.test ", '+001234', 'Studio, Paris', 'France', 'LinkedIn', 'launch', 'engage', '999'],
+                ['Repeat', 'Test', "FRESH{$index}@example.test", '', '', '', '', '', '', ''],
+                ['Existing', 'Test', 'EXISTING@example.test', '', '', '', '', '', '', ''],
+                ['Bad', 'Email', 'invalid', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', '', '', ''],
+                ['Default', 'Status', "default{$index}@example.test", '00123', '', 'Maroc', '', '', 'unsupported', ''],
+            ], $delimiter, true))->assertRedirect();
+            $result = $this->importResult();
+            $this->assertSame(2, $result['created']);
+            $this->assertSame(2, $result['duplicated']);
+            $this->assertSame(1, $result['invalid']);
+            $this->assertSame(1, $result['skipped']);
+            $prospect = Prospect::where('email_normalized', "fresh{$index}@example.test")->sole();
+            $this->assertSame('Élodie Test', $prospect->name);
+            $this->assertSame('+001234', $prospect->phone);
+            $this->assertSame('Studio, Paris', $prospect->company_name);
+            $this->assertSame('France', $prospect->country);
+            $this->assertSame('launch', $prospect->utm_campaign);
+            $this->assertSame(ProspectStatus::Engage, $prospect->status);
+            $this->assertNull($prospect->linked_user_id);
+            $this->assertNull($prospect->linked_entreprise_id);
+            $default = Prospect::where('email_normalized', "default{$index}@example.test")->sole();
+            $this->assertSame(ProspectStatus::Nouveau, $default->status);
+            $this->assertSame('00123', $default->phone);
+        }
+        $this->assertSame(0, DB::table('users')->count());
+        $this->assertSame(0, DB::table('entreprises')->count());
+        $this->assertSame(0, DB::table('crm_lifecycle_events')->count());
+        Http::assertNothingSent();
+    }
+
+    public function test_selected_import_source_applies_to_xlsx_and_csv_without_touching_duplicates(): void
+    {
+        $existing = Prospect::create(['name' => 'Existing', 'email' => 'existing@example.test', 'source' => 'Google']);
+        $this->actingAs($this->manager, 'manager');
+        foreach (['workbook', 'csv'] as $format) {
+            $file = $this->$format([['name', 'email', 'source'], ['New', $format.'@example.test', 'Email'], ['Duplicate', 'existing@example.test', 'Email'], ['', '', '']]);
+            $this->post(route('manager.prospects.import.store'), ['file' => $file, 'import_source' => 'LinkedIn'])->assertRedirect();
+            $this->assertSame('LinkedIn', Prospect::where('email_normalized', $format.'@example.test')->sole()->source);
+            $this->assertSame('Google', $existing->fresh()->source);
+            $this->assertSame(1, $this->importResult()['created']);
+            $this->assertSame(1, $this->importResult()['duplicated']);
+            $this->assertSame(1, $this->importResult()['skipped']);
+        }
+        $this->post(route('manager.prospects.import.store'), ['file' => $this->csv([['name'], ['Invalid source']]), 'import_source' => 'unsupported'])->assertSessionHasErrors('import_source');
+        $this->assertSame(3, Prospect::count());
+        $this->get(route('manager.prospects.index', ['modal' => 'import']))->assertOk()->assertSee('import-source', false)->assertSee('Utiliser la source du fichier');
+    }
+
+    public function test_csv_invalid_headers_and_limits_reject_before_writes(): void
+    {
+        foreach ([[['email'], ['only@example.test']], [['name', 'Email', 'email'], ['Duplicate', 'a@example.test', 'b@example.test']], array_merge([['name']], array_fill(0, 1001, ['Contact']))] as $rows) {
+            $this->upload($this->csv($rows))->assertSessionHasErrors('file');
+        }
+        $this->assertSame(0, Prospect::count());
+    }
+
     private function upload(UploadedFile $file)
     {
         $this->actingAs($this->manager, 'manager');

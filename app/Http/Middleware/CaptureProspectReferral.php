@@ -18,6 +18,9 @@ class CaptureProspectReferral
             || in_array($name, ['blog.show', 'register'], true);
         if ($request->isMethod('GET') && $public && $request->query->has('ref')) {
             $this->attribution->capture($request);
+            if ($request->session()->has(ProspectReferralAttribution::SESSION_KEY)) {
+                app(\App\Services\ProspectReferralEngagement::class)->record($request);
+            }
         }
 
         return $next($request);

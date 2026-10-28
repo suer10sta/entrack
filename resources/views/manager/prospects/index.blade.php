@@ -53,7 +53,7 @@
                     </tr>
                 @empty<tr><td colspan="7" class="py-10 text-center text-slate-500">Aucun prospect ne correspond à votre recherche.</td></tr>@endforelse</tbody>
             </table>
-        </div><div class="border-t border-slate-100 p-4">{{ $prospects->links() }}</div>
+        </div><div class="crm-prospects-pagination border-t border-slate-100 p-4">{{ $prospects->onEachSide(1)->links('pagination::bootstrap-4') }}</div>
     </div>
 </div>
 <dialog id="crm-link-dialog" class="crm-link-dialog" aria-labelledby="crm-link-title" data-prospect-link>
@@ -68,5 +68,7 @@
 @include('manager.prospects.partials.dialogs')
 @include('manager.prospects.partials.edit-dialog')
 <link rel="stylesheet" href="{{ asset('css/prospect-modals.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.default.min.css">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js" defer></script>
 <script src="{{ asset('js/prospect-modals.js') }}" defer></script>
 @endsection

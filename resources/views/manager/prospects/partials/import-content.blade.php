@@ -1,7 +1,18 @@
 <form method="POST" enctype="multipart/form-data" action="{{ route('manager.prospects.import.store') }}" class="crm-upload-form space-y-4">
         @csrf <input type="hidden" name="_prospect_modal" value="import">
-        <label for="import-file" class="block text-sm font-semibold text-[#0B2638]">Classeur Excel (.xlsx)<input id="import-file" type="file" name="file" required accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="crm-import-file mt-2 block w-full text-sm" aria-describedby="import-help"></label>
-        <p id="import-help" class="text-xs text-slate-500">Première feuille uniquement · 1 000 lignes maximum · 5 Mo maximum. La première ligne doit contenir les en-têtes.</p>
+        <label for="import-file" class="block text-sm font-semibold text-[#0B2638]">Formats acceptés : XLSX, CSV<input id="import-file" type="file" name="file" required accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="crm-import-file mt-2 block w-full text-sm" aria-describedby="import-help"></label>
+        <p id="import-help" class="text-xs text-slate-500">Première feuille pour XLSX · CSV séparé par virgules ou points-virgules · 1 000 lignes maximum · 5 Mo maximum. La première ligne doit contenir les en-têtes.</p>
+        <div>
+            <label for="import-source" class="mb-1.5 block text-sm font-semibold text-[#0B2638]">Source d’acquisition</label>
+            <select id="import-source" name="import_source" aria-describedby="import-source-help" @if($errors->has('import_source')) aria-invalid="true" @endif class="block h-9 w-full rounded-lg border-slate-300 py-1.5 pl-3 pr-8 text-sm focus:border-[#2D7080] focus:ring-[#2D7080]">
+                <option value="">Utiliser la source du fichier</option>
+                @foreach(['Google', 'Google Ads', 'LinkedIn', 'Facebook', 'Instagram', 'Email', 'Campagne', 'Salon / Événement', 'Recommandation', 'Site web', 'Autre'] as $importSource)
+                    <option value="{{ $importSource }}" @selected(old('import_source', '') === $importSource)>{{ $importSource }}</option>
+                @endforeach
+            </select>
+            <p id="import-source-help" class="mt-1.5 text-xs text-slate-500">La source sélectionnée s’applique à tous les nouveaux prospects importés et remplace la colonne source du fichier. Sans sélection, les valeurs du fichier sont conservées.</p>
+            @error('import_source')<p class="mt-1 text-xs text-rose-700">{{ $message }}</p>@enderror
+        </div>
         <div class="crm-modal-actions"><button type="button" class="crm-modal-cancel" data-close-prospect-modal>Annuler</button><button type="submit" class="crm-modal-submit">@include('manager.prospects.partials.icon', ['icon' => 'check']) Valider et importer</button></div>
     </form>
     <details class="crm-import-guide" @if(!$result) open @endif><summary class="cursor-pointer font-semibold text-[#0B2638]">Format attendu et règles d’import</summary><div class="mt-3 space-y-3 text-sm text-slate-600">

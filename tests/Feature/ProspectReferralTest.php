@@ -130,10 +130,10 @@ class ProspectReferralTest extends TestCase
         $this->assertStringContainsString('ref='.$prospect->public_token, $response->headers->get('Location'));
         $response->assertSessionHas(ProspectReferralAttribution::SESSION_KEY.'.prospect_id', $prospect->id);
         $response->assertSessionHas(ProspectReferralAttribution::SESSION_KEY.'.utm_source', 'linkedin');
-        $this->assertSame(ProspectStatus::Nouveau, $prospect->fresh()->status);
+        $this->assertSame(ProspectStatus::Engage, $prospect->fresh()->status);
         $this->assertNull($prospect->fresh()->linked_user_id);
         $this->assertNull($prospect->fresh()->linked_entreprise_id);
-        $this->assertSame(0, $prospect->activities()->count());
+        $this->assertSame(1, $prospect->activities()->count());
     }
 
     public function test_normal_marketing_navigation_preserves_attribution_until_register(): void
@@ -242,5 +242,86 @@ class ProspectReferralTest extends TestCase
         $prospect = $this->prospect();
         $this->expectException(\Illuminate\Database\QueryException::class);
         DB::table('prospects')->where('id', $prospect->id)->update(['public_token' => null]);
+    }
+
+    public function test_link_visit_engages_prospect_without_email_or_analytics_and_records_one_clear_event(): void
+    {
+        foreach ([ProspectStatus::Nouveau, ProspectStatus::Contacte] as $initial) {
+            $prospect = $this->prospect(['email' => null]);
+            if ($initial === ProspectStatus::Contacte) {
+                app(ProspectStatusService::class)->transition($prospect, $initial, manager: $this->manager);
+            }
+            $url = '/?utm_source=linkedin&utm_medium=message_prive&ref='.$prospect->public_token;
+            $this->withSession(['analytics_context' => ['granted' => false]])->get($url)->assertRedirect();
+            $this->get('/fr?utm_source=linkedin&utm_medium=message_prive&ref='.$prospect->public_token)->assertOk();
+            $this->get($url)->assertRedirect();
+            $this->assertSame(ProspectStatus::Engage, $prospect->fresh()->status);
+            $this->assertNull($prospect->fresh()->email);
+            $this->assertNull($prospect->fresh()->linked_user_id);
+            $this->assertNull($prospect->fresh()->linked_entreprise_id);
+            $this->assertSame(1, $prospect->statusHistories()->where('source', 'linkedin_click')->count());
+            $this->assertSame(1, $prospect->activities()->where('subject', 'Lien LinkedIn consulté')->count());
+            $this->assertSame($initial, $prospect->statusHistories()->where('source', 'linkedin_click')->sole()->from_status);
+            app(ProspectStatusService::class)->transition($prospect->fresh(), ProspectStatus::Contacte, manager: $this->manager);
+            $this->get($url)->assertRedirect();
+            $this->assertSame(ProspectStatus::Contacte, $prospect->fresh()->status);
+            $this->assertSame(1, $prospect->activities()->count());
+        }
+        $this->assertSame(0, DB::table('users')->count());
+        $this->assertSame(0, DB::table('entreprises')->count());
+        Http::assertNothingSent();
+    }
+
+    public function test_preview_crawlers_prefetch_head_and_manager_tests_do_not_engage_prospect(): void
+    {
+        $prospect = $this->prospect(['email' => null]);
+        $url = '/?ref='.$prospect->public_token;
+        foreach (['LinkedInBot/1.0', 'facebookexternalhit/1.1', 'Twitterbot/1.0', 'Slackbot-LinkExpanding', 'Googlebot'] as $agent) {
+            $this->withHeader('User-Agent', $agent)->get($url)->assertRedirect();
+        }
+        $this->flushHeaders();
+        $this->withHeader('Purpose', 'prefetch')->get($url)->assertRedirect();
+        $this->flushHeaders();
+        $this->withHeader('Sec-Purpose', 'prefetch;prerender')->get($url)->assertRedirect();
+        $this->flushHeaders();
+        $this->head($url)->assertRedirect();
+        $this->actingAs($this->manager, 'manager')->get($url)->assertRedirect();
+        $this->assertSame(ProspectStatus::Nouveau, $prospect->fresh()->status);
+        $this->assertSame(0, $prospect->statusHistories()->count());
+        $this->assertSame(0, $prospect->activities()->count());
+    }
+
+    public function test_link_visits_protect_later_statuses_archived_and_invalid_refs(): void
+    {
+        foreach ([ProspectStatus::Engage, ProspectStatus::DemoEssai, ProspectStatus::Client, ProspectStatus::Perdu] as $status) {
+            $prospect = $this->prospect(['email' => null]);
+            app(ProspectStatusService::class)->transition($prospect, $status, manager: $this->manager);
+            $this->get('/?ref='.$prospect->public_token)->assertRedirect();
+            $this->assertSame($status, $prospect->fresh()->status);
+            $this->assertSame(0, $prospect->activities()->count());
+        }
+        $archived = $this->prospect(['email' => null]);
+        $archived->delete();
+        $this->get('/?ref='.$archived->public_token)->assertRedirect();
+        $this->get('/?ref[]=invalid')->assertRedirect();
+        $this->get('/?ref='.str_repeat('a', 48))->assertRedirect();
+        $this->get('/?utm_source=linkedin')->assertRedirect();
+        $this->assertSame(ProspectStatus::Nouveau, Prospect::withTrashed()->findOrFail($archived->id)->status);
+        $this->assertSame(0, DB::table('prospect_activities')->count());
+    }
+
+    public function test_engagement_failure_never_blocks_landing_and_can_retry_on_later_visit(): void
+    {
+        $prospect = $this->prospect(['email' => null]);
+        $mock = \Mockery::mock(ProspectStatusService::class);
+        $mock->shouldReceive('transition')->once()->andThrow(new RuntimeException('Temporary CRM error'));
+        $this->app->instance(ProspectStatusService::class, $mock);
+        $this->get('/?ref='.$prospect->public_token)->assertRedirect()->assertSessionHas(ProspectReferralAttribution::SESSION_KEY.'.prospect_id', $prospect->id);
+        $this->assertSame(ProspectStatus::Nouveau, $prospect->fresh()->status);
+        $this->assertSame(0, $prospect->activities()->count());
+        $this->app->forgetInstance(ProspectStatusService::class);
+        $this->get('/?ref='.$prospect->public_token)->assertRedirect();
+        $this->assertSame(ProspectStatus::Engage, $prospect->fresh()->status);
+        $this->assertSame(1, $prospect->activities()->count());
     }
 }

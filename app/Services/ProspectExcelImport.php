@@ -12,6 +12,8 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
+use PhpOffice\PhpSpreadsheet\Reader\Csv;
 use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\RichText\RichText;
@@ -29,11 +31,11 @@ class ProspectExcelImport
 
     public function __construct(private ProspectStatusService $statuses) {}
 
-    public function import(UploadedFile $file, Manager $manager): array
+    public function import(UploadedFile $file, Manager $manager, ?string $source = null): array
     {
         $rows = $this->read($file);
 
-        return DB::transaction(function () use ($rows, $manager) {
+        return DB::transaction(function () use ($rows, $manager, $source) {
             if (DB::connection()->getDriverName() === 'pgsql') {
                 DB::statement("SET LOCAL TIME ZONE 'UTC'");
                 // Serialize concurrent imports without imposing global email uniqueness.
@@ -51,6 +53,9 @@ class ProspectExcelImport
                     $result['rows'][] = $entry + ['outcome' => 'skipped', 'reason' => 'Ligne vide ignorée.'];
 
                     continue;
+                }
+                if ($source !== null && $source !== '') {
+                    $data['source'] = $source;
                 }
                 $status = ProspectStatus::tryFrom(Str::lower(trim($data['status'] ?? ''))) ?? ProspectStatus::Nouveau;
                 if (isset($data['status']) && ! ProspectStatus::tryFrom(Str::lower($data['status']))) {
@@ -102,35 +107,44 @@ class ProspectExcelImport
     private function read(UploadedFile $file): array
     {
         $path = $file->getRealPath();
-        $zip = new ZipArchive;
-        if ($zip->open($path) !== true) {
-            $this->fileError('Le fichier doit être un classeur Excel .xlsx valide.');
-        }
-        try {
-            $size = 0;
-            if ($zip->numFiles > 2000) {
-                $this->fileError('Ce classeur contient trop d’éléments. Utilisez un fichier simplifié.');
+        $isCsv = strtolower($file->getClientOriginalExtension()) === 'csv';
+        if (! $isCsv) {
+            $zip = new ZipArchive;
+            if ($zip->open($path) !== true) {
+                $this->fileError('Le fichier doit être un classeur Excel .xlsx valide.');
             }
-            for ($i = 0; $i < $zip->numFiles; $i++) {
-                $size += $zip->statIndex($i)['size'];
+            try {
+                $size = 0;
+                if ($zip->numFiles > 2000) {
+                    $this->fileError('Ce classeur contient trop d’éléments. Utilisez un fichier simplifié.');
+                }
+                for ($i = 0; $i < $zip->numFiles; $i++) {
+                    $size += $zip->statIndex($i)['size'];
+                }
+                if ($size > 50 * 1024 * 1024) {
+                    $this->fileError('Le contenu décompressé du classeur est trop volumineux.');
+                }
+            } finally {
+                $zip->close();
             }
-            if ($size > 50 * 1024 * 1024) {
-                $this->fileError('Le contenu décompressé du classeur est trop volumineux.');
-            }
-        } finally {
-            $zip->close();
         }
         $book = null;
         try {
-            $reader = new Xlsx;
+            $reader = $isCsv ? new Csv : new Xlsx;
+            if ($isCsv) {
+                $reader->setInputEncoding(Csv::GUESS_ENCODING)->setValueBinder(new StringValueBinder);
+            }
             $info = $reader->listWorksheetInfo($path)[0] ?? null;
             if (! $info || $info['totalRows'] < 2) {
-                $this->fileError('Le classeur doit contenir une ligne d’en-têtes et au moins un prospect.');
+                $this->fileError('Le fichier doit contenir une ligne d’en-têtes et au moins un prospect.');
             }
             if ($info['totalRows'] > self::MAX_ROWS + 1 || $info['totalColumns'] > self::MAX_COLUMNS) {
-                $this->fileError('Limite : 1 000 lignes de données et 32 colonnes dans la première feuille.');
+                $this->fileError('Limite : 1 000 lignes de données et 32 colonnes par fichier (première feuille pour XLSX).');
             }
-            $reader->setReadDataOnly(true)->setReadEmptyCells(false)->setLoadSheetsOnly([$info['worksheetName']]);
+            $reader->setReadDataOnly(true)->setReadEmptyCells(false);
+            if (! $isCsv) {
+                $reader->setLoadSheetsOnly([$info['worksheetName']]);
+            }
             $reader->setReadFilter(new class implements IReadFilter
             {
                 public function readCell(string $columnAddress, int $row, string $worksheetName = ''): bool
@@ -189,7 +203,7 @@ class ProspectExcelImport
         } catch (ValidationException $error) {
             throw $error;
         } catch (Throwable $error) {
-            $this->fileError('Impossible de lire ce fichier. Utilisez un classeur .xlsx valide et non protégé par mot de passe.');
+            $this->fileError('Impossible de lire ce fichier. Utilisez un fichier CSV valide ou un classeur XLSX non protégé par mot de passe.');
         } finally {
             $book?->disconnectWorksheets();
         }
