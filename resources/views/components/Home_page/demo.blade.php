@@ -22,9 +22,7 @@
     <x-public.header />
 
     @php
-      $availableVideos = collect(config('demo.videos'))->filter(fn ($label, $file) => is_file(public_path('videos/' . $file)));
-      $firstVideo = $availableVideos->keys()->first();
-      $playlistData = collect(config('demo.videos'))->map(fn ($label, $file) => ['src' => is_file(public_path('videos/' . $file)) ? asset('videos/' . $file) : null, 'name' => __('messages.' . $label)])->values();
+      $demoVideos = collect(config('demo.youtube_videos', []))->filter(fn ($video) => preg_match('/^[a-zA-Z0-9_-]{11}$/', $video['id'] ?? ''))->values();
     @endphp
     <main id="main">
       {{-- Hero Section --}}
@@ -40,326 +38,58 @@
         </div>
       </section>
 
-      @if($availableVideos->isEmpty())
+      @if($demoVideos->isEmpty())
       <section class="bg-[#f8faf9] px-6 pb-20 text-center">
         <p>{{ __('messages.demo_videos_unavailable') }}</p>
         <a href="{{ route('contact') }}" class="font-semibold text-brand-secondary">{{ __('messages.Contact Us') }}</a>
       </section>
       @else
-      {{-- Video + Playlist --}}
-      <section class="bg-[#f8faf9] pb-20 pt-4 max-md:pb-14">
+      <section class="bg-[#f8faf9] pb-20 pt-4 max-md:pb-14" data-demo-playlist>
         <div class="mx-auto max-w-[1200px] px-6 max-md:px-4">
-          <div class="mx-auto grid max-w-7xl grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
-
-            {{-- Left Side: Video Player (2/3 width on large screens) --}}
+          <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
             <div class="lg:col-span-2">
-              <div id="video-player-container" class="overflow-hidden rounded-2xl border border-[#dce6e4] bg-white shadow-[0_18px_50px_rgba(7,27,50,0.10)]">
-                <div class="aspect-video w-full bg-brand-primary">
-                  <video
-                    id="demo-video-player"
-                    controls
-                    autoplay
-                    class="h-full w-full"
-                  >
-                    <source src="{{ asset('videos/' . $firstVideo) }}" type="video/mp4">
-                    {{ __('messages.Your browser does not support the video tag.') }}
-                  </video>
+              <div class="overflow-hidden rounded-2xl border border-[#dce6e4] bg-white shadow-[0_18px_50px_rgba(7,27,50,0.10)]">
+                <div class="relative aspect-video w-full bg-brand-primary" data-demo-player>
+                  <button type="button" data-demo-play class="relative block h-full w-full" aria-label="{{ __('messages.demo_youtube_play') }}">
+                    <img src="https://i.ytimg.com/vi/{{ $demoVideos->first()['id'] }}/hqdefault.jpg" alt="" class="h-full w-full object-cover" width="480" height="360" fetchpriority="high">
+                    <span class="absolute inset-0 flex items-center justify-center bg-brand-primary/30"><span class="grid h-[72px] w-[72px] place-items-center rounded-full bg-brand-secondary text-white shadow-lg"><i data-lucide="play" class="h-7 w-7 fill-current" aria-hidden="true"></i></span></span>
+                  </button>
                 </div>
-                <div class="bg-white p-4">
-                  <h2 id="current-video-title" class="mb-2 text-xl font-bold text-brand-primary">{{ __('messages.Dashboard Overview') }}</h2>
+                <div class="p-4">
+                  <h2 data-demo-title class="mb-3 text-xl font-bold text-brand-primary" aria-live="polite">{{ $demoVideos->first()['title'] }}</h2>
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex gap-2">
-                      <button
-                        onclick="playPreviousVideo()"
-                        id="prev-btn"
-                        class="inline-flex items-center rounded-lg bg-brand-secondary/10 px-4 py-2 text-sm font-semibold text-brand-secondary transition-colors duration-300 hover:bg-brand-secondary/20 disabled:cursor-not-allowed disabled:opacity-50"
-                        disabled
-                      >
-                        <i data-lucide="chevron-left" class="mr-1 h-4 w-4"></i>
-                        {{ __('messages.Previous') }}
-                      </button>
-                      <button
-                        onclick="playNextVideo()"
-                        id="next-btn"
-                        class="inline-flex items-center rounded-lg bg-brand-secondary/10 px-4 py-2 text-sm font-semibold text-brand-secondary transition-colors duration-300 hover:bg-brand-secondary/20 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {{ __('messages.Next') }}
-                        <i data-lucide="chevron-right" class="ml-1 h-4 w-4"></i>
-                      </button>
+                      <button type="button" data-demo-previous disabled class="inline-flex items-center rounded-lg bg-brand-secondary/10 px-4 py-2 text-sm font-semibold text-brand-secondary hover:bg-brand-secondary/20 disabled:cursor-not-allowed disabled:opacity-50"><i data-lucide="chevron-left" class="mr-1 h-4 w-4" aria-hidden="true"></i>{{ __('messages.Previous') }}</button>
+                      <button type="button" data-demo-next @disabled($demoVideos->count() < 2) class="inline-flex items-center rounded-lg bg-brand-secondary/10 px-4 py-2 text-sm font-semibold text-brand-secondary hover:bg-brand-secondary/20 disabled:cursor-not-allowed disabled:opacity-50">{{ __('messages.Next') }}<i data-lucide="chevron-right" class="ml-1 h-4 w-4" aria-hidden="true"></i></button>
                     </div>
-                    <div id="video-progress" class="text-xs font-medium text-[#5b6b73]">
-                      <span id="current-video-number">{{ __('messages.public_pricing_users_solo') }}</span> / <span id="total-videos">3</span>
-                    </div>
+                    <span class="text-xs font-medium text-[#5b6b73]"><span data-demo-current>1</span> / {{ $demoVideos->count() }}</span>
                   </div>
+                  <a data-demo-youtube href="https://www.youtube.com/watch?v={{ $demoVideos->first()['id'] }}" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-secondary">{{ __('messages.demo_youtube_watch') }}<i data-lucide="external-link" class="h-4 w-4" aria-hidden="true"></i></a>
                 </div>
               </div>
             </div>
-
-            {{-- Right Side: Playlist (1/3 width on large screens) --}}
-            <div class="lg:col-span-1">
-              <div class="flex h-full max-h-[600px] flex-col overflow-hidden rounded-2xl border border-[#dce6e4] bg-white shadow-[0_18px_50px_rgba(7,27,50,0.10)] max-lg:max-h-[520px]">
-                <div class="border-b border-[#dce6e4] bg-[#f2f8f7] p-4">
-                  <h3 class="text-lg font-bold text-brand-primary">{{ __('messages.Feature Demos') }}</h3>
-                  <p class="mt-1 text-xs text-[#5b6b73]">{{ __('messages.Select a feature to watch') }}</p>
-                </div>
-
-                <div class="flex-1 overflow-y-auto playlist-scroll">
-                  {{-- 0. Dashboard Overview --}}
-                  <div
-                    onclick="playPlaylistVideo(0)"
-                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
-                    data-video-index="0"
-                  >
-                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
-                      <video
-                        class="h-full w-full object-cover"
-                        muted
-                        loop
-                        playsinline
-                      >
-                        @if(is_file(public_path('videos/DashboardDemo.mp4')))<source src="{{ asset('videos/DashboardDemo.mp4') }}" type="video/mp4">@endif
-                      </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
-                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
-                      </div>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Dashboard Overview') }}</h4>
-                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.See your business at a glance with real-time metrics and quick access to all modules.') }}</p>
-                    </div>
-                  </div>
-
-                  {{-- 1. Invoice Management --}}
-                  <div
-                    onclick="playPlaylistVideo(1)"
-                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
-                    data-video-index="1"
-                  >
-                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
-                      <video
-                        class="h-full w-full object-cover"
-                        muted
-                        loop
-                        playsinline
-                      >
-                        @if(is_file(public_path('videos/InvoiceDemo.mp4')))<source src="{{ asset('videos/InvoiceDemo.mp4') }}" type="video/mp4">@endif
-                      </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
-                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
-                      </div>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Invoice Management') }}</h4>
-                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Create, send, and track professional invoices with automated reminders.') }}</p>
-                    </div>
-                  </div>
-
-                  {{-- 2. Quotes / Devis to Invoice --}}
-                  <div
-                    onclick="playPlaylistVideo(2)"
-                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
-                    data-video-index="2"
-                  >
-                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
-                      <video
-                        class="h-full w-full object-cover"
-                        muted
-                        loop
-                        playsinline
-                      >
-                        @if(is_file(public_path('videos/DevisDemo.mp4')))<source src="{{ asset('videos/DevisDemo.mp4') }}" type="video/mp4">@endif
-                      </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
-                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
-                      </div>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Quotes & Devis to Invoice') }}</h4>
-                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Create quotes, get approvals, and convert them into real projects and tasks in one click.') }}</p>
-                    </div>
-                  </div>
-
-                  {{-- 3. Project & Task Management --}}
-                  <div
-                    onclick="playPlaylistVideo(3)"
-                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
-                    data-video-index="3"
-                  >
-                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
-                      <video
-                        class="h-full w-full object-cover"
-                        muted
-                        loop
-                        playsinline
-                      >
-                        @if(is_file(public_path('videos/Projects_TasksDemo.mp4')))<source src="{{ asset('videos/Projects_TasksDemo.mp4') }}" type="video/mp4">@endif
-                      </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
-                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
-                      </div>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Project & Task Management') }}</h4>
-                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Organize projects, subprojects, and tasks with assignments and deadlines.') }}</p>
-                    </div>
-                  </div>
-
-                  {{-- 4. Time Tracking / Track Timer --}}
-                  <div
-                    onclick="playPlaylistVideo(4)"
-                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
-                    data-video-index="4"
-                  >
-                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
-                      <video
-                        class="h-full w-full object-cover"
-                        muted
-                        loop
-                        playsinline
-                      >
-                        @if(is_file(public_path('videos/TimeTrackerDemo.mp4')))<source src="{{ asset('videos/TimeTrackerDemo.mp4') }}" type="video/mp4">@endif
-                      </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
-                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
-                      </div>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Time Tracking') }}</h4>
-                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Track time per task and project with real-time timers and logs.') }}</p>
-                    </div>
-                  </div>
-
-                  {{-- 5. Expense Management / Note de frais --}}
-                  <div
-                    onclick="playPlaylistVideo(5)"
-                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
-                    data-video-index="5"
-                  >
-                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-accent/30 to-brand-accent/10">
-                      <video
-                        class="h-full w-full object-cover"
-                        muted
-                        loop
-                        playsinline
-                      >
-                        @if(is_file(public_path('videos/ExpenseDemo.mp4')))<source src="{{ asset('videos/ExpenseDemo.mp4') }}" type="video/mp4">@endif
-                      </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
-                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
-                      </div>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Expense Management') }}</h4>
-                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Record expenses, attach receipts, and categorize note de frais.') }}</p>
-                    </div>
-                  </div>
-
-                  {{-- 6. Client Management --}}
-                  <div
-                    onclick="playPlaylistVideo(6)"
-                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
-                    data-video-index="6"
-                  >
-                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
-                      <video
-                        class="h-full w-full object-cover"
-                        muted
-                        loop
-                        playsinline
-                      >
-                        @if(is_file(public_path('videos/ClientDemo.mp4')))<source src="{{ asset('videos/ClientDemo.mp4') }}" type="video/mp4">@endif
-                      </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
-                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
-                      </div>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Client Management') }}</h4>
-                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Manage client profiles, history, and documents in one place.') }}</p>
-                    </div>
-                  </div>
-
-                  {{-- 7. Team & Employee Management --}}
-                  <div
-                    onclick="playPlaylistVideo(7)"
-                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
-                    data-video-index="7"
-                  >
-                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
-                      <video
-                        class="h-full w-full object-cover"
-                        muted
-                        loop
-                        playsinline
-                      >
-                        @if(is_file(public_path('videos/EmployeesDemo.mp4')))<source src="{{ asset('videos/EmployeesDemo.mp4') }}" type="video/mp4">@endif
-                      </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
-                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
-                      </div>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Team & Employee Management') }}</h4>
-                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Create teams, manage employees, and control roles & permissions.') }}</p>
-                    </div>
-                  </div>
-
-                  {{-- 8. Calendar & Events --}}
-                  <div
-                    onclick="playPlaylistVideo(8)"
-                    class="playlist-item group flex cursor-pointer gap-3 border-b border-[#dce6e4] p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
-                    data-video-index="8"
-                  >
-                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
-                      <video
-                        class="h-full w-full object-cover"
-                        muted
-                        loop
-                        playsinline
-                      >
-                        @if(is_file(public_path('videos/PlanningDemo.mp4')))<source src="{{ asset('videos/PlanningDemo.mp4') }}" type="video/mp4">@endif
-                      </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
-                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
-                      </div>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Calendar & Events') }}</h4>
-                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Schedule events, deadlines, and meetings with reminders.') }}</p>
-                    </div>
-                  </div>
-
-                  {{-- 9. End-to-End Day in the Life --}}
-                  <div
-                    onclick="playPlaylistVideo(9)"
-                    class="playlist-item group flex cursor-pointer gap-3 p-3 transition-colors duration-300 hover:bg-[#f2f8f7]"
-                    data-video-index="9"
-                  >
-                    <div class="relative h-24 w-40 flex-none overflow-hidden rounded-lg bg-gradient-to-br from-brand-secondary/25 to-[#8ccfd0]/20">
-                      <video
-                        class="h-full w-full object-cover"
-                        muted
-                        loop
-                        playsinline
-                      >
-                        @if(is_file(public_path('videos/DayDemo.mp4')))<source src="{{ asset('videos/DayDemo.mp4') }}" type="video/mp4">@endif
-                      </video>
-                      <div class="absolute inset-0 flex items-center justify-center bg-brand-primary/30 transition-colors duration-300 group-hover:bg-brand-primary/20">
-                        <i data-lucide="play" class="h-8 w-8 fill-current text-white"></i>
-                      </div>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <h4 class="mb-1 line-clamp-2 text-sm font-semibold text-brand-primary transition-colors duration-300 group-hover:text-brand-secondary">{{ __('messages.Day in the Life') }}</h4>
-                      <p class="line-clamp-2 text-xs text-[#5b6b73]">{{ __('messages.Follow a real workflow from client to project to invoice and reporting.') }}</p>
-                    </div>
-                  </div>
-                </div>
+            <div class="overflow-hidden rounded-2xl border border-[#dce6e4] bg-white shadow-[0_18px_50px_rgba(7,27,50,0.10)]">
+              <div class="border-b border-[#dce6e4] bg-[#f2f8f7] p-4">
+                <h3 class="text-lg font-bold text-brand-primary">{{ __('messages.Feature Demos') }}</h3>
+                <p class="mt-1 text-xs text-[#5b6b73]">{{ __('messages.Select a feature to watch') }}</p>
               </div>
+              <div class="playlist-scroll max-h-[520px] overflow-y-auto">
+                @foreach($demoVideos as $index => $video)
+                  <button type="button" class="playlist-item flex w-full gap-3 border-b border-[#dce6e4] p-3 text-left hover:bg-[#f2f8f7] {{ $index === 0 ? 'active' : '' }}" data-demo-video data-video-id="{{ $video['id'] }}" data-video-title="{{ $video['title'] }}" @if($index === 0) aria-current="true" @endif>
+                    <span class="relative h-16 w-24 flex-none overflow-hidden rounded-lg bg-brand-primary">
+                      <img src="https://i.ytimg.com/vi/{{ $video['id'] }}/mqdefault.jpg" alt="" class="h-full w-full object-cover" width="320" height="180" loading="lazy">
+                      <span class="absolute bottom-1 right-1 rounded bg-brand-primary px-1 text-xs text-white">{{ $video['duration'] }}</span>
+                    </span>
+                    <span class="min-w-0 self-center text-sm font-semibold leading-snug text-brand-primary">{{ $video['title'] }}</span>
+                  </button>
+                @endforeach
+              </div>
+              <a href="{{ config('demo.channel_url') }}" target="_blank" rel="noopener noreferrer" class="block p-4 text-sm font-semibold text-brand-secondary">{{ __('messages.demo_youtube_channel') }} →</a>
             </div>
           </div>
+          <noscript><p class="mt-4 text-sm text-[#5b6b73]">{{ __('messages.demo_youtube_nojs') }}</p><ul>@foreach($demoVideos as $video)<li><a href="https://www.youtube.com/watch?v={{ $video['id'] }}" class="text-brand-secondary">{{ $video['title'] }}</a></li>@endforeach</ul></noscript>
         </div>
       </section>
-
       @endif
 
       {{-- CTA --}}
@@ -384,14 +114,15 @@
         border-left: 3px solid #2D7080;
       }
 
-      .playlist-item video {
+      .playlist-item img {
         transition: transform 0.3s ease;
       }
 
-      .playlist-item:hover video {
+      .playlist-item:hover img {
         transform: scale(1.05);
       }
 
+      .playlist-item:focus-visible { outline: 2px solid #2D7080; outline-offset: -3px; }
       /* Custom scrollbar for playlist */
       .playlist-scroll::-webkit-scrollbar {
         width: 6px;
@@ -411,94 +142,6 @@
       }
     </style>
 
-    <script>
-      // Video Playlist Functions
-      let currentPlaylistIndex = 0;
-      const playlistVideos = @json($playlistData);
-
-      // Initialize: Play first video on load
-      document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.playlist-item').forEach((item, index) => {
-          if (!playlistVideos[index].src) {
-            item.removeAttribute('onclick');
-            item.setAttribute('aria-disabled', 'true');
-            item.classList.add('opacity-50');
-          }
-        });
-        const first = playlistVideos.findIndex(item => item.src);
-        if (first >= 0) playPlaylistVideo(first);
-
-        // Auto-play thumbnail videos on hover
-        const playlistItems = document.querySelectorAll('.playlist-item');
-        playlistItems.forEach((item, index) => {
-          const thumbnailVideo = item.querySelector('video');
-          if (thumbnailVideo) {
-            item.addEventListener('mouseenter', function() {
-              thumbnailVideo.play().catch(() => {});
-            });
-            item.addEventListener('mouseleave', function() {
-              thumbnailVideo.pause();
-              thumbnailVideo.currentTime = 0;
-            });
-          }
-        });
-      });
-
-      function playPlaylistVideo(index) {
-        currentPlaylistIndex = index;
-        const video = document.getElementById('demo-video-player');
-        const playlistItems = document.querySelectorAll('.playlist-item');
-        const videoTitle = document.getElementById('current-video-title');
-
-        if (video && playlistVideos[index] && playlistVideos[index].src) {
-          // Update video source
-          video.innerHTML = '<source src="' + playlistVideos[index].src + '" type="video/mp4">';
-          video.load();
-
-          // Update video title
-          if (videoTitle) {
-            videoTitle.textContent = playlistVideos[index].name;
-          }
-
-          // Update active state
-          playlistItems.forEach((item, i) => {
-            if (i === index) {
-              item.classList.add('active');
-            } else {
-              item.classList.remove('active');
-            }
-          });
-
-          // Update navigation buttons
-          updatePlaylistNavigation();
-
-          // Play video
-          video.play().catch(() => {});
-        }
-      }
-
-      function playNextVideo() {
-        const next = playlistVideos.findIndex((item, index) => index > currentPlaylistIndex && item.src);
-        if (next >= 0) playPlaylistVideo(next);
-      }
-
-      function playPreviousVideo() {
-        for (let index = currentPlaylistIndex - 1; index >= 0; index--) {
-          if (playlistVideos[index].src) { playPlaylistVideo(index); break; }
-        }
-      }
-
-      function updatePlaylistNavigation() {
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const currentNumber = document.getElementById('current-video-number');
-        const totalVideos = document.getElementById('total-videos');
-
-        if (prevBtn) prevBtn.disabled = !playlistVideos.some((item, index) => index < currentPlaylistIndex && item.src);
-        if (nextBtn) nextBtn.disabled = !playlistVideos.some((item, index) => index > currentPlaylistIndex && item.src);
-        if (currentNumber) currentNumber.textContent = playlistVideos.slice(0, currentPlaylistIndex + 1).filter(item => item.src).length;
-        if (totalVideos) totalVideos.textContent = playlistVideos.filter(item => item.src).length;
-      }
-    </script>
+    <script src="{{ asset('js/demo-videos.js') }}" defer></script>
   </body>
 </html>

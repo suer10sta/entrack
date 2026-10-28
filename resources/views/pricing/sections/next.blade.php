@@ -10,11 +10,13 @@
         <li class="flex items-baseline gap-[18px] border-y border-[#dbe6e3] py-3 text-[0.88rem]"><b class="text-[0.7rem] font-bold text-brand-secondary">03</b><span>{{ __('messages.public_pricing_after_trial_step_3') }}</span></li>
       </ol>
     </div>
-    <div class="flex min-h-[390px] flex-col justify-center rounded-xl border border-dashed border-[#8faeaa] bg-[#eaf2ef] p-11 max-sm:min-h-[330px] max-sm:p-7" aria-label="{{ __('messages.public_pricing_after_trial_capture_label') }}">
-      <span class="text-[0.68rem] font-extrabold uppercase tracking-[0.1em] text-brand-secondary">{{ __('messages.public_pricing_after_trial_capture_label') }}</span>
-      <strong class="mt-3 max-w-[340px] text-[1.44rem] font-bold leading-[1.25] text-brand-primary">{{ __('messages.public_pricing_after_trial_capture_title') }}</strong>
-      <p class="mt-2.5 max-w-[350px] text-[0.86rem] text-[#5b6b73]">{{ __('messages.public_pricing_after_trial_capture_text') }}</p>
-      <div class="mt-[35px] grid grid-cols-3 gap-3" aria-hidden="true"><i class="h-20 rounded-md border border-[#d4e4de] bg-white/90"></i><i class="h-20 rounded-md border border-[#d4e4de] bg-white/90"></i><i class="h-20 rounded-md border border-[#d4e4de] bg-white/90"></i></div>
+    <div data-home-demo-player data-video-id="3yk1gGhdmCw" class="relative aspect-video overflow-hidden rounded-[22px] border border-[#dce6e4] bg-brand-primary shadow-lg">
+      <button type="button" data-home-demo-play aria-label="{{ __('messages.demo_youtube_play') }} : {{ collect(config('demo.youtube_videos'))->firstWhere('id', '3yk1gGhdmCw')['title'] }}" class="relative block h-full w-full">
+        <img src="https://i.ytimg.com/vi/3yk1gGhdmCw/hqdefault.jpg" alt="" width="480" height="360" loading="lazy" class="h-full w-full object-cover">
+        <span class="absolute inset-0 flex items-center justify-center bg-brand-primary/20"><span class="grid h-[68px] w-[68px] place-items-center rounded-full bg-brand-secondary text-white shadow-lg"><i data-lucide="play" class="h-6 w-6 fill-current" aria-hidden="true"></i></span></span>
+      </button>
     </div>
   </div>
 </section>
+
+<script src="{{ asset('js/home-demo.js') }}" defer></script>

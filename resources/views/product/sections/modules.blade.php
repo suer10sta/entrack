@@ -23,13 +23,8 @@
           <h2 class="max-w-[720px] text-[clamp(2.1rem,3.1vw,3rem)] font-semibold leading-[1.1] tracking-[-0.052em] text-brand-primary max-sm:text-[1.6rem]">{{ __('messages.product_module_clients_title') }}</h2>
           <p class="mt-5 max-w-[710px] text-[1rem] leading-[1.72] text-[#5b6b73]">{{ __('messages.product_module_clients_intro') }}</p>
         </div>
-        <div class="grid items-center gap-6 border-y border-[#d3e1df] bg-[#e7f1f1] p-[42px] max-lg:p-[30px] lg:grid-cols-[1.05fr_0.95fr] max-md:grid-cols-1 max-sm:min-h-[360px] max-sm:p-[22px]">
-          <div class="grid min-h-[260px] content-center justify-items-center rounded-[14px] border border-dashed border-[#8ba7ae] bg-white/90 p-[30px] text-center max-sm:min-h-[225px] max-sm:p-[22px]">
-            <small class="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-brand-secondary">{{ __('messages.product_module_clients_visual_label') }}</small>
-            <strong class="mt-[7px] block text-[1rem] font-bold text-brand-primary">{{ __('messages.product_module_clients_visual_title') }}</strong>
-            <p class="mx-auto mt-[7px] max-w-[340px] text-[0.78rem] leading-[1.5] text-[#5b6b73]">{{ __('messages.product_module_clients_visual_text') }}</p>
-          </div>
-          <div class="grid gap-[13px]" aria-hidden="true"><i class="h-[79px] rounded-xl border border-[#071b32]/10 bg-white/80"></i><i class="h-[79px] w-[88%] rounded-xl border border-[#071b32]/10 bg-white/80"></i><i class="h-[79px] w-[95%] rounded-xl border border-[#071b32]/10 bg-white/80"></i></div>
+        <div class="border-y border-[#d3e1df] bg-[#e7f1f1] p-[30px] max-sm:p-[18px]">
+          <x-public.youtube-video video-id="oYTbTZd7pX4" />
         </div>
         <div class="grid sm:grid-cols-3 max-sm:grid-cols-1">
           <p class="m-0 min-h-[145px] border-r border-[#dce6e4] px-[30px] py-7 max-sm:min-h-0 max-sm:border-b max-sm:border-r-0"><strong class="block text-[0.76rem] font-bold uppercase tracking-[0.08em] text-brand-secondary">{{ __('messages.product_module_clients_feat1_title') }}</strong><span class="mt-[9px] block text-[0.84rem] leading-[1.5] text-[#5b6b73]">{{ __('messages.product_module_clients_feat1_text') }}</span></p>
@@ -47,17 +42,8 @@
           <h2 class="max-w-[720px] text-[clamp(2.1rem,3.1vw,3rem)] font-semibold leading-[1.1] tracking-[-0.052em] text-brand-primary max-sm:text-[1.6rem]">{{ __('messages.product_module_tasks_title') }}</h2>
           <p class="mt-5 max-w-[710px] text-[1rem] leading-[1.72] text-[#5b6b73]">{{ __('messages.product_module_tasks_intro') }}</p>
         </div>
-        <div class="grid items-center gap-6 border-y border-[#d3e1df] bg-[#e7f1f1] p-[42px] max-lg:p-[30px] lg:grid-cols-[1.05fr_0.95fr] max-md:grid-cols-1 max-sm:min-h-[360px] max-sm:p-[22px]">
-          <div class="grid min-h-[265px] grid-cols-3 gap-2.5 max-sm:min-h-[210px]" aria-hidden="true">
-            <div class="flex flex-col gap-2.5 rounded-xl border border-[#071b32]/10 bg-white/60 p-3"><i class="h-[74px] rounded-lg bg-white shadow-[0_5px_15px_rgba(7,27,50,0.05)] max-sm:h-[58px]"></i><i class="h-[74px] rounded-lg bg-white shadow-[0_5px_15px_rgba(7,27,50,0.05)] max-sm:h-[58px]"></i></div>
-            <div class="flex flex-col gap-2.5 rounded-xl border border-[#071b32]/10 bg-white/60 p-3"><i class="h-[74px] rounded-lg bg-white shadow-[0_5px_15px_rgba(7,27,50,0.05)] max-sm:h-[58px]"></i><i class="h-[74px] rounded-lg bg-white shadow-[0_5px_15px_rgba(7,27,50,0.05)] max-sm:h-[58px]"></i><i class="h-[74px] rounded-lg bg-white shadow-[0_5px_15px_rgba(7,27,50,0.05)] max-sm:h-[58px]"></i></div>
-            <div class="flex flex-col gap-2.5 rounded-xl border border-[#071b32]/10 bg-white/60 p-3"><i class="h-[74px] rounded-lg bg-white shadow-[0_5px_15px_rgba(7,27,50,0.05)] max-sm:h-[58px]"></i></div>
-          </div>
-          <div class="grid min-h-[260px] content-center justify-items-center rounded-[14px] border border-dashed border-[#8ba7ae] bg-white/90 p-[30px] text-center max-sm:min-h-[225px] max-sm:p-[22px]">
-            <small class="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-brand-secondary">{{ __('messages.product_module_tasks_visual_label') }}</small>
-            <strong class="mt-[7px] block text-[1rem] font-bold text-brand-primary">{{ __('messages.product_module_tasks_visual_title') }}</strong>
-            <p class="mx-auto mt-[7px] max-w-[340px] text-[0.78rem] leading-[1.5] text-[#5b6b73]">{{ __('messages.product_module_tasks_visual_text') }}</p>
-          </div>
+        <div class="border-y border-[#d3e1df] bg-[#e7f1f1] p-[30px] max-sm:p-[18px]">
+          <x-public.youtube-video video-id="qKKcrtPRv08" />
         </div>
         <div class="grid sm:grid-cols-3 max-sm:grid-cols-1">
           <p class="m-0 min-h-[145px] border-r border-[#dce6e4] px-[30px] py-7 max-sm:min-h-0 max-sm:border-b max-sm:border-r-0"><strong class="block text-[0.76rem] font-bold uppercase tracking-[0.08em] text-brand-secondary">{{ __('messages.product_module_tasks_feat1_title') }}</strong><span class="mt-[9px] block text-[0.84rem] leading-[1.5] text-[#5b6b73]">{{ __('messages.product_module_tasks_feat1_text') }}</span></p>
@@ -75,18 +61,8 @@
           <h2 class="max-w-[720px] text-[clamp(2.1rem,3.1vw,3rem)] font-semibold leading-[1.1] tracking-[-0.052em] text-white max-sm:text-[1.6rem]">{{ __('messages.product_module_time_title') }}</h2>
           <p class="mt-5 max-w-[710px] text-[1rem] leading-[1.72] text-[#b5c7cf]">{{ __('messages.product_module_time_intro') }}</p>
         </div>
-        <div class="grid items-center gap-6 border-y border-white/10 bg-[#163b4c] p-[42px] max-lg:p-[30px] lg:grid-cols-[1.05fr_0.95fr] max-md:grid-cols-1 max-sm:min-h-[360px] max-sm:p-[22px]">
-          <div class="grid min-h-[270px] content-center justify-items-center rounded-[17px] bg-white p-8 text-[#1b3444] shadow-[0_20px_44px_rgba(0,0,0,0.18)] max-sm:min-h-[235px] max-sm:p-6" aria-hidden="true">
-            <small class="text-[0.64rem] font-bold uppercase tracking-[0.12em] text-[#82949b]">{{ __('messages.product_module_time_current_task') }}</small>
-            <strong class="mt-[9px] text-[2.75rem] font-bold leading-none tracking-[-0.04em] text-brand-primary max-sm:text-[2.15rem]">01:42:18</strong>
-            <span class="text-[0.78rem] text-[#5b6b73]">{{ __('messages.product_module_time_project') }}</span>
-            <b class="mt-[25px] rounded-full bg-brand-secondary px-6 py-[9px] text-[0.72rem] font-bold text-white">{{ __('messages.product_module_time_stop') }}</b>
-          </div>
-          <div class="grid min-h-[260px] content-center justify-items-center rounded-[14px] border border-white/25 bg-[#0e2e40] p-[30px] text-center max-sm:min-h-[225px] max-sm:p-[22px]">
-            <small class="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-brand-secondary">{{ __('messages.product_module_time_visual_label') }}</small>
-            <strong class="mt-[7px] block text-[1rem] font-bold text-white">{{ __('messages.product_module_time_visual_title') }}</strong>
-            <p class="mx-auto mt-[7px] max-w-[340px] text-[0.78rem] leading-[1.5] text-[#adc2ca]">{{ __('messages.product_module_time_visual_text') }}</p>
-          </div>
+        <div class="border-y border-white/10 bg-[#163b4c] p-[30px] max-sm:p-[18px]">
+          <x-public.youtube-video video-id="XuyuoK14kUE" />
         </div>
         <div class="grid sm:grid-cols-3 max-sm:grid-cols-1">
           <p class="m-0 min-h-[145px] border-r border-white/10 px-[30px] py-7 max-sm:min-h-0 max-sm:border-b"><strong class="block text-[0.76rem] font-bold uppercase tracking-[0.08em] text-[#8ccfd0]">{{ __('messages.product_module_time_feat1_title') }}</strong><span class="mt-[9px] block text-[0.84rem] leading-[1.5] text-[#b5c7cf]">{{ __('messages.product_module_time_feat1_text') }}</span></p>
@@ -104,17 +80,8 @@
           <h2 class="max-w-[720px] text-[clamp(2.1rem,3.1vw,2.8rem)] font-semibold leading-[1.1] tracking-[-0.052em] text-brand-primary max-sm:text-[1.6rem]">{{ __('messages.product_module_budgets_title') }}</h2>
           <p class="mt-5 max-w-[710px] text-[1rem] leading-[1.72] text-[#5b6b73]">{{ __('messages.product_module_budgets_intro') }}</p>
         </div>
-        <div class="grid items-center gap-6 border-y border-[#d3e1df] bg-[#e7f1f1] p-[42px] max-lg:p-[30px] lg:grid-cols-[1.05fr_0.95fr] max-md:grid-cols-1 max-sm:min-h-[360px] max-sm:p-[22px]">
-          <div class="grid min-h-[260px] content-center justify-items-center rounded-[14px] border border-dashed border-[#8ba7ae] bg-white/90 p-[30px] text-center max-sm:min-h-[225px] max-sm:p-[22px]">
-            <small class="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-brand-secondary">{{ __('messages.product_module_budgets_visual_label') }}</small>
-            <strong class="mt-[7px] block text-[1rem] font-bold text-brand-primary">{{ __('messages.product_module_budgets_visual_title') }}</strong>
-            <p class="mx-auto mt-[7px] max-w-[340px] text-[0.78rem] leading-[1.5] text-[#5b6b73]">{{ __('messages.product_module_budgets_visual_text') }}</p>
-          </div>
-          <div class="grid gap-6 rounded-[14px] bg-white/75 p-[30px]" aria-hidden="true">
-            <span class="relative block h-[21px] overflow-hidden rounded-full bg-[#dce7e6]"><span class="absolute inset-y-0 left-0 rounded-full bg-brand-secondary" style="width: 72%"></span></span>
-            <span class="relative block h-[21px] overflow-hidden rounded-full bg-[#dce7e6]"><span class="absolute inset-y-0 left-0 rounded-full bg-brand-secondary" style="width: 46%"></span></span>
-            <span class="relative block h-[21px] overflow-hidden rounded-full bg-[#dce7e6]"><span class="absolute inset-y-0 left-0 rounded-full bg-brand-secondary" style="width: 88%"></span></span>
-          </div>
+        <div class="border-y border-[#d3e1df] bg-[#e7f1f1] p-[30px] max-sm:p-[18px]">
+          <x-public.youtube-video video-id="OGZdxbiwnn4" />
         </div>
         <div class="grid sm:grid-cols-3 max-sm:grid-cols-1">
           <p class="m-0 min-h-[145px] border-r border-[#dce6e4] px-[30px] py-7 max-sm:min-h-0 max-sm:border-b max-sm:border-r-0"><strong class="block text-[0.76rem] font-bold uppercase tracking-[0.08em] text-brand-secondary">{{ __('messages.product_module_budgets_feat1_title') }}</strong><span class="mt-[9px] block text-[0.84rem] leading-[1.5] text-[#5b6b73]">{{ __('messages.product_module_budgets_feat1_text') }}</span></p>
@@ -132,20 +99,8 @@
           <h2 class="max-w-[720px] text-[clamp(2.1rem,3.1vw,2.6rem)] font-semibold leading-[1.1] tracking-[-0.052em] text-brand-primary max-sm:text-[1.6rem]">{{ __('messages.product_module_billing_title') }}</h2>
           <p class="mt-5 max-w-[710px] text-[1rem] leading-[1.72] text-[#5b6b73]">{{ __('messages.product_module_billing_intro') }}</p>
         </div>
-        <div class="grid items-center gap-6 border-y border-[#d3e1df] bg-[#e7f1f1] p-[42px] max-lg:p-[30px] lg:grid-cols-[1.05fr_0.95fr] max-md:grid-cols-1 max-sm:min-h-[360px] max-sm:p-[22px]">
-          <div class="mx-auto flex min-h-[310px] w-[min(75%,330px)] flex-col gap-[18px] rounded-[5px] bg-white p-7 shadow-[0_18px_38px_rgba(7,27,50,0.12)] max-sm:w-[88%]" aria-hidden="true">
-            <span class="text-[0.7rem] font-bold uppercase tracking-[0.15em] text-brand-secondary">{{ __('messages.product_module_billing_invoice') }}</span>
-            <i class="block h-[9px] rounded-[5px] bg-[#e6edef]"></i>
-            <i class="block h-[9px] w-[55%] rounded-[5px] bg-[#e6edef]"></i>
-            <i class="mt-5 block h-[9px] w-[82%] rounded-[5px] bg-[#e6edef]"></i>
-            <i class="block h-[9px] w-[74%] rounded-[5px] bg-[#e6edef]"></i>
-            <b class="mt-auto border-t-2 border-[#dce6e4] pt-[15px] text-right font-bold text-brand-primary">{{ __('messages.product_module_billing_total') }}</b>
-          </div>
-          <div class="grid min-h-[260px] content-center justify-items-center rounded-[14px] border border-dashed border-[#8ba7ae] bg-white/90 p-[30px] text-center max-sm:min-h-[225px] max-sm:p-[22px]">
-            <small class="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-brand-secondary">{{ __('messages.product_module_billing_visual_label') }}</small>
-            <strong class="mt-[7px] block text-[1rem] font-bold text-brand-primary">{{ __('messages.product_module_billing_visual_title') }}</strong>
-            <p class="mx-auto mt-[7px] max-w-[340px] text-[0.78rem] leading-[1.5] text-[#5b6b73]">{{ __('messages.product_module_billing_visual_text') }}</p>
-          </div>
+        <div class="border-y border-[#d3e1df] bg-[#e7f1f1] p-[30px] max-sm:p-[18px]">
+          <x-public.youtube-video video-id="TxlzQyN44PA" />
         </div>
         <div class="grid sm:grid-cols-3 max-sm:grid-cols-1">
           <p class="m-0 min-h-[145px] border-r border-[#dce6e4] px-[30px] py-7 max-sm:min-h-0 max-sm:border-b max-sm:border-r-0"><strong class="block text-[0.76rem] font-bold uppercase tracking-[0.08em] text-brand-secondary">{{ __('messages.product_module_billing_feat1_title') }}</strong><span class="mt-[9px] block text-[0.84rem] leading-[1.5] text-[#5b6b73]">{{ __('messages.product_module_billing_feat1_text') }}</span></p>
@@ -163,15 +118,8 @@
           <h2 class="max-w-[720px] text-[clamp(2.1rem,3.1vw,3rem)] font-semibold leading-[1.1] tracking-[-0.052em] text-brand-primary max-sm:text-[1.6rem]">{{ __('messages.product_module_dashboards_title') }}</h2>
           <p class="mt-5 max-w-[710px] text-[1rem] leading-[1.72] text-[#5b6b73]">{{ __('messages.product_module_dashboards_intro') }}</p>
         </div>
-        <div class="grid items-center gap-6 border-y border-[#d3e1df] bg-[#e7f1f1] p-[42px] max-lg:p-[30px] lg:grid-cols-[1.05fr_0.95fr] max-md:grid-cols-1 max-sm:min-h-[360px] max-sm:p-[22px]">
-          <div class="grid min-h-[260px] content-center justify-items-center rounded-[14px] border border-dashed border-[#8ba7ae] bg-white/90 p-[30px] text-center max-sm:min-h-[225px] max-sm:p-[22px]">
-            <small class="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-brand-secondary">{{ __('messages.product_module_dashboards_visual_label') }}</small>
-            <strong class="mt-[7px] block text-[1rem] font-bold text-brand-primary">{{ __('messages.product_module_dashboards_visual_title') }}</strong>
-            <p class="mx-auto mt-[7px] max-w-[340px] text-[0.78rem] leading-[1.5] text-[#5b6b73]">{{ __('messages.product_module_dashboards_visual_text') }}</p>
-          </div>
-          <div class="flex h-[270px] items-end gap-4 rounded-[14px] bg-white/80 px-[26px] pt-[30px] max-sm:h-[220px]" aria-hidden="true">
-            <i class="h-[38%] flex-1 rounded-t-md bg-[#bad9da]"></i><i class="h-[68%] flex-1 rounded-t-md bg-[#bad9da]"></i><i class="h-[52%] flex-1 rounded-t-md bg-[#bad9da]"></i><i class="h-[88%] flex-1 rounded-t-md bg-brand-secondary"></i><i class="h-[72%] flex-1 rounded-t-md bg-[#bad9da]"></i>
-          </div>
+        <div class="border-y border-[#d3e1df] bg-[#e7f1f1] p-[30px] max-sm:p-[18px]">
+          <x-public.youtube-video video-id="NcIsXZQU9wQ" />
         </div>
         <div class="grid sm:grid-cols-3 max-sm:grid-cols-1">
           <p class="m-0 min-h-[145px] border-r border-[#dce6e4] px-[30px] py-7 max-sm:min-h-0 max-sm:border-b max-sm:border-r-0"><strong class="block text-[0.76rem] font-bold uppercase tracking-[0.08em] text-brand-secondary">{{ __('messages.product_module_dashboards_feat1_title') }}</strong><span class="mt-[9px] block text-[0.84rem] leading-[1.5] text-[#5b6b73]">{{ __('messages.product_module_dashboards_feat1_text') }}</span></p>

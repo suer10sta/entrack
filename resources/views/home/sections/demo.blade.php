@@ -1,10 +1,10 @@
 <section data-home-section="demo" id="demo" class="scroll-mt-24 bg-[#16394a] py-28 text-white max-md:py-20" aria-labelledby="demo-title">
-  <div class="mx-auto grid max-w-[1200px] items-center gap-[70px] px-6 max-md:grid-cols-1 max-md:gap-[38px] max-md:px-4 lg:grid-cols-[1.05fr_0.95fr]">
-    <div class="grid min-h-[460px] content-center justify-items-center rounded-[22px] border border-dashed border-[#8eacbe] bg-[repeating-linear-gradient(-45deg,#e9f6fa,#e9f6fa_12px,#dff0f5_12px,#dff0f5_24px)] p-[34px] text-center text-[#1b3444]">
-      <span class="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-brand-secondary">{{ __('messages.public_demo_eyebrow') }}</span>
-      <strong class="mt-[7px] text-[1rem] text-brand-primary">{{ __('messages.public_demo_title') }}</strong>
-      <!-- <p class="mx-auto mt-1.5 max-w-[340px] text-[0.78rem] leading-[1.5] text-[#5b6b73]">{{ __('messages.public_demo_intro') }}</p> -->
-      <button type="button" aria-label="{{ __('messages.public_demo_button') }}" class="mt-7 grid h-[68px] w-[68px] cursor-pointer place-items-center rounded-full border-0 bg-brand-secondary text-white transition-all duration-300 ease-out hover:scale-105 hover:bg-[#245f6d] hover:shadow-[0_16px_40px_rgba(45,112,128,0.4)]"><i data-lucide="play" class="h-6 w-6 fill-current"></i></button>
+  <div class="mx-auto grid max-w-[1280px] items-center gap-[50px] px-6 max-md:grid-cols-1 max-md:gap-[38px] max-md:px-4 lg:grid-cols-[1.2fr_0.8fr]">
+    <div data-home-demo-player class="relative aspect-video overflow-hidden rounded-[22px] border border-white/20 bg-brand-primary shadow-lg">
+      <button type="button" data-home-demo-play aria-label="{{ __('messages.demo_youtube_play') }}" class="relative block h-full w-full">
+        <img src="https://i.ytimg.com/vi/NcIsXZQU9wQ/hqdefault.jpg" alt="" width="480" height="360" loading="lazy" class="h-full w-full object-cover">
+        <span class="absolute inset-0 flex items-center justify-center bg-brand-primary/20"><span class="grid h-[68px] w-[68px] place-items-center rounded-full bg-brand-secondary text-white shadow-lg transition-transform hover:scale-105"><i data-lucide="play" class="h-6 w-6 fill-current" aria-hidden="true"></i></span></span>
+      </button>
     </div>
     <div>
       <p class="mb-5 flex items-center gap-2.5 text-[0.75rem] font-semibold uppercase tracking-[0.13em] text-[#8ccfd0]"><span class="h-0.5 w-7 bg-brand-accent"></span>{{ __('messages.public_demo_eyebrow') }}</p>
@@ -17,3 +17,5 @@
     </div>
   </div>
 </section>
+
+<script src="{{ asset('js/home-demo.js') }}" defer></script>

@@ -37,6 +37,7 @@
     </main>
 
     <x-public.footer />
+    <script src="{{ asset('js/product-videos.js') }}" defer></script>
 
   </body>
 

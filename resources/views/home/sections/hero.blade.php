@@ -2,7 +2,7 @@
 <section data-home-section="hero" class="relative grid items-center overflow-hidden bg-[#f8faf9] lg:min-h-[760px]">
   <div aria-hidden="true" class="pointer-events-none absolute -top-[170px] -right-[160px] h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,rgba(140,207,208,0.2),rgba(140,207,208,0)_68%)]"></div>
 
-  <div class="mx-auto grid w-full max-w-[1200px] items-center gap-[70px] px-6 py-[96px] max-lg:gap-[38px] max-md:px-4 max-md:py-[76px] max-md:pb-[92px] lg:grid-cols-[1.02fr_0.98fr]">
+  <div class="mx-auto grid w-full max-w-[1440px] items-center gap-[40px] px-6 py-[96px] max-lg:gap-[38px] max-md:px-4 max-md:py-[76px] max-md:pb-[92px] lg:grid-cols-[0.85fr_1.35fr]">
     <div class="relative z-[2]">
       <p class="mb-5 flex items-center gap-2.5 text-[0.75rem] font-semibold uppercase tracking-[0.13em] text-brand-secondary"><span class="h-0.5 w-7 bg-brand-accent"></span>{{ __('messages.public_home_eyebrow') }}</p>
       <h1 class="max-w-[720px] text-[4.2rem] font-semibold leading-[1.02] tracking-[-0.052em] text-brand-primary max-sm:text-[clamp(2.65rem,13vw,3.7rem)]">{{ __('messages.public_home_title') }} <em class="not-italic text-brand-secondary">{{ __('messages.public_home_title_highlight') }}</em></h1>
@@ -19,18 +19,12 @@
     </div>
 
     <div class="relative z-[2] motion-safe:animate-float max-lg:mr-[14px] max-md:mx-0 max-md:mt-[18px]" aria-label="{{ __('messages.public_home_visual_main_label') }}">
-      <div class="overflow-hidden rounded-[18px] border border-[#071b32]/10 bg-white shadow-[0_24px_70px_rgba(7,27,50,0.13)] transition-shadow duration-500 hover:shadow-[0_32px_90px_rgba(7,27,50,0.18)] lg:[transform:perspective(1400px)_rotateY(-4deg)_rotateX(1deg)]">
+      <div style="width:480px;max-width:100%;margin-inline:auto" class="overflow-hidden rounded-[18px] border border-[#071b32]/10 bg-white shadow-[0_24px_70px_rgba(7,27,50,0.13)] transition-shadow duration-500 hover:shadow-[0_32px_90px_rgba(7,27,50,0.18)] lg:[transform:perspective(1400px)_rotateY(-4deg)_rotateX(1deg)]">
         <div class="flex h-[43px] items-center gap-1.5 border-b border-[#dce6e4] bg-[#f5f8fa] px-4"><span class="h-2 w-2 rounded-full bg-[#cbd7df]"></span><span class="h-2 w-2 rounded-full bg-[#cbd7df]"></span><span class="h-2 w-2 rounded-full bg-[#cbd7df]"></span><small class="ml-[15px] text-[0.68rem] text-[#8a9aa8]">app.dalytrac.com</small></div>
-        <div class="grid min-h-[420px] grid-cols-[66px_1fr] max-sm:min-h-[350px] max-sm:grid-cols-[45px_1fr]">
-          <aside aria-hidden="true" class="flex flex-col items-center gap-5 bg-brand-primary py-[19px] max-sm:gap-4">
-            <x-application-mark :size="30" /><i class="h-1.5 w-[22px] rounded bg-white/20"></i><i class="h-1.5 w-[22px] rounded bg-white/20"></i><i class="h-1.5 w-[22px] rounded bg-white/20"></i><i class="h-1.5 w-[22px] rounded bg-white/20"></i><i class="h-1.5 w-[22px] rounded bg-white/20"></i>
-          </aside>
-          <div class="bg-[repeating-linear-gradient(-45deg,#fbfdfe,#fbfdfe_10px,#f5f9fb_10px,#f5f9fb_20px)] p-[30px] max-sm:p-[18px]">
-            <div class="grid min-h-[168px] place-content-center border border-dashed border-[#9bb3c4] bg-white/90 p-7 text-center"><small class="text-[0.68rem] font-extrabold uppercase tracking-[0.12em] text-brand-secondary">{{ __('messages.public_home_visual_1_label') }}</small><strong class="mt-[7px] text-[1rem] text-brand-primary">{{ __('messages.public_home_visual_1_title') }}</strong><p class="mx-auto mt-1.5 max-w-[340px] text-[0.78rem] leading-[1.5] text-[#5b6b73]">{{ __('messages.public_home_visual_1_text') }}</p></div>
-            <div class="mt-[14px] grid grid-cols-3 gap-3 max-sm:grid-cols-1" aria-hidden="true"><span class="min-h-[64px] rounded-[10px] border border-[#dce6e4] bg-white/90 max-sm:min-h-[36px]"></span><span class="min-h-[64px] rounded-[10px] border border-[#dce6e4] bg-white/90 max-sm:min-h-[36px]"></span><span class="min-h-[64px] rounded-[10px] border border-[#dce6e4] bg-white/90 max-sm:min-h-[36px]"></span></div>
-            <div class="mt-[14px] grid grid-cols-[1.5fr_1fr] gap-3 max-sm:grid-cols-1" aria-hidden="true"><span class="min-h-[88px] rounded-[10px] border border-[#dce6e4] bg-white/90 max-sm:min-h-[55px]"></span><span class="min-h-[88px] rounded-[10px] border border-[#dce6e4] bg-white/90 max-sm:min-h-[55px]"></span></div>
-          </div>
-        </div>
+        <video autoplay muted loop playsinline controls preload="metadata" width="1080" height="1350" aria-label="{{ __('messages.public_demo_title') }}" class="block h-auto" style="width:100%;height:auto;aspect-ratio:4/5">
+          <source src="{{ asset('assets/videos/teaser-linkedin-dalytrac.mp4') }}" type="video/mp4">
+          {{ __('messages.Your browser does not support the video tag.') }}
+        </video>
       </div>
       <!-- <div class="absolute -right-6 top-11 hidden min-w-[148px] rounded-[13px] border border-[#dce6e4] bg-white px-4 py-[13px] shadow-[0_14px_36px_rgba(7,27,50,0.13)] lg:block"><b class="block text-[1.05rem] text-brand-secondary">{{ __('messages.public_home_metric_margin_value') }}</b><span class="block text-[0.68rem] text-[#5b6b73]">{{ __('messages.public_home_metric_margin_label') }}</span></div>
       <div class="absolute -left-6 bottom-11 hidden min-w-[148px] rounded-[13px] border border-[#dce6e4] bg-white px-4 py-[13px] shadow-[0_14px_36px_rgba(7,27,50,0.13)] lg:block"><b class="block text-[1.05rem] text-brand-secondary">{{ __('messages.public_home_metric_time_value') }}</b><span class="block text-[0.68rem] text-[#5b6b73]">{{ __('messages.public_home_metric_time_label') }}</span></div> -->

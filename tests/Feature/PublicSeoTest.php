@@ -85,6 +85,10 @@ class PublicSeoTest extends TestCase
                     $host = parse_url($link->nodeValue, PHP_URL_HOST);
                     $path = parse_url($link->nodeValue, PHP_URL_PATH);
                     if ((!$host || in_array($host, ['localhost', 'dalytrac.com'], true)) && $path && in_array(parse_url($link->nodeValue, PHP_URL_SCHEME), [null, 'http', 'https'], true)) {
+                        if (str_starts_with($path, '/assets/')) {
+                            $this->assertFileExists(public_path(ltrim($path, '/')), $link->nodeValue);
+                            continue;
+                        }
                         $route = app('router')->getRoutes()->match(\Illuminate\Http\Request::create($link->nodeValue));
                         $this->assertNotNull($route, $link->nodeValue);
                     }
@@ -95,6 +99,39 @@ class PublicSeoTest extends TestCase
             $this->assertCount(count($titles), array_unique($titles));
             $this->assertCount(count($descriptions), array_unique($descriptions));
         }
+    }
+
+    public function test_demo_lists_the_verified_channel_videos_without_loading_a_player_until_click(): void
+    {
+        $response = $this->get('/fr/demo')->assertOk();
+        $x = $this->xpath($response->getContent());
+        $videos = config('demo.youtube_videos');
+        $this->assertCount(10, $videos);
+        $this->assertCount(10, array_unique(array_column($videos, 'id')));
+        $this->assertSame(10, $x->query('//button[@data-demo-video]')->length);
+        $this->assertSame(0, $x->query('//iframe')->length);
+        $this->assertSame(0, $x->query('//video')->length);
+        foreach ($videos as $video) {
+            $this->assertMatchesRegularExpression('/^[a-zA-Z0-9_-]{11}$/', $video['id']);
+            $this->assertSame(1, $x->query('//button[@data-video-id="'.$video['id'].'"]')->length);
+            $response->assertSee($video['title']);
+        }
+        $response->assertSee('www.youtube.com/@DalyTrac')->assertSee('js/demo-videos.js');
+        config(['demo.youtube_videos' => []]);
+        $this->get('/fr/demo')->assertOk()->assertSee(__('messages.demo_videos_unavailable'))->assertDontSee('data-demo-video', false);
+    }
+
+    public function test_product_steps_have_matching_click_to_play_videos(): void
+    {
+        $x = $this->xpath($this->get('/fr/produit')->assertOk()->getContent());
+        $expected = ['clients-projets' => 'oYTbTZd7pX4', 'taches' => 'qKKcrtPRv08', 'temps' => 'XuyuoK14kUE',
+            'budgets' => 'OGZdxbiwnn4', 'facturation' => 'TxlzQyN44PA', 'tableaux' => 'NcIsXZQU9wQ'];
+        foreach ($expected as $section => $id) {
+            $this->assertSame(1, $x->query('//article[@id="'.$section.'"]//*[@data-product-video and @data-video-id="'.$id.'"]')->length);
+            $this->assertSame(1, $x->query('//article[@id="'.$section.'"]//button[@data-product-video-play]')->length);
+        }
+        $this->assertSame(0, $x->query('//iframe')->length);
+        $this->assertSame(6, $x->query('//*[@data-product-video]')->length);
     }
 
     public function test_legacy_paths_redirect_once_and_localized_urls_ignore_session_preferences(): void
