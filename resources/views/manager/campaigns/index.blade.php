@@ -32,7 +32,9 @@
                         @empty<tr><td colspan="10" class="cc-empty">Aucune campagne pour le moment.</td></tr>@endforelse
                     </tbody>
                 </table>
-            </div><p class="cc-help cc-tracking-help">Ouverts et cliqués : destinataires uniques, parmi les emails envoyés. Les protections de confidentialité et les scanners email peuvent affecter ces mesures. Le suivi concerne les nouveaux envois.</p><div class="cc-pagination">{{ $campaigns->links() }}</div>
+            </div>
+            <!-- <p class="cc-help cc-tracking-help">Ouverts et cliqués : destinataires uniques, parmi les emails envoyés. Les protections de confidentialité et les scanners email peuvent affecter ces mesures. Le suivi concerne les nouveaux envois.</p> -->
+            <div class="cc-pagination">{{ $campaigns->links() }}</div>
         </section>
     </div>
 </div>
