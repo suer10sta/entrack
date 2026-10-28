@@ -20,6 +20,7 @@ Route::prefix('manager/seo')->name('manager.')->middleware('auth:manager')->grou
     Route::get('campaigns/{campaign}', [\App\Http\Controllers\manager\CrmCampaignController::class, 'show'])->name('campaigns.show');
     Route::delete('campaigns/{campaign}', [\App\Http\Controllers\manager\CrmCampaignController::class, 'destroy'])->name('campaigns.destroy');
     Route::patch('campaigns/{campaign}', [\App\Http\Controllers\manager\CrmCampaignController::class, 'update'])->name('campaigns.update');
+    Route::get('campaigns/{campaign}/audience-count', [\App\Http\Controllers\manager\CrmCampaignController::class, 'audienceCount'])->name('campaigns.audience-count');
     Route::post('campaigns/{campaign}/recipients', [\App\Http\Controllers\manager\CrmCampaignController::class, 'recipients'])->name('campaigns.recipients');
     Route::post('campaigns/{campaign}/send', [\App\Http\Controllers\manager\CrmCampaignController::class, 'send'])->middleware('throttle:10,1')->name('campaigns.send');
 

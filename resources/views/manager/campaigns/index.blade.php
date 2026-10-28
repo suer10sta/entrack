@@ -38,5 +38,10 @@
         </section>
     </div>
 </div>
+<dialog class="cc-delete-dialog" data-delete-campaign-dialog aria-labelledby="campaign-delete-title" aria-describedby="campaign-delete-description">
+    <div class="cc-delete-heading"><span class="cc-delete-icon">@include('manager.prospects.partials.icon', ['icon' => 'trash'])</span><h2 id="campaign-delete-title" data-delete-campaign-title>Supprimer la campagne ?</h2></div>
+    <p id="campaign-delete-description">Les envois restants seront arrêtés.<br>Les emails déjà envoyés ne peuvent pas être rappelés.</p>
+    <div class="cc-delete-buttons"><button type="button" class="cc-delete-cancel" data-cancel-campaign-delete autofocus>Annuler</button><button type="button" class="cc-delete-confirm" data-confirm-campaign-delete>Supprimer</button></div>
+</dialog>
 <script src="{{ asset('js/crm-campaigns.js') }}" defer></script>
 @endsection

@@ -110,9 +110,9 @@ class CrmCampaignSender
             if (! $recipient) {
                 return null;
             }
-            $prospect = Prospect::find($recipient->prospect_id);
-            if (! $prospect || CrmCampaignService::email($prospect->email) !== $recipient->email_normalized) {
-                $recipient->update(['status' => 'skipped', 'error' => 'Prospect archivé ou adresse modifiée/invalide depuis la sélection.']);
+            $contact = $recipient->prospect_id ? Prospect::find($recipient->prospect_id) : \App\Models\User::find($recipient->user_id);
+            if (! $contact || CrmCampaignService::email($contact->email) !== $recipient->email_normalized) {
+                $recipient->update(['status' => 'skipped', 'error' => 'Contact supprimé/archivé ou adresse modifiée/invalide depuis la sélection.']);
 
                 return $recipient;
             }

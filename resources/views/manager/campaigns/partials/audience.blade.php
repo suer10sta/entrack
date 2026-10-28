@@ -1,4 +1,13 @@
             <section class="cc-card"><h2>@include('manager.prospects.partials.icon', ['icon' => 'users']) Choisir les destinataires</h2>
+                <div class="cc-audience-options" data-audience-options data-count-url="{{ route('manager.campaigns.audience-count', $campaign) }}">
+                    <label for="campaign-audience" class="cc-name">Audience ciblée</label>
+                    <select id="campaign-audience" name="audience" form="campaign-audience-selection" data-campaign-audience class="cc-audience-select">
+                        @foreach(\App\Services\CrmCampaignAudience::LABELS as $value => $label)<option value="{{ $value }}" @selected(old('audience', $campaign->audience ?? 'custom') === $value)>{{ $label }}</option>@endforeach
+                    </select>
+                    <p class="cc-help" data-audience-feedback role="status"></p>
+                    <button type="submit" form="campaign-audience-selection" class="cc-button cc-primary" data-save-preset hidden>Enregistrer cette audience</button>
+                </div>
+                <div data-custom-audience>
                 <form method="GET" class="cc-filters">@if($inWizard ?? false)<input type="hidden" name="step" value="2">@endif<label>Statut<select name="filter_status"><option value="">Tous les statuts</option>@foreach(\App\Enums\ProspectStatus::cases() as $status)<option value="{{ $status->value }}" @selected($filters['status'] === $status->value)>{{ $status->label() }}</option>@endforeach</select></label><label>Source d’acquisition<select name="source"><option value="">Toutes les sources</option>@foreach($sources as $source)<option value="{{ $source }}" @selected($filters['source'] === $source)>{{ $source }}</option>@endforeach</select></label><button class="cc-button cc-secondary">@include('manager.prospects.partials.icon', ['icon' => 'filter']) Filtrer</button></form>
                 <p class="cc-help">{{ $prospects->total() }} prospect(s) correspondant aux filtres. La sélection enregistrée est conservée entre les pages et les filtres. Les adresses identiques sont dédupliquées.</p>
                 <form method="POST" action="{{ route('manager.campaigns.recipients', $campaign) }}" id="campaign-audience-selection" data-recipient-selection data-selected="{{ json_encode($selected) }}">@csrf @if($inWizard ?? false)<input type="hidden" name="_wizard" value="1">@endif<input type="hidden" name="mode" value="page"><input type="hidden" name="filter_status" value="{{ $filters['status'] }}"><input type="hidden" name="source" value="{{ $filters['source'] }}">
@@ -12,5 +21,6 @@
                 <div class="cc-bulk-actions">
                     <form method="POST" action="{{ route('manager.campaigns.recipients', $campaign) }}">@csrf @if($inWizard ?? false)<input type="hidden" name="_wizard" value="1">@endif<input type="hidden" name="mode" value="all"><input type="hidden" name="filter_status" value="{{ $filters['status'] }}"><input type="hidden" name="source" value="{{ $filters['source'] }}"><button class="cc-button cc-secondary">Ajouter tous les prospects filtrés</button></form>
                     <form method="POST" action="{{ route('manager.campaigns.recipients', $campaign) }}">@csrf @if($inWizard ?? false)<input type="hidden" name="_wizard" value="1">@endif<input type="hidden" name="mode" value="clear"><button class="cc-button cc-muted">Vider la sélection</button></form>
+                </div>
                 </div>
             </section>

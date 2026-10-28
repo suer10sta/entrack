@@ -22,6 +22,18 @@ class CrmCampaignService
         return DB::transaction(function () use ($campaign, $data) {
             $campaign = CrmCampaign::whereKey($campaign->id)->lockForUpdate()->firstOrFail();
             abort_unless($campaign->status === 'draft', 409, 'Cette campagne ne peut plus être modifiée.');
+            $audience = $data['audience'] ?? 'custom';
+            if ($audience !== 'custom') {
+                $recipients = app(CrmCampaignAudience::class)->recipients($audience);
+                $campaign->recipients()->delete();
+                foreach ($recipients as $recipient) {
+                    $campaign->recipients()->create($recipient);
+                }
+                $campaign->update(['audience' => $audience, 'revision' => $campaign->revision + 1]);
+
+                return ['added' => count($recipients), 'ignored' => 0];
+            }
+            $campaign->update(['audience' => 'custom']);
             if ($data['mode'] === 'clear') {
                 $campaign->recipients()->delete();
                 $campaign->increment('revision');
@@ -45,11 +57,12 @@ class CrmCampaignService
                 $campaign->recipients()->whereIn('prospect_id', array_diff($visible, $selected))->delete();
                 $query->whereIn('id', $selected);
             }
-            $existing = $campaign->recipients()->pluck('email_normalized', 'prospect_id');
-            $emails = array_fill_keys($existing->values()->all(), true);
+            $existing = $campaign->recipients()->get(['prospect_id', 'email_normalized']);
+            $existingProspects = $existing->pluck('prospect_id')->filter()->flip();
+            $emails = array_fill_keys($existing->pluck('email_normalized')->all(), true);
             $added = $ignored = 0;
             foreach ($query->orderBy('id')->get() as $prospect) {
-                if ($existing->has($prospect->id)) {
+                if ($existingProspects->has($prospect->id)) {
                     continue;
                 }
                 $email = self::email($prospect->email);

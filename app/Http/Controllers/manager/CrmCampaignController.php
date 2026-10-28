@@ -154,7 +154,7 @@ class CrmCampaignController extends Controller
         }
         $prospects = $query->orderBy('name')->orderBy('id')->paginate(25, ['*'], 'prospects_page')->withQueryString();
         $sources = Prospect::whereNotNull('source')->distinct()->orderBy('source')->pluck('source');
-        $selected = $campaign->recipients()->pluck('email_normalized', 'prospect_id');
+        $selected = $campaign->recipients()->get(['id', 'prospect_id', 'email_normalized'])->mapWithKeys(fn ($row) => [$row->prospect_id ?? 'recipient:'.$row->id => $row->email_normalized]);
         $counts = $campaign->recipients()->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status');
         $campaign->loadCount(['recipients as sent_count' => fn ($q) => $q->where('status', 'sent'),
             'recipients as opened_count' => fn ($q) => $q->where('status', 'sent')->whereNotNull('first_opened_at'),
@@ -189,11 +189,21 @@ class CrmCampaignController extends Controller
         return redirect()->route('manager.campaigns.show', $campaign)->with('status', 'Campagne enregistrée.');
     }
 
+    public function audienceCount(Request $request, CrmCampaign $campaign)
+    {
+        abort_unless($campaign->status === 'draft', 409);
+        $data = $request->validate(['audience' => ['required', Rule::in(['prospects', 'subscribers', 'trials'])]]);
+
+        return response()->json(['count' => count(app(\App\Services\CrmCampaignAudience::class)->recipients($data['audience']))])
+            ->header('Cache-Control', 'no-store, private');
+    }
+
     public function recipients(Request $request, CrmCampaign $campaign, CrmCampaignService $service)
     {
         $data = $request->validate(['mode' => ['required', Rule::in(['page', 'all', 'clear'])],
             'visible_ids' => ['sometimes', 'array', 'max:25'], 'visible_ids.*' => ['integer', 'distinct'],
-            'selected_ids' => ['sometimes', 'array', 'max:25'], 'selected_ids.*' => ['integer', 'distinct']]) + $this->filters($request);
+            'selected_ids' => ['sometimes', 'array', 'max:25'], 'selected_ids.*' => ['integer', 'distinct'],
+            'audience' => ['nullable', Rule::in(array_keys(\App\Services\CrmCampaignAudience::LABELS))]]) + $this->filters($request);
         $result = $service->select($campaign, $data);
 
         return redirect()->route('manager.campaigns.show', ['campaign' => $campaign] + ($request->boolean('_wizard') ? ['step' => in_array((string) $request->input('wizard_next'), ['1', '3'], true) ? (int) $request->input('wizard_next') : 2] : []) + array_filter(['filter_status' => $data['status'], 'source' => $data['source']], fn ($v) => $v !== null && $v !== ''))

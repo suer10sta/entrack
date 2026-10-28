@@ -24,6 +24,11 @@ class CrmCampaignRecipient extends Model
         return $this->belongsTo(Prospect::class)->withTrashed();
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function links()
     {
         return $this->hasMany(CrmCampaignLink::class, 'recipient_id');

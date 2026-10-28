@@ -49,6 +49,8 @@ class CrmCampaignTest extends TestCase
         Schema::create('entreprises', function ($table) {
             $table->id();
             $table->string('name');
+            $table->string('type_compt')->nullable();
+            $table->timestampTz('trial_ends_at')->nullable();
             $table->timestamps();
         });
         Schema::create('users', function ($table) {
@@ -67,6 +69,15 @@ class CrmCampaignTest extends TestCase
         (require database_path('migrations/2026_10_27_000104_add_campaign_tracking.php'))->up();
         (require database_path('migrations/2026_10_28_000000_add_campaign_scheduling.php'))->up();
         (require database_path('migrations/2026_10_28_000001_add_campaign_soft_deletes.php'))->up();
+        (require database_path('migrations/2026_10_28_000002_add_campaign_user_audiences.php'))->up();
+        Schema::create('subscriptions', function ($table) {
+            $table->id();
+            $table->foreignId('entreprise_id');
+            $table->string('stripe_status');
+            $table->string('type')->default('default');
+            $table->timestampTz('ends_at')->nullable();
+            $table->timestamps();
+        });
         config(['mail.default' => 'smtp', 'crm.campaign_batch_size' => 10, 'crm.campaign_interval_ms' => 0]);
         $this->manager = Manager::create(['name' => 'CRM Manager', 'email' => 'manager@example.test']);
         $this->withoutVite();
@@ -107,6 +118,86 @@ class CrmCampaignTest extends TestCase
         app(CrmCampaignService::class)->select($campaign, ['mode' => 'all'] + $filters);
     }
 
+    public function test_audience_presets_count_select_and_deduplicate_real_accounts(): void
+    {
+        $campaign = $this->campaign();
+        $paid = DB::table('entreprises')->insertGetId(['name' => 'Paid', 'type_compt' => 'Solo']);
+        $trial = DB::table('entreprises')->insertGetId(['name' => 'Trial', 'trial_ends_at' => now('UTC')->addDays(5)]);
+        $expired = DB::table('entreprises')->insertGetId(['name' => 'Expired', 'trial_ends_at' => now('UTC')->subDay()]);
+        $cancelled = DB::table('entreprises')->insertGetId(['name' => 'Cancelled', 'type_compt' => 'Pro']);
+        DB::table('subscriptions')->insert([
+            ['entreprise_id' => $paid, 'stripe_status' => 'active'],
+            ['entreprise_id' => $cancelled, 'stripe_status' => 'canceled'],
+        ]);
+        foreach ([['Paid', ' SHARED@example.test ', $paid], ['Duplicate', 'shared@example.test', $paid],
+            ['Trial', 'trial@example.test', $trial], ['Expired', 'expired@example.test', $expired],
+            ['Cancelled', 'cancelled@example.test', $cancelled], ['Invalid', 'bad-email', $paid]] as [$name, $email, $company]) {
+            User::create(['name' => $name, 'email' => $email, 'entreprise_id' => $company]);
+        }
+        $this->prospect('shared@example.test');
+        $this->prospect('other@example.test');
+        $this->actingAs($this->manager, 'manager');
+        foreach (['prospects' => 2, 'subscribers' => 1, 'trials' => 1] as $audience => $count) {
+            $this->getJson(route('manager.campaigns.audience-count', ['campaign' => $campaign, 'audience' => $audience]))->assertOk()->assertJsonPath('count', $count);
+            $this->assertSame(0, $campaign->recipients()->count());
+        }
+        $this->post(route('manager.campaigns.recipients', $campaign), ['mode' => 'page', 'audience' => 'subscribers', '_wizard' => 1, 'wizard_next' => 3])->assertRedirect();
+        $recipient = $campaign->recipients()->sole();
+        $this->assertNull($recipient->prospect_id);
+        $this->assertNotNull($recipient->user_id);
+        $this->assertSame('shared@example.test', $recipient->email_normalized);
+        $this->assertSame('subscribers', $campaign->fresh()->audience);
+        // Custom selections can combine groups; the same normalized email is still sent once.
+        $this->selectAll($campaign);
+        $this->assertSame(2, $campaign->recipients()->count());
+        $this->assertSame(1, $campaign->recipients()->where('email_normalized', 'shared@example.test')->count());
+        $this->assertSame(2, Prospect::count()); // No artificial prospects created for User recipients.
+        $this->post(route('manager.campaigns.recipients', $campaign), ['mode' => 'page', 'audience' => 'trials'])->assertRedirect();
+        $this->assertSame('trial@example.test', $campaign->recipients()->sole()->email_normalized);
+        $this->get(route('manager.campaigns.show', ['campaign' => $campaign, 'step' => 2]))->assertOk()->assertSee('Tous les abonnés actifs')->assertSee('Sélection personnalisée');
+        $this->getJson(route('manager.campaigns.audience-count', ['campaign' => $campaign, 'audience' => 'invalid']))->assertUnprocessable();
+    }
+
+    public function test_user_audience_uses_existing_smtp_and_tracking_without_creating_crm_records(): void
+    {
+        $campaign = $this->campaign();
+        $company = DB::table('entreprises')->insertGetId(['name' => 'Trial', 'trial_ends_at' => now('UTC')->addDay()]);
+        User::create(['name' => 'Trial user', 'email' => 'trial@example.test', 'entreprise_id' => $company]);
+        app(CrmCampaignService::class)->select($campaign, ['mode' => 'page', 'audience' => 'trials']);
+        app(CrmCampaignService::class)->enqueue($campaign);
+        $this->mailer();
+        $this->assertSame(1, app(CrmCampaignSender::class)->batch());
+        $recipient = $campaign->recipients()->sole();
+        $this->assertSame('sent', $recipient->status);
+        $this->assertSame(['trial@example.test'], $this->addresses);
+        $mail = new ProspectCampaignMail('Test', 'Message', ctaText: 'Découvrir', ctaUrl: 'https://dalytrac.com', trackingRecipient: $recipient);
+        $mail->build();
+        $recipient->refresh();
+        $this->get(route('crm.tracking.open', $recipient->tracking_token))->assertOk();
+        $this->get(route('crm.tracking.click', $recipient->links()->sole()->token))->assertRedirect('https://dalytrac.com');
+        $this->assertSame(1, $recipient->fresh()->open_count);
+        $this->assertSame(1, $recipient->fresh()->click_count);
+
+        $this->assertSame(0, Prospect::count());
+        $this->assertSame(0, DB::table('prospect_status_history')->count());
+        $this->assertSame(0, app(CrmCampaignSender::class)->batch());
+    }
+
+    public function test_audience_limit_and_non_draft_checks_preserve_existing_selection(): void
+    {
+        $campaign = $this->campaign();
+        $this->prospect('one@example.test');
+        $this->selectAll($campaign);
+        $this->prospect('two@example.test');
+        config(['crm.campaign_max_recipients' => 1]);
+        $this->actingAs($this->manager, 'manager')->post(route('manager.campaigns.recipients', $campaign), ['mode' => 'page', 'audience' => 'prospects'])->assertSessionHasErrors('audience');
+        $this->assertSame(1, $campaign->recipients()->count());
+        $this->getJson(route('manager.campaigns.audience-count', ['campaign' => $campaign, 'audience' => 'prospects']))->assertUnprocessable();
+        $campaign->update(['status' => 'queued']);
+        $this->getJson(route('manager.campaigns.audience-count', ['campaign' => $campaign, 'audience' => 'subscribers']))->assertStatus(409);
+        $this->post(route('manager.campaigns.recipients', $campaign), ['mode' => 'page', 'audience' => 'subscribers'])->assertStatus(409);
+    }
+
     private function mailer(?string $failure = null, bool $cancel = false): void
     {
         Mail::shouldReceive('to')->andReturnUsing(function ($address) use ($failure, $cancel) {
@@ -135,6 +226,7 @@ class CrmCampaignTest extends TestCase
             if ($identity === 'web') {
                 $this->actingAs(User::create(['name' => 'User', 'email' => 'user@example.test']), 'web');
             }
+            $this->getJson(route('manager.campaigns.audience-count', ['campaign' => $campaign, 'audience' => 'subscribers']))->assertUnauthorized();
             $this->getJson(route('manager.campaigns.index'))->assertUnauthorized();
             $this->getJson(route('manager.campaigns.create'))->assertUnauthorized();
             $this->getJson(route('manager.campaigns.preview', $campaign))->assertUnauthorized();
