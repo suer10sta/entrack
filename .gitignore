@@ -44,3 +44,19 @@ yarn-error.log
 /public/videos/*.mp4
 .env.*
 !.env.example
+
+# Platform Contact support foundation tests
+!/tests/Feature/ContactFoundationTest.php
+!/tests/Support/
+!/tests/Support/contact-number-worker.php
+
+!/tests/Feature/PublicContactSubmissionTest.php
+
+!/tests/Feature/ManagerContactSupportTest.php
+
+!/tests/Feature/ManagerContactActionsTest.php
+!/tests/Support/contact-reply-worker.php
+
+!/tests/Feature/ManagerContactCardsTest.php
+
+/docs

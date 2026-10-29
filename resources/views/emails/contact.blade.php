@@ -1,5 +1,8 @@
 <x-email.layout :title="__('emails.contact_title')">
     <x-email.details>
+        @if(!empty($ticketNum))
+            <x-email.detail :label="__('emails.ticket_id')">{{ $ticketNum }}</x-email.detail>
+        @endif
         <x-email.detail :label="__('emails.name')">{{ $name }}</x-email.detail>
         <x-email.detail :label="__('emails.email')">{{ $email }}</x-email.detail>
         <x-email.detail :label="__('emails.subject')">{{ $subjectLine }}</x-email.detail>

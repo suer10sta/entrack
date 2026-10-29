@@ -183,7 +183,7 @@ Route::get('/demo', function () {
 Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
 });
 
-Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+Route::post('/contact', [ContactController::class, 'submit'])->middleware('throttle:contact')->name('contact.submit');
 
 Route::get('/blog/{post:slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
 
@@ -2009,6 +2009,15 @@ Route::prefix('manager')->name('manager.')->group(function () {
     });
 
     Route::middleware('auth:manager')->group(function () {
+        Route::withoutMiddleware(\App\Http\Middleware\CheckSubscription::class)->group(function () {
+            Route::get('support', [\App\Http\Controllers\manager\ContactSupportController::class, 'index'])->name('support.index');
+            Route::get('support/{contact}', [\App\Http\Controllers\manager\ContactSupportController::class, 'show'])->whereNumber('contact')->name('support.show');
+            Route::post('support/{contact}/reply', [\App\Http\Controllers\manager\ContactSupportController::class, 'reply'])->whereNumber('contact')->name('support.reply');
+            Route::post('support/{contact}/close', [\App\Http\Controllers\manager\ContactSupportController::class, 'close'])->whereNumber('contact')->name('support.close');
+            Route::post('support/{contact}/reopen', [\App\Http\Controllers\manager\ContactSupportController::class, 'reopen'])->whereNumber('contact')->name('support.reopen');
+            Route::delete('support/{contact}', [\App\Http\Controllers\manager\ContactSupportController::class, 'destroy'])->whereNumber('contact')->name('support.destroy');
+        });
+
         Route::post('logout', [ManagerAuthController::class, 'logout'])->name('logout');
         Route::get('dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');
         Route::get('dashboard/entreprises', [ManagerDashboardController::class, 'entreprises'])->name('dashboard.entreprises');

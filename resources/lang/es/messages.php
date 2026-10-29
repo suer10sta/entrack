@@ -3874,4 +3874,6 @@ Un saludo',
     'demo_youtube_watch' => 'Ver en YouTube',
     'demo_youtube_channel' => 'Todos los vídeos en YouTube',
     'demo_youtube_nojs' => 'Activa JavaScript para reproducir los vídeos aquí o ábrelos en YouTube.',
+    "contact_ticket_received" => "Tu solicitud ha sido registrada. Tu número de ticket es :ticket.",
+    "contact_ticket_save_failed" => "No se pudo registrar tu solicitud. Inténtalo de nuevo más tarde.",
 ];

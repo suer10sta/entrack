@@ -3910,4 +3910,6 @@ Kind regards',
     'demo_youtube_watch' => 'Watch on YouTube',
     'demo_youtube_channel' => 'All videos on YouTube',
     'demo_youtube_nojs' => 'Enable JavaScript to play videos here, or watch them on YouTube.',
+    "contact_ticket_received" => "Your request has been recorded. Your ticket number is :ticket.",
+    "contact_ticket_save_failed" => "Your request could not be recorded. Please try again later.",
 ];

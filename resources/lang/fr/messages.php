@@ -3896,4 +3896,6 @@ return [
     'demo_youtube_watch' => 'Voir sur YouTube',
     'demo_youtube_channel' => 'Toutes les vidéos sur YouTube',
     'demo_youtube_nojs' => 'Activez JavaScript pour lire les vidéos ici, ou ouvrez-les sur YouTube.',
+    "contact_ticket_received" => "Votre demande a été enregistrée. Votre numéro de ticket est :ticket.",
+    "contact_ticket_save_failed" => "Votre demande n’a pas pu être enregistrée. Veuillez réessayer plus tard.",
 ];

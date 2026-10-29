@@ -41,5 +41,3 @@ class ManagerAuthController extends Controller
         return redirect()->route('manager.login');
     }
 }
-
-

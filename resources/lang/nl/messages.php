@@ -3728,4 +3728,6 @@ return [
     'demo_youtube_watch' => 'Bekijken op YouTube',
     'demo_youtube_channel' => 'Alle video’s op YouTube',
     'demo_youtube_nojs' => 'Schakel JavaScript in om de video’s hier af te spelen, of bekijk ze op YouTube.',
+    "contact_ticket_received" => "Uw aanvraag is geregistreerd. Uw ticketnummer is :ticket.",
+    "contact_ticket_save_failed" => "Uw aanvraag kon niet worden geregistreerd. Probeer het later opnieuw.",
 ];

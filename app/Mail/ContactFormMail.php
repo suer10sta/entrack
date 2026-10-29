@@ -4,9 +4,9 @@ namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Queue\SerializesModels;
 
 class ContactFormMail extends Mailable
@@ -14,14 +14,17 @@ class ContactFormMail extends Mailable
     use Queueable, SerializesModels;
 
     public string $name;
+
     public string $email;
+
     public string $subjectLine;
+
     public string $messageBody;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(string $name, string $email, string $subjectLine, string $messageBody)
+    public function __construct(string $name, string $email, string $subjectLine, string $messageBody, public ?string $ticketNum = null)
     {
         $this->name = $name;
         $this->email = $email;
@@ -36,8 +39,8 @@ class ContactFormMail extends Mailable
     {
         return new Envelope(
             // Send from your fixed address for better deliverability...
-            from: new Address('user5.sta@outlook.com', 'DalyTrac Contact'),
-            subject: 'New contact message: ' . $this->subjectLine,
+            from: new Address(config('mail.from.address'), config('mail.from.name') ?: 'DalyTrac Contact'),
+            subject: $this->notificationSubject(),
             replyTo: [
                 // ...but keep Reply-To as the client's email so replying goes to them
                 new Address($this->email, $this->name),
@@ -48,6 +51,12 @@ class ContactFormMail extends Mailable
     /**
      * Get the message content definition.
      */
+    public function notificationSubject(): string
+    {
+        // Keep the notification subject compatible with email_sends_log.subject.
+        return mb_substr(($this->ticketNum ? '['.$this->ticketNum.'] ' : '').'New contact message: '.$this->subjectLine, 0, 255);
+    }
+
     public function content(): Content
     {
         return new Content(
@@ -65,5 +74,3 @@ class ContactFormMail extends Mailable
         return [];
     }
 }
-
-
