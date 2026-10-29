@@ -6,7 +6,7 @@
     <header class="cc-header"><div><h1>Créer une campagne</h1><p>Préparez votre message et choisissez les prospects à contacter.</p></div><span class="cc-badge">Brouillon</span></header>
     <section class="cw-progress-card" aria-label="Progression de la campagne">
         <div class="cw-step-caption"><strong>Étape {{ $step }} sur 3</strong><span>{{ [1 => 'Informations', 2 => 'Audience cible', 3 => 'Contenu de l’email'][$step] }}</span></div>
-        <div class="cw-progress" role="progressbar" aria-label="Étapes de création" aria-valuemin="0" aria-valuemax="3" aria-valuenow="{{ $step }}"><span style="width:{{ round($step / 3 * 100) }}%"></span></div>
+        <div class="cw-progress" role="progressbar" aria-label="étape de création" aria-valuemin="0" aria-valuemax="3" aria-valuenow="{{ $step }}"><span style="width:{{ round($step / 3 * 100) }}%"></span></div>
         <ol class="cw-steps">@foreach([1 => 'Informations', 2 => 'Audience cible', 3 => 'Contenu de l’email'] as $number => $label)<li class="{{ $step === $number ? 'is-current' : ($step > $number ? 'is-complete' : '') }}" @if($step === $number) aria-current="step" @endif><span>{{ $number }}</span>@if($campaign)<a href="{{ route('manager.campaigns.show', ['campaign' => $campaign, 'step' => $number]) }}">{{ $label }}</a>@else{{ $label }}@endif</li>@endforeach</ol>
     </section>
     @include('manager.prospects.partials.feedback')

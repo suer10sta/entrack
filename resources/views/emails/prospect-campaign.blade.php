@@ -32,6 +32,7 @@
                 <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td style="border-top:1px solid #e7eef2;padding-top:24px;">
                     <p style="margin:0 0 6px;font-size:14px;line-height:22px;font-weight:bold;color:#0B2638;">L’équipe DalyTrac</p>
                     <p style="margin:0;font-size:12px;line-height:20px;color:#8a9ca8;">DalyTrac <span style="color:#E7B84B;">&bull;</span> Simplifiez votre quotidien professionnel.</p>
+                    @if($unsubscribeUrl)<p style="margin:16px 0 0;font-size:11px;line-height:18px;"><a href="{{ $unsubscribeUrl }}" style="color:#7b8e9b;text-decoration:underline;">{{ __('crm-unsubscribe.link', [], 'fr') }}</a></p>@endif
                 </td></tr></table>
             </td></tr>
         </table>

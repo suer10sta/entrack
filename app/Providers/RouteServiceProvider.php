@@ -31,6 +31,12 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         $this->routes(function () {
+            Route::middleware('web')
+                ->group(base_path('routes/crm-unsubscribe.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/surveys.php'));
+
             Route::group([], base_path('routes/crm-tracking.php'));
 
             Route::middleware('api')

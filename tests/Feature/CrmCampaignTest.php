@@ -70,6 +70,7 @@ class CrmCampaignTest extends TestCase
         (require database_path('migrations/2026_10_28_000000_add_campaign_scheduling.php'))->up();
         (require database_path('migrations/2026_10_28_000001_add_campaign_soft_deletes.php'))->up();
         (require database_path('migrations/2026_10_28_000002_add_campaign_user_audiences.php'))->up();
+        (require database_path('migrations/2026_10_29_200000_add_crm_campaign_opt_out.php'))->up();
         Schema::create('subscriptions', function ($table) {
             $table->id();
             $table->foreignId('entreprise_id');

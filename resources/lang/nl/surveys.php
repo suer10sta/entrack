@@ -1,0 +1,92 @@
+<?php
+
+return [
+    'D1' => [
+        'title' => 'Aan de slag',
+        'questions' => [
+            'q1' => [
+                'label' => 'Hoe verloopt uw start met DalyTrac?',
+                'choices' => [
+                    'c1' => 'Ik ben nog niet begonnen',
+                    'c2' => 'Ik kan niet inloggen',
+                    'c3' => 'Ik vind niet hoe ik mijn bedrijf kan instellen',
+                    'c4' => 'Ik ondervind een technisch probleem',
+                    'c5' => 'Ik ben zonder problemen begonnen',
+                    'c6' => 'Ik wil niet verdergaan',
+                ],
+            ],
+            'q2' => [
+                'label' => 'Wat is de grootste moeilijkheid die u ondervindt?',
+                'choices' => [
+                    'c1' => 'De uitleg is niet duidelijk genoeg',
+                    'c2' => 'Er verschijnt een foutmelding',
+                    'c3' => 'Ik weet niet waar ik moet beginnen',
+                    'c4' => 'Mijn gegevens importeren (werknemers, klanten)',
+                    'c5' => 'Ik heb te weinig tijd',
+                    'c6' => 'Anders (vrije tekst)',
+                ],
+            ],
+            'q2_autre' => [
+                'label' => 'Anders (vrije tekst)',
+                'choices' => [],
+            ],
+            'q2b' => [
+                'label' => 'Kopieer de weergegeven foutmelding.',
+                'choices' => [],
+            ],
+            'q3' => [
+                'label' => 'Welke hulp zou voor u het nuttigst zijn?',
+                'choices' => [
+                    'c1' => 'Een startgids',
+                    'c2' => 'Een korte video met stapsgewijze uitleg',
+                    'c3' => 'Technische ondersteuning',
+                    'c4' => 'Een demonstratie',
+                    'c5' => 'Voorlopig geen hulp',
+                ],
+            ],
+            'q4' => [
+                'label' => 'Waarom wilt u niet verdergaan?',
+                'choices' => [
+                    'c1' => 'Ik heb het niet meer nodig',
+                    'c2' => 'Het is te ingewikkeld',
+                    'c3' => 'De prijs past niet bij mij',
+                    'c4' => 'Ik heb een andere oplossing gekozen',
+                    'c5' => 'Ik heb te weinig tijd',
+                    'c6' => 'Anders',
+                ],
+            ],
+        ],
+    ],
+    'ui' => [
+        'email_subject' => 'Uw eerste stappen met DalyTrac',
+        'reminder_subject' => 'Een laatste herinnering over uw eerste stappen met DalyTrac',
+        'email_intro' => 'Kon u aan de slag? Uw antwoord helpt ons de moeilijkheden te begrijpen die u ondervindt.',
+        'email_reminder' => 'Deel uw ervaring met de start als u dat nog niet hebt gedaan.',
+        'email_safety' => 'Kies een antwoord en bevestig het op de pagina. Alleen deze link openen slaat geen antwoord op.',
+        'email_expiry' => 'Deze link is 15 dagen geldig na de eerste e-mail.',
+        'eyebrow' => 'Uw ervaring telt',
+        'title' => 'Uw eerste stappen met DalyTrac',
+        'intro' => 'Enkele vragen over uw start. Alleen de eerste vraag is verplicht.',
+        'required_mark' => 'Verplicht',
+        'optional' => 'Optioneel',
+        'choose' => 'Kies een antwoord',
+        'confirm' => 'Mijn eerste antwoord bevestigen',
+        'submit' => 'Mijn antwoorden verzenden',
+        'preview' => 'De relevante vragen tonen',
+        'confirmed' => 'Uw eerste antwoord is opgeslagen.',
+        'q1_locked' => 'Uw eerste bevestigde antwoord blijft behouden. Een andere keuze kan het niet vervangen.',
+        'required' => 'Beantwoord de eerste vraag.',
+        'invalid_answer' => 'Selecteer een toegestaan antwoord.',
+        'too_long' => 'Vrije tekst mag niet langer zijn dan 2.000 tekens.',
+        'invalid_link' => 'Ongeldige of verlopen link.',
+        'closed' => 'Deze enquête is afgesloten.',
+        'already_closed' => 'Enquête al afgesloten.',
+        'thank_you' => 'Bedankt voor uw antwoord',
+        'done' => 'Uw antwoorden zijn opgeslagen.',
+        'privacy' => 'Deze vragenlijst is alleen toegankelijk via uw persoonlijke link.',
+        'back' => 'Terug naar DalyTrac',
+        'no_script' => 'Gebruik zonder JavaScript de knop om vragen te tonen die bij uw keuzes passen.',
+        'character_limit' => 'Maximaal 2.000 tekens.',
+        'saved_choice' => 'Eerste antwoord bevestigd',
+    ],
+];

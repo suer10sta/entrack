@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\ProspectActivityType;
 use App\Enums\ProspectStatus;
 use App\Models\CrmLifecycleEvent;
 use App\Models\Manager;
@@ -17,6 +18,38 @@ class ProspectStatusService
     public function transition(Prospect $prospect, ProspectStatus $target, string $source = 'manual', ?Manager $manager = null,
         ?string $note = null, ?string $idempotencyKey = null, ?DateTimeInterface $occurredAt = null): Prospect
     {
+        return $this->transitionInternal($prospect, $target, $source, $manager, $note, $idempotencyKey, $occurredAt);
+    }
+
+    public function unsubscribeFromCampaigns(Prospect $prospect, int $recipientId): Prospect
+    {
+        return $prospect->getConnection()->transaction(function () use ($prospect, $recipientId) {
+            if ($prospect->getConnection()->getDriverName() === 'pgsql') {
+                $prospect->getConnection()->statement("SET LOCAL TIME ZONE 'UTC'");
+            }
+            $locked = Prospect::on($prospect->getConnectionName())->withTrashed()->whereKey($prospect->id)->lockForUpdate()->firstOrFail();
+            if ($locked->unsubscribed_at) {
+                return $locked;
+            }
+            $at = now('UTC');
+            // Explicit preference, separate from status; never cleared by later transitions.
+            $locked->forceFill(['unsubscribed_at' => $at->toIso8601String()])->saveOrFail();
+            $key = 'campaign-unsubscribe:'.$locked->public_token;
+            $locked = $this->transitionInternal($locked, ProspectStatus::Perdu, 'campaign_unsubscribe', null,
+                'Prospect désabonné des campagnes email', $key, $at, true);
+            $locked->activities()->create([
+                'type' => ProspectActivityType::Automatic, 'subject' => 'Prospect désabonné des campagnes email',
+                'occurred_at' => $at->toIso8601String(),
+                'metadata' => ['event' => 'campaign_unsubscribe', 'idempotency_key' => $key, 'campaign_recipient_id' => $recipientId],
+            ]);
+
+            return $locked;
+        }, 3);
+    }
+
+    private function transitionInternal(Prospect $prospect, ProspectStatus $target, string $source, ?Manager $manager,
+        ?string $note, ?string $idempotencyKey, ?DateTimeInterface $occurredAt, bool $campaignUnsubscribe = false): Prospect
+    {
         if (! $prospect->exists || ! preg_match('/^[a-z][a-z0-9_.-]{0,63}$/', $source)) {
             throw new InvalidArgumentException('A persisted prospect and valid source are required.');
         }
@@ -29,9 +62,10 @@ class ProspectStatusService
 
         $connection = $prospect->getConnection();
 
-        return $connection->transaction(function () use ($prospect, $target, $source, $manager, $note, $idempotencyKey, $occurredAt) {
+        return $connection->transaction(function () use ($prospect, $target, $source, $manager, $note, $idempotencyKey, $occurredAt, $campaignUnsubscribe) {
             $name = $prospect->getConnectionName();
-            $locked = Prospect::on($name)->whereKey($prospect->getKey())->lockForUpdate()->firstOrFail();
+            $locked = Prospect::on($name)->when($campaignUnsubscribe, fn ($query) => $query->withTrashed())
+                ->whereKey($prospect->getKey())->lockForUpdate()->firstOrFail();
             $at = $occurredAt ? Carbon::instance($occurredAt)->utc() : now('UTC');
             $receipt = null;
             if ($idempotencyKey !== null) {
@@ -49,7 +83,9 @@ class ProspectStatusService
                 }
             }
             $from = $locked->status;
-            if ($source !== 'manual' && ! $from->allowsAutomaticTransitionTo($target)) {
+            $unsubscribeException = $campaignUnsubscribe && $source === 'campaign_unsubscribe'
+                && $target === ProspectStatus::Perdu && $locked->unsubscribed_at !== null;
+            if ($source !== 'manual' && ! $unsubscribeException && ! $from->allowsAutomaticTransitionTo($target)) {
                 throw new DomainException('Automatic status regression, loss or reopening is forbidden.');
             }
             if ($from !== $target) {

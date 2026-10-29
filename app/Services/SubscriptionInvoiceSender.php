@@ -95,7 +95,7 @@ class SubscriptionInvoiceSender
         $subject = 'Subscription invoice ' . $displayInvoiceNumber;
         $body = "Dear {$entreprise->name},\n\n"
             . "Please find your subscription invoice attached.\n\n"
-            . "Best regards,\nDalytrac";
+            . "Best regards,\nDalyTrac";
         $bodyHtml = nl2br(e($body));
 
         Log::info('SubscriptionInvoiceSender: preparing subscription invoice email.', [

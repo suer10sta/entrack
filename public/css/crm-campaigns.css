@@ -46,3 +46,12 @@
 .cc-delete-buttons button:disabled{opacity:.6;cursor:wait}
 
 .cc-audience-options{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:16px 0}.cc-audience-select{max-width:100%;border:1px solid #dfe7ec;border-radius:8px;padding:7px 32px 7px 10px;font-size:13px;color:#0B2638}.cc-audience-options .cc-help{flex-basis:100%}.cc-audience-options [hidden],[data-custom-audience][hidden]{display:none!important}
+
+/* The Manager layout does not load Bootstrap pagination styles. */
+.cc-recipient-pagination .pagination{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:6px;margin:0;padding:0;list-style:none}
+.cc-recipient-pagination .page-link{display:flex;align-items:center;justify-content:center;min-width:34px;height:34px;padding:0 9px;border:1px solid #dfe7ec;border-radius:8px;background:#fff;color:#526a79;font-size:13px;line-height:1;text-decoration:none}
+.cc-recipient-pagination a.page-link:hover{background:#eff6f7;border-color:#b9d1d8;color:#2D7080}
+.cc-recipient-pagination a.page-link:focus-visible{outline:2px solid #2D7080;outline-offset:2px}
+.cc-recipient-pagination .active .page-link{background:#2D7080;border-color:#2D7080;color:#fff;font-weight:600}
+.cc-recipient-pagination .disabled .page-link{background:#f8fafb;color:#a1aeb7}
+@media(max-width:640px){.cc-recipient-pagination .pagination{justify-content:center;gap:4px}.cc-recipient-pagination .page-link{min-width:30px;height:32px;padding:0 7px}}

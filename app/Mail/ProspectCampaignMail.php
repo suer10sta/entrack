@@ -12,6 +12,8 @@ class ProspectCampaignMail extends Mailable
 
     public ?string $trackedContentHtml = null;
 
+    public ?string $unsubscribeUrl = null;
+
     private bool $trackingDecorated = false;
 
     public function __construct(public string $campaignSubject, public string $content,
@@ -32,6 +34,8 @@ class ProspectCampaignMail extends Mailable
 
         if ($this->trackingRecipient && ! $this->trackingDecorated) {
             app(\App\Services\CrmCampaignTracking::class)->decorate($this, $this->trackingRecipient);
+            // Footer links are added after marketing decoration and never wrapped as tracked clicks.
+            $this->unsubscribeUrl = app(\App\Services\CrmCampaignUnsubscribe::class)->url($this->trackingRecipient);
             $this->trackingDecorated = true;
         }
 

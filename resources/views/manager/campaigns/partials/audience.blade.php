@@ -17,7 +17,7 @@
                         @empty<tr><td colspan="5" class="cc-empty">Aucun prospect pour ces filtres.</td></tr>@endforelse
                     </tbody></table></div>
                     <div class="cc-selection-footer"><span class="cc-help" data-selection-feedback role="status"></span><button class="cc-button cc-primary">@include('manager.prospects.partials.icon', ['icon' => 'check']) Enregistrer la sélection</button></div>
-                </form><div class="cc-pagination">{{ $prospects->links() }}</div>
+                </form><div class="cc-pagination cc-recipient-pagination">{{ $prospects->onEachSide(1)->links('pagination::bootstrap-4') }}</div>
                 <div class="cc-bulk-actions">
                     <form method="POST" action="{{ route('manager.campaigns.recipients', $campaign) }}">@csrf @if($inWizard ?? false)<input type="hidden" name="_wizard" value="1">@endif<input type="hidden" name="mode" value="all"><input type="hidden" name="filter_status" value="{{ $filters['status'] }}"><input type="hidden" name="source" value="{{ $filters['source'] }}"><button class="cc-button cc-secondary">Ajouter tous les prospects filtrés</button></form>
                     <form method="POST" action="{{ route('manager.campaigns.recipients', $campaign) }}">@csrf @if($inWizard ?? false)<input type="hidden" name="_wizard" value="1">@endif<input type="hidden" name="mode" value="clear"><button class="cc-button cc-muted">Vider la sélection</button></form>

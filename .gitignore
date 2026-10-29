@@ -59,4 +59,16 @@ yarn-error.log
 
 !/tests/Feature/ManagerContactCardsTest.php
 
-/docs
+/docs/*
+!/docs/survey-foundation.md
+
+# Questionnaire foundation tests
+!/tests/Feature/SurveyFoundationTest.php
+!/tests/Support/survey-foundation-worker.php
+!/tests/Feature/SurveyD1LifecycleTest.php
+!/tests/Support/survey-d1-worker.php
+!/tests/JavaScript/SurveyD1.cjs
+!/docs/survey-d1-lifecycle.md
+!/tests/Feature/CrmCampaignUnsubscribeTest.php
+!/tests/Support/crm-unsubscribe-worker.php
+!/docs/crm-campaign-unsubscribe.md

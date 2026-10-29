@@ -9,10 +9,10 @@ use App\Models\Prospect;
 use App\Services\ProspectStatusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class ProspectController extends Controller
 {
@@ -102,11 +102,12 @@ class ProspectController extends Controller
                 OR (a.type = 'automatic' AND h.source = 'stripe' AND h.idempotency_key = (SELECT event_key || ':client' FROM crm_lifecycle_events WHERE id::text = a.metadata->>'lifecycle_event_id'))
                 OR (a.type = 'automatic' AND a.metadata->>'event' = 'linkedin_link_clicked' AND h.source = 'linkedin_click' AND h.idempotency_key = 'linkedin-click:' || a.prospect_id::text)
                 OR (a.type = 'campaign' AND h.source = 'campaign' AND h.idempotency_key = 'campaign:' || (a.metadata->>'campaign_id') || ':prospect:' || a.prospect_id::text)
+                OR (a.type = 'automatic' AND a.metadata->>'event' = 'campaign_unsubscribe' AND h.source = 'campaign_unsubscribe' AND h.idempotency_key = a.metadata->>'idempotency_key')
             )");
         };
         $activities = DB::table('prospect_activities as a')->where('a.prospect_id', $prospect->id)
             ->leftJoin('prospect_status_history as h', $matchesActivity)
-            ->selectRaw("a.id, 'activity' AS kind, a.type, a.body, a.occurred_at, a.manager_id, h.from_status, h.to_status, a.due_at, a.subject, h.source");
+            ->selectRaw("a.id, 'activity' AS kind, a.type, a.body, a.occurred_at, a.manager_id, h.from_status, h.to_status, a.due_at, a.subject, COALESCE(h.source, CASE WHEN a.metadata->>'event' = 'campaign_unsubscribe' THEN 'campaign_unsubscribe' END) AS source");
         $history = DB::table('prospect_status_history as h')->where('h.prospect_id', $prospect->id)
             ->whereNotExists(function ($query) use ($matchesActivity) {
                 $query->selectRaw('1')->from('prospect_activities as a');

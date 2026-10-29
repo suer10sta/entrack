@@ -15,8 +15,6 @@
     </div>
     <div class="flex flex-col items-start">
       <h2 class="mb-[18px] mt-1 text-[0.76rem] uppercase tracking-[0.12em] text-[#0B2638]">{{ __('messages.public_footer_resources') }}</h2>
-      <a href="{{ route('blog.index') }}" class="my-[5px] text-[0.86rem] text-[#526D76] no-underline hover:text-[#2D7080]">{{ __('messages.Blog') }}</a>
-      <a href="{{ route('about') }}" class="my-[5px] text-[0.86rem] text-[#526D76] no-underline hover:text-[#2D7080]">{{ __('messages.About Us') }}</a>
       <a href="{{ route('faq') }}" class="my-[5px] text-[0.86rem] text-[#526D76] no-underline transition-colors duration-300 hover:text-[#2D7080]">{{ __('messages.public_footer_faq') }}</a>
       <a href="{{ route('contact') }}" class="my-[5px] text-[0.86rem] text-[#526D76] no-underline transition-colors duration-300 hover:text-[#2D7080]">{{ __('messages.public_footer_contact') }}</a>
     </div>

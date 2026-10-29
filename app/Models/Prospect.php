@@ -19,7 +19,8 @@ class Prospect extends Model
 
     protected $casts = ['status' => ProspectStatus::class, 'source_captured_at' => 'immutable_datetime',
         'linked_at' => 'immutable_datetime', 'captured_at' => 'immutable_datetime', 'status_changed_at' => 'immutable_datetime',
-        'trial_started_at' => 'immutable_datetime', 'first_paid_at' => 'immutable_datetime', 'next_follow_up_at' => 'immutable_datetime'];
+        'trial_started_at' => 'immutable_datetime', 'first_paid_at' => 'immutable_datetime', 'next_follow_up_at' => 'immutable_datetime',
+        'unsubscribed_at' => 'immutable_datetime'];
 
     private bool $transitionInProgress = false;
 

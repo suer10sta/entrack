@@ -1,0 +1,92 @@
+<?php
+
+return [
+    'D1' => [
+        'title' => 'Primeros pasos',
+        'questions' => [
+            'q1' => [
+                'label' => '¿Cómo va su puesta en marcha con DalyTrac?',
+                'choices' => [
+                    'c1' => 'Todavía no he empezado',
+                    'c2' => 'No puedo iniciar sesión',
+                    'c3' => 'No encuentro cómo configurar mi empresa',
+                    'c4' => 'Tengo un problema técnico',
+                    'c5' => 'He empezado sin dificultades',
+                    'c6' => 'No deseo continuar',
+                ],
+            ],
+            'q2' => [
+                'label' => '¿Cuál es la principal dificultad que ha encontrado?',
+                'choices' => [
+                    'c1' => 'Las explicaciones no son suficientemente claras',
+                    'c2' => 'Aparece un mensaje de error',
+                    'c3' => 'No sé por dónde empezar',
+                    'c4' => 'La importación de mis datos (empleados, clientes)',
+                    'c5' => 'Me falta tiempo',
+                    'c6' => 'Otro (texto libre)',
+                ],
+            ],
+            'q2_autre' => [
+                'label' => 'Otro (texto libre)',
+                'choices' => [],
+            ],
+            'q2b' => [
+                'label' => 'Copie el mensaje de error que aparece.',
+                'choices' => [],
+            ],
+            'q3' => [
+                'label' => '¿Qué ayuda le resultaría más útil?',
+                'choices' => [
+                    'c1' => 'Una guía de inicio',
+                    'c2' => 'Un vídeo corto paso a paso',
+                    'c3' => 'Asistencia técnica',
+                    'c4' => 'Una demostración',
+                    'c5' => 'Ninguna ayuda por ahora',
+                ],
+            ],
+            'q4' => [
+                'label' => '¿Por qué no desea continuar?',
+                'choices' => [
+                    'c1' => 'Ya no lo necesito',
+                    'c2' => 'Es demasiado complicado',
+                    'c3' => 'El precio no me conviene',
+                    'c4' => 'He elegido otra solución',
+                    'c5' => 'Me falta tiempo',
+                    'c6' => 'Otro',
+                ],
+            ],
+        ],
+    ],
+    'ui' => [
+        'email_subject' => 'Sus primeros pasos con DalyTrac',
+        'reminder_subject' => 'Un último recordatorio sobre sus primeros pasos con DalyTrac',
+        'email_intro' => '¿Ha podido empezar? Su respuesta nos ayuda a comprender las dificultades encontradas.',
+        'email_reminder' => 'Si todavía no lo ha hecho, comparta su experiencia de puesta en marcha.',
+        'email_safety' => 'Elija una respuesta y confírmela en la página. Abrir este enlace por sí solo no guarda ninguna respuesta.',
+        'email_expiry' => 'Este enlace es válido durante 15 días desde el primer envío.',
+        'eyebrow' => 'Su experiencia cuenta',
+        'title' => 'Sus primeros pasos con DalyTrac',
+        'intro' => 'Unas preguntas para comprender sus primeros pasos. Solo la primera es obligatoria.',
+        'required_mark' => 'Obligatoria',
+        'optional' => 'Opcional',
+        'choose' => 'Elija una respuesta',
+        'confirm' => 'Confirmar mi primera respuesta',
+        'submit' => 'Enviar mis respuestas',
+        'preview' => 'Mostrar las preguntas correspondientes',
+        'confirmed' => 'Su primera respuesta se ha guardado.',
+        'q1_locked' => 'Se conserva su primera respuesta confirmada. Otra elección no puede sustituirla.',
+        'required' => 'Responda a la primera pregunta.',
+        'invalid_answer' => 'Seleccione una respuesta permitida.',
+        'too_long' => 'El texto libre no puede superar los 2.000 caracteres.',
+        'invalid_link' => 'Enlace no válido o caducado.',
+        'closed' => 'Esta encuesta está cerrada.',
+        'already_closed' => 'Encuesta ya cerrada.',
+        'thank_you' => 'Gracias por su respuesta',
+        'done' => 'Sus respuestas se han guardado.',
+        'privacy' => 'Este cuestionario solo es accesible mediante su enlace personal.',
+        'back' => 'Volver a DalyTrac',
+        'no_script' => 'Sin JavaScript, use el botón para mostrar las preguntas correspondientes a sus respuestas.',
+        'character_limit' => 'Máximo 2.000 caracteres.',
+        'saved_choice' => 'Primera respuesta confirmada',
+    ],
+];

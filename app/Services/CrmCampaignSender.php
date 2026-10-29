@@ -53,20 +53,33 @@ class CrmCampaignSender
                 if ($i > 0) {
                     usleep(min(5000, max(0, config('crm.campaign_interval_ms'))) * 1000);
                 }
-                try {
-                    $message = Mail::to($recipient->email)->send(new ProspectCampaignMail($campaign->subject, $campaign->content, $campaign->preheader, $campaign->cta_text, $campaign->ctaLink(), $campaign->media['image'] ?? null, $campaign->media['attachment'] ?? null, $recipient));
-                    if (! $message) {
-                        throw new RuntimeException('Mailer cancelled message.');
-                    }
-                } catch (Throwable $error) {
-                    // Terminal failure: never automatically reattempt the same campaign/address.
-                    $recipient->update(['status' => 'failed', 'error' => 'Envoi non confirmé par le serveur de messagerie. Aucun renvoi automatique.']);
-                    Log::error('CRM campaign mail failed.', ['recipient_id' => $recipient->id, 'campaign_id' => $campaign->id, 'exception' => $error]);
+                $delivered = app(CrmCampaignConsent::class)->withRecipient($recipient, function () use ($recipient, $campaign) {
+                    $recipient->refresh();
+                    if (! $this->sendable($recipient)) {
+                        $recipient->update(['status' => 'skipped', 'error' => 'Contact désabonné, supprimé/archivé ou adresse modifiée.']);
 
+                        return false;
+                    }
+                    try {
+                        $message = Mail::to($recipient->email)->send(new ProspectCampaignMail($campaign->subject, $campaign->content, $campaign->preheader, $campaign->cta_text, $campaign->ctaLink(), $campaign->media['image'] ?? null, $campaign->media['attachment'] ?? null, $recipient));
+                        if (! $message) {
+                            throw new RuntimeException('Mailer cancelled message.');
+                        }
+                    } catch (Throwable $error) {
+                        // Terminal failure: never automatically reattempt the same campaign/address.
+                        $recipient->update(['status' => 'failed', 'error' => 'Envoi non confirmé par le serveur de messagerie. Aucun renvoi automatique.']);
+                        Log::error('CRM campaign mail failed.', ['recipient_id' => $recipient->id, 'campaign_id' => $campaign->id, 'exception' => $error]);
+
+                        return false;
+                    }
+                    // If this write fails after SMTP accepted, leave "sending" for conservative recovery.
+                    $recipient->update(['status' => 'sent', 'sent_at' => now('UTC'), 'error' => null]);
+
+                    return true;
+                });
+                if (! $delivered) {
                     continue;
                 }
-                // If this write fails after SMTP accepted, leave "sending" for conservative recovery.
-                $recipient->update(['status' => 'sent', 'sent_at' => now('UTC'), 'error' => null]);
                 $sent++;
                 $this->syncContact($recipient);
             }
@@ -110,9 +123,8 @@ class CrmCampaignSender
             if (! $recipient) {
                 return null;
             }
-            $contact = $recipient->prospect_id ? Prospect::find($recipient->prospect_id) : \App\Models\User::find($recipient->user_id);
-            if (! $contact || CrmCampaignService::email($contact->email) !== $recipient->email_normalized) {
-                $recipient->update(['status' => 'skipped', 'error' => 'Contact supprimé/archivé ou adresse modifiée/invalide depuis la sélection.']);
+            if (! $this->sendable($recipient)) {
+                $recipient->update(['status' => 'skipped', 'error' => 'Contact désabonné, supprimé/archivé ou adresse modifiée/invalide depuis la sélection.']);
 
                 return $recipient;
             }
@@ -121,6 +133,14 @@ class CrmCampaignSender
 
             return $recipient;
         });
+    }
+
+    private function sendable(CrmCampaignRecipient $recipient): bool
+    {
+        $contact = $recipient->prospect_id ? Prospect::find($recipient->prospect_id) : \App\Models\User::find($recipient->user_id);
+
+        return $contact && CrmCampaignService::email($contact->email) === $recipient->email_normalized
+            && ! app(CrmCampaignConsent::class)->blocked($recipient->prospect_id, $recipient->user_id, $recipient->email_normalized);
     }
 
     private function syncContact(CrmCampaignRecipient $recipient): void

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -17,3 +18,8 @@ use Illuminate\Support\Facades\Artisan;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+app()->afterResolving(Schedule::class, static function (Schedule $schedule) {
+    $schedule->command('surveys:process-d1')->hourly()->withoutOverlapping(55)
+        ->appendOutputTo(storage_path('logs/scheduler.log'));
+});

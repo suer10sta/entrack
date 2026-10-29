@@ -557,7 +557,7 @@ class ManagerSubscriptionController extends Controller
                 ->getDisplayInvoiceNumberForStripe($invoiceNumber) ?: $invoiceNumber;
 
             $subject = 'Subscription invoice '.$displayInvoiceNumber;
-            $body = "Dear {$entreprise->name},\n\nPlease find your subscription invoice attached.\n\nBest regards,\nDalytrac";
+            $body = "Dear {$entreprise->name},\n\nPlease find your subscription invoice attached.\n\nBest regards,\nDalyTrac";
 
             $bodyHtml = nl2br(e($body));
 

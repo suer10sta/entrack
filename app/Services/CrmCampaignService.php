@@ -66,7 +66,7 @@ class CrmCampaignService
                     continue;
                 }
                 $email = self::email($prospect->email);
-                if (! $email || isset($emails[$email])) {
+                if (! $email || isset($emails[$email]) || app(CrmCampaignConsent::class)->blocked($prospect->id, null, $email)) {
                     $ignored++;
 
                     continue;

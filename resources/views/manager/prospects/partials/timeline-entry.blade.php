@@ -27,7 +27,7 @@
         $eventIcon = $icons[$entry->type] ?? 'edit';
     }
     $origin = $authors[$entry->manager_id] ?? match($entry->source ?? null) {
-        'stripe' => 'Paiement Stripe confirmé', 'registration' => 'Inscription DalyTrac', 'linkedin_click' => 'Lien LinkedIn', 'campaign' => 'Campagne email', 'manual' => 'Manager', default => ($entry->type === 'campaign' ? 'Campagne email' : ($entry->type === 'automatic' ? 'DalyTrac' : 'Manager')),
+        'stripe' => 'Paiement Stripe confirmé', 'registration' => 'Inscription DalyTrac', 'linkedin_click' => 'Lien LinkedIn', 'campaign' => 'Campagne email', 'campaign_unsubscribe' => 'Désabonnement campagne', 'manual' => 'Manager', default => ($entry->type === 'campaign' ? 'Campagne email' : ($entry->type === 'automatic' ? 'DalyTrac' : 'Manager')),
     };
 @endphp
 <li class="pd-event {{ $isStatus ? 'pd-event-status' : '' }}">

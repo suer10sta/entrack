@@ -34,7 +34,9 @@ class CrmCampaignAudience
         $recipients = [];
         foreach ($query->orderBy('id')->cursor() as $record) {
             $email = CrmCampaignService::email($record->email);
-            if (! $email || isset($recipients[$email])) {
+            if (! $email || isset($recipients[$email]) || app(CrmCampaignConsent::class)->blocked(
+                $audience === 'prospects' ? $record->id : null,
+                $audience === 'prospects' ? null : $record->id, $email)) {
                 continue;
             }
             $recipients[$email] = ['name' => $record->name, 'email' => $email, 'email_normalized' => $email,
