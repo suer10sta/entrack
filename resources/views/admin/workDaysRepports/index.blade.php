@@ -32,8 +32,24 @@
 
                 /* Table base (alignment comes from the Tailwind utilities on each
                    cell so numeric columns can right-align while names stay left) */
-                  #editableTable th, #editableTable td { padding: 0.75rem 1rem; }
-                  #editableTable th { font-weight: 600; font-size: 0.75rem; color: #4a5568; letter-spacing: 0.05em; }
+                  #editableTable th, #editableTable td {
+                      padding: 0.75rem 0.5rem;
+                      text-align: center;
+                      vertical-align: middle;
+                  }
+                  #editableTable th {
+                      width: 6rem;
+                      white-space: normal;
+                      overflow-wrap: normal;
+                      line-height: 1.4;
+                      vertical-align: middle;
+                      font-weight: 600;
+                      font-size: 0.75rem;
+                      color: #4a5568;
+                      letter-spacing: 0.02em;
+                  }
+                  #editableTable th:first-child { width: 9rem; min-width: 140px; }
+                  #editableTable .workdays-header-line { display: block; white-space: nowrap; }
                   #editableTable td { font-size: 0.875rem; color: #2d3748; }
                   #editableTable tbody tr:last-child { border-bottom: none; }
                   #editableTable tbody tr { border-bottom: 1px solid #e2e8f0; }
@@ -70,7 +86,7 @@
                         border: 1px solid rgba(226, 232, 240, 0.9);
                         border-radius: 12px;
                         background: rgba(255,255,255,0.78);
-                        text-align: left !important;
+                        text-align: center !important;
                         white-space: normal !important;
                         word-break: break-word;
                     }
@@ -205,23 +221,44 @@
                     {{-- Table --}}
                         <table id="editableTable" class="w-full text-left border-collapse min-w-full">
                             @unless($workDaysRepports->isEmpty())
+                            @php
+                                // Keep translated headings on at most two balanced, complete lines.
+                                $headerLines = static function (string $label): array {
+                                    $words = preg_split('/\s+/u', trim($label));
+                                    if (count($words) < 2) {
+                                        return [$label];
+                                    }
+                                    $split = 1;
+                                    $difference = PHP_INT_MAX;
+                                    for ($i = 1; $i < count($words); $i++) {
+                                        $left = implode(' ', array_slice($words, 0, $i));
+                                        $right = implode(' ', array_slice($words, $i));
+                                        $candidate = abs(mb_strlen($left) - mb_strlen($right));
+                                        if ($candidate < $difference) {
+                                            $split = $i;
+                                            $difference = $candidate;
+                                        }
+                                    }
+                                    return [implode(' ', array_slice($words, 0, $split)), implode(' ', array_slice($words, $split))];
+                                };
+                            @endphp
                             <thead class="border-b border-slate-100 bg-slate-50/80">
                                 <tr class="dt-table-head">
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap min-w-[180px] sticky left-0 z-20 bg-slate-50">{{ __('messages.Employee Name header') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ __('messages.Gross Days') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ __('messages.Internal Work Days') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ __('messages.Work Days Without Holidays') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums editable-header">{{ __('messages.Unpaid Absence Days') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums editable-header">{{ __('messages.Sick Days') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums editable-header">{{ __('messages.Holidays') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ __('messages.Remaining Paid Leave') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ __('messages.Paid Leave Acquired') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums editable-header">{{ __('messages.Paid Leave Taken') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ __('messages.Leave Balance') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-normal leading-tight min-w-[140px] max-w-[200px] editable-header">{{ __('messages.Paid Leave Dates') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums editable-header">{{ __('messages.Days To Recover') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-normal leading-tight min-w-[140px] max-w-[200px] editable-header">{{ __('messages.Remark') }}</th>
-                                    <th scope="col" class="px-4 py-3 text-left whitespace-normal leading-tight min-w-[140px] max-w-[200px] editable-header">{{ __('messages.Internal Remark') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-left whitespace-nowrap min-w-[180px] sticky left-0 z-20 bg-slate-50">@foreach($headerLines(__('messages.Employee Name header')) as $line)<span class="workdays-header-line">{{ $line }}</span>@endforeach</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">@foreach($headerLines(__('messages.Gross Days')) as $line)<span class="workdays-header-line">{{ $line }}</span>@endforeach</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">@foreach($headerLines(__('messages.Internal Work Days')) as $line)<span class="workdays-header-line">{{ $line }}</span>@endforeach</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">@foreach($headerLines(__('messages.Work Days Without Holidays')) as $line)<span class="workdays-header-line">{{ $line }}</span>@endforeach</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums editable-header">@foreach($headerLines(__('messages.Unpaid Absence Days')) as $line)<span class="workdays-header-line">{{ $line }}</span>@endforeach</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums editable-header">@foreach($headerLines(__('messages.Sick Days')) as $line)<span class="workdays-header-line">{{ $line }}</span>@endforeach</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums editable-header">@foreach($headerLines(__('messages.Holidays')) as $line)<span class="workdays-header-line">{{ $line }}</span>@endforeach</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">@foreach($headerLines(__('messages.Remaining Paid Leave')) as $line)<span class="workdays-header-line">{{ $line }}</span>@endforeach</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">@foreach($headerLines(__('messages.Paid Leave Acquired')) as $line)<span class="workdays-header-line">{{ $line }}</span>@endforeach</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums editable-header">@foreach($headerLines(__('messages.Paid Leave Taken')) as $line)<span class="workdays-header-line">{{ $line }}</span>@endforeach</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums">@foreach($headerLines(__('messages.Leave Balance')) as $line)<span class="workdays-header-line">{{ $line }}</span>@endforeach</th>
+                                    <th scope="col" class="px-4 py-3 text-left whitespace-normal leading-tight min-w-[140px] max-w-[200px] editable-header">@foreach($headerLines(__('messages.Paid Leave Dates')) as $line)<span class="workdays-header-line">{{ $line }}</span>@endforeach</th>
+                                    <th scope="col" class="px-4 py-3 text-right whitespace-nowrap tabular-nums editable-header">@foreach($headerLines(__('messages.Days To Recover')) as $line)<span class="workdays-header-line">{{ $line }}</span>@endforeach</th>
+                                    <th scope="col" class="px-4 py-3 text-left whitespace-normal leading-tight min-w-[140px] max-w-[200px] editable-header">@foreach($headerLines(__('messages.Remark')) as $line)<span class="workdays-header-line">{{ $line }}</span>@endforeach</th>
+                                    <th scope="col" class="px-4 py-3 text-left whitespace-normal leading-tight min-w-[140px] max-w-[200px] editable-header">@foreach($headerLines(__('messages.Internal Remark')) as $line)<span class="workdays-header-line">{{ $line }}</span>@endforeach</th>
                                 </tr>
                             </thead>
                             @endunless
