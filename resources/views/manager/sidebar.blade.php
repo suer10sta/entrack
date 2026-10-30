@@ -82,18 +82,14 @@
                         <span class="sidebar-label truncate">{{ __('messages.Dashboard') }}</span>
                         <span class="sidebar-tip">{{ __('messages.Dashboard') }}</span>
                     </a>
-                </div>
-            </div>
-
-            <div>
                 <a href="{{ route('manager.support.index') }}" title="{{ __('support.title') }}" class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs('manager.support.*') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                     @if(request()->routeIs('manager.support.*'))<span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#E7B84B] rounded-r-full"></span>@endif
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h8m-8 4h5M5 4h14a2 2 0 012 2v10a2 2 0 01-2 2h-8l-6 3V6a2 2 0 012-2z"/></svg>
                     <span class="sidebar-label truncate">{{ __('support.title') }}</span><span class="sidebar-tip">{{ __('support.title') }}</span>
                 </a>
+                <a href="{{ route('manager.questionnaires.index') }}" class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs('manager.questionnaires.*') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"><svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5H5v16h14V5h-4M9 3h6v4H9zM8 12h8M8 16h6"/></svg><span class="sidebar-label truncate">{{ __('manager-surveys.title') }}</span><span class="sidebar-tip">{{ __('manager-surveys.title') }}</span></a>
+                </div>
             </div>
-
-            <div><a href="{{ route('manager.questionnaires.index') }}" class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs('manager.questionnaires.*') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"><svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5H5v16h14V5h-4M9 3h6v4H9zM8 12h8M8 16h6"/></svg><span class="sidebar-label truncate">{{ __('manager-surveys.title') }}</span><span class="sidebar-tip">{{ __('manager-surveys.title') }}</span></a></div>
 
             {{-- WORKSPACE --}}
             <div>
