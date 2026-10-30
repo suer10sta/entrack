@@ -312,7 +312,7 @@ class SurveyFoundationTest extends TestCase
             $this->assertTrue($questions['q1']['email_clickable']);
             foreach ($questions as $question) {
                 foreach (['fr', 'en', 'nl', 'es'] as $locale) {
-                    if (! in_array($type, [SurveyType::D1, SurveyType::D2], true) || $locale === 'fr') {
+                    if (! in_array($type, [SurveyType::D1, SurveyType::D2, SurveyType::D3, SurveyType::D4], true) || $locale === 'fr') {
                         $this->assertSame($catalog->label($question['label_key'], 'fr'), $catalog->label($question['label_key'], $locale));
                     } else {
                         $this->assertTrue(\Illuminate\Support\Facades\Lang::hasForLocale($question['label_key'], $locale));

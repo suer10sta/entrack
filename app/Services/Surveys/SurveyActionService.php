@@ -23,6 +23,11 @@ class SurveyActionService
 
     protected string $origin = 'Questionnaire D1 — Démarrage';
 
+    protected function canProcess(SurveyResponse $survey): bool
+    {
+        return true;
+    }
+
     protected function signals(SurveyResponse $survey, array $answers): void {}
 
     protected function priority(array $answers): \App\Enums\ContactPriority
@@ -63,6 +68,9 @@ class SurveyActionService
             if ($fresh->survey_type !== $this->type || ! $fresh->completed_at
                 || ! in_array($fresh->status, [SurveyStatus::Answered, SurveyStatus::Abandon], true)
                 || ! $fresh->actions()->where('action_key', 'answered:final')->exists()) {
+                return [null, false];
+            }
+            if (! $this->canProcess($fresh)) {
                 return [null, false];
             }
             $receipt = $fresh->actions()->where('action_key', static::PROCESSED_KEY)->first();

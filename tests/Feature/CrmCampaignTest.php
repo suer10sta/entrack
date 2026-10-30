@@ -71,6 +71,7 @@ class CrmCampaignTest extends TestCase
         (require database_path('migrations/2026_10_28_000001_add_campaign_soft_deletes.php'))->up();
         (require database_path('migrations/2026_10_28_000002_add_campaign_user_audiences.php'))->up();
         (require database_path('migrations/2026_10_29_200000_add_crm_campaign_opt_out.php'))->up();
+        (require database_path('migrations/2026_10_30_200000_add_crm_campaign_smtp_limits.php'))->up();
         Schema::create('subscriptions', function ($table) {
             $table->id();
             $table->foreignId('entreprise_id');
@@ -418,6 +419,7 @@ class CrmCampaignTest extends TestCase
         $this->selectAll($one);
         $this->selectAll($two);
         $this->queue($one);
+        $two->update(['manager_id' => Manager::create(['name' => 'Second manager', 'email' => 'second@example.test'])->id]);
         $this->queue($two);
         $this->mailer();
         $sender = app(CrmCampaignSender::class);
@@ -616,7 +618,7 @@ class CrmCampaignTest extends TestCase
         $this->get(route('manager.campaigns.index'))->assertOk()->assertSee('Voir les détails')->assertSee('Total destinataires')->assertSee('Envoyés avec succès')
             ->assertViewHas('campaigns', fn ($rows) => $rows->first()->sent_count === 1 && $rows->first()->failed_count === 1 && $rows->first()->pending_count === 1);
         $this->get(route('manager.campaigns.show', $campaign))->assertOk()->assertSee('Envoi en cours : 1 email(s) envoyé(s), 1 échec(s), 1 en attente.')
-            ->assertSee('success@example.test')->assertSee('failure@example.test')->assertSee('Envoi non confirmé par le serveur de messagerie.')
+            ->assertSee('success@example.test')->assertSee('failure@example.test')->assertSee('Envoi refusé ou non confirmé.')
             ->assertSee('Tentative d’envoi')->assertDontSee('Campagne terminée :');
         $this->assertSame(ProspectStatus::Contacte, $success->fresh()->status);
         $this->assertSame(ProspectStatus::Nouveau, $failure->fresh()->status);
@@ -1130,6 +1132,7 @@ class CrmCampaignTest extends TestCase
         $due->update(['scheduled_at' => now('UTC')->addMinute()]);
         $future->update(['scheduled_at' => now('UTC')->addDays(2)]);
         $this->queue($due);
+        $future->update(['manager_id' => Manager::create(['name' => 'Second manager', 'email' => 'second@example.test'])->id]);
         $this->queue($future);
         $this->travel(3)->hours();
         DB::statement("SET TIME ZONE 'Asia/Tokyo'");
@@ -1306,6 +1309,7 @@ class CrmCampaignTest extends TestCase
         }
         $scheduled->update(['scheduled_at' => now('UTC')->addHour()]);
         foreach ([$queued, $scheduled, $active] as $campaign) {
+            $campaign->update(['manager_id' => Manager::create(['name' => 'Other manager', 'email' => 'other'.$campaign->id.'@example.test'])->id]);
             $this->queue($campaign);
         }
         $this->actingAs($this->manager, 'manager');
@@ -1407,5 +1411,382 @@ class CrmCampaignTest extends TestCase
         }
         $this->assertStringContainsString('result=clicked', $links->item(5)->getAttribute('href'));
         $this->assertStringNotContainsString('result=', $links->item(0)->getAttribute('href'));
+    }
+
+    private function bulkCampaign(int $size, ?int $managerId = null): CrmCampaign
+    {
+        $campaign = $this->campaign();
+        if ($managerId) {
+            $campaign->update(['manager_id' => $managerId]);
+        }
+        $users = [];
+        for ($i = 0; $i < $size; $i++) {
+            $users[] = ['name' => 'Recipient', 'email' => 'bulk'.$campaign->id.'-'.$i.'@example.test'];
+        }
+        DB::table('users')->insert($users);
+        $rows = [];
+        foreach (User::where('email', 'like', 'bulk'.$campaign->id.'-%')->get() as $user) {
+            $rows[] = ['campaign_id' => $campaign->id, 'user_id' => $user->id,
+                'name' => $user->name, 'email' => $user->email, 'email_normalized' => $user->email];
+        }
+        DB::table('crm_campaign_recipients')->insert($rows);
+
+        return $campaign;
+    }
+
+    public static function hourlyVolumes(): array
+    {
+        return ['under limit' => [25], '200 recipients' => [200], '350 recipients' => [350]];
+    }
+
+    /** @dataProvider hourlyVolumes */
+    public function test_hourly_cap_keeps_remaining_recipients_pending_and_scheduler_resumes(int $size): void
+    {
+        $start = \Carbon\CarbonImmutable::parse('2026-10-30T10:00:00Z');
+        $this->travelTo($start);
+        config(['crm.campaign_batch_size' => 100, 'crm.campaign_hourly_limit' => 900]); // Hard ceiling is still 150.
+        $campaign = $this->bulkCampaign($size);
+        $this->queue($campaign);
+        $this->mailer();
+        $total = 0;
+        for ($hour = 0; $total < $size; $hour++) {
+            $this->travelTo($start->addSeconds($hour * 3661));
+            $this->artisan('crm:send-campaigns')->assertSuccessful();
+            $this->travel(61)->seconds();
+            $this->artisan('crm:send-campaigns')->assertSuccessful();
+            $total = min($size, ($hour + 1) * 150);
+            $this->assertSame($total, $campaign->recipients()->where('status', 'sent')->count());
+            $this->assertSame($size - $total, $campaign->recipients()->where('status', 'pending')->count());
+            $this->assertSame(0, $campaign->recipients()->whereIn('status', ['failed', 'uncertain'])->count());
+            $this->assertSame($total === $size ? 'completed' : 'sending', $campaign->fresh()->status);
+            if ($total < $size) {
+                $this->assertNull($campaign->fresh()->completed_at);
+                $this->travel(61)->seconds();
+                $this->assertSame(0, app(CrmCampaignSender::class)->batch());
+            }
+        }
+        $this->assertCount($size, array_unique($this->addresses));
+        $this->assertCount($size, $this->addresses);
+        $this->assertSame($size, DB::table('crm_campaign_smtp_attempts')->count());
+    }
+
+    public function test_account_hourly_budget_is_shared_by_campaigns_and_mailer_aliases(): void
+    {
+        config(['crm.campaign_batch_size' => 100]);
+        $this->travelTo(now('UTC')->startOfHour());
+        $first = $this->bulkCampaign(100);
+        $manager = Manager::create(['name' => 'Other manager', 'email' => 'other@example.test']);
+        $second = $this->bulkCampaign(100, $manager->id);
+        $this->queue($first);
+        $this->queue($second);
+        $this->mailer();
+        $this->assertSame(100, app(CrmCampaignSender::class)->batch());
+        $this->travel(61)->seconds();
+        config(['mail.mailers.alias' => config('mail.mailers.smtp'), 'mail.default' => 'alias']);
+        $this->assertSame(50, (new CrmCampaignSender(app(ProspectStatusService::class)))->batch());
+        $this->travel(61)->seconds();
+        $this->assertSame(0, app(CrmCampaignSender::class)->batch());
+        $this->assertSame(50, $second->recipients()->where('status', 'pending')->count());
+        $this->assertSame(150, DB::table('crm_campaign_smtp_attempts')->count());
+    }
+
+    public function test_rolling_window_exact_boundary_and_functional_emails_are_not_limited(): void
+    {
+        $start = \Carbon\CarbonImmutable::parse('2026-10-30T10:23:45Z');
+        $this->travelTo($start);
+        $smtp = app(\App\Services\CrmCampaignSmtpBudget::class);
+        $account = $smtp->accountKey();
+        DB::table('crm_campaign_smtp_attempts')->insert(array_fill(0, 150, [
+            'account_key' => $account, 'attempted_at' => $start->toISOString(),
+        ]));
+        $campaign = $this->bulkCampaign(1);
+        $this->queue($campaign);
+        $this->assertSame(0, app(CrmCampaignSender::class)->batch());
+        $this->travelTo($start->addSeconds(3599));
+        $this->assertSame(0, app(CrmCampaignSender::class)->batch());
+        $this->assertNull($campaign->recipients()->sole()->attempted_at);
+        // The CRM budget is not installed as a global mail middleware/listener.
+        $functional = Mail::mailer('array');
+        $message = $functional->raw('Important notification', fn ($mail) => $mail->to('owner@example.test')->subject('Notification'));
+        $this->assertNotNull($message);
+        $this->assertCount(1, $functional->getSymfonyTransport()->messages());
+        $this->assertSame(150, DB::table('crm_campaign_smtp_attempts')->count());
+        $this->travelTo($start->addHour());
+        $this->mailer();
+        $this->assertSame(1, app(CrmCampaignSender::class)->batch());
+    }
+
+    public function test_legacy_attempts_count_after_upgrade_and_account_changes_have_separate_budgets(): void
+    {
+        $campaign = $this->bulkCampaign(1);
+        $recipient = $campaign->recipients()->sole();
+        $recipient->update(['attempted_at' => now('UTC')]);
+        $smtp = app(\App\Services\CrmCampaignSmtpBudget::class);
+        $account = $smtp->accountKey();
+        $this->assertSame(1, $smtp->attemptsSince($account, now('UTC')->subHour()->toISOString()));
+        DB::transaction(fn () => $smtp->record($recipient, $account));
+        $this->assertSame(1, $smtp->attemptsSince($account, now('UTC')->subHour()->toISOString()));
+        config(['mail.mailers.smtp.username' => 'different-account@example.test']);
+        $other = $smtp->accountKey();
+        $this->assertNotSame($account, $other);
+        $this->assertSame(0, $smtp->attemptsSince($other, now('UTC')->subHour()->toISOString()));
+        $campaign->forceDelete();
+        $this->assertSame(1, $smtp->attemptsSince($account, now('UTC')->subHour()->toISOString()));
+    }
+
+    public function test_daily_limit_blocks_send_and_schedule_and_survives_deletion(): void
+    {
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2026-10-30T23:59:00Z'));
+        DB::statement("SET TIME ZONE 'Asia/Tokyo'");
+        $first = $this->bulkCampaign(1);
+        $second = $this->bulkCampaign(1);
+        $this->actingAs($this->manager, 'manager');
+        $this->postJson(route('manager.campaigns.send', $first), ['confirm' => 1, 'revision' => 0])->assertRedirect();
+        // Replaying the same confirmation must be idempotent.
+        $this->postJson(route('manager.campaigns.send', $first), ['confirm' => 1, 'revision' => 0])->assertRedirect();
+        $this->postJson(route('manager.campaigns.send', $second), ['confirm' => 1, 'revision' => 0])
+            ->assertUnprocessable()->assertJsonValidationErrors('campaign')->assertSee('une seule campagne');
+        $second->update(['scheduled_at' => now('UTC')->addDays(2)]);
+        $this->postJson(route('manager.campaigns.send', $second), ['confirm' => 1, 'revision' => 0])->assertUnprocessable();
+        $first->forceDelete();
+        $this->postJson(route('manager.campaigns.send', $second), ['confirm' => 1, 'revision' => 0])->assertUnprocessable();
+        $this->assertSame('selected', $second->recipients()->sole()->status);
+        $this->assertSame(1, DB::table('crm_campaign_daily_launches')->count());
+        $this->travel(1)->minutes(); // Midnight UTC, even though DB is in Tokyo.
+        $this->postJson(route('manager.campaigns.send', $second), ['confirm' => 1, 'revision' => 0])->assertRedirect();
+        $this->assertSame('scheduled', $second->fresh()->status);
+        $this->assertSame(2, DB::table('crm_campaign_daily_launches')->count());
+    }
+
+    public function test_scheduling_consumes_today_and_launch_limit_belongs_to_actual_manager(): void
+    {
+        $first = $this->bulkCampaign(1);
+        $first->update(['scheduled_at' => now('UTC')->addDays(2)]);
+        $second = $this->bulkCampaign(1);
+        $this->actingAs($this->manager, 'manager');
+        $this->postJson(route('manager.campaigns.send', $first), ['confirm' => 1, 'revision' => 0])->assertRedirect();
+        $this->postJson(route('manager.campaigns.send', $second), ['confirm' => 1, 'revision' => 0])->assertUnprocessable();
+        $other = Manager::create(['name' => 'Other', 'email' => 'other@example.test']);
+        $this->actingAs($other, 'manager');
+        $this->postJson(route('manager.campaigns.send', $second), ['confirm' => 1, 'revision' => 0])->assertRedirect();
+        $this->assertSame($other->id, (int) DB::table('crm_campaign_daily_launches')->where('campaign_id', $second->id)->value('manager_id'));
+    }
+
+    public function test_quota_refusal_pauses_account_and_retries_only_unaccepted_recipient_after_one_hour(): void
+    {
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2026-10-30T10:00:00Z'));
+        config(['crm.campaign_batch_size' => 100]);
+        $first = $this->bulkCampaign(3);
+        $otherManager = Manager::create(['name' => 'Other', 'email' => 'other@example.test']);
+        $second = $this->bulkCampaign(1, $otherManager->id);
+        $this->queue($first);
+        $this->queue($second);
+        $recipients = $first->recipients()->orderBy('id')->get();
+        $attempts = [];
+        $accepted = [];
+        Mail::shouldReceive('to')->andReturnUsing(function ($address) use (&$attempts, &$accepted, $recipients) {
+            $attempts[$address] = ($attempts[$address] ?? 0) + 1;
+            $pending = Mockery::mock();
+            $pending->shouldReceive('send')->once()->andReturnUsing(function () use ($address, &$attempts, &$accepted, $recipients) {
+                if ($address === $recipients[1]->email && $attempts[$address] <= 2) {
+                    throw new \Symfony\Component\Mailer\Exception\UnexpectedResponseException('Expected response code "250" but got code "550": 550-5.7.0 Mail quota exceeded for sender@example.test: You have exceeded the limit of 200 messages per hour and per account. Please, re-try later.', 550);
+                }
+                $accepted[] = $address;
+
+                return (object) ['accepted' => true];
+            });
+
+            return $pending;
+        });
+        $this->assertSame(1, app(CrmCampaignSender::class)->batch());
+        $retry = $recipients[1]->fresh();
+        $this->assertSame('pending', $retry->status);
+        $this->assertSame(550, $retry->last_smtp_code);
+        $this->assertTrue($retry->next_attempt_at->equalTo(now('UTC')->addHour()));
+        $this->assertSame('pending', $recipients[2]->fresh()->status);
+        $this->assertNull($recipients[2]->fresh()->attempted_at);
+        $this->assertSame('queued', $second->fresh()->status);
+        $this->assertSame(0, app(CrmCampaignSender::class)->batch());
+        $this->travel(3599)->seconds();
+        $this->assertSame(0, app(CrmCampaignSender::class)->batch());
+        $this->travel(1)->seconds();
+        $this->assertSame(0, app(CrmCampaignSender::class)->batch()); // Quota still exceeded: postpone one more hour.
+        $this->assertSame('pending', $retry->fresh()->status);
+        $this->travel(1)->hours();
+        $this->assertSame(3, app(CrmCampaignSender::class)->batch());
+        $this->assertCount(4, $accepted);
+        $this->assertCount(4, array_unique($accepted));
+        $this->assertSame(1, $attempts[$recipients[0]->email]);
+        $this->assertSame(3, $retry->fresh()->attempts_count);
+        $this->assertNull($retry->fresh()->next_attempt_at);
+        $this->assertSame('completed', $first->fresh()->status);
+        $this->assertSame('completed', $second->fresh()->status);
+        $this->assertSame(6, DB::table('crm_campaign_smtp_attempts')->count());
+    }
+
+    public static function nonQuotaFailures(): array
+    {
+        return [
+            'nonexistent address' => [new \Symfony\Component\Mailer\Exception\UnexpectedResponseException('550 5.1.1 User unknown', 550), 'failed'],
+            'invalid address' => [new \Symfony\Component\Mailer\Exception\UnexpectedResponseException('553 5.1.3 Bad recipient address', 553), 'failed'],
+            'recipient mailbox full' => [new \Symfony\Component\Mailer\Exception\UnexpectedResponseException('552 5.2.2 Mailbox quota exceeded', 552), 'failed'],
+            'ambiguous timeout' => [new \Symfony\Component\Mailer\Exception\TransportException('Timed out after DATA'), 'uncertain'],
+            'quota words without SMTP refusal' => [new RuntimeException('Mail quota exceeded per hour'), 'failed'],
+        ];
+    }
+
+    /** @dataProvider nonQuotaFailures */
+    public function test_permanent_or_uncertain_failures_are_never_retried(\Throwable $error, string $status): void
+    {
+        $campaign = $this->bulkCampaign(1);
+        $this->queue($campaign);
+        $pending = Mockery::mock();
+        $pending->shouldReceive('send')->once()->andThrow($error);
+        Mail::shouldReceive('to')->once()->andReturn($pending);
+        $this->assertSame(0, app(CrmCampaignSender::class)->batch());
+        $this->travel(2)->hours();
+        $this->assertSame(0, app(CrmCampaignSender::class)->batch());
+        $this->assertSame($status, $campaign->recipients()->sole()->status);
+        $this->assertNull($campaign->recipients()->sole()->next_attempt_at);
+        $this->assertSame(0, DB::table('crm_campaign_smtp_pauses')->count());
+    }
+
+    private function limitsWorker(string $mode, int $campaignId = 0): array
+    {
+        $process = proc_open([PHP_BINARY, base_path('tests/Support/crm-campaign-limits-worker.php'),
+            $this->schema, config('database.connections.pgsql.database'), $mode, (string) $campaignId],
+            [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, base_path());
+        $this->assertIsResource($process);
+        fclose($pipes[0]);
+
+        return [$process, $pipes];
+    }
+
+    private function limitsWorkerResult(array $worker): int
+    {
+        [$process, $pipes] = $worker;
+        $stdout = stream_get_contents($pipes[1]);
+        $stderr = stream_get_contents($pipes[2]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        $this->assertSame(0, proc_close($process), $stderr);
+        $this->assertContains($stdout, ['0', '1']);
+
+        return (int) $stdout;
+    }
+
+    public function test_concurrent_processes_share_last_hourly_slot(): void
+    {
+        config(['mail.mailers.smtp.host' => 'smtp.example.test', 'mail.mailers.smtp.username' => 'campaigns@example.test']);
+        $first = $this->bulkCampaign(1);
+        $second = $this->bulkCampaign(1, Manager::create(['name' => 'Other', 'email' => 'other@example.test'])->id);
+        $this->queue($first);
+        $this->queue($second);
+        DB::table('crm_campaign_smtp_attempts')->insert(array_fill(0, 149, [
+            'account_key' => app(\App\Services\CrmCampaignSmtpBudget::class)->accountKey(),
+            'attempted_at' => now('UTC')->subMinutes(5)->toISOString(),
+        ]));
+        $workers = [$this->limitsWorker('send'), $this->limitsWorker('send')];
+        $this->assertSame(1, $this->limitsWorkerResult($workers[0]) + $this->limitsWorkerResult($workers[1]));
+        $this->assertSame(150, DB::table('crm_campaign_smtp_attempts')->count());
+        $this->assertSame(1, CrmCampaignRecipient::where('status', 'sent')->count());
+        $this->assertSame(1, CrmCampaignRecipient::where('status', 'pending')->count());
+    }
+
+    public function test_concurrent_daily_launches_allow_exactly_one_campaign(): void
+    {
+        $first = $this->bulkCampaign(1);
+        $second = $this->bulkCampaign(1);
+        $workers = [$this->limitsWorker('launch', $first->id), $this->limitsWorker('launch', $second->id)];
+        $this->assertSame(1, $this->limitsWorkerResult($workers[0]) + $this->limitsWorkerResult($workers[1]));
+        $this->assertSame(1, DB::table('crm_campaign_daily_launches')->count());
+        $this->assertSame(1, CrmCampaign::where('status', 'queued')->count());
+        $this->assertSame(1, CrmCampaign::where('status', 'draft')->count());
+    }
+
+    public function test_deferred_quota_recipient_rechecks_consent_before_retry(): void
+    {
+        $this->travelTo(now('UTC')->startOfMinute());
+        $campaign = $this->bulkCampaign(1);
+        $this->queue($campaign);
+        $recipient = $campaign->recipients()->sole();
+        $pending = Mockery::mock();
+        $pending->shouldReceive('send')->once()->andThrow(new \Symfony\Component\Mailer\Exception\UnexpectedResponseException(
+            '550 Mail quota exceeded: limit of 200 messages per hour and per account. Please, re-try later.', 550));
+        Mail::shouldReceive('to')->once()->andReturn($pending);
+        $this->assertSame(0, app(CrmCampaignSender::class)->batch());
+        $this->assertSame('pending', $recipient->fresh()->status);
+        $prospect = Prospect::create(['name' => 'Unsubscribed', 'email' => $recipient->email]);
+        $prospect->forceFill(['unsubscribed_at' => now('UTC')])->save();
+        $this->travel(1)->hours();
+        $this->assertSame(0, app(CrmCampaignSender::class)->batch());
+        $this->assertSame('skipped', $recipient->fresh()->status);
+        $this->assertSame(1, DB::table('crm_campaign_smtp_attempts')->count());
+    }
+
+    public function test_composite_mailers_share_underlying_account_budget(): void
+    {
+        $smtp = app(\App\Services\CrmCampaignSmtpBudget::class);
+        $key = $smtp->accountKey();
+        DB::table('crm_campaign_smtp_attempts')->insert(array_fill(0, 150, [
+            'account_key' => $key, 'attempted_at' => now('UTC')->toISOString(),
+        ]));
+        config(['mail.mailers.secondary' => array_merge(config('mail.mailers.smtp'), ['username' => 'second@example.test']),
+            'mail.mailers.pool' => ['transport' => 'roundrobin', 'mailers' => ['smtp', 'secondary']], 'mail.default' => 'pool']);
+        $this->assertContains($key, $smtp->accountKeys());
+        $this->assertFalse($smtp->available($smtp->accountKeys()));
+    }
+
+    public function test_limit_upgrade_preserves_historical_launch_reservations(): void
+    {
+        $migration = require database_path('migrations/2026_10_30_200000_add_crm_campaign_smtp_limits.php');
+        $migration->down();
+        $first = $this->bulkCampaign(1);
+        $second = $this->bulkCampaign(1);
+        $first->update(['status' => 'completed', 'queued_at' => now('UTC'), 'completed_at' => now('UTC')]);
+        $first->delete();
+        $second->update(['status' => 'scheduled', 'scheduled_at' => now('UTC')->addDay()]);
+        $migration->up();
+        $this->assertSame(1, DB::table('crm_campaign_daily_launches')->count());
+        $this->assertSame(2, CrmCampaign::withTrashed()->count());
+        $third = $this->bulkCampaign(1);
+        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->queue($third);
+    }
+
+    public function test_wizard_daily_rejection_rolls_back_composition_and_schedule(): void
+    {
+        $first = $this->bulkCampaign(1);
+        $second = $this->bulkCampaign(1);
+        $this->actingAs($this->manager, 'manager');
+        $this->queue($first);
+        $original = $second->content;
+        $this->postJson(route('manager.campaigns.send', $second), [
+            'wizard_final' => 1, 'confirm' => 1, 'revision' => 0,
+            'content' => 'Replacement content', 'schedule_enabled' => 1,
+            'scheduled_date' => now('UTC')->addDays(2)->toDateString(), 'scheduled_time' => '12:00',
+        ])->assertUnprocessable()->assertJsonValidationErrors('campaign');
+        $this->assertSame('draft', $second->fresh()->status);
+        $this->assertSame($original, $second->fresh()->content);
+        $this->assertNull($second->fresh()->scheduled_at);
+        $this->assertSame(0, (int) $second->fresh()->revision);
+        $this->assertSame('selected', $second->recipients()->sole()->status);
+        $this->assertSame(1, DB::table('crm_campaign_daily_launches')->count());
+    }
+
+    public function test_invalid_confirmation_does_not_consume_daily_allowance(): void
+    {
+        $first = $this->bulkCampaign(1);
+        $first->update(['content' => '']);
+        try {
+            $this->queue($first);
+            $this->fail('Empty content must be rejected.');
+        } catch (\Illuminate\Validation\ValidationException $error) {
+            $this->assertArrayHasKey('content', $error->errors());
+        }
+        $this->assertSame(0, DB::table('crm_campaign_daily_launches')->count());
+        $second = $this->bulkCampaign(1);
+        $this->queue($second);
+        $this->assertSame('queued', $second->fresh()->status);
     }
 }

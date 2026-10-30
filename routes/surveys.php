@@ -14,3 +14,12 @@ Route::match(['GET', 'POST'], '/{locale}/questionnaires/D2/{survey}/{token}', \A
     ->whereIn('locale', ['fr', 'en', 'nl', 'es'])
     ->withoutMiddleware([CheckSubscription::class, SetUserTimezone::class])
     ->middleware('throttle:60,1')->name('surveys.d2');
+Route::match(['GET', 'POST'], '/{locale}/questionnaires/D3/{survey}/{token}', \App\Http\Controllers\SurveyD3Controller::class)
+    ->whereIn('locale', ['fr', 'en', 'nl', 'es'])
+    ->withoutMiddleware([CheckSubscription::class, SetUserTimezone::class])
+    ->middleware('throttle:60,1')->name('surveys.d3');
+
+Route::match(['GET', 'POST'], '/{locale}/questionnaires/D4/{survey}/{token}', \App\Http\Controllers\SurveyD4Controller::class)
+    ->whereIn('locale', ['fr', 'en', 'nl', 'es'])
+    ->withoutMiddleware([CheckSubscription::class, SetUserTimezone::class])
+    ->middleware('throttle:60,1')->name('surveys.d4');

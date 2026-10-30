@@ -81,3 +81,17 @@ yarn-error.log
 !/tests/Support/survey-d2-worker.php
 !/docs/survey-d2.md
 !/tests/JavaScript/SurveyD2.cjs
+
+!/docs/survey-d3.md
+!/tests/Feature/SurveyD3Test.php
+!/tests/Support/survey-d3-worker.php
+!/tests/JavaScript/SurveyD3.cjs
+
+!/docs/survey-d4.md
+!/tests/Feature/SurveyD4Test.php
+!/tests/Support/survey-d4-worker.php
+!/tests/JavaScript/SurveyD4.cjs
+
+# CRM campaign SMTP limits documentation and concurrency worker
+!/docs/crm-campaign-limits.md
+!/tests/Support/crm-campaign-limits-worker.php

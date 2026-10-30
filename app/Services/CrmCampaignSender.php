@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use RuntimeException;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\Mailer\Exception\UnexpectedResponseException;
 use Throwable;
 
 class CrmCampaignSender
@@ -39,10 +41,15 @@ class CrmCampaignSender
 
                 return 0;
             }
-            $budget = max(0, min(100, max(1, config('crm.campaign_batch_size'))) - CrmCampaignRecipient::where('attempted_at', '>', now('UTC')->subMinute()->toISOString())->count());
+            $smtp = app(CrmCampaignSmtpBudget::class);
+            $account = $smtp->accountKeys();
+            $budget = max(0, min(100, max(1, config('crm.campaign_batch_size'))) - $smtp->attemptsSince($account, now('UTC')->subMinute()->toISOString()));
             $sent = 0;
             for ($i = 0; $i < $budget; $i++) {
-                $recipient = $this->claim();
+                if ($i > 0) {
+                    usleep(min(5000, max(0, config('crm.campaign_interval_ms'))) * 1000);
+                }
+                $recipient = $this->claim($smtp, $account);
                 if (! $recipient) {
                     break;
                 }
@@ -50,10 +57,7 @@ class CrmCampaignSender
                     continue;
                 }
                 $campaign = $recipient->campaign;
-                if ($i > 0) {
-                    usleep(min(5000, max(0, config('crm.campaign_interval_ms'))) * 1000);
-                }
-                $delivered = app(CrmCampaignConsent::class)->withRecipient($recipient, function () use ($recipient, $campaign) {
+                $delivered = app(CrmCampaignConsent::class)->withRecipient($recipient, function () use ($recipient, $campaign, $smtp, $account) {
                     $recipient->refresh();
                     if (! $this->sendable($recipient)) {
                         $recipient->update(['status' => 'skipped', 'error' => 'Contact désabonné, supprimé/archivé ou adresse modifiée.']);
@@ -66,14 +70,28 @@ class CrmCampaignSender
                             throw new RuntimeException('Mailer cancelled message.');
                         }
                     } catch (Throwable $error) {
-                        // Terminal failure: never automatically reattempt the same campaign/address.
-                        $recipient->update(['status' => 'failed', 'error' => 'Envoi non confirmé par le serveur de messagerie. Aucun renvoi automatique.']);
+                        if ($smtp->isQuotaRefusal($error)) {
+                            $smtp->defer($recipient, $account, $error);
+                            Log::warning('CRM campaign SMTP quota exceeded; CRM account paused for one hour.', [
+                                'recipient_id' => $recipient->id, 'campaign_id' => $campaign->id,
+                                'account_keys' => $account, 'next_attempt_at' => $recipient->next_attempt_at, 'exception' => $error,
+                            ]);
+
+                            return false;
+                        }
+                        // A connection/timeout error can occur after acceptance. Never
+                        // automatically replay it; explicit permanent refusals stay failed.
+                        $uncertain = $error instanceof TransportExceptionInterface && ! $error instanceof UnexpectedResponseException;
+                        $recipient->update(['status' => $uncertain ? 'uncertain' : 'failed',
+                            'next_attempt_at' => null,
+                            'last_smtp_code' => $error instanceof UnexpectedResponseException ? (int) $error->getCode() : null,
+                            'error' => $uncertain ? 'Réception SMTP incertaine : à vérifier. Aucun renvoi automatique.' : 'Envoi refusé ou non confirmé. Aucun renvoi automatique.']);
                         Log::error('CRM campaign mail failed.', ['recipient_id' => $recipient->id, 'campaign_id' => $campaign->id, 'exception' => $error]);
 
                         return false;
                     }
                     // If this write fails after SMTP accepted, leave "sending" for conservative recovery.
-                    $recipient->update(['status' => 'sent', 'sent_at' => now('UTC'), 'error' => null]);
+                    $recipient->update(['status' => 'sent', 'sent_at' => now('UTC'), 'error' => null, 'next_attempt_at' => null, 'last_smtp_code' => null]);
 
                     return true;
                 });
@@ -115,10 +133,17 @@ class CrmCampaignSender
         return true;
     }
 
-    private function claim(): ?CrmCampaignRecipient
+    private function claim(CrmCampaignSmtpBudget $smtp, array $account): ?CrmCampaignRecipient
     {
-        return DB::transaction(function () {
-            $recipient = CrmCampaignRecipient::where('status', 'pending')->whereHas('campaign', fn ($q) => $q->whereIn('status', ['queued', 'sending'])->whereNull('crm_campaigns.deleted_at'))
+        return DB::transaction(function () use ($smtp, $account) {
+            // The outer session advisory lock serializes this check + reservation
+            // across all CRM campaigns/processes sharing the database.
+            if (! $smtp->available($account)) {
+                return null;
+            }
+            $recipient = CrmCampaignRecipient::where('status', 'pending')
+                ->where(fn ($q) => $q->whereNull('next_attempt_at')->orWhere('next_attempt_at', '<=', now('UTC')->toISOString()))
+                ->whereHas('campaign', fn ($q) => $q->whereIn('status', ['queued', 'sending'])->whereNull('crm_campaigns.deleted_at'))
                 ->orderBy('id')->lockForUpdate()->first();
             if (! $recipient) {
                 return null;
@@ -128,7 +153,7 @@ class CrmCampaignSender
 
                 return $recipient;
             }
-            $recipient->update(['status' => 'sending', 'attempted_at' => now('UTC')]);
+            $smtp->record($recipient, $account);
             CrmCampaign::whereKey($recipient->campaign_id)->where('status', 'queued')->update(['status' => 'sending', 'started_at' => now('UTC')->toISOString()]);
 
             return $recipient;

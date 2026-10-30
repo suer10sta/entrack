@@ -62,6 +62,7 @@
                         <button class="cc-button cc-secondary" formnovalidate>@include('manager.prospects.partials.icon', ['icon' => 'eye']) Enregistrer et afficher l’aperçu</button>
                         <p class="cc-help" data-preview-feedback role="status">L’aperçu correspond au contenu et aux fichiers enregistrés.</p>
                         <div class="cw-send-confirm"><label class="cc-check"><input type="checkbox" name="confirm" value="1"> Je confirme l’envoi de ce message à {{ $selected->count() }} destinataire(s) enregistré(s).</label></div>
+                        <p class="cc-help">Une seule campagne peut être lancée ou programmée par Manager et par jour (UTC). Les campagnes partagent une limite de 150 emails par heure et par compte SMTP ; les destinataires restants seront repris automatiquement.</p>
                     </form>
                 </section>
                 <section class="cc-card"><h2>@include('manager.prospects.partials.icon', ['icon' => 'eye']) Aperçu de l’email</h2>

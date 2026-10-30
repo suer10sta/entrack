@@ -18,7 +18,9 @@ class SurveyPublicController extends Controller
 
     public function __invoke(Request $request, SurveyLink $links, SurveyCatalog $catalog, \App\Services\Surveys\SurveyAnswerService $answers)
     {
-        $answers = app($this->type === SurveyType::D1 ? D1AnswerService::class : \App\Services\Surveys\D2AnswerService::class);
+        $answers = app(match ($this->type) {
+            SurveyType::D1 => D1AnswerService::class, SurveyType::D2 => \App\Services\Surveys\D2AnswerService::class, SurveyType::D3 => \App\Services\Surveys\D3AnswerService::class, SurveyType::D4 => \App\Services\Surveys\D4AnswerService::class, default => throw new \LogicException('Unsupported public survey type.')
+        });
         view()->share(['surveyType' => $this->type->value, 'surveyUi' => $this->ui]);
         $headers = ['Cache-Control' => 'no-store, private', 'Referrer-Policy' => 'no-referrer', 'X-Robots-Tag' => 'noindex, nofollow'];
         try {

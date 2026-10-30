@@ -18,5 +18,11 @@ enum SurveyActionType: string
     case EmailUnconfirmed = 'EMAIL_UNCONFIRMED';
     case ActionsProcessed = 'ACTIONS_PROCESSED';
     case ProjectFollowUp = 'PROJECT_FOLLOW_UP';
+    case TrialExtensionRequested = 'TRIAL_EXTENSION_REQUESTED';
+    case InsufficientValue = 'INSUFFICIENT_VALUE';
+    case CompetitorChosen = 'COMPETITOR_CHOSEN';
+    case PurchaseIntent = 'PURCHASE_INTENT';
+    case PriceBarrier = 'PRICE_BARRIER';
+    case DecisionApproval = 'DECISION_APPROVAL';
     case ValueConfirmed = 'VALUE_CONFIRMED';
 }

@@ -26,6 +26,8 @@ class SurveyLifecycle
         return $this->eligibility->hasActivity($companyId);
     }
 
+    protected function beforeProcessing(int $companyId): void {}
+
     protected function initialClaimed(SurveyResponse $survey): void {}
 
     public function __construct(protected D1Eligibility $eligibility, protected SurveyEmailGate $gate) {}
@@ -37,6 +39,7 @@ class SurveyLifecycle
 
     private function processLocked(int $companyId): string
     {
+        $this->beforeProcessing($companyId);
         $survey = SurveyResponse::where('entreprise_id', $companyId)->where('survey_type', $this->type)
             ->where('cycle_key', self::CYCLE_KEY)->first();
         if ($survey) {
@@ -170,7 +173,7 @@ class SurveyLifecycle
         });
     }
 
-    private function cancel(SurveyResponse $survey, string $reason): void
+    protected function cancel(SurveyResponse $survey, string $reason): void
     {
         DB::transaction(function () use ($survey, $reason) {
             $fresh = SurveyResponse::lockForUpdate()->findOrFail($survey->id);

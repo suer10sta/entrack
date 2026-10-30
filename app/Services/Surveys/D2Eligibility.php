@@ -3,7 +3,6 @@
 namespace App\Services\Surveys;
 
 use App\Models\Entreprise;
-use Illuminate\Support\Facades\DB;
 
 class D2Eligibility extends D1Eligibility
 {
@@ -15,10 +14,7 @@ class D2Eligibility extends D1Eligibility
             return false;
         }
 
-        return ! DB::table('subscriptions')->where('entreprise_id', $companyId)
-            ->whereIn('stripe_status', ['active', 'trialing', 'past_due', 'unpaid'])
-            ->where(fn ($query) => $query->whereNull('ends_at')->orWhere('ends_at', '>', now('UTC')))
-            ->exists();
+        return ! app(SurveySubscriptionState::class)->hasRelevantSubscription($company);
     }
 
     public function eligible(int $companyId): bool

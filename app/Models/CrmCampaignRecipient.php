@@ -12,7 +12,7 @@ class CrmCampaignRecipient extends Model
 
     protected $dateFormat = 'Y-m-d H:i:sP';
 
-    protected $casts = ['first_opened_at' => 'immutable_datetime', 'first_clicked_at' => 'immutable_datetime', 'open_count' => 'integer', 'click_count' => 'integer', 'attempted_at' => 'immutable_datetime', 'sent_at' => 'immutable_datetime', 'crm_synced_at' => 'immutable_datetime'];
+    protected $casts = ['next_attempt_at' => 'immutable_datetime', 'attempts_count' => 'integer', 'last_smtp_code' => 'integer', 'first_opened_at' => 'immutable_datetime', 'first_clicked_at' => 'immutable_datetime', 'open_count' => 'integer', 'click_count' => 'integer', 'attempted_at' => 'immutable_datetime', 'sent_at' => 'immutable_datetime', 'crm_synced_at' => 'immutable_datetime'];
 
     public function campaign()
     {

@@ -108,6 +108,19 @@ class CrmCampaignService
             if ($campaign->scheduled_at && ! $campaign->scheduled_at->isFuture()) {
                 throw ValidationException::withMessages(['scheduled_date' => 'La date et l’heure de programmation doivent être dans le futur (UTC).']);
             }
+            $managerId = auth('manager')->id() ?? $campaign->manager_id;
+            abort_unless($managerId, 422, 'Un Manager est requis pour lancer une campagne.');
+            // Serialize different campaign confirmations by the same manager.
+            // Keep the reservation even if the campaign is later deleted/cancelled.
+            \App\Models\Manager::whereKey($managerId)->lockForUpdate()->firstOrFail();
+            $today = now('UTC')->toDateString();
+            if (DB::table('crm_campaign_daily_launches')->where('manager_id', $managerId)->where('launch_date', $today)->exists()) {
+                throw ValidationException::withMessages(['campaign' => 'Vous avez déjà lancé une campagne aujourd’hui. Afin de respecter les limites d’envoi et de garantir l’envoi des autres emails de l’application, une seule campagne peut être lancée par jour. Vous pourrez lancer une nouvelle campagne demain (UTC).']);
+            }
+            DB::table('crm_campaign_daily_launches')->insert([
+                'manager_id' => $managerId, 'campaign_id' => $campaign->id,
+                'launch_date' => $today, 'launched_at' => now('UTC')->toISOString(),
+            ]);
             $campaign->recipients()->update(['status' => 'pending']);
             $campaign->update(['status' => $campaign->scheduled_at ? 'scheduled' : 'queued', 'queued_at' => $campaign->scheduled_at ? null : now('UTC')]);
         });

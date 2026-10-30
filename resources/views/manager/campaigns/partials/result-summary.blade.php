@@ -22,6 +22,9 @@
             @endif
             @if($uncertain || $skipped)<p>@if($uncertain){{ $uncertain }} envoi(s) à vérifier, sans renvoi automatique. @endif @if($skipped){{ $skipped }} destinataire(s) ignoré(s).@endif Consultez les détails ci-dessous.</p>@endif
             @if($campaign->status === 'queued')<p>Actualisation automatique toutes les 15 secondes.</p>@endif
+            @if(in_array($campaign->status, ['queued', 'sending'], true) && $pending)
+                <p>Les campagnes partagent une limite de 150 emails par heure et par compte SMTP. Les destinataires en attente sont repris automatiquement ; une limite atteinte ne constitue pas un échec.</p>
+            @endif
         </div>
         <a href="#campaign-results" class="cc-button cc-secondary">Voir les détails</a>
     </div>

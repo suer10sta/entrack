@@ -64,7 +64,7 @@ class CrmCampaignUnsubscribeTest extends TestCase
         foreach (['2026_10_27_000100_create_crm_campaigns.php', '2026_10_27_000102_add_campaign_composition_fields.php',
             '2026_10_27_000103_add_campaign_media.php', '2026_10_27_000104_add_campaign_tracking.php',
             '2026_10_28_000000_add_campaign_scheduling.php', '2026_10_28_000001_add_campaign_soft_deletes.php',
-            '2026_10_28_000002_add_campaign_user_audiences.php', '2026_10_29_200000_add_crm_campaign_opt_out.php'] as $file) {
+            '2026_10_28_000002_add_campaign_user_audiences.php', '2026_10_29_200000_add_crm_campaign_opt_out.php', '2026_10_30_200000_add_crm_campaign_smtp_limits.php'] as $file) {
             (require database_path('migrations/'.$file))->up();
         }
         Schema::create('subscriptions', function ($table) {
@@ -279,7 +279,7 @@ class CrmCampaignUnsubscribeTest extends TestCase
         $pending = $this->recipient($first->prospect);
         $scheduled = $this->recipient($first->prospect);
         app(CrmCampaignService::class)->enqueue($pending->campaign);
-        $scheduled->campaign->update(['scheduled_at' => now('UTC')->addDay()]);
+        $scheduled->campaign->update(['scheduled_at' => now('UTC')->addDay(), 'manager_id' => Manager::create(['name' => 'Other manager', 'email' => 'other@example.test'])->id]);
         app(CrmCampaignService::class)->enqueue($scheduled->campaign->fresh());
         $this->post($this->url($first))->assertOk();
         $this->stubSender();
