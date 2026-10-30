@@ -35,14 +35,15 @@ return new class extends Migration
             $table->timestampTz('launched_at');
             $table->unique(['manager_id', 'launch_date']);
         });
-        // Scheduling previously had no confirmation timestamp: updated_at is the
-        // best available fallback for historical reservations, including soft deletes.
+        // Only import known launch times. updated_at can be an edit/deletion date,
+        // not a confirmation; historical scheduling without one cannot reserve a day.
         DB::statement("INSERT INTO crm_campaign_daily_launches (manager_id, campaign_id, launch_date, launched_at)
-            SELECT DISTINCT ON (manager_id, (COALESCE(queued_at, started_at, updated_at) AT TIME ZONE 'UTC')::date)
-                manager_id, id, (COALESCE(queued_at, started_at, updated_at) AT TIME ZONE 'UTC')::date,
-                COALESCE(queued_at, started_at, updated_at)
+            SELECT DISTINCT ON (manager_id, (COALESCE(queued_at, started_at) AT TIME ZONE 'UTC')::date)
+                manager_id, id, (COALESCE(queued_at, started_at) AT TIME ZONE 'UTC')::date,
+                COALESCE(queued_at, started_at)
             FROM crm_campaigns WHERE status <> 'draft' AND manager_id IS NOT NULL
-            ORDER BY manager_id, (COALESCE(queued_at, started_at, updated_at) AT TIME ZONE 'UTC')::date, id");
+                AND COALESCE(queued_at, started_at) IS NOT NULL
+            ORDER BY manager_id, (COALESCE(queued_at, started_at) AT TIME ZONE 'UTC')::date, id");
     }
 
     public function down(): void

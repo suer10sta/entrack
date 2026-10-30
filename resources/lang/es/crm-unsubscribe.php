@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'audience_excluded' => 'Baja de los emails de campaña — no se puede seleccionar.',
     'link' => 'Darse de baja',
     'confirm_title' => '¿Desea darse de baja?',
     'confirm_body' => 'Dejará de recibir las campañas de correo de DalyTrac.',

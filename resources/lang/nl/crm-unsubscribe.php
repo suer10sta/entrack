@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'audience_excluded' => 'Afgemeld voor campagne-e-mails — kan niet worden geselecteerd.',
     'link' => 'Uitschrijven',
     'confirm_title' => 'Wilt u zich uitschrijven?',
     'confirm_body' => 'U ontvangt geen e-mailcampagnes van DalyTrac meer.',

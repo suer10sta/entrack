@@ -153,6 +153,12 @@ class CrmCampaignController extends Controller
             $query->where('source', $filters['source']);
         }
         $prospects = $query->orderBy('name')->orderBy('id')->paginate(25, ['*'], 'prospects_page')->withQueryString();
+        $unsubscribedEmails = Prospect::withTrashed()->whereNotNull('unsubscribed_at')
+            ->whereIn('email_normalized', $prospects->getCollection()->pluck('email_normalized')->filter())
+            ->pluck('email_normalized')->flip();
+        $blockedProspectIds = $prospects->getCollection()
+            ->filter(fn ($prospect) => $prospect->unsubscribed_at || $unsubscribedEmails->has($prospect->email_normalized))
+            ->mapWithKeys(fn ($prospect) => [$prospect->id => true])->all();
         $sources = Prospect::whereNotNull('source')->distinct()->orderBy('source')->pluck('source');
         $selected = $campaign->recipients()->get(['id', 'prospect_id', 'email_normalized'])->mapWithKeys(fn ($row) => [$row->prospect_id ?? 'recipient:'.$row->id => $row->email_normalized]);
         $counts = $campaign->recipients()->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status');
@@ -174,7 +180,7 @@ class CrmCampaignController extends Controller
         $request->validate(['step' => ['nullable', 'integer', Rule::in([1, 2, 3])]]);
         $step = (int) $request->query('step', 2);
 
-        return view($campaign->status === 'draft' ? 'manager.campaigns.wizard' : 'manager.campaigns.show', compact('campaign', 'step', 'filters', 'prospects', 'sources', 'selected', 'counts', 'results', 'resultFilter'));
+        return view($campaign->status === 'draft' ? 'manager.campaigns.wizard' : 'manager.campaigns.show', compact('campaign', 'step', 'filters', 'prospects', 'blockedProspectIds', 'sources', 'selected', 'counts', 'results', 'resultFilter'));
     }
 
     public function update(Request $request, CrmCampaign $campaign)
@@ -207,7 +213,8 @@ class CrmCampaignController extends Controller
         $result = $service->select($campaign, $data);
 
         return redirect()->route('manager.campaigns.show', ['campaign' => $campaign] + ($request->boolean('_wizard') ? ['step' => in_array((string) $request->input('wizard_next'), ['1', '3'], true) ? (int) $request->input('wizard_next') : 2] : []) + array_filter(['filter_status' => $data['status'], 'source' => $data['source']], fn ($v) => $v !== null && $v !== ''))
-            ->with('status', 'Sélection enregistrée. '.$result['added'].' ajout(s), '.$result['ignored'].' adresse(s) invalide(s) ou en double ignorée(s).');
+            ->with('status', 'Sélection enregistrée. '.$result['added'].' ajout(s), '.$result['ignored'].' exclusion(s) (email invalide, doublon ou désabonnement).'
+                .(! empty($result['unsubscribed']) ? ' '.$result['unsubscribed'].' prospect(s) désabonné(s) exclu(s). Le changement de statut commercial ne réactive pas les emails de campagne.' : ''));
     }
 
     public function send(Request $request, CrmCampaign $campaign, CrmCampaignService $service)

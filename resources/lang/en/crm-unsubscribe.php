@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'audience_excluded' => 'Unsubscribed from campaign emails — cannot be selected.',
     'link' => 'Unsubscribe',
     'confirm_title' => 'Would you like to unsubscribe?',
     'confirm_body' => 'You will no longer receive DalyTrac email campaigns.',

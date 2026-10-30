@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'audience_excluded' => 'Désabonné des emails de campagne — non sélectionnable.',
     'link' => 'Se désabonner',
     'confirm_title' => 'Vous souhaitez vous désabonner ?',
     'confirm_body' => 'En vous désabonnant, vous ne recevrez plus les nouveautés, conseils et offres envoyés dans les campagnes marketing de DalyTrac.',

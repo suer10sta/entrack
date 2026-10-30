@@ -1789,4 +1789,68 @@ class CrmCampaignTest extends TestCase
         $this->queue($second);
         $this->assertSame('queued', $second->fresh()->status);
     }
+
+    public function test_upgrade_does_not_treat_deletion_or_edit_time_as_historical_launch(): void
+    {
+        $migration = require database_path('migrations/2026_10_30_200000_add_crm_campaign_smtp_limits.php');
+        $migration->down();
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2026-10-29T15:00:00Z'));
+        $deleted = $this->bulkCampaign(1);
+        $edited = $this->bulkCampaign(1);
+        foreach ([$deleted, $edited] as $campaign) {
+            $campaign->update(['status' => 'scheduled', 'scheduled_at' => now('UTC')->addDays(2)]);
+        }
+        $this->travel(1)->days();
+        $deleted->delete();
+        $edited->update(['name' => 'Edited today']);
+        $migration->up();
+        $this->assertSame(0, DB::table('crm_campaign_daily_launches')->count());
+        $new = $this->bulkCampaign(1);
+        $this->queue($new);
+        $this->assertSame('queued', $new->fresh()->status);
+        $this->assertSame(1, DB::table('crm_campaign_daily_launches')->count());
+    }
+
+    public function test_returning_unsubscribed_prospect_to_new_explains_campaign_exclusion(): void
+    {
+        $prospect = $this->prospect();
+        $previous = $this->campaign();
+        $this->selectAll($previous);
+        $statuses = app(ProspectStatusService::class);
+        $statuses->unsubscribeFromCampaigns($prospect, $previous->recipients()->sole()->id);
+        $statuses->transition($prospect->fresh(), ProspectStatus::Nouveau, 'manual', $this->manager);
+        $this->assertNotNull($prospect->fresh()->unsubscribed_at);
+        $campaign = $this->campaign();
+        $this->actingAs($this->manager, 'manager');
+        $response = $this->get(route('manager.campaigns.show', ['campaign' => $campaign, 'step' => 2]))
+            ->assertOk()->assertSee('Désabonné des emails de campagne');
+        $document = new \DOMDocument;
+        @$document->loadHTML($response->getContent());
+        $checkbox = (new \DOMXPath($document))->query('//input[@name="selected_ids[]" and @value="'.$prospect->id.'"]')->item(0);
+        $this->assertTrue($checkbox->hasAttribute('disabled'));
+        $this->assertSame('', $checkbox->getAttribute('data-email'));
+        // A stale page or forged POST must still be rejected by the backend.
+        $this->post(route('manager.campaigns.recipients', $campaign), [
+            'mode' => 'page', 'audience' => 'custom', 'visible_ids' => [$prospect->id],
+            'selected_ids' => [$prospect->id], '_wizard' => 1, 'wizard_next' => 3,
+        ])->assertRedirect()->assertSessionHas('status', fn ($message) => str_contains($message, '1 prospect(s) désabonné(s) exclu(s)'));
+        $this->assertSame(0, $campaign->recipients()->count());
+        $this->assertNotNull($prospect->fresh()->unsubscribed_at);
+    }
+
+    public function test_returning_lost_prospect_without_unsubscribe_to_new_keeps_wizard_selection(): void
+    {
+        $prospect = $this->prospect(status: ProspectStatus::Perdu);
+        app(ProspectStatusService::class)->transition($prospect, ProspectStatus::Nouveau, 'manual', $this->manager);
+        $campaign = $this->campaign();
+        $this->actingAs($this->manager, 'manager');
+        $this->post(route('manager.campaigns.recipients', $campaign), [
+            'mode' => 'page', 'audience' => 'custom', 'visible_ids' => [$prospect->id],
+            'selected_ids' => [$prospect->id], '_wizard' => 1, 'wizard_next' => 3,
+        ])->assertRedirect(route('manager.campaigns.show', ['campaign' => $campaign, 'step' => 3]));
+        $this->assertSame($prospect->id, $campaign->recipients()->sole()->prospect_id);
+        $this->get(route('manager.campaigns.show', ['campaign' => $campaign, 'step' => 3]))
+            ->assertOk()->assertViewHas('selected', fn ($selected) => $selected->count() === 1);
+        $this->assertNull($prospect->fresh()->unsubscribed_at);
+    }
 }

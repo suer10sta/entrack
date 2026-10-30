@@ -60,14 +60,20 @@ class CrmCampaignService
             $existing = $campaign->recipients()->get(['prospect_id', 'email_normalized']);
             $existingProspects = $existing->pluck('prospect_id')->filter()->flip();
             $emails = array_fill_keys($existing->pluck('email_normalized')->all(), true);
-            $added = $ignored = 0;
+            $added = $ignored = $unsubscribed = 0;
             foreach ($query->orderBy('id')->get() as $prospect) {
                 if ($existingProspects->has($prospect->id)) {
                     continue;
                 }
                 $email = self::email($prospect->email);
-                if (! $email || isset($emails[$email]) || app(CrmCampaignConsent::class)->blocked($prospect->id, null, $email)) {
+                if (! $email || isset($emails[$email])) {
                     $ignored++;
+
+                    continue;
+                }
+                if (app(CrmCampaignConsent::class)->blocked($prospect->id, null, $email)) {
+                    $ignored++;
+                    $unsubscribed++;
 
                     continue;
                 }
@@ -81,7 +87,7 @@ class CrmCampaignService
 
             $campaign->increment('revision');
 
-            return compact('added', 'ignored');
+            return compact('added', 'ignored', 'unsubscribed');
         });
     }
 
