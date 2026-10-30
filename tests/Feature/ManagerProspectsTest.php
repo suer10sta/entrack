@@ -205,7 +205,7 @@ class ManagerProspectsTest extends TestCase
     public function test_validation_rejects_invalid_status_activity_and_missing_followup_date(): void
     {
         $prospect = $this->prospect();
-        $this->login()->postJson(route('manager.prospects.store'), ['name' => '', 'email' => 'invalid'])->assertUnprocessable()->assertJsonValidationErrors(['name', 'email']);
+        $this->login()->postJson(route('manager.prospects.store'), ['name' => '', 'email' => 'invalid'])->assertUnprocessable()->assertJsonValidationErrors(['email']);
         $this->patchJson(route('manager.prospects.status', $prospect), ['status' => 'unknown'])->assertUnprocessable();
         $this->postJson(route('manager.prospects.activities.store', $prospect), ['type' => 'campaign', 'body' => 'No'])->assertUnprocessable();
         $this->postJson(route('manager.prospects.activities.store', $prospect), ['type' => 'follow_up', 'body' => 'Call'])->assertUnprocessable()->assertJsonValidationErrors('due_at');
@@ -339,6 +339,7 @@ class ManagerProspectsTest extends TestCase
             ->assertSee('&lt;script&gt;', false)->assertDontSee('<script>alert(1)</script>', false)
             ->assertSee($prospect->linkedin_url);
     }
+
     public function test_edit_modal_preserves_hidden_acquisition_and_account_data_and_reopens_on_errors(): void
     {
         $prospect = $this->prospect(['source' => 'Source historique', 'utm_source' => 'linkedin', 'utm_campaign' => 'launch']);
@@ -365,4 +366,20 @@ class ManagerProspectsTest extends TestCase
             ->assertDontSee('<script>alert(1)</script>', false)->assertDontSee('name="utm_campaign"', false)->assertSee(route('manager.prospects.update', $prospect));
     }
 
+    public function test_manager_can_create_a_prospect_without_a_name(): void
+    {
+        $this->login();
+        foreach ([[], ['name' => null], ['name' => ''], ['name' => '   ']] as $index => $fields) {
+            $email = 'nameless'.$index.'@example.test';
+            $this->post(route('manager.prospects.store'), $fields + ['email' => $email])->assertRedirect();
+            $prospect = Prospect::where('email', $email)->sole();
+            $this->assertSame('', $prospect->name);
+            $this->assertSame(ProspectStatus::Nouveau, $prospect->status);
+            $this->get(route('manager.prospects.show', $prospect))->assertOk()->assertSee($email);
+        }
+        $this->get(route('manager.prospects.index'))->assertOk()->assertSee('nameless0@example.test');
+        $this->get(route('manager.prospects.index', ['modal' => 'create']))->assertOk()->assertSee('Prénom et nom (facultatif)');
+        $this->postJson(route('manager.prospects.store'), ['name' => ['invalid']])->assertUnprocessable()->assertJsonValidationErrors('name');
+        $this->postJson(route('manager.prospects.store'), ['name' => str_repeat('a', 256)])->assertUnprocessable()->assertJsonValidationErrors('name');
+    }
 }

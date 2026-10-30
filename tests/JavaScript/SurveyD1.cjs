@@ -74,3 +74,42 @@ test('the Other free-text field follows its parent choice', () => {
     page.set('q1', 'abandon');
     assert.equal(page.controls.q2_autre.disabled, true);
 });
+
+function emailLanding(state, hasConfirmButton = true) {
+    const submissions = [];
+    const confirm = { name: 'intent', value: 'confirm_q1', formNoValidate: false };
+    const dom = {
+        dataset: { emailAnswer: state },
+        addEventListener: () => {},
+        querySelector: selector => {
+            assert.equal(selector, 'button[name="intent"][value="confirm_q1"]');
+            return hasConfirmButton ? confirm : null;
+        },
+        requestSubmit: button => submissions.push(button),
+    };
+    vm.runInNewContext(source, {
+        document: {
+            getElementById: () => ({ textContent: '[]' }),
+            querySelector: () => dom,
+        },
+        FormData: class { entries() { return [][Symbol.iterator](); } },
+    });
+    return { submissions, confirm };
+}
+
+test('an email choice automatically submits Q1 confirmation without final form validation', () => {
+    const page = emailLanding('pending');
+    assert.equal(page.submissions.length, 1);
+    assert.equal(page.submissions[0], page.confirm);
+    assert.equal(page.confirm.value, 'confirm_q1');
+    assert.equal(page.confirm.formNoValidate, true);
+});
+
+test('saved answers and pages without an email choice never auto-submit', () => {
+    assert.equal(emailLanding('none').submissions.length, 0);
+    assert.equal(emailLanding(undefined).submissions.length, 0);
+});
+
+test('the final submission button is never used to automatically save an email choice', () => {
+    assert.equal(emailLanding('pending', false).submissions.length, 0);
+});

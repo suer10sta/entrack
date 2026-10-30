@@ -93,19 +93,30 @@
                 </a>
             </div>
 
+            <div><a href="{{ route('manager.questionnaires.index') }}" class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs('manager.questionnaires.*') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"><svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5H5v16h14V5h-4M9 3h6v4H9zM8 12h8M8 16h6"/></svg><span class="sidebar-label truncate">{{ __('manager-surveys.title') }}</span><span class="sidebar-tip">{{ __('manager-surveys.title') }}</span></a></div>
+
             {{-- WORKSPACE --}}
             <div>
                 <p class="sidebar-section px-3 mb-2 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-slate-400/80">{{ __('messages.Workspace') }}</p>
                 <div class="space-y-1">
 
-                    <div class="flex items-center gap-3 px-3 py-2.5 text-[13.5px] font-medium text-slate-300">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18M6 16l5-5 4 3 6-9"/></svg>
-                        <span class="sidebar-label">SEO</span><span class="sidebar-tip">SEO</span>
-                    </div>
+                    <div>
+                        <button type="button" onclick="toggleDropdown('seo')" title="SEO" aria-expanded="false" aria-controls="seo-submenu"
+                            class="dt-nav-item group relative flex justify-between items-center w-full px-3 py-2.5 rounded-xl text-[13.5px] font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
+                            <span class="flex items-center gap-3 min-w-0">
+                                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18M6 16l5-5 4 3 6-9"/></svg>
+                                <span class="sidebar-label">SEO</span>
+                            </span>
+                            <svg id="seo-icon" class="sidebar-label sidebar-chevron w-4 h-4 flex-shrink-0 dropdown-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                            <span class="sidebar-tip">SEO</span>
+                        </button>
+                        <div id="seo-submenu" class="dropdown-menu space-y-1">
                     <a href="{{ route('manager.seo.index') }}" title="Google Search Console" class="dt-nav-item flex items-center gap-3 pl-11 pr-3 py-2 rounded-xl text-[12px] font-medium {{ request()->routeIs('manager.seo.index') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"><span class="sidebar-label">Google Search Console</span><span class="sidebar-tip">Google Search Console</span></a>
                     <a href="{{ route('manager.seo.analytics') }}" title="SEO · Google Analytics" class="dt-nav-item flex items-center gap-3 pl-11 pr-3 py-2 rounded-xl text-[12px] font-medium {{ request()->routeIs('manager.seo.analytics*') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"><span class="sidebar-label">Google Analytics</span><span class="sidebar-tip">SEO · Google Analytics</span></a>
                     <a href="{{ route('manager.prospects.index') }}" title="SEO · Prospects" class="dt-nav-item flex items-center gap-3 pl-11 pr-3 py-2 rounded-xl text-[12px] font-medium {{ request()->routeIs('manager.prospects.*') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"><span class="sidebar-label">Prospects</span><span class="sidebar-tip">SEO · Prospects</span></a>
                     <a href="{{ route('manager.campaigns.index') }}" title="SEO · Campagnes" class="dt-nav-item flex items-center gap-3 pl-11 pr-3 py-2 rounded-xl text-[12px] font-medium {{ request()->routeIs('manager.campaigns.*') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}"><span class="sidebar-label">Campagnes</span><span class="sidebar-tip">SEO · Campagnes</span></a>
+                        </div>
+                    </div>
                     {{-- Subscriptions --}}
                     <a href="{{ route('manager.subscriptions.index') }}" title="{{ __('messages.Subscriptions') }}"
                        class="dt-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors {{ request()->routeIs('manager.subscriptions.*') ? 'is-active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
@@ -272,6 +283,8 @@
         if (!submenu) return;
 
         const isActive = submenu.classList.contains('active');
+        const trigger = document.querySelector('[aria-controls="' + id + '-submenu"]');
+        if (trigger) trigger.setAttribute('aria-expanded', String(!isActive));
 
         if (isActive) {
             submenu.classList.remove('active');

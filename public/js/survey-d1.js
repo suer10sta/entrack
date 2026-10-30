@@ -29,4 +29,13 @@
     }
     form.addEventListener('change', update);
     update();
+    // Use the existing CSRF-protected POST to save an email choice before finalization.
+    // The signed GET remains read-only for email link scanners and preview tools.
+    if (form.dataset?.emailAnswer === 'pending') {
+        const confirm = form.querySelector('button[name="intent"][value="confirm_q1"]');
+        if (confirm) {
+            confirm.formNoValidate = true;
+            form.requestSubmit(confirm);
+        }
+    }
 })();

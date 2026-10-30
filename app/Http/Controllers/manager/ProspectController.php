@@ -68,6 +68,7 @@ class ProspectController extends Controller
         $fromModal = $request->input('_prospect_modal') === 'create';
         try {
             $data = $this->validated($request, true);
+            $data['name'] = $data['name'] ?? '';
         } catch (ValidationException $error) {
             if ($fromModal) {
                 $request->session()->flash('prospect_modal', 'create');
@@ -202,7 +203,7 @@ class ProspectController extends Controller
 
     private function validated(Request $request, bool $creating): array
     {
-        $rules = ['name' => ['required', 'string', 'max:255'], 'email' => ['nullable', 'email:rfc', 'max:255'],
+        $rules = ['name' => [$creating ? 'nullable' : 'required', 'string', 'max:255'], 'email' => ['nullable', 'email:rfc', 'max:255'],
             'phone' => ['nullable', 'string', 'max:64'], 'company_name' => ['nullable', 'string', 'max:255'],
             'country' => ['nullable', 'string', 'max:100']];
         foreach (['source', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'] as $field) {

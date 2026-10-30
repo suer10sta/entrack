@@ -20,6 +20,12 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 app()->afterResolving(Schedule::class, static function (Schedule $schedule) {
+    $schedule->command('surveys:sync-first-payments')->hourly()->withoutOverlapping(55)
+        ->appendOutputTo(storage_path('logs/scheduler.log'));
+    $schedule->command('surveys:process-d6')->hourly()->withoutOverlapping(55)
+        ->appendOutputTo(storage_path('logs/scheduler.log'));
+    $schedule->command('surveys:process-d5')->hourly()->withoutOverlapping(55)
+        ->appendOutputTo(storage_path('logs/scheduler.log'));
     $schedule->command('surveys:process-d4')->hourly()->withoutOverlapping(55)
         ->appendOutputTo(storage_path('logs/scheduler.log'));
     $schedule->command('surveys:process-d3')->hourly()->withoutOverlapping(55)

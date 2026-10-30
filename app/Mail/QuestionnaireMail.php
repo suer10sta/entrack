@@ -25,7 +25,7 @@ class QuestionnaireMail extends Mailable
             'url' => app(SurveyLink::class)->url($this->survey, $this->surveyLocale, $choice['value']),
         ], $q1['choices']);
 
-        return $this->subject(__($this->ui.'.'.($this->reminder ? 'reminder_subject' : 'email_subject'), [], $this->surveyLocale))
+        return $this->cc('support@dalytrac.com')->subject(__($this->ui.'.'.($this->reminder ? 'reminder_subject' : 'email_subject'), [], $this->surveyLocale))
             ->view('emails.survey_d1', [
                 'surveyUi' => $this->ui, 'question' => $catalog->label($q1['label_key'], $this->surveyLocale), 'choices' => $choices,
             ]);

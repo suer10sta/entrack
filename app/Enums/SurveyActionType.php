@@ -18,6 +18,14 @@ enum SurveyActionType: string
     case EmailUnconfirmed = 'EMAIL_UNCONFIRMED';
     case ActionsProcessed = 'ACTIONS_PROCESSED';
     case ProjectFollowUp = 'PROJECT_FOLLOW_UP';
+    case BusinessPaused = 'BUSINESS_PAUSED';
+    case ReturnPlanned = 'RETURN_PLANNED';
+    case NeedsNotCovered = 'NEEDS_NOT_COVERED';
+    case AlternativePlan = 'ALTERNATIVE_PLAN';
+    case RecallPlanned = 'RECALL_PLANNED';
+    case RecallObsolete = 'RECALL_OBSOLETE';
+    case AdoptionRisk = 'ADOPTION_RISK';
+    case RenewalRisk = 'RENEWAL_RISK';
     case TrialExtensionRequested = 'TRIAL_EXTENSION_REQUESTED';
     case InsufficientValue = 'INSUFFICIENT_VALUE';
     case CompetitorChosen = 'COMPETITOR_CHOSEN';

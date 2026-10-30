@@ -19,7 +19,7 @@ class SurveyPublicController extends Controller
     public function __invoke(Request $request, SurveyLink $links, SurveyCatalog $catalog, \App\Services\Surveys\SurveyAnswerService $answers)
     {
         $answers = app(match ($this->type) {
-            SurveyType::D1 => D1AnswerService::class, SurveyType::D2 => \App\Services\Surveys\D2AnswerService::class, SurveyType::D3 => \App\Services\Surveys\D3AnswerService::class, SurveyType::D4 => \App\Services\Surveys\D4AnswerService::class, default => throw new \LogicException('Unsupported public survey type.')
+            SurveyType::D1 => D1AnswerService::class, SurveyType::D2 => \App\Services\Surveys\D2AnswerService::class, SurveyType::D3 => \App\Services\Surveys\D3AnswerService::class, SurveyType::D4 => \App\Services\Surveys\D4AnswerService::class, SurveyType::D5 => \App\Services\Surveys\D5AnswerService::class, SurveyType::D6 => \App\Services\Surveys\D6AnswerService::class, default => throw new \LogicException('Unsupported public survey type.')
         });
         view()->share(['surveyType' => $this->type->value, 'surveyUi' => $this->ui]);
         $headers = ['Cache-Control' => 'no-store, private', 'Referrer-Policy' => 'no-referrer', 'X-Robots-Tag' => 'noindex, nofollow'];
@@ -54,6 +54,7 @@ class SurveyPublicController extends Controller
                 'questions' => $questions, 'catalog' => $catalog, 'values' => $values,
                 'visible' => array_keys($answers->applicable($questions, $values)), 'formErrors' => $errors,
                 'locked' => isset($persisted['q1']), 'action' => $request->fullUrl(),
+                'autoConfirmQ1' => $request->isMethod('GET') && isset($prefill['q1']) && ! isset($persisted['q1']),
                 'lockedNotice' => isset($persisted['q1']) && $selected !== null && $selected !== $persisted['q1'],
             ], $errors ? 422 : 200, $headers);
         } catch (ValidationException $exception) {

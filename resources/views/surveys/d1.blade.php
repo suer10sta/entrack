@@ -18,7 +18,7 @@
     @else
         @if($formErrors)<div class="survey-alert" role="alert">@foreach($formErrors as $messages)@foreach($messages as $message)<p>{{ $message }}</p>@endforeach @endforeach</div>@endif
         @if($locked)<div class="survey-note" role="status">{{ __(($surveyUi ?? 'surveys.ui').'.confirmed') }} {{ __(($surveyUi ?? 'surveys.ui').'.q1_locked') }}</div>@endif
-        <form method="POST" action="{{ $action }}" class="survey-form">
+        <form method="POST" action="{{ $action }}" class="survey-form" data-email-answer="{{ ($autoConfirmQ1 ?? false) ? 'pending' : 'none' }}">
             @csrf
             @foreach($questions as $question)
                 @php($id = $question['id'])
@@ -26,18 +26,13 @@
                     <legend>{{ $catalog->label($question['label_key'], app()->getLocale()) }} <small>{{ __(($surveyUi ?? 'surveys.ui').'.'.($question['required'] ? 'required_mark' : 'optional')) }}</small></legend>
                     @if($question['type'] === 'text')
                         <textarea name="answers[{{ $id }}]" id="{{ $id }}" maxlength="{{ $question['max_length'] }}" rows="4" aria-label="{{ $catalog->label($question['label_key'], app()->getLocale()) }}">{{ $values[$id] ?? '' }}</textarea><small>{{ __(($surveyUi ?? 'surveys.ui').'.character_limit') }}</small>
-                    @elseif($id === 'q1')
+                    @else
                         <div class="survey-choices">
                         @foreach($question['choices'] as $choice)
-                            <label><input type="radio" name="answers[q1]" value="{{ $choice['value'] }}" @checked(($values['q1'] ?? '') === $choice['value']) @disabled($locked) required><span>{{ $catalog->label($choice['label_key'], app()->getLocale()) }}</span></label>
+                            <label><input type="radio" name="answers[{{ $id }}]" value="{{ $choice['value'] }}" @checked(($values[$id] ?? '') === $choice['value']) @disabled($id === 'q1' && $locked) @required($question['required'])><span>{{ $catalog->label($choice['label_key'], app()->getLocale()) }}</span></label>
                         @endforeach
                         </div>
-                        @if($locked)<input type="hidden" name="answers[q1]" value="{{ $values['q1'] }}">@endif
-                    @else
-                        <select name="answers[{{ $id }}]" id="{{ $id }}" aria-label="{{ $catalog->label($question['label_key'], app()->getLocale()) }}">
-                            <option value="">{{ __(($surveyUi ?? 'surveys.ui').'.choose') }}</option>
-                            @foreach($question['choices'] as $choice)<option value="{{ $choice['value'] }}" @selected(($values[$id] ?? '') === $choice['value'])>{{ $catalog->label($choice['label_key'], app()->getLocale()) }}</option>@endforeach
-                        </select>
+                        @if($id === 'q1' && $locked)<input type="hidden" name="answers[q1]" value="{{ $values['q1'] }}">@endif
                     @endif
                 </fieldset>
             @endforeach

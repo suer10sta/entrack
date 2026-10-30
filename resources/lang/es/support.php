@@ -66,12 +66,12 @@ return [
     ],
     'sources' => [
         'contact' => 'Contact',
-        'd1-survey' => 'D1',
-        'd2-survey' => 'D2',
-        'd3-survey' => 'D3',
-        'd4-survey' => 'D4',
-        'd5-survey' => 'D5',
-        'd6-survey' => 'D6',
+        'd1-survey' => 'Cuestionario 1',
+        'd2-survey' => 'Cuestionario 2',
+        'd3-survey' => 'Cuestionario 3',
+        'd4-survey' => 'Cuestionario 4',
+        'd5-survey' => 'Cuestionario 5',
+        'd6-survey' => 'Cuestionario 6',
     ],
     'counts' => [
         'all' => 'Todos',

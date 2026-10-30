@@ -10,7 +10,7 @@
 <div class="pd-page p-4 md:p-6">
     <a href="{{ route('manager.prospects.index') }}" class="pd-back"><span aria-hidden="true">←</span> Retour aux prospects</a>
     <header class="pd-header">
-        <div class="pd-identity"><span class="pd-avatar" aria-hidden="true">{{ $initials }}</span><div><h1>{{ $prospect->name }}</h1><p>{{ $prospect->company_name ?: 'Fiche prospect' }}</p></div></div>
+        <div class="pd-identity"><span class="pd-avatar" aria-hidden="true">{{ $initials }}</span><div><h1>{{ $prospect->name ?: ($prospect->email ?: ($prospect->company_name ?: 'Prospect sans nom')) }}</h1><p>{{ $prospect->company_name ?: 'Fiche prospect' }}</p></div></div>
         <div class="pd-header-actions">@include('manager.prospects.partials.status', ['status' => $prospect->status])<a class="pd-button pd-primary" data-open-prospect-modal="edit" aria-haspopup="dialog" aria-controls="prospect-edit-modal" href="{{ route('manager.prospects.edit', $prospect) }}">@include('manager.prospects.partials.icon', ['icon' => 'edit']) Modifier</a></div>
     </header>
     @unless((session('prospect_edit') || request()->query('modal') === 'edit') && old('_prospect_modal') === 'edit') @include('manager.prospects.partials.feedback') @endunless

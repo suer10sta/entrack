@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Laravel\Cashier\Http\Controllers\WebhookController as CashierWebhookController;
-use Laravel\Cashier\Cashier;
-use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\Log;
 use App\Models\Entreprise;
-use App\Services\SubscriptionInvoiceService;
 use App\Services\SubscriptionInvoiceSender;
+use App\Services\SubscriptionInvoiceService;
+use Illuminate\Support\Facades\Log;
+use Laravel\Cashier\Cashier;
+use Laravel\Cashier\Http\Controllers\WebhookController as CashierWebhookController;
+use Symfony\Component\HttpFoundation\Response;
 
 class StripeWebhookController extends CashierWebhookController
 {
@@ -44,6 +44,9 @@ class StripeWebhookController extends CashierWebhookController
 
                 $entreprise->resetFailedPaymentCount();
 
+                app(\App\Services\Surveys\FirstSubscriptionPayment::class)->fromInvoice($entreprise, $invoice ?? []);
+                app(\App\Services\Surveys\SubscriptionChurnSync::class)->invoice($entreprise, $invoice ?? [], $healthy);
+
                 // Converge local plan state from the paid invoice so a customer
                 // who never returns to the success URL still gets their plan.
                 // Only fills/aligns type_compt, never clears it.
@@ -54,7 +57,7 @@ class StripeWebhookController extends CashierWebhookController
                         'type_compt' => $paidPlan,
                         'trial_ends_at' => null,
                     ])->save();
-                    Log::info('Stripe invoice.succeeded: plan converged to ' . $paidPlan, ['entreprise_id' => $entreprise->id]);
+                    Log::info('Stripe invoice.succeeded: plan converged to '.$paidPlan, ['entreprise_id' => $entreprise->id]);
                 }
 
                 if (is_array($invoice)) {
@@ -78,14 +81,13 @@ class StripeWebhookController extends CashierWebhookController
     /**
      * Fetch the Stripe status of the subscription referenced by an invoice.
      *
-     * @param  array|null  $invoice
      * @return string|null null when the subscription id is missing or unreachable.
      */
     private function fetchSubscriptionStatus(?array $invoice, Entreprise $entreprise): ?string
     {
         $subscriptionId = $invoice['subscription'] ?? null;
 
-        if (!$subscriptionId) {
+        if (! $subscriptionId) {
             return null;
         }
 
@@ -172,6 +174,24 @@ class StripeWebhookController extends CashierWebhookController
             Log::error('Stripe subscription deleted handler failed: '.$e->getMessage());
         }
 
+        app(\App\Services\Surveys\SubscriptionChurnSync::class)->event($payload, 'deleted');
+
         return $this->successMethod();
+    }
+
+    protected function handleCustomerSubscriptionUpdated(array $payload)
+    {
+        $response = parent::handleCustomerSubscriptionUpdated($payload);
+        app(\App\Services\Surveys\SubscriptionChurnSync::class)->event($payload, 'updated');
+
+        return $response;
+    }
+
+    protected function handleCustomerSubscriptionCreated(array $payload)
+    {
+        $response = parent::handleCustomerSubscriptionCreated($payload);
+        app(\App\Services\Surveys\SubscriptionChurnSync::class)->event($payload, 'created');
+
+        return $response;
     }
 }

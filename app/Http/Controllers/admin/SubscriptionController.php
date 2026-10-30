@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AdminActivityAlertMail;
+use App\Services\SubscriptionInvoiceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Cashier\Cashier;
-use App\Mail\AdminActivityAlertMail;
-use App\Services\SubscriptionInvoiceService;
 
 class SubscriptionController extends Controller
 {
@@ -21,14 +21,14 @@ class SubscriptionController extends Controller
         $user = Auth::user();
         $entreprise = $user?->entreprise;
 
-        if (!$entreprise) {
+        if (! $entreprise) {
             return response()->json([
                 'message' => __('messages.Entreprise introuvable.'),
             ], 404);
         }
 
         $renewalPreference = $request->input('renewal', 'auto');
-        if (!in_array($renewalPreference, ['auto', 'manual'], true)) {
+        if (! in_array($renewalPreference, ['auto', 'manual'], true)) {
             return response()->json([
                 'message' => __('messages.Préférence de renouvellement invalide.'),
             ], 422);
@@ -108,7 +108,7 @@ class SubscriptionController extends Controller
     public function choosePlan(Request $request, string $planName)
     {
         $validPlans = ['solo', 'premium', 'pro'];
-        if (!in_array($planName, $validPlans, true)) {
+        if (! in_array($planName, $validPlans, true)) {
             return redirect()
                 ->route('profile.upgrade')
                 ->with('error', __('messages.Plan invalide.'));
@@ -141,23 +141,24 @@ class SubscriptionController extends Controller
                 ->with('error', __('messages.Votre entreprise est déjà abonnée à un plan !'));
         }
 
-        $priceId = config('services.stripe.prices.' . $planName);
+        $priceId = config('services.stripe.prices.'.$planName);
 
         if (! $priceId) {
-            Log::error('Stripe price ID not configured for plan: ' . $planName, ['entreprise_id' => $entreprise->id]);
+            Log::error('Stripe price ID not configured for plan: '.$planName, ['entreprise_id' => $entreprise->id]);
+
             return redirect()
                 ->route('profile.upgrade')
                 ->with('error', __('messages.Le paiement est momentanément indisponible pour ce plan. Veuillez réessayer plus tard ou contacter le support.'));
         }
 
         $renewalPreference = $request->query('renewal', 'auto');
-        if (!in_array($renewalPreference, ['auto', 'manual'], true)) {
+        if (! in_array($renewalPreference, ['auto', 'manual'], true)) {
             $renewalPreference = 'auto';
         }
 
         $successUrl = route('subscription.success', ['plan' => $planName])
-            . '?session_id={CHECKOUT_SESSION_ID}'
-            . '&renewal=' . $renewalPreference;
+            .'?session_id={CHECKOUT_SESSION_ID}'
+            .'&renewal='.$renewalPreference;
 
         try {
             return $entreprise->newSubscription('default', $priceId)
@@ -172,7 +173,8 @@ class SubscriptionController extends Controller
                     ],
                 ]);
         } catch (\Throwable $e) {
-            Log::error('Stripe checkout creation failed: ' . $e->getMessage(), ['entreprise_id' => $entreprise->id, 'plan' => $planName]);
+            Log::error('Stripe checkout creation failed: '.$e->getMessage(), ['entreprise_id' => $entreprise->id, 'plan' => $planName]);
+
             return redirect()
                 ->route('profile.upgrade')
                 ->with('error', __('messages.Impossible de démarrer le paiement. Veuillez vérifier votre connexion puis réessayer.'));
@@ -188,21 +190,21 @@ class SubscriptionController extends Controller
         $user = Auth::user();
         $entreprise = $user?->entreprise;
 
-        if (!$entreprise) {
+        if (! $entreprise) {
             return redirect()
                 ->route('profile.upgrade')
                 ->with('error', __('messages.Aucune entreprise associée à cet utilisateur.'));
         }
 
         $validPlans = ['solo', 'premium', 'pro'];
-        if (!in_array($planName, $validPlans, true)) {
+        if (! in_array($planName, $validPlans, true)) {
             return redirect()
                 ->route('profile.upgrade')
                 ->with('error', __('messages.Plan invalide.'));
         }
 
         $renewalPreference = $request->query('renewal', 'auto');
-        if (!in_array($renewalPreference, ['auto', 'manual'], true)) {
+        if (! in_array($renewalPreference, ['auto', 'manual'], true)) {
             $renewalPreference = 'auto';
         }
 
@@ -224,7 +226,7 @@ class SubscriptionController extends Controller
 
         // Validate the Stripe Checkout session before activating the plan.
         $sessionId = $request->query('session_id');
-        if (!$sessionId) {
+        if (! $sessionId) {
             return redirect()
                 ->route('profile.upgrade')
                 ->with('error', __('messages.Session de paiement manquante. Veuillez réessayer.'));
@@ -233,7 +235,8 @@ class SubscriptionController extends Controller
         try {
             $session = Cashier::stripe()->checkout->sessions->retrieve($sessionId);
         } catch (\Throwable $e) {
-            Log::error('Stripe checkout session verification failed: ' . $e->getMessage(), ['entreprise_id' => $entreprise->id]);
+            Log::error('Stripe checkout session verification failed: '.$e->getMessage(), ['entreprise_id' => $entreprise->id]);
+
             return redirect()
                 ->route('profile.upgrade')
                 ->with('error', __('messages.Impossible de vérifier le paiement. Veuillez réessayer.'));
@@ -258,13 +261,14 @@ class SubscriptionController extends Controller
                 'payment_status' => $session->payment_status ?? null,
                 'session_id' => $sessionId,
             ]);
+
             return redirect()
                 ->route('profile.upgrade')
                 ->with('error', __('messages.Session de paiement incohérente. Veuillez recommencer.'));
         }
 
         // Keep the Stripe customer id in sync if it was not stored during checkout.
-        if (!$entreprise->stripe_id && !empty($session->customer)) {
+        if (! $entreprise->stripe_id && ! empty($session->customer)) {
             $entreprise->forceFill(['stripe_id' => $session->customer])->save();
         }
 
@@ -274,6 +278,9 @@ class SubscriptionController extends Controller
             'auto_renew' => $renewalPreference === 'auto',
             'account_status' => 'active',
         ])->save();
+
+        app(\App\Services\Surveys\FirstSubscriptionPayment::class)->fromCheckout($entreprise, $session);
+        app(\App\Services\Surveys\SubscriptionChurnSync::class)->checkout($entreprise, $session);
 
         // CRM is secondary: only the server-confirmed, activated payment reaches this hook.
         try {
@@ -286,7 +293,7 @@ class SubscriptionController extends Controller
         $subscription = $entreprise->currentSubscription();
         if ($subscription && $renewalPreference === 'manual') {
             $subscription->cancelAtEndOfPeriod();
-        } elseif (!$subscription && $renewalPreference === 'manual') {
+        } elseif (! $subscription && $renewalPreference === 'manual') {
             $stripeSubscription = $entreprise->latestStripeSubscriptionFromApi();
             if ($stripeSubscription) {
                 try {
@@ -344,7 +351,7 @@ class SubscriptionController extends Controller
 
         return redirect()
             ->route('dashboard')
-            ->with('success', __('messages.Paiement réussi ! Plan') . ucfirst($planName) . ' activé.');
+            ->with('success', __('messages.Paiement réussi ! Plan').ucfirst($planName).' activé.');
     }
 
     /**
@@ -378,7 +385,7 @@ class SubscriptionController extends Controller
         $user = Auth::user();
         $entreprise = $user?->entreprise;
 
-        if (!$entreprise) {
+        if (! $entreprise) {
             return redirect()
                 ->route('profile')
                 ->with('alertmessage', 'Entreprise introuvable.');
@@ -386,10 +393,10 @@ class SubscriptionController extends Controller
 
         $subscription = $entreprise->currentSubscription();
 
-        if (!$subscription) {
+        if (! $subscription) {
             // Fallback: try resolving directly from Stripe in case of desync
             $stripeSubscription = $entreprise->latestStripeSubscriptionFromApi();
-            if (!$stripeSubscription) {
+            if (! $stripeSubscription) {
                 return redirect()
                     ->route('profile')
                     ->with('alertmessage', 'Aucun abonnement actif à annuler.');
@@ -445,7 +452,7 @@ class SubscriptionController extends Controller
         $user = Auth::user();
         $entreprise = $user?->entreprise;
 
-        if (!$entreprise) {
+        if (! $entreprise) {
             return redirect()
                 ->route('profile')
                 ->with('alertmessage', 'Entreprise introuvable.');
@@ -526,5 +533,3 @@ class SubscriptionController extends Controller
         }
     }
 }
-
-

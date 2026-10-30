@@ -43,6 +43,13 @@ class D1Eligibility
             ->exists();
     }
 
+    public function hasConfirmedPurchase(int $companyId): bool
+    {
+        $company = \App\Models\Entreprise::find($companyId);
+
+        return $company && ($company->first_paid_at !== null || $company->first_paid_lookup_customer_id !== null);
+    }
+
     public function eligible(int $companyId): bool
     {
         $owner = $this->owner($companyId);
@@ -50,6 +57,6 @@ class D1Eligibility
         return $owner && $owner->email_verified_at
             && $owner->email_verified_at->lte(now('UTC')->subDay())
             && filter_var($owner->email, FILTER_VALIDATE_EMAIL)
-            && ! $this->optedOut($companyId) && ! $this->hasActivity($companyId);
+            && ! $this->optedOut($companyId) && ! $this->hasActivity($companyId) && ! $this->hasConfirmedPurchase($companyId);
     }
 }

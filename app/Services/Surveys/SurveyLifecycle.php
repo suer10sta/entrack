@@ -26,6 +26,21 @@ class SurveyLifecycle
         return $this->eligibility->hasActivity($companyId);
     }
 
+    protected function cycleKey(int $companyId): ?string
+    {
+        return self::CYCLE_KEY;
+    }
+
+    protected function creationAttributes(int $companyId): array
+    {
+        return [];
+    }
+
+    protected function stageChangedForSurvey(SurveyResponse $survey): bool
+    {
+        return $this->stageChanged($survey->entreprise_id);
+    }
+
     protected function beforeProcessing(int $companyId): void {}
 
     protected function initialClaimed(SurveyResponse $survey): void {}
@@ -40,13 +55,17 @@ class SurveyLifecycle
     private function processLocked(int $companyId): string
     {
         $this->beforeProcessing($companyId);
+        $cycle = $this->cycleKey($companyId);
+        if ($cycle === null) {
+            return 'ineligible';
+        }
         $survey = SurveyResponse::where('entreprise_id', $companyId)->where('survey_type', $this->type)
-            ->where('cycle_key', self::CYCLE_KEY)->first();
+            ->where('cycle_key', $cycle)->first();
         if ($survey) {
             if (in_array($survey->status, [SurveyStatus::Answered, SurveyStatus::Abandon, SurveyStatus::Cancelled, SurveyStatus::Expired], true)) {
                 return 'closed';
             }
-            if ($this->stageChanged($companyId)) {
+            if ($this->stageChangedForSurvey($survey)) {
                 $this->cancel($survey, 'activity');
 
                 return 'cancelled';
@@ -91,8 +110,8 @@ class SurveyLifecycle
         if (! $survey) {
             $owner = $this->eligibility->owner($companyId);
             $survey = SurveyResponse::firstOrCreate([
-                'entreprise_id' => $companyId, 'survey_type' => $this->type, 'cycle_key' => self::CYCLE_KEY,
-            ], ['survey_version' => config('surveys.types.'.$this->type->value.'.current_version'), 'user_id' => $owner->id, 'email' => $owner->email]);
+                'entreprise_id' => $companyId, 'survey_type' => $this->type, 'cycle_key' => $cycle,
+            ], array_merge(['survey_version' => config('surveys.types.'.$this->type->value.'.current_version'), 'user_id' => $owner->id, 'email' => $owner->email], $this->creationAttributes($companyId)));
         }
 
         return $this->deliver($survey, false);
@@ -119,7 +138,7 @@ class SurveyLifecycle
             $fresh = SurveyResponse::lockForUpdate()->findOrFail($survey->id);
             if (in_array($fresh->status, [SurveyStatus::Answered, SurveyStatus::Abandon, SurveyStatus::Cancelled, SurveyStatus::Expired], true)
                 || $fresh->actions()->where('action_key', $key.':attempt')->exists()
-                || $this->stageChanged($fresh->entreprise_id)
+                || $this->stageChangedForSurvey($fresh)
                 || $this->eligibility->optedOut($fresh->entreprise_id)) {
                 return false;
             }

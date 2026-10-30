@@ -591,4 +591,37 @@ class SurveyD1LifecycleTest extends TestCase
             }
         }
     }
+
+    public function test_email_choice_is_automatically_confirmed_before_form_completion(): void
+    {
+        $survey = $this->sent();
+        $questions = app(\App\Services\Surveys\SurveyCatalog::class)->definition($survey->survey_type, $survey->survey_version)['questions'];
+        $choices = collect($questions)->firstWhere('id', 'q1')['choices'];
+        $choice = $choices[0]['value'];
+        $url = $this->link($survey, $choice);
+        $this->get(app(\App\Services\Surveys\SurveyLink::class)->url($survey, 'fr'))->assertOk()->assertViewHas('autoConfirmQ1', false);
+        $this->get($this->link($survey, 'invalid-choice'))->assertOk()->assertViewHas('autoConfirmQ1', false);
+        $landing = $this->get($url)->assertOk()->assertViewHas('autoConfirmQ1', true)
+            ->assertSee('data-email-answer="pending"', false);
+        $this->assertSame(0, $survey->answers()->count());
+        // This is the CSRF-protected confirmation POST automatically submitted by the browser.
+        $confirmed = $this->post($url, ['intent' => 'confirm_q1', 'answers' => ['q1' => $choice]])
+            ->assertOk()->assertViewHas('autoConfirmQ1', false)->assertViewHas('locked', true);
+        if (getenv('SURVEY_EMAIL_QA_DIR')) {
+            file_put_contents(getenv('SURVEY_EMAIL_QA_DIR').'/'.$survey->survey_type->value.'-landing.html', $landing->getContent());
+            file_put_contents(getenv('SURVEY_EMAIL_QA_DIR').'/'.$survey->survey_type->value.'-confirmed.html', $confirmed->getContent());
+        }
+        $this->assertSame($choice, $survey->answers()->sole()->value);
+        $this->assertNotNull($survey->fresh()->clicked_at);
+        $this->assertNull($survey->fresh()->completed_at);
+        $this->assertSame(\App\Enums\SurveyStatus::Q1Clicked, $survey->fresh()->status);
+        $this->assertSame(1, $survey->actions()->where('action_type', 'Q1_CLICKED')->count());
+        $this->assertSame(0, $survey->actions()->whereIn('action_type', ['ANSWERED', 'TICKET', 'ACTIONS_PROCESSED'])->count());
+        $before = $survey->fresh()->toArray();
+        $this->get($this->link($survey, $choices[1]['value']))->assertOk()->assertViewHas('autoConfirmQ1', false)->assertViewHas('locked', true);
+        $this->post($url, ['intent' => 'confirm_q1', 'answers' => ['q1' => $choice]])->assertOk();
+        $this->assertSame($before, $survey->fresh()->toArray());
+        $this->assertSame(1, $survey->answers()->count());
+        $this->assertSame(1, $survey->actions()->where('action_type', 'Q1_CLICKED')->count());
+    }
 }

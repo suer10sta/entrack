@@ -95,3 +95,17 @@ yarn-error.log
 # CRM campaign SMTP limits documentation and concurrency worker
 !/docs/crm-campaign-limits.md
 !/tests/Support/crm-campaign-limits-worker.php
+
+!/docs/survey-d5.md
+!/tests/Feature/SurveyD5Test.php
+!/tests/Support/survey-d5-worker.php
+!/tests/JavaScript/SurveyD5.cjs
+
+!/tests/Feature/SubscriptionPaymentTest.php
+
+!/docs/survey-d6.md
+!/tests/Feature/SurveyD6Test.php
+!/tests/Support/survey-d6-worker.php
+!/tests/JavaScript/SurveyD6.cjs
+
+!/tests/Feature/ManagerQuestionnairesTest.php

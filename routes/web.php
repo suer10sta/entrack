@@ -2010,6 +2010,7 @@ Route::prefix('manager')->name('manager.')->group(function () {
 
     Route::middleware('auth:manager')->group(function () {
         Route::withoutMiddleware(\App\Http\Middleware\CheckSubscription::class)->group(function () {
+            require __DIR__.'/manager-surveys.php';
             Route::get('support', [\App\Http\Controllers\manager\ContactSupportController::class, 'index'])->name('support.index');
             Route::get('support/{contact}', [\App\Http\Controllers\manager\ContactSupportController::class, 'show'])->whereNumber('contact')->name('support.show');
             Route::post('support/{contact}/reply', [\App\Http\Controllers\manager\ContactSupportController::class, 'reply'])->whereNumber('contact')->name('support.reply');

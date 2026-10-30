@@ -35,6 +35,9 @@ class SurveyLink
 
     public function assertOpen(SurveyResponse $survey): void
     {
+        if ($survey->survey_type === SurveyType::D6 && ! app(SubscriptionChurnState::class)->relevant($survey)) {
+            throw new HttpException(410, 'closed');
+        }
         if ($survey->survey_type === SurveyType::D4 && ! app(D4Eligibility::class)->stageRelevant($survey->entreprise_id)) {
             throw new HttpException(410, 'closed');
         }

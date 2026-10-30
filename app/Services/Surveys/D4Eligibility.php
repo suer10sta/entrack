@@ -10,7 +10,7 @@ class D4Eligibility extends D1Eligibility
     {
         $company = Entreprise::find($companyId);
 
-        return $company && $company->trial_ends_at && $company->trial_ends_at->copy()->addHours(24)->lte(now('UTC'))
+        return $company && ! $company->first_paid_at && $company->trial_ends_at && $company->trial_ends_at->copy()->addHours(24)->lte(now('UTC'))
             && ! app(SurveySubscriptionState::class)->hasRelevantSubscription($company);
     }
 

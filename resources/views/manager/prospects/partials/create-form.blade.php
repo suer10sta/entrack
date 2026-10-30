@@ -2,14 +2,14 @@
             @csrf <input type="hidden" name="_prospect_modal" value="create">
             <div class="grid grid-cols-1 gap-x-5 gap-y-4 p-5 sm:grid-cols-2 sm:p-6">
                 @foreach([
-                    'name' => ['Prénom et nom *', 'text', 'name', 255],
+                    'name' => ['Prénom et nom (facultatif)', 'text', 'name', 255],
                     'email' => ['Email', 'email', 'email', 255],
                     'phone' => ['Téléphone', 'tel', 'tel', 64],
                     'company_name' => ['Société', 'text', 'organization', 255],
                 ] as $field => [$label, $type, $autocomplete, $limit])
                     <div>
                         <label for="create-{{ $field }}" class="mb-1.5 block text-[13px] font-medium text-[#0B2638]">{{ $label }}</label>
-                        <input id="create-{{ $field }}" name="{{ $field }}" type="{{ $type }}" autocomplete="{{ $autocomplete }}" value="{{ old($field) }}" maxlength="{{ $limit }}" @required($field === 'name') @if($errors->has($field)) aria-invalid="true" @endif
+                        <input id="create-{{ $field }}" name="{{ $field }}" type="{{ $type }}" autocomplete="{{ $autocomplete }}" value="{{ old($field) }}" maxlength="{{ $limit }}" @if($errors->has($field)) aria-invalid="true" @endif
                             class="block h-9 w-full rounded-lg border-slate-300 px-3 py-1.5 text-sm focus:border-[#2D7080] focus:ring-[#2D7080]">
                     </div>
                 @endforeach

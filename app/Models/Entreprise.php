@@ -5,41 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Billable;
+use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Subscription as CashierSubscription;
-use App\Models\Alert;
-use App\Models\billings_budget;
-use App\Models\calendars;
-use App\Models\Client;
-use App\Models\client_contacts;
-use App\Models\client_contacts_devis;
-use App\Models\credit_note;
-use App\Models\devis_details;
-use App\Models\devis_history;
-use App\Models\Employees;
-use App\Models\employees_tasks;
-use App\Models\entrepriseCharges;
-use App\Models\EnterpriseRolePermission;
-use App\Models\invoices_history;
-use App\Models\Project;
-use App\Models\ProjectFile;
-use App\Models\project_teams;
-use App\Models\Role;
-use App\Models\smtpConfig;
-use App\Models\Tasks;
-use App\Models\tasks_timer;
-use App\Models\team_tasks;
-use App\Models\Teams;
-use App\Models\todoliste;
-use App\Models\User;
-use App\Models\work_days_repports;
-use App\Models\note_de_frais;
-use App\Models\Permission;
 
 class Entreprise extends Model
 {
-    use HasFactory, Billable;
+    use Billable, HasFactory;
 
     /**
      * @var array<int, string>
@@ -51,15 +23,15 @@ class Entreprise extends Model
     protected $attributes = ['invoice_prefix' => 'F', 'invoice_number_format' => 'year_month_number'];
 
     protected $fillable = [
-        'name', 
+        'name',
         'phone',
         'email',
         'Address',
         'country',
         'city',
         'zip_code',
-        'image', 
-        'is_activated', 
+        'image',
+        'is_activated',
         'duration',
         'tva',
         'bank_name',
@@ -101,12 +73,12 @@ class Entreprise extends Model
 
     public function getAddressAttribute($value)
     {
-        if (!empty($value)) {
+        if (! empty($value)) {
             return $value;
         }
 
         $parts = array_filter([$this->country, $this->city, $this->zip_code], function ($part) {
-            return !is_null($part) && $part !== '';
+            return ! is_null($part) && $part !== '';
         });
 
         return implode(', ', $parts);
@@ -114,6 +86,7 @@ class Entreprise extends Model
 
     protected $casts = [
         'trial_ends_at' => 'datetime',
+        'first_paid_at' => 'immutable_datetime',
         'auto_renew' => 'boolean',
         'billit_api_key' => 'encrypted',
     ];
@@ -170,7 +143,7 @@ class Entreprise extends Model
             //
             // So when an entreprise is deleted we only remove its links in the
             // pivot table and leave the master roles/permissions intact.
-            
+
             // Financial configuration and budgets
             smtpConfig::where('entreprise_id', $entrepriseId)->delete();
             entrepriseCharges::where('entreprise_id', $entrepriseId)->delete();
@@ -225,7 +198,7 @@ class Entreprise extends Model
     public function hasActiveSubscription(): bool
     {
         // 'type_compt' is not null, meaning they have chosen a plan
-        return !is_null($this->type_compt);
+        return ! is_null($this->type_compt);
     }
 
     /**
@@ -259,7 +232,7 @@ class Entreprise extends Model
     public function hasCanceledSubscription(): bool
     {
         // Only check for canceled subscription if they have a plan (not on trial)
-        if (!$this->type_compt) {
+        if (! $this->type_compt) {
             return false;
         }
 
@@ -333,7 +306,7 @@ class Entreprise extends Model
         // otherwise any account created before trial tracking existed would
         // be locked out immediately without recourse. They keep access
         // (getUserLimit treats a null trial date like an active trial).
-        if (!$this->trial_ends_at) {
+        if (! $this->trial_ends_at) {
             return false;
         }
 
@@ -397,7 +370,7 @@ class Entreprise extends Model
             'solo' => 1,
             'premium' => 10,
             'pro' => PHP_INT_MAX, // PHP_INT_MAX is a good way to say "unlimited"
-            default => $this->isOnTrial() || !$this->trial_ends_at ? PHP_INT_MAX : 1, // Unlimited on trial or if no trial date is configured, 1 if expired
+            default => $this->isOnTrial() || ! $this->trial_ends_at ? PHP_INT_MAX : 1, // Unlimited on trial or if no trial date is configured, 1 if expired
         };
     }
 
@@ -408,12 +381,13 @@ class Entreprise extends Model
     {
         $limit = $this->getUserLimit();
         if ($limit === PHP_INT_MAX) {
-            return true; 
+            return true;
         }
 
         $currentUserCount = $this->user()
             ->whereDoesntHave('employee', fn ($q) => $q->where('archived', true))
             ->count();
+
         return $currentUserCount < $limit;
     }
 
@@ -438,7 +412,7 @@ class Entreprise extends Model
      */
     public function latestStripeSubscriptionFromApi(): ?object
     {
-        if (!$this->stripe_id) {
+        if (! $this->stripe_id) {
             return null;
         }
 
@@ -496,7 +470,7 @@ class Entreprise extends Model
 
         $stripeSubscription = $this->latestStripeSubscriptionFromApi();
         if ($stripeSubscription) {
-            $stripeRenewal = !empty($stripeSubscription->cancel_at_period_end) ? 'manual' : 'auto';
+            $stripeRenewal = ! empty($stripeSubscription->cancel_at_period_end) ? 'manual' : 'auto';
             $isSynced = $expectedRenewal === $stripeRenewal;
 
             return [
@@ -519,4 +493,3 @@ class Entreprise extends Model
         ];
     }
 }
-
