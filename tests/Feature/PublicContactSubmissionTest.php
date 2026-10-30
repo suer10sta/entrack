@@ -99,6 +99,7 @@ class PublicContactSubmissionTest extends TestCase
         $response->assertRedirect('/contact')->assertSessionHas('success');
         $ticket = Contact::sole();
         $this->assertSame(ContactSource::Contact, $ticket->source);
+        $this->assertSame(\App\Enums\ContactPriority::Normal, $ticket->priority);
         $this->assertSame(ContactStatus::Pending, $ticket->status);
         $this->assertSame('203.0.113.42', $ticket->ip);
         $this->assertSame('DT-000001', $ticket->ticket_num);

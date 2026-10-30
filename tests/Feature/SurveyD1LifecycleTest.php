@@ -197,7 +197,7 @@ class SurveyD1LifecycleTest extends TestCase
         $survey = $this->sent('en');
         Mail::assertSent(D1SurveyMail::class, function ($mail) use ($survey) {
             $html = $mail->render();
-            $this->assertStringContainsString('How are you getting started with Dalytrac?', $html);
+            $this->assertStringContainsString(__('surveys.D1.questions.q1.label', [], 'en'), $html);
             $this->assertStringContainsString('I cannot log in', $html);
             $this->assertStringNotContainsString('Où en êtes-vous', $html);
             preg_match_all('/href="([^"]+)"/', $html, $links);
@@ -235,7 +235,10 @@ class SurveyD1LifecycleTest extends TestCase
         $this->get($url.'&extra=1')->assertForbidden();
         $other = SurveyResponse::create(['entreprise_id' => $survey->entreprise_id, 'survey_type' => SurveyType::D2,
             'survey_version' => 1, 'email' => $survey->email, 'sent_at' => now('UTC')]);
-        $this->get($this->link($other))->assertForbidden();
+        $wrongTypeUrl = URL::temporarySignedRoute('surveys.d1', $other->sent_at->addDays(15), [
+            'locale' => 'fr', 'survey' => $other->id, 'token' => $other->token,
+        ]);
+        $this->get($wrongTypeUrl)->assertForbidden();
         $this->travel(15)->days();
         $this->get($url)->assertStatus(410);
         $this->assertSame(0, SurveyAnswer::count());
@@ -278,7 +281,7 @@ class SurveyD1LifecycleTest extends TestCase
         $this->assertSame(['q1', 'q2', 'q2b', 'q3'], $survey->answers()->orderBy('question_id')->pluck('question_id')->all());
         $this->post($this->link($survey), ['intent' => 'complete', 'answers' => $input])->assertConflict();
         $this->assertSame(1, $survey->actions()->where('action_type', SurveyActionType::Answered)->count());
-        $this->assertSame(0, Contact::count());
+        $this->assertSame(1, Contact::count());
     }
 
     public function test_success_hides_q2_q2b_q3_and_q4_even_when_manually_posted(): void
@@ -289,7 +292,7 @@ class SurveyD1LifecycleTest extends TestCase
         $this->assertSame(['q1'], $survey->answers()->pluck('question_id')->all());
     }
 
-    public function test_abandon_saves_reason_and_blocks_future_solicitations_without_business_actions(): void
+    public function test_abandon_saves_reason_and_blocks_future_solicitations_with_one_acknowledgement(): void
     {
         $survey = $this->sent();
         $this->post($this->link($survey, 'abandon'), ['answers' => ['q1' => 'abandon', 'q4' => 'Je manque de temps',
@@ -300,8 +303,9 @@ class SurveyD1LifecycleTest extends TestCase
         $this->travel(4)->days();
         $this->assertSame('closed', app(D1Lifecycle::class)->process($survey->entreprise_id));
         $this->assertTrue(app(D1Eligibility::class)->optedOut($survey->entreprise_id));
-        Mail::assertSentCount(1);
-        $this->assertSame(0, $survey->actions()->whereIn('action_type', [SurveyActionType::Ticket, SurveyActionType::AutoEmail, SurveyActionType::StopCommercial])->count());
+        Mail::assertSentCount(2);
+        $this->assertSame(1, $survey->actions()->where('action_type', SurveyActionType::AutoEmail)->count());
+        $this->assertSame(0, $survey->actions()->whereIn('action_type', [SurveyActionType::Ticket, SurveyActionType::StopCommercial])->count());
     }
 
     public function test_confirmed_abandon_without_final_submission_already_stops_reminders(): void
@@ -459,7 +463,7 @@ class SurveyD1LifecycleTest extends TestCase
         $this->assertSame(1, $survey->answers()->count());
         $this->assertSame(1, $survey->actions()->where('action_type', SurveyActionType::Answered)->count());
         $this->assertSame(1, $survey->actions()->where('action_type', SurveyActionType::Q1Clicked)->count());
-        $this->assertSame(0, Contact::count());
+        $this->assertSame(1, Contact::count());
     }
 
     public function test_unconfirmed_delivery_has_durable_receipt_and_is_never_blindly_retried(): void

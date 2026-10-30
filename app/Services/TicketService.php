@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\ContactEventType;
+use App\Enums\ContactPriority;
 use App\Enums\ContactSource;
 use App\Enums\ContactStatus;
 use App\Models\Contact;
@@ -30,6 +31,7 @@ class TicketService
         ?User $user = null,
         ?Entreprise $entreprise = null,
         array $metadata = [],
+        ContactPriority $priority = ContactPriority::Normal,
     ): Contact {
         $name = trim($name);
         $email = trim($email);
@@ -57,7 +59,7 @@ class TicketService
             throw ValidationException::withMessages(['entreprise' => 'The explicit User and Entreprise must belong together.']);
         }
 
-        return $connection->transaction(function () use ($connection, $name, $email, $subject, $message, $source, $ip, $user, $entreprise, $metadata) {
+        return $connection->transaction(function () use ($connection, $name, $email, $subject, $message, $source, $ip, $user, $entreprise, $metadata, $priority) {
             // Increment FIRST: the write serializes concurrent allocators, including SQLite.
             // This lock stays held until the Contact and initial event are committed.
             $sequence = $connection->table('contact_ticket_sequences')->where('id', 1);
@@ -70,6 +72,7 @@ class TicketService
             $contact = Contact::on($connection->getName())->create([
                 'name' => $name, 'email' => $email, 'subject' => $subject, 'message' => $message,
                 'source' => $source, 'ip' => $ip, 'status' => ContactStatus::Pending,
+                'priority' => $priority,
                 'ticket_num' => 'DT-'.str_pad((string) $number, 6, '0', STR_PAD_LEFT),
                 'is_active_acc' => $exists,
                 'user_id' => $user?->id, 'entreprise_id' => $entreprise?->id,

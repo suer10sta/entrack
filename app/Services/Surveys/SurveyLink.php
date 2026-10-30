@@ -14,18 +14,18 @@ class SurveyLink
 {
     public function url(SurveyResponse $survey, string $locale, ?string $choice = null): string
     {
-        return URL::temporarySignedRoute('surveys.d1', $survey->sent_at->addDays(15), array_filter([
+        return URL::temporarySignedRoute('surveys.'.strtolower($survey->survey_type->value), $survey->sent_at->addDays(15), array_filter([
             'locale' => $locale, 'survey' => $survey->id, 'token' => $survey->token, 'q1' => $choice,
         ], fn ($value) => $value !== null));
     }
 
-    public function resolve(Request $request, string $id, string $token): SurveyResponse
+    public function resolve(Request $request, string $id, string $token, SurveyType $type = SurveyType::D1): SurveyResponse
     {
         if (! Str::isUuid($id) || ! $request->hasValidSignature()) {
             throw new HttpException(403, 'invalid_link');
         }
         $survey = SurveyResponse::find($id);
-        if (! $survey || $survey->survey_type !== SurveyType::D1 || ! hash_equals($survey->token, $token)
+        if (! $survey || $survey->survey_type !== $type || ! hash_equals($survey->token, $token)
             || ! $survey->sent_at || (int) $request->query('expires') !== $survey->sent_at->addDays(15)->timestamp) {
             throw new HttpException(403, 'invalid_link');
         }

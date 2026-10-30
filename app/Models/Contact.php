@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ContactPriority;
 use App\Enums\ContactSource;
 use App\Enums\ContactStatus;
 use Illuminate\Database\Eloquent\Model;
@@ -10,9 +11,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Contact extends Model
 {
-    protected $fillable = ['ip', 'name', 'email', 'subject', 'message', 'is_active_acc', 'status', 'source', 'ticket_num', 'user_id', 'entreprise_id'];
+    protected $fillable = ['ip', 'name', 'email', 'subject', 'message', 'is_active_acc', 'status', 'source', 'priority', 'ticket_num', 'user_id', 'entreprise_id'];
 
-    protected $casts = ['is_active_acc' => 'boolean', 'status' => ContactStatus::class, 'source' => ContactSource::class];
+    protected $casts = ['is_active_acc' => 'boolean', 'status' => ContactStatus::class, 'source' => ContactSource::class, 'priority' => ContactPriority::class];
 
     public function user(): BelongsTo
     {

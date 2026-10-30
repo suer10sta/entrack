@@ -312,7 +312,7 @@ class SurveyFoundationTest extends TestCase
             $this->assertTrue($questions['q1']['email_clickable']);
             foreach ($questions as $question) {
                 foreach (['fr', 'en', 'nl', 'es'] as $locale) {
-                    if ($type !== SurveyType::D1 || $locale === 'fr') {
+                    if (! in_array($type, [SurveyType::D1, SurveyType::D2], true) || $locale === 'fr') {
                         $this->assertSame($catalog->label($question['label_key'], 'fr'), $catalog->label($question['label_key'], $locale));
                     } else {
                         $this->assertTrue(\Illuminate\Support\Facades\Lang::hasForLocale($question['label_key'], $locale));
@@ -344,7 +344,7 @@ class SurveyFoundationTest extends TestCase
     {
         $this->assertFalse(Schema::hasTable($this->schema.'.support_tickets'));
         $this->assertFalse(Schema::hasColumn($this->schema.'.survey_responses', 'support_ticket_id'));
-        $this->assertFalse(Schema::hasColumn($this->schema.'.contacts', 'priority'));
+        $this->assertTrue(Schema::hasColumn($this->schema.'.contacts', 'priority'));
         $this->action($this->survey());
         $this->migration()->down();
         foreach (['survey_responses', 'survey_answers', 'survey_actions'] as $table) {

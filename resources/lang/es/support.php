@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'priority' => 'Prioridad',
+    'all_priorities' => 'Todas las prioridades',
+    'priorities' => ['normal' => 'Normal', 'high' => 'Prioritario'],
     'title' => 'Soporte',
     'description' => 'Solicitudes recibidas por el equipo DalyTrac.',
     'all' => 'Todos',

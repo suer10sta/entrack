@@ -16,4 +16,7 @@ enum SurveyActionType: string
     case Cancelled = 'CANCELLED';
     case EmailAttempted = 'EMAIL_ATTEMPTED';
     case EmailUnconfirmed = 'EMAIL_UNCONFIRMED';
+    case ActionsProcessed = 'ACTIONS_PROCESSED';
+    case ProjectFollowUp = 'PROJECT_FOLLOW_UP';
+    case ValueConfirmed = 'VALUE_CONFIRMED';
 }

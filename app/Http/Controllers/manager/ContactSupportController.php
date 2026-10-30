@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\manager;
 
 use App\Enums\ContactEmailStatus;
+use App\Enums\ContactPriority;
 use App\Enums\ContactSource;
 use App\Enums\ContactStatus;
 use App\Http\Controllers\Controller;
@@ -24,12 +25,13 @@ class ContactSupportController extends Controller
             'q' => ['nullable', 'string', 'max:255'],
             'status' => ['nullable', Rule::in(array_column(ContactStatus::cases(), 'value'))],
             'source' => ['nullable', Rule::in(array_column(ContactSource::cases(), 'value'))],
+            'priority' => ['nullable', Rule::in(array_column(ContactPriority::cases(), 'value'))],
             'sort' => ['nullable', Rule::in(['newest', 'oldest'])],
             'per_page' => ['nullable', 'integer', Rule::in([15, 25, 50, 100])],
         ]);
         $counts = DB::table('contacts')->selectRaw('status, COUNT(*) AS total')->groupBy('status')->pluck('total', 'status');
         $counts = ['all' => (int) $counts->sum()] + $counts->map(fn ($count) => (int) $count)->all();
-        $query = Contact::query()->select(['id', 'ticket_num', 'name', 'email', 'subject', 'source', 'status', 'created_at'])
+        $query = Contact::query()->select(['id', 'ticket_num', 'name', 'email', 'subject', 'source', 'status', 'priority', 'created_at'])
             ->selectRaw('SUBSTR(message, 1, 601) AS message_preview');
         if (filled($filters['q'] ?? null)) {
             $pattern = '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower(trim($filters['q']))).'%';
@@ -39,7 +41,7 @@ class ContactSupportController extends Controller
                 }
             });
         }
-        foreach (['status', 'source'] as $field) {
+        foreach (['status', 'source', 'priority'] as $field) {
             if (filled($filters[$field] ?? null)) {
                 $query->where($field, $filters[$field]);
             }

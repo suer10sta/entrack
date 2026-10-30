@@ -5,11 +5,13 @@
     @include('manager.support.feedback')
     <a class="cs-link" href="{{ route('manager.support.index') }}">← {{ __('support.back') }}</a>
     <h1 class="mt-4">{{ $contact->ticket_num }}</h1>
+    @if($contact->priority === \App\Enums\ContactPriority::High)<span class="cs-badge cs-priority-high">{{ __('support.priorities.high') }}</span>@endif
     <div class="cs-meta"><span class="cs-badge cs-{{ $contact->status->value }}">{{ __('support.statuses.'.$contact->status->value) }}</span><span class="cs-badge">{{ __('support.sources.'.$contact->source->value) }}</span><time class="cs-muted">{{ $contact->created_at->utc()->format('d/m/Y H:i') }} UTC</time></div>
     <div class="cs-grid">
         <aside><section class="dt-card cs-section"><h2>{{ __('support.requester') }}</h2><dl class="cs-info">
             <dt>{{ __('support.requester') }}</dt><dd>{{ $contact->name }}<span class="cs-secondary">{{ $contact->email }}</span></dd>
             <dt>{{ __('support.account') }}</dt><dd>{{ $contact->is_active_acc ? __('support.yes') : __('support.no') }}</dd>
+            <dt>{{ __('support.priority') }}</dt><dd>{{ __('support.priorities.'.$contact->priority->value) }}</dd>
             <dt>{{ __('support.user') }}</dt><dd>{{ $contact->user?->name ?? __('support.none') }}@if($contact->user)<span class="cs-secondary">{{ $contact->user->email }}</span>@endif</dd>
             <dt>{{ __('support.entreprise') }}</dt><dd>{{ $contact->entreprise?->name ?? __('support.none') }}</dd>
             @if($contact->ip)<dt>{{ __('support.ip') }}</dt><dd>{{ $contact->ip }}</dd>@endif

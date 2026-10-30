@@ -72,3 +72,12 @@ yarn-error.log
 !/tests/Feature/CrmCampaignUnsubscribeTest.php
 !/tests/Support/crm-unsubscribe-worker.php
 !/docs/crm-campaign-unsubscribe.md
+!/tests/Feature/SurveyD1ActionsTest.php
+!/tests/Support/survey-d1-actions-worker.php
+!/docs/survey-d1-actions.md
+!/tests/Feature/ContactPriorityTest.php
+!/docs/contact-priority.md
+!/tests/Feature/SurveyD2Test.php
+!/tests/Support/survey-d2-worker.php
+!/docs/survey-d2.md
+!/tests/JavaScript/SurveyD2.cjs
